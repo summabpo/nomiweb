@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}My Website{% endblock %}</title>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <!-- DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
+
+  
+  
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  {% block css %}{% endblock %}
+  <style>
+    /* Agregamos un estilo para mantener los menús desplegables abiertos al pasar el ratón sobre ellos */
+    .dropdown:hover .dropdown-menu {
+      display: block;
+    }
+    .navbar{
+        background-color: #d5ead7; 
+    }
+
+    /* Cambio de colores del Navbar */
+    .navbar-light {
+      background-color: #c2e8b7; /* Color de fondo del Navbar */
+    }
+    .navbar-light .navbar-toggler-icon {
+      background-color: #fff; /* Color del icono del botón desplegable */
+    }
+    .navbar-light .navbar-nav .nav-link {
+      color: #fff; /* Color de texto para los enlaces de navegación */
+    }
+    .navbar-light .navbar-nav .show > .nav-link,
+    .navbar-light .navbar-nav .active > .nav-link,
+    .navbar-light .navbar-nav .nav-link.show,
+    .navbar-light .navbar-nav .nav-link.active {
+      background-color: #fff; /* Color de fondo para los enlaces activos */
+      color: #c2e8b7; /* Color de texto para los enlaces activos */
+    }
+    .navbar-light .navbar-nav .nav-link:hover {
+      background-color: #fff; /* Color de fondo para los enlaces al pasar el ratón */
+      color: #c2e8b7; /* Color de texto para los enlaces al pasar el ratón */
+    }
+    /* Cambio de color del container */
+    .container-fluid {
+      background-color: #d5ead7; /* Color de fondo del container */
+    }
+
+    .navbar-light .navbar-nav .dropdown-menu {
+      background-color: #fff; /* Color de fondo para los dropdown-menu */
+    }
+    .navbar-light .navbar-nav .dropdown-menu .dropdown-item {
+      color: #000; /* Color de texto para los dropdown-items */
+    }
+    .navbar-light .navbar-nav .dropdown-menu .dropdown-item:hover {
+      background-color: #c2e8b7; /* Color de fondo para los dropdown-items al pasar el ratón */
+    }
+
+    .container2{
+      background-color: #c2e8b7; 
+        
+
+    }
+  </style>
+</head>
+<body>
+
+    {% include './navbar.html' %}
+
+    <div class="container-fluid d-flex flex-column vh-100" style="background-color: #c2e8b7; ">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <!-- DataTables & Plugins -->
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.print.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    {% block js %}{% endblock %}
+</body>
+</html>

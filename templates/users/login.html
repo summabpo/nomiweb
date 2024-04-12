@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <!-- Enlace al archivo CSS de Bootstrap -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Enlace a la biblioteca de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Estilos personalizados -->
+    <style>
+        body {
+            background-color: #d5ead7; /* Cambiado a un tono de verde más claro */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            max-width: 100%;
+            background-color: #c2e8b7; /* Cambiado a un tono de verde pastel */
+        }
+        .card-header {
+            background-color: #c2e8b7; /* Cambiado a un tono de verde pastel */
+            color: #333; /* Cambiado a un color más oscuro para contrastar */
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .card-body {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="email"],
+        input[type="password"] {
+            border-radius: 5px;
+        }
+        .toggle-password {
+            position: relative;
+        }
+        .toggle-password .show-password-icon,
+        .toggle-password .hide-password-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+        .toggle-password .hide-password-icon {
+            display: none;
+        }
+        .btn-primary {
+            background-color: #a9d08e; /* Cambiado a un tono de verde claro */
+            border-color: #a9d08e; /* Cambiado para que coincida con el color de fondo */
+            color: #333; /* Cambiado a un color más oscuro para contrastar */
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="card-header">Iniciar Sesión</div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="exampleInputEmail1">User Name</label>
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Contraseña</label>
+                <div class="toggle-password">
+                    {{ form.password }}
+                    <span class="show-password-icon fas fa-eye" onclick="togglePasswordVisibility(this)"></span>
+                    <span class="hide-password-icon fas fa-eye-slash" onclick="togglePasswordVisibility(this)"></span>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Ingresar</button>
+        </form>        
+    </div>
+</div>
+
+<!-- Enlace al archivo JavaScript de Bootstrap (opcional, solo si lo necesitas) -->
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script>
+    function togglePasswordVisibility(element) {
+        var passwordInput = element.parentElement.querySelector('input');
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            element.classList.remove('fa-eye');
+            element.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = "password";
+            element.classList.remove('fa-eye-slash');
+            element.classList.add('fa-eye');
+        }
+    }
+</script>
+</body>
+</html>
