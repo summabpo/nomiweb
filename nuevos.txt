@@ -8,3 +8,9 @@ jquery.dataTables.min.js
 buttons.print.min.js
 dataTables.buttons.min.js
 buttons.html5.min.js
+
+nuevos - nuevos 
+jquery-3.3.1.slim.min.js
+jszip.min.js
+
+dataTables.responsive.min.js
