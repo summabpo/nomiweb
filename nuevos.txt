@@ -1,0 +1,10 @@
+css : 
+jquery.dataTables.min.css
+dataTables.dataTables.css
+buttons.dataTables.min.css
+
+js :
+jquery.dataTables.min.js 
+buttons.print.min.js
+dataTables.buttons.min.js
+buttons.html5.min.js

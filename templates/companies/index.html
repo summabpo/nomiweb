@@ -49,9 +49,9 @@
                         <td>{{ datos.sapellido }}</td>
                         <td>{{ datos.pnombre }}</td>
                         {% for contrato in datos.contratos %}
-                            <td>{{ contrato.1 }}</td>
+                            <td>{{ contrato.1 |date:'d-m-Y'}}</td>
                             <td>{{ contrato.0 }}</td>
-                            <td>{{ contrato.2 }}</td>
+                            <td>{{ contrato.2|floatformat:2 }}</td>
                             <td>{{ datos.costs.nomcosto}}</td>  
                             <td>{{ datos.tipo_contrato }}</td>
                             <td>{{ datos.centrotrabajo }}</td>
