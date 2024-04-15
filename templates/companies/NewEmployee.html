@@ -1,104 +1,86 @@
-{% extends 'base/base.html' %}
+{% extends 'base/base.html' %} {% block title %} Nomiweb.co - Portal Empresas -
+Nuevo Empleado {% endblock %} {% block css %} {% endblock %} {% block content %}
 
-{% block title %}
-Nomiweb.co - Portal Empresas - Nuevo Empleado
-{% endblock %}
-
-
-{% block css %}
-
-{% endblock %}
-
-
-{% block content %}
-    
-
+<!-- This code snippet represents a form for entering information about a new employee. It includes
+various sections for different types of data: -->
     <header class="container">
-        <h1> Listado de Contratos Activos</h1>
+    <h1>Listado de Contratos Activos</h1>
     </header>
-    
-    
 
-    <main  class="flex-grow-1">
+    <main class="flex-grow-1">
         <form>
             <div class="container">
-              <!-- Datos de Identificación -->
-              <h3>Datos de Identificación</h3>
-              <div class="mb-3 row">
-                <div class="col">
-                  <label for="inputIdentificationType" class="col-form-label">Tipo de documento de identidad *</label>
-                  <input type="text" class="form-control" id="inputIdentificationType" placeholder="Tipo de documento de identidad">
+            <!-- Datos de Identificación -->
+            <h3>Datos de Identificación</h3>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="inputIdentificationType" class="col-form-label">Tipo de documento de identidad *</label>
+                        <input type="text" class="form-control" id="inputIdentificationType" placeholder="Tipo de documento de identidad"/>
+                    </div>
+                    <div class="col">
+                        <label for="inputIdentificationNumber" class="col-form-label" >Documento de Identidad *</label>
+                        <input type="text" class="form-control" id="inputIdentificationNumber"  placeholder="Documento de Identidad" />
+                    </div>
                 </div>
-                <div class="col">
-                  <label for="inputIdentificationNumber" class="col-form-label">Documento de Identidad *</label>
-                  <input type="text" class="form-control" id="inputIdentificationNumber" placeholder="Documento de Identidad">
+
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="inputExpeditionDate" class="col-form-label" >Fecha de expedición *</label>
+                        <input type="date" class="form-control" id="inputExpeditionDate" />
+                    </div>
+                    <div class="col">
+                        <label for="inputExpeditionCity" class="col-form-label" >Ciudad de expedición *</label>
+                        <input type="text" class="form-control" id="inputExpeditionCity" placeholder="Ciudad de expedición"  />
+                    </div>
                 </div>
-              </div>
-              <div class="mb-3 row">
-                <div class="col">
-                  <label for="inputExpeditionDate" class="col-form-label">Fecha de expedición *</label>
-                  <input type="date" class="form-control" id="inputExpeditionDate">
+                
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="inputFirstName" class="col-form-label" >Primer Nombre *</label>
+                        <input type="text" class="form-control" id="inputFirstName" placeholder="Primer Nombre" />
+                    </div>
+                    <div class="col">
+                        <label for="inputSecondName" class="col-form-label" >Segundo Nombre</label>
+                        <input type="text" class="form-control" id="inputSecondName" placeholder="Segundo Nombre" />
+                    </div>
                 </div>
-                <div class="col">
-                  <label for="inputExpeditionCity" class="col-form-label">Ciudad de expedición *</label>
-                  <input type="text" class="form-control" id="inputExpeditionCity" placeholder="Ciudad de expedición">
+
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="inputFirstLastName" class="col-form-label" >Primer Apellido *</label>
+                        <input type="text" class="form-control" id="inputFirstLastName" placeholder="Primer Apellido" />
+                    </div>
+                    <div class="col">
+                        <label for="inputSecondLastName" class="col-form-label" >Segundo Apellido</label >
+                        <input type="text" class="form-control"  id="inputSecondLastName" placeholder="Segundo Apellido" />
+                    </div>
                 </div>
-              </div>
-              <div class="mb-3 row">
-                <div class="col">
-                  <label for="inputFirstName" class="col-form-label">Primer Nombre *</label>
-                  <input type="text" class="form-control" id="inputFirstName" placeholder="Primer Nombre">
-                </div>
-                <div class="col">
-                  <label for="inputSecondName" class="col-form-label">Segundo Nombre</label>
-                  <input type="text" class="form-control" id="inputSecondName" placeholder="Segundo Nombre">
-                </div>
-              </div>
-              <!-- Otros campos de identificación ... -->
-          
-              <!-- Datos Personales -->
-              <h3>Datos Personales</h3>
-              <div class="mb-3 row">
-                <div class="col">
-                  <label for="inputSex" class="col-form-label">Sexo *</label>
-                  <input type="text" class="form-control" id="inputSex" placeholder="Sexo">
-                </div>
-                <div class="col">
-                  <label for="inputHeight" class="col-form-label">Estatura (Mts)</label>
-                  <input type="text" class="form-control" id="inputHeight" placeholder="Estatura (Mts)">
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <div class="col">
-                  <label for="inputMaritalStatus" class="col-form-label">Estado Civil *</label>
-                  <input type="text" class="form-control" id="inputMaritalStatus" placeholder="Estado Civil">
-                </div>
-                <div class="col">
-                  <label for="inputWeight" class="col-form-label">Peso (Kg)</label>
-                  <input type="text" class="form-control" id="inputWeight" placeholder="Peso (Kg)">
-                </div>
-              </div>
-              <!-- Otros campos de datos personales ... -->
-          
-              <!-- Datos de Residencia ... -->
-          
-              <div class="mb-3 row">
-                <div class="col">
-                  <button type="submit" class="btn btn-primary">Enviar</button>
-                </div>
-              </div>
             </div>
-          </form>
-          
-    
-    
+            <!-- fin ... -->
+            <!-- Otros campos de identificación ... -->
+
+            <!-- Datos Personales -->
+            <div class="container">
+                <h3>Datos Personales</h3>
+            </div>
+
+            <!-- Otros campos de datos personales ... -->
+
+            <!-- Datos de Residencia ... -->
+            <div class="container">
+                <h3>Datos de Residencia</h3>
+            </div>
+
+            <div class="container">
+                <div class="mb-3 row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </main>
-    
 
 {% endblock %}
 
-{% block js %}
-
-{% endblock %}
-
-
+{% block js %} {% endblock %}
