@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Contratos , Contratosemp ,Costos , Tipocontrato , Centrotrabajo
+from apps.companies.models import Contratos , Contratosemp ,Costos , Tipocontrato , Centrotrabajo
 import locale
 
 
@@ -64,6 +64,7 @@ def startCompanies(request):
             break
     
     return render(request, './companies/index.html', {'combined_data': combined_data})
+
 
 
 

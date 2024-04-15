@@ -14,8 +14,9 @@
   
   <!-- bootstrap -->
   <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-  {% block css %}{% endblock %}
+  
   <style>
+    {% block css %}{% endblock %}
     /* Agregamos un estilo para mantener los menús desplegables abiertos al pasar el ratón sobre ellos */
     .dropdown:hover .dropdown-menu {
       display: block;

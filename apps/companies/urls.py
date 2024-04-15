@@ -1,10 +1,26 @@
 from django.urls import path
+from .views.ContractsList import ContractsList
+from .views.Resume import editresume
 
-from . import views
 
 urlpatterns = [
-    path('companies/init', views.startCompanies, name='startcompanies'),
+    ##todo novedades de nomina 
+    path('companies/init', ContractsList.startCompanies , name='startcompanies'),
+    path('companies/new/employee', editresume.newEmployee , name='newemployee'),
     
-    # ## server 
+    
+    
+    ##! empleados 
+    
+    ##! parametros 
+    
+    ##! contabilidad 
+    
+    
+    #* ## server -- errores 
+    
+    ##// admin login 
     # path('logout/', views.Logout, name='logout'),
 ]
+
+# EditResume
