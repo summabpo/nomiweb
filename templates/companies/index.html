@@ -1,7 +1,7 @@
 {% extends 'base/base.html' %}
 
 {% block title %}
-    Inicio - Empresa 
+    Nomiweb.co - Portal Empresas 
 {% endblock %}
 
 
@@ -105,7 +105,10 @@
                         filename: 'informe_de_activos', 
                         text: 'Exportar a Excel',
                     }
-                ]
+                ],
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json" 
+                }
             });
         });
     </script>
