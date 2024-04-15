@@ -44,11 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Generated applications
-    'apps.login.appslogin', 
+    'apps.login.apps', 
     'apps.employees.appsemployees',     # Employees application
     'apps.companies',     # Companies application
     # 'apps.payroll',       # Payroll application
-    # 'apps.api_database',  # API database application
+    # 'apps.api_database',  # API database applicatio#n
 
     # Django REST Framework
     'rest_framework',
@@ -111,6 +111,8 @@ DATABASES = {
 }
 
 
+
+
 DATABASE_ROUTERS = [
     'nomiweb.db_routers.routers.RouterLectaen',
     'nomiweb.db_routers.routers.RouterDefault',
@@ -162,3 +164,5 @@ STATICFILES_DIRS = (
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#AUTH_USER_MODEL = 'login.CustomUser'

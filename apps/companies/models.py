@@ -42,7 +42,7 @@ class Contratos(models.Model):
     auxiliotransporte = models.SmallIntegerField(blank=True, null=True)
     dependientes = models.SmallIntegerField(blank=True, null=True)
     valordeduciblemedicina = models.IntegerField(blank=True, null=True)
-    jornada = models.CharField(blank=True, null=True)
+    jornada = models.CharField(max_length=256,blank=True, null=True)
     idmodelo = models.ForeignKey('ModelosContratos', models.DO_NOTHING, db_column='idmodelo', blank=True, null=True)
     coddepartamento = models.CharField(max_length=2, blank=True, null=True)
     codciudad = models.CharField(max_length=3, blank=True, null=True)
@@ -90,7 +90,7 @@ class Contratosemp(models.Model):
     estrato = models.CharField(max_length=5, blank=True, null=True)
     numlibretamil = models.CharField(max_length=10, blank=True, null=True)
     estadocontrato = models.SmallIntegerField(blank=True, null=True)
-    formatohv = models.CharField(blank=True, null=True)
+    formatohv = models.CharField(max_length=256,blank=True, null=True)
 
     class Meta:
         managed = False
