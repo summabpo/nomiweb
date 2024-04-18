@@ -41,12 +41,12 @@
                 Empleados
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink3">
-                <li><a class="dropdown-item" href="#">Nuevo Empleado</a></li>
+                <li><a class="dropdown-item" href="{% url 'companies:newemployee'  %}">Nuevo Empleado</a></li>
                 <li><a class="dropdown-item" href="#">Nuevo Contrato</a></li>
                 <li><a class="dropdown-item" href="#">Editar Contrato</a></li>
-                <li><a class="dropdown-item" href="#">Editar Hoja de Vida</a></li>
+                <li><a class="dropdown-item" href="{% url 'companies:editemployeesearch'  %}">Editar Hoja de Vida</a></li>
                 <li><a class="dropdown-item" href="#">Listado maestro de empleados</a></li>
-                <li><a class="dropdown-item" href="#">Listado de Contratos Activos</a></li>
+                <li><a class="dropdown-item" href="{% url 'companies:startcompanies'  %}">Listado de Contratos Activos</a></li>
                 <li><a class="dropdown-item" href="#">Listado Seguridad Social</a></li>
                 <li><a class="dropdown-item" href="#">Listado General</a></li>
                 <li><a class="dropdown-item" href="#">Certificaciones Laborales</a></li>

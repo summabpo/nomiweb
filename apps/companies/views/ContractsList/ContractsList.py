@@ -8,17 +8,15 @@ def startCompanies(request):
     combined_data = {}
     
     contracts = Contratos.objects.using("lectaen").filter(estadocontrato=1).values_list('cargo', 'fechainiciocontrato', 'salario', 'idcosto', 'tipocontrato', 'centrotrabajo', 'idempleado')
-    
     employee_ids = set(contract[-1] for contract in contracts)
     employees = Contratosemp.objects.using("lectaen").filter(idempleado__in=employee_ids).values_list('idempleado', 'docidentidad', 'pnombre', 'papellido', 'sapellido')
-    
     costs = Costos.objects.using("lectaen").all().values_list('idcosto', 'nomcosto')
     tipo_contrato = Tipocontrato.objects.using("lectaen").all().values_list('idtipocontrato', 'tipocontrato')
     centrotrabajo = Centrotrabajo.objects.using("lectaen").all().values_list('tarifaarl', 'centrotrabajo')
     
     for employee_id in employee_ids:
         combined_data[employee_id] = {'docidentidad': None, 'pnombre': None, 'papellido': None, 'sapellido': None, 'contratos': [], 'costs': {'idcosto': None, 'nomcosto': None}, 'tipo_contrato': None}
-
+    
     for contract in contracts:
         employee_id = contract[-1]
         combined_data[employee_id]['contratos'].append(contract[:-1])
@@ -34,7 +32,7 @@ def startCompanies(request):
     for employee_id, employee_data in combined_data.items():
         contratos_formateados = []
         for contract in employee_data['contratos']:
-            salario_formateado = "{:,.0f}".format(contract[2])
+            salario_formateado = "{:,.0f}".format(contract[2]).replace(',', '.')
             contrato_formateado = (*contract[:2], salario_formateado, *contract[3:])
             contratos_formateados.append(contrato_formateado)
         combined_data[employee_id]['contratos'] = contratos_formateados

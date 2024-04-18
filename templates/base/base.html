@@ -14,9 +14,12 @@
   
   <!-- bootstrap -->
   <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  {% block cssarch %}
+  {% endblock %}
   
   <style>
-    {% block css %}{% endblock %}
+    {% block css %}
+    {% endblock %}
     /* Agregamos un estilo para mantener los menús desplegables abiertos al pasar el ratón sobre ellos */
     .dropdown:hover .dropdown-menu {
       display: block;
@@ -72,7 +75,7 @@
 
     {% include './navbar.html' %}
 
-    <div class="container-fluid d-flex flex-column vh-100" style="background-color: #c2e8b7; ">
+    <div class="container-fluid d-flex flex-column" style="background-color: #c2e8b7; ">
         {% block content %}
         {% endblock %}
     </div>

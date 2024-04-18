@@ -73,7 +73,7 @@ class Contratosemp(models.Model):
     email = models.CharField(max_length=255, blank=True, null=True)
     ciudadresidencia = models.CharField(max_length=20, blank=True, null=True)
     estadocivil = models.CharField(max_length=20, blank=True, null=True)
-    idempleado = models.IntegerField(primary_key=True)
+    idempleado = models.AutoField(primary_key=True)
     paisnacimiento = models.CharField(max_length=40, blank=True, null=True)
     paisresidencia = models.CharField(max_length=40, blank=True, null=True)
     celular = models.CharField(max_length=12, blank=True, null=True)
@@ -159,3 +159,54 @@ class Centrotrabajo(models.Model):
     class Meta:
         managed = False
         db_table = 'centrotrabajo'
+        
+        
+class Tipodocumento(models.Model):
+    id_tipo_doc = models.CharField(max_length=10, primary_key=True)
+    documento = models.CharField(max_length=50, blank=True, null=True)
+    codigo = models.CharField(max_length=4, blank=True, null=True)
+    cod_dian = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tipodocumento'
+        
+
+class Profesiones(models.Model):
+    idprofesion = models.SmallIntegerField(primary_key=True)
+    profesion = models.CharField(max_length=180, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'profesiones'
+
+
+
+class Paises(models.Model):
+    idpais = models.CharField(max_length=10, primary_key=True)
+    pais = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'paises'
+    
+
+class Ciudades(models.Model):
+    idciudad = models.CharField(max_length=10, primary_key=True)
+    ciudad = models.CharField(max_length=50, db_collation='es_ES', blank=True, null=True)
+    departamento = models.CharField(max_length=50, db_collation='es_ES', blank=True, null=True)
+    codciudad = models.CharField(max_length=10, blank=True, null=True)
+    coddepartamento = models.CharField(max_length=10, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'ciudades'
+        
+        
+        
+        
+        
+        
+        
+        
+        
