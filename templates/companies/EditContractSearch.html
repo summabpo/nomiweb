@@ -1,0 +1,49 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+Nomiweb.co - Portal Empresas - Edit Contrato
+{% endblock %} 
+
+{% block cssarch %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+{% endblock %}
+
+{% block content %}
+<header class="container">
+    <h1>Editar Contrato</h1>
+</header>
+
+<main class="flex-grow-1">
+    <div class="d-flex justify-content-center">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Editar Contrato De Empleado </h5>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="FormControlContract" class="form-label">Seleccione al empleado correspondiente.</label>
+                        <select class="form-select" id="FormControlContract" name="selected_option">
+                            {% for empleado in empleados %}
+                            <option value="{{ empleado.idempleado }}">{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block js %}
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#FormControlContract').select2();
+    });
+</script>
+{% endblock %}

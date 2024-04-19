@@ -74,9 +74,7 @@ def newEmployee(request):
             dotcamisa = shirtSize,
             dotzapatos = shoesSize ,
         )
-        nuevo_empleado.save()
-        print('save')
-        
+        nuevo_empleado.save()        
     return render(request, './companies/NewEmployee.html',
                     {'TipoDocumento':TipoDocumento
                     ,'Ciudades':ciudades
