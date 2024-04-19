@@ -14,7 +14,7 @@ class Contratos(models.Model):
     cajacompensacion = models.CharField(max_length=40, blank=True, null=True)
     centrotrabajo = models.ForeignKey('Centrotrabajo', models.DO_NOTHING, db_column='centrotrabajo', blank=True, null=True) ## cambiar a entero 
     tarifaarl = models.CharField(max_length=10, blank=True, null=True)
-    ciudadcontratacion = models.CharField(max_length=40, blank=True, null=True)
+    ciudadcontratacion = models.ForeignKey('Ciudades', models.DO_NOTHING, db_column='ciudadcontratacion')
     fondocesantias = models.CharField(max_length=80, blank=True, null=True)
     estadocontrato = models.SmallIntegerField(blank=True, null=True)
     salario = models.IntegerField(blank=True, null=True)
