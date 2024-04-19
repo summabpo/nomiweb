@@ -60,6 +60,17 @@ def startCompanies(request):
             else:
                 continue
             break
+        
+    for employee_id, employee_data in combined_data.items():
+        for contract in employee_data['contratos']:
+            cost_id_contract = contract[3]  
+            for cost in costs:
+                if cost[0] == cost_id_contract: 
+                    combined_data[employee_id]['costs'] = {'idcosto': cost[0], 'nomcosto': cost[1]}
+                    break
+            else:
+                continue
+            break  
     
     return render(request, './companies/index.html', {'combined_data': combined_data})
 
