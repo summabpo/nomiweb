@@ -71,6 +71,7 @@ def EditEmployeeSearch(request):
 
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
+    
     contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
     # Definición de DicContract con las variables que se usarán en el HTML
     DicContract = {
