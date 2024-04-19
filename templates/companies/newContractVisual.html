@@ -22,10 +22,10 @@ Nuevo Empleado {% endblock %} {% block css %} {% endblock %} {% block content %}
             <tbody>
                 {% for empleado in empleados %}
                     <tr>
-                        <td>{{ empleado.documento }}</td>
-                        <td>{{ empleado.nombre }}</td>
+                        <td>{{ empleado.docidentidad }}</td>
+                        <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }} </td>
                         <td>
-                            <a href="{% url 'companies:editemployeevisual' idempleado=empleado.id %}">
+                            <a href="{% url 'companies:newcontractcreater' idempleado=empleado.idempleado %}">
                                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAAXNSR0IArs4c6QAAAatJREFUWEft1sFKwzAYB/AmRYoHwasvIMhEFHEIPoX3wVra3T1pNy9erNMn2KGl69gr+A4yKchwePEuePW6pNJBpZS2+RLTsqK7jWT7fvnna1KkrNkHrZlH+Vugga4fxjvgjMcv0J2oLKGrbreFMW7HEITxs+N5rxBUJaA0JkFAUdJBF7q+vYnQeV4aSFVDx3XnZUlJB8XFLi1rTyXkNK+wpmmPN6PRZxFKGmjQ6ew40+lHUigPFVE6HwZBWHlC16bZppS2iKo+PbjuW1Kw3+vtKsvlWfwdY7y49bwZq7F/nZCt6ycIof2kEKV0dh8Ei3RSG1G0BcGsnkiWuGw8SSY7J5sUTw1hUBEmKS6KEgKxMDEqu3XQlLhBVWK4e8i2rGNEyEHZakWT+TnRoVHWgQEnVBcGBKoTwwRBMIiQ0JlMSi9MaFuUgmzTPEKUrl6wCi9CyZhSUN8wjLoxwiDZ25ReeOHBWJRQlRjuhKrGMJs600NfQ89753liROZy32UiRXh+8w9ipdWchFgHI2ulrPE73/fz5nCfQ6xC0PHmg6ArlT2vOU0te+XQ//sGoIXVJY8Oc7wAAAAASUVORK5CYII="/>
                             </a>
                         </td>
