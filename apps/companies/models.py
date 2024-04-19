@@ -30,7 +30,7 @@ class Contratos(models.Model):
     estadoliquidacion = models.SmallIntegerField(blank=True, null=True)
     estadosegsocial = models.SmallIntegerField(blank=True, null=True)
     motivoretiro = models.CharField(max_length=25, blank=True, null=True)
-    tiposalario = models.SmallIntegerField(blank=True, null=True)
+    tiposalario = models.ForeignKey('Tiposalario', models.DO_NOTHING, db_column='tiposalario')
     idcontrato = models.AutoField(primary_key=True)
     idcosto = models.ForeignKey('Costos', models.DO_NOTHING, db_column='idcosto')
     idsubcosto = models.ForeignKey('Subcostos', models.DO_NOTHING, db_column='idsubcosto')
@@ -204,9 +204,12 @@ class Ciudades(models.Model):
         
         
         
-        
-        
-        
-        
+class Tiposalario(models.Model):
+    idtiposalario = models.SmallIntegerField(primary_key=True)
+    tiposalario = models.CharField(max_length=40, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tiposalario'
         
         

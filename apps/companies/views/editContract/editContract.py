@@ -12,8 +12,35 @@ def EditContracsearch(request):
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
     contrato =Contratos.objects.using("lectaen").get(idempleado=idempleado,estadocontrato=1) 
-    # CentroTrabajo = Centrotrabajo.objects.using("lectaen").get(idempleado=idempleado) 
-    # centrotrabajo
+    
+    """
+    valores a ingresar al post 
+    
+    -Forma de pago
+    
+    
+    
+    """
+    # POST 
+    
+    
+    # FIN POST 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     DicContract = {
         #Contrato
@@ -22,7 +49,7 @@ def EditContracVisual(request,idempleado):
         'Empleado':  empleado.papellido +' ' + empleado.sapellido +' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad) ,  #* esto es el nombre del empleado con su cedula  
         'TipoNomina':contrato.tiponomina , 
         'Cargo':contrato.cargo , 
-        'LugarTrabajo': 'falta', #! validar de donde viene la informacion 
+        'LugarTrabajo': contrato.ciudadcontratacion, #* ok  
         'FechaInicial': contrato.fechafincontrato,
         'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo", 
         'TipoContrato':contrato.tipocontrato.tipocontrato, 
@@ -30,9 +57,9 @@ def EditContracVisual(request,idempleado):
         'ModeloContrato':contrato.idmodelo.tipocontrato, 
         ## compensacion 
         'Salario':"{:,.0f}".format(contrato.salario).replace(',', '.') , 
-        'TipoSalario':contrato.tiposalario,
-        'ModalidadSalario':contrato.tiposalario, #! modalidad falta , buscar db o preguntar 
-        'Formapago':contrato.formapago, #! FALTA 
+        'TipoSalario':contrato.tiposalario.tiposalario,
+        'ModalidadSalario':contrato.tiposalario, #* ok 
+        'Formapago':  "Abono a Cuenta" if contrato.formapago == '1' else ("Cheque" if contrato.formapago == '2' else "Efectivo"), #* ok  
         'BancoCuenta':contrato.bancocuenta,
         'TipoCuenta':contrato.tipocuentanomina,
         'CuentaNomina':contrato.cuentanomina,
