@@ -4,7 +4,7 @@ class Contratos(models.Model):
     cargo = models.CharField(max_length=50, blank=True, null=True)
     fechainiciocontrato = models.DateField(blank=True, null=True)
     fechafincontrato = models.DateField(blank=True, null=True)
-    tipocontrato = models.CharField(max_length=40, blank=True, null=True) ## cambiar a entero 
+    tipocontrato = models.ForeignKey('Tipocontrato', models.DO_NOTHING, db_column='tipocontrato', blank=True, null=True) ## cambiar a entero 
     tiponomina = models.CharField(max_length=12, blank=True, null=True)
     bancocuenta = models.CharField(max_length=30, blank=True, null=True)
     cuentanomina = models.CharField(max_length=30, blank=True, null=True)
