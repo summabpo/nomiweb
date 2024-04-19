@@ -41,7 +41,7 @@ def newEmployee(request):
         shirtSize = request.POST.get('shirt_size')
         shoesSize = request.POST.get('shoes_size')
 
-        
+        #! falta dato para que se vea que le falta contrato 
         # Crear una nueva instancia del modelo Contratosemp y guardar los datos
         nuevo_empleado = Contratosemp(
             docidentidad=identificationNumber,

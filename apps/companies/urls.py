@@ -14,7 +14,9 @@ urlpatterns = [
     path('companies/edit/employee',  EditEmployee.EditEmployeeSearch , name='editemployeesearch'),
     path('companies/edit/employee/<str:idempleado>',  EditEmployee.EditEmployeeVisual , name='editemployeevisual'),
     
-    path('companies/new/contract',newContract.newContract ,name='newcontract'),
+    path('companies/new/contract',newContract.newContractVisual ,name='newcontractvisual'),
+    path('companies/new/contract/<str:idempleado>',newContract.newContractCreater ,name='newcontractcreater'),
+    
     path('companies/edit/contract',editContract.EditContracsearch , name='editcontracsearch'),
     path('companies/edit/contract/<str:idempleado>',editContract.EditContracVisual , name='editcontracvisual'),
     
