@@ -36,20 +36,18 @@
                 </tr>
             </thead>
             <tbody>
-                {% for id_empleado, datos in combined_data.items %}
+                {% for empleado in empleados %}
                     <tr>
-                        <td>{{ datos.docidentidad }}</td>
-                        <td>{{ datos.papellido }} {{ datos.sapellido }} {{ datos.pnombre }}</td>
-                        {% for contrato in datos.contratos %}
-                            <td>{{ contrato.1 |date:'d-m-Y'}}</td>
-                            <td>{{ contrato.0 }}</td>
-                            <td>{{ contrato.2 }}</td>
-                            <td>{{ datos.costs.nomcosto}}</td>  
-                            <td>{{ datos.tipo_contrato }}</td>
-                            <td>{{ datos.centrotrabajo }}</td>
-                        {% endfor %}
+                        <td>{{ empleado.documento }}</td>
+                        <td>{{ empleado.nombre }}</td>
+                        <td>{{ empleado.fechainiciocontrato |date:'d-m-Y' }}</td>
+                        <td>{{ empleado.cargo }}</td>
+                        <td>{{ empleado.salario }}</td>
+                        <td>{{ empleado.centrocostos }}</td>
+                        <td>{{ empleado.tipocontrato }}</td>
+                        <td>{{ empleado.tarifaARL }}</td>
                     </tr>
-                {% endfor %}
+                    {% endfor %}
                 </tbody>
                 
 
