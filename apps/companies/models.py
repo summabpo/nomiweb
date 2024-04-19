@@ -12,7 +12,7 @@ class Contratos(models.Model):
     eps = models.CharField(max_length=125, blank=True, null=True)
     pension = models.CharField(max_length=125, blank=True, null=True)
     cajacompensacion = models.CharField(max_length=40, blank=True, null=True)
-    centrotrabajo = models.CharField(max_length=30, blank=True, null=True)  ## corregir a entero 
+    centrotrabajo = models.ForeignKey('Centrotrabajo', models.DO_NOTHING, db_column='centrotrabajo', blank=True, null=True) ## cambiar a entero 
     tarifaarl = models.CharField(max_length=10, blank=True, null=True)
     ciudadcontratacion = models.CharField(max_length=40, blank=True, null=True)
     fondocesantias = models.CharField(max_length=80, blank=True, null=True)
@@ -31,7 +31,7 @@ class Contratos(models.Model):
     estadosegsocial = models.SmallIntegerField(blank=True, null=True)
     motivoretiro = models.CharField(max_length=25, blank=True, null=True)
     tiposalario = models.SmallIntegerField(blank=True, null=True)
-    idcontrato = models.IntegerField(primary_key=True)
+    idcontrato = models.AutoField(primary_key=True)
     idcosto = models.ForeignKey('Costos', models.DO_NOTHING, db_column='idcosto')
     idsubcosto = models.ForeignKey('Subcostos', models.DO_NOTHING, db_column='idsubcosto')
     idsede = models.ForeignKey('Sedes', models.DO_NOTHING, db_column='idsede')

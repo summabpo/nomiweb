@@ -106,31 +106,31 @@ Nuevo Empleado {% endblock %} {% block css %} {% endblock %} {% block content %}
                 <div class="mb-3 row">
                     <div class="col">
                         <label for="paymentMethod" class="col-form-label">Forma de pago</label>
-                        <input type="text" class="form-control" id="paymentMethod" name="paymentMethod" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="paymentMethod" name="paymentMethod" value='{{diccontract.Formapago}}' readonly >
                     </div>
                     <div class="col">
                         <label for="bankAccount" class="col-form-label">Banco de la Cuenta</label>
-                        <input type="text" class="form-control" id="bankAccount" name="bankAccount" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="bankAccount" name="bankAccount" value='{{diccontract.BancoCuenta}}' readonly >
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <div class="col">
                         <label for="accountType" class="col-form-label">Tipo de Cuenta</label>
-                        <input type="text" class="form-control" id="accountType" name="accountType" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="accountType" name="accountType" value='{{diccontract.TipoCuenta}}' readonly >
                     </div>
                     <div class="col">
                         <label for="payrollAccount" class="col-form-label">Cuenta de Nómina</label>
-                        <input type="text" class="form-control" id="payrollAccount" name="payrollAccount" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="payrollAccount" name="payrollAccount" value='{{diccontract.CuentaNomina}}' readonly >
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <div class="col">
                         <label for="costCenter" class="col-form-label">Centro de Costos</label>
-                        <input type="text" class="form-control" id="costCenter" name="costCenter" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="costCenter" name="costCenter" value='{{diccontract.CentroCostos}}' readonly >
                     </div>
                     <div class="col">
                         <label for="subCostCenter" class="col-form-label">Sub centro de Costos</label>
-                        <input type="text" class="form-control" id="subCostCenter" name="subCostCenter" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="subCostCenter" name="subCostCenter" value='{{diccontract.SubcentroCostos}}' readonly >
                     </div>
                 </div>
             </div>
@@ -141,51 +141,51 @@ Nuevo Empleado {% endblock %} {% block css %} {% endblock %} {% block content %}
                 <div class="mb-3 row">
                     <div class="col">
                         <label for="eps" class="col-form-label">Eps</label>
-                        <input type="text" class="form-control" id="eps" name="eps" value='{{diccontract.ModeloContrato}}' readonly>
+                        <input type="text" class="form-control" id="eps" name="eps" value='{{diccontract.Eps}}' readonly>
                     </div>
                     <div class="col">
                         <label for="pensionFund" class="col-form-label">Fondo Cesantias</label>
-                        <input type="text" class="form-control" id="pensionFund" name="pensionFund" value='{{diccontract.ModeloContrato}}' readonly>
+                        <input type="text" class="form-control" id="pensionFund" name="pensionFund" value='{{diccontract.FondoCesantias}}' readonly>
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <div class="col">
                         <label for="pension" class="col-form-label">Pension</label>
-                        <input type="text" class="form-control" id="pension" name="pension" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="pension" name="pension" value='{{diccontract.Pension}}' readonly >
                     </div>
                     <div class="col">
                         <label for="arlWorkCenter" class="col-form-label">Centro de Trabajo ARL</label>
-                        <input type="text" class="form-control" id="arlWorkCenter" name="arlWorkCenter" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="arlWorkCenter" name="arlWorkCenter" value='{{diccontract.ARL}}' readonly >
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <div class="col">
                         <label for="workPlace" class="col-form-label">Sede de Trabajo</label>
-                        <input type="text" class="form-control" id="workPlace" name="workPlace" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="workPlace" name="workPlace" value='{{diccontract.Sede}}' readonly >
                     </div>
                     <div class="col">
                         <label for="arlRate" class="col-form-label">Tarifa ARL</label>
-                        <input type="text" class="form-control" id="arlRate" name="arlRate" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="arlRate" name="arlRate" value='{{diccontract.TarifaARL}}' readonly >
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <div class="col">
                         <label for="compensationFund" class="col-form-label">Caja de Compensación Familiar</label>
-                        <input type="text" class="form-control" id="compensationFund" name="compensationFund" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="compensationFund" name="compensationFund" value='{{diccontract.Caja}}' readonly >
                     </div>
                     <div class="col">
                         <label for="contributorType" class="col-form-label">Tipo de cotizante</label>
-                        <input type="text" class="form-control" id="contributorType" name="contributorType" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="contributorType" name="contributorType" value='{{diccontract.Tipocotizante}}' readonly >
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <div class="col">
                         <label for="contributorSubtype" class="col-form-label">Sub-tipo de cotizante</label>
-                        <input type="text" class="form-control" id="contributorSubtype" name="contributorSubtype" value='{{diccontract.ModeloContrato}}' readonly>
+                        <input type="text" class="form-control" id="contributorSubtype" name="contributorSubtype" value='{{diccontract.Subtipocotizante}}' readonly>
                     </div>
                     <div class="col">
                         <label for="pensioner" class="col-form-label">Pensionado</label>
-                        <input type="text" class="form-control" id="pensioner" name="pensioner" value='{{diccontract.ModeloContrato}}' readonly >
+                        <input type="text" class="form-control" id="pensioner" name="pensioner" value='{{diccontract.Pensionado}}' readonly >
                     </div>
                 </div>
             </div>
