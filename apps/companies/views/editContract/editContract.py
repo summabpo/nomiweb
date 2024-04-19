@@ -24,7 +24,7 @@ def EditContracVisual(request,idempleado):
         'Cargo':contrato.cargo , 
         'LugarTrabajo': 'falta', #! validar de donde viene la informacion 
         'FechaInicial': contrato.fechafincontrato,
-        'EstadoContrato': contrato.estadocontrato, 
+        'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo", 
         'TipoContrato':contrato.tipocontrato.tipocontrato, 
         'MotivoRetiro':contrato.motivoretiro, 
         'ModeloContrato':contrato.idmodelo.tipocontrato, 
@@ -32,7 +32,7 @@ def EditContracVisual(request,idempleado):
         'Salario':"{:,.0f}".format(contrato.salario).replace(',', '.') , 
         'TipoSalario':contrato.tiposalario,
         'ModalidadSalario':contrato.tiposalario, #! modalidad falta , buscar db o preguntar 
-        'Formapago':contrato.formapago, 
+        'Formapago':contrato.formapago, #! FALTA 
         'BancoCuenta':contrato.bancocuenta,
         'TipoCuenta':contrato.tipocuentanomina,
         'CuentaNomina':contrato.cuentanomina,
@@ -46,9 +46,9 @@ def EditContracVisual(request,idempleado):
         'Sede':contrato.centrotrabajo.nombrecentrotrabajo,
         'TarifaARL':contrato.idsede.nombresede,
         'Caja':contrato.cajacompensacion,
-        'Tipocotizante':contrato.tipocotizante,
+        'Tipocotizante':contrato.tipocotizante, #! FALTA 
         'Subtipocotizante':contrato.subtipocotizante,
-        'Pensionado':contrato.pensionado,
+        'Pensionado':contrato.pensionado, #! MODIFCIAR 
         
     }
     
