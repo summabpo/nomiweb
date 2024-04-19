@@ -26,8 +26,6 @@
             <thead>
                 <tr>
                 <th>Documento</th>
-                <th>Apellido</th>
-                <th>S. Apellido</th>
                 <th>Nombre</th>
                 <th>Inicio Contrato</th>
                 <th>Cargo</th>
@@ -41,9 +39,7 @@
                 {% for id_empleado, datos in combined_data.items %}
                     <tr>
                         <td>{{ datos.docidentidad }}</td>
-                        <td>{{ datos.papellido }}</td>
-                        <td>{{ datos.sapellido }}</td>
-                        <td>{{ datos.pnombre }}</td>
+                        <td>{{ datos.papellido }} {{ datos.sapellido }} {{ datos.pnombre }}</td>
                         {% for contrato in datos.contratos %}
                             <td>{{ contrato.1 |date:'d-m-Y'}}</td>
                             <td>{{ contrato.0 }}</td>
@@ -95,7 +91,7 @@
                 },
                 dom: 'Bfrtip',
                 columnDefs: [
-                    { targets: [0, 2, 3, 8, 9], orderable: false } 
+                    { targets: [0, 2, 3], orderable: false } 
                 ],
                 order: [[1, 'asc']],
                 buttons: [
@@ -111,5 +107,4 @@
     </script>
 
 {% endblock %}
-
 
