@@ -14,6 +14,8 @@
   
   <!-- bootstrap -->
   <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <!-- select2 locales  -->
+  <link href="{% static 'css/select2.min.css' %}" rel="stylesheet">
   {% block cssarch %}
   {% endblock %}
   
@@ -90,6 +92,10 @@
     <script src="{% static 'js/dataTables.responsive.min.js' %}"></script>
     <!-- bootstrap locales  -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <!-- select2 locales  -->
+    <script src="{% static 'js/select2.full.min.js' %}"></script>
+
+
     {% block js %}{% endblock %}
 </body>
 </html>

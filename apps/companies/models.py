@@ -108,6 +108,11 @@ class Costos(models.Model):
         managed = False
         db_table = 'costos'
         
+        
+    def __str__(self):
+        return f"{self.nomcosto}"
+    
+
 class ModelosContratos(models.Model):
     idmodelo = models.SmallIntegerField(primary_key=True)
     nombremodelo = models.CharField(max_length=255, blank=True, null=True)
@@ -118,6 +123,9 @@ class ModelosContratos(models.Model):
     class Meta:
         managed = False
         db_table = 'modelos_contratos'
+        
+    def __str__(self):
+        return f"{self.nombremodelo}"
 
 
 class Sedes(models.Model):
@@ -141,6 +149,9 @@ class Subcostos(models.Model):
     class Meta:
         managed = False
         db_table = 'subcostos'
+        
+    def __str__(self):
+        return f"{self.nomsubcosto}"
 
 class Tipocontrato(models.Model):
     idtipocontrato = models.IntegerField(primary_key=True)
@@ -150,6 +161,9 @@ class Tipocontrato(models.Model):
     class Meta:
         managed = False
         db_table = 'tipocontrato'
+        
+    def __str__(self):
+        return f"{self.tipocontrato}"
 
 class Centrotrabajo(models.Model):
     nombrecentrotrabajo = models.CharField(max_length=30, blank=True, null=True)
@@ -159,6 +173,10 @@ class Centrotrabajo(models.Model):
     class Meta:
         managed = False
         db_table = 'centrotrabajo'
+        
+    def __str__(self):
+        return f"{self.nombrecentrotrabajo}"
+
         
         
 class Tipodocumento(models.Model):
@@ -202,6 +220,9 @@ class Ciudades(models.Model):
         managed = False
         db_table = 'ciudades'
         
+    def __str__(self):
+        return f"{self.ciudad} - {self.departamento}"
+        
         
         
 class Tiposalario(models.Model):
@@ -211,5 +232,60 @@ class Tiposalario(models.Model):
     class Meta:
         managed = False
         db_table = 'tiposalario'
+
+    def __str__(self):
+        return f"{self.tiposalario}"
         
+
+class Tipodenomina(models.Model):
+    idtiponomina = models.IntegerField(primary_key=True)
+    tipodenomina = models.CharField(max_length=255)
+    cod_dian = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tipodenomina'
         
+
+class Cargos(models.Model):
+    idcargo = models.CharField(primary_key=True, max_length=4)
+    nombrecargo = models.CharField(max_length=50)
+    nombrenivel = models.CharField(max_length=50, blank=True, null=True)
+    cargojefe = models.CharField(max_length=50, blank=True, null=True)
+    cargosacargo = models.CharField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'cargos'
+        
+class Bancos(models.Model):
+    idbanco = models.IntegerField(primary_key=True)
+    nombanco = models.CharField(max_length=255, blank=True, null=True)
+    codbanco = models.CharField(max_length=255, blank=True, null=True)
+    codach = models.CharField(max_length=255, blank=True, null=True)
+    digchequeo = models.CharField(max_length=255, blank=True, null=True)
+    nitbanco = models.CharField(max_length=255, blank=True, null=True)
+    tamcorriente = models.CharField(max_length=255, blank=True, null=True)
+    tamahorro = models.CharField(max_length=255, blank=True, null=True)
+    oficina = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'bancos'
+        
+    def __str__(self):
+        return f"{self.nombanco}"
+    
+class Entidadessegsocial(models.Model):
+    codigo = models.CharField(primary_key=True, max_length=9)
+    nit = models.CharField(max_length=12)
+    entidad = models.CharField(max_length=120)
+    tipoentidad = models.CharField(max_length=20)
+    codsgp = models.CharField(max_length=10, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'entidadessegsocial'
+        
+    def __str__(self):
+        return f"{self.entidad}"
