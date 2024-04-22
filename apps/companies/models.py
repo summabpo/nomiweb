@@ -221,15 +221,10 @@ class Ciudades(models.Model):
         managed = False
         db_table = 'ciudades'
         
+    def __str__(self):
+        return f"{self.ciudad} - {self.departamento}"
         
         
-class Tiposalario(models.Model):
-    idtiposalario = models.SmallIntegerField(primary_key=True)
-    tiposalario = models.CharField(max_length=40, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'tiposalario'
         
 class Tiposalario(models.Model):
     idtiposalario = models.SmallIntegerField(primary_key=True)
@@ -242,3 +237,57 @@ class Tiposalario(models.Model):
     def __str__(self):
         return f"{self.tiposalario}"
         
+class Tiposalario(models.Model):
+    idtiposalario = models.SmallIntegerField(primary_key=True)
+    tiposalario = models.CharField(max_length=40, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tiposalario'
+
+    def __str__(self):
+        return f"{self.tiposalario}"
+        
+
+class Cargos(models.Model):
+    idcargo = models.CharField(primary_key=True, max_length=4)
+    nombrecargo = models.CharField(max_length=50)
+    nombrenivel = models.CharField(max_length=50, blank=True, null=True)
+    cargojefe = models.CharField(max_length=50, blank=True, null=True)
+    cargosacargo = models.CharField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'cargos'
+        
+class Bancos(models.Model):
+    idbanco = models.IntegerField(primary_key=True)
+    nombanco = models.CharField(max_length=255, blank=True, null=True)
+    codbanco = models.CharField(max_length=255, blank=True, null=True)
+    codach = models.CharField(max_length=255, blank=True, null=True)
+    digchequeo = models.CharField(max_length=255, blank=True, null=True)
+    nitbanco = models.CharField(max_length=255, blank=True, null=True)
+    tamcorriente = models.CharField(max_length=255, blank=True, null=True)
+    tamahorro = models.CharField(max_length=255, blank=True, null=True)
+    oficina = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'bancos'
+        
+    def __str__(self):
+        return f"{self.nombanco}"
+    
+class Entidadessegsocial(models.Model):
+    codigo = models.CharField(primary_key=True, max_length=9)
+    nit = models.CharField(max_length=12)
+    entidad = models.CharField(max_length=120)
+    tipoentidad = models.CharField(max_length=20)
+    codsgp = models.CharField(max_length=10, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'entidadessegsocial'
+        
+    def __str__(self):
+        return f"{self.entidad}"
