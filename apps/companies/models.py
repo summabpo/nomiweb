@@ -248,7 +248,9 @@ class Tipodenomina(models.Model):
     class Meta:
         managed = False
         db_table = 'tipodenomina'
-        
+    
+    def __str__(self):
+        return f"{self.tipodenomina}"
 
 class Cargos(models.Model):
     idcargo = models.CharField(primary_key=True, max_length=4)
