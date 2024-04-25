@@ -137,6 +137,9 @@ class Sedes(models.Model):
     class Meta:
         managed = False
         db_table = 'sedes'
+        
+    def __str__(self):
+        return f"{self.nombremodelo}"
 
 
 class Subcostos(models.Model):

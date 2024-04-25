@@ -349,33 +349,35 @@ class ContractForm(forms.Form):
     )  
     
     workPlace = forms.CharField( #! viene de una tabla
-        label='Documento de Identidad',
-        max_length=100,
+        label='Sede de Trabajo',
+        queryset=Centrotrabajo.objects.using("lectaen").all(), 
+        to_field_name='centrotrabajo',
         required=True,
         
     )  
     # #arlRate                      #todo : se requiere calcular o traer y  visualizar 
     # #compensationFund                      #todo : se rerequiere visualizar basado en la ciudad 
-    # contributorType    = forms.CharField( #! viene de una tabla
-    #     label='Documento de Identidad',
-    #     max_length=100,
-    #     required=True,
+    
+    contributorType    = forms.CharField( #! viene de una tabla
+        label='Documento de Identidad',
+        max_length=100,
+        required=True,
         
-    # )                    #*
-    # contributorSubtype  = forms.CharField( #! viene de una tabla
-    #     label='Documento de Identidad',
-    #     max_length=100,
-    #     required=True,
+    )                    #*
+    contributorSubtype  = forms.CharField( #! viene de una tabla
+        label='Documento de Identidad',
+        max_length=100,
+        required=True,
         
-    # )      
+    )      
     
     
-    # pensioner = forms.CharField( #! chekbox
-    #     label='Documento de Identidad',
-    #     max_length=100,
-    #     required=True,
+    pensioner = forms.CharField( #! chekbox
+        label='Documento de Identidad',
+        max_length=100,
+        required=True,
         
-    # )      
+    )      
     
     
     def __init__(self, *args, **kwargs):
@@ -446,6 +448,18 @@ class ContractForm(forms.Form):
                 css_class='row'
             ),
             
+            
+            Div(
+                Div('CesanFund', css_class='col'),
+                Div('arlWorkCenter', css_class='col'),
+                css_class='row'
+            ),
+            
+            Div(
+                Div('CesanFund', css_class='col'),
+                Div('arlWorkCenter', css_class='col'),
+                css_class='row'
+            ),
             
             Div(
                 Div('CesanFund', css_class='col'),
