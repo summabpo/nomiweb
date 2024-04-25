@@ -1,46 +1,58 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.forms.EmployeeForm import EmployeeForm
+from django.contrib import messages
 from apps.companies.models import Tipodocumento , Paises , Ciudades , Contratosemp,Profesiones
 from apps.companies.forms.EmployeeForm import EmployeeForm
 
 def newEmployee(request):
-    
-    form = EmployeeForm    
     if request.method == 'POST':
-        
-
-        #! falta dato para que se vea que le falta contrato 
-        # Crear una nueva instancia del modelo Contratosemp y guardar los datos
-        nuevo_empleado = Contratosemp(
-            docidentidad=identificationNumber,
-            tipodocident=identificationType,
-            pnombre=firstName,
-            snombre=secondName,
-            papellido=firstLastName,
-            sapellido=secondLastName,
-            fechanac=birthdate,
-            ciudadnacimiento=birthCity,
-            telefonoempleado=employeePhone,
-            direccionempleado=residenceAddress,
-            sexo=sex,
-            email=email,
-            ciudadresidencia=residenceCity,
-            estadocivil=maritalStatus,
-            paisnacimiento=birthCountry,
-            paisresidencia=residenceCountry,
-            celular=cellPhone,
-            profesion=profession,
-            niveleducativo=educationLevel,
-            gruposanguineo=bloodGroup,
-            estatura=height,
-            peso=weight,
-            fechaexpedicion=expeditionDate,
-            ciudadexpedicion=expeditionCity,
-            estrato=stratum,
-            numlibretamil=militaryId,
-            dotpantalon = pantsSize,
-            dotcamisa = shirtSize,
-            dotzapatos = shoesSize ,
-        )
-        nuevo_empleado.save()        
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            try:
+                contratosemp_instance = Contratosemp(
+                docidentidad=form.cleaned_data['identification_number'],
+                tipodocident=form.cleaned_data['identification_type'],
+                pnombre=form.cleaned_data['first_name'],
+                snombre=form.cleaned_data['second_name'],
+                papellido=form.cleaned_data['first_last_name'],
+                sapellido=form.cleaned_data['second_last_name'],
+                fechanac=form.cleaned_data['birthdate'],
+                ciudadnacimiento=form.cleaned_data['birth_city'],
+                telefonoempleado=form.cleaned_data['employee_phone'],
+                direccionempleado=form.cleaned_data['residence_address'],
+                sexo=form.cleaned_data['sex'],
+                email=form.cleaned_data['email'],
+                ciudadresidencia=form.cleaned_data['residence_city'],
+                estadocivil=form.cleaned_data['marital_status'],
+                paisnacimiento=form.cleaned_data['birth_country'],
+                paisresidencia=form.cleaned_data['residence_country'],
+                celular=form.cleaned_data['cell_phone'],
+                profesion=form.cleaned_data['profession'],
+                niveleducativo=form.cleaned_data['education_level'],
+                gruposanguineo=form.cleaned_data['blood_group'],
+                estatura=form.cleaned_data['height'],
+                peso=form.cleaned_data['weight'],
+                fechaexpedicion=form.cleaned_data['expedition_date'],
+                ciudadexpedicion=form.cleaned_data['expedition_city'],
+                dotpantalon=form.cleaned_data['pants_size'],
+                dotcamisa=form.cleaned_data['shirt_size'],
+                dotzapatos=form.cleaned_data['shoes_size'],
+                estrato=form.cleaned_data['stratum'],
+                numlibretamil=form.cleaned_data['military_id'],
+                estadocontrato=4
+            )
+                contratosemp_instance.save()
+                messages.success(request, 'El Empleado ha sido creado')
+                return  redirect('companies:newemployee')
+            except Exception as e:
+                messages_error = 'Se produjo un error al guardar el empleado.' + str(e.args)
+                messages.error(request, messages_error)
+                return redirect('companies:newemployee')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Error en el campo '{field}': {error}")
+            return redirect('companies:newemployee')
+    else:
+        form = EmployeeForm    
     return render(request, './companies/NewEmployee.html',{'form':form})
