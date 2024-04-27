@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 
     # Generated applications
     'apps.login.apps', 
-    'apps.employees.appsemployees',     # Employees application
+    'apps.employees',     # Employees application
     'apps.companies',     # Companies application
     # 'apps.payroll',       # Payroll application
     # 'apps.api_database',  # API database applicatio#n

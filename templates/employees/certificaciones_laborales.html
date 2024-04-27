@@ -1,0 +1,67 @@
+{% extends 'base/base_employees.html' %}
+{% block title %} Nomiweb.co - Portal Empleados -
+Certificaciones Laborales 
+{% endblock %} 
+{% block css %} 
+{% endblock %} 
+{% block content %}
+
+
+{% block cssarch %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+{% endblock %}
+
+    <h3 class="cell" >CERTIFICACION LABORAL</h3>
+
+      <main class="flex-grow-1">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="container">
+                        <div>
+                            <label for="{{ formulario.destino.id_for_label }}">Destino:</label>
+                            {{ formulario.destino }}
+                        </div>
+                        <div>
+                            <label for="{{ formulario.seleccion.id_for_label }}">Selecciona una opción:</label>
+                            {{ formulario.seleccion }}
+                        </div>
+                        <div class="text-center">
+                            <button class="button primary" type="submit">Enviar</button>
+                        </div>
+                    </div>
+                </form>
+                
+    <div class="grid-container">
+        <div class="grid-x">
+            <h1 class="cell">LISTA DE CERTIFICACIONES </h1>
+            
+            <div class="cell">
+                <table>
+                    <thead>
+                        <tr>
+                        <th width="200">IDCERT</th>
+                        <th width="200">DESTINO</th>
+                        <th width="200">FECHA</th>
+                        <th width="150">SALARIO</th>
+                        <th width="150">VER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in certificaciones %}
+                        <tr>
+                            <td>{{ e.idcert }}</td>
+                            <td>{{ e.destino }}</td>
+                            <td>{{ e.fecha }}</td>
+                            <td>{{ e.salario }}</td>
+                            <td><a class="button warning" href="{% url 'certificaciones_app:genera-certificaciones' e.idcert %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
+                            <td><a class="button success" href="" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
