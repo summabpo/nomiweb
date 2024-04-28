@@ -86,7 +86,7 @@ def vista_certificaciones(request):
         if formulario.is_valid():
             fecha_actual = timezone.now().astimezone(zona_horaria)
             destino = formulario.cleaned_data['destino']
-            seleccion = formulario.cleaned_data['seleccion']
+            modelo = formulario.cleaned_data['modelo']
             salario = datose['salario']
 
             queryset = Nomina.objects.filter(
@@ -106,13 +106,13 @@ def vista_certificaciones(request):
             else:
                 salario_promedio = 0
 
-            if seleccion=='2':
+            if modelo=='2':
                 salario_certificado=salario_promedio
             else:
                 salario_certificado=salario
 
             codigo_confirmacion = generar_codigo()
-            tipo_certificado = seleccion
+            tipo_certificado = modelo
             cargo = datose['cargo']
             ide = datose['ide']
             tipo_contrato = datose['tipo_contrato']

@@ -212,7 +212,7 @@
             <!--begin::Wrapper-->
             <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
                 <!--begin::Sidebar-->
-                {% include './navbar.html' %}
+                {% include './navbar_employees.html' %}
                 <!--end::Sidebar-->
                 <!--begin::Main-->
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -284,8 +284,8 @@
                     <div id="kt_app_footer" class="app-footer align-items-center justify-content-center justify-content-md-between flex-column flex-md-row py-3">
                         <!--begin::Copyright-->
                         <div class="text-gray-900 order-2 order-md-1">
-                            <span class="text-muted fw-semibold me-1">2023&copy;</span>
-                            <a href="" target="_blank" class="text-gray-800 text-hover-primary">Fotter prueba </a>
+                            <span class="text-muted fw-semibold me-1">2024&copy;</span>
+                            <a href="" target="_blank" class="text-gray-800 text-hover-primary">SUMMA BPO SAS </a>
                         </div>
                         <!--end::Copyright-->
                         <!--begin::Menu-->
@@ -312,7 +312,6 @@
     <!--begin::Modals-->
     <!--begin::Modal -->
     
-<<<<<<< HEAD
     
         <!--begin::Global Javascript Bundle(mandatory for all pages)-->
         <script src="{% static 'plugins/global/plugins.bundle.js' %}"></script>
@@ -353,7 +352,7 @@
             {% endfor %}
         {% endif %}
     </script>
-=======
+
     <!-- DataTables & Plugins -->
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
@@ -364,8 +363,6 @@
     <script src="{% static 'js/dataTables.responsive.min.js' %}"></script>
     <!-- bootstrap locales  -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    {% block js %}
-    {% endblock %}
->>>>>>> employees
+    
 </body>
 </html>
