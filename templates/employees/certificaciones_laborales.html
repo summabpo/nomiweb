@@ -31,7 +31,7 @@ Certificaciones Laborales
                         </div>
                     </div>
                 </form>
-                
+
     <div class="grid-container">
         <div class="grid-x">
             <h1 class="cell">LISTA DE CERTIFICACIONES </h1>
@@ -54,7 +54,7 @@ Certificaciones Laborales
                             <td>{{ e.destino }}</td>
                             <td>{{ e.fecha }}</td>
                             <td>{{ e.salario }}</td>
-                            <td><a class="button warning" href="{% url 'certificaciones_app:genera-certificaciones' e.idcert %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
+                            <td><a class="button warning" href="{% url 'employees_app:genera-certificaciones' e.idcert %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
                             <td><a class="button success" href="" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
                         </tr>
                         {% endfor %}

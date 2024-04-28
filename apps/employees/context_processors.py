@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from applications.home.models import Contratos, Contratosemp
+from apps.companies.models import Contratos, Contratosemp
 
 def busca_empleado_cp(request):
     idc = 3863

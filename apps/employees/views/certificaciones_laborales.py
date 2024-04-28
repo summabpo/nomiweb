@@ -172,19 +172,19 @@ def genera_certificaciones(request, idcert):
     seleccion_tipo = Certificaciones.objects.get(idcert=idcert).promediovariable
 
     #TEXTO 1 SALARIO BASICO
-    p1=Paragraph(f"""<para align="justify" fontsize="14" leading="18">Certificamos que, <b>{nombre_completo}</b>, identificado(a) con documento de identidad No. {docidentidad}, trabaja en <b>CARIBBEAN SUPPORT AND FLIGHT SERVICES SAS</b>, desde el {fechainiciocontrato}, desempeñando el cargo de <b>{cargo}</b>.<br/><br/>
+    p1=Paragraph(f"""<para align="justify" fontsize="14" leading="18">Certificamos que, <b>{nombre_completo}</b>, identificado(a) con documento de identidad No. {docidentidad}, trabaja en <b>{nombre_empresa}</b>, desde el {fechainiciocontrato}, desempeñando el cargo de <b>{cargo}</b>.<br/><br/>
     Tiene un sueldo básico mensual de <b>${salario_formateado}</b> y el tipo de contrato laboral es: {nombre_contrato}.<br/><br/> 
     La presente certificación se expide con destino a: <b>{destino}</b>.<br/><br/>
     Puede verificar la validez de esta certificación en el email, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: https://www.empresas.nomiweb.co/validación</para>""")
 
     #TEXTO 2 SALARIO PROMEDIO
-    p2=Paragraph(f"""<para align="justify" fontsize="14" leading="18">Certificamos que, <b>{nombre_completo}</b>, identificado(a) con documento de identidad No. {docidentidad}, trabaja en <b>CARIBBEAN SUPPORT AND FLIGHT SERVICES SAS</b>, desde el {fechainiciocontrato}, desempeñando el cargo de <b>{cargo}</b>.<br/><br/>
+    p2=Paragraph(f"""<para align="justify" fontsize="14" leading="18">Certificamos que, <b>{nombre_completo}</b>, identificado(a) con documento de identidad No. {docidentidad}, trabaja en <b>{nombre_empresa}</b>, desde el {fechainiciocontrato}, desempeñando el cargo de <b>{cargo}</b>.<br/><br/>
     Tiene un salario promedio mensual de <b>${salario_formateado}</b> y el tipo de contrato laboral es: {nombre_contrato}.<br/><br/> 
     La presente certificación se expide con destino a: <b>{destino}</b>.<br/><br/>
     Puede verificar la validez de esta certificación en el email, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: https://www.empresas.nomiweb.co/validación</para>""")
 
     #TEXTO 3 SIN SALARIO
-    p3=Paragraph(f"""<para align="justify" fontsize="14" leading="18">Certificamos que, <b>{nombre_completo}</b>, identificado(a) con documento de identidad No. {docidentidad}, trabaja en <b>CARIBBEAN SUPPORT AND FLIGHT SERVICES SAS</b>, desde el {fechainiciocontrato}, desempeñando el cargo de <b>{cargo}</b>.<br/><br/>
+    p3=Paragraph(f"""<para align="justify" fontsize="14" leading="18">Certificamos que, <b>{nombre_completo}</b>, identificado(a) con documento de identidad No. {docidentidad}, trabaja en <b>{nombre_empresa}</b>, desde el {fechainiciocontrato}, desempeñando el cargo de <b>{cargo}</b>.<br/><br/>
     El tipo de contrato laboral es: {nombre_contrato}.<br/><br/> 
     La presente certificación se expide con destino a: <b>{destino}</b>.<br/><br/>
     Puede verificar la validez de esta certificación en el email, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: https://www.empresas.nomiweb.co/validación</para>""")
@@ -199,28 +199,37 @@ def genera_certificaciones(request, idcert):
          p3.wrapOn(p,500,400)
          p3.drawOn(p, 60, 320)
 
-        
+
 
     # VARIABLES PDF
-    tam_nom=len(nombre_empresa)
-    tam_web=len(website_empresa)
-    p.setFont("Helvetica-Bold", 10)
-    p.drawString((width/2)-(tam_nom*3), height-15, nombre_empresa)
-    p.setFont("Helvetica", 10)
-    p.drawString((width/2)-5, height-30, nit_empresa)
-    p.drawString((width/2)-(tam_web), height-45, website_empresa)
-    logo = ImageReader(f'static/img/{logo_empresa}')
-    p.drawImage(logo, 20, 730, width=125, preserveAspectRatio=True, mask='auto')
-    p.line(5,745,600,745)
+    p.setFont("Helvetica-Bold", 20)
+    nom_empresa_width = p.stringWidth(nombre_empresa, "Helvetica", 24)
+    nom_empresa_x = (width - nom_empresa_width) / 2
+    p.drawString(nom_empresa_x, height-25, nombre_empresa)
+
     p.setFont("Helvetica-Bold", 15)
-    p.drawString(230,680,'Certificación Laboral')
+    nit_width = p.stringWidth(nit_empresa, "Helvetica-Bold", 15)
+    nit_x =  (width - nit_width) / 2
+    p.drawString(nit_x, height-55, nit_empresa)
+
+    p.setFont("Helvetica-Bold", 15)
+    web_width = p.stringWidth(website_empresa, "Helvetica-Bold", 15)
+    web_x =  (width - web_width) / 2
+    p.drawString(web_x, height-85, website_empresa)
+
+
+    logo = ImageReader(f'static/img/{logo_empresa}')
+    p.drawImage(logo, 20, 650, width=100, preserveAspectRatio=True, mask='auto')
+    p.line(5,700,600,700)
+    p.setFont("Helvetica-Bold", 15)
+    p.drawString(230,650,'Certificación Laboral')
     p.setFont("Helvetica", 8)
-    p.drawString(430,645,f'Certificado # {id_cliente}-{id_cert}')
-    p.drawString(430,630, f'Código de Validación: {codigo_validacion}')
+    p.drawString(430,615,f'Certificado # {id_cliente}-{id_cert}')
+    p.drawString(430,600, f'Código de Validación: {codigo_validacion}')
     p.setFont("Helvetica", 12)
     p.drawString(60,280, f'Fecha de expedición de esta certificación: {fecha_certificacion}')
     firma = ImageReader(f'static/img/{firma_certificaciones}')
-    p.drawImage(firma, 60, 145, width=190, preserveAspectRatio=True, mask='auto')
+    p.drawImage(firma, 60, 200, width=170, preserveAspectRatio=True, mask='auto')
     p.setFont("Helvetica-Bold", 12)
     p.line(60,188,220,188)
     p.drawString(60,175, nombre_rrhh)
