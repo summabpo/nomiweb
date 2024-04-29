@@ -9,6 +9,14 @@ def newEmployee(request):
         form = EmployeeForm(request.POST)
         if form.is_valid():
             try:
+                
+                height = form.cleaned_data['height']
+                weight = form.cleaned_data['weight']
+                height = height.replace(',', '.') if ',' in height else height
+                weight = weight.replace(',', '.') if ',' in weight else weight
+                height = float(height)
+                weight = float(weight)
+                
                 contratosemp_instance = Contratosemp(
                 docidentidad=form.cleaned_data['identification_number'],
                 tipodocident=form.cleaned_data['identification_type'],
@@ -30,8 +38,8 @@ def newEmployee(request):
                 profesion=form.cleaned_data['profession'],
                 niveleducativo=form.cleaned_data['education_level'],
                 gruposanguineo=form.cleaned_data['blood_group'],
-                estatura=form.cleaned_data['height'],
-                peso=form.cleaned_data['weight'],
+                estatura=height,
+                peso=weight,
                 fechaexpedicion=form.cleaned_data['expedition_date'],
                 ciudadexpedicion=form.cleaned_data['expedition_city'],
                 dotpantalon=form.cleaned_data['pants_size'],
@@ -48,11 +56,6 @@ def newEmployee(request):
                 messages_error = 'Se produjo un error al guardar el empleado.' + str(e.args)
                 messages.error(request, messages_error)
                 return redirect('companies:newemployee')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"Error en el campo '{field}': {error}")
-            return redirect('companies:newemployee')
     else:
         form = EmployeeForm    
     return render(request, './companies/NewEmployee.html',{'form':form})

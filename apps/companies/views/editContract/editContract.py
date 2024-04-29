@@ -1,5 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.companies.models import Tipodocumento,Paises,Ciudades,Contratosemp,Profesiones,Contratos,Centrotrabajo
+from apps.companies.models import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo
+from apps.companies.forms.ContractForm  import ContractForm 
+from django.contrib import messages
+
+
 
 def EditContracsearch(request):
     contratos_empleados = Contratos.objects.using("lectaen") \
@@ -67,73 +71,108 @@ def EditEmployeeSearch(request):
 
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
-    contrato =Contratos.objects.using("lectaen").get(idempleado=idempleado,estadocontrato=1) 
-    
-    """
-    valores a ingresar al post 
-    
-    -Forma de pago
-    
-    
-    
-    """
-    # POST 
-    
-    
-    # FIN POST 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
+    # Definición de DicContract con las variables que se usarán en el HTML
     DicContract = {
-        #Contrato
-        'Idcontrato':contrato.idcontrato , 
-        'FechaTerminacion':contrato.fechafincontrato , 
-        'Empleado':  empleado.papellido +' ' + empleado.sapellido +' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad) ,  #* esto es el nombre del empleado con su cedula  
-        'TipoNomina':contrato.tiponomina , 
-        'Cargo':contrato.cargo , 
-        'LugarTrabajo': contrato.ciudadcontratacion, #* ok  
-        'FechaInicial': contrato.fechafincontrato,
-        'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo", 
-        'TipoContrato':contrato.tipocontrato.tipocontrato, 
-        'MotivoRetiro':contrato.motivoretiro, 
-        'ModeloContrato':contrato.idmodelo.tipocontrato, 
-        ## compensacion 
-        'Salario':"{:,.0f}".format(contrato.salario).replace(',', '.') , 
-        'TipoSalario':contrato.tiposalario.tiposalario,
-        'ModalidadSalario':contrato.tiposalario, #* ok 
-        'Formapago':  "Abono a Cuenta" if contrato.formapago == '1' else ("Cheque" if contrato.formapago == '2' else "Efectivo"), #* ok  
-        'BancoCuenta':contrato.bancocuenta,
-        'TipoCuenta':contrato.tipocuentanomina,
-        'CuentaNomina':contrato.cuentanomina,
-        'CentroCostos':contrato.idcosto.nomcosto,
-        'SubcentroCostos':contrato.idsubcosto.nomsubcosto,
-        ## seguridad social 
-        'Eps':contrato.eps,
-        'FondoCesantias':contrato.fondocesantias,
-        'Pension':contrato.pension,
-        'ARL':contrato.centrotrabajo.nombrecentrotrabajo,
-        'Sede':contrato.centrotrabajo.nombrecentrotrabajo,
-        'TarifaARL':contrato.idsede.nombresede,
-        'Caja':contrato.cajacompensacion,
-        'Tipocotizante':contrato.tipocotizante, #! FALTA 
-        'Subtipocotizante':contrato.subtipocotizante,
-        'Pensionado':contrato.pensionado, #! MODIFCIAR 
-        
+        'Idcontrato': contrato.idcontrato,
+        'FechaTerminacion': contrato.fechafincontrato,
+        'Empleado':  empleado.papellido + ' ' + empleado.sapellido + ' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad),
+        'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo",
+        'MotivoRetiro': contrato.motivoretiro,
+        'TarifaARL': contrato.idsede.nombresede,
+        'Caja': contrato.cajacompensacion,
+        'Tipocotizante': contrato.tipocotizante,
+        'Subtipocotizante': contrato.subtipocotizante,
+        'Pensionado': contrato.pensionado,
     }
     
+    # Definición de initial_data con las variables que se usarán en el formulario
+    initial_data = {
+        'endDate': str(contrato.fechafincontrato),
+        'payrollType': contrato.tiponomina,
+        'position': contrato.cargo,
+        'workLocation': contrato.ciudadcontratacion.idciudad,
+        'contractStartDate': str(contrato.fechainiciocontrato),
+        'contractType': contrato.tipocontrato.idtipocontrato,
+        'contractModel': contrato.idmodelo.tipocontrato,
+        'salary': "{:,.0f}".format(contrato.salario).replace(',', '.'),
+        'salaryType': contrato.tiposalario.idtiposalario,
+        'paymentMethod': contrato.formapago,
+        'salaryMode': contrato.salariovariable,
+        'bankAccount': contrato.bancocuenta,
+        'accountType': contrato.tipocuentanomina,
+        'payrollAccount': contrato.cuentanomina,
+        'costCenter': contrato.idcosto.idcosto,
+        'subCostCenter': contrato.idsubcosto.idsubcosto,
+        'eps': contrato.codeps,
+        'pensionFund': contrato.codafp,
+        'CesanFund': contrato.codccf,
+        'arlWorkCenter': contrato.centrotrabajo.centrotrabajo,
+        'workPlace': contrato.idsede.idsede,
+    }
+
     
-    return render(request, './companies/EditContractVisual.html',{'diccontract':DicContract})
+    if request.method == 'POST':
+        form = ContractForm(request.POST)
+        if form.is_valid():
+            
+            """ 
+            'paymentMethod',
+            'bankAccount',
+            'accountType',
+            'payrollAccount',
+            'costCenter',
+            'subCostCenter'
+            
+            """
+            
+            contratos_instance = Contratos(
+                    tiponomina =form.cleaned_data['payrollType'],
+                    bancocuenta =form.cleaned_data['bankAccount'],#*
+                    cuentanomina =form.cleaned_data['payrollAccount'],#*
+                    tipocuentanomina =form.cleaned_data['accountType'],#*
+                    formapago  = form.cleaned_data['paymentMethod'],#*
+                    idcosto  =  Costos.objects.get( idcosto =  form.cleaned_data['costCenter'] )  ,#*
+                    idsubcosto   = Subcostos.objects.get( idsubcosto =  form.cleaned_data['subCostCenter'] ), #*  ,
+                    
+                    #todo : No editables 
+                    centrotrabajo = Centrotrabajo.objects.get(centrotrabajo =  form.cleaned_data['arlWorkCenter'] )  ,
+                    
+
+                )
+            contratos_instance.save()
+            messages.success(request, 'El Contrato ha sido Actualizado')
+            return  redirect('companies:editcontracsearch')
+            # try:
+                
+            # except Exception as e:
+            #     print(e)
+            #     messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
+            #     messages.error(request, messages_error)
+            #     return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
+        # else:
+        #     for field, errors in form.errors.items():
+        #         for error in errors:
+        #             messages.error(request, f"Error en el campo '{field}': {error}")
+        #     return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
+    else:
+        
+        
+        form = ContractForm(initial=initial_data)    
+        form.fields['endDate'].widget.attrs['disabled'] = True
+        form.fields['payrollType'].widget.attrs['disabled'] = True
+        form.fields['position'].widget.attrs['disabled'] = True
+        form.fields['workLocation'].widget.attrs['disabled'] = True
+        form.fields['contractStartDate'].widget.attrs['disabled'] = True
+        form.fields['contractType'].widget.attrs['disabled'] = True
+        form.fields['contractModel'].widget.attrs['disabled'] = True
+        form.fields['salary'].widget.attrs['disabled'] = True
+        form.fields['salaryType'].widget.attrs['disabled'] = True
+        form.fields['salaryMode'].widget.attrs['disabled'] = True
+        form.fields['eps'].widget.attrs['disabled'] = True
+        form.fields['pensionFund'].widget.attrs['disabled'] = True
+        form.fields['CesanFund'].widget.attrs['disabled'] = True
+        form.fields['arlWorkCenter'].widget.attrs['disabled'] = True
+        form.fields['workPlace'].widget.attrs['disabled'] = True
+    
+    return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})

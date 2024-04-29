@@ -1,228 +1,27 @@
-{% extends 'base/base.html' %} {% block title %} Nomiweb.co - Portal Empresas -
-Nuevo Empleado {% endblock %} {% block css %} {% endblock %} {% block content %}
+{% extends 'base/base.html' %} 
+{% load crispy_forms_tags %}
 
 
-{% block cssarch %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% block title %} Nomiweb.co - Portal Empresas - Editar Contrato {% endblock %} 
 
+{% block css %} {% endblock %} 
+
+{% block sub_titulo2 %} 
+ID Contrato {{DicContract.Idcontrato}}
 {% endblock %}
-    <header class="container">
-    <h1>Editar Contrato</h1>
-    </header>
 
+{% block titulo2 %} 
+    Editar Contrato - {{DicContract.Empleado}} - {{DicContract.EstadoContrato}}
+{% endblock %}
+
+{% block content %}
     <main class="flex-grow-1">
-        <form method="POST">
-            {% csrf_token %}
-            
-            <div class="container">
-                <h3>Contrato</h3>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="contractId" class="col-form-label">Idcontrato</label>
-                        <input type="text" class="form-control" id="contractId" name="contractId" value='{{diccontract.Idcontrato}}' readonly>
-                    </div>
-                    <div class="col">
-                        <label for="endDate" class="col-form-label">Fecha de Terminación</label>
-                        <input type="text" class="form-control" id="endDate" name="endDate"  value='{{diccontract.FechaTerminacion}}' readonly >
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="employee" class="col-form-label">Empleado</label>
-                        <input type="text" class="form-control" id="employee" name="employee" value='{{diccontract.Empleado}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="payrollType" class="col-form-label">Tipo de Nómina</label>
-                        <input type="text" class="form-control" id="payrollType" name="payrollType" value='{{diccontract.TipoNomina}}' readonly >
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="position" class="col-form-label">Cargo</label>
-                        <input type="text" class="form-control" id="position" name="position"  value='{{diccontract.Cargo}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="workLocation" class="col-form-label">Lugar de trabajo</label>
-                        <input type="text" class="form-control" id="workLocation" name="workLocation" value='{{diccontract.LugarTrabajo}}' readonly >
-                    </div>
-                </div>
-            
-                <div class="mb-3 row">
-            
-                    <div class="col">
-                        <label for="contractStartDate" class="col-form-label">Fecha Inicial del Contrato</label>
-                        <input type="text" class="form-control" id="contractStartDate" name="contractStartDate" value='{{diccontract.FechaInicial}}' readonly >
-                    </div>
-            
-                    <div class="col">
-                        <label for="contractStatus" class="col-form-label">Estado del Contrato</label>
-                        <input type="text" class="form-control" id="contractStatus" name="contractStatus" value='{{diccontract.EstadoContrato}}' readonly >
-                    </div>
-                </div>
-            
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="contractType" class="col-form-label">Tipo de Contrato</label>
-                        <input type="text" class="form-control" id="contractType" name="contractType" value='{{diccontract.TipoContrato}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="terminationReason" class="col-form-label">Motivo Retiro</label>
-                        <input type="text" class="form-control" id="terminationReason" name="terminationReason" value='{{diccontract.MotivoRetiro}}' readonly >
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="contractModel" class="col-form-label">Modelo de Contrato</label>
-                        <input type="text" class="form-control" id="contractModel" name="contractModel" value='{{diccontract.ModeloContrato}}' readonly>
-                    </div>
-                    <div class="col">
-                    </div>
-                </div>
-            </div>
-            
-            
-            <div class="container">
-                <h3>Compensación</h3>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="salary" class="col-form-label">Salario</label>
-                        <input type="text" class="form-control" id="salary" name="salary" value='{{diccontract.Salario}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="salaryType" class="col-form-label">Tipo Salario</label>
-                        <input type="text" class="form-control" id="salaryType" name="salaryType" value='{{diccontract.TipoSalario}}' readonly>
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="salaryMode" class="col-form-label">Modalidad Salario</label>
-                        <input type="text" class="form-control" id="salaryMode" name="salaryMode" value='{{diccontract.ModalidadSalario}}' readonly>
-                    </div>
-                    <div class="col">
-                        <label for="livingPlace" class="col-form-label">Vive en el lugar de trabajo</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="livingPlace" name="livingPlace" >
-                        </div>
-                    </div>                    
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="paymentMethod" class="col-form-label">Forma de pago</label>
-                        <input type="text" class="form-control" id="paymentMethod" name="paymentMethod" value='{{diccontract.Formapago}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="bankAccount" class="col-form-label">Banco de la Cuenta</label>
-                        <input type="text" class="form-control" id="bankAccount" name="bankAccount" value='{{diccontract.BancoCuenta}}' readonly >
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="accountType" class="col-form-label">Tipo de Cuenta</label>
-                        <input type="text" class="form-control" id="accountType" name="accountType" value='{{diccontract.TipoCuenta}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="payrollAccount" class="col-form-label">Cuenta de Nómina</label>
-                        <input type="text" class="form-control" id="payrollAccount" name="payrollAccount" value='{{diccontract.CuentaNomina}}' readonly >
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="costCenter" class="col-form-label">Centro de Costos</label>
-                        <input type="text" class="form-control" id="costCenter" name="costCenter" value='{{diccontract.CentroCostos}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="subCostCenter" class="col-form-label">Sub centro de Costos</label>
-                        <input type="text" class="form-control" id="subCostCenter" name="subCostCenter" value='{{diccontract.SubcentroCostos}}' readonly >
-                    </div>
-                </div>
-            </div>
-            
-
-            <div class="container">
-                <h3>Seguridad Social</h3>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="eps" class="col-form-label">Eps</label>
-                        <input type="text" class="form-control" id="eps" name="eps" value='{{diccontract.Eps}}' readonly>
-                    </div>
-                    <div class="col">
-                        <label for="pensionFund" class="col-form-label">Fondo Cesantias</label>
-                        <input type="text" class="form-control" id="pensionFund" name="pensionFund" value='{{diccontract.FondoCesantias}}' readonly>
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="pension" class="col-form-label">Pension</label>
-                        <input type="text" class="form-control" id="pension" name="pension" value='{{diccontract.Pension}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="arlWorkCenter" class="col-form-label">Centro de Trabajo ARL</label>
-                        <input type="text" class="form-control" id="arlWorkCenter" name="arlWorkCenter" value='{{diccontract.ARL}}' readonly >
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="workPlace" class="col-form-label">Sede de Trabajo</label>
-                        <input type="text" class="form-control" id="workPlace" name="workPlace" value='{{diccontract.Sede}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="arlRate" class="col-form-label">Tarifa ARL</label>
-                        <input type="text" class="form-control" id="arlRate" name="arlRate" value='{{diccontract.TarifaARL}}' readonly >
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="compensationFund" class="col-form-label">Caja de Compensación Familiar</label>
-                        <input type="text" class="form-control" id="compensationFund" name="compensationFund" value='{{diccontract.Caja}}' readonly >
-                    </div>
-                    <div class="col">
-                        <label for="contributorType" class="col-form-label">Tipo de cotizante</label>
-                        <input type="text" class="form-control" id="contributorType" name="contributorType" value='{{diccontract.Tipocotizante}}' readonly >
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <div class="col">
-                        <label for="contributorSubtype" class="col-form-label">Sub-tipo de cotizante</label>
-                        <input type="text" class="form-control" id="contributorSubtype" name="contributorSubtype" value='{{diccontract.Subtipocotizante}}' readonly>
-                    </div>
-                    <div class="col">
-                        <label for="pensioner" class="col-form-label">Pensionado</label>
-                        <input type="text" class="form-control" id="pensioner" name="pensioner" value='{{diccontract.Pensionado}}' readonly >
-                    </div>
-                </div>
-            </div>
-            
-            
-            
-
-            
-            
-
-            <div class="container">
-                <div class="mb-3 row">
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary">Guardar Empleado </button>
-                    </div>
-                </div>
-            </div>
-        </form>
+        {% crispy form %}
     </main>
 
 {% endblock %}
 
+
+
 {% block js %}
-
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-<script>
-    $(document).ready(function() {
-        $('#inputIdentificationType').select2();
-        $('#inputExpeditionCity').select2();
-        $('#birth_city').select2();
-        $('#birth_country').select2();
-        $('#residence_city').select2();
-        $('#residence_country').select2();
-        $('#profession').select2();
-    });
-</script>
 {% endblock %}
