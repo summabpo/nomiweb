@@ -48,7 +48,7 @@ def newContractCreater(request,idempleado):
                 idcosto  =  Costos.objects.get( idcosto =  form.cleaned_data['costCenter'] )  ,
                 idsubcosto   = Subcostos.objects.get( idsubcosto =  form.cleaned_data['subCostCenter'] )   ,
                 idsede = Sedes.objects.get( idsede =   form.cleaned_data['workPlace'] ) ,
-                salariovariable  = 0,
+                salariovariable  = form.cleaned_data['salaryMode'],
                 
                 codeps  = form.cleaned_data['eps'],
                 codafp  = form.cleaned_data['pensionFund'],

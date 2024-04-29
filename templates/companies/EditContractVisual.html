@@ -2,14 +2,16 @@
 {% load crispy_forms_tags %}
 
 
-{% block title %} Nomiweb.co - Portal Empresas -Nuevo Empleado {% endblock %} 
+{% block title %} Nomiweb.co - Portal Empresas - Editar Contrato {% endblock %} 
 
 {% block css %} {% endblock %} 
 
-
+{% block sub_titulo2 %} 
+ID Contrato {{DicContract.Idcontrato}}
+{% endblock %}
 
 {% block titulo2 %} 
-    Editar Contrato - {{contrato.pension}}
+    Editar Contrato - {{DicContract.Empleado}} - {{DicContract.EstadoContrato}}
 {% endblock %}
 
 {% block content %}
