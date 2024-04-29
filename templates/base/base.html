@@ -330,5 +330,24 @@
 
 
     {% block js %}{% endblock %}
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    text: "{{ message }}",
+                    icon: "{{message.tags}}",
+                    showConfirmButton: true,
+                    confirmButtonText: "Ok",
+                    customClass: {
+                        confirmButton: "btn btn-primary"
+                    },
+                    willOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
 </body>
 </html>
