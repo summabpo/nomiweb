@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.models import Tipodocumento,Paises,Ciudades,Contratosemp,Profesiones,Contratos,Centrotrabajo
-from apps.companies.forms.ContractFormedit import ContractForm
+from apps.companies.forms.ContractForm  import ContractForm 
 from django.contrib import messages
 
 
@@ -71,7 +71,51 @@ def EditEmployeeSearch(request):
 
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
-    Contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
+    contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
+    # for field in contrato._meta.fields:
+    #     field_name = field.name
+    #     field_value = getattr(contrato, field_name)
+    #     print(f"{field_name}: {field_value}")
+    
+    DicContract = {
+        #Contrato
+        'Idcontrato':contrato.idcontrato , 
+        'FechaTerminacion':contrato.fechainiciocontrato, 
+        'Empleado':  empleado.papellido +' ' + empleado.sapellido +' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad) ,  #* esto es el nombre del empleado con su cedula  
+        'TipoNomina':contrato.tiponomina , 
+        'Cargo':contrato.cargo , 
+        'LugarTrabajo': contrato.ciudadcontratacion.idciudad, #* ok  
+        'FechaInicial': contrato.fechainiciocontrato,
+        'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo", 
+        # The line ` 'ModeloContrato':contrato.idmodelo.tipocontrato, ` is accessing the
+        # `tipocontrato` attribute of the `idmodelo` object associated with the `contrato` object.
+        'TipoContrato':contrato.tipocontrato.idtipocontrato, 
+        'MotivoRetiro':contrato.motivoretiro, 
+        'ModeloContrato':contrato.idmodelo.tipocontrato, 
+        ## compensacion 
+        'Salario':"{:,.0f}".format(contrato.salario).replace(',', '.') , 
+        'TipoSalario':contrato.tiposalario.idtiposalario,
+        'ModalidadSalario':contrato.salariovariable, #* ok 
+        'Formapago':  contrato.formapago, #* ok  
+        'BancoCuenta':contrato.bancocuenta,
+        'TipoCuenta':contrato.tipocuentanomina,
+        'CuentaNomina':contrato.cuentanomina,
+        'CentroCostos':contrato.idcosto.idcosto,
+        'SubcentroCostos':contrato.idsubcosto.idsubcosto,
+        ## seguridad social 
+        'Eps':contrato.codeps,
+        'FondoCesantias':contrato.codccf,
+        'Pension':contrato.codafp,
+        'ARL':contrato.centrotrabajo.centrotrabajo,
+        'Sede':contrato.idsede.idsede,
+        'TarifaARL':contrato.idsede.nombresede,
+        'Caja':contrato.cajacompensacion,
+        'Tipocotizante':contrato.tipocotizante, #! FALTA 
+        'Subtipocotizante':contrato.subtipocotizante,
+        'Pensionado':contrato.pensionado, #! MODIFCIAR 
+        
+    }
+    
 
     
     if request.method == 'POST':
@@ -98,15 +142,44 @@ def EditContracVisual(request,idempleado):
                     messages.error(request, f"Error en el campo '{field}': {error}")
             return redirect('companies:editcontracvisual')
     else:
-        initial_data = {'payrollAccount': 'Nombre existente' , 'payrollType':'Mensual'} 
+        initial_data = {'endDate': DicContract['FechaTerminacion'] ,
+                        'payrollType': DicContract['TipoNomina'] ,
+                        'position': DicContract['Cargo'] ,
+                        'workLocation': DicContract['LugarTrabajo'] ,
+                        'contractStartDate': str(DicContract['FechaInicial']) ,
+                        'contractType': DicContract['TipoContrato'] ,
+                        'contractModel': DicContract['ModeloContrato'] ,
+                        'salary': DicContract['Salario'] ,
+                        'salaryType': DicContract['TipoSalario'] ,
+                        'paymentMethod': DicContract['Formapago'] ,
+                        'salaryMode': DicContract['ModalidadSalario'] ,
+                        'bankAccount': DicContract['BancoCuenta'] ,
+                        'accountType': DicContract['TipoCuenta'] ,
+                        'payrollAccount': DicContract['CuentaNomina'] ,
+                        'costCenter': DicContract['CentroCostos'] ,
+                        'subCostCenter': DicContract['SubcentroCostos'] ,
+                        'eps': DicContract['Eps'],
+                        'pensionFund': DicContract['Pension'],
+                        'CesanFund': DicContract['FondoCesantias'],
+                        'arlWorkCenter': DicContract['Sede'],
+                        'workPlace': DicContract['ARL'],
+                        } 
+        
         form = ContractForm(initial=initial_data)    
+        form.fields['endDate'].widget.attrs['disabled'] = True
         form.fields['payrollType'].widget.attrs['disabled'] = True
-        form.fields['payrollAccount'].widget.attrs['disabled'] = True
-    # POST 
+        form.fields['position'].widget.attrs['disabled'] = True
+        form.fields['workLocation'].widget.attrs['disabled'] = True
+        form.fields['contractStartDate'].widget.attrs['disabled'] = True
+        form.fields['contractType'].widget.attrs['disabled'] = True
+        form.fields['contractModel'].widget.attrs['disabled'] = True
+        form.fields['salary'].widget.attrs['disabled'] = True
+        form.fields['salaryType'].widget.attrs['disabled'] = True
+        form.fields['salaryMode'].widget.attrs['disabled'] = True
+        form.fields['eps'].widget.attrs['disabled'] = True
+        form.fields['pensionFund'].widget.attrs['disabled'] = True
+        form.fields['CesanFund'].widget.attrs['disabled'] = True
+        form.fields['arlWorkCenter'].widget.attrs['disabled'] = True
+        form.fields['workPlace'].widget.attrs['disabled'] = True
     
-    
-    # FIN POST 
-    
-    
-    
-    return render(request, './companies/EditContractVisual.html',{'form':form,'Contrato':Contrato})
+    return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
