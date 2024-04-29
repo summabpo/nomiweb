@@ -7,18 +7,23 @@
 {% block css %} {% endblock %} 
 
 {% block sub_titulo2 %} 
-ID Contrato {{DicContract.Idcontrato}}
+ID Contrato {{DicContract.Idcontrato}} - br <span class="badge badge-success">{{DicContract.EstadoContrato}}</span> 
 {% endblock %}
 
 {% block titulo2 %} 
-    Editar Contrato - {{DicContract.Empleado}} - {{DicContract.EstadoContrato}}
+    Editar Contrato - {{DicContract.Empleado}}
 {% endblock %}
 
 {% block content %}
+
     {% crispy form %}
+
 {% endblock %}
 
 
 
 {% block js %}
 {% endblock %}
+
+
+    
