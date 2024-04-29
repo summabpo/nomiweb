@@ -1,0 +1,48 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load custom_filters %}
+{% block titulo %} Pagina de inicio sistema empleados 
+{% endblock titulo%} {%block content%} 
+{% include 'includes/header.html' %}
+
+<!-- Recibo de nomina -->
+<div class="grid-x align-center">
+    <div class="grid-container">
+        <div class="grid-x">
+            <h4 class="cell"> COMPROBANTE DE NOMINA </h4>
+            <h5>{{ nombrenomina }}</h5>
+            <div class="cell">
+                <table style="width:70%" class="striped">
+                    <thead>
+                        <tr>
+                        <th width="20">ID</th>
+                        <th width="50">CONCEPTO</th>
+                        <th width="10">CANTIDAD</th>
+                        <th width="30">VALOR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in conceptos %}
+                        <tr>
+                            <td>{{ e.idconcepto }}</td>
+                            <td>{{ e.nombreconcepto }}</td>
+                            <td align="right">{{ e.cantidad }}</td>
+                            <td align="right">{{ e.valor|formato_puntos }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td><b>Neto a Pagar:   {{ netoapagar|formato_puntos }}</td>
+                            <td><b>Devengados:     {{ totaldevengados|formato_puntos }}</td>
+                            <td><b>Descuentos:     {{ totaldescuentos|formato_puntos }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<!-- Fin bloque de Bienvenida -->
+
+{% endblock content %}

@@ -1,0 +1,55 @@
+{% extends 'base/base_employees.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Nomiweb.co - Portal Empleados -
+Certificaciones Laborales 
+{% endblock %} 
+{% block css %} 
+{% endblock %} 
+{% block content %}
+{% block cssarch %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+    <h3 class="text-center" >SOLICITUD DE CERTIFICACION LABORAL</h3>
+
+      <main class="flex-grow-1">
+                <form method="post">
+                    {% csrf_token %}
+                    {% crispy formulario %}
+                </form>
+               
+      </main>
+<BR>
+<BR> 
+    
+<h3 class="text-center">LISTADO DE CERTIFICACIONES </h3>
+            
+            <div class="table-responsive">
+                <table class="table table-rounded table-striped border gy-7 gs-7">
+                    <thead>
+                        <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
+                        <th width="200">ID</th>
+                        <th width="200">Destino</th>
+                        <th width="200">Fecha</th>
+                        <th width="150">Salario</th>
+                        <th width="150">Descargar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in certificaciones %}
+                        <tr>
+                            <td>{{ e.idcert }}</td>
+                            <td>{{ e.destino }}</td>
+                            <td>{{ e.fecha }}</td>
+                            <td>{{ e.salario }}</td>
+                            <td><a class="btn btn-warning btn-sm" href="{% url 'employees_app:genera-certificaciones' e.idcert %}" target="_blank">
+                                Ver
+                            </a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+{% endblock content %}
