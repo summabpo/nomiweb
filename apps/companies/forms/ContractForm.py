@@ -55,7 +55,7 @@ class ContractForm(forms.Form):
     # Seguridad Social 
     eps = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.using("lectaen").filter(tipoentidad='EPS').order_by('entidad')], label='Eps', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 
     pensionFund = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.using("lectaen").filter(tipoentidad='AFP').order_by('entidad')], label='Pension', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 
-    CesanFund = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.using("lectaen").filter(tipoentidad='CCF').order_by('entidad')], label='Fondo Cesantias', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 
+    CesanFund = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.using("lectaen").filter(tipoentidad='AFP').order_by('entidad')], label='Fondo Cesantias', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 
     workPlace = forms.ChoiceField(choices=[('', '----------')] + [(sede.idsede, sede.nombresede) for sede in Sedes.objects.using("lectaen").all()], label='Sede de Trabajo', required=True)
     arlWorkCenter  = forms.ChoiceField(choices=[('', '----------')] + [(centro.centrotrabajo, centro.nombrecentrotrabajo) for centro in Centrotrabajo.objects.using("lectaen").all()], label='Centro de Trabajo ARL', required=True)
     # Información Adicional
