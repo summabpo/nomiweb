@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.companies.models import Tipodocumento,Paises,Ciudades,Contratosemp,Profesiones,Contratos,Centrotrabajo
+from apps.companies.models import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo
 from apps.companies.forms.ContractForm  import ContractForm 
 from django.contrib import messages
 
@@ -72,62 +72,76 @@ def EditEmployeeSearch(request):
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
     contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
-    # for field in contrato._meta.fields:
-    #     field_name = field.name
-    #     field_value = getattr(contrato, field_name)
-    #     print(f"{field_name}: {field_value}")
-    
+    # Definición de DicContract con las variables que se usarán en el HTML
     DicContract = {
-        #Contrato
-        'Idcontrato':contrato.idcontrato , 
-        'FechaTerminacion':contrato.fechainiciocontrato, 
-        'Empleado':  empleado.papellido +' ' + empleado.sapellido +' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad) ,  #* esto es el nombre del empleado con su cedula  
-        'TipoNomina':contrato.tiponomina , 
-        'Cargo':contrato.cargo , 
-        'LugarTrabajo': contrato.ciudadcontratacion.idciudad, #* ok  
-        'FechaInicial': contrato.fechainiciocontrato,
-        'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo", 
-        # The line ` 'ModeloContrato':contrato.idmodelo.tipocontrato, ` is accessing the
-        # `tipocontrato` attribute of the `idmodelo` object associated with the `contrato` object.
-        'TipoContrato':contrato.tipocontrato.idtipocontrato, 
-        'MotivoRetiro':contrato.motivoretiro, 
-        'ModeloContrato':contrato.idmodelo.tipocontrato, 
-        ## compensacion 
-        'Salario':"{:,.0f}".format(contrato.salario).replace(',', '.') , 
-        'TipoSalario':contrato.tiposalario.idtiposalario,
-        'ModalidadSalario':contrato.salariovariable, #* ok 
-        'Formapago':  contrato.formapago, #* ok  
-        'BancoCuenta':contrato.bancocuenta,
-        'TipoCuenta':contrato.tipocuentanomina,
-        'CuentaNomina':contrato.cuentanomina,
-        'CentroCostos':contrato.idcosto.idcosto,
-        'SubcentroCostos':contrato.idsubcosto.idsubcosto,
-        ## seguridad social 
-        'Eps':contrato.codeps,
-        'FondoCesantias':contrato.codccf,
-        'Pension':contrato.codafp,
-        'ARL':contrato.centrotrabajo.centrotrabajo,
-        'Sede':contrato.idsede.idsede,
-        'TarifaARL':contrato.idsede.nombresede,
-        'Caja':contrato.cajacompensacion,
-        'Tipocotizante':contrato.tipocotizante, #! FALTA 
-        'Subtipocotizante':contrato.subtipocotizante,
-        'Pensionado':contrato.pensionado, #! MODIFCIAR 
-        
+        'Idcontrato': contrato.idcontrato,
+        'FechaTerminacion': contrato.fechafincontrato,
+        'Empleado':  empleado.papellido + ' ' + empleado.sapellido + ' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad),
+        'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo",
+        'MotivoRetiro': contrato.motivoretiro,
+        'TarifaARL': contrato.idsede.nombresede,
+        'Caja': contrato.cajacompensacion,
+        'Tipocotizante': contrato.tipocotizante,
+        'Subtipocotizante': contrato.subtipocotizante,
+        'Pensionado': contrato.pensionado,
     }
     
+    # Definición de initial_data con las variables que se usarán en el formulario
+    initial_data = {
+        'endDate': str(contrato.fechafincontrato),
+        'payrollType': contrato.tiponomina,
+        'position': contrato.cargo,
+        'workLocation': contrato.ciudadcontratacion.idciudad,
+        'contractStartDate': str(contrato.fechainiciocontrato),
+        'contractType': contrato.tipocontrato.idtipocontrato,
+        'contractModel': contrato.idmodelo.tipocontrato,
+        'salary': "{:,.0f}".format(contrato.salario).replace(',', '.'),
+        'salaryType': contrato.tiposalario.idtiposalario,
+        'paymentMethod': contrato.formapago,
+        'salaryMode': contrato.salariovariable,
+        'bankAccount': contrato.bancocuenta,
+        'accountType': contrato.tipocuentanomina,
+        'payrollAccount': contrato.cuentanomina,
+        'costCenter': contrato.idcosto.idcosto,
+        'subCostCenter': contrato.idsubcosto.idsubcosto,
+        'eps': contrato.codeps,
+        'pensionFund': contrato.codafp,
+        'CesanFund': contrato.codccf,
+        'arlWorkCenter': contrato.centrotrabajo.centrotrabajo,
+        'workPlace': contrato.idsede.idsede,
+    }
 
     
     if request.method == 'POST':
         form = ContractForm(request.POST)
         if form.is_valid():
             
-            empleado.estadocontrato = 1
+            """ 
+            'paymentMethod',
+            'bankAccount',
+            'accountType',
+            'payrollAccount',
+            'costCenter',
+            'subCostCenter'
             
-            empleado.save()
+            """
             
-            messages.success(request, 'El Contrato ha sido creado')
-            
+            contratos_instance = Contratos(
+                    tiponomina =form.cleaned_data['payrollType'],
+                    bancocuenta =form.cleaned_data['bankAccount'],#*
+                    cuentanomina =form.cleaned_data['payrollAccount'],#*
+                    tipocuentanomina =form.cleaned_data['accountType'],#*
+                    formapago  = form.cleaned_data['paymentMethod'],#*
+                    idcosto  =  Costos.objects.get( idcosto =  form.cleaned_data['costCenter'] )  ,#*
+                    idsubcosto   = Subcostos.objects.get( idsubcosto =  form.cleaned_data['subCostCenter'] ), #*  ,
+                    
+                    #todo : No editables 
+                    centrotrabajo = Centrotrabajo.objects.get(centrotrabajo =  form.cleaned_data['arlWorkCenter'] )  ,
+                    
+
+                )
+            contratos_instance.save()
+            messages.success(request, 'El Contrato ha sido Actualizado')
             return  redirect('companies:editcontracsearch')
             # try:
                 
@@ -135,35 +149,14 @@ def EditContracVisual(request,idempleado):
             #     print(e)
             #     messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
             #     messages.error(request, messages_error)
-            #     return redirect('companies:newemployee')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"Error en el campo '{field}': {error}")
-            return redirect('companies:editcontracvisual')
+            #     return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
+        # else:
+        #     for field, errors in form.errors.items():
+        #         for error in errors:
+        #             messages.error(request, f"Error en el campo '{field}': {error}")
+        #     return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
     else:
-        initial_data = {'endDate': DicContract['FechaTerminacion'] ,
-                        'payrollType': DicContract['TipoNomina'] ,
-                        'position': DicContract['Cargo'] ,
-                        'workLocation': DicContract['LugarTrabajo'] ,
-                        'contractStartDate': str(DicContract['FechaInicial']) ,
-                        'contractType': DicContract['TipoContrato'] ,
-                        'contractModel': DicContract['ModeloContrato'] ,
-                        'salary': DicContract['Salario'] ,
-                        'salaryType': DicContract['TipoSalario'] ,
-                        'paymentMethod': DicContract['Formapago'] ,
-                        'salaryMode': DicContract['ModalidadSalario'] ,
-                        'bankAccount': DicContract['BancoCuenta'] ,
-                        'accountType': DicContract['TipoCuenta'] ,
-                        'payrollAccount': DicContract['CuentaNomina'] ,
-                        'costCenter': DicContract['CentroCostos'] ,
-                        'subCostCenter': DicContract['SubcentroCostos'] ,
-                        'eps': DicContract['Eps'],
-                        'pensionFund': DicContract['Pension'],
-                        'CesanFund': DicContract['FondoCesantias'],
-                        'arlWorkCenter': DicContract['Sede'],
-                        'workPlace': DicContract['ARL'],
-                        } 
+        
         
         form = ContractForm(initial=initial_data)    
         form.fields['endDate'].widget.attrs['disabled'] = True

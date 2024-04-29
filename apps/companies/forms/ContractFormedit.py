@@ -44,7 +44,7 @@ class ContractForm(forms.Form):
     salary = forms.CharField(label='Salario', max_length=100, required=True)   
     salaryType = forms.ChoiceField(choices=[('', '----------')] + [(salario.idtiposalario, salario.tiposalario) for salario in Tiposalario.objects.all()], label='Tipo Salario', required=True) 
     salaryMode = forms.ChoiceField(label='Modalidad Salario', choices=ModalidadSalario, required=True)
-    livingPlace = forms.BooleanField(label='Vive en el lugar de trabajo', required=True)
+    livingPlace = forms.BooleanField(label='Vive en el lugar de trabajo', required=False)
     paymentMethod = forms.ChoiceField(label='Forma de pago', choices=FormaPago, required=True)
     bankAccount = forms.ChoiceField(choices=[('', '----------')] + [(banco.nombanco, banco.nombanco) for banco in Bancos.objects.all().order_by('nombanco')], label='Banco de la Cuenta', required=True)
     # Información de Cuenta
