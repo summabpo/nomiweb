@@ -1,0 +1,25 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %} Nomiweb.co - Portal Empresas - Nuevo Empleado {% endblock %}
+
+{% block css %} 
+{% endblock %}
+
+{% block cssarch %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block titulo2 %} 
+    Nuevo Contrato
+{% endblock %}
+
+{% block content %}
+<main class="flex-grow-1 content">  
+    {% crispy form %}
+</main>
+{% endblock %}
+
+{% block js %}
+{% endblock %}

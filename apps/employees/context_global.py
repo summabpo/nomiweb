@@ -1,4 +1,4 @@
-# models
+#models
 from apps.employees.models import  Certificaciones, Tipocontrato, Empresa
 from apps.employees.models import Crearnomina, Nomina, Contratos, Contratosemp 
 from django.db.models import Sum, F, Value, CharField

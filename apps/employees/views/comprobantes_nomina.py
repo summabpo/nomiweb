@@ -17,7 +17,7 @@ import imgkit
 # Create your views here.
 from django.views.generic import  ListView, DetailView
 
-# models
+#models
 from apps.employees.models import Crearnomina, Nomina, Contratos, Contratosemp
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
@@ -87,23 +87,23 @@ def genera_comprobante(request, idnomina, idcontrato):
         html_file = 'static/html/comprobante_nomina.html'
         img_file = 'static/img/comprobante.png'
 
-        # Configuración de imgkit
+        #Configuración de imgkit
         opciones = {
             'quiet': '',
             'width': '820',
             'height': '792',
         }
 
-        # Convierte el HTML en una imagen
+        #Convierte el HTML en una imagen
         imgkit.from_file(html_file, img_file, options=opciones)
 
-        # Abre la imagen de fondo usando ImageReader de ReportLab
+        #Abre la imagen de fondo usando ImageReader de ReportLab
         imagen_fondo = ImageReader(img_file)
 
-        # Define el tamaño de la página
+        #Define el tamaño de la página
         ancho_pagina, alto_pagina = letter
 
-        # Dibuja la imagen de fondo en todas las páginas
+        #Dibuja la imagen de fondo en todas las páginas
         p.drawImage(imagen_fondo, 25, -90, ancho_pagina, alto_pagina)
 
         #data to print
@@ -118,7 +118,7 @@ def genera_comprobante(request, idnomina, idcontrato):
             output_field=CharField()
             )
         ).values('empleado').first()
-        nombre_completo=empleado['empleado']
+        #nombre_completo=empleado['empleado']
 
         dataDevengado = Nomina.objects.filter(idcontrato=idc, idnomina=idn, valor__gt=0).order_by('idconcepto')
         dataDescuento = Nomina.objects.filter(idcontrato=idc, idnomina=idn, valor__lt=0).order_by('idconcepto')
