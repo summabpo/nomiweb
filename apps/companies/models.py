@@ -124,8 +124,6 @@ class ModelosContratos(models.Model):
         managed = False
         db_table = 'modelos_contratos'
         
-    def __str__(self):
-        return f"{self.nombremodelo}"
 
 
 class Sedes(models.Model):

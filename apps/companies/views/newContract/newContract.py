@@ -26,7 +26,7 @@ def newContractCreater(request,idempleado):
                 pension =form.cleaned_data['pensionFund'],
                 cajacompensacion =form.cleaned_data['accountType'],
                 #! modificar para que guarde le nombre basado en la db 
-                centrotrabajo = Centrotrabajo.objects.get(centrotrabajo =  form.cleaned_data['arlWorkCenter'] )  ,
+                
                 tarifaarl ='0',
                 ciudadcontratacion = Ciudades.objects.get( idciudad =  form.cleaned_data['workLocation']) ,
                 fondocesantias =form.cleaned_data['CesanFund'],
