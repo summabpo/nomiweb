@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('companies/new/employee', newEmployee.newEmployee , name='newemployee'),
     path('companies/edit/employee',  EditEmployee.EditEmployeeSearch , name='editemployeesearch'),
+    
     path('companies/edit/employee/<str:idempleado>',  EditEmployee.EditEmployeeVisual , name='editemployeevisual'),
 
     path('companies/new/contract',newContract.newContractVisual ,name='newcontractvisual'),

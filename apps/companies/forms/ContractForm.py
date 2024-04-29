@@ -39,7 +39,7 @@ class ContractForm(forms.Form):
     workLocation = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Lugar de trabajo' , required=True ,widget=forms.Select(attrs={'data-control': 'select2'}))
     contractStartDate = forms.DateField(label='Fecha de inicio de contrato', required=True, widget=forms.DateInput(attrs={'type': 'date'}))   
     contractType = forms.ChoiceField(choices=[('', '----------')] + [(contrato.idtipocontrato, contrato.tipocontrato) for contrato in Tipocontrato.objects.all()], label='Tipo de Contrato',required=True)
-    contractModel = forms.ChoiceField(choices=[('', '----------')] + [(modelo.tipocontrato, modelo.nombremodelo) for modelo in ModelosContratos.objects.all()], label='Modelo de Contrato',required=True)
+    contractModel = forms.ChoiceField(choices=[('', '----------')] + [(modelo.idmodelo, modelo.nombremodelo) for modelo in ModelosContratos.objects.all()], label='Modelo de Contrato',required=True)
     # Compensación
     salary = forms.CharField(label='Salario', max_length=100, required=True)   
     salaryType = forms.ChoiceField(choices=[('', '----------')] + [(salario.idtiposalario, salario.tiposalario) for salario in Tiposalario.objects.all()], label='Tipo Salario', required=True ) 
@@ -66,16 +66,29 @@ class ContractForm(forms.Form):
     
     def clean(self):
         cleaned_data = super().clean()
-        salary = cleaned_data.get('salary')
-        if salary:
+        payrollAccount = cleaned_data.get('payrollAccount')
+        if payrollAccount:
             try:
-                float(salary)
+                float(payrollAccount)
             except ValueError:
-                self.add_error('salary', 'El salario debe ser un número válido (entero o flotante).')
+                self.add_error('payrollAccount', 'El salario debe ser un número válido (entero o flotante).')
         return cleaned_data
     
-    
-    
+    def set_premium_fields(self, premium=False):
+        fields_to_adjust = [
+            'endDate', 'payrollType', 'position', 'workLocation', 'contractStartDate',
+            'contractType', 'contractModel', 'salary', 'salaryType', 'salaryMode',
+            'eps', 'pensionFund', 'CesanFund', 'arlWorkCenter', 'workPlace'
+        ]
+
+        for field_name in fields_to_adjust:
+            field = self.fields.get(field_name)
+            if field:
+                field.disabled = not premium
+                field.required = premium
+        
+
+
     def __init__(self, *args, **kwargs):
         super(ContractForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()

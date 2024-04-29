@@ -25,10 +25,10 @@ class EmployeeForm(forms.Form):
     stratum = forms.ChoiceField(choices=[('', '----------'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6')], label='Estrato', required=False)
     birth_country = forms.ChoiceField(choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()], label='País de Nacimiento' , widget=forms.Select(attrs={'data-control': 'select2'}))
     military_id = forms.CharField(label='Libreta Militar', required=False)
-    blood_group = forms.ChoiceField(choices=[('', '----------'), ('O-', 'O-'), ('O+', 'O+'), ('A-', 'A-'), ('A+', 'A+'), ('B-', 'B-'), ('B+', 'B+'), ('AB-', 'AB-'), ('AB+', 'AB+')], label='Grupo Sanguíneo', required=False)
+    blood_group = forms.ChoiceField(choices=[('', '-----'), ('OP', 'O +'), ('ON', 'O -'), ('AN', 'A -'), ('AP', 'A +'), ('BP', 'B +'), ('BN', 'B -'), ('ABP', 'AB +'), ('ABN', 'AB -')], label='Grupo Sanguíneo', required=False)
     profession = forms.ChoiceField(choices=[('', '----------')] + [(profesion.idprofesion, profesion.profesion) for profesion in Profesiones.objects.all()], label='Profesión', required=False , widget=forms.Select(attrs={'data-control': 'select2'}) )
-    residence_address = forms.CharField(label='Dirección de Residencia *')
-    email = forms.EmailField(label='E-mail *')
+    residence_address = forms.CharField(label='Dirección de Residencia')
+    email = forms.EmailField(label='E-mail')
     residence_city = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Ciudad de Residencia',widget=forms.Select(attrs={'data-control': 'select2'}))
     cell_phone = forms.CharField(label='Celular')
     residence_country = forms.ChoiceField(choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()], label='País de residencia' , widget=forms.Select(attrs={'data-control': 'select2'}))
@@ -73,10 +73,10 @@ class EmployeeForm(forms.Form):
         else:
             cleaned_data['second_last_name'] = second_last_name.upper()
 
-        # if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
-        #     self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
-        # if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
-        #     self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
+        if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
+            self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
+        if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
+            self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
 
         if identification_number and not re.match(r'^\d+$', str(identification_number)):
             self.add_error('identification_number', "Este campo debe contener solo números.")
@@ -88,7 +88,21 @@ class EmployeeForm(forms.Form):
             self.add_error('employee_phone', "Este campo debe contener solo números.")
 
         return cleaned_data
+                
+    def set_premium_fields(self, premium=False, fields_to_adjust=None):
+        if fields_to_adjust is not None:
+            for field_name in fields_to_adjust:
+                field = self.fields.get(field_name)
+                if field:
+                    field.disabled = not premium
 
+    def set_required(self, activate):
+        for field_name, field in self.fields.items():
+            field.required = activate
+        
+    
+    
+    
     
     def __init__(self, *args, **kwargs):
         super(EmployeeForm, self).__init__(*args, **kwargs)
