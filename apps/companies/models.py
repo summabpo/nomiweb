@@ -221,8 +221,6 @@ class Ciudades(models.Model):
         managed = False
         db_table = 'ciudades'
         
-    def __str__(self):
-        return f"{self.ciudad} - {self.departamento}"
         
         
         
