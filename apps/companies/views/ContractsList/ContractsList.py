@@ -31,10 +31,5 @@ def startCompanies(request):
         empleados.append(contrato_data)
     
     return render(request, './companies/index.html', {'empleados': empleados})
-<<<<<<< HEAD
-=======
-
->>>>>>> 50cc76f7567e2fe93c850b7bb7f51acb6a0fcc19
-
 
 
