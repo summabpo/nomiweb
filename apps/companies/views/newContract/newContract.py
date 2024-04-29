@@ -8,6 +8,7 @@ def newContractVisual(request):
     return render(request, './companies/newContractVisual.html',{'empleados':empleados})
 
 def newContractCreater(request,idempleado):
+    empleado = Contratosemp.objects.using("lectaen").filter(idempleado=idempleado)
     if request.method == 'POST':
         form = ContractForm(request.POST)
         if form.is_valid():
@@ -16,9 +17,7 @@ def newContractCreater(request,idempleado):
                 fechainiciocontrato =form.cleaned_data['contractStartDate'],
                 fechafincontrato =form.cleaned_data['endDate'],
                 tipocontrato = Tipocontrato.objects.get(idtipocontrato=form.cleaned_data['contractType'])  ,
-                
                 tiponomina =form.cleaned_data['payrollType'],
-                
                 bancocuenta =form.cleaned_data['bankAccount'],
                 cuentanomina =form.cleaned_data['payrollAccount'],
                 tipocuentanomina =form.cleaned_data['accountType'],
@@ -27,8 +26,6 @@ def newContractCreater(request,idempleado):
                 pension =form.cleaned_data['pensionFund'],
                 cajacompensacion =form.cleaned_data['accountType'],
                 #! modificar para que guarde le nombre basado en la db 
-                
-                
                 centrotrabajo = Centrotrabajo.objects.get(centrotrabajo =  form.cleaned_data['arlWorkCenter'] )  ,
                 tarifaarl ='0',
                 ciudadcontratacion = Ciudades.objects.get( idciudad =  form.cleaned_data['workLocation']) ,
@@ -72,11 +69,13 @@ def newContractCreater(request,idempleado):
 
             )
             contratos_instance.save()
+            empleado.estadocontrato = 1
+            
+            empleado.save()
+            
             messages.success(request, 'El Contrato ha sido creado')
             
-            return  redirect('companies:newemployee')
-        
-            
+            return  redirect('companies:newcontractvisual')
             # try:
                 
             # except Exception as e:
@@ -90,8 +89,7 @@ def newContractCreater(request,idempleado):
                     messages.error(request, f"Error en el campo '{field}': {error}")
             return redirect('companies:newemployee')
     else:
-        form = ContractForm    
-    
+        form = ContractForm        
     return render(request, './companies/newContractCreate.html',{'form':form})
 
 

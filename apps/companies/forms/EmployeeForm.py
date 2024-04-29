@@ -1,7 +1,7 @@
 import re
 # Django
 from django import forms
-from apps.companies.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
+from apps.companies.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Profesiones,Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit,HTML
 
@@ -10,7 +10,7 @@ class EmployeeForm(forms.Form):
     identification_type = forms.ChoiceField(choices=[('', '----------')] + [(documento.codigo, documento.documento) for documento in Tipodocumento.objects.all()], label='Tipo de documento de identidad ')
     identification_number = forms.IntegerField(label='Documento de Identidad ')
     expedition_date = forms.DateField(label='Fecha de expedición ',widget=forms.DateInput(attrs={'type': 'date'}))
-    expedition_city = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Ciudad de expedición ')
+    expedition_city = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Ciudad de expedición ' , widget=forms.Select(attrs={'data-control': 'select2'}) )
     first_name = forms.CharField(label='Primer Nombre ')
     second_name = forms.CharField(label='Segundo Nombre', required=False)
     first_last_name = forms.CharField(label='Primer Apellido ')
@@ -21,21 +21,21 @@ class EmployeeForm(forms.Form):
     weight = forms.CharField(label='Peso (Kg)', required=False)
     birthdate = forms.DateField(label='Fecha de Nacimiento ',widget=forms.DateInput(attrs={'type': 'date'}))
     education_level = forms.ChoiceField(choices=[('', '----------'), ('primaria', 'Primaria'), ('Bachiller', 'Bachiller'), ('bachillerinc', 'Bachiller Incompleto'), ('tecnico', 'Técnico'), ('tecnologo', 'Tecnólogo'), ('universitario', 'Universitario'), ('universitarioinc', 'Universitario Incompleto'), ('postgrado', 'Postgrado'), ('magister', 'Magíster')], label='Nivel Educativo', required=False)
-    birth_city = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Ciudad de Nacimiento')
+    birth_city = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Ciudad de Nacimiento',widget=forms.Select(attrs={'data-control': 'select2'}) )
     stratum = forms.ChoiceField(choices=[('', '----------'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6')], label='Estrato', required=False)
-    birth_country = forms.ChoiceField(choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()], label='País de Nacimiento')
+    birth_country = forms.ChoiceField(choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()], label='País de Nacimiento' , widget=forms.Select(attrs={'data-control': 'select2'}))
     military_id = forms.CharField(label='Libreta Militar', required=False)
     blood_group = forms.ChoiceField(choices=[('', '----------'), ('O-', 'O-'), ('O+', 'O+'), ('A-', 'A-'), ('A+', 'A+'), ('B-', 'B-'), ('B+', 'B+'), ('AB-', 'AB-'), ('AB+', 'AB+')], label='Grupo Sanguíneo', required=False)
-    profession = forms.ChoiceField(choices=[('', '----------')] + [(profesion.idcargo, profesion.nombrecargo) for profesion in Cargos.objects.all()], label='Profesión', required=False)
+    profession = forms.ChoiceField(choices=[('', '----------')] + [(profesion.idprofesion, profesion.profesion) for profesion in Profesiones.objects.all()], label='Profesión', required=False , widget=forms.Select(attrs={'data-control': 'select2'}) )
     residence_address = forms.CharField(label='Dirección de Residencia *')
     email = forms.EmailField(label='E-mail *')
-    residence_city = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Ciudad de Residencia')
+    residence_city = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Ciudad de Residencia',widget=forms.Select(attrs={'data-control': 'select2'}))
     cell_phone = forms.CharField(label='Celular')
-    residence_country = forms.ChoiceField(choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()], label='País de residencia')
+    residence_country = forms.ChoiceField(choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()], label='País de residencia' , widget=forms.Select(attrs={'data-control': 'select2'}))
     employee_phone = forms.CharField(label='Teléfono del Empleado', required=False)
-    pants_size = forms.ChoiceField(choices=[('', '----------'), ('6', '6'), ('8', '8'), ('10', '10'), ('12', '12'), ('14', '14'), ('16', '16'), ('28', '28'), ('30', '30'), ('32', '32'), ('34', '34'), ('36', '36'), ('38', '38'), ('40', '40')], label='Talla Pantalón')
-    shirt_size = forms.ChoiceField(choices=[('', '----------'), ('38', '38'), ('40', '40'), ('42', '42'), ('44', '44'), ('XS', 'XS'), ('S', 'S'), ('M', 'M'), ('L', 'L'), ('XL', 'XL'), ('XXL', 'XXL')], label='Talla Camisa')
-    shoes_size = forms.ChoiceField(choices=[('', '----------'), ('34', '34'), ('35', '35'), ('36', '36'), ('37', '37'), ('38', '38'), ('39', '39'), ('40', '40'), ('41', '41'), ('42', '42'), ('43', '43'), ('44', '44')], label='Talla Zapatos')
+    pants_size = forms.ChoiceField(choices=[('', '----------'), ('6', '6'), ('8', '8'), ('10', '10'), ('12', '12'), ('14', '14'), ('16', '16'), ('28', '28'), ('30', '30'), ('32', '32'), ('34', '34'), ('36', '36'), ('38', '38'), ('40', '40')], label='Talla Pantalón',required=False)
+    shirt_size = forms.ChoiceField(choices=[('', '----------'), ('38', '38'), ('40', '40'), ('42', '42'), ('44', '44'), ('XS', 'XS'), ('S', 'S'), ('M', 'M'), ('L', 'L'), ('XL', 'XL'), ('XXL', 'XXL')], label='Talla Camisa' , required=False)
+    shoes_size = forms.ChoiceField(choices=[('', '----------'), ('34', '34'), ('35', '35'), ('36', '36'), ('37', '37'), ('38', '38'), ('39', '39'), ('40', '40'), ('41', '41'), ('42', '42'), ('43', '43'), ('44', '44')], label='Talla Zapatos', required=False)
 
 
 
@@ -73,10 +73,10 @@ class EmployeeForm(forms.Form):
         else:
             cleaned_data['second_last_name'] = second_last_name.upper()
 
-        if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
-            self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
-        if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
-            self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
+        # if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
+        #     self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
+        # if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
+        #     self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
 
         if identification_number and not re.match(r'^\d+$', str(identification_number)):
             self.add_error('identification_number', "Este campo debe contener solo números.")
@@ -174,7 +174,7 @@ class EmployeeForm(forms.Form):
                 css_class='container'
             ),
             Div(
-                HTML('<h3>Tallas</h3>'),
+                HTML('<h3>Dotación</h3>'),
                 Div(
                     Div('pants_size', css_class='col'),
                     Div('shirt_size', css_class='col'),
