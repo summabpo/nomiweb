@@ -71,8 +71,44 @@ def EditEmployeeSearch(request):
 
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
-    Contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
+    contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
 
+    DicContract = {
+        #Contrato
+        'Idcontrato':contrato.idcontrato , 
+        'FechaTerminacion':contrato.fechafincontrato , 
+        'Empleado':  empleado.papellido +' ' + empleado.sapellido +' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad) ,  #* esto es el nombre del empleado con su cedula  
+        'TipoNomina':contrato.tiponomina , 
+        'Cargo':contrato.cargo , 
+        'LugarTrabajo': contrato.ciudadcontratacion, #* ok  
+        'FechaInicial': contrato.fechafincontrato,
+        'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo", 
+        'TipoContrato':contrato.tipocontrato.tipocontrato, 
+        'MotivoRetiro':contrato.motivoretiro, 
+        'ModeloContrato':contrato.idmodelo.tipocontrato, 
+        ## compensacion 
+        'Salario':"{:,.0f}".format(contrato.salario).replace(',', '.') , 
+        'TipoSalario':contrato.tiposalario.tiposalario,
+        'ModalidadSalario':contrato.tiposalario, #* ok 
+        'Formapago':  "Abono a Cuenta" if contrato.formapago == '1' else ("Cheque" if contrato.formapago == '2' else "Efectivo"), #* ok  
+        'BancoCuenta':contrato.bancocuenta,
+        'TipoCuenta':contrato.tipocuentanomina,
+        'CuentaNomina':contrato.cuentanomina,
+        'CentroCostos':contrato.idcosto.nomcosto,
+        'SubcentroCostos':contrato.idsubcosto.nomsubcosto,
+        ## seguridad social 
+        'Eps':contrato.eps,
+        'FondoCesantias':contrato.fondocesantias,
+        'Pension':contrato.pension,
+        'ARL':contrato.centrotrabajo.nombrecentrotrabajo,
+        'Sede':contrato.centrotrabajo.nombrecentrotrabajo,
+        'TarifaARL':contrato.idsede.nombresede,
+        'Caja':contrato.cajacompensacion,
+        'Tipocotizante':contrato.tipocotizante, #! FALTA 
+        'Subtipocotizante':contrato.subtipocotizante,
+        'Pensionado':contrato.pensionado, #! MODIFCIAR 
+        
+    }
     
     if request.method == 'POST':
         form = ContractForm(request.POST)
@@ -102,6 +138,7 @@ def EditContracVisual(request,idempleado):
         form = ContractForm(initial=initial_data)    
         form.fields['payrollType'].widget.attrs['disabled'] = True
         form.fields['payrollAccount'].widget.attrs['disabled'] = True
+        
     # POST 
     
     
@@ -109,4 +146,4 @@ def EditContracVisual(request,idempleado):
     
     
     
-    return render(request, './companies/EditContractVisual.html',{'form':form,'Contrato':Contrato})
+    return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':DicContract})
