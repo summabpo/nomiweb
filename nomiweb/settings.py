@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize', #Para poner puntos en numeros para separar miles
 
     # Generated applications
     'apps.login.apps', 
