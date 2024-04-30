@@ -7,30 +7,28 @@ from django.contrib.auth.models import User
 from .funtion import authenticate_custom
 
 
-
-def Login(request):
-    # if request.user.is_authenticated:
-    #     return redirect_to_appropriate_page(request, request.user)
-    
+def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-            user = authenticate_custom(username=username, password=password)
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('login:startcompanies')
+                return redirect('companies:editcontracsearch')  
             else:
-                messages.error(request, 'Credenciales inválidas. Por favor, inténtalo de nuevo.')
+                messages.error(request, 'Usuario o contraseña incorrectos.')
     else:
         form = LoginForm()
     return render(request, './users/login.html', {'form': form})
 
-def Logout(request):
+
+def logout_view(request):
     logout(request)
     return redirect('login:login')
 
 
-
+def redirect_user(request):
+    return redirect('login')
 
