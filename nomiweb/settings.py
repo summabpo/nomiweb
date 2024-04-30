@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize', #Para poner puntos en numeros para separar miles
 
     # Generated applications
-    'apps.login.apps', 
+    'apps.login', 
     'apps.employees',     # Employees application
     'apps.companies',     # Companies application
     # 'apps.payroll',       # Payroll application
@@ -98,15 +98,9 @@ WSGI_APPLICATION = 'nomiweb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
+
 DATABASES = {
-    'lectaen': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lectaen',
-        'USER': 'devdjango',
-        'PASSWORD': DB_PASSWORD,  
-        'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
-        'PORT': '5432',
-    } , 
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'userlectaen',
@@ -114,16 +108,27 @@ DATABASES = {
         'PASSWORD': DB_PASSWORD,  
         'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
-    }
+    },
+    
+    'lectaen': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'lectaen',
+        'USER': 'devdjango',
+        'PASSWORD': DB_PASSWORD,  
+        'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
+        'PORT': '5432',
+    } 
+    
 }
 
 
-
-
 DATABASE_ROUTERS = [
-    'nomiweb.db_routers.routers.RouterLectaen',
-    'nomiweb.db_routers.routers.RouterDefault',
+    'nomiweb.db_routers.routers.RouterAuth',
+    'nomiweb.db_routers.routers.RouterLectaen'
+    
 ]
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
