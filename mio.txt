@@ -647,3 +647,180 @@ DicContract = {
         
     }
     
+
+<form method="POST">
+            {% csrf_token %}
+            <div class="container">
+            <h3>Datos de Identificación</h3>
+                <div class="mb-3 row">
+                    
+                    <div class="col">
+                        <label for="inputIdentificationType" class="col-form-label">Tipo de documento de identidad </label>
+                        <input type="text" class="form-control" name="identification_type" value="{{ datocruz.tipodocident }}" readonly >
+                        
+                    </div>
+                    
+                    <div class="col">
+                        <label for="inputIdentificationNumber" class="col-form-label" style="display: none;" >Documento de Identidad </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.docidentidad }}" readonly style="display: none;" >
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="inputExpeditionDate" class="col-form-label" >Fecha de expedición </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.fechaexpedicion |date:'d-m-Y' }}" readonly >
+                    
+                    </div>
+                    
+                    <div class="col">
+                        <label for="inputExpeditionCity" class="col-form-label">Ciudad de expedición </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ datocruz.ciudadexpedicion }}" readonly >
+                    </div>
+
+                </div>
+                
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="inputFirstName" class="col-form-label" >Primer Nombre </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.pnombre }}" readonly >
+                    
+                    </div>
+                    <div class="col">
+                        <label for="inputSecondName" class="col-form-label" >Segundo Nombre</label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.snombre }}" readonly >
+                    
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="inputFirstLastName" class="col-form-label" >Primer Apellido </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.papellido }}" readonly >
+                    </div>
+                    <div class="col">
+                        <label for="inputSecondLastName" class="col-form-label" >Segundo Apellido</label >
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.sapellido }}" readonly >
+                    
+                    </div>
+                </div>
+            </div>   
+
+            <div class="container">
+                <!-- Datos de Identificación -->
+                <h3>Datos Personales</h3>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="sex" class="col-form-label">Sexo </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.sexo }}" readonly >
+                    </div>
+                    <div class="col">
+                        <label for="height" class="col-form-label">Estatura (Mts)</label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.estatura }}" readonly >
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="marital_status" class="col-form-label">Estado Civil </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.estadocivil  }}" readonly >
+                    </div>
+                    <div class="col">
+                        <label for="weight" class="col-form-label">Peso (Kg)</label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.peso }}" readonly >
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="birthdate" class="col-form-label">Fecha de Nacimiento </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.fechanac|date:'d-m-Y' }}" readonly >
+                    </div>
+                    <div class="col">
+                        <label for="education_level" class="col-form-label">Nivel Educativo</label>
+                        <input type="text" class="form-control" id="education_level" name="education_level" placeholder="Nivel Educativo">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="birth_city" class="col-form-label">Ciudad de Nacimiento </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ datocruz.ciudadnaci }}" readonly >                   
+                    </div>
+                    <div class="col">
+                        <label for="stratum" class="col-form-label">Estrato</label>
+                        <input type="text" class="form-control" id="stratum" name="stratum" value="{{ empleado.estrato }}" >
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="birth_country" class="col-form-label">País de Nacimiento </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.paisnacimiento }}" readonly >
+                    </div>
+                    <div class="col">
+                        <label for="military_id" class="col-form-label">Libreta Militar</label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.numlibretamil }}" readonly >
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="blood_group" class="col-form-label">Grupo Sanguíneo</label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.gruposanguineo }}" readonly >
+                    </div>
+                    <div class="col">
+                        <label for="profession" class="col-form-label">Profesión</label>
+                        <input type="text" class="form-control" name="profession" value="{{ empleado.profesion }}"  >
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <!-- Datos de Residencia ... -->
+            <div class="container">
+                <!-- Datos de Residencia -->
+                <h3>Datos de Residencia</h3>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="residence_address" class="col-form-label">Dirección de Residencia </label>
+                        <input type="text" class="form-control" id="residence_address" name="residence_address" value="{{ empleado.direccionempleado }}"  placeholder="Dirección de Residencia">
+                    </div>
+                    <div class="col">
+                        <label for="email" class="col-form-label">E-mail </label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="E-mail" value="{{ empleado.email }}" >
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="residence_city" class="col-form-label">Ciudad de Residencia </label>
+                        <select class="form-select" id="residence_city" name="residence_city">
+                            <option value="" selected disabled>Selecciona una ciudad de Residencia</option>
+                            {% for ciudad in Ciudades %}
+                                <option value="{{ ciudad.idciudad  }}">{{ ciudad.ciudad }}</option>
+                            {% endfor %}
+                        </select>   
+                    </div>
+                    <div class="col">
+                        <label for="cell_phone" class="col-form-label">Celular </label>
+                        <input type="text" class="form-control" name="cell_phone" value="{{ empleado.celular }}" readonly >
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col">
+                        <label for="residence_country" class="col-form-label">País de residencia </label>
+                        <input type="text" class="form-control" name="identification_number" value="{{ empleado.paisresidencia }}" readonly >
+                    </div>
+                    <div class="col">
+                        <label for="employee_phone" class="col-form-label">Teléfono del Empleado</label>
+                        <input type="text" class="form-control" name="employee_phone" value="{{ empleado.telefonoempleado }}" readonly >
+                    </div>
+                </div>
+            </div>
+            
+            
+
+            <div class="container">
+                <div class="mb-3 row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </form>

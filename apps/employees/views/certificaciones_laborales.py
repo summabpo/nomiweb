@@ -18,7 +18,7 @@ import datetime
 
 # models
 from django.db.models import Q
-from apps.employees.models import  Certificaciones, Conceptosdenomina, Nomina
+from apps.employees.models import  Certificaciones, Nomina
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
 idn = 359
@@ -90,10 +90,7 @@ def vista_certificaciones(request):
             salario = datose['salario']
 
             queryset = Nomina.objects.filter(
-                (Q(idconcepto__basesegsocial = 1) &
-                Q(idconcepto__sueldobasico = 0) &
-                Q(idconcepto__ausencia = 0) &
-                Q(idconcepto__incapacidad = 0)),
+                (Q(idconcepto__baseprestacionsocial = 1)),
                 (Q(mesacumular=nombre_mes_1) & Q(anoacumular=ano_1) |
                 Q(mesacumular=nombre_mes_2) & Q(anoacumular=ano_2) |
                 Q(mesacumular=nombre_mes_3) & Q(anoacumular=ano_3)),
@@ -102,12 +99,12 @@ def vista_certificaciones(request):
                 )
 
             if queryset.exists():
-                salario_promedio = (queryset.aggregate(salario_promedio=Sum('valor'))['salario_promedio'])/3 + salario
+                salario_promedio = (queryset.aggregate(salario_promedio=Sum('valor'))['salario_promedio'])/3
             else:
                 salario_promedio = 0
 
             if modelo=='2':
-                salario_certificado=salario_promedio
+                salario_certificado=salario_promedio + salario
             else:
                 salario_certificado=salario
 
@@ -124,7 +121,7 @@ def vista_certificaciones(request):
     else:
         formulario = FormularioCertificaciones()
 
-    lista_certificaciones = Certificaciones.objects.filter(idcontrato=idc).order_by('-idcert')
+    lista_certificaciones = Certificaciones.objects.filter(idcontrato=idc).order_by('-idcert')[:10]
 
     return render(request, 'employees/certificaciones_laborales.html', {
         'formulario': formulario,

@@ -33,5 +33,3 @@ def startCompanies(request):
     return render(request, './companies/index.html', {'empleados': empleados})
 
 
-
-

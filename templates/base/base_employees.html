@@ -2,32 +2,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Website{% endblock %}</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-    <!--end::Fonts-->
-    <!--begin::Vendor Stylesheets(used for this page only)-->
-    <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css" />
-    <!--end::Vendor Stylesheets-->
-    <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
-        <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
-        <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}My Website{% endblock %}</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+  <!--end::Fonts-->
+  <!--begin::Vendor Stylesheets(used for this page only)-->
+  <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css" />
+  <!--end::Vendor Stylesheets-->
+  <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
+  <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
 
-  <!-- bootstrap -->
-  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-  
-  <!-- select2 locales  -->
-  <link href="{% static 'css/select2.min.css' %}" rel="stylesheet">
 
-    {% block cssarch %}
+
+
+  {% block cssarch %}
+  {% endblock %}
+
+  <style>
+    {% block css %}
     {% endblock %}
-
-    <style>
-        {% block css %}
-        {% endblock %}
-    </style>
+  </style>
 </head>
 <body id="kt_app_body" data-kt-app-header-fixed="true" data-kt-app-header-fixed-mobile="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" data-kt-app-sidebar-hoverable="true" data-kt-app-sidebar-push-toolbar="true" data-kt-app-sidebar-push-footer="true" data-kt-app-toolbar-enabled="true" data-kt-app-aside-enabled="true" data-kt-app-aside-fixed="true" data-kt-app-aside-push-toolbar="true" data-kt-app-aside-push-footer="true" class="app-default" >
 
@@ -258,9 +254,9 @@
                                         <!--end::Title-->
                                     </div>
                                     <!--end::Page title-->
-                                    <!--begin::Actions-->
+                                    <!--begin::Actions
                                     <a href="#" class="btn btn-sm btn-success ms-3 px-4 py-3" data-bs-toggle="modal" data-bs-target="#kt_modal_create_app">Create Project</a>
-                                    <!--end::Actions-->
+                                    end::Actions-->
                                 </div>
                                 <!--end::Toolbar wrapper-->
                             </div>
@@ -284,8 +280,8 @@
                     <div id="kt_app_footer" class="app-footer align-items-center justify-content-center justify-content-md-between flex-column flex-md-row py-3">
                         <!--begin::Copyright-->
                         <div class="text-gray-900 order-2 order-md-1">
-                            <span class="text-muted fw-semibold me-1">2024&copy;</span>
-                            <a href="" target="_blank" class="text-gray-800 text-hover-primary">SUMMA BPO SAS </a>
+                            <span class="text-muted fw-semibold me-1">2023&copy;</span>
+                            <a href="" target="_blank" class="text-gray-800 text-hover-primary">Fotter prueba </a>
                         </div>
                         <!--end::Copyright-->
                         <!--begin::Menu-->
@@ -329,6 +325,7 @@
         <script src="{% static 'js/custom/utilities/modals/create-app.js' %}"></script>
         <script src="{% static 'js/custom/utilities/modals/users-search.js' %}"></script>
 		<!--end::Custom Javascript-->
+        
 		<!--end::Javascript-->
 
 
@@ -352,17 +349,5 @@
             {% endfor %}
         {% endif %}
     </script>
-
-    <!-- DataTables & Plugins -->
-    <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'js/buttons.print.min.js' %}"></script>
-    <script src="{% static 'js/dataTables.buttons.min.js' %}"></script>
-    <script src="{% static 'js/buttons.html5.min.js' %}"></script>
-    <script src="{% static 'js/ajax/libs/jszip/3.1.3/jszip.min.js' %}"></script>
-    <script src="{% static 'js/dataTables.responsive.min.js' %}"></script>
-    <!-- bootstrap locales  -->
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    
 </body>
 </html>
