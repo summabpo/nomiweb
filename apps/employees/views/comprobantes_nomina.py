@@ -21,12 +21,12 @@ from django.views.generic import  ListView, DetailView
 from apps.employees.models import Crearnomina, Nomina, Contratos, Contratosemp
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
-idn = 359
-idc = 2477
-ide = 341
+idn = 499
+idc = 3863
+ide = 281
 
 class ListaNominas(ListView):
-    template_name = 'comprobantes_nomina/comprobantes.html'
+    template_name = 'employees/comprobantes.html'
     paginate_by = 30
     context_object_name = 'nominas'
     model = Nomina
@@ -41,7 +41,7 @@ class ListaNominas(ListView):
 class ListaConceptosNomina(ListView):
     model = Nomina
     context_object_name = 'conceptos'
-    template_name = 'comprobantes_nomina/recibo.html'
+    template_name = 'employees/recibo.html'
 
     def nombreNomina(self):
         nombrenomina = Crearnomina.objects.get(idnomina=idn).nombrenomina
