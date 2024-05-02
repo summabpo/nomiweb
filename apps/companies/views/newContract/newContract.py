@@ -3,14 +3,13 @@ from apps.companies.models import Tipodocumento ,ModelosContratos,Tiposalario, P
 from apps.companies.forms.ContractForm  import ContractForm 
 from django.contrib import messages
 
-def newContractVisual(request):    
-    empleados = Contratosemp.objects.using("lectaen").filter(estadocontrato=4)
+def newContractVisual(request):   
+    empleados = Contratosemp.objects.filter(estadocontrato=4)
     return render(request, './companies/newContractVisual.html',{'empleados':empleados})
 
 def newContractCreater(request,idempleado):
+    
     empleado = get_object_or_404(Contratosemp, idempleado=idempleado)
-    
-    
     if request.method == 'POST':
         form = ContractForm(request.POST)            
         if form.is_valid():

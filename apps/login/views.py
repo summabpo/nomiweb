@@ -5,6 +5,12 @@ from django.contrib import messages
 from .forms import LoginForm
 from .models import Usuario,Empresa
 
+from apps.components.role_redirect  import redirect_by_role
+
+from apps.login.middlewares import NombreDBSingleton
+
+
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -14,6 +20,7 @@ def login_view(request):
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
             if user is not None:
+                
                 login(request, user)
                 usuario = Usuario.filter_by_username(request.user.username)
                 request.session['usuario'] = {
@@ -21,7 +28,10 @@ def login_view(request):
                             'compania': usuario.company.name,
                             'db':usuario.company.db_name
                         }
-                return redirect('companies:startcompanies')  
+                
+                # singleton = NombreDBSingleton()
+                # singleton.set_nombre_db(usuario.company.db_name)
+                return redirect_by_role(usuario.role)
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')
     else:
@@ -30,8 +40,11 @@ def login_view(request):
 
 
 def logout_view(request):
-    logout(request)
+    singleton = NombreDBSingleton()
+    singleton.set_nombre_db('default')
     request.session.clear()
+    logout(request)
+    
     return redirect('login:login')
 
 

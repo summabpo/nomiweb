@@ -59,9 +59,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
 ]
 
-MIDDLEWARE = [
-    'apps.login.middlewares.AddDBNameToRequestMiddleware',
-]
+
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
@@ -75,9 +73,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'apps.login.middlewares.DatabaseRouterMiddleware',
 ]
 
+
+
 ROOT_URLCONF = 'nomiweb.urls'
+
+
+
 
 TEMPLATES = [
     {
@@ -102,6 +106,10 @@ WSGI_APPLICATION = 'nomiweb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
+DATABASE_ROUTERS = [
+    'nomiweb.db_routers.routers.DatabaseRouter'
+]
 
 
 DATABASES = {
@@ -133,12 +141,6 @@ DATABASES = {
     
 }
 
-
-DATABASE_ROUTERS = [
-    'nomiweb.db_routers.routers.RouterAuth',
-    'nomiweb.db_routers.routers.RouterLectaen'
-    
-]
 
 
 
