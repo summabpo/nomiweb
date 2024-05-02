@@ -6,7 +6,10 @@ from django.contrib import messages
 
 
 def EditContracsearch(request):
-    contratos_empleados = Contratos.objects.using("lectaen") \
+    usuario_data = request.session.get('usuario', {})
+    db = usuario_data.get('db', None)
+    
+    contratos_empleados = Contratos.objects.using(db) \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__sapellido','idempleado__pnombre',
@@ -37,16 +40,19 @@ def EditContracsearch(request):
 
 
 def EditContracVisual(request,idempleado):
-    empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
-    contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
+    usuario_data = request.session.get('usuario', {})
+    db = usuario_data.get('db', None)
     
+    empleado = Contratosemp.objects.using(db).get(idempleado=idempleado) 
+    contrato = get_object_or_404(Contratos.objects.using(db).select_related('idempleado', 'ciudadcontratacion', 'tipocontrato', 'idmodelo', 'tiposalario', 'idcosto', 'idsubcosto', 'centrotrabajo', 'idsede'),
+                                idempleado=idempleado, estadocontrato=1)
     DicContract = {
         'Idcontrato': contrato.idcontrato,
         'FechaTerminacion': str(contrato.fechafincontrato),
         'Empleado': empleado.papellido + ' ' + empleado.sapellido + ' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad),
         'TipoNomina': contrato.tiponomina,
         'Cargo': contrato.cargo,
-        'LugarTrabajo': contrato.ciudadcontratacion.idciudad,
+        'LugarTrabajo': contrato.ciudadcontratacion.idciudad ,
         'FechaInicial': contrato.fechainiciocontrato,
         'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo",
         'TipoContrato': contrato.tipocontrato.idtipocontrato,
@@ -97,45 +103,11 @@ def EditContracVisual(request,idempleado):
         'workPlace': contrato.idsede.idsede,
     }
 
-    DicContract = {
-        #Contrato
-        'Idcontrato':contrato.idcontrato , 
-        'FechaTerminacion':contrato.fechafincontrato , 
-        'Empleado':  empleado.papellido +' ' + empleado.sapellido +' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad) ,  #* esto es el nombre del empleado con su cedula  
-        'TipoNomina':contrato.tiponomina , 
-        'Cargo':contrato.cargo , 
-        'LugarTrabajo': contrato.ciudadcontratacion, #* ok  
-        'FechaInicial': contrato.fechafincontrato,
-        'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo", 
-        'TipoContrato':contrato.tipocontrato.tipocontrato, 
-        'MotivoRetiro':contrato.motivoretiro, 
-        'ModeloContrato':contrato.idmodelo.tipocontrato, 
-        ## compensacion 
-        'Salario':"{:,.0f}".format(contrato.salario).replace(',', '.') , 
-        'TipoSalario':contrato.tiposalario.tiposalario,
-        'ModalidadSalario':contrato.tiposalario, #* ok 
-        'Formapago':  "Abono a Cuenta" if contrato.formapago == '1' else ("Cheque" if contrato.formapago == '2' else "Efectivo"), #* ok  
-        'BancoCuenta':contrato.bancocuenta,
-        'TipoCuenta':contrato.tipocuentanomina,
-        'CuentaNomina':contrato.cuentanomina,
-        'CentroCostos':contrato.idcosto.nomcosto,
-        'SubcentroCostos':contrato.idsubcosto.nomsubcosto,
-        ## seguridad social 
-        'Eps':contrato.eps,
-        'FondoCesantias':contrato.fondocesantias,
-        'Pension':contrato.pension,
-        'ARL':contrato.centrotrabajo.nombrecentrotrabajo,
-        'Sede':contrato.centrotrabajo.nombrecentrotrabajo,
-        'TarifaARL':contrato.idsede.nombresede,
-        'Caja':contrato.cajacompensacion,
-        'Tipocotizante':contrato.tipocotizante, #! FALTA 
-        'Subtipocotizante':contrato.subtipocotizante,
-        'Pensionado':contrato.pensionado, #! MODIFCIAR 
-        
-    }
     
     if request.method == 'POST':
         form = ContractForm(request.POST)
+        premium = request.GET.get('premium', False)
+        form.set_premium_fields(premium=premium)       
         if form.is_valid():
             try:
                 contrato.tiponomina =form.cleaned_data['payrollType']
@@ -143,24 +115,25 @@ def EditContracVisual(request,idempleado):
                 contrato.cuentanomina =form.cleaned_data['payrollAccount']
                 contrato.tipocuentanomina =form.cleaned_data['accountType']
                 contrato.formapago =form.cleaned_data['paymentMethod']
-                contrato.idcosto =Costos.objects.get( idcosto =  form.cleaned_data['costCenter'] )  
-                contrato.idsubcosto =Subcostos.objects.get( idsubcosto =  form.cleaned_data['subCostCenter'] )
-                contrato.save()
+                contrato.idcosto = Costos.objects.using(db).get( idcosto =  form.cleaned_data['costCenter'] )  
+                contrato.idsubcosto =Subcostos.objects.using(db).get( idsubcosto =  form.cleaned_data['subCostCenter'] )
+                contrato.save(using=db)
                 messages.success(request, 'El Contrato ha sido Actualizado')
                 return  redirect('companies:editcontracsearch')
             except Exception as e:
-                print(e)
                 messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
                 messages.error(request, messages_error)
                 return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
-        else:       
-            premium = request.GET.get('premium', False)
-            form = ContractForm(initial=initial_data) 
-            form.set_premium_fields(premium=premium) 
+        else: 
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Error en el campo '{field}': {error}")
+            # premium = request.GET.get('premium', False)
+            # form = ContractForm(initial=initial_data) 
+            # form.set_premium_fields(premium=premium) 
     else:
+        form = ContractForm(initial=initial_data)
         premium = request.GET.get('premium', False)
-        
-        form = ContractForm(initial=initial_data) 
-        form.set_premium_fields(premium=premium) 
+        form.set_premium_fields(premium=premium)   
         
     return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
