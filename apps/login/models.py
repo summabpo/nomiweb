@@ -19,6 +19,10 @@ class Usuario(models.Model):
         managed = False
         db_table = 'login_usuario'
         
+    @staticmethod
+    def filter_by_username(username):
+        return Usuario.objects.get(user__username=username)
+        
     
     
 class Empresa(models.Model):
@@ -31,4 +35,4 @@ class Empresa(models.Model):
         db_table = 'login_empresa'
         
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.db_name}"
