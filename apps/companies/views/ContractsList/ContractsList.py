@@ -5,10 +5,7 @@ from apps.companies.models import Contratos
 
 
 def startCompanies(request): 
-    usuario_data = request.session.get('usuario', {})
-    db = usuario_data.get('db', None)
-    
-    contratos_empleados = Contratos.objects.using(db) \
+    contratos_empleados = Contratos.objects\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
@@ -33,6 +30,6 @@ def startCompanies(request):
 
         empleados.append(contrato_data)
     
-    return render(request, './companies/index.html', {'empleados': empleados})
+    return render(request, './companies/ActiveList.html', {'empleados': empleados})
 
 

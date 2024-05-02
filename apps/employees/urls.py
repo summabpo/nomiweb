@@ -3,12 +3,11 @@ from . import views
 from apps.employees.views.certificaciones_laborales import vista_certificaciones
 from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, ListaNominas, genera_comprobante
 
-app_name = "employees_app"
 
 urlpatterns = [
     path(
         'emp/certificaciones_laborales',
-        views.certificaciones_laborales.vista_certificaciones,
+        views.certificaciones_laborales.prueba,
         name='certificaciones'
     ),
     path(

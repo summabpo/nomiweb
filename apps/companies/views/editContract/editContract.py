@@ -46,12 +46,10 @@ def EditContracVisual(request,idempleado):
 <<<<<<< HEAD
 =======
     usuario_data = request.session.get('usuario', {})
-    db = usuario_data.get('db', None)
->>>>>>> 6b7fe45 (.)
+    db = usuario_data.get('db', None)    
+    empleado = Contratosemp.objects.using(db).get(idempleado=int(idempleado)) 
+    contrato = Contratos.objects.using(db).get(idempleado=idempleado, estadocontrato=1)
     
-    empleado = Contratosemp.objects.using(db).get(idempleado=idempleado) 
-    contrato = get_object_or_404(Contratos.objects.using(db).select_related('idempleado', 'ciudadcontratacion', 'tipocontrato', 'idmodelo', 'tiposalario', 'idcosto', 'idsubcosto', 'centrotrabajo', 'idsede'),
-                                idempleado=idempleado, estadocontrato=1)
     DicContract = {
         'Idcontrato': contrato.idcontrato,
         'FechaTerminacion': str(contrato.fechafincontrato),
@@ -115,7 +113,7 @@ def EditContracVisual(request,idempleado):
     if request.method == 'POST':
         form = ContractForm(request.POST)
         premium = request.GET.get('premium', False)
-        form.set_premium_fields(premium=premium)       
+        form.set_premium_fields(premium=premium) 
         if form.is_valid():
             try:
                 contrato.tiponomina =form.cleaned_data['payrollType']
@@ -127,26 +125,29 @@ def EditContracVisual(request,idempleado):
                 contrato.idsubcosto =Subcostos.objects.using(db).get( idsubcosto =  form.cleaned_data['subCostCenter'] )
                 contrato.save(using=db)
                 messages.success(request, 'El Contrato ha sido Actualizado')
+                print("estoy aqui 4 ")
                 return  redirect('companies:editcontracsearch')
             except Exception as e:
                 messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
                 messages.error(request, messages_error)
+                print("estoy aqui 3 ")
                 return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
         else: 
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"Error en el campo '{field}': {error}")
-            # premium = request.GET.get('premium', False)
-            # form = ContractForm(initial=initial_data) 
-            # form.set_premium_fields(premium=premium) 
+                    print('llege')
+                    print(error)
+                    
+                    
+            premium = request.GET.get('premium', False)
+            form.set_premium_fields(premium=premium) 
+            messages.error(request,'Todo lo que podía fallar, falló.')
+            return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
     else:
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        form = ContractForm(initial=initial_data)
->>>>>>> 6b7fe45 (.)
+        form = ContractForm(initial=initial_data,db_name=db)
         premium = request.GET.get('premium', False)
-        form.set_premium_fields(premium=premium)   
+        form.set_premium_fields(premium=premium)  
         
     return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
 =======
