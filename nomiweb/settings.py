@@ -121,6 +121,14 @@ DATABASES = {
         'PASSWORD': DB_PASSWORD,  
         'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
+    } ,
+    'nwp_2': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nwp_lentes',
+        'USER': 'devdjango',
+        'PASSWORD': DB_PASSWORD,  
+        'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
+        'PORT': '5432',
     } 
     
 }

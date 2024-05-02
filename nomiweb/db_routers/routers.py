@@ -35,3 +35,24 @@ class RouterLectaen:
     @staticmethod
     def allow_migrate(db, app_label, model_name=None, **hints):
         return db == 'lectaen'
+    
+    
+class RouterLentes:
+    @staticmethod
+    def db_for_read(model, **hints):
+        return 'nwp_2'
+
+    @staticmethod
+    def db_for_write(model, **hints):
+        return 'nwp_2'
+
+    @staticmethod
+    def allow_relation(obj1, obj2, **hints):
+        if obj1._state.db == 'nwp_2' and obj2._state.db == 'nwp_2':
+            return True
+        return None
+
+    @staticmethod
+    def allow_migrate(db, app_label, model_name=None, **hints):
+        return db == 'nwp_2'
+
