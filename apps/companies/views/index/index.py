@@ -8,11 +8,10 @@ from apps.login.middlewares import NombreDBSingleton
 
 
 def index_companies(request):
-    usuario_data = request.session.get('usuario', {})
-    db = usuario_data.get('db', None)
-    singleton = NombreDBSingleton()
-    singleton.set_nombre_db(db)
-    print(singleton.get_nombre_db())
+    db = request.session.get('usuario', {}).get('db', None)
+    NombreDBSingleton().set_nombre_db(db)
+    print('------------')
+    print(NombreDBSingleton().get_nombre_db())
     contactos = Contratosemp.objects.all()
     return render(request, './companies/index.html',{'comn':contactos})
     

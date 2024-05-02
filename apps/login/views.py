@@ -13,6 +13,12 @@ from apps.login.middlewares import NombreDBSingleton
 
 
 def login_view(request):
+    request.session.clear()
+    if request.user.is_authenticated:
+        print(request.session)
+    else:
+        print('lleno')
+        
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
