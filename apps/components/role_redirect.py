@@ -2,14 +2,11 @@ from django.shortcuts import redirect
 
 
 def redirect_by_role(user):
+    role_views = {
+        'administrator': 'admin_dashboard',
+        'accountant': 'accountant_dashboard',
+        'employee': 'employees:certificaciones',
+        'entrepreneur': 'companies:index_companies',
+    }
     role = user
-    if role == 'administrator':
-        return redirect('admin_dashboard')
-    elif role == 'accountant':
-        return redirect('accountant_dashboard')
-    elif role == 'employee':
-        return redirect('employees:certificaciones')
-    elif role == 'entrepreneur':
-        return redirect('companies:index_companies')
-    else:
-        return redirect('error_page')
+    return redirect(role_views.get(role, 'error_page'))
