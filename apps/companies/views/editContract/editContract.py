@@ -96,8 +96,6 @@ def EditContracVisual(request,idempleado):
         'arlWorkCenter': contrato.centrotrabajo.centrotrabajo,
         'workPlace': contrato.idsede.idsede,
     }
-=======
->>>>>>> 3e888e5 (.)
 
     
     if request.method == 'POST':
@@ -140,18 +138,3 @@ def EditContracVisual(request,idempleado):
         form.set_premium_fields(premium=premium)  
         
     return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
-=======
-        initial_data = {'payrollAccount': 'Nombre existente' , 'payrollType':'Mensual'} 
-        form = ContractForm(initial=initial_data)    
-        form.fields['payrollType'].widget.attrs['disabled'] = True
-        form.fields['payrollAccount'].widget.attrs['disabled'] = True
-        
-    # POST 
-    
-    
-    # FIN POST 
-    
-    
-    
-    return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':DicContract})
->>>>>>> 3e888e5 (.)
