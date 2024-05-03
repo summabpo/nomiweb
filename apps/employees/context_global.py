@@ -37,7 +37,7 @@ def datos_cliente():
 def datos_empleado():
     #DATOS EMPLEADO
     idc=3863
-    idempleado_id = Contratos.objects.get(idcontrato=idc).idempleado_id
+    idempleado_id = Contratos.objects.get(idcontrato=idc).idempleado
     ide = idempleado_id
     empleado = Contratosemp.objects.filter(idempleado=ide).annotate(nombre_letras=Concat(
 

@@ -1,9 +1,38 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import User
 
-class CustomUser(AbstractUser):
-    rol = models.CharField(max_length=20)
-    permisos = models.CharField(max_length=20)
+class Usuario(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     
+    ROLES = (
+        ('administrator', 'Administrator'),
+        ('employee', 'Employee'),
+        ('accountant', 'Accountant'),
+        ('entrepreneur', 'Entrepreneur'),
+    )
+    
+    role = models.CharField(max_length=20, choices=ROLES)
+    company = models.ForeignKey('Empresa', on_delete=models.CASCADE )
+    permission = models.CharField(max_length=100)
+    
+    class Meta:
+        managed = False
+        db_table = 'login_usuario'
+        
+    @staticmethod
+    def filter_by_username(username):
+        return Usuario.objects.get(user__username=username)
+        
+    
+    
+class Empresa(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    db_name = models.CharField(max_length=100)
+    
+    class Meta:
+        managed = False
+        db_table = 'login_empresa'
+        
     def __str__(self):
-        return self.username
+        return f"{self.db_name}"

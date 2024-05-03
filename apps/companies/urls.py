@@ -4,6 +4,7 @@ from .views.newEmployee import newEmployee
 from .views.EditEmployee import EditEmployee
 from .views.editContract import editContract
 from .views.newContract import newContract
+from .views.index import index
 
 
 urlpatterns = [
@@ -32,6 +33,7 @@ urlpatterns = [
     
     ##// admin login 
     # path('logout/', views.Logout, name='logout'),
+    path('companies/', index.index_companies, name='index_companies'),
 ]
 
 # EditResume
