@@ -6,10 +6,7 @@ from django.contrib import messages
 
 
 def EditContracsearch(request):
-    usuario_data = request.session.get('usuario', {})
-    db = usuario_data.get('db', None)
-    
-    contratos_empleados = Contratos.objects.using(db) \
+    contratos_empleados = Contratos.objects \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__sapellido','idempleado__pnombre',
@@ -40,10 +37,8 @@ def EditContracsearch(request):
 
 
 def EditContracVisual(request,idempleado):
-    usuario_data = request.session.get('usuario', {})
-    db = usuario_data.get('db', None)    
-    empleado = Contratosemp.objects.using(db).get(idempleado=int(idempleado)) 
-    contrato = Contratos.objects.using(db).get(idempleado=idempleado, estadocontrato=1)
+    empleado = Contratosemp.objects.get(idempleado=int(idempleado)) 
+    contrato = Contratos.objects.get(idempleado=idempleado, estadocontrato=1)
     
     DicContract = {
         'Idcontrato': contrato.idcontrato,
@@ -114,9 +109,9 @@ def EditContracVisual(request,idempleado):
                 contrato.cuentanomina =form.cleaned_data['payrollAccount']
                 contrato.tipocuentanomina =form.cleaned_data['accountType']
                 contrato.formapago =form.cleaned_data['paymentMethod']
-                contrato.idcosto = Costos.objects.using(db).get( idcosto =  form.cleaned_data['costCenter'] )  
-                contrato.idsubcosto =Subcostos.objects.using(db).get( idsubcosto =  form.cleaned_data['subCostCenter'] )
-                contrato.save(using=db)
+                contrato.idcosto = Costos.objects.get( idcosto =  form.cleaned_data['costCenter'] )  
+                contrato.idsubcosto =Subcostos.objects.get( idsubcosto =  form.cleaned_data['subCostCenter'] )
+                contrato.save()
                 messages.success(request, 'El Contrato ha sido Actualizado')
                 print("estoy aqui 4 ")
                 return  redirect('companies:editcontracsearch')
@@ -138,7 +133,7 @@ def EditContracVisual(request,idempleado):
             messages.error(request,'Todo lo que podía fallar, falló.')
             return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
     else:
-        form = ContractForm(initial=initial_data,db_name=db)
+        form = ContractForm(initial=initial_data)
         premium = request.GET.get('premium', False)
         form.set_premium_fields(premium=premium)  
         
