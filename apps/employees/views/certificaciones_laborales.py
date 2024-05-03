@@ -71,6 +71,10 @@ def calculo_salario_promedio():
     return nombre_mes_1, nombre_mes_2, nombre_mes_3, ano_1, ano_2, ano_3
 
 
+def prueba(request):
+    datos = Certificaciones.objects.all()
+    
+    return render(request, './users/prueba.html',{'compania':datos})
 
 
 def vista_certificaciones(request):

@@ -28,30 +28,30 @@ TipoCcuenta = [
     ('corriente', 'Corriente'),
 ]
 
-#forms.ChoiceField(choices=[('', '----------')] + [(documento.codigo, documento.documento) for documento in Tipodocumento.objects.all()], label='Tipo de documento de identidad ')
+#forms.ChoiceField(choices=[('', '----------')] + [(documento.codigo, documento.documento) for documento in Tipodocumento.objects.using("lectaen").all()], label='Tipo de documento de identidad ')
 
 
 class ContractForm(forms.Form):
     # Datos de Contrato
     endDate = forms.DateField(label='Fecha de Terminación', widget=forms.DateInput(attrs={'type': 'date'}), required=False)  
-    payrollType = forms.ChoiceField(choices=[('', '----------')] + [(nomina.tipodenomina, nomina.tipodenomina) for nomina in Tipodenomina.objects.all()], label='Tipo de Nómina')
-    position = forms.ChoiceField(choices=[('', '----------')] + [(cargo.nombrecargo, cargo.nombrecargo) for cargo in Cargos.objects.all().order_by('nombrecargo')], label='Cargo', required=True , widget=forms.Select(attrs={'data-control': 'select2'}))
-    workLocation = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Lugar de trabajo' , required=True ,widget=forms.Select(attrs={'data-control': 'select2'}))
+    payrollType = forms.ChoiceField(choices=[('', '----------')] + [(nomina.tipodenomina, nomina.tipodenomina) for nomina in Tipodenomina.objects.using("lectaen").all()], label='Tipo de Nómina')
+    position = forms.ChoiceField(choices=[('', '----------')] + [(cargo.nombrecargo, cargo.nombrecargo) for cargo in Cargos.objects.using("lectaen").all().order_by('nombrecargo')], label='Cargo', required=True , widget=forms.Select(attrs={'data-control': 'select2'}))
+    workLocation = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.using("lectaen").all().order_by('ciudad')], label='Lugar de trabajo' , required=True ,widget=forms.Select(attrs={'data-control': 'select2'}))
     contractStartDate = forms.DateField(label='Fecha de inicio de contrato', required=True, widget=forms.DateInput(attrs={'type': 'date'}))   
-    contractType = forms.ChoiceField(choices=[('', '----------')] + [(contrato.idtipocontrato, contrato.tipocontrato) for contrato in Tipocontrato.objects.all()], label='Tipo de Contrato',required=True)
-    contractModel = forms.ChoiceField(choices=[('', '----------')] + [(modelo.idmodelo, modelo.nombremodelo) for modelo in ModelosContratos.objects.all()], label='Modelo de Contrato',required=True)
+    contractType = forms.ChoiceField(choices=[('', '----------')] + [(contrato.idtipocontrato, contrato.tipocontrato) for contrato in Tipocontrato.objects.using("lectaen").all()], label='Tipo de Contrato',required=True)
+    contractModel = forms.ChoiceField(choices=[('', '----------')] + [(modelo.idmodelo, modelo.nombremodelo) for modelo in ModelosContratos.objects.using("lectaen").all()], label='Modelo de Contrato',required=True)
     # Compensación
     salary = forms.CharField(label='Salario', max_length=100, required=True)   
-    salaryType = forms.ChoiceField(choices=[('', '----------')] + [(salario.idtiposalario, salario.tiposalario) for salario in Tiposalario.objects.all()], label='Tipo Salario', required=True ) 
+    salaryType = forms.ChoiceField(choices=[('', '----------')] + [(salario.idtiposalario, salario.tiposalario) for salario in Tiposalario.objects.using("lectaen").all()], label='Tipo Salario', required=True ) 
     salaryMode = forms.ChoiceField(label='Modalidad Salario', choices=ModalidadSalario, required=True)
     livingPlace = forms.BooleanField(label='Vive en el lugar de trabajo', required=False)
     paymentMethod = forms.ChoiceField(label='Forma de pago', choices=FormaPago, required=True)
-    bankAccount = forms.ChoiceField(choices=[('', '----------')] + [(banco.nombanco, banco.nombanco) for banco in Bancos.objects.all().order_by('nombanco')], label='Banco de la Cuenta', required=True, widget=forms.Select(attrs={'data-control': 'select2'}) )
+    bankAccount = forms.ChoiceField(choices=[('', '----------')] + [(banco.nombanco, banco.nombanco) for banco in Bancos.objects.using("lectaen").all().order_by('nombanco')], label='Banco de la Cuenta', required=True, widget=forms.Select(attrs={'data-control': 'select2'}) )
     # Información de Cuenta
     accountType = forms.ChoiceField(label='Tipo de Cuenta', choices=TipoCcuenta, required=True)                                     
     payrollAccount = forms.CharField(label='Cuenta de Nómina', max_length=100, required=True)    
-    costCenter = forms.ChoiceField(choices=[('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.all()], label='Centro de Costos', required=True)
-    subCostCenter = forms.ChoiceField(choices=[('', '----------')] + [(subcosto.idsubcosto, subcosto.nomsubcosto) for subcosto in Subcostos.objects.all()], label='Sub centro de Costos', required=True)
+    costCenter = forms.ChoiceField(choices=[('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.using("lectaen").all()], label='Centro de Costos', required=True)
+    subCostCenter = forms.ChoiceField(choices=[('', '----------')] + [(subcosto.idsubcosto, subcosto.nomsubcosto) for subcosto in Subcostos.objects.using("lectaen").all()], label='Sub centro de Costos', required=True)
     # Seguridad Social 
     eps = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.using("lectaen").filter(tipoentidad='EPS').order_by('entidad')], label='Eps', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 
     pensionFund = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.using("lectaen").filter(tipoentidad='AFP').order_by('entidad')], label='Pension', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 

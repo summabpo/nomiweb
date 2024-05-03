@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize', #Para poner puntos en numeros para separar miles
 
     # Generated applications
-    'apps.login.apps', 
+    'apps.login', 
     'apps.employees',     # Employees application
     'apps.companies',     # Companies application
     # 'apps.payroll',       # Payroll application
@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
 ]
 
+
+
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 CRISPY_TEMPLATE_PACK = "bootstrap5"
@@ -71,9 +73,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.login.middlewares.DatabaseRouterMiddleware',
 ]
 
+
+
 ROOT_URLCONF = 'nomiweb.urls'
+
+
+
 
 TEMPLATES = [
     {
@@ -98,15 +106,13 @@ WSGI_APPLICATION = 'nomiweb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
+DATABASE_ROUTERS = [
+    'nomiweb.db_routers.routers.DatabaseRouter'
+]
+
+
 DATABASES = {
-    'lectaen': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lectaen',
-        'USER': 'devdjango',
-        'PASSWORD': DB_PASSWORD,  
-        'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
-        'PORT': '5432',
-    } , 
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'userlectaen',
@@ -114,16 +120,29 @@ DATABASES = {
         'PASSWORD': DB_PASSWORD,  
         'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
-    }
+    },
+    
+    'lectaen': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'lectaen',
+        'USER': 'devdjango',
+        'PASSWORD': DB_PASSWORD,  
+        'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
+        'PORT': '5432',
+    } ,
+    'nwp_2': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nwp_lentes',
+        'USER': 'devdjango',
+        'PASSWORD': DB_PASSWORD,  
+        'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
+        'PORT': '5432',
+    } 
+    
 }
 
 
 
-
-DATABASE_ROUTERS = [
-    'nomiweb.db_routers.routers.RouterLectaen',
-    'nomiweb.db_routers.routers.RouterDefault',
-]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

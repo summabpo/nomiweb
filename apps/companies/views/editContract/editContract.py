@@ -6,7 +6,7 @@ from django.contrib import messages
 
 
 def EditContracsearch(request):
-    contratos_empleados = Contratos.objects.using("lectaen") \
+    contratos_empleados = Contratos.objects \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__sapellido','idempleado__pnombre',
@@ -37,8 +37,8 @@ def EditContracsearch(request):
 
 
 def EditContracVisual(request,idempleado):
-    empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
-    contrato = get_object_or_404(Contratos, idempleado=idempleado,estadocontrato=1)
+    empleado = Contratosemp.objects.get(idempleado=int(idempleado)) 
+    contrato = Contratos.objects.get(idempleado=idempleado, estadocontrato=1)
     
     DicContract = {
         'Idcontrato': contrato.idcontrato,
@@ -46,7 +46,7 @@ def EditContracVisual(request,idempleado):
         'Empleado': empleado.papellido + ' ' + empleado.sapellido + ' ' + empleado.pnombre + ' ' + empleado.snombre + ' CC: ' + str(empleado.docidentidad),
         'TipoNomina': contrato.tiponomina,
         'Cargo': contrato.cargo,
-        'LugarTrabajo': contrato.ciudadcontratacion.idciudad,
+        'LugarTrabajo': contrato.ciudadcontratacion.idciudad ,
         'FechaInicial': contrato.fechainiciocontrato,
         'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo",
         'TipoContrato': contrato.tipocontrato.idtipocontrato,
@@ -96,10 +96,14 @@ def EditContracVisual(request,idempleado):
         'arlWorkCenter': contrato.centrotrabajo.centrotrabajo,
         'workPlace': contrato.idsede.idsede,
     }
+=======
+>>>>>>> 3e888e5 (.)
 
     
     if request.method == 'POST':
         form = ContractForm(request.POST)
+        premium = request.GET.get('premium', False)
+        form.set_premium_fields(premium=premium) 
         if form.is_valid():
             try:
                 contrato.tiponomina =form.cleaned_data['payrollType']
@@ -107,24 +111,47 @@ def EditContracVisual(request,idempleado):
                 contrato.cuentanomina =form.cleaned_data['payrollAccount']
                 contrato.tipocuentanomina =form.cleaned_data['accountType']
                 contrato.formapago =form.cleaned_data['paymentMethod']
-                contrato.idcosto =Costos.objects.get( idcosto =  form.cleaned_data['costCenter'] )  
+                contrato.idcosto = Costos.objects.get( idcosto =  form.cleaned_data['costCenter'] )  
                 contrato.idsubcosto =Subcostos.objects.get( idsubcosto =  form.cleaned_data['subCostCenter'] )
                 contrato.save()
                 messages.success(request, 'El Contrato ha sido Actualizado')
+                print("estoy aqui 4 ")
                 return  redirect('companies:editcontracsearch')
             except Exception as e:
-                print(e)
                 messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
                 messages.error(request, messages_error)
+                print("estoy aqui 3 ")
                 return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
-        else:       
+        else: 
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Error en el campo '{field}': {error}")
+                    print('llege')
+                    print(error)
+                    
+                    
             premium = request.GET.get('premium', False)
-            form = ContractForm(initial=initial_data) 
             form.set_premium_fields(premium=premium) 
+            messages.error(request,'Todo lo que podía fallar, falló.')
+            return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
     else:
+        form = ContractForm(initial=initial_data)
         premium = request.GET.get('premium', False)
-        
-        form = ContractForm(initial=initial_data) 
-        form.set_premium_fields(premium=premium) 
+        form.set_premium_fields(premium=premium)  
         
     return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
+=======
+        initial_data = {'payrollAccount': 'Nombre existente' , 'payrollType':'Mensual'} 
+        form = ContractForm(initial=initial_data)    
+        form.fields['payrollType'].widget.attrs['disabled'] = True
+        form.fields['payrollAccount'].widget.attrs['disabled'] = True
+        
+    # POST 
+    
+    
+    # FIN POST 
+    
+    
+    
+    return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':DicContract})
+>>>>>>> 3e888e5 (.)
