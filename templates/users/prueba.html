@@ -1,4 +1,6 @@
 {% extends 'base/base.html' %} 
+{% load crispy_forms_tags %}
+
 
 
 {% block title %} 
@@ -19,7 +21,8 @@ prueba
 {% endblock %}
 
 {% block content %}
-|   <h1>Listado de Usuarios</h1>
+    <h1>Listado de Usuarios</h1>
+    {% crispy form %}
 {% endblock %}
 
 

@@ -5,7 +5,7 @@ def redirect_by_role(user):
     role_views = {
         'administrator': 'admin_dashboard',
         'accountant': 'accountant_dashboard',
-        'employee': 'employees:certificaciones',
+        'employee': 'login:prueba',
         'entrepreneur': 'companies:index_companies',
     }
     role = user
