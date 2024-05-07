@@ -111,6 +111,13 @@ DATABASE_ROUTERS = [
     'nomiweb.db_routers.routers.DatabaseRouter'
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'apps.components.custom_auth_backend.CustomAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
+]
+
+
+
 
 DATABASES = {
     'default': {
