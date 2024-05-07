@@ -28,7 +28,6 @@ def login_view(request):
                             'compania': usuario.company.name,
                             'db':usuario.company.db_name
                         }
-                
                 session = TempSession()
                 session.login()
                 
