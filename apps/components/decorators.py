@@ -1,10 +1,6 @@
 from functools import wraps
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from .custom_auth_backend import CustomAuthBackend 
-from apps.login.middlewares import NombreDBSingleton
-
-from django.contrib.sessions.backends.base import SessionBase
+from apps.components.role_redirect  import redirect_by_role
 
 
 def custom_login_required(view_func):
@@ -25,6 +21,17 @@ def custom_permission(permission):
             return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
+
+
+def default_login(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if TempSession().is_logged_in(): 
+            return redirect_by_role(TempSession().have_permission())
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
 
 
 class TempSession:

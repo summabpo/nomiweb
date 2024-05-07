@@ -7,7 +7,7 @@ from apps.employees.views import index
 
 urlpatterns = [
     path( 
-        'emp/certificaciones_laborales',
+        'certificaciones_laborales',
         views.certificaciones_laborales.vista_certificaciones,
         name='certificaciones'
     ),
@@ -17,7 +17,7 @@ urlpatterns = [
         name='genera-certificaciones'
     ),
     path(
-        'emp/comprobantes',
+        'comprobantes',
         views.comprobantes_nomina.ListaNominas.as_view(),
         name='comprobantes_all'
     ),
@@ -38,7 +38,7 @@ urlpatterns = [
     ),
     
     path(
-        'employees/',
+        '',
         index.index_employees,
         name='index_employees'
     ),

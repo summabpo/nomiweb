@@ -8,10 +8,10 @@ from .models import Usuario,Empresa
 from apps.components.role_redirect  import redirect_by_role
 
 from apps.login.middlewares import NombreDBSingleton
-from apps.components.decorators import TempSession,custom_login_required
+from apps.components.decorators import TempSession,custom_login_required , default_login
 
 
-
+@default_login
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -71,3 +71,31 @@ def require_permission(request):
         session = TempSession()
         return redirect_by_role(session.have_permission())
     return render(request, './users/permission.html')
+
+
+
+#! errores 
+def custom_400(request, exception):
+    """
+    Vista para manejar el error 400 (Bad Request).
+    """
+    return render(request, './error/400.html',{})
+
+def custom_403(request, exception):
+    """
+    Vista para manejar el error 403 (Forbidden).
+    """
+    return render(request, './error/403.html',{})
+
+def custom_404(request, exception):
+    """
+    Vista para manejar el error 404 (Página no encontrada).
+    """
+    return render(request, './error/404.html',{})
+
+
+def custom_500(request):
+    """
+    Vista para manejar el error 500 (Internal Server Error).
+    """
+    return render(request, './error/500.html',{})

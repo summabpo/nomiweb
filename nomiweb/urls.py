@@ -16,11 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path ,include
+from apps.login.views import custom_400 ,custom_403,custom_404 ,custom_500
+
+
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(('apps.login.urls', 'login'))),
-    path('', include(('apps.employees.urls', 'employees'))),
-    path('', include(('apps.companies.urls', 'companies'))),
+    path('employees/', include(('apps.employees.urls', 'employees'))),
+    path('companies/', include(('apps.companies.urls', 'companies'))),
 ]
+
+#handler400 = custom_400  # Configura la vista custom_400 para manejar el error 400
+#handler403 = custom_403  # Configura la vista custom_403 para manejar el error 403
+handler404 = 'apps.login.views.custom_404' # Configura la vista custom_404 para manejar el error 404
+handler500 = 'apps.login.views.custom_500'  # Configura la vista custom_500 para manejar el error 500
