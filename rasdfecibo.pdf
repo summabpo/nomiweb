@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recibo</title>
+</head>
+<body>
+    <h1>Recibo</h1>
+    <p>Nombre del cliente: Juan Pérez</p>
+    <p>Monto: 100</p>
+    <p>Fecha: 2024-05-07</p>
+    
+    <form action="/descargar-recibo/" method="post">
+        
+        <input type="submit" value="Descargar Recibo">
+    </form>
+</body>
+</html>

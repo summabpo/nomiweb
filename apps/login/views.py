@@ -30,7 +30,7 @@ def login_view(request):
                         }
                 session = TempSession()
                 session.login()
-                
+                session.set_user_type(usuario.role)
                 return redirect_by_role(usuario.role)
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')
@@ -63,3 +63,11 @@ def prueba(request):
         form = MiFormulario()
     
     return render(request, './users/prueba.html',{'form': form})
+
+
+@custom_login_required
+def require_permission(request):
+    if request.method == 'POST':
+        session = TempSession()
+        return redirect_by_role(session.have_permission())
+    return render(request, './users/permission.html')

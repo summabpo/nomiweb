@@ -21,6 +21,12 @@ from django.db.models import Q
 from apps.employees.models import  Certificaciones, Nomina
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
+
+
+#permission
+from apps.components.decorators import custom_login_required ,custom_permission
+
+
 idn = 359
 
 def generar_codigo():
@@ -71,12 +77,12 @@ def calculo_salario_promedio():
     return nombre_mes_1, nombre_mes_2, nombre_mes_3, ano_1, ano_2, ano_3
 
 
-def prueba(request):
-    datos = Certificaciones.objects.all()
-    
-    return render(request, './users/prueba.html',{'compania':datos})
 
 
+
+
+@custom_login_required
+@custom_permission('employee')
 def vista_certificaciones(request):
     datose = datos_empleado()
     zona_horaria = pytz.timezone('America/Bogota')
@@ -116,7 +122,7 @@ def vista_certificaciones(request):
             tipo_certificado = modelo
             cargo = datose['cargo']
             ide = datose['ide']
-            #tipo_contrato = datose['#']
+            tipo_contrato = datose['tipo_contrato']
             nombre_contrato = datose['nombre_contrato']
             certificacion = Certificaciones(destino=destino, idcontrato=idc, idempleado=ide, salario=salario_certificado, cargo=cargo, tipocontrato=nombre_contrato, codigoconfirmacion = codigo_confirmacion, promediovariable = tipo_certificado )
             certificacion.save()
@@ -132,6 +138,9 @@ def vista_certificaciones(request):
         'certificaciones': lista_certificaciones
     })
 
+
+@custom_login_required
+@custom_permission('employee')
 def genera_certificaciones(request, idcert):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="certificado.pdf"'
