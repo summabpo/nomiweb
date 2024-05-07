@@ -57,8 +57,8 @@ def datos_empleado(id_contrato=3863):
     contrato = Contratos.objects.get(idcontrato=id_contrato)
     empleado = Contratosemp.objects.filter(idempleado=contrato.idempleado_id).annotate(
         nombre_letras=Concat(F('pnombre'), Value(' '), F('snombre'), Value(' '), 
-                             F('papellido'), Value(' '), F('sapellido'), output_field=CharField())
-    ).values('nombre_letras').first()
+                                F('papellido'), Value(' '), F('sapellido'), output_field=CharField())
+                                ).values('nombre_letras').first()
         
     info_empleado = {
         'nombre_completo': empleado['nombre_letras'], 
