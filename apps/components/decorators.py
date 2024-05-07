@@ -4,6 +4,8 @@ from django.shortcuts import redirect
 from .custom_auth_backend import CustomAuthBackend 
 from apps.login.middlewares import NombreDBSingleton
 
+from django.contrib.sessions.backends.base import SessionBase
+
 
 def custom_login_required(view_func):
     @wraps(view_func)

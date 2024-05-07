@@ -1,7 +1,7 @@
 from apps.login.middlewares import NombreDBSingleton
 
 class DatabaseRouter:
-    def db_for_read(self, model, **hints):    
+    def db_for_read(self, model, **hints):
         singleton = NombreDBSingleton()
         nombre_db = singleton.get_nombre_db()
         return nombre_db
