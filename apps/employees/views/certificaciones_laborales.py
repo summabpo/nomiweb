@@ -116,7 +116,7 @@ def vista_certificaciones(request):
             tipo_certificado = modelo
             cargo = datose['cargo']
             ide = datose['ide']
-            tipo_contrato = datose['tipo_contrato']
+            #tipo_contrato = datose['#']
             nombre_contrato = datose['nombre_contrato']
             certificacion = Certificaciones(destino=destino, idcontrato=idc, idempleado=ide, salario=salario_certificado, cargo=cargo, tipocontrato=nombre_contrato, codigoconfirmacion = codigo_confirmacion, promediovariable = tipo_certificado )
             certificacion.save()

@@ -118,11 +118,11 @@ def genera_comprobante(request, idnomina, idcontrato):
             output_field=CharField()
             )
         ).values('empleado').first()
-        #nombre_completo=empleado['empleado']
+        nombre_completo=empleado['empleado']
 
         dataDevengado = Nomina.objects.filter(idcontrato=idc, idnomina=idn, valor__gt=0).order_by('idconcepto')
         dataDescuento = Nomina.objects.filter(idcontrato=idc, idnomina=idn, valor__lt=0).order_by('idconcepto')
-        logo = ImageReader('static/img/CSFSLOGO2016.png')
+        logo = ImageReader('static/img/logo lecta.jpeg')
         #start pdf
         p.drawImage(logo, 20, 730, width=130, preserveAspectRatio=True, mask='auto')
         p.setFont("Helvetica",18,leading=None)
