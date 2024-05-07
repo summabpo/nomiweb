@@ -7,7 +7,7 @@ from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, Lista
 urlpatterns = [
     path(
         'emp/certificaciones_laborales',
-        views.certificaciones_laborales.prueba,
+        views.certificaciones_laborales.vista_certificaciones,
         name='certificaciones'
     ),
     path(
