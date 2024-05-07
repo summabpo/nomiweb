@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.models import Contratos 
+from apps.components.decorators import custom_login_required
 
 
-
-
+@custom_login_required
 def startCompanies(request): 
-    contratos_empleados = Contratos.objects.using("lectaen") \
+    contratos_empleados = Contratos.objects\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
@@ -30,8 +30,6 @@ def startCompanies(request):
 
         empleados.append(contrato_data)
     
-    return render(request, './companies/index.html', {'empleados': empleados})
-
-
+    return render(request, './companies/ActiveList.html', {'empleados': empleados})
 
 

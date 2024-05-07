@@ -7,17 +7,16 @@
 {% block css %} {% endblock %} 
 
 {% block sub_titulo2 %} 
-ID Contrato {{DicContract.Idcontrato}}
+ID Contrato {{DicContract.Idcontrato}} - br <span class="badge badge-success">{{DicContract.EstadoContrato}}</span> 
 {% endblock %}
 
 {% block titulo2 %} 
-    Editar Contrato - {{DicContract.Empleado}} - {{DicContract.EstadoContrato}}
+    Editar Contrato - {{DicContract.Empleado}}
 {% endblock %}
 
 {% block content %}
-    <main class="flex-grow-1">
-        {% crispy form %}
-    </main>
+
+    {% crispy form %}
 
 {% endblock %}
 
@@ -25,3 +24,6 @@ ID Contrato {{DicContract.Idcontrato}}
 
 {% block js %}
 {% endblock %}
+
+
+    

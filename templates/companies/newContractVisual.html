@@ -1,80 +1,71 @@
-{% extends 'base/base.html' %} {% block title %} Nomiweb.co - Portal Empresas -
-Nuevo Empleado {% endblock %} {% block css %} {% endblock %} {% block content %}
+{% extends 'base/base.html' %} 
+
+
+{% block title %} Nomiweb.co - Portal Empresas -Nuevo Empleado {% endblock %} 
+
+
+
+{% block css %} {% endblock %} 
+
+
+{% block titulo2 %} 
+    Nuevo Contrato
+{% endblock %}
+
 
 
 {% block cssarch %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
 {% endblock %}
-    <header class="container">
-    <h1>Nuevo Contrato</h1>
-    </header>
 
-    <main class="flex-grow-1">
-        <table id='tableContractCreate' class="table table-striped table-bordered">
-            <thead>
+
+
+{% block content %}
+
+<div class="table-responsive">
+    <table  id="tabla_usuarios" class="table table-striped table-row-bordered gy-5 gs-7" >
+        <thead>
+            <tr class="fw-semibold fs-6 text-gray-800" >
+            <th>Documento</th>
+            <th>Nombre</th>
+            <th> </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
                 <tr>
-                <th>Documento</th>
-                <th>Nombre</th>
-                <th> </th>
+                    <td>{{ empleado.docidentidad }}</td>
+                    <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }} </td>
+                    <td>
+                        <a href="{% url 'companies:newcontractcreater' idempleado=empleado.idempleado %}">
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAAXNSR0IArs4c6QAAAatJREFUWEft1sFKwzAYB/AmRYoHwasvIMhEFHEIPoX3wVra3T1pNy9erNMn2KGl69gr+A4yKchwePEuePW6pNJBpZS2+RLTsqK7jWT7fvnna1KkrNkHrZlH+Vugga4fxjvgjMcv0J2oLKGrbreFMW7HEITxs+N5rxBUJaA0JkFAUdJBF7q+vYnQeV4aSFVDx3XnZUlJB8XFLi1rTyXkNK+wpmmPN6PRZxFKGmjQ6ew40+lHUigPFVE6HwZBWHlC16bZppS2iKo+PbjuW1Kw3+vtKsvlWfwdY7y49bwZq7F/nZCt6ycIof2kEKV0dh8Ei3RSG1G0BcGsnkiWuGw8SSY7J5sUTw1hUBEmKS6KEgKxMDEqu3XQlLhBVWK4e8i2rGNEyEHZakWT+TnRoVHWgQEnVBcGBKoTwwRBMIiQ0JlMSi9MaFuUgmzTPEKUrl6wCi9CyZhSUN8wjLoxwiDZ25ReeOHBWJRQlRjuhKrGMJs600NfQ89753liROZy32UiRXh+8w9ipdWchFgHI2ulrPE73/fz5nCfQ6xC0PHmg6ArlT2vOU0te+XQ//sGoIXVJY8Oc7wAAAAASUVORK5CYII="/>
+                        </a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for empleado in empleados %}
-                    <tr>
-                        <td>{{ empleado.docidentidad }}</td>
-                        <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }} </td>
-                        <td>
-                            <a href="{% url 'companies:newcontractcreater' idempleado=empleado.idempleado %}">
-                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAAXNSR0IArs4c6QAAAatJREFUWEft1sFKwzAYB/AmRYoHwasvIMhEFHEIPoX3wVra3T1pNy9erNMn2KGl69gr+A4yKchwePEuePW6pNJBpZS2+RLTsqK7jWT7fvnna1KkrNkHrZlH+Vugga4fxjvgjMcv0J2oLKGrbreFMW7HEITxs+N5rxBUJaA0JkFAUdJBF7q+vYnQeV4aSFVDx3XnZUlJB8XFLi1rTyXkNK+wpmmPN6PRZxFKGmjQ6ew40+lHUigPFVE6HwZBWHlC16bZppS2iKo+PbjuW1Kw3+vtKsvlWfwdY7y49bwZq7F/nZCt6ycIof2kEKV0dh8Ei3RSG1G0BcGsnkiWuGw8SSY7J5sUTw1hUBEmKS6KEgKxMDEqu3XQlLhBVWK4e8i2rGNEyEHZakWT+TnRoVHWgQEnVBcGBKoTwwRBMIiQ0JlMSi9MaFuUgmzTPEKUrl6wCi9CyZhSUN8wjLoxwiDZ25ReeOHBWJRQlRjuhKrGMJs600NfQ89753liROZy32UiRXh+8w9ipdWchFgHI2ulrPE73/fz5nCfQ6xC0PHmg6ArlT2vOU0te+XQ//sGoIXVJY8Oc7wAAAAASUVORK5CYII="/>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                
+                {% endfor %}
+            </tbody>
+            
 
-        </table>
-    </main>
+    </table>
+</div>
+    
+    
 
 {% endblock %}
 
 {% block js %}
 
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-
-
 <script>
-    $(document).ready(function() {
-        $('#tableContractCreate').DataTable({
-            language: {
-                "decimal":        "",
-                "emptyTable":     "No existen usuarios que requieran la creación de un contrato. Si usted necesita un contrato para un usuario, debe crearlo o activarlo.",
-                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
-                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix":    "",
-                "thousands":      ",",
-                "lengthMenu":     "Mostrar _MENU_ entradas",
-                "loadingRecords": "Cargando...",
-                "processing":     "Procesando...",
-                "search":         "Buscar:",
-                "zeroRecords":    "No se encontraron registros coincidentes",
-                "paginate": {
-                    "first":      "Primero",
-                    "last":       "Último",
-                    "next":       "Siguiente",
-                    "previous":   "Anterior"
-                },
-                "aria": {
-                    "sortAscending":  ": activar para ordenar la columna ascendente",
-                    "sortDescending": ": activar para ordenar la columna descendente"
-                }
-            },
-            order: [[1, 'asc']],
-            
+    // On document ready
+    document.addEventListener('DOMContentLoaded', function () {
+        $("#tabla_usuarios").DataTable({
+            "scrollY": "500px",
+            "scrollCollapse": true,
+            "paging": false,
+            "dom": "<'table-responsive'tr>",
+            "searching": true
         });
     });
 </script>
+
+
 {% endblock %}
