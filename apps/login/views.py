@@ -4,19 +4,15 @@ from django.contrib.auth import authenticate, login , logout
 from django.contrib import messages
 from .forms import LoginForm , MiFormulario
 from .models import Usuario,Empresa
-from apps.companies.models import * 
 
 from apps.components.role_redirect  import redirect_by_role
+
 from apps.login.middlewares import NombreDBSingleton
-
-
-from apps.components.decorators import custom_login_required
-
+from apps.components.decorators import TempSession,custom_login_required
 
 
 
 def login_view(request):
-    request.session.clear()        
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -26,17 +22,16 @@ def login_view(request):
             if user is not None:
                 
                 login(request, user)
-                print(request.user)
                 usuario = Usuario.filter_by_username(request.user.username)
                 request.session['usuario'] = {
                             'rol': usuario.role,
                             'compania': usuario.company.name,
-                            'db':usuario.company.db_name,
-                            'user':'activate'
+                            'db':usuario.company.db_name
                         }
                 
-                # singleton = NombreDBSingleton()
-                # singleton.set_nombre_db(usuario.company.db_name)
+                session = TempSession()
+                session.login()
+                
                 return redirect_by_role(usuario.role)
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')
@@ -45,12 +40,15 @@ def login_view(request):
     return render(request, './users/login.html', {'form': form})
 
 
+
+@custom_login_required
 def logout_view(request):
-    print(request.user)
     singleton = NombreDBSingleton()
     singleton.set_nombre_db('default')
     request.session.clear()
     logout(request)
+    session = TempSession()
+    session.logout()
     return redirect('login:login')
 
 
@@ -66,4 +64,3 @@ def prueba(request):
         form = MiFormulario()
     
     return render(request, './users/prueba.html',{'form': form})
-
