@@ -44,7 +44,7 @@ Certificaciones Laborales
                             <td>{{ e.destino }}</td>
                             <td>{{ e.fecha }}</td>
                             <td>{{ e.salario|intcomma }}</td>
-                            <td><a class="btn btn-warning btn-sm" href="{% url 'employees_app:genera-certificaciones' e.idcert %}" target="_blank">
+                            <td><a class="btn btn-warning btn-sm" href="{% url 'employees:genera-certificaciones' e.idcert %}" target="_blank">
                                 Ver
                             </a></td>
                         </tr>
