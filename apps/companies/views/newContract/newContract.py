@@ -2,11 +2,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.models import Tipodocumento ,ModelosContratos,Tiposalario, Paises ,Subcostos,Costos, Ciudades ,Contratosemp, Profesiones,Contratos ,Tipocontrato , Centrotrabajo,Sedes
 from apps.companies.forms.ContractForm  import ContractForm 
 from django.contrib import messages
+from apps.components.decorators import custom_login_required ,custom_permission
 
+
+@custom_login_required
+@custom_permission('entrepreneur')
 def newContractVisual(request):   
     empleados = Contratosemp.objects.filter(estadocontrato=4)
     return render(request, './companies/newContractVisual.html',{'empleados':empleados})
 
+
+@custom_login_required
+@custom_permission('entrepreneur')
 def newContractCreater(request,idempleado):
     
     empleado = get_object_or_404(Contratosemp, idempleado=idempleado)

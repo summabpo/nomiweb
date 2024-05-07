@@ -3,7 +3,11 @@ from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
 from apps.companies.models import Tipodocumento , Paises , Ciudades , Contratosemp,Profesiones
 from apps.companies.forms.EmployeeForm import EmployeeForm
+from apps.components.decorators import custom_login_required ,custom_permission
 
+
+@custom_login_required
+@custom_permission('entrepreneur')
 def newEmployee(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST)

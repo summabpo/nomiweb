@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.models import Tipodocumento , Paises , Ciudades , Contratosemp , Contratos
 from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
+from apps.components.decorators import custom_login_required ,custom_permission
 
 
 
+@custom_login_required
+@custom_permission('entrepreneur')
 def EditEmployeeVisual(request,idempleado):
     empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
     
@@ -95,7 +98,8 @@ def EditEmployeeVisual(request,idempleado):
 
 
 
-
+@custom_login_required
+@custom_permission('entrepreneur')
 def EditEmployeeSearch(request):
     contratos_empleados = Contratos.objects.using("lectaen") \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \

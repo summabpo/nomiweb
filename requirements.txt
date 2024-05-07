@@ -6,7 +6,7 @@ psycopg2==2.9.9
 reportlab==3.6.1
 wkhtmltopdf==0.2
 imgkit==1.2.2
-
+pip install xhtml2pdf
 
 
 

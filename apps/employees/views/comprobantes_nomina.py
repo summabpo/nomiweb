@@ -21,6 +21,10 @@ from django.views.generic import  ListView, DetailView
 from apps.employees.models import Crearnomina, Nomina, Contratos, Contratosemp
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
+from apps.components.decorators import custom_login_required ,custom_permission
+
+
+
 idn = 499
 idc = 3863
 ide = 281
@@ -71,6 +75,9 @@ class ListaConceptosNomina(ListView):
         context['nombrenomina'] = self.nombreNomina()
         return context
 
+
+@custom_login_required
+@custom_permission('employee')
 def genera_comprobante(request, idnomina, idcontrato):
         idc=idcontrato
         idn=idnomina
