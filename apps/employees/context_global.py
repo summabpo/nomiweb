@@ -34,10 +34,54 @@ def datos_cliente():
     }
     return info_cliente
 
-def datos_empleado():
+# def datos_empleado(id_empleado=3863):
+#     contrato = Contratos.objects.select_related('tipocontrato').get(idcontrato=id_empleado)
+    
+#     empleado = Contratosemp.objects.annotate(
+#         nombre_letras=Concat('pnombre', Value(' '), 'snombre', Value(' '), 'papellido', Value(' '), 'sapellido', output_field=CharField())
+#     ).get(idempleado=contrato.idempleado_id)
+    
+#     info_empleado = {
+#         'nombre_completo': empleado.nombre_letras,
+#         'fechainiciocontrato': contrato.fechainiciocontrato,
+#         'cargo': contrato.cargo,
+#         'tipo_contrato': contrato.tipocontrato.tipocontrato,
+#         'docidentidad': empleado.docidentidad,
+#         'salario': contrato.salario,
+#         'idc': contrato.idcontrato,
+#         'ide': empleado.idempleado
+#     }
+#     return info_empleado
+def datos_empleado(id_contrato=3863):
+    
+    contrato = Contratos.objects.get(idcontrato=id_contrato)
+    empleado = Contratosemp.objects.filter(idempleado=contrato.idempleado_id).annotate(
+        nombre_letras=Concat(F('pnombre'), Value(' '), F('snombre'), Value(' '), 
+                             F('papellido'), Value(' '), F('sapellido'), output_field=CharField())
+    ).values('nombre_letras').first()
+        
+    info_empleado = {
+        'nombre_completo': empleado['nombre_letras'], 
+        'fechainiciocontrato': contrato.fechainiciocontrato,
+        'cargo': contrato.cargo, 
+        'tipo_contrato': contrato.tipocontrato.idtipocontrato,
+        'nombre_contrato': contrato.tipocontrato,
+        'docidentidad': contrato.idempleado.docidentidad ,
+        'salario': contrato.salario,
+        'idc': contrato.idcontrato,
+        'ide': contrato.idempleado_id
+    }
+    return info_empleado
+
+
     #DATOS EMPLEADO
     idc=3863
-    idempleado_id = Contratos.objects.get(idcontrato=idc).idempleado
+    
+    idempleado_id = Contratos.objects.get(idcontrato=idc).idempleado_id
+    
+    
+    
+    
     ide = idempleado_id
     empleado = Contratosemp.objects.filter(idempleado=ide).annotate(nombre_letras=Concat(
 
@@ -71,4 +115,3 @@ def datos_empleado():
         'ide': ide
     }
     return info_empleado
-
