@@ -16,7 +16,7 @@ urlpatterns = [
         name='genera-certificaciones'
     ),
     path(
-        'comprobantes',
+        'emp/comprobantes',
         views.comprobantes_nomina.ListaNominas.as_view(),
         name='comprobantes_all'
     ),

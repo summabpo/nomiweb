@@ -1,14 +1,20 @@
-{% extends 'base.html' %}
+{% extends 'base/base_employees.html' %}
 
+{% block title %} Nomiweb.co - Portal Empleados -
+Certificaciones Laborales 
+{% endblock %} 
+{% block css %} 
+{% endblock %} 
 {% block content %}
-{% include "includes/header.html" %}
+{% block cssarch %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
 
-<div class="grid-container">
-    <div class="grid-x">
-        <h1 class="cell">LISTA DE NOMINAS </h1>
+<h3 class="text-center" >Lista de Nominas</h3>
+
         
-        <div class="cell">
-            <table>
+        <div class="table-responsive">
+            <table class="table table-rounded table-striped border gy-7 gs-7">
                 <thead>
                     <tr>
                     <th width="200">IDNOMINA</th>
@@ -23,12 +29,11 @@
                         <td>{{ e.idnomina.idnomina }}</td>
                         <td>{{ e.idcontrato }}</td>
                         <td>{{ e.idnomina.nombrenomina }}</td>
-                        <td><a class="button warning" href="{% url 'comprobantes_app:genera-comprobante' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
+                        <td><a class="button warning" href="{% url 'employees:genera-comprobante' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
+    
 {% endblock content %}

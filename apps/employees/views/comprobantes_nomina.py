@@ -21,12 +21,12 @@ from django.views.generic import  ListView, DetailView
 from apps.employees.models import Crearnomina, Nomina, Contratos, Contratosemp
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
-idn = 359
-idc = 2477
-ide = 341
+idn = 499
+idc = 3863
+ide = 281
 
 class ListaNominas(ListView):
-    template_name = 'comprobantes_nomina/comprobantes.html'
+    template_name = 'employees/comprobantes.html'
     paginate_by = 30
     context_object_name = 'nominas'
     model = Nomina
@@ -41,7 +41,7 @@ class ListaNominas(ListView):
 class ListaConceptosNomina(ListView):
     model = Nomina
     context_object_name = 'conceptos'
-    template_name = 'comprobantes_nomina/recibo.html'
+    template_name = 'employees/recibo.html'
 
     def nombreNomina(self):
         nombrenomina = Crearnomina.objects.get(idnomina=idn).nombrenomina
@@ -118,11 +118,11 @@ def genera_comprobante(request, idnomina, idcontrato):
             output_field=CharField()
             )
         ).values('empleado').first()
-        #nombre_completo=empleado['empleado']
+        nombre_completo=empleado['empleado']
 
         dataDevengado = Nomina.objects.filter(idcontrato=idc, idnomina=idn, valor__gt=0).order_by('idconcepto')
         dataDescuento = Nomina.objects.filter(idcontrato=idc, idnomina=idn, valor__lt=0).order_by('idconcepto')
-        logo = ImageReader('static/img/CSFSLOGO2016.png')
+        logo = ImageReader('static/img/logo lecta.jpeg')
         #start pdf
         p.drawImage(logo, 20, 730, width=130, preserveAspectRatio=True, mask='auto')
         p.setFont("Helvetica",18,leading=None)

@@ -1,6 +1,6 @@
 #models
 from apps.employees.models import  Certificaciones, Tipocontrato, Empresa
-from apps.employees.models import Crearnomina, Nomina, Contratos, Contratosemp 
+from apps.employees.models import Crearnomina, Nomina, Contratos, Contratosemp
 from django.db.models import Sum, F, Value, CharField
 from django.db.models.functions import Concat
 
@@ -65,7 +65,7 @@ def datos_empleado(id_contrato=3863):
         'fechainiciocontrato': contrato.fechainiciocontrato,
         'cargo': contrato.cargo, 
         'tipo_contrato': contrato.tipocontrato.idtipocontrato,
-        'nombre_contrato': contrato.tipocontrato,
+        'nombre_contrato': contrato.tipocontrato.tipocontrato,
         'docidentidad': contrato.idempleado.docidentidad ,
         'salario': contrato.salario,
         'idc': contrato.idcontrato,
