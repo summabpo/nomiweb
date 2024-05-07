@@ -29,7 +29,7 @@ Certificaciones Laborales
                         <td>{{ e.idnomina.idnomina }}</td>
                         <td>{{ e.idcontrato }}</td>
                         <td>{{ e.idnomina.nombrenomina }}</td>
-                        <td><a class="button warning" href="{% url 'employees_app:genera-comprobante' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
+                        <td><a class="button warning" href="{% url 'employees:genera-comprobante' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
