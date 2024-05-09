@@ -1,4 +1,4 @@
-{% extends 'base/base.html' %}
+{% extends 'base/base_companies.html' %}
 
 {% block title %}
     Nomiweb.co - Portal Empresas 
@@ -6,19 +6,27 @@
 
 
 {% block css %}
-
-
-
 {% endblock %}
+
+
+{% block sub_titulo1 %} 
+inicio
+{% endblock %}
+
+{% block sub_titulo2 %} 
+Dash
+{% endblock %}
+
+{% block titulo2 %} 
+Posible Dash
+{% endblock %}
+
 
 
 {% block content %}
-    <header >
-        <h1>Posible Dash</h1>
-    </header>
     <canvas id="kt_chartjs_1" class="mh-400px"></canvas>
-
 {% endblock %}
+
 {% block js %}
 <script>
     var ctx = document.getElementById('kt_chartjs_1').getContext('2d');

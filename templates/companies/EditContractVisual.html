@@ -1,4 +1,4 @@
-{% extends 'base/base.html' %} 
+{% extends 'base/base_companies.html' %} 
 {% load crispy_forms_tags %}
 
 
@@ -6,13 +6,29 @@
 
 {% block css %} {% endblock %} 
 
+{% block sub_titulo1 %} 
+empleados
+{% endblock %}
+
 {% block sub_titulo2 %} 
-ID Contrato {{DicContract.Idcontrato}} - br <span class="badge badge-success">{{DicContract.EstadoContrato}}</span> 
+ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"> {{DicContract.EstadoContrato}} </span> 
 {% endblock %}
 
 {% block titulo2 %} 
     Editar Contrato - {{DicContract.Empleado}}
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
 
 {% block content %}
 

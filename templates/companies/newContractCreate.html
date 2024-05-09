@@ -1,4 +1,4 @@
-{% extends 'base/base.html' %}
+{% extends 'base/base_companies.html' %}
 {% load crispy_forms_tags %}
 
 
@@ -10,9 +10,21 @@
 {% block cssarch %}
 {% endblock %}
 
+
+
+{% block sub_titulo1 %} 
+    empleados
+{% endblock %}
+
+
+{% block  sub_titulo2%} 
+    Nuevo Contrato
+{% endblock %}
+
 {% block titulo2 %} 
     Nuevo Contrato
 {% endblock %}
+
 
 {% block content %}
 <main class="flex-grow-1 content">  

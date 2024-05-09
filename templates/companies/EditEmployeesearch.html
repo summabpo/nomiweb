@@ -1,18 +1,26 @@
-{% extends 'base/base.html' %}
+{% extends 'base/base_companies.html' %}
 
 {% block title %}
 Nomiweb.co - Portal Empresas - Edit Empleado
 {% endblock %} 
 
 {% block cssarch %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
 {% endblock %}
 
+{% block sub_titulo1 %} 
+    empleados
+{% endblock %}
+
+{% block sub_titulo2 %} 
+    Editar Hoja de vida De Empleado
+{% endblock %}
+
+{% block titulo2 %} 
+    Editar Hoja de vida
+{% endblock %}
+
+
 {% block content %}
-<header class="container">
-    <h1>Editar Hoja de vida</h1>
-</header>
 
 <main class="flex-grow-1">
     <table id='tableempleyee' class="table table-striped table-bordered">
@@ -54,9 +62,6 @@ Nomiweb.co - Portal Empresas - Edit Empleado
 {% endblock %}
 
 {% block js %}
-
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
 
 <script>
     $(document).ready(function() {
