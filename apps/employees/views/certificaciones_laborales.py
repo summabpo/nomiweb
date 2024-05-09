@@ -82,7 +82,7 @@ def calculo_salario_promedio():
 
 
 @custom_login_required
-@custom_permission('employee')
+@custom_permission('employees')
 def vista_certificaciones(request):
     datose = datos_empleado()
     zona_horaria = pytz.timezone('America/Bogota')

@@ -2,12 +2,11 @@ from django.urls import path
 from . import views
 from apps.employees.views.certificaciones_laborales import vista_certificaciones
 from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, ListaNominas, genera_comprobante
-from apps.employees.prueba import startemployees ,descargar_recibo
 from apps.employees.views import index
 
 urlpatterns = [
     path( 
-        'emp/certificaciones_laborales',
+        'certificaciones_laborales',
         views.certificaciones_laborales.vista_certificaciones,
         name='certificaciones'
     ),
@@ -17,7 +16,7 @@ urlpatterns = [
         name='genera-certificaciones'
     ),
     path(
-        'emp/comprobantes',
+        'comprobantes',
         views.comprobantes_nomina.ListaNominas.as_view(),
         name='comprobantes_all'
     ),
@@ -35,13 +34,7 @@ urlpatterns = [
         'genera-comprobante/<int:idnomina>/<int:idcontrato>/',
         views.comprobantes_nomina.genera_comprobante,
         name='genera-comprobante'
-    ),
+    ),   
     
-    path(
-        'employees/',
-        index.index_employees,
-        name='index_employees'
-    ),
     
-    path('descargar-recibo/', descargar_recibo, name='descargar_recibo')
 ]
