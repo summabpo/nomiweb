@@ -167,7 +167,7 @@ class Tipocontrato(models.Model):
 class Centrotrabajo(models.Model):
     nombrecentrotrabajo = models.CharField(max_length=30, blank=True, null=True)
     tarifaarl = models.DecimalField(max_digits=5, decimal_places=3, blank=True, null=True)
-    centrotrabajo = models.SmallIntegerField(primary_key=True)
+    centrotrabajo = models.AutoField(primary_key=True)
 
     class Meta:
         managed = False
