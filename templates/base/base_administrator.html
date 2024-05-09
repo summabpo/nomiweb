@@ -12,6 +12,9 @@ Dribbble: www.dribbble.com/keenthemes
 Like: www.facebook.com/keenthemes
 License: For each use you must have a valid license purchased only from above link in order to legally use the theme for your project.
 -->
+
+
+
 <html lang="es">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,6 +27,9 @@ License: For each use you must have a valid license purchased only from above li
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
     <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+
+
+
 
     {% block cssarch %}
     {% endblock %}
@@ -216,7 +222,7 @@ License: For each use you must have a valid license purchased only from above li
             <!--begin::Wrapper-->
             <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
                 <!--begin::Sidebar-->
-                {% include './navbar_companies.html' %}
+                {% include './navbar_administrator.html' %}
                 <!--end::Sidebar-->
                 <!--begin::Main-->
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">

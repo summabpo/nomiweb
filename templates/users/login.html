@@ -16,16 +16,45 @@
     <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
 
+    <style>
+        /* Estilo personalizado para el enlace */
+        .enlace-redondo {
+          position: fixed;
+          bottom: 20px; /* Ajusta según la distancia desde el borde inferior */
+          right: 20px; /* Ajusta según la distancia desde el borde derecho */
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background-color: #007bff; /* Color de fondo */
+          color: #fff; /* Color del texto */
+          text-align: center;
+          line-height: 50px;
+          font-weight: bold;
+          text-decoration: none; /* Elimina el subrayado del enlace */
+          transition: opacity 0.3s ease; /* Transición suave de la opacidad */
+          opacity: 0; /* Inicialmente transparente */
+        }
+
+        /* Cambiar la opacidad al pasar el ratón por encima */
+        .enlace-redondo:hover {
+          opacity: 1; /* Hacer visible */
+        }
+      </style>
 
 
 </head>
 <body id="kt_body" class="app-blank" >
+    
     <div class="d-flex flex-column flex-root" id="kt_app_root">
+        
         <div class="d-flex flex-column flex-lg-row flex-column-fluid">
             <div class="d-flex flex-column flex-lg-row-auto bg-primary w-xl-600px positon-xl-relative">
 
             </div>
             <div class="d-flex flex-column flex-lg-row-fluid py-10">
+
+                <a href="#" class="enlace-redondo" id="enlace-oculto"></a>
+
                 <div class="d-flex flex-center flex-column flex-column-fluid">
                     <div class="w-lg-1000px p-10 p-lg-15 mx-auto">
                         {% crispy form %}
@@ -34,40 +63,6 @@
             </div>
         </div>
     </div>
-
-    
-
-    <!-- <div class="form-group">
-        <div class="form-group row">
-            <div class="col-md-3">
-                <label class="form-label">Username:</label>
-                <div class="input-group mb-5"> 
-                    <span class="input-group-text" id="basic-addon1">
-                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAURJREFUSEvF1L8rRXEYx/HXTWaEwSiZLIpVRgulKBaLzWLwa7QopURS/gRZ5FcW/wAlGWQiIykMKKX8OKdc3c69557bOW6+2znn+3zen+fp85ycKp9clfVVCujFIjp+DF1gDsdJBisBjGKTIjOfGMRBOUgSoB43aIgRuUMb3uIgSYDQ4U7CGPpwlBYwjeUEwBRW0wIGsJ8A6MdhWkAdrtEUI3CPdrykBYR1I9gqIRCmaAi7WVKUr+3B0s8efOASszj5iz1I0ij7PSmmmcTD4nKAZswEm9oVzLkTjRHaI85xihU8lHITBxgLBNeDfIcpquQ8YRx70culAJPBr2GtEtUSd4axXfg+CmjFFWpSAl4RavyOKwrYwERK8XzZfGBwIf8QBdyiJSPgDN1xgHfUZgQ8F4Yj2sFXRvEi4/+6aH/STNU7+AYkwS0ZwQsJ3gAAAABJRU5ErkJggg=="/>
-                    </span>
-                    <input type="email" class="form-control mb-2 mb-md-0" placeholder="Ingrese su nombre de usuario" />
-                </div>
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-md-3">
-                <label class="form-label">Password:</label>
-                <div class="input-group mb-5"> 
-                    <span class="input-group-text" id="basic-addon1">
-                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAj1JREFUSEu11UuojWEUBuDnILmW5Fai5H4rioHkNnBJKVGSUsqITJkoJoYGCpkRKaUMjJDc5RIlRS4DFLmGASOEf2nt07//s7ez6+zzTU7n2+tb71rvu971d+jl09HL+VUBduEYPrULuAywHYfxFIvbBVIGGI1rmJogC/Glp51UKRqFK5iBh1iL1ViDgRWwHziPk/jYrJBGIo/AVcxssfpfOIQ9+FZ90whgIs5hcin4MvbjHiJhxOzDqlLMq4LiZYi/nacKEA9vYgxe4E8me4lbRWdLMSBp3IltiMmrndeYi8+1izJAPzzArKxyQtH27xR+UgO6puMZLmB56fegNzr5d8oAO3CwFHg3Hw7CjQplEbYkC1qQIOUaNqf4dQBvMLbgcEu2HZN0p6BmRcH/kBR+SqWTD5iDd5X7+5hf7eBRTs761OF6euJ2BSR8Ujvh+Pi/6pcwa1BY18HGIvgU3qcO/REgwX8IvLLUSQ3kOE7gUqWDmK7Qpg6gT1YenMY4hnBDEyQEr4EMzimKCh/nxMRqqZ0jhfFi7XQROS6G4SLm4TmCru8JHPoESACHJrFWplUqDzpD/J/NAOI+qj6boxZjeibF3o3hOVEbsC6XYy1XdBPgdYI3+x70LUy2t6gkkgZ1rZwAWISv5eDuPjjjCqo25UoYnw4Pd7/NlXA6BY6OZ+NJur1z+XUH0ErlETMyhyE0CXeHDuGRLl+0VhM2iotVX/POVhxtN0DkiyUZfjrwvynqSRdd3rZLg6ZF/QVR128ZaJV2qAAAAABJRU5ErkJggg=="/>
-                    </span>
-                    <input type="email" class="form-control mb-2 mb-md-0" placeholder="Ingrese su nombre de usuario" />
-                </div>
-            </div>
-        </div>
-    </div> -->
-
-
-<!--begin::Repeater-->
-
-<!--end::Repeater-->
-
-
 
 <!--begin::Global Javascript Bundle(mandatory for all pages)-->
 <script src="{% static 'plugins/global/plugins.bundle.js' %}"></script>
@@ -122,5 +117,8 @@
         }
     }
 </script>
+
+
+
 </body>
 </html>

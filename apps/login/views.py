@@ -11,6 +11,7 @@ from apps.login.middlewares import NombreDBSingleton
 from apps.components.decorators import TempSession,custom_login_required , default_login
 
 
+
 @default_login
 def login_view(request):
     if request.method == 'POST':
