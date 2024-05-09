@@ -140,7 +140,7 @@ def vista_certificaciones(request):
 
 
 @custom_login_required
-@custom_permission('employee')
+@custom_permission('employees')
 def genera_certificaciones(request, idcert):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="certificado.pdf"'
