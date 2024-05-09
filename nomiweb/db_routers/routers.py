@@ -4,6 +4,7 @@ class DatabaseRouter:
     def db_for_read(self, model, **hints):
         singleton = NombreDBSingleton()
         nombre_db = singleton.get_nombre_db()
+        print(nombre_db)
         return nombre_db
 
     def db_for_write(self, model, **hints):

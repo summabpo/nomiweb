@@ -20,12 +20,11 @@ from apps.login.views import custom_400 ,custom_403,custom_404 ,custom_500
 
 
 
-
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', include(('apps.login.urls', 'login'))),
     path('employees/', include(('apps.employees.urls', 'employees'))),
     path('companies/', include(('apps.companies.urls', 'companies'))),
+    path('admin/', include(('apps.administrator.urls', 'admin'))),
 ]
 
 #handler400 = custom_400  # Configura la vista custom_400 para manejar el error 400

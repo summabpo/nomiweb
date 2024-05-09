@@ -41,12 +41,11 @@ INSTALLED_APPS = [
     'apps.login', 
     'apps.employees',     # Employees application
     'apps.companies',     # Companies application
+    'apps.administrator',
     # 'apps.payroll',       # Payroll application
     # 'apps.api_database',  # API database applicatio#n
-
     # Django REST Framework
     'rest_framework',
-
     # Crispy Forms
     'crispy_forms',
     "crispy_bootstrap5",

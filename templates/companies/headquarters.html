@@ -3,7 +3,7 @@
 
 
 {% block title %}
-    Nomiweb.co - Portal Empresas - Cargos 
+    Nomiweb.co - Portal Empresas - Sedes 
 {% endblock %}
 
 
@@ -16,13 +16,13 @@
 
 
 {% block sub_titulo2 %} 
-    Cargos
+    Sedes
 {% endblock %}
 
 
 
 {% block titulo2 %} 
-    Cargos
+    Sedes
 {% endblock %}
 
 
@@ -34,7 +34,7 @@
     <main  class="flex-grow-1">
         <div class="card shadow-sm">
             <div class="card-header">
-                <h3 class="card-title">Nuevo Cargo</h3>
+                <h3 class="card-title">Nueva Sede </h3>
             </div>
             <div class="card-body">
                 {% crispy form %}
@@ -42,22 +42,24 @@
         </div>
 
         <div class="separator my-10">
-            <h3> Cargos Activos </h3>
+            <h3> Sedes Activas </h3>
         </div>
 
         <div class="table-responsive">
             <table class="table table-row-bordered gy-5" id="tablacargos" >
                 <thead>
                     <tr class="fw-semibold fs-2 text-muted">
-                        <th>Codigo</th>
-                        <th>Nombre Cargo</th>
+                        <th>Código Sede</th>
+                        <th>Nombre de la Sede </th>
+                        <th>Caja de Compensación Familiar</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for cargo in cargos %}
+                    {% for sede in sedes %}
                         <tr>
-                            <td>{{ cargo.idcargo }}</td>
-                            <td>{{ cargo.nombrecargo }}</td>
+                            <td>{{ sede.idsede }}</td>
+                            <td>{{ sede.nombresede }}</td>
+                            <td>{{ sede.cajacompensacion }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

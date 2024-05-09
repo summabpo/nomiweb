@@ -12,7 +12,7 @@ from apps.companies.models import Contabgrupos
 class workplaceForm(forms.Form):
     
     TARIFA_CHOICES = [
-        ('', 'Escoger -----&gt;'),
+        ('', '---------'),
         ('0.522', 'Riesgo I - 0.522'),
         ('1.044', 'Riesgo II - 1.044'),
         ('2.436', 'Riesgo III - 2.436'),
