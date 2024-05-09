@@ -129,7 +129,7 @@ class ModelosContratos(models.Model):
 class Sedes(models.Model):
     nombresede = models.CharField(max_length=40, blank=True, null=True)
     cajacompensacion = models.CharField(max_length=60, blank=True, null=True)
-    idsede = models.SmallIntegerField(primary_key=True)
+    idsede = models.AutoField(primary_key=True)
     codccf = models.CharField(max_length=8, blank=True, null=True)
 
     class Meta:
@@ -141,7 +141,7 @@ class Sedes(models.Model):
 class Subcostos(models.Model):
     nomsubcosto = models.CharField(max_length=30, blank=True, null=True)
     nomcosto = models.CharField(max_length=30, blank=True, null=True)
-    idsubcosto = models.SmallIntegerField(primary_key=True)
+    idsubcosto = models.AutoField(primary_key=True)
     idcosto = models.SmallIntegerField(blank=True, null=True)
     sufisubcosto = models.CharField(max_length=2, blank=True, null=True)
 

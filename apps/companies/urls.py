@@ -7,6 +7,7 @@ from .views.newContract import newContract
 from .views.charges import charges
 from .views.Costcenter import Costcenter
 from .views.workplace import workplace
+from .views.headquarters import headquarters
 
 
 
@@ -34,6 +35,8 @@ urlpatterns = [
     path('parameters/charges', charges.charges, name='charges'),
     path('parameters/Cost/center', Costcenter.Costcenter, name='costcenter'),
     path('parameters/workplace', workplace.workplace, name='workplace'),
+    path('parameters/headquarters', headquarters.headquarters, name='headquarters'),
+    
     
     ##! contabilidad 
     
