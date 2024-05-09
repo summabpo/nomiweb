@@ -118,21 +118,15 @@ def EditContracVisual(request,idempleado):
                 contrato.idsubcosto =Subcostos.objects.get( idsubcosto =  form.cleaned_data['subCostCenter'] )
                 contrato.save()
                 messages.success(request, 'El Contrato ha sido Actualizado')
-                print("estoy aqui 4 ")
                 return  redirect('companies:editcontracsearch')
             except Exception as e:
                 messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
                 messages.error(request, messages_error)
-                print("estoy aqui 3 ")
                 return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
         else: 
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"Error en el campo '{field}': {error}")
-                    print('llege')
-                    print(error)
-                    
-                    
             premium = request.GET.get('premium', False)
             form.set_premium_fields(premium=premium) 
             messages.error(request,'Todo lo que podía fallar, falló.')

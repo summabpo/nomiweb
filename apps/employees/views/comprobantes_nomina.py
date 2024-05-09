@@ -77,7 +77,7 @@ class ListaConceptosNomina(ListView):
 
 
 @custom_login_required
-@custom_permission('employee')
+@custom_permission('employees')
 def genera_comprobante(request, idnomina, idcontrato):
         idc=idcontrato
         idn=idnomina

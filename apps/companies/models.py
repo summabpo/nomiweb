@@ -100,7 +100,7 @@ class Contratosemp(models.Model):
 
 class Costos(models.Model):
     nomcosto = models.CharField(max_length=30, blank=True, null=True)
-    idcosto = models.SmallIntegerField(primary_key=True)
+    idcosto = models.AutoField(primary_key=True)
     grupocontable = models.CharField(max_length=4, blank=True, null=True)
     suficosto = models.CharField(max_length=2, blank=True, null=True)
 
@@ -236,15 +236,21 @@ class Tiposalario(models.Model):
         
 
 class Cargos(models.Model):
-    idcargo = models.CharField(primary_key=True, max_length=4)
+    idcargo = models.AutoField(primary_key=True)
     nombrecargo = models.CharField(max_length=50)
     nombrenivel = models.CharField(max_length=50, blank=True, null=True)
     cargojefe = models.CharField(max_length=50, blank=True, null=True)
     cargosacargo = models.CharField(blank=True, null=True)
+    estado = models.BooleanField()
 
     class Meta:
         managed = False
         db_table = 'cargos'
+
+    def save(self, *args, **kwargs):
+        self.estado = True
+        super().save(*args, **kwargs)
+
         
 class Bancos(models.Model):
     idbanco = models.IntegerField(primary_key=True)
@@ -289,7 +295,13 @@ class Tipodenomina(models.Model):
     
     
 
+class Contabgrupos(models.Model):
+    idgrupo = models.CharField(primary_key=True, max_length=2)
+    grupocontable = models.CharField(max_length=40, blank=True, null=True)
 
+    class Meta:
+        managed = False
+        db_table = 'contabgrupos'
         
 
     

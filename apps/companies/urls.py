@@ -4,6 +4,8 @@ from .views.newEmployee import newEmployee
 from .views.EditEmployee import EditEmployee
 from .views.editContract import editContract
 from .views.newContract import newContract
+from .views.charges import charges
+from .views.Costcenter import Costcenter
 from .views.index import index
 
 
@@ -24,7 +26,10 @@ urlpatterns = [
 
     ##! empleados
 
-    ##! parametros 
+    #! parametros 
+    path('parameters/charges', charges.charges, name='charges'),
+    path('parameters/Cost/center', Costcenter.Costcenter, name='costcenter'),
+    
     
     ##! contabilidad 
     
