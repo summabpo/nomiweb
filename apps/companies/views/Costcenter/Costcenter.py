@@ -15,7 +15,7 @@ def Costcenter(request):
                 grupocontable=form.cleaned_data['grupocontable']
             )
             nuevo_costo.save()
-            messages.success(request, 'El cargo ha sido añadido con éxito.')
+            messages.success(request, 'El Centro de costos ha sido añadido con éxito.')
             return redirect('companies:costcenter')
         else:
             for field, errors in form.errors.items():

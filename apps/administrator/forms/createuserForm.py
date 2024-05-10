@@ -7,8 +7,6 @@ class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput, help_text='Su contraseña no puede ser demasiado similar a su otra información personal.')
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, help_text='Ingrese la misma contraseña que antes, para verificación.')
 
-    
-    
     def clean(self):
         cleaned_data = super().clean()
         username = cleaned_data.get('username')
@@ -24,7 +22,6 @@ class UserCreationForm(forms.ModelForm):
 
         if password1 and password2 and password1 != password2:
             self.add_error('password2', "Las contraseñas no coinciden")
-
         return cleaned_data
     
     
