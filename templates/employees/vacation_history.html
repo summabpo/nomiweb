@@ -1,0 +1,47 @@
+{% extends 'base/base_employees.html' %}
+
+{% block title %} Nomiweb.co - Portal Empleados - Historial de Vacaciones 
+{% endblock %} 
+{% block css %} 
+{% endblock %} 
+{% block content %}
+
+<h3 class="text-center" >Lista de Vacaciones</h3>
+
+        
+        <div class="table-responsive">
+            <table class="table table-rounded table-striped border gy-7 gs-7">
+                <thead>
+                    <tr>
+                    <th width="200">Tipo de Vacaciones</th>
+                    <th width="200">Dia Inicial</th>
+                    <th width="200">Dia Final</th>
+                    <th width="20">Dias Calendario</th>
+                    <th width="20">Dias Habiles</th>
+                    <th width="200">Periodo Inicial</th>
+                    <th width="200">Periodo Final</th>
+                    <th width="150">Fecha de Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in vacation_history %}
+                    <tr>
+                        <td>{{ e.tipovac.nombrevacaus }}</td>
+                        <td>{{ e.fechainicialvac|date:"d-m-Y" }}</td>
+                        <td>{{ e.ultimodiavac|date:"d-m-Y" }}</td>
+                        <td>{{ e.diascalendario }}</td>
+                        <td>{{ e.diasvac }}</td>
+                        <td>{{ e.perinicio|date:"d-m-Y" }}</td>
+                        <td>{{ e.perfinal|date:"d-m-Y" }}</td>
+                        <td>{{ e.fechapago|date:"d-m-Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="7"><strong>Total Días Hábiles</strong></td>
+                        <td><strong>{{ total_dias_habiles }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    
+{% endblock content %}
