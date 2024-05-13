@@ -361,3 +361,24 @@ class Vacaciones(models.Model):
         managed = False
         db_table = 'vacaciones'
 
+class EmpVacaciones(models.Model):
+    id_sol_vac = models.AutoField(primary_key=True)
+    idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING, db_column='idcontrato', blank=True, null=True)
+    tipovac = models.ForeignKey(Tipoavacaus, models.DO_NOTHING, db_column='tipovac', blank=True, null=True)
+    fechainicialvac = models.DateField(blank=True, null=True)
+    fechafinalvac = models.DateField(blank=True, null=True)
+    estado = models.SmallIntegerField(blank=True, null=True)
+    diasvac = models.SmallIntegerField(blank=True, null=True)
+    cuentasabados = models.SmallIntegerField(blank=True, null=True)
+    diascalendario = models.SmallIntegerField(blank=True, null=True)
+    idempleado = models.ForeignKey(Contratosemp, models.DO_NOTHING, db_column='idempleado', blank=True, null=True)
+    ip_usuario = models.CharField(max_length=16, blank=True, null=True)
+    fecha_hora = models.DateTimeField(blank=True, null=True)
+    update = models.DateTimeField(blank=True, null=True)
+    comentarios = models.CharField(max_length=255, blank=True, null=True)
+    comentarios2 = models.CharField(max_length=255, blank=True, null=True)
+    update_ip = models.CharField(max_length=16, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'emp_vacaciones'
