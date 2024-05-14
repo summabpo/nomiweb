@@ -2,11 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth import authenticate, login , logout
 from django.contrib import messages
-from .forms import LoginForm , MiFormulario
-from .models import Usuario,Empresa
-
+from .forms import LoginForm , MiFormulario ,PasswordResetForm , PasswordResetTokenForm
+from .models import Usuario,Empresa,Token
+from django.utils import timezone
+from django.contrib.auth.models import User
+import secrets
 from apps.components.role_redirect  import redirect_by_role
-
 from apps.login.middlewares import NombreDBSingleton
 from apps.components.decorators import TempSession,custom_login_required , default_login
 
@@ -52,6 +53,64 @@ def logout_view(request):
     return redirect('login:login')
 
 
+
+def password_reset_view(request):
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.filter(email=email).first()
+            if user:
+                token_temporal = secrets.token_urlsafe(50)
+                token = Token.objects.create(
+                    user=user,
+                    token_temporal=token_temporal,
+                    tiempo_creacion=timezone.now()
+                )
+                messages.success(request, 'El Correo ha sido Enviado Con EXITO')
+                print(token)
+                
+            else:
+                messages.error(request,'Parece que el correo ingresado no coincide con ningún usuario.')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Error en el campo '{field}': {error}")
+            
+    else:
+        form = PasswordResetForm
+    return render(request, 'users/password_reset_form.html', {'form': form})
+
+
+def password_reset_token(request,token):
+    if request.method == 'POST':
+        form = PasswordResetTokenForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.filter(email=email).first()
+            if user:
+                token_temporal = secrets.token_urlsafe(50)
+                token = Token.objects.create(
+                    user=user,
+                    token_temporal=token_temporal,
+                    tiempo_creacion=timezone.now()
+                )
+                messages.success(request, 'El Correo ha sido Enviado Con EXITO')
+                print(token)
+                
+            else:
+                messages.error(request,'Parece que el correo ingresado no coincide con ningún usuario.')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Error en el campo '{field}': {error}")
+            
+    else:
+        form = PasswordResetTokenForm
+    return render(request, 'users/password_reset_token.html', {'form': form})
+
+
+
 @custom_login_required
 def prueba(request):
     if request.method == 'POST':
@@ -72,6 +131,11 @@ def require_permission(request):
         session = TempSession()
         return redirect_by_role(session.have_permission())
     return render(request, './users/permission.html')
+
+
+
+
+
 
 
 

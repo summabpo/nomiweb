@@ -24,6 +24,50 @@ class LoginForm(forms.Form):
             Submit('submit', 'Ingresar', css_class='btn btn-light-success w-100')
         )
         
+        
+        
+        
+class PasswordResetForm(forms.Form):
+    email = forms.EmailField()
+    
+    def __init__(self, *args, **kwargs):
+        super(PasswordResetForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Row(
+                Column('email', css_class='form-group mb-2'),
+                css_class='form-row'
+            ),
+            Submit('submit', 'Enviar', css_class='btn btn-light-success w-100')
+        )
+    
+    
+class PasswordResetTokenForm(forms.Form):
+    username = forms.CharField(label='Username', max_length=150, help_text='Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ únicamente.')
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput, help_text='Su contraseña no puede ser demasiado similar a su otra información personal.')
+    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, help_text='Ingrese la misma contraseña que antes, para verificación.')
+    
+    def __init__(self, *args, **kwargs):
+        super(PasswordResetTokenForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Row(
+                Column('username', css_class='form-group mb-2'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('password1', css_class='form-group mb-2'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('password2', css_class='form-group mb-2'),
+                css_class='form-row'
+            ),
+            Submit('submit', 'Guardar', css_class='btn btn-light-success w-100')
+        )
+    
 class MiFormulario(forms.Form):
     def __init__(self, *args, **kwargs):
         opciones_1 = kwargs.pop('opciones_1', [])
