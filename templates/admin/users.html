@@ -29,7 +29,9 @@
 
 
 {% block content %}
-
+<div>
+    <a href="{% url 'admin:usercreate'  %}" class="btn btn-primary hover-scale">Nuevo Usuario</a>
+</div>
 
 <div class="table-responsive">
     <table class="table table-row-bordered gy-5" id="tablauser" >
@@ -41,6 +43,7 @@
                 <th>Email</th>
                 <th>Admin</th>
                 <th>Activo</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -52,6 +55,9 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.is_superuser }}</td>
                     <td>{{ user.is_active }}</td>
+                    <td>
+                        <a href="#" class="btn btn-success hover-scale">Desactivar</a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
