@@ -6,11 +6,7 @@
 {% block content %}
 <link href="/static/css/style.bundle.css" rel="stylesheet" type="text/css" />
 <div class="container">
-    <form method="post">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <button type="submit" class="btn btn-primary">Guardar</button>
-    </form>
+    {% crispy form %}
 </div>
 <style>
     .test {
@@ -20,15 +16,5 @@
         margin-bottom: 5px;
     }
     </style>
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="test">Columna 1</div>
-        </div>
-        <div class="col-md-6">
-            <div class="test">Columna 2</div>
-        </div>
-    </div>
-</div>
 
 {% endblock content %}
