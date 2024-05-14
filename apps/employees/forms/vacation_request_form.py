@@ -9,9 +9,10 @@ class EmpVacacionesForm(forms.ModelForm):
         model = EmpVacaciones
         fields = ['idcontrato', 'tipovac', 'fechainicialvac', 'fechafinalvac', 'cuentasabados', 'comentarios']
         widgets = {
-            'fechainicialvac': forms.DateInput(attrs={'type': 'date'}),
-            'fechafinalvac': forms.DateInput(attrs={'type': 'date'}),
-            'cuentasabados': forms.CheckboxInput(),
+            'fechainicialvac': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'fechafinalvac': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'cuentasabados': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'comentarios': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
     
     idcontrato = forms.ModelChoiceField(
@@ -22,7 +23,7 @@ class EmpVacacionesForm(forms.ModelForm):
     )
     tipovac = forms.ModelChoiceField(
         queryset=Tipoavacaus.objects.exclude(tipovac=5),
-        label="Tipo de Vacación",
+        label="Tipo de Solicitud",
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="Seleccione --------->",
     )
@@ -35,25 +36,22 @@ class EmpVacacionesForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Row(
-                Column('idcontrato', css_class='form-group col-md-6 mb-0'),
-                Column('tipovac', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
+                Column('idcontrato', css_class='col-md-6 mb-3'),
+                Column('tipovac', css_class='col-md-6 mb-3'),
             ),
             Row(
-                Column('fechainicialvac', css_class='form-group col-md-6 mb-0'),
-                Column('fechafinalvac', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
+                Column('fechainicialvac', css_class='col-md-6 mb-3'),
+                Column('fechafinalvac', css_class='col-md-6 mb-3'),
             ),
             Row(
-                Column('cuentasabados', css_class='form-group col-md-6 mb-0'),
-                Column('comentarios', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
+                Column('cuentasabados', css_class='col-md-6 mb-3'),
+                Column('comentarios', css_class='col-md-6 mb-3'),
             ),
             Submit('submit', 'Guardar', css_class='btn btn-primary')
         )
 
     def label_from_contrato(self, obj):
-        return "{} - {}".format(obj.cargo, obj.fechainiciocontrato.strftime('%d/%m/%Y'))
+        return f"{obj.cargo} - {obj.fechainiciocontrato.strftime('%d/%m/%Y')}"
 
     def label_from_tipovac(self, obj):
         return obj.nombrevacaus

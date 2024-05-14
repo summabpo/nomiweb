@@ -2,16 +2,33 @@
 {% load crispy_forms_tags %}
 
 {% block title %} Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias {% endblock %} 
-{% block css %} 
-{% endblock %} 
-{% block content %}
 
+{% block content %}
+<link href="/static/css/style.bundle.css" rel="stylesheet" type="text/css" />
 <div class="container">
     <form method="post">
         {% csrf_token %}
         {{ form|crispy }}
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
+</div>
+<style>
+    .test {
+        background-color: #f8f9fa;
+        border: 1px solid #ccc;
+        padding: 8px;
+        margin-bottom: 5px;
+    }
+    </style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="test">Columna 1</div>
+        </div>
+        <div class="col-md-6">
+            <div class="test">Columna 2</div>
+        </div>
+    </div>
 </div>
 
 {% endblock content %}
