@@ -5,7 +5,6 @@ Nomiweb.co - Portal Empresas - Edit Contrato
 {% endblock %} 
 
 {% block cssarch %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 {% endblock %}
 
@@ -30,11 +29,10 @@ Editar Contrato
 
 {% block content %}
 
-
-<main class="flex-grow-1">
-    <table id='tablecontract' class="table table-striped table-bordered">
+<div class="table-responsive">
+    <table id='tablecontract' class="table table-row-bordered gy-5">
         <thead>
-            <tr>
+            <tr class="fw-semibold fs-6 text-muted" >
             <th>Documento</th>
             <th>Nombre</th>
             <th>Cargo</th>
@@ -66,55 +64,46 @@ Editar Contrato
             {% endfor %}
             </tbody>
     </table>
+</div>
 
-</main>
 {% endblock %}
 
 {% block js %}
 
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<script>
-    $(document).ready(function() {
-        $('#tablecontract').DataTable({
-            language: {
-                "decimal":        "",
-                "emptyTable":     "No hay datos disponibles en la tabla",
-                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
-                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix":    "",
-                "thousands":      ",",
-                "lengthMenu":     "Mostrar _MENU_ entradas",
-                "loadingRecords": "Cargando...",
-                "processing":     "Procesando...",
-                "search":         "Buscar:",
-                "zeroRecords":    "No se encontraron registros coincidentes",
-                "paginate": {
-                    "first":      "Primero",
-                    "last":       "Último",
-                    "next":       "Siguiente",
-                    "previous":   "Anterior"
+    <script>
+        $(document).ready(function() {
+            $('#tablecontract').DataTable({
+                language: {
+                    "decimal":        "",
+                    "emptyTable":     "No hay datos disponibles en la tabla",
+                    "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                    "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                    "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                    "infoPostFix":    "",
+                    "thousands":      ",",
+                    "lengthMenu":     "Mostrar _MENU_ entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing":     "Procesando...",
+                    "search":         "Buscar:",
+                    "zeroRecords":    "No se encontraron registros coincidentes",
+                    "paginate": {
+                        "first":      "Primero",
+                        "last":       "Último",
+                        "next":       "Siguiente",
+                        "previous":   "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending":  ": activar para ordenar la columna ascendente",
+                        "sortDescending": ": activar para ordenar la columna descendente"
+                    }
                 },
-                "aria": {
-                    "sortAscending":  ": activar para ordenar la columna ascendente",
-                    "sortDescending": ": activar para ordenar la columna descendente"
-                }
-            },
-            // Activar scroll en x y y
-            scrollX: true,
-            scrollY: true,
-            // Desactivar función responsive
-            responsive: false,
-            // Ajustar automáticamente el ancho de las columnas
-            autoWidth: true,
-            // Columnas no ordenables
-            columnDefs: [
-                { targets: [0, 2, 3], orderable: false } 
-            ],
-            // Orden inicial por la segunda columna ascendente
-            order: [[1, 'asc']]
+                dom: 'frtip',
+                
+                
+            });
         });
-    });
-</script>
+    </script>
+
 {% endblock %}
+

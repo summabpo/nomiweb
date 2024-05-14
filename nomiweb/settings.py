@@ -171,6 +171,19 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.nomiweb.co'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'no-responder@nomiweb.co'
+EMAIL_HOST_PASSWORD = '5zySp3D{iad]'
+
+# EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+# EMAIL_HOST_USER = '0696ea5c99b771'
+# EMAIL_HOST_PASSWORD = 'be56bf78c3f67f'
+# EMAIL_PORT = '2525'
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
