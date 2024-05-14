@@ -83,31 +83,44 @@ def password_reset_view(request):
 
 
 def password_reset_token(request,token):
-    if request.method == 'POST':
-        form = PasswordResetTokenForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            user = User.objects.filter(email=email).first()
-            if user:
-                token_temporal = secrets.token_urlsafe(50)
-                token = Token.objects.create(
-                    user=user,
-                    token_temporal=token_temporal,
-                    tiempo_creacion=timezone.now()
-                )
-                messages.success(request, 'El Correo ha sido Enviado Con EXITO')
-                print(token)
-                
+    
+    try:
+        token = Token.objects.get(token_temporal=token)
+        if request.method == 'POST':
+            form = PasswordResetTokenForm(request.POST)
+            if form.is_valid():
+                email = form.cleaned_data['email']
+                user = User.objects.filter(email=email).first()
+                if user:
+                    token_temporal = secrets.token_urlsafe(50)
+                    token = Token.objects.create(
+                        user=user,
+                        token_temporal=token_temporal,
+                        tiempo_creacion=timezone.now()
+                    )
+                    messages.success(request, 'El Correo ha sido Enviado Con EXITO')
+                    print(token)
+                    
+                else:
+                    messages.error(request,'Parece que el correo ingresado no coincide con ningún usuario.')
             else:
-                messages.error(request,'Parece que el correo ingresado no coincide con ningún usuario.')
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"Error en el campo '{field}': {error}")
+                
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"Error en el campo '{field}': {error}")
+            form = PasswordResetTokenForm
             
-    else:
-        form = PasswordResetTokenForm
-    return render(request, 'users/password_reset_token.html', {'form': form})
+        return render(request, 'users/password_reset_token.html', {'form': form})
+    except :
+    
+        return render(request, 'users/errortoken.html')
+    
+    
+    
+    
+    
+    
 
 
 
