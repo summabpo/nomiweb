@@ -52,7 +52,7 @@ def datos_cliente():
 #         'ide': empleado.idempleado
 #     }
 #     return info_empleado
-def datos_empleado(id_contrato=3863):
+def datos_empleado(id_contrato=15):
     
     contrato = Contratos.objects.get(idcontrato=id_contrato)
     empleado = Contratosemp.objects.filter(idempleado=contrato.idempleado_id).annotate(
@@ -70,48 +70,5 @@ def datos_empleado(id_contrato=3863):
         'salario': contrato.salario,
         'idc': contrato.idcontrato,
         'ide': contrato.idempleado_id
-    }
-    return info_empleado
-
-
-    #DATOS EMPLEADO
-    idc=3863
-    
-    idempleado_id = Contratos.objects.get(idcontrato=idc).idempleado_id
-    
-    
-    
-    
-    ide = idempleado_id
-    empleado = Contratosemp.objects.filter(idempleado=ide).annotate(nombre_letras=Concat(
-
-        F('pnombre'),
-        Value(' '),
-        F('snombre'),
-        Value(' '),
-        F('papellido'),
-        Value(' '),
-        F('sapellido'),
-        output_field=CharField()
-    )).values('nombre_letras').first()
-    nombre_completo = empleado['nombre_letras']
-    fechainiciocontrato = Contratos.objects.get(idcontrato=idc).fechainiciocontrato
-    cargo = Contratos.objects.get(idcontrato=idc).cargo
-    tipo_contrato = Contratos.objects.get(idcontrato=idc).tipocontrato
-    nombre_contrato = Tipocontrato.objects.get(idtipocontrato=tipo_contrato).tipocontrato
-    docidentidad = Contratosemp.objects.get(idempleado=ide).docidentidad
-    salario = Contratos.objects.get(idcontrato=idc).salario
-
-
-    info_empleado = {
-        'nombre_completo': nombre_completo,
-        'fechainiciocontrato': fechainiciocontrato,
-        'cargo': cargo,
-        'tipo_contrato': tipo_contrato,
-        'nombre_contrato': nombre_contrato,
-        'docidentidad': docidentidad,
-        'salario': salario,
-        'idc': idc,
-        'ide': ide
     }
     return info_empleado

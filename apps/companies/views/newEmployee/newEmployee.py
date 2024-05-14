@@ -19,8 +19,8 @@ def generate_random_password(length=12):
     return random_password
 
 
-# @custom_login_required
-# @custom_permission('entrepreneur')
+@custom_login_required
+@custom_permission('entrepreneur')
 def newEmployee(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST)

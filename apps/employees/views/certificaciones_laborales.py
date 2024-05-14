@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from reportlab.lib import colors
-from apps.employees.forms.certificado_laboral import FormularioCertificaciones
+from apps.employees.forms.certificado_laboral_form import FormularioCertificaciones
 from apps.employees.context_global import datos_cliente, datos_empleado
 from django.utils import timezone
 import pytz
