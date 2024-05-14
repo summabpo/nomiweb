@@ -2,17 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
-from apps.login.models import Empresa
 
-
-ROLES = (
-        ('administrator', 'Administrator'),
-        ('employee', 'Employee'),
-        ('accountant', 'Accountant'),
-        ('entrepreneur', 'Entrepreneur'),
-    )
-
-class UserCreationForm(forms.Form):
+class companiesForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput, help_text='Su contraseña no puede ser demasiado similar a su otra información personal.')
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, help_text='Ingrese la misma contraseña que antes, para verificación.')
 
@@ -34,32 +25,30 @@ class UserCreationForm(forms.Form):
         return cleaned_data
     
     
-    
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'is_staff', 'is_superuser', 'is_active']
+        labels = {
+            'username': 'Username',
+            'first_name': 'First Name',
+            'last_name': 'Last Name',
+            'email': 'Email',
+            'is_staff': 'Staff status',
+            'is_superuser': 'Superuser status',
+            'is_active': 'Active',
+        }
+        help_texts = {
+            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ únicamente.',
+            'email': 'Introduzca una dirección de correo electrónico válida',
+        }
+        widgets = {
+            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_superuser': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        self.fields['username'] = forms.CharField(label='Username', max_length=150, help_text='Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ únicamente.')
-        self.fields['first_name'] = forms.CharField(label='First Name')
-        self.fields['last_name'] = forms.CharField(label='Last Name')
-        self.fields['email'] = forms.EmailField(label='Email', help_text='Introduzca una dirección de correo electrónico válida')
-        self.fields['is_staff'] = forms.BooleanField(label='Staff status', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
-        self.fields['is_superuser'] = forms.BooleanField(label='Superuser status', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
-        self.fields['is_active'] = forms.BooleanField(label='Active', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
-        self.fields['permission'] = forms.CharField(label='Permisos')
-        
-        self.fields['role'] = forms.ChoiceField(
-            choices= ROLES,
-            label='Rol Usuario'
-        )
-        
-        self.fields['company'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(empresa.id, empresa.name) for empresa in Empresa.objects.all()],
-            label='Campañia Usuario'
-        )
-        
-        #Empresa
-        #choices=[('', '----------')] + [(documento.codigo, documento.documento) for documento in Tipodocumento.objects.all()],
-
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
@@ -73,22 +62,10 @@ class UserCreationForm(forms.Form):
                 css_class='form-row'
             ),
             Row(
-                Column('permission', css_class='form-group mb-0 col-md-6'),
-                Column('role', css_class='form-group mb-0 col-md-6'),
-                css_class='form-row'
-            ),
-            
-            Row(
-                Column('company', css_class='form-group mb-0 col-md-6'),
-                css_class='form-row'
-            ),
-            
-            Row(
                 Column('password1', css_class='form-group mb-0 col-md-6'),
                 Column('password2', css_class='form-group mb-0 col-md-6'),
                 css_class='form-row'
             ),
-            
             
             'is_staff',
             'is_superuser',

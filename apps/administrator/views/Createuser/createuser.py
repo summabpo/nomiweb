@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from apps.administrator.forms.createuserForm import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.models import User
+from apps.login.models import Usuario , Empresa
 
 
 
@@ -24,6 +25,10 @@ def usercreate_admin(request):
             is_superuser = form.cleaned_data['is_superuser']
             is_active = form.cleaned_data['is_active']
             
+            company = Empresa.objects.get(id=form.cleaned_data['company'])
+            
+            
+
             # Crear el usuario
             
             user = User.objects.create_user(
@@ -38,6 +43,17 @@ def usercreate_admin(request):
             )
             
             user.save()
+            
+                    
+            usuario = Usuario.objects.create(
+                user=user,
+                role=form.cleaned_data['role'],
+                company=company,
+                permission=form.cleaned_data['permission'],
+                id_empleado=0  
+            )
+            
+            usuario.save()
             
             messages.success(request, 'El cargo ha sido añadido con éxito.')
             return redirect('admin:user')
