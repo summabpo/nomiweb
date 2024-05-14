@@ -4,16 +4,34 @@ from django.contrib import messages
 from apps.companies.models import Tipodocumento , Paises , Ciudades , Contratosemp,Profesiones
 from apps.companies.forms.EmployeeForm import EmployeeForm
 from apps.components.decorators import custom_login_required ,custom_permission
+from apps.login.models import Usuario , Empresa
+from django.contrib.auth.models import User
+
+from django.contrib.auth.hashers import make_password
+from apps.login.middlewares import NombreDBSingleton
+
+import random
+import string
+
+def generate_random_password(length=12):
+    characters = string.ascii_letters + string.digits + string.punctuation
+    random_password = ''.join(random.choice(characters) for i in range(length))
+    return random_password
 
 
-@custom_login_required
-@custom_permission('entrepreneur')
+# @custom_login_required
+# @custom_permission('entrepreneur')
 def newEmployee(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
+            
+            singleton = NombreDBSingleton()
+            nombre_db = singleton.get_nombre_db()
+            empresa = Empresa.objects.using('default').get(db_name=nombre_db)
+            
+            
             try:
-                
                 height = form.cleaned_data['height']
                 weight = form.cleaned_data['weight']
                 height = height.replace(',', '.') if ',' in height else height
@@ -54,12 +72,49 @@ def newEmployee(request):
                 estadocontrato=4
             )
                 contratosemp_instance.save()
-                messages.success(request, 'El Empleado ha sido creado')
-                return  redirect('companies:newemployee')
             except Exception as e:
-                messages_error = 'Se produjo un error al guardar el empleado.' + str(e.args)
-                messages.error(request, messages_error)
+                # Manejar el error de creación del empleado 
+                messages.error(request, f"Error al crear el empleado: {e}")
                 return redirect('companies:newemployee')
+            
+            try:
+                singleton.set_nombre_db('default')
+                password = make_password('prueba1')
+                # Crea el usuario de Django
+                user = User.objects.create(
+                    username=form.cleaned_data['email'],
+                    first_name=form.cleaned_data['first_name'],
+                    last_name=form.cleaned_data['first_last_name'],
+                    email=form.cleaned_data['email'],
+                    password=password,
+                    is_staff=False,
+                    is_superuser=False,
+                    is_active=True
+                )
+                singleton.set_nombre_db(nombre_db)
+            except Exception as e:
+                # Manejar el error de creación de usuario
+                messages.error(request, f"Error al crear el usuario: {e}")
+                return redirect('companies:newemployee')
+            
+            
+            try:
+                singleton.set_nombre_db('default')
+                empleado = contratosemp_instance.idempleado
+                usuario = Usuario.objects.create(
+                    user=user,
+                    role='employees',
+                    company=empresa, 
+                    permission='none',
+                    id_empleado = empleado
+                )
+                singleton.set_nombre_db(nombre_db)
+            except Exception as e:
+                # Manejar el error de creación de usuario
+                messages.error(request, f"Error al crear los permisos : {e}")
+                return redirect('companies:newemployee')          
+            messages.success(request, 'El Empleado ha sido creado')
+            return  redirect('companies:newemployee')
     else:
         form = EmployeeForm    
     return render(request, './companies/NewEmployee.html',{'form':form})
