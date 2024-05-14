@@ -19,7 +19,7 @@ def workplace(request):
             )
             centro_trabajo.save()
             
-            messages.success(request, 'El cargo ha sido añadido con éxito.')
+            messages.success(request, 'El Centro de Trabajo ha sido añadido con éxito.')
             return redirect('companies:workplace')
         else:
             for field, errors in form.errors.items():

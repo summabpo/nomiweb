@@ -9,65 +9,13 @@ class DatabaseRouter:
 
     def db_for_write(self, model, **hints):
         return self.db_for_read(model, **hints)
-    
-    
-    
-    
-# class RouterAuth:
-#     @staticmethod
-#     def db_for_read(model, **hints):
-#         return 'default'
 
-#     @staticmethod
-#     def db_for_write(model, **hints):
-#         return 'default'
+    def allow_relation(self, obj1, obj2, **hints):
+        # Permitir relaciones si ambos objetos están en la misma base de datos
+        if obj1._state.db == obj2._state.db:
+            return True
+        return None
 
-#     @staticmethod
-#     def allow_relation(obj1, obj2, **hints):
-#         if obj1._state.db == 'default' and obj2._state.db == 'default':
-#             return True
-#         return None
-
-#     @staticmethod
-#     def allow_migrate(db, app_label, model_name=None, **hints):
-#         return db == 'default'
-
-# class RouterLectaen:
-#     @staticmethod
-#     def db_for_read(model, **hints):
-#         return 'lectaen'
-
-#     @staticmethod
-#     def db_for_write(model, **hints):
-#         return 'lectaen'
-
-#     @staticmethod
-#     def allow_relation(obj1, obj2, **hints):
-#         if obj1._state.db == 'lectaen' and obj2._state.db == 'lectaen':
-#             return True
-#         return None
-
-#     @staticmethod
-#     def allow_migrate(db, app_label, model_name=None, **hints):
-#         return db == 'lectaen'
-    
-    
-# class RouterLentes:
-#     @staticmethod
-#     def db_for_read(model, **hints):
-#         return 'nwp_lentes'
-
-#     @staticmethod
-#     def db_for_write(model, **hints):
-#         return 'nwp_lentes'
-
-#     @staticmethod
-#     def allow_relation(obj1, obj2, **hints):
-#         if obj1._state.db == 'nwp_lentes' and obj2._state.db == 'nwp_lentes':
-#             return True
-#         return None
-
-#     @staticmethod
-#     def allow_migrate(db, app_label, model_name=None, **hints):
-#         return db == 'nwp_lentes'
-
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        # Aquí puedes definir tus reglas de migración si es necesario
+        return True
