@@ -14,11 +14,9 @@ class DatabaseRouterMiddleware(MiddlewareMixin):
                     db_name = request.session['usuario']['db']
                     if self.db_has_table(db_name):
                         singleton.set_nombre_db(db_name)
-                        print('1')
         except Exception as e:
             if  (request.path == reverse('login:login')  or request.path == reverse('login:logout') or request.path.startswith('/admin/') ) and request.method == 'POST':
                 singleton.set_nombre_db('default')
-                print('5')
             # Handle exception here
 
     def db_has_table(self, db_name):

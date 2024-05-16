@@ -39,7 +39,6 @@ class DatabaseRouter:
         """
         Determina si la relación entre dos objetos debe ser permitida.
         """
-        # Permitir relaciones entre objetos sin importar la base de datos
         return True
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
