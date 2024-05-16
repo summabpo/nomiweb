@@ -27,7 +27,10 @@ class Usuario(models.Model):
         
     @staticmethod
     def filter_by_username(username):
-        return Usuario.objects.get(user__username=username)
+        try:
+            return Usuario.objects.get(user__username=username)
+        except Usuario.DoesNotExist:
+            return None
         
     
     
@@ -55,10 +58,10 @@ class Token(models.Model):
 
 @receiver(post_save, sender=Token)
 def eliminar_objeto_despues_dos_horas(sender, instance, **kwargs):
-    def eliminar():
-        time.sleep(1200)
+    def cambiar_estado():
+        time.sleep(120)
         instance.estado = False
         instance.save()
 
-    threading.Thread(target=eliminar).start()
+    threading.Thread(target=cambiar_estado).start()
     

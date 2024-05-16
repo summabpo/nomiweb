@@ -28,10 +28,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'django-insecure-svftih64!=7dd*aj*3)bf$&@l%b^j2uc5qhnn7y7v2%7#7lhau'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -117,7 +116,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
 ]
 
-
+# SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
+# SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
+# SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el navegador
 
 
 DATABASES = {
@@ -174,9 +176,22 @@ AUTH_PASSWORD_VALIDATORS = [
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.nomiweb.co'
 EMAIL_PORT = 465
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False
 EMAIL_HOST_USER = 'no-responder@nomiweb.co'
 EMAIL_HOST_PASSWORD = '5zySp3D{iad]'
+EMAIL_USE_SSL = True
+EMAIL_TIMEOUT = None
+EMAIL_SSL_KEYFILE = None
+EMAIL_SSL_CERTFILE = None
+EMAIL_SSL_CAFILE = None
+EMAIL_SSL_CERT_SUBJ = None
+EMAIL_SSL_CERT_PASSWD = None
+EMAIL_SSL_CIPHER = None
+EMAIL_USE_LOCALTIME = False
+EMAIL_FILE_PATH = None
+EMAIL_FROM = None
+EMAIL_SUBJECT_PREFIX = '[Django] '
+
 
 # EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 # EMAIL_HOST_USER = '0696ea5c99b771'
