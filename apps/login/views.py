@@ -67,15 +67,15 @@ def password_reset_view(request):
                     token_temporal=token_temporal,
                     tiempo_creacion=timezone.now()
                 )
-                messages.success(request, 'El Correo ha sido Enviado Con EXITO')
-                print(token)
-                
+                messages.success(request, 'El Correo ha sido Enviado Con EXITO')   
+                return redirect('login:login')             
             else:
                 messages.error(request,'Parece que el correo ingresado no coincide con ningún usuario.')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
-                    messages.error(request, f"Error en el campo '{field}': {error}")
+                    print(error)
+                    messages.error(request, f"Error en el campo : {error}")
             
     else:
         form = PasswordResetForm
@@ -83,37 +83,37 @@ def password_reset_view(request):
 
 
 def password_reset_token(request,token):
-    
-    try:
+    if Token.objects.filter(token_temporal=token).exists():
         token = Token.objects.get(token_temporal=token)
         if request.method == 'POST':
             form = PasswordResetTokenForm(request.POST)
             if form.is_valid():
-                email = form.cleaned_data['email']
-                user = User.objects.filter(email=email).first()
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password1')
+                
+                user = User.objects.get(username=username)
+                
                 if user:
-                    token_temporal = secrets.token_urlsafe(50)
-                    token = Token.objects.create(
-                        user=user,
-                        token_temporal=token_temporal,
-                        tiempo_creacion=timezone.now()
-                    )
-                    messages.success(request, 'El Correo ha sido Enviado Con EXITO')
-                    print(token)
+                    user.password = make_password(password)
+                    user.save()
+                    token.estado=False
+                    token.save()
+                    
+                    messages.success(request, 'La Contraseña ha sido actualizada con exito')
+                    return redirect('login:login')
                     
                 else:
                     messages.error(request,'Parece que el correo ingresado no coincide con ningún usuario.')
             else:
                 for field, errors in form.errors.items():
                     for error in errors:
-                        messages.error(request, f"Error en el campo '{field}': {error}")
+                        messages.error(request, f"Error en el campo : {error}")
                 
         else:
             form = PasswordResetTokenForm
             
         return render(request, 'users/password_reset_token.html', {'form': form})
-    except :
-    
+    else:
         return render(request, 'users/errortoken.html')
     
     
