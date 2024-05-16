@@ -10,6 +10,7 @@ import secrets
 from apps.components.role_redirect  import redirect_by_role
 from apps.login.middlewares import NombreDBSingleton
 from apps.components.decorators import TempSession,custom_login_required , default_login
+from apps.components.mail import send_template_email
 
 
 
@@ -20,16 +21,19 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(username=username, password=password)
             if user is not None:
                 
                 login(request, user)
                 usuario = Usuario.filter_by_username(request.user.username)
-                request.session['usuario'] = {
+                complements = {
                             'rol': usuario.role,
                             'compania': usuario.company.name,
-                            'db':usuario.company.db_name
+                            'db':usuario.company.db_name,
+                            'name' : f"{user.first_name} {user.last_name}"
                         }
+                
+                request.session['usuario'] = complements 
                 session = TempSession()
                 session.login()
                 session.set_user_type(usuario.role)
@@ -46,7 +50,7 @@ def login_view(request):
 def logout_view(request):
     singleton = NombreDBSingleton()
     singleton.set_nombre_db('default')
-    request.session.clear()
+    del request.session['usuario']
     logout(request)
     session = TempSession()
     session.logout()
@@ -68,6 +72,18 @@ def password_reset_view(request):
                     tiempo_creacion=timezone.now()
                 )
                 messages.success(request, 'El Correo ha sido Enviado Con EXITO')   
+                email_type = 'welcome' 
+                name = 'nada'  
+                context = {'name': name}  
+                subject = 'Asunto del correo'  
+                recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
+                
+                
+                if send_template_email(email_type, context, subject, recipient_list):
+                    print('Correo enviado correctamente')
+                else:
+                    print('Error al enviar el correo')
+                    
                 return redirect('login:login')             
             else:
                 messages.error(request,'Parece que el correo ingresado no coincide con ningún usuario.')

@@ -27,7 +27,10 @@ class Usuario(models.Model):
         
     @staticmethod
     def filter_by_username(username):
-        return Usuario.objects.get(user__username=username)
+        try:
+            return Usuario.objects.get(user__username=username)
+        except Usuario.DoesNotExist:
+            return None
         
     
     
