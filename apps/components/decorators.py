@@ -46,12 +46,14 @@ class TempSession:
         user_logged_in (bool): Bandera que indica si un usuario ha iniciado sesión.
         permissions (list): Lista de permisos del usuario.
         user_type (str): Tipo de usuario (por ejemplo, 'admin', 'usuario_normal', etc.).
+        complements (dict): Diccionario de complementos.
     """
 
     _instance = None
     user_logged_in = False
     permissions = []
     user_type = ""
+    complements = {}
 
     def __new__(cls, *args, **kwargs):
         """
@@ -118,3 +120,23 @@ class TempSession:
             permissions (list): Lista de permisos del usuario.
         """
         self.permissions = permissions
+        
+        
+    def add_complements(self, complements):
+        """
+        Agrega un diccionario de complementos a la sesión.
+
+        Args:
+            complements (dict): Diccionario de complementos a agregar.
+        """
+        self.complements.update(complements)
+
+
+    def set_complements(self, complements):
+        """
+        Establece completamente el diccionario de complementos de la sesión.
+
+        Args:
+            complements (dict): Diccionario de complementos a establecer.
+        """
+        self.complements = complements
