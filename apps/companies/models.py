@@ -304,5 +304,79 @@ class Contabgrupos(models.Model):
         db_table = 'contabgrupos'
         
 
+
+
+##* nomina : 
+
+class Nomina(models.Model):
+    idregistronom = models.IntegerField(primary_key=True)
+    nombreconcepto = models.CharField(max_length=255, blank=True, null=True)
+    valor = models.IntegerField(blank=True, null=True)
+    mesacumular = models.CharField(max_length=15, blank=True, null=True)
+    anoacumular = models.CharField(max_length=15, blank=True, null=True)
+    idempleado = models.ForeignKey(Contratosemp, models.DO_NOTHING, db_column='idempleado', blank=True, null=True)
+    cantidad = models.DecimalField(max_digits=5, decimal_places=1, blank=True, null=True)
+    idconcepto = models.ForeignKey('Conceptosdenomina', models.DO_NOTHING, db_column='idconcepto')
+    idnomina = models.ForeignKey('Crearnomina', models.DO_NOTHING, db_column='idnomina')
+    estadonomina = models.SmallIntegerField(blank=True, null=True)
+    idcontrato = models.ForeignKey('Contratos', models.DO_NOTHING, db_column='idcontrato')
+    idcosto = models.ForeignKey('Costos', models.DO_NOTHING, db_column='idcosto')
+    idsubcosto = models.ForeignKey('Subcostos', models.DO_NOTHING, db_column='idsubcosto')
+    control = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'nomina'
+
+class Conceptosdenomina(models.Model):
+    nombreconcepto = models.CharField(max_length=30)
+    multiplicadorconcepto = models.DecimalField(max_digits=4, decimal_places=2)
+    tipoconcepto = models.IntegerField()
+    sueldobasico = models.IntegerField(blank=True, null=True)
+    auxtransporte = models.IntegerField(blank=True, null=True)
+    baseprestacionsocial = models.IntegerField(blank=True, null=True)
+    ingresotributario = models.IntegerField(blank=True, null=True)
+    prestacionsocial = models.IntegerField(blank=True, null=True)
+    extras = models.IntegerField(blank=True, null=True)
+    basesegsocial = models.IntegerField(blank=True, null=True)
+    cuentacontable = models.CharField(max_length=25, blank=True, null=True)
+    idconcepto = models.IntegerField(primary_key=True)
+    ausencia = models.IntegerField(blank=True, null=True)
+    salintegral = models.IntegerField(blank=True, null=True)
+    basevacaciones = models.IntegerField(blank=True, null=True)
+    formula = models.CharField(max_length=1, blank=True, null=True)
+    basetransporte = models.SmallIntegerField(blank=True, null=True)
+    aportess = models.SmallIntegerField(blank=True, null=True)
+    incapacidad = models.SmallIntegerField(blank=True, null=True)
+    base1393 = models.SmallIntegerField(blank=True, null=True)
+    norenta = models.SmallIntegerField(blank=True, null=True)
+    pension = models.SmallIntegerField(blank=True, null=True)
+    exentos = models.SmallIntegerField(blank=True, null=True)
+    baserarl = models.SmallIntegerField(blank=True, null=True)
+    basecaja = models.SmallIntegerField(blank=True, null=True)
+    viaticos = models.SmallIntegerField(blank=True, null=True)
+    comisiones = models.SmallIntegerField(blank=True, null=True)
+    gastosderep = models.SmallIntegerField(blank=True, null=True)
+    suspcontrato = models.SmallIntegerField(blank=True, null=True)
+    grupo_dian = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'conceptosdenomina'
+
+class Crearnomina(models.Model):
+    nombrenomina = models.CharField(max_length=40, blank=True, null=True)
+    fechainicial = models.DateField(blank=True, null=True)
+    fechafinal = models.DateField(blank=True, null=True)
+    fechapago = models.DateField(blank=True, null=True)
+    tipodenomina = models.CharField(max_length=2, blank=True, null=True)
+    mesacumular = models.CharField(max_length=20, blank=True, null=True)
+    anoacumular = models.CharField(max_length=4, blank=True, null=True)
+    estadonomina = models.SmallIntegerField(blank=True, null=True)
+    diasnomina = models.SmallIntegerField(blank=True, null=True)
+    idnomina = models.IntegerField(primary_key=True)
     
 
+    class Meta:
+        managed = False
+        db_table = 'crearnomina'

@@ -8,6 +8,11 @@ from .views.charges import charges
 from .views.Costcenter import Costcenter
 from .views.workplace import workplace
 from .views.headquarters import headquarters
+from .views.laborcertification import laborcertification
+from .views.nominatedcertificate import nominatedcertificate
+from .views.payrollsummary import payrollsummary
+from .views.loginweb import loginweb
+from .views.payrollsheet import payrollsheet
 
 
 
@@ -16,20 +21,24 @@ from .views.index import index
 
 urlpatterns = [
     ##todo novedades de nomina
-    path('contract', ContractsList.startCompanies , name='startcompanies'),
+    path('employees/contract', ContractsList.startCompanies , name='startcompanies'),
 
-    path('new/employee', newEmployee.newEmployee , name='newemployee'),
-    path('edit/employee',  EditEmployee.EditEmployeeSearch , name='editemployeesearch'),
+    path('employees/new/employee', newEmployee.newEmployee , name='newemployee'),
+    path('employees/edit/employee',  EditEmployee.EditEmployeeSearch , name='editemployeesearch'),
     
-    path('edit/employee/<str:idempleado>',  EditEmployee.EditEmployeeVisual , name='editemployeevisual'),
+    path('employees/edit/employee/<str:idempleado>',  EditEmployee.EditEmployeeVisual , name='editemployeevisual'),
 
-    path('new/contract',newContract.newContractVisual ,name='newcontractvisual'),
-    path('new/contract/<str:idempleado>',newContract.newContractCreater ,name='newcontractcreater'),
+    path('employees/new/contract',newContract.newContractVisual ,name='newcontractvisual'),
+    path('employees/new/contract/<str:idempleado>',newContract.newContractCreater ,name='newcontractcreater'),
 
-    path('edit/contract',editContract.EditContracsearch , name='editcontracsearch'),
-    path('edit/contract/<str:idempleado>',editContract.EditContracVisual , name='editcontracvisual'),
+    path('employees/edit/contract',editContract.EditContracsearch , name='editcontracsearch'),
+    path('employees/edit/contract/<str:idempleado>',editContract.EditContracVisual , name='editcontracvisual'),
+    
+    
+    
 
     ##! empleados
+    
 
     #! parametros 
     path('parameters/charges', charges.charges, name='charges'),
@@ -41,7 +50,15 @@ urlpatterns = [
     ##! contabilidad 
     
     
-    #* ## server -- errores 
+    ##! nomina 
+    path('payroll/labor/certification', laborcertification.laborcertification, name='laborcertification'),
+    path('payroll/nominated/certificate', nominatedcertificate.nominatedcertificate, name='nominatedcertificate'),
+    path('payroll/payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
+    path('payroll/payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
+    
+    
+    ##! seguridad 
+    path('security/user', loginweb.loginweb, name='loginweb'),
     
     #// admin login 
     # path('logout/', views.Logout, name='logout'),
