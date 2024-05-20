@@ -30,7 +30,8 @@ def login_view(request):
                             'rol': usuario.role,
                             'compania': usuario.company.name,
                             'db':usuario.company.db_name,
-                            'name' : f"{user.first_name} {user.last_name}"
+                            'name' : f"{user.first_name} {user.last_name}",
+                            'id' : usuario.id_empleado
                         }
                 
                 request.session['usuario'] = complements 

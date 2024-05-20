@@ -7,9 +7,11 @@ def send_template_email(email_type, context, subject, recipient_list, from_email
     
     if from_email is None:
         from_email = settings.EMAIL_HOST_USER
+        
     email_templates = {
         'welcome': 'mails/bienvenido.html',
         'password_reset': 'mails/resetpassword.html',
+        'loginweb': 'mails/cuentausuario.html'
         
     }
     
@@ -17,7 +19,11 @@ def send_template_email(email_type, context, subject, recipient_list, from_email
     
     if not template_name:
         raise ValueError(f"Tipo de correo no reconocido: {email_type}")
-    message = render_to_string('mails/bienvenido.html', context)
+    
+    
+    message = render_to_string(template_name, context)
+    
+    
     email = EmailMessage(
         subject=subject,
         body=message,
