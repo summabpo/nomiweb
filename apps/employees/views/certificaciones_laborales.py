@@ -84,7 +84,7 @@ def calculo_salario_promedio():
 @custom_login_required
 @custom_permission('employees')
 def vista_certificaciones(request):
-    datose = datos_empleado()
+    datose = datos_empleado(request.session.usuario.id)
     zona_horaria = pytz.timezone('America/Bogota')
     #CALCULA SALARIO PROMEDIO ULTIMOS 3 MESES
     nombre_mes_1, nombre_mes_2, nombre_mes_3, ano_1, ano_2, ano_3 = calculo_salario_promedio()
