@@ -11,6 +11,8 @@ from .views.headquarters import headquarters
 from .views.laborcertification import laborcertification
 from .views.nominatedcertificate import nominatedcertificate
 from .views.payrollsummary import payrollsummary
+from .views.loginweb import loginweb
+
 
 
 from .views.index import index
@@ -53,6 +55,9 @@ urlpatterns = [
     path('payroll/payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
     
     
+    
+    ##! seguridad 
+    path('security/user', loginweb.loginweb, name='loginweb'),
     
     #// admin login 
     # path('logout/', views.Logout, name='logout'),
