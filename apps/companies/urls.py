@@ -12,6 +12,7 @@ from .views.laborcertification import laborcertification
 from .views.nominatedcertificate import nominatedcertificate
 from .views.payrollsummary import payrollsummary
 from .views.loginweb import loginweb
+from .views.payrollsheet import payrollsheet
 
 
 
@@ -53,7 +54,7 @@ urlpatterns = [
     path('payroll/labor/certification', laborcertification.laborcertification, name='laborcertification'),
     path('payroll/nominated/certificate', nominatedcertificate.nominatedcertificate, name='nominatedcertificate'),
     path('payroll/payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
-    
+    path('payroll/payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
     
     
     ##! seguridad 
