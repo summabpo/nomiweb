@@ -106,7 +106,7 @@ def EditContracVisual(request,idempleado):
     if request.method == 'POST':
         form = ContractForm(request.POST)
         premium = request.GET.get('premium', False)
-        form.set_premium_fields(premium=premium) 
+        form.set_premium_fields2(premium=premium) 
         if form.is_valid():
             try:
                 contrato.tiponomina =form.cleaned_data['payrollType']
@@ -128,12 +128,12 @@ def EditContracVisual(request,idempleado):
                 for error in errors:
                     messages.error(request, f"Error en el campo '{field}': {error}")
             premium = request.GET.get('premium', False)
-            form.set_premium_fields(premium=premium) 
+            form.set_premium_fields2(premium=premium) 
             messages.error(request,'Todo lo que podía fallar, falló.')
             return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
     else:
         form = ContractForm(initial=initial_data)
         premium = request.GET.get('premium', False)
-        form.set_premium_fields(premium=premium)  
+        form.set_premium_fields2(premium=premium)  
         
     return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
