@@ -11,7 +11,7 @@ def startCompanies(request):
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
                 'idempleado__snombre', 'fechainiciocontrato', 'cargo', 'salario', 'idcosto__nomcosto',
-                'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl')
+                'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl','idempleado__idempleado')
 
     empleados = []
     for contrato in contratos_empleados:
@@ -27,6 +27,7 @@ def startCompanies(request):
             'centrocostos': contrato['idcosto__nomcosto'],
             'tipocontrato': contrato['tipocontrato__tipocontrato'],
             'tarifaARL': contrato['centrotrabajo__tarifaarl'],
+            'id' : contrato['idempleado__idempleado'],
         }
 
         empleados.append(contrato_data)
