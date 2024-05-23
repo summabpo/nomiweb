@@ -3,7 +3,7 @@ from .views.index import index
 from .views.Createuser import createuser
 from .views.Createcompanies import createcompanies
 from .views.role import role
-from .views.loginweb import loginweb
+from .views.loginweb import loginweb 
 
 
 
@@ -14,6 +14,7 @@ urlpatterns = [
     path('users/create', createuser.usercreate_admin, name='usercreate'),
     path('companies', createcompanies.createcompanies_admin, name='companies'),
     path('role', role.role_admin, name='role'),
-    path('loginweb', loginweb.loginweb_admin, name='loginweb'),
+    path('loginweb/select/<str:empresa>', loginweb.loginweb_admin, name='loginweb'),
+    path('loginweb/select',loginweb.select_loginweb_admin , name='logiwebselect'),
     
 ]
