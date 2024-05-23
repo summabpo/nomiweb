@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path ,include
 from apps.login.views import custom_400 ,custom_403,custom_404 ,custom_500
-
+from allauth.account.views import LoginView
 
 
 urlpatterns = [
@@ -25,6 +25,7 @@ urlpatterns = [
     path('employees/', include(('apps.employees.urls', 'employees'))),
     path('companies/', include(('apps.companies.urls', 'companies'))),
     path('admin/', include(('apps.administrator.urls', 'admin'))),
+    path('accounts/', include('allauth.urls')),
 ]
 
 #handler400 = custom_400  # Configura la vista custom_400 para manejar el error 400

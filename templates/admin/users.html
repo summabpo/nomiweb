@@ -6,7 +6,14 @@
 {% endblock %}
 
 
+
+
 {% block css %}
+    
+    .w-80 {
+        width: 90%;
+    }
+
 {% endblock %}
 
 
@@ -36,33 +43,121 @@
 <div class="table-responsive">
     <table class="table table-row-bordered gy-5" id="tablauser" >
         <thead>
-            <tr class="fw-semibold fs-2 text-muted">
-                <th>Username</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Email</th>
-                <th>Admin</th>
-                <th>Activo</th>
-                <th>Acciones</th>
+            <tr class="fw-semibold fs-3 text-muted">
+                <th class="text-center" >Empresa</th>
+                <th class="text-center" >Username</th>
+                <th class="text-center" >Nombre</th>
+                <th class="text-center" >Apellido</th>
+                <th class="text-center" >Email</th>
+                <th class="text-center" >Admin</th>
+                <th class="text-center" >Activo</th>
+                <th class="text-center" >rol</th>
+                <th class="text-center" >Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
                 <tr>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.first_name }}</td>
-                    <td>{{ user.last_name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.is_superuser }}</td>
-                    <td>{{ user.is_active }}</td>
-                    <td>
-                        <a href="#" class="btn btn-success hover-scale">Desactivar</a>
+                    <td class="text-center" >{{ user.company.name }}</td>
+                    <td class="text-center" >{{ user.user.username }}</td>
+                    <td class="text-center" >{{ user.user.first_name }}</td>
+                    <td class="text-center" >{{ user.user.last_name }}</td>
+                    <td class="text-center" >{{ user.user.email }}</td>
+                    <td class="text-center" >
+                        {% if user.user.is_superuser %}
+                            <i class="fa-solid fa-user-secret text-success fs-1"></i>
+                        {% else %}
+                            <i class="fa-solid fa-user-xmark fs-1 text-danger "></i>
+                        {% endif %}
+                    </td>
+                    <td class="text-center" >
+                        {% if user.user.is_active %}
+                            <i class="fa-solid fa-check  text-success fs-1"></i>
+                        {% else %}
+                            <i class="fa-solid fa-x text-danger fs-1" ></i>
+                        {% endif %}
+                    </td>
+                    <td class="text-center" >{{ user.role }}</td>
+                    <td class="text-center" >
+                        {% if user.user.is_active %}
+                            <button  type="button" class="btn btn-danger hover-scale btn-sm w-80 text-center"  data-bs-toggle="modal" data-bs-target="#kt_modal_1{{ user.id }}" > 
+                                Desactivar 
+                            </button>
+
+                            <div class="modal fade" tabindex="-1" id="kt_modal_1{{ user.id }}">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="modal-title">Desactivar usuario</h3>
+                            
+                                            <!--begin::Close-->
+                                            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                                                <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                                            </div>
+                                            <!--end::Close-->
+                                        </div>
+                            
+                                        <div class="modal-body">
+                                            <p>Esta seguro que desea Desactivar el usuario {{ user.user.username }} ?</p>
+                                        </div>
+                            
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                            <a href="{% url 'admin:userdeactivate' user_id=user.id %}" class="btn btn-primary" >Desactivar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% else %}
+                            <button type="button" class="btn btn-success hover-scale btn-sm w-80 text-center" data-bs-toggle="modal" data-bs-target="#kt_modal_2{{ user.id }}" > 
+                                Activar
+                            </button>
+
+                            <div class="modal fade" tabindex="-1" id="kt_modal_2{{ user.id }}">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="modal-title">Activar usuario</h3>
+                            
+                                            <!--begin::Close-->
+                                            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                                                <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                                            </div>
+                                            <!--end::Close-->
+                                        </div>
+                            
+                                        <div class="modal-body">
+                                            <p>Esta seguro que desea activar el usuario : {{ user.user.username }} ?</p>
+                                        </div>
+                            
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                            <a href="{% url 'admin:useractivate' user_id=user.id  %}" class="btn btn-primary" >Activar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% endif %}
+                        
                     </td>
                 </tr>
+
+                {% comment %} modal {% endcomment %}
+                
+                
+                
+                
+
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+
+
+
 
 
 {% endblock %}

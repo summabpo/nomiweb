@@ -8,16 +8,16 @@ from apps.components.mail import send_template_email
 # Create your views here.
 
 def index_admin(request):
-    email_type = 'welcome' 
-    name = 'nada'  
-    context = {'name': name}  
-    subject = 'Asunto del correo'  
-    recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
+    # email_type = 'welcome' 
+    # name = 'nada'  
+    # context = {'name': name}  
+    # subject = 'Asunto del correo'  
+    # recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
     
-    if send_template_email(email_type, context, subject, recipient_list):
-        print('Correo enviado correctamente')
-    else:
-        print('Error al enviar el correo')
+    # if send_template_email(email_type, context, subject, recipient_list):
+    #     print('Correo enviado correctamente')
+    # else:
+    #     print('Error al enviar el correo')
     
     return render(request, './admin/index.html')
     

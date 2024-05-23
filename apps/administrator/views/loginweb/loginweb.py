@@ -5,6 +5,7 @@ from apps.components.mail import send_template_email
 from apps.login.models import Usuario, Empresa
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from apps.login.models import Empresa
 import random
 import string
 
@@ -37,7 +38,7 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
         return False, None, None
 
 
-def loginweb(request):
+def loginweb_admin(request,empresa='default'):
     db_name = request.session.get('usuario', {}).get('db')
 
     if request.method == 'POST':
@@ -79,8 +80,7 @@ def loginweb(request):
                     'contrasena': passwordoriginal,
                 }
                 subject = 'Activacion de Usuario'
-                recipient_list = ['mikepruebas@yopmail.com'] ## cambiar el correo por el del usuario 
-                #recipient_list = usertempo.email 
+                recipient_list = ['mikepruebas@yopmail.com']
 
                 if send_template_email(email_type, context, subject, recipient_list):
                     pass
@@ -91,11 +91,12 @@ def loginweb(request):
             return redirect('companies:loginweb')
 
     contratos_empleados = Contratos.objects\
+        .using(empresa)\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
                 'idempleado__snombre', 'cargo', 'idempleado__idempleado',
-                'tipocontrato__tipocontrato')
+                'tipocontrato__tipocontrato','idempleado__email')
 
     empleados = []
     for contrato in contratos_empleados:
@@ -105,8 +106,20 @@ def loginweb(request):
             'nombre': nombre_empleado,
             'cargo': contrato['cargo'],
             'tipocontrato': contrato['tipocontrato__tipocontrato'],
-            'idempleado': contrato['idempleado__idempleado']
+            'idempleado': contrato['idempleado__idempleado'],
+            'email' : contrato['idempleado__email'],
         }
         empleados.append(contrato_data)
 
-    return render(request, 'companies/loginweb.html', {'empleados': empleados})
+    return render(request, './admin/loginweb.html', {'empleados': empleados})
+
+
+def select_loginweb_admin(request):
+    if request.method == 'POST':
+        empresa = request.POST.get('empresa_select')
+        return redirect('admin:loginweb', empresa)
+        
+    empresas = Empresa.objects.exclude(name='admin')
+    return render(request, './admin/selectloginweb.html', {'empresas': empresas})
+
+    

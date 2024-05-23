@@ -1,0 +1,230 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Centros de Costos
+{% endblock %}
+
+
+{% block css %}
+    .floating-button {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+    }
+{% endblock %}
+
+{% block sub_titulo1 %} 
+    parametros
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Vista Hoja de vida
+{% endblock %}
+
+
+
+{% block titulo2 %} 
+    Hoja de vida
+{% endblock %}
+
+
+{% block content %}
+    <div class="separator  border-2 my-10"> Identificación</div>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Tipo de documento de identidad </label>
+            <input class="form-control" value='{{empleados.tipodocident}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Documento de identidad </label>
+            <input class="form-control" value='{{empleados.docidentidad}}' disabled  />
+        </div>
+    </div>
+
+    <div class="separator  border-0 my-10"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Fecha de expedición </label>
+            <input class="form-control" value='{{empleados.fechaexpedicion}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Ciudad de expedición </label>
+            <input class="form-control" value='{{empleados.ciudadexpedicion}}' disabled  />
+        </div>
+    </div>
+
+    <div class="separator  border-0 my-10"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Primer Nombre  </label>
+            <input class="form-control" value='{{empleados.pnombre}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Segundo Nombre </label>
+            <input class="form-control" value='{{empleados.snombre}}' disabled  />
+        </div>
+    </div>
+
+    <div class="separator  border-0 my-10"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Primer Apellido </label>
+            <input class="form-control" value='{{empleados.papellido}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Segundo Apellido </label>
+            <input class="form-control" value='{{empleados.sapellido}}' disabled  />
+        </div>
+    </div>
+
+    <div class="separator  border-2 my-10"> Datos Personales </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Sexo </label>
+            <input class="form-control" value='{{empleados.sexo}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Estatura (Mts) </label>
+            <input class="form-control" value='{{empleados.estatura}}' disabled  />
+        </div>
+    </div>
+    <div class="separator  border-0 my-10"></div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Estado Civil </label>
+            <input class="form-control" value='{{empleados.estadocivil}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Peso (Kg) </label>
+            <input class="form-control" value='{{empleados.peso}}' disabled  />
+        </div>
+    </div>
+    <div class="separator  border-0 my-10"></div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Fecha de Nacimiento </label>
+            <input class="form-control" value='{{empleados.fechanac}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Nivel Educativo </label>
+            <input class="form-control" value='{{empleados.niveleducativo}}' disabled  />
+        </div>
+    </div>
+    <div class="separator  border-0 my-10"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Ciudad de Nacimiento </label>
+            <input class="form-control" value='{{empleados.ciudadnacimiento}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Estrato </label>
+            <input class="form-control" value='{{empleados.estrato}}' disabled  />
+        </div>
+    </div>
+    <div class="separator  border-0 my-10"></div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Pais de nacimiento </label>
+            <input class="form-control" value='{{empleados.paisnacimiento}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Libreta Militar </label>
+            <input class="form-control" value='{{empleados.numlibretamil}}' disabled  />
+        </div>
+    </div>
+    <div class="separator  border-0 my-10"></div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Grupo Sanguineo </label>
+            <input class="form-control" value='{{empleados.gruposanguineo}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Profesión </label>
+            <input class="form-control" value='{{empleados.profesion}}' disabled  />
+        </div>
+    </div>
+    <div class="separator  border-0 my-10"></div>
+
+    <div class="separator  border-2 my-10"> Datos de Residencia </div>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Direccion de Residencia </label>
+            <input class="form-control" value='{{empleados.direccionempleado}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > E - mail  </label>
+            <input class="form-control" value='{{empleados.email}}' disabled  />
+        </div>
+    </div>
+
+    <div class="separator  border-0 my-10"></div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Ciudad de Residencia </label>
+            <input class="form-control" value='{{empleados.ciudadresidencia}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Celular   </label>
+            <input class="form-control" value='{{empleados.celular}}' disabled  />
+        </div>
+    </div>
+
+    <div class="separator  border-0 my-10"></div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Pais de residencia </label>
+            <input class="form-control" value='{{empleados.paisresidencia}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Telefono del Empleado  </label>
+            <input class="form-control" value='{{empleados.telefonoempleado}}' disabled  />
+        </div>
+    </div>
+
+    <div class="separator  border-2 my-10"> Dotación</div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" > Talla Pantalón </label>
+            <input class="form-control" value='{{empleados.dotpantalon}}' disabled  />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" > Talla Camisa  </label>
+            <input class="form-control" value='{{empleados.dotcamisa}}' disabled  />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label" > Talla Zapatos  </label>
+            <input class="form-control" value='{{empleados.dotzapatos}}' disabled  />
+        </div>
+
+    </div>
+    <div class="separator  border-0 my-10"></div>
+
+
+    <button class="btn btn-light-primary floating-button" id="backButton" >
+        Regresar
+    </button>
+{% endblock %}
+{% block js %}
+
+    
+<script>
+    document.getElementById('backButton').addEventListener('click', function() {
+        window.history.back();
+    });
+</script>
+
+{% endblock %}
+

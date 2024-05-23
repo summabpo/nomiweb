@@ -25,6 +25,8 @@ Posible Dash
 
 {% block content %}
     <canvas id="kt_chartjs_1" class="mh-400px"></canvas>
+
+    {{ qr_code_html | safe }}
 {% endblock %}
 
 {% block js %}
