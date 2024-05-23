@@ -4,18 +4,52 @@
 {% block title %} Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias {% endblock %} 
 
 {% block content %}
+<div class="d-flex justify-content-around">
+    <div class="card text-white bg-success mb-3" style="max-width: 12rem; height: 9rem;">
+        <div class="card-header" style="font-size: 1.3rem;">Vacaciones</div>
+        <div class="card-body">
+        <h5 class="card-title" style="font-size: 1rem;">Años Trabajados</h5>
+        <p class="card-text" style="font-size: 0.8rem;">3</p>
+        </div>
+    </div>
+    <div class="card text-white bg-primary mb-3" style="max-width: 18rem;">
+        <div class="card-header">Vacaciones Compensadas</div>
+        <div class="card-body">
+          <h5 class="card-title">Remuneradas</h5>
+          <p class="card-text">15</p>
+        </div>
+      </div>
+      
+    <div class="card text-white bg-warning mb-3" style="max-width: 12rem; height: 9rem; padding: 0.5rem;">
+        <div class="card-header" style="font-size: 1.3rem; padding: 0.25rem;">Licencias</div>
+        <div class="card-body">
+        <h5 class="card-title" style="font-size: 1rem; margin-bottom: 0.5rem;">Licencias Remuneradas</h5>
+        <p class="card-text" style="font-size: 0.8rem; margin: 0;">3</p>
+        </div>
+    </div>
+    <div class="card text-white bg-danger mb-3" style="max-width: 12rem;">
+        <div class="card-header">Vacaciones</div>
+        <div class="card-body">
+          <h5 class="card-title">Años Trabajados</h5>
+          <p class="card-text">3</p>
+        </div>
+    </div>
+</div>
 
+<br>
+<br>
+<!--INICIA EL MODAL-->
 <div class="container">
  
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_2">
-        Launch demo modal
+    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2">
+    Nueva Solicitud
     </button>
     
     <div class="modal bg-body fade" tabindex="-1" id="kt_modal_2">
-        <div class="modal-dialog modal-fullscreen">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-none">
                 <div class="modal-header">
-                    <h5 class="modal-title">Modal title</h5>
+                    <h5 class="modal-title">Solicitud de Vacaciones / Licencias</h5>
     
                     <!--begin::Close-->
                     <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
@@ -29,14 +63,14 @@
                 </div>
     
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">Enviar Solicitud</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
+<!---LISTADO-->
 <BR>
     <BR> 
         
