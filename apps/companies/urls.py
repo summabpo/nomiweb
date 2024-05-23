@@ -13,7 +13,7 @@ from .views.nominatedcertificate import nominatedcertificate
 from .views.payrollsummary import payrollsummary
 from .views.loginweb import loginweb
 from .views.payrollsheet import payrollsheet
-
+from .views.assetsview import assetsview
 
 
 from .views.index import index
@@ -34,7 +34,9 @@ urlpatterns = [
     path('employees/edit/contract',editContract.EditContracsearch , name='editcontracsearch'),
     path('employees/edit/contract/<str:idempleado>',editContract.EditContracVisual , name='editcontracvisual'),
     
-    
+    ##! vistas 
+    path('employees/views/contract/<str:idcontrato>',assetsview.contractview , name='contractview'),
+    path('employees/views/employee/<str:idempleado>',assetsview.resumeview , name='resumeview'),
     
 
     ##! empleados
