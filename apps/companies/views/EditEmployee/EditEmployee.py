@@ -9,14 +9,14 @@ from apps.components.decorators import custom_login_required ,custom_permission
 @custom_login_required
 @custom_permission('entrepreneur')
 def EditEmployeeVisual(request,idempleado):
-    empleado = Contratosemp.objects.using("lectaen").get(idempleado=idempleado) 
+    empleado = Contratosemp.objects.get(idempleado=idempleado) 
     
-    tipo_documento = Tipodocumento.objects.using("lectaen").get(codigo=empleado.tipodocident) 
+    tipo_documento = Tipodocumento.objects.get(codigo=empleado.tipodocident) 
     
     
     
-    ciudadex = Ciudades.objects.using("lectaen").get(idciudad=empleado.ciudadexpedicion) 
-    ciudadna = Ciudades.objects.using("lectaen").get(idciudad=empleado.ciudadnacimiento) 
+    ciudadex = Ciudades.objects.get(idciudad=empleado.ciudadexpedicion) 
+    ciudadna = Ciudades.objects.get(idciudad=empleado.ciudadnacimiento) 
     
     
     campos_a_ajustar = [
@@ -101,7 +101,7 @@ def EditEmployeeVisual(request,idempleado):
 @custom_login_required
 @custom_permission('entrepreneur')
 def EditEmployeeSearch(request):
-    contratos_empleados = Contratos.objects.using("lectaen") \
+    contratos_empleados = Contratos.objects \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__sapellido','idempleado__pnombre',
