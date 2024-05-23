@@ -5,6 +5,7 @@ from apps.components.mail import send_template_email
 from apps.login.models import Usuario, Empresa
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from apps.login.models import Empresa
 import random
 import string
 
@@ -37,7 +38,7 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
         return False, None, None
 
 
-def loginweb_admin(request):
+def loginweb_admin(request,empresa='default'):
     db_name = request.session.get('usuario', {}).get('db')
 
     if request.method == 'POST':
@@ -90,6 +91,7 @@ def loginweb_admin(request):
             return redirect('companies:loginweb')
 
     contratos_empleados = Contratos.objects\
+        .using('lectaen')\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
@@ -109,3 +111,14 @@ def loginweb_admin(request):
         empleados.append(contrato_data)
 
     return render(request, './admin/loginweb.html', {'empleados': empleados})
+
+
+def select_loginweb_admin(request):
+    if request.method == 'POST':
+        empresa = request.POST.get('nomina_select')
+        return redirect('admin:loginweb', empresa = empresa)
+        
+    empresas = Empresa.objects.exclude(name='admin')
+    return render(request, './admin/selectloginweb.html', {'empresas': empresas})
+
+    
