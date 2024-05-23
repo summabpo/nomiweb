@@ -91,7 +91,7 @@ def loginweb_admin(request,empresa='default'):
             return redirect('companies:loginweb')
 
     contratos_empleados = Contratos.objects\
-        .using('lectaen')\
+        .using(empresa)\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
@@ -115,8 +115,8 @@ def loginweb_admin(request,empresa='default'):
 
 def select_loginweb_admin(request):
     if request.method == 'POST':
-        empresa = request.POST.get('nomina_select')
-        return redirect('admin:loginweb', empresa = empresa)
+        empresa = request.POST.get('empresa_select')
+        return redirect('admin:loginweb', empresa)
         
     empresas = Empresa.objects.exclude(name='admin')
     return render(request, './admin/selectloginweb.html', {'empresas': empresas})
