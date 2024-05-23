@@ -56,7 +56,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize', #Para poner puntos en numeros para separar miles
-
+    
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
 
 
@@ -74,6 +77,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.login.middlewares.DatabaseRouterMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 

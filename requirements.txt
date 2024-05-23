@@ -8,6 +8,7 @@ wkhtmltopdf==0.2
 imgkit==1.2.2
 Celery==5.4.0
 Redis==5.0.4
-
+qrcode==7.4.2
+django-allauth==0.63.1
 
 

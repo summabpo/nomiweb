@@ -4,10 +4,23 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from apps.login.models import Usuario , Empresa
 
+from django.shortcuts import get_object_or_404
+
+def toggle_user_active_status(request, user_id, activate=True):
+    usuario = get_object_or_404(Usuario, id=user_id)
+    print(activate)
+    usuario.user.is_active = activate
+    usuario.user.save()
+    print(usuario.user.username)
+    print(usuario.user.is_active)
+    status_message = 'activado' if activate else 'desactivado'
+    messages.success(request, f'El usuario ha sido {status_message} con éxito.')
+    return redirect('admin:user')
 
 
 def user_admin(request):
-    users = User.objects.all()
+    users = Usuario.objects.all()
+    
     return render(request, './admin/users.html' , {'users':users}) 
 
 
@@ -62,3 +75,4 @@ def usercreate_admin(request):
     else:
         form = UserCreationForm()
     return render(request, './admin/usercreate.html',{'form': form})
+
