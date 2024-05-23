@@ -96,7 +96,7 @@ def loginweb_admin(request,empresa='default'):
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
                 'idempleado__snombre', 'cargo', 'idempleado__idempleado',
-                'tipocontrato__tipocontrato')
+                'tipocontrato__tipocontrato','idempleado__email')
 
     empleados = []
     for contrato in contratos_empleados:
@@ -106,7 +106,8 @@ def loginweb_admin(request,empresa='default'):
             'nombre': nombre_empleado,
             'cargo': contrato['cargo'],
             'tipocontrato': contrato['tipocontrato__tipocontrato'],
-            'idempleado': contrato['idempleado__idempleado']
+            'idempleado': contrato['idempleado__idempleado'],
+            'email' : contrato['idempleado__email'],
         }
         empleados.append(contrato_data)
 
