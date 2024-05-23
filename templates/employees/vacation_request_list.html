@@ -5,40 +5,6 @@
 
 {% block content %}
 
-<div class="container">
- 
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_2">
-        Launch demo modal
-    </button>
-    
-    <div class="modal bg-body fade" tabindex="-1" id="kt_modal_2">
-        <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content shadow-none">
-                <div class="modal-header">
-                    <h5 class="modal-title">Modal title</h5>
-    
-                    <!--begin::Close-->
-                    <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                        <i class="ki-duotone ki-cross fs-2x"><span class="path1"></span><span class="path2"></span></i>
-                    </div>
-                    <!--end::Close-->
-                </div>
-    
-                <div class="modal-body">
-                    {% crispy form %}
-                </div>
-    
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<BR>
-    <BR> 
         
     <h3 class="text-center"> Historial de Solicitudes de Vacaciones / Licencias </h3>
                 
@@ -57,7 +23,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for e in vacation_request_list %}
+                            {% for e in vacations_request_list %}
                             <tr>
                                 <td>{{ e.tipovac }}</td>
                                 <td>{{ e.fechainicialvac }}</td>
