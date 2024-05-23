@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 
 from django.contrib.auth.hashers import make_password
 from apps.login.middlewares import NombreDBSingleton
+from apps.components.mail import send_template_email
 
 import random
 import string
@@ -112,7 +113,24 @@ def newEmployee(request):
             except Exception as e:
                 # Manejar el error de creación de usuario
                 messages.error(request, f"Error al crear los permisos : {e}")
-                return redirect('companies:newemployee')          
+                return redirect('companies:newemployee')
+            
+            
+            email_type = 'loginweb'
+            context = {
+                'nombre_usuario': usertempo.pnombre,
+                'usuario': usertempo.email,
+                'contrasena': passwordoriginal,
+            }
+            subject = 'Activacion de Usuario'
+            recipient_list = ['mikepruebas@yopmail.com'] ## cambiar el correo por el del usuario 
+            #recipient_list = usertempo.email 
+
+            if send_template_email(email_type, context, subject, recipient_list):
+                pass
+            else:
+                messages.error(request, 'Todo lo que podria salir mal, salio mal')
+                    
             messages.success(request, 'El Empleado ha sido creado')
             return  redirect('companies:newemployee')
     else:
