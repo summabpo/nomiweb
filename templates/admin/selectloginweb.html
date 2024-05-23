@@ -34,18 +34,23 @@
 <main  class="flex-grow-1">
     <div class="card shadow-sm">
         <div class="card-header">
-            <h3 class="card-title">Nuevo Cargo</h3>
+            <h3 class="card-title">Seleccione  La Empresa</h3>
         </div>
         <div class="card-body">
             <form action="" method="post">
                 {% csrf_token %}
-                <label for="nomina_select">Seleccione una nómina:</label>
-                <select name="nomina_select" id="nomina_select">
-                    {% for empresa in empresas %}
-                        <option value="{{ empresa.1 }}">{{ empresa.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit">Submit</button>
+                <div class="form-row">
+                    <div class="form-group col-md-6 mb-0">
+                        <label for="empresa_select">Seleccione una opcion:</label>
+                        <select  class="form-select " data-control="select2" data-placeholder="Seleccione una opcion"  name="empresa_select" id="empresa_select">
+                            <option value="">---------</option>
+                            {% for empresa in empresas %}
+                                <option value="{{ empresa.db_name }}">{{ empresa.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button  class="btn btn-success" type="submit">Filtrar</button>
+                    </div>
+                </div>
             </form>
 
         </div>
