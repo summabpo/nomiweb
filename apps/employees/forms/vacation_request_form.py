@@ -27,7 +27,7 @@ class EmpVacacionesForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="Seleccione --------->",
     )
-
+                    
     def __init__(self, *args, **kwargs):
         super(EmpVacacionesForm, self).__init__(*args, **kwargs)
         self.fields['idcontrato'].label_from_instance = self.label_from_contrato

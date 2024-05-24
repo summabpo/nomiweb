@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 
 def vacations_request(request):
+    id=request.session.usuario.id
     if request.method == 'POST':
         form = EmpVacacionesForm(request.POST)
         if form.is_valid():
