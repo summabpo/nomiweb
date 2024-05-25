@@ -60,16 +60,18 @@
                     <td>{{ empleado.cargo }}</td>
                     <td>{{ empleado.tipocontrato }}</td>
                     <td>
-                        
                         <div class="container d-flex justify-content-end align-items-center">
                             {{ empleado.email }}
-                            <i class="fa-regular fa-pen-to-square fs-3 p-2 ml-2"></i>
+                            <button type="button" class="btn btn-light-primary btn-sm ms-3" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-bs-whatever="{{ empleado.email }}">
+                                <i class="fa-regular fa-pen-to-square fs-3"></i>
+                            </button>
                         </div>
-                        
                     </td>
                     <td>
                         <div class="form-check form-check-custom form-check-warning form-check-solid">
-                            <input class="form-check-input" type="checkbox" name="selected_ids" value="{{ empleado.idempleado }}" />
+                            <form method="post" action="">
+                                <input class="form-check-input" type="checkbox" name="selected_ids" value="{{ empleado.idempleado }}" />
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -80,6 +82,41 @@
         
     </form>
     
+
+    <div class="modal fade" tabindex="-1" id="kt_modal_2">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edicion de Correo</h3>
+    
+                    <!--begin::Close-->
+                    <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                    </div>
+                    <!--end::Close-->
+                </div>
+    
+                <form method="post"  action="{% url 'admin:editmain' empresa=empresa %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <p> Mosifique el Correo de la Persona </p>
+                        <label for="correo">Correo Electrónico:</label>
+                        <input type="email" id="correo1" name="correo1"  required>
+
+                        
+                        <input type="email" id="correo2" name="correo2" style="display: none;" >
+                        
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" >Actualizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </main>
     
 
@@ -116,9 +153,38 @@
                 },
                 dom: 'frtip',
                 order: [[0, 'des']],  
-                "pageLength": 10,                
+                "pageLength": 5,                
             });
         });
+    </script>
+
+<script>
+    // Función para manejar la apertura del modal y pasar datos
+    $(document).ready(function(){
+        const exampleModal = document.getElementById('kt_modal_2');
+        if (exampleModal) {
+            exampleModal.addEventListener('show.bs.modal', event => {
+                // Botón que activó el modal
+                const button = event.relatedTarget;
+                // Extraer información de los atributos data-bs-*
+                const recipient = button.getAttribute('data-bs-whatever');
+                
+
+
+                // Actualizar el contenido del modal
+                const modalTitle = exampleModal.querySelector('.modal-title');
+
+                correo1Input = exampleModal.querySelector('#correo1')
+                correo2Input = exampleModal.querySelector('#correo2')
+
+
+                
+                correo1Input.value = recipient;
+                correo2Input.value = recipient;
+                
+            });
+        }
+    });
     </script>
 
 {% endblock %}
