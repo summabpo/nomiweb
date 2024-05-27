@@ -25,7 +25,6 @@ urlpatterns = [
     path('employees/', include(('apps.employees.urls', 'employees'))),
     path('companies/', include(('apps.companies.urls', 'companies'))),
     path('admin/', include(('apps.administrator.urls', 'admin'))),
-    path('accounts/', include('allauth.urls')),
 ]
 
 #handler400 = custom_400  # Configura la vista custom_400 para manejar el error 400

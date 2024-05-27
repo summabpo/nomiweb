@@ -50,7 +50,7 @@ def loginweb_admin(request,empresa='default'):
                     usuario = Usuario.objects.get(id_empleado=usertempo.idempleado)
                 except Contratosemp.DoesNotExist:
                     messages.error(request, "No se encontró el empleado con ID seleccionado.")
-                    continue
+                    pass
                 except Usuario.DoesNotExist:
                     usuario = None
 
@@ -71,7 +71,7 @@ def loginweb_admin(request,empresa='default'):
                         return redirect('companies:loginweb')
                     except Exception as e:
                         messages.error(request, f"Error al crear el usuario: {e}")
-                        continue
+                        pass
 
                 email_type = 'loginweb'
                 context = {
@@ -111,7 +111,7 @@ def loginweb_admin(request,empresa='default'):
         }
         empleados.append(contrato_data)
 
-    return render(request, './admin/loginweb.html', {'empleados': empleados})
+    return render(request, './admin/loginweb.html', {'empleados': empleados , 'empresa': empresa})
 
 
 def select_loginweb_admin(request):
@@ -122,4 +122,36 @@ def select_loginweb_admin(request):
     empresas = Empresa.objects.exclude(name='admin')
     return render(request, './admin/selectloginweb.html', {'empresas': empresas})
 
+
+def edit_main(request,empresa):
+    if request.method == 'POST':
+        correo1 = request.POST.get('correo1')
+        correo2 = request.POST.get('correo2')
+        
+        try:
+            usertempo = Contratosemp.objects.using(empresa).get(email = correo2)
+            usuario = Usuario.objects.get(id_empleado=usertempo.idempleado)
+            
+            if (correo1 == correo2 ):
+                messages.success(request, 'El corrreo que se ha ingresado ya se encuentra reistrado para este empleado')
+                return redirect('admin:loginweb',empresa=empresa)
+            else: 
+                usertempo.email = correo1
+                usertempo.save()
+                usuario.user.username = correo1
+                usuario.user.email = correo1
+                usuario.user.save()
+            
+        except Contratosemp.DoesNotExist:
+            messages.error(request, "No se encontró el empleado con es posible que no tenga cuenta activa")
+            pass
+        except Usuario.DoesNotExist:
+            messages.error(request, "No se encontró el empleado con es posible que no tenga cuenta")
+            pass
+            
+        
+        
+    messages.success(request, 'El corrreo ha sido actualizado con exito')
+    return redirect('admin:loginweb',empresa=empresa)
     
+

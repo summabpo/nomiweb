@@ -28,7 +28,7 @@ License: For each use you must have a valid license purchased only from above li
     <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
 
-
+    <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
 
 
     {% block cssarch %}
@@ -63,9 +63,8 @@ License: For each use you must have a valid license purchased only from above li
                         <!--end::Sidebar mobile toggle-->
                         <!--begin::Logo-->
                         <a href="" class="app-sidebar-logo">
-                            <!--<img alt="Logo" src="assets/media/logos/default.svg" class="h-30px theme-light-show" />-->
-                            <img alt="Logo" src="https://placehold.it/90x17&text=NomiWEB/333" class="h-30px theme-dark-show" />
-                            NomiWEB
+                            <img alt="Logo" src="{% static 'img/logonomiweb.png' %}" class="h-30px theme-light-show" />
+                            <img alt="Logo" src="{% static 'img/logonomiweb.png' %}" class="h-30px theme-dark-show" />
                         </a>
                         <!--end::Logo-->
                         <!--begin::Sidebar toggle-->
