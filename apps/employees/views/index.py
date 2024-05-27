@@ -15,10 +15,11 @@ def index_employees(request):
     
     aux = datos_empleado(usuario['id'])
     
+    print(aux)
     
     request.session['empleado'] = aux
     request.session['cliente'] = datos_cliente()
-    request.session['idempleado'] = usuario['ide']
+    request.session['idempleado'] = usuario['id']
     request.session['idcontrato'] = aux['idc']
     
     

@@ -1,32 +1,20 @@
 from django.shortcuts import render, redirect
-from django.db.models import Q, Sum
+from django.db.models import Sum
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
-# models
 from apps.employees.models import EmpVacaciones, Vacaciones
 
-idc = 3778
-
-
 def vacation_request_function(request):
-    idc = request.session.get('usuario', {}) 
-    
-    
-    
-    
-    if request.method == 'POST':
-        form = EmpVacacionesForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('employees:form_vac')
-    else:
-        form = EmpVacacionesForm()
+    idc = request.session.get('idcontrato')
+    form = EmpVacacionesForm(request.POST or None)
 
-    # Obtener la suma de días de vacaciones disfrutadas
-    resultado_vacaciones = Vacaciones.objects.filter(idcontrato=idc).aggregate(dias_vacaciones=Sum('diasvac'))
-    dias_vacaciones = resultado_vacaciones['dias_vacaciones'] if resultado_vacaciones['dias_vacaciones'] is not None else 0
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('employees:form_vac')
+
+    dias_vacaciones = Vacaciones.objects.filter(idcontrato=idc).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
 
     vacation_list = EmpVacaciones.objects.all()
-    
+
     context = {
         'form': form,
         'dias_vacaciones': dias_vacaciones,
