@@ -1,0 +1,123 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Cargos 
+{% endblock %}
+
+{% block cssarch %}
+<script>
+    "use strict";
+
+    var KTGeneralFullCalendarBirthday = function () {
+        var exampleBirthday = function () {
+            var calendarEl = document.getElementById('kt_docs_fullcalendar_birthday');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+
+                initialView: 'dayGridMonth',
+                events: {
+                    url: '/birthday/', // Ruta de la vista de Django que devuelve eventos de cumpleaños
+                    method: 'GET',
+                    failure: function() {
+                        alert('Hubo un error al cargar los eventos.');
+                    }
+                },
+            });
+
+            calendar.render();
+        }
+
+        return {
+            // Función de inicialización
+            init: function () {
+                exampleBirthday();
+            }
+        };
+    }();
+
+    // Al cargar el documento
+    document.addEventListener('DOMContentLoaded', function () {
+        KTGeneralFullCalendarBirthday.init();
+    });
+</script>
+{% endblock %}
+
+
+{% block css %}
+
+{% endblock %}
+
+{% block sub_titulo1 %} 
+    parametros
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+    Cargos
+{% endblock %}
+
+
+
+{% block titulo2 %} 
+    Cargos
+{% endblock %}
+
+
+{% block content %}
+
+
+    <div id="kt_docs_fullcalendar_birthday"></div>
+
+
+    <div class="table-responsive">
+        <ul>
+            {% for empleado in cumpleanieros %}
+                <li>{{ empleado.pnombre }} {{ empleado.papellido }} - {{ empleado.fechanac|date:"d/m/Y" }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+{% block js %}
+    
+
+    <script>
+        $(document).ready(function() {
+            $('#tablacargos').DataTable({
+                language: {
+                    "decimal":        "",
+                    "emptyTable":     "No hay datos disponibles en la tabla",
+                    "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                    "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                    "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                    "infoPostFix":    "",
+                    "thousands":      ",",
+                    "lengthMenu":     "Mostrar _MENU_ entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing":     "Procesando...",
+                    "search":         "Buscar:",
+                    "zeroRecords":    "No se encontraron registros coincidentes",
+                    "paginate": {
+                        "first":      "Primero",
+                        "last":       "Último",
+                        "next":       "Siguiente",
+                        "previous":   "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending":  ": activar para ordenar la columna ascendente",
+                        "sortDescending": ": activar para ordenar la columna descendente"
+                    }
+                },
+                order: [[0, 'des']],  
+                "pageLength": 5,              
+            });
+        });
+    </script>
+
+{% endblock %}
+
