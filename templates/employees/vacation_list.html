@@ -1,19 +1,19 @@
 {% extends 'base/base_employees.html' %}
-{% load crispy_forms_tags %}
 
-{% block title %} Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias {% endblock %} 
-
+{% block title %} Nomiweb.co - Portal Empleados - Solicitudes de Vacaciones 
+{% endblock %} 
+{% block css %} 
+{% endblock %} 
 {% block content %}
 
-        
-    <h3 class="text-center"> Historial de Solicitudes de Vacaciones / Licencias </h3>
+<h3 class="text-center"> Solicitudes de Vacaciones / Licencias </h3>
                 
                 <div class="table-responsive">
                     <table class="table table-rounded table-striped border gy-7 gs-7">
                         <thead>
                             <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
                             <th width="100"><b>Tipo Solicitud</b></th>
-                            <th width="50"><b>Fecha Inicial<b></th>
+                            <th width="50"><b>Fecha Inicial</b></th>
                             <th width="50"><b>Fecha Final</b></th>
                             <th width="50"><b>Dias Habiles</b></th>
                             <th width="50"><b>Dias Calendario</b></th>
@@ -23,9 +23,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for e in vacations_request_list %}
+                            {% for e in vacation_list %}
                             <tr>
-                                <td>{{ e.tipovac }}</td>
+                                <td>{{ e.tipovac.nombrevacaus }}</td>
                                 <td>{{ e.fechainicialvac }}</td>
                                 <td>{{ e.fechafinalvac }}</td>
                                 <td>{{ e.diasvac }}</td>

@@ -4,72 +4,63 @@
 {% block title %} Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias {% endblock %} 
 
 {% block content %}
-<div class="d-flex justify-content-around">
-    <div class="card text-white bg-success mb-3" style="max-width: 12rem; height: 9rem;">
-        <div class="card-header" style="font-size: 1.3rem;">Vacaciones</div>
-        <div class="card-body">
-        <h5 class="card-title" style="font-size: 1rem;">Años Trabajados</h5>
-        <p class="card-text" style="font-size: 0.8rem;">3</p>
-        </div>
+
+<!---CARDS INDICADORES---->
+<div class="d-flex justify-content-around flex-wrap" style="width: 100%;">
+    <div class="bg-warning text-white mb-3 p-3" style="width: 16rem; height: 9rem; border-radius: 0.25rem; display: flex; flex-direction: column; justify-content: space-around;">
+        <div style="font-size: 1.2rem; text-align: center;">Vacaciones Tomadas</div>
+        <div style="font-size: 2.5rem; text-align: center;"> {{ dias_vacaciones }}</div>
     </div>
-    <div class="card text-white bg-primary mb-3" style="max-width: 18rem;">
-        <div class="card-header">Vacaciones Compensadas</div>
-        <div class="card-body">
-          <h5 class="card-title">Remuneradas</h5>
-          <p class="card-text">15</p>
-        </div>
-      </div>
-      
-    <div class="card text-white bg-warning mb-3" style="max-width: 12rem; height: 9rem; padding: 0.5rem;">
-        <div class="card-header" style="font-size: 1.3rem; padding: 0.25rem;">Licencias</div>
-        <div class="card-body">
-        <h5 class="card-title" style="font-size: 1rem; margin-bottom: 0.5rem;">Licencias Remuneradas</h5>
-        <p class="card-text" style="font-size: 0.8rem; margin: 0;">3</p>
-        </div>
+    <div class="bg-danger text-white mb-3 p-3" style="width: 16rem; height: 9rem; border-radius: 0.25rem; display: flex; flex-direction: column; justify-content: space-around;">
+        <div style="font-size: 1.2rem;text-align: center;">Solicitudes en Tramite</div>
+        <div style="font-size: 2.5rem; text-align: center;">{{ idc }}</div>
     </div>
-    <div class="card text-white bg-danger mb-3" style="max-width: 12rem;">
-        <div class="card-header">Vacaciones</div>
-        <div class="card-body">
-          <h5 class="card-title">Años Trabajados</h5>
-          <p class="card-text">3</p>
-        </div>
+    <div class="bg-primary text-white mb-3 p-3" style="width: 16rem; height: 9rem; border-radius: 0.25rem; display: flex; flex-direction: column; justify-content: space-around;">
+        <div style="font-size: 1.2rem;text-align: center;">Vacaciones a la Fecha</div>
+        <div style="font-size: 2.5rem; text-align: center;">20</div>
+    </div>
+    <div class="bg-success text-white mb-3 p-3" style="width: 16rem; height: 9rem; border-radius: 0.25rem; display: flex; flex-direction: column; justify-content: space-around;">
+        <div style="font-size: 1.2rem;text-align: center;">Licencias</div>
+        <div style="font-size: 2.5rem; text-align: center;">5</div>
     </div>
 </div>
-
 <br>
 <br>
-<!--INICIA EL MODAL-->
-<div class="container">
- 
-    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2">
-    Nueva Solicitud
+<!--FIN CARDS-->
+<!---BOTON MODAL--->
+<div class="text-end">
+    <button type="button" class="btn btn-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+        Nueva Solicitud
     </button>
-    
-    <div class="modal bg-body fade" tabindex="-1" id="kt_modal_2">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-none">
-                <div class="modal-header">
-                    <h5 class="modal-title">Solicitud de Vacaciones / Licencias</h5>
-    
-                    <!--begin::Close-->
-                    <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                        <i class="ki-duotone ki-cross fs-2x"><span class="path1"></span><span class="path2"></span></i>
-                    </div>
-                    <!--end::Close-->
+</div>
+
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Solicitud de Vacaciones / Licencias</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
-    
-                <div class="modal-body">
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                <form id="vacation-form" method="post" action="{% url 'employees:form_vac' %}">
                     {% crispy form %}
-                </div>
-    
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary">Enviar Solicitud</button>
-                </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-info" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="vacation-form" class="btn btn-info">Enviar Solicitud</button>
             </div>
         </div>
     </div>
 </div>
+<!---FIN  MODAL--->
 <!---LISTADO-->
 <BR>
     <BR> 
@@ -81,7 +72,7 @@
                         <thead>
                             <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
                             <th width="100"><b>Tipo Solicitud</b></th>
-                            <th width="50"><b>Fecha Inicial<b></th>
+                            <th width="50"><b>Fecha Inicial</b></th>
                             <th width="50"><b>Fecha Final</b></th>
                             <th width="50"><b>Dias Habiles</b></th>
                             <th width="50"><b>Dias Calendario</b></th>
@@ -91,9 +82,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for e in vacation_request_list %}
+                            {% for e in vacation_list %}
                             <tr>
-                                <td>{{ e.tipovac }}</td>
+                                <td>{{ e.tipovac.nombrevacaus }}</td>
                                 <td>{{ e.fechainicialvac }}</td>
                                 <td>{{ e.fechafinalvac }}</td>
                                 <td>{{ e.diasvac }}</td>
