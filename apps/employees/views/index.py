@@ -14,9 +14,6 @@ def index_employees(request):
     usuario = request.session.get('usuario', {})
     
     aux = datos_empleado(usuario['id'])
-    
-    print(aux)
-    
     request.session['empleado'] = aux
     request.session['cliente'] = datos_cliente()
     request.session['idempleado'] = usuario['id']
