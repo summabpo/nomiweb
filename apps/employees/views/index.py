@@ -13,8 +13,15 @@ from apps.components.datacompanies import datos_cliente
 def index_employees(request):
     usuario = request.session.get('usuario', {})
     
-    request.session['empleado'] = datos_empleado(usuario['id'])
+    aux = datos_empleado(usuario['id'])
+    
+    print(aux)
+    
+    request.session['empleado'] = aux
     request.session['cliente'] = datos_cliente()
+    request.session['idempleado'] = usuario['id']
+    request.session['idcontrato'] = aux['idc']
+    
     
     return render(request, './employees/index.html')
     
@@ -24,25 +31,26 @@ def datos_empleado(id_empleado):
     if id_empleado == 0:
         return None
     else:
-        contrato = Contratos.objects.get(idempleado=id_empleado)
-        
-        empleado = Contratosemp.objects.filter(idempleado=contrato.idempleado_id).annotate(
-            nombre_letras=Concat(F('pnombre'), Value(' '), F('snombre'), Value(' '), 
-                                    F('papellido'), Value(' '), F('sapellido'), output_field=CharField())
-                                    ).values('nombre_letras').first()
-            
-        info_empleado = {
-            'nombre_completo': empleado['nombre_letras'], 
-            'fechainiciocontrato': contrato.fechainiciocontrato.strftime('%Y-%m-%d'), # Convertir a cadena
-            'cargo': contrato.cargo, 
-            'tipo_contrato': contrato.tipocontrato.idtipocontrato,
-            'nombre_contrato': contrato.tipocontrato.tipocontrato,
-            'docidentidad': contrato.idempleado.docidentidad ,
-            'salario': contrato.salario,
-            'idc': contrato.idcontrato,
-            'ide': contrato.idempleado_id
-        }
-        return info_empleado
+        try:
+            contrato = Contratos.objects.get(idempleado=id_empleado, estadocontrato=1)
+            empleado = Contratosemp.objects.filter(idempleado=contrato.idempleado_id).annotate(
+                nombre_letras=Concat(F('pnombre'), Value(' '), F('snombre'), Value(' '), 
+                                        F('papellido'), Value(' '), F('sapellido'), output_field=CharField())
+            ).values('nombre_letras').first()
+
+            info_empleado = {
+                'nombre_completo': empleado['nombre_letras'],
+                'correo': contrato.idempleado.email,
+                'ide': contrato.idempleado_id ,
+                'idc': contrato.idcontrato,
+            }
+            return info_empleado
+
+        except Contratos.DoesNotExist:
+            return {'error': 'El contrato no existe'}
+        except Exception as e:
+            return {'error': str(e)}
+
 
 
 

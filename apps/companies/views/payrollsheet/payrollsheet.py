@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 
 def payrollsheet(request):
-    nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct()
+    nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
     compects = []  # Define compects here
 
     if request.method == 'POST':
