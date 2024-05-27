@@ -8,7 +8,11 @@ idc = 3778
 
 
 def vacation_request_function(request):
-    idc = 3778  # Obtén el ID del contrato como corresponda
+    idc = request.session.get('usuario', {}) 
+    
+    
+    
+    
     if request.method == 'POST':
         form = EmpVacacionesForm(request.POST)
         if form.is_valid():
