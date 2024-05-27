@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth import authenticate, login , logout
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.views import View
 from django.contrib import messages
 from .forms import LoginForm , MiFormulario ,PasswordResetForm , PasswordResetTokenForm
 from .models import Usuario,Empresa,Token
@@ -14,36 +17,42 @@ from apps.components.mail import send_template_email
 
 
 
-@default_login
-def login_view(request):
-    if request.method == 'POST':
+
+
+
+
+
+@method_decorator(default_login, name='dispatch')
+class Login_View(View):
+    def get(self, request):
+        form = LoginForm()
+        return render(request, './users/login.html', {'form': form})
+
+    def post(self, request):
         form = LoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(username=username, password=password)
             if user is not None:
-                
                 login(request, user)
                 usuario = Usuario.filter_by_username(request.user.username)
                 complements = {
-                            'rol': usuario.role,
-                            'compania': usuario.company.name,
-                            'db':usuario.company.db_name,
-                            'name' : f"{user.first_name} {user.last_name}",
-                            'id' : usuario.id_empleado
-                        }
-                
-                request.session['usuario'] = complements 
+                    'rol': usuario.role,
+                    'compania': usuario.company.name,
+                    'db': usuario.company.db_name,
+                    'name': f"{user.first_name} {user.last_name}",
+                    'id': usuario.id_empleado
+                }
+                request.session['usuario'] = complements
                 session = TempSession()
                 session.login()
                 session.set_user_type(usuario.role)
                 return redirect_by_role(usuario.role)
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')
-    else:
-        form = LoginForm()
-    return render(request, './users/login.html', {'form': form})
+        return render(request, './users/login.html', {'form': form})
+
 
 
 

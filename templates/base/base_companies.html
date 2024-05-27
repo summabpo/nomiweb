@@ -20,10 +20,14 @@ License: For each use you must have a valid license purchased only from above li
     <!--end::Fonts-->
     <!--begin::Vendor Stylesheets(used for this page only)-->
     <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css" />
+
+    link href="{% static 'plugins/custom/fullcalendar/fullcalendar.bundle.css' %}" rel="stylesheet" type="text/css" />
     <!--end::Vendor Stylesheets-->
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
     <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+
+    <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
 
     {% block cssarch %}
     {% endblock %}
@@ -332,6 +336,7 @@ License: For each use you must have a valid license purchased only from above li
         <script src="{% static 'js/custom/utilities/modals/create-account.js' %}"></script>
         <script src="{% static 'js/custom/utilities/modals/create-app.js' %}"></script>
         <script src="{% static 'js/custom/utilities/modals/users-search.js' %}"></script>
+        <script src="{% static 'plugins/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>
 		<!--end::Custom Javascript-->
         
 		<!--end::Javascript-->

@@ -53,9 +53,19 @@
 
 
         <div class="container d-flex justify-content-center align-items-center vh-100 ">
+            
             <div class="col-md-3  ">
                 <div class="card ">
                     <div class="card-body btn-primary draggable-handle ">
+                        <div class="d-flex flex-center h-200px">
+                            <img
+                                src="{% static 'img/logonomiweb.png' %}"
+                                data-src="{% static 'img/logonomiweb.png' %}"
+                                class="lozad rounded mw-100"
+                                alt="Logo Nomiweb"
+                            />
+                        </div>
+
                         <h2 class="card-title text-center btn-primary ">Iniciar sesión</h2>
                         {% crispy form %}
                     </div>
