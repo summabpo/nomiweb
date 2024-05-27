@@ -2,7 +2,8 @@ from django.urls import path
 from . import views
 from apps.employees.views.certificaciones_laborales import vista_certificaciones
 from apps.employees.views.vacation_history import VacationList
-from apps.employees.views.vacation_request import vacations_request
+from apps.employees.views.vacation_list import VacationListAll
+from .views.vacation_request import vacation_request_function
 from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, ListaNominas, genera_comprobante
 from apps.employees.views import index
 
@@ -52,8 +53,12 @@ urlpatterns = [
     ),
 
     path(
-        'vacation_request',
-        views.vacation_request.vacations_request,
-        name='vacation_request'
+        'vacation_request/',
+        views.vacation_request.vacation_request_function,
+        name='form_vac',
     ),
+    
+    path('vacation_list/', 
+         VacationListAll.as_view(), 
+         name='vacation_list_all'),
 ]
