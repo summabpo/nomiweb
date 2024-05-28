@@ -382,3 +382,12 @@ class EmpVacaciones(models.Model):
     class Meta:
         managed = False
         db_table = 'emp_vacaciones'
+class Festivos(models.Model):
+    idfestivo = models.IntegerField(primary_key=True)
+    dia = models.DateField(blank=True, null=True)
+    descripcion = models.CharField(max_length=60, blank=True, null=True)
+    ano = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'festivos'
