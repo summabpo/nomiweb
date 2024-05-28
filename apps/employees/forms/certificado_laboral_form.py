@@ -13,6 +13,7 @@ class FormularioCertificaciones(forms.Form):
         ('1', 'Con salario básico'),
         ('2', 'Con salario promedio'),
         ('3', 'Sin salario'),
+        ('4', 'Contrato Liquidado'),
     )
     modelo = forms.ChoiceField(choices=opciones, widget=forms.Select)
 
