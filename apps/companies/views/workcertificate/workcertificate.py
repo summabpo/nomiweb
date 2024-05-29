@@ -68,6 +68,8 @@ def generateworkcertificate(request):
             'telefono':datosc['telefono_empresa'],
             'email ': datosc['email_empresa'],
             'logo' : datosc['logo_empresa'],
+            'firma' : datosc['firma_certificaciones'],
+            
             
             ## empleado
             'titulo': 'Texto1',

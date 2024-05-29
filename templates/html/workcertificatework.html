@@ -3,14 +3,12 @@
 
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-    <title>Certificación Laboral - {{empresa}}
-    </title>
+    <title>Certificación Laboral - {{empresa}}</title>
     <style>
         @page {
             size: letter; /* Puedes ajustar el tamaño aquí */
             margin: 1cm; /* Ajusta los márgenes según sea necesario */
         }
-
 
         body {
             width: 740px;
@@ -19,26 +17,35 @@
             font-size: 18px;
             color: #000;
         }
-        
+
         .header {
-            text-align: center;
+            display: flex;
+            align-items: center;
             font-size: 16px;
             font-weight: bold;
             margin: 0;
             padding: 0;
-            line-height: 1; 
+            line-height: 1;
         }
-        
-        .header h4,
-        .header p {
-            margin: 0; 
-            padding: 0; 
+
+        .header .image-container {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
         }
-        
+
+        .header img {
+            width: 20%;
+        }
+
+        .header div {
+            text-align: center;
+        }
+
         .header hr {
             border: none;
-            border-top: 2px solid black; 
-            margin: 10px 0; 
+            border-top: 2px solid black;
+            margin: 10px 0;
         }
 
         .header a {
@@ -47,27 +54,27 @@
 
         .cert-info {
             text-align: center;
-            margin: 20px 0; 
+            margin: 20px 0;
         }
-        
+
         .cert-info p {
             margin: 5px 0;
         }
-        
+
         .cert-body {
             margin: 20px 0;
         }
-        
+
         .cert-body p {
             margin: 5px 0;
         }
-        
+
         .footer {
             text-align: center;
             margin-top: 40px;
             font-size: 14px;
         }
-        
+
         hr {
             border: none;
             border-top: 2px solid black;
@@ -75,38 +82,42 @@
         }
 
         .cert-certi {
-            text-align:right;
+            text-align: right;
             padding: 0;
-            line-height: 1; 
-            margin-top: 20px; 
+            line-height: 1;
+            margin-top: 20px;
         }
 
-        .firma{
+        .firma {
             padding: 0;
-            line-height: 1; 
+            line-height: 1;
         }
 
-        .data{
+        .data {
             margin: 0;
             padding: 0;
             line-height: 1;
         }
 
-        .img-firma{
+        .img-firma {
             border: none;
             border-top: 2px solid black;
             margin: 20px 0;
             width: 40%;
         }
-        
     </style>
 </head>
 
 <body>
     <div class="header">
-        <p>{{empresa}}</p>
-        <p>806003042</p>
-        <a href="http://{{web}}">{{web}}</a>
+        <div class="image-container">
+            <img src="static/img/{{logo}}" alt="Logo empresa">
+        </div>
+        <div>
+            <p>{{empresa}}</p>
+            <p>806003042</p>
+            <a href="http://{{web}}">{{web}}</a>
+        </div>
     </div>
 
     <hr>
@@ -119,7 +130,6 @@
         </div>
         <br>
     </div>
-    
 
     <div class="cert-body">
         <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
@@ -129,7 +139,6 @@
         <br>
         <p>Fecha de expedición de esta certificación: 2022-07-22</p>
     </div>
-
 
     <div class="firma">
         <div class="img-firma">
