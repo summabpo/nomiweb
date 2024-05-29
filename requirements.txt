@@ -11,6 +11,6 @@ Redis==5.0.4
 qrcode==7.4.2
 django-allauth==0.63.1
 django-import-export==4.0.6
-
+xhtml2pdf==0.2.15
 
 
