@@ -27,12 +27,13 @@
     <form method="get" action="">
         <div class="form-group">
             <label for="mes">Seleccione el mes:</label>
-            <select id="mes" name="mes" class="form-control">
+            <select id="mes" name="mes" class="form-group mb-3">
                 {% for i in meses %}
                     <option value="{{ i }}" {% if i == mes %}selected{% endif %}>{{ i }}</option>
                 {% endfor %}
             </select>
         </div>
+        <br>
         <button type="submit" class="btn btn-primary">Filtrar</button>
         <a href="?descargar=true&mes={{ mes }}" class="btn btn-secondary">Descargar CSV</a>
     </form>
