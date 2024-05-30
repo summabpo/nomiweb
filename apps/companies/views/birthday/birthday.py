@@ -13,7 +13,7 @@ class BirthdayView(View):
         mes = int(request.GET.get('mes', datetime.now().month))
         
         # Filtrar empleados que cumplen años en el mes seleccionado
-        cumpleanieros = Contratosemp.objects.filter(fechanac__month=mes)
+        cumpleanieros = Contratosemp.objects.filter(fechanac__month=mes,estadocontrato=1)
 
         # Si el parámetro 'descargar' está presente en los GET, generar un archivo Excel
         if 'descargar' in request.GET:
