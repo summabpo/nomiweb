@@ -1,123 +1,94 @@
 {% extends 'base/base_companies.html' %}
 {% load crispy_forms_tags %}
 
-
 {% block title %}
-    Nomiweb.co - Portal Empresas - Cargos 
+    Nomiweb.co - Portal Empresas - Cumpleañeros 
 {% endblock %}
 
 {% block cssarch %}
-<script>
-    "use strict";
-
-    var KTGeneralFullCalendarBirthday = function () {
-        var exampleBirthday = function () {
-            var calendarEl = document.getElementById('kt_docs_fullcalendar_birthday');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-
-                initialView: 'dayGridMonth',
-                events: {
-                    url: '/birthday/', // Ruta de la vista de Django que devuelve eventos de cumpleaños
-                    method: 'GET',
-                    failure: function() {
-                        alert('Hubo un error al cargar los eventos.');
-                    }
-                },
-            });
-
-            calendar.render();
-        }
-
-        return {
-            // Función de inicialización
-            init: function () {
-                exampleBirthday();
-            }
-        };
-    }();
-
-    // Al cargar el documento
-    document.addEventListener('DOMContentLoaded', function () {
-        KTGeneralFullCalendarBirthday.init();
-    });
-</script>
 {% endblock %}
 
-
 {% block css %}
-
 {% endblock %}
 
 {% block sub_titulo1 %} 
-    parametros
+    Parámetros
 {% endblock %}
-
 
 {% block sub_titulo2 %} 
-    Cargos
+    Cumpleañeros
 {% endblock %}
-
-
 
 {% block titulo2 %} 
-    Cargos
+    Cumpleañeros
 {% endblock %}
-
 
 {% block content %}
-
-
-    <div id="kt_docs_fullcalendar_birthday"></div>
-
-
+    <form method="get" action="">
+        <div class="form-group">
+            <label for="mes">Seleccione el mes:</label>
+            <select id="mes" name="mes" class="form-control">
+                {% for i in meses %}
+                    <option value="{{ i }}" {% if i == mes %}selected{% endif %}>{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="?descargar=true&mes={{ mes }}" class="btn btn-secondary">Descargar CSV</a>
+    </form>
     <div class="table-responsive">
-        <ul>
-            {% for empleado in cumpleanieros %}
-                <li>{{ empleado.pnombre }} {{ empleado.papellido }} - {{ empleado.fechanac|date:"d/m/Y" }}</li>
-            {% endfor %}
-        </ul>
+        <table class="table table-row-bordered gy-5" id="tabla-cumpleaños">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>dia</th>
+                    <th>mes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for empleado in cumpleanieros %}
+                    <tr>
+                        <td>{{ empleado.pnombre }} {{ empleado.papellido }}</td>
+                        <td>{{ empleado.fechanac|date:"d" }}</td>
+                        <td>{{ empleado.fechanac|date:"m" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}
+
 {% block js %}
-    
-
-    <script>
-        $(document).ready(function() {
-            $('#tablacargos').DataTable({
-                language: {
-                    "decimal":        "",
-                    "emptyTable":     "No hay datos disponibles en la tabla",
-                    "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                    "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
-                    "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                    "infoPostFix":    "",
-                    "thousands":      ",",
-                    "lengthMenu":     "Mostrar _MENU_ entradas",
-                    "loadingRecords": "Cargando...",
-                    "processing":     "Procesando...",
-                    "search":         "Buscar:",
-                    "zeroRecords":    "No se encontraron registros coincidentes",
-                    "paginate": {
-                        "first":      "Primero",
-                        "last":       "Último",
-                        "next":       "Siguiente",
-                        "previous":   "Anterior"
-                    },
-                    "aria": {
-                        "sortAscending":  ": activar para ordenar la columna ascendente",
-                        "sortDescending": ": activar para ordenar la columna descendente"
-                    }
+<script>
+    $(document).ready(function() {
+        $('#tabla-cumpleaños').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No hay datos disponibles en la tabla",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
                 },
-                order: [[0, 'des']],  
-                "pageLength": 5,              
-            });
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            order: [[1, 'asc']],  
+            "pageLength": 5,              
         });
-    </script>
-
+    });
+</script>
 {% endblock %}
-

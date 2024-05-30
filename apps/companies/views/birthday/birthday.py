@@ -1,19 +1,48 @@
 from django.views import View
 from django.shortcuts import render
 from apps.companies.models import Contratosemp
-from django.http import JsonResponse
+from django.http import HttpResponse
 from datetime import datetime
+import openpyxl
+from io import BytesIO
 
 class BirthdayView(View):
-    def get(self, request):
-        fecha_actual = datetime.now().date()
-        cumpleanieros = Contratosemp.objects.filter(fechanac__month=fecha_actual.month)
-        return render(request, './companies/birthday.html', {'cumpleanieros': cumpleanieros})
 
-    def post(self, request):
-        eventos = Contratosemp.objects.filter(fechanac__month=request.POST.get('month'))
-        eventos_data = [{
-            'title': evento.pnombre + ' ' + evento.papellido,
-            'start': evento.fechanac.isoformat(),
-        } for evento in eventos]
-        return JsonResponse(eventos_data, safe=False)
+    def get(self, request):
+        # Obtener el mes de los parámetros GET, o usar el mes actual por defecto
+        mes = int(request.GET.get('mes', datetime.now().month))
+        
+        # Filtrar empleados que cumplen años en el mes seleccionado
+        cumpleanieros = Contratosemp.objects.filter(fechanac__month=mes)
+
+        # Si el parámetro 'descargar' está presente en los GET, generar un archivo Excel
+        if 'descargar' in request.GET:
+            workbook = openpyxl.Workbook()
+            sheet = workbook.active
+            sheet.title = 'Cumpleañeros'
+
+            # Escribir encabezados
+            sheet.append(['Nombre', 'Día', 'Mes'])
+
+            # Escribir datos
+            for empleado in cumpleanieros:
+                nombre = f"{empleado.pnombre} {empleado.papellido}"
+                dia = empleado.fechanac.day
+                mes = empleado.fechanac.month
+                sheet.append([nombre, dia, mes])
+            
+            # Generar respuesta HTTP con el archivo Excel
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename="cumpleanieros.xlsx"'
+            
+            # Guardar el workbook en el response
+            with BytesIO() as b:
+                workbook.save(b)
+                response.write(b.getvalue())
+            
+            return response
+
+        # Crear una lista de meses
+        meses = list(range(1, 13))
+        
+        return render(request, 'companies/birthday.html', {'cumpleanieros': cumpleanieros, 'mes': mes, 'meses': meses})
