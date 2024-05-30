@@ -17,7 +17,6 @@ def index_employees(request):
     request.session['empleado'] = aux
     request.session['cliente'] = datos_cliente()
     request.session['idempleado'] = usuario['id']
-    request.session['idcontrato'] = aux['idc']
     
     
     return render(request, './employees/index.html')

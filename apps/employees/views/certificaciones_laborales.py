@@ -84,7 +84,7 @@ def calculo_salario_promedio():
 @custom_login_required
 @custom_permission('employees')
 def vista_certificaciones(request):
-    datose =  request.session.get('empleado', {})
+    ide =  request.session.get('empleado', {})
     print(datose)
     zona_horaria = pytz.timezone('America/Bogota')
     #CALCULA SALARIO PROMEDIO ULTIMOS 3 MESES
@@ -170,6 +170,7 @@ def genera_certificaciones(request, idcert):
     nombre_completo = datose['nombre_completo']
     docidentidad = datose['docidentidad']
     fechainiciocontrato = datose['fechainiciocontrato']
+    fechafincontarto = datose['fechafincontrato']
     cargo = datose['cargo']
     nombre_contrato = datose['nombre_contrato']
 
@@ -200,6 +201,12 @@ def genera_certificaciones(request, idcert):
     La presente certificación se expide con destino a: <b>{destino}</b>.<br/><br/>
     Puede verificar la validez de esta certificación en el email, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: https://www.empresas.nomiweb.co/validación</para>""")
 
+    #TEXTO 4 CONTRATO LIQUIDADO
+    p4=Paragraph(f"""<para align="justify" fontsize="14" leading="18">Certificamos que, <b>{nombre_completo}</b>, identificado(a) con documento de identidad No. {docidentidad}, trabajó en <b>{nombre_empresa}</b>, desde el {fechainiciocontrato} hasta el {fechafincontrato}, desempeñando el cargo de <b>{cargo}</b>.<br/><br/>
+    El tipo de contrato laboral es: {nombre_contrato}.<br/><br/> 
+    La presente certificación se expide con destino a: <b>{destino}</b>.<br/><br/>
+    Puede verificar la validez de esta certificación en el email, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: https://www.empresas.nomiweb.co/validación</para>""")
+    
     if seleccion_tipo == 1:
         p1.wrapOn(p,500,400)
         p1.drawOn(p, 60, 320)
@@ -209,7 +216,9 @@ def genera_certificaciones(request, idcert):
     elif seleccion_tipo == 3:
          p3.wrapOn(p,500,400)
          p3.drawOn(p, 60, 320)
-
+    elif seleccion_tipo == 4:
+         p4.wrapOn(p,500,400)
+         p4.drawOn(p, 60, 320)
 
 
     # VARIABLES PDF
