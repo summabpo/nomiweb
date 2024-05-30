@@ -7,7 +7,9 @@
 <style>
     body {
         width: 740px;
-        font-family: Helvetica, Geneva, sans-serif;
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        font-size: 18px;
     }
     
     table {
@@ -36,7 +38,8 @@
     }
     
     td {
-        height: 30px;
+        font-family: Arial, sans-serif;
+        font-size: 18px;
     }
     
     .header {
@@ -57,23 +60,27 @@
         font-size: 16px;
         font-weight: bold;
     }
+
+    .espacio {
+        width : "100%"
+    }
 </style>
 
 <body>
 
 
     <table>
-        <tr>
-            <th width="45%"></th>
-            <th width="30%" ">Identificación</th>
-            <th width="13% ">Contrato</th>
-            <th width="12% "">IdNomina</th>
+        <tr >
+            <th width="30%">Prueba</th>
+            <th width="30%" >Identificación</th>
+            <th width="20%">Contrato</th>
+            <th width="20%">IdNomina</th>
         </tr>
         <tr>
-            <td>{{ datos.monto }}</td>
-            <td>{{ datos.monto }}</td>
-            <td>{{ datos.monto }}</td>
-            <td>{{ datos.monto }}</td>
+            <td style="font-size: 18px;">{{ titulo }}</td>
+            <td>{{ titulo }}</td>
+            <td>{{ titulo }}</td>
+            <td>{{ titulo }}</td>
         </tr>
     </table>
 
@@ -85,10 +92,10 @@
             <th width="20%">Cuenta</th>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{ titulo }}</td>
+            <td>{{ titulo }}</td>
+            <td>{{ titulo }}</td>
+            <td>{{ titulo }}</td>
         </tr>
     </table>
 
@@ -100,10 +107,10 @@
             <th width="20%">Pensión</th>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{ titulo }}</td>
+            <td>{{ titulo }}</td>
+            <td>{{ titulo }}</td>
+            <td>{{ titulo }}</td>
         </tr>
     </table>
 
@@ -146,8 +153,4 @@
         </tr>
     </table>
 </body>
-<form action="{% url 'employees:descargar_recibo' %}" method="post">
-    {% csrf_token %}
-    <input type="submit" value="Descargar Recibo">
-</form>
 </html>
