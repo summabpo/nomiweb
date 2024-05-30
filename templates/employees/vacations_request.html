@@ -1,4 +1,16 @@
 {% extends 'base/base_employees.html' %}
+<style>
+    .estado-pendiente {
+        background-color: yellow;
+    }
+    .estado-aprobado {
+        background-color: green;
+    }
+    .estado-rechazado {
+        background-color: red;
+    }
+    
+</style>
 {% load crispy_forms_tags %}
 
 {% block title %} Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias {% endblock %} 
@@ -17,7 +29,7 @@
     </div>
     <div class="bg-primary text-white mb-3 p-3" style="width: 16rem; height: 9rem; border-radius: 0.25rem; display: flex; flex-direction: column; justify-content: space-around;">
         <div style="font-size: 1.2rem;text-align: center;">Vacaciones a la Fecha</div>
-        <div style="font-size: 2.5rem; text-align: center;">20</div>
+        <div style="font-size: 2.5rem; text-align: center;">77</div>
     </div>
     <div class="bg-success text-white mb-3 p-3" style="width: 16rem; height: 9rem; border-radius: 0.25rem; display: flex; flex-direction: column; justify-content: space-around;">
         <div style="font-size: 1.2rem;text-align: center;">Licencias</div>
@@ -54,7 +66,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-info" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-info" data-bs-dismiss="modal">Cerrar</button>
                 <button type="submit" form="vacation-form" class="btn btn-info">Enviar Solicitud</button>
             </div>
         </div>
@@ -71,26 +83,41 @@
                     <table class="table table-rounded table-striped border gy-7 gs-7">
                         <thead>
                             <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
+                            <th width="100"><b>Fecha</b></th>
                             <th width="100"><b>Tipo Solicitud</b></th>
                             <th width="50"><b>Fecha Inicial</b></th>
                             <th width="50"><b>Fecha Final</b></th>
                             <th width="50"><b>Dias Habiles</b></th>
                             <th width="50"><b>Dias Calendario</b></th>
-                            <th width="200"><b>Comentarios</b></th>
-                            <th width="20"><b>Aprobar</b></th>
-                            <th width="20"><b>Rechazar</b></th>
+                            <th width="50"><b>Estado</b></th>
+                            <th width="200"><b>Comentarios Emp.</b></th>
+                            <th width="20"><b>Comentarios GGHH</b></th>
+                            <th width="20"><b>Editar</b></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for e in vacation_list %}
                             <tr>
+                                <td>{{ e.fecha_hora|date:"d-m-Y" }}</td>
                                 <td>{{ e.tipovac.nombrevacaus }}</td>
-                                <td>{{ e.fechainicialvac }}</td>
-                                <td>{{ e.fechafinalvac }}</td>
+                                <td>{{ e.fechainicialvac|date:"d-m-Y" }}</td>
+                                <td>{{ e.fechafinalvac|date:"d-m-Y" }}</td>
                                 <td>{{ e.diasvac }}</td>
                                 <td>{{ e.diascalendario }}</td>
+                                <td> class="{% if estado == 1 %}estado-pendiente{% endif %}"</td>
+                                {% if estado == 1 %}
+                                    Pendiente
+                                {% elif estado == 2 %}
+                                    Aprobado
+                                {% elif estado == 3 %}
+                                    Rechazado
+                                {% elif estado == 4 %}
+                                    Completado
+                                {% else %}
+                                    Desconocido
+                                {% endif %}
                                 <td>{{ e.comentarios }}</td>
-                                <td><a class="btn btn-warning btn-sm" href="" target="_blank"></a></td>
+                                <td>{{ e.comentarios2 }}</td>
                                 <td><a class="btn btn-danger btn-sm" href="" target="_blank"></a></td>
                             </tr>
                             {% endfor %}
