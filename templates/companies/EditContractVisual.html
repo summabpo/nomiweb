@@ -15,7 +15,11 @@ ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"
 {% endblock %}
 
 {% block titulo2 %} 
-    Editar Contrato - {{DicContract.Empleado}}
+<div style="display: grid;">
+    <h3>Contrato</h3>
+    <h4>{{DicContract.Empleado}}</h4>
+</div>
+    
 {% endblock %}
 
 
@@ -31,7 +35,9 @@ ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"
 
 
 {% block content %}
-
+<button class="btn btn-light-primary" id="backButton">
+    Regresar
+</button>
     {% crispy form %}
 
 {% endblock %}
@@ -39,6 +45,11 @@ ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"
 
 
 {% block js %}
+<script>
+    document.getElementById('backButton').addEventListener('click', function() {
+        window.history.back();
+    });
+</script>
 {% endblock %}
 
 

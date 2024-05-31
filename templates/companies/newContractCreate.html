@@ -1,21 +1,23 @@
 {% extends 'base/base_companies.html' %}
 {% load crispy_forms_tags %}
 
-
 {% block title %} Nomiweb.co - Portal Empresas - Nuevo Empleado {% endblock %}
 
 {% block css %} 
+<style>
+    #backButton {
+        margin-left: auto;
+        display: block;
+    }
+</style>
 {% endblock %}
 
 {% block cssarch %}
 {% endblock %}
 
-
-
 {% block sub_titulo1 %} 
     empleados
 {% endblock %}
-
 
 {% block  sub_titulo2%} 
     Nuevo Contrato
@@ -25,38 +27,25 @@
     Nuevo Contrato
 {% endblock %}
 
-
 {% block content %}
+<div style="display: flex;">
+    <button class="btn btn-light-primary" id="backButton">
+        Regresar
+    </button>
+</div>
+
 <main class="flex-grow-1 content">  
     {% crispy form %}
 </main>
+
+
+
 {% endblock %}
 
 {% block js %}
+<script>
+    document.getElementById('backButton').addEventListener('click', function() {
+        window.history.back();
+    });
+</script>
 {% endblock %}
-
-
-{% comment %} Clave: csrfmiddlewaretoken, Valor: dxsA878AmMXP1oDcDOB6K4UfrlFFEvn2sUl1B7v1DvkqlYSnehP9qQVCQ2YRPNXv
-Clave: endDate, Valor: 2024-04-04
-Clave: payrollType, Valor: Cesantias
-Clave: position, Valor: AUXILIAR ADMINISTRATIVO
-Clave: workLocation, Valor: 779
-Clave: contractStartDate, Valor: 2024-04-12
-Clave: contractType, Valor: 3
-Clave: contractModel, Valor: Pasante
-Clave: salary, Valor: 154875
-Clave: salaryType, Valor: 2
-Clave: salaryMode, Valor: 3
-Clave: livingPlace, Valor: on
-Clave: paymentMethod, Valor: 2
-Clave: bankAccount, Valor: BANCO AV VILLAS
-Clave: accountType, Valor: corriente
-Clave: payrollAccount, Valor: 46523
-Clave: costCenter, Valor: 102
-Clave: subCostCenter, Valor: 0
-Clave: eps, Valor: EPS001
-Clave: pensionFund, Valor: 25-2
-Clave: CesanFund, Valor: CCF05
-Clave: arlWorkCenter, Valor: 1
-Clave: workPlace, Valor: 1
-Clave: submit, Valor: Guardar Contrato {% endcomment %}
