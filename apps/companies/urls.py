@@ -35,7 +35,7 @@ urlpatterns = [
     path('employees/new/contract',newContract.newContractVisual ,name='newcontractvisual'),
     path('employees/new/contract/<str:idempleado>',newContract.newContractCreater ,name='newcontractcreater'),
 
-    path('employees/edit/contract',editContract.EditContracsearch , name='editcontracsearch'),
+    
     path('employees/edit/contract/<str:idempleado>',editContract.EditContracVisual , name='editcontracvisual'),
     
     
