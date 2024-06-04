@@ -7,8 +7,8 @@ from django.contrib import messages
 from apps.components.decorators import custom_login_required ,custom_permission
 
 
-@custom_login_required
-@custom_permission('entrepreneur')
+# @custom_login_required
+# @custom_permission('entrepreneur')
 def EditContracsearch(request):
     contratos_empleados = Contratos.objects \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
@@ -39,8 +39,8 @@ def EditContracsearch(request):
     
     return render(request, './companies/EditContractSearch.html',{'empleados':empleados})
 
-@custom_login_required
-@custom_permission('entrepreneur')
+# @custom_login_required
+# @custom_permission('entrepreneur')
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.get(idempleado=int(idempleado)) 
     contrato = Contratos.objects.get(idempleado=idempleado, estadocontrato=1)
@@ -135,5 +135,6 @@ def EditContracVisual(request,idempleado):
         form = ContractForm(initial=initial_data)
         premium = request.GET.get('premium', False)
         form.set_premium_fields2(premium=premium)  
+        form.set_premium_fields(premium=premium) 
         
     return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
