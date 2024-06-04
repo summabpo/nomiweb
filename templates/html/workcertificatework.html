@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Certificación Laboral - {{empresa}}</title>
+    <style>
+        @page {
+            size: letter; /* Puedes ajustar el tamaño aquí */
+            margin: 1cm; /* Ajusta los márgenes según sea necesario */
+        }
+
+        body {
+            width: 740px;
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            font-size: 18px;
+            color: #000;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .header .image-container {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        .header img {
+            width: 20%;
+        }
+
+        .header div {
+            text-align: center;
+        }
+
+        .header hr {
+            border: none;
+            border-top: 2px solid black;
+            margin: 10px 0;
+        }
+
+        .header a {
+            text-decoration: none;
+        }
+
+        .cert-info {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .cert-info p {
+            margin: 5px 0;
+        }
+
+        .cert-body {
+            margin: 20px 0;
+        }
+
+        .cert-body p {
+            margin: 5px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid black;
+            margin: 20px 0;
+        }
+
+        .cert-certi {
+            text-align: right;
+            padding: 0;
+            line-height: 1;
+            margin-top: 20px;
+        }
+
+        .firma {
+            padding: 0;
+            line-height: 1;
+        }
+
+        .data {
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .img-firma {
+            border: none;
+            border-top: 2px solid black;
+            margin: 20px 0;
+            width: 40%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="image-container">
+            <img src="static/img/{{logo}}" alt="Logo empresa">
+        </div>
+        <div>
+            <p>{{empresa}}</p>
+            <p>806003042</p>
+            <a href="http://{{web}}">{{web}}</a>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="cert-info">
+        <h1>Certificación Laboral</h1>
+        <div class="cert-certi">
+            <p>Certificado #: 17-597</p>
+            <p>Código de validación: {{ codigo }}</p>
+        </div>
+        <br>
+    </div>
+
+    <div class="cert-body">
+        <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
+        <p>Tiene un sueldo básico mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
+        <p>La presente certificación se expide con destino a: .</p>
+        <p>Puede verificar la validez de esta certificación en el email, recursoshumanos.bog@lecta.com.co, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
+        <br>
+        <p>Fecha de expedición de esta certificación: 2022-07-22</p>
+    </div>
+
+    <div class="firma">
+        <div class="img-firma">
+            <hr>
+        </div>
+
+        <div class="data">
+            <p>Carlos Gonzalez</p>
+            <p>Gerente de Proyecto</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>N.I.T. 806003042 - Dirección: Cra. 23 no 69-32, BOGOTA, D.C. - Teléfono: 3003997 - email: <a href="mailto:info@lecta.com.co">info@lecta.com.co</a></p>
+    </div>
+</body>
+
+</html>

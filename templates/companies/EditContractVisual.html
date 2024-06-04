@@ -15,7 +15,11 @@ ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"
 {% endblock %}
 
 {% block titulo2 %} 
-    Editar Contrato - {{DicContract.Empleado}}
+<div style="display: grid;">
+    <h3>Contrato</h3>
+    <h4>{{DicContract.Empleado}}</h4>
+</div>
+    
 {% endblock %}
 
 
@@ -31,14 +35,39 @@ ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"
 
 
 {% block content %}
-
+<button class="btn btn-light-primary" id="backButton">
+    Regresar
+</button>
     {% crispy form %}
-
 {% endblock %}
 
 
 
 {% block js %}
+<script>
+    document.getElementById('backButton').addEventListener('click', function() {
+        window.history.back();
+    });
+</script>
+
+<script>
+
+    // Element to indecate
+    var button = document.querySelector("#kt_button_1");
+
+    // Handle button click event
+    button.addEventListener("click", function() {
+        // Activate indicator
+        button.setAttribute("data-kt-indicator", "on");
+
+        // Disable indicator after 3 seconds
+        setTimeout(function() {
+            button.removeAttribute("data-kt-indicator");
+        }, 15000);
+    });
+
+</script>
+
 {% endblock %}
 
 

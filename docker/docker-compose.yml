@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  django_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - updater_app
+
+  updater_app:
+    build:
+      context: ./updater
+      dockerfile: Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - REPO_URL=https://github.com/manuelberdugo13/nomiweb.git
+      - IMAGE_NAME=nomiweb1

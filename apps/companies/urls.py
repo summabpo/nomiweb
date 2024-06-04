@@ -15,7 +15,7 @@ from .views.loginweb import loginweb
 from .views.payrollsheet import payrollsheet
 from .views.assetsview import assetsview
 from .views.birthday import birthday
-
+from .views.workcertificate import workcertificate
 
 from .views.index import index
 
@@ -37,6 +37,11 @@ urlpatterns = [
 
     path('employees/edit/contract',editContract.EditContracsearch , name='editcontracsearch'),
     path('employees/edit/contract/<str:idempleado>',editContract.EditContracVisual , name='editcontracvisual'),
+    
+    
+    path('employees/workcertificate/',workcertificate.workcertificate , name='workcertificate'),
+    path('employees/cargar_contratos/', workcertificate.cargar_contratos_view, name='cargar_contratos'),
+    path('employees/workcertificate/generar_pdf/',workcertificate.generateworkcertificate , name='generateworkcertificate'),
     
     
     path('employees/birthday',birthday.BirthdayView.as_view() , name='birthdayview'),

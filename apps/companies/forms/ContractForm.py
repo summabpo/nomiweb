@@ -53,7 +53,7 @@ class ContractForm(forms.Form):
             field = self.fields.get(field_name)
             if field:
                 field.disabled = not premium
-                field.required = premium
+                
         
 
     def set_premium_fields2(self, premium=False):
@@ -68,7 +68,6 @@ class ContractForm(forms.Form):
         for field_name in fields_to_adjust:
             field = self.fields.get(field_name)
             if field:
-                field.disabled = not premium
                 field.required = premium
                 
                 
@@ -177,11 +176,18 @@ class ContractForm(forms.Form):
                 Div('workPlace', css_class='col'),
                 #Div('arlWorkCenter', css_class='col'),
                 css_class='row'
-            ),
-            
-            Div(
-                Submit('submit', 'Guardar Contrato', css_class='btn btn-primary'),
-                css_class='row justify-content-center'
+            ),Div(
+                HTML('''
+                <button type="submit" class="btn btn-primary me-10" id="kt_button_1">
+                    <span class="indicator-label">
+                        Actualizar Contrato
+                    </span>
+                    <span class="indicator-progress">
+                        Espere por favor... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
+                </button>
+            '''),
+                css_class='row'
             )
         )
         
