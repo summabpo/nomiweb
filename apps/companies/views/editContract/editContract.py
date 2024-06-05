@@ -7,37 +7,7 @@ from django.contrib import messages
 from apps.components.decorators import custom_login_required ,custom_permission
 
 
-# @custom_login_required
-# @custom_permission('entrepreneur')
-def EditContracsearch(request):
-    contratos_empleados = Contratos.objects \
-        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
-        .filter(estadocontrato=1) \
-        .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__sapellido','idempleado__pnombre',
-                'idempleado__snombre', 'fechainiciocontrato', 'cargo', 'idempleado__direccionempleado',
-                'ciudadcontratacion__ciudad','idempleado__celular','idempleado__email','idempleado__idempleado')
 
-    empleados = []
-    for contrato in contratos_empleados:
-        nombre_empleado = f"{contrato['idempleado__papellido']} {contrato['idempleado__sapellido']}  {contrato['idempleado__pnombre']} {contrato['idempleado__snombre']}"
-        contrato_data = {
-            'documento': contrato['idempleado__docidentidad'],
-            'nombre': nombre_empleado,
-            'fechainiciocontrato': contrato['fechainiciocontrato'],
-            'cargo': contrato['cargo'],
-            'dirección': contrato['idempleado__direccionempleado'],
-            'ciudad': contrato['ciudadcontratacion__ciudad'],
-            'celular': contrato['idempleado__celular'],
-            'mail': contrato['idempleado__email'],
-            'id':contrato['idempleado__idempleado'],
-        }
-
-        empleados.append(contrato_data)
-    
-    
-    
-    
-    return render(request, './companies/EditContractSearch.html',{'empleados':empleados})
 
 # @custom_login_required
 # @custom_permission('entrepreneur')
@@ -122,7 +92,7 @@ def EditContracVisual(request,idempleado):
             except Exception as e:
                 messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
                 messages.error(request, messages_error)
-                return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
+                return redirect('companies:startcompanies',idempleado=empleado.idempleado)
         else: 
             for field, errors in form.errors.items():
                 for error in errors:

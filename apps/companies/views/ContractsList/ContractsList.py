@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.companies.models import Contratos , Contratosemp
+from apps.companies.models import Contratos , Contratosemp , Ciudades
 from apps.components.decorators import custom_login_required ,custom_permission
 from openpyxl import Workbook
 from django.http import HttpResponse
@@ -42,6 +42,9 @@ def startCompanies(request):
 
 
 def exportar_excel1(request):
+    
+    citys = Ciudades.objects.all()
+    
     contratos_empleados = Contratos.objects\
         .select_related(
             'idempleado', 
@@ -93,13 +96,29 @@ def exportar_excel1(request):
         'Documento', 'Nombre', 'Fecha Inicio Contrato', 'Cargo', 'Salario',
         'Centro de Costos', 'Tipo de Contrato', 'Tarifa ARL', 'Fecha Fin Contrato',
         'Tipo Nomina', 'Banco Cuenta', 'Cuenta Nomina', 'Tipo Cuenta Nomina', 'EPS', 'Pension',
-        'Caja Compensacion', 'Centro Trabajo', 'Ciudad Contratacion ', 'Fondo Cesantias',
-        'Forma Pago', 'Tipo Salario','Jornada', 'Modelo', 'Codigo Departamento',
-        'Codigo Ciudad'
+        'Caja Compensacion', 'Ciudad Contratacion ', 'Fondo Cesantias',
+        'Forma Pago', 'Tipo Salario', 'Modelo', 'Departamento',
+        'Ciudad'
     ])
 
     # Escribir los datos
     for contrato in contratos_empleados:
+        try:
+            if contrato[24] and contrato[25]:  # Verifica si ambos campos no están vacíos
+                ciudad = next((ciudad for ciudad in citys if ciudad.codciudad == contrato[24] and ciudad.idciudad == contrato[25]), None)
+                if ciudad:
+                    departamento = ciudad.departamento
+                    ciudad = ciudad.ciudad
+        except ValueError as e:
+            departamento = ""
+            ciudad = ""
+        except IndexError:
+            departamento = ""
+            ciudad = ""
+
+
+        
+        
         nombre_empleado = f"{contrato[1]} {contrato[2]} {contrato[3]}"
         salario = "{:,.0f}".format(contrato[6]).replace(',', '.')
         hoja.append([
@@ -107,8 +126,8 @@ def exportar_excel1(request):
             contrato[5], salario, contrato[7], contrato[8],
             contrato[9], contrato[10], contrato[11],
             contrato[12], contrato[13], contrato[14], contrato[15], contrato[16], contrato[17],
-            contrato[18], contrato[19], contrato[20], contrato[21], contrato[22], contrato[23],
-            contrato[24], contrato[25]
+            contrato[18], contrato[19], contrato[21], contrato[22], contrato[23],
+            departamento , ciudad 
         ])
 
     # Guardar el libro de trabajo en memoria
@@ -129,6 +148,8 @@ def exportar_excel1(request):
 
 
 def exportar_excel2(request):
+    
+    citys = Ciudades.objects.all()
     contratosemp_empleados = Contratosemp.objects.filter(estadocontrato=1).values_list(
         'docidentidad', 'tipodocident', 'pnombre', 'snombre', 'papellido', 'sapellido', 'fechanac',
         'ciudadnacimiento', 'telefonoempleado', 'direccionempleado', 'sexo', 'email', 
@@ -149,7 +170,7 @@ def exportar_excel2(request):
         'País de Nacimiento', 'País de Residencia', 'Celular', 'Profesión', 'Nivel Educativo', 
         'Grupo Sanguíneo', 'Estatura', 'Peso', 'Fecha de Expedición', 'Ciudad de Expedición', 
         'Talla Pantalón', 'Talla Camisa', 'Talla Zapatos', 'Estrato', 'Número de Libreta Militar', 
-        'Estado del Contrato', 'Formato de Hoja de Vida'
+        'Estado del Contrato'
     ])
 
     # Escribir los datos
@@ -158,7 +179,7 @@ def exportar_excel2(request):
         
         # Convertir y formatear las fechas
         fechanac = contrato[6]
-        fechaexpedicion = contrato[22]
+        fechaexpedicion = contrato[23]
         
         if isinstance(fechanac, str):
             try:
@@ -175,15 +196,59 @@ def exportar_excel2(request):
         fechanac = fechanac.strftime('%Y-%m-%d') if fechanac else ''
         fechaexpedicion = fechaexpedicion.strftime('%Y-%m-%d') if fechaexpedicion else ''
 
+        
+        # ciudades 
+        
+        try:
+            if contrato[7] :  # Verifica si ambos campos no están vacíos
+                ciudad = next((ciudad for ciudad in citys if ciudad.idciudad == contrato[7] ), None)
+                if ciudad:
+                    ciudad1 = ciudad.ciudad
+                else:
+                    ciudad1 = ""
+        except ValueError as e:
+            ciudad1 = ""
+        except IndexError:
+            ciudad1 = ""
+        
+        
+        try:
+            if contrato[12] :  # Verifica si ambos campos no están vacíos
+                ciudad = next((ciudad for ciudad in citys if ciudad.idciudad == contrato[12] ), None)
+                if ciudad:
+                    ciudad2 = ciudad.ciudad
+                else:
+                    ciudad2 = ""
+        except ValueError as e:
+            ciudad2 = ""
+        except IndexError:
+            ciudad2 = ""
+        
+        
+        try:
+            if contrato[24] :  # Verifica si ambos campos no están vacíos
+                ciudad = next((ciudad for ciudad in citys if ciudad.idciudad == contrato[24] ), None)
+                if ciudad:
+                    ciudad3 = ciudad.ciudad
+                else:
+                    ciudad3 = ""
+        except ValueError as e:
+            ciudad3 = ""
+        except IndexError:
+            ciudad3 = ""
+            
         # Agregar datos a la hoja
+        
+        
+        
         hoja.append([
-            contrato[0], contrato[1], nombre_empleado, fechanac, contrato[7], contrato[8], contrato[9], 
-            contrato[10], contrato[11], contrato[12], contrato[13], contrato[14], contrato[15], 
+            contrato[0], contrato[1], nombre_empleado, fechanac, ciudad1, contrato[8], contrato[9], 
+            contrato[10], contrato[11], ciudad2, contrato[13], contrato[14], contrato[15], 
             contrato[16], contrato[17], contrato[18], contrato[19], contrato[20], contrato[21], 
-            contrato[22], fechaexpedicion, contrato[23], contrato[24], contrato[25], contrato[26], 
-            contrato[27], contrato[28], contrato[29], contrato[30]
+            contrato[22], fechaexpedicion, ciudad3, contrato[25], contrato[26], 
+            contrato[27], contrato[28], contrato[29],contrato[30]
         ])
-
+        
     # Guardar el libro de trabajo en memoria
     output = BytesIO()
     workbook.save(output)
@@ -193,6 +258,87 @@ def exportar_excel2(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename=contratos_activos.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=hojas de vida.xlsx'
     response.write(output.getvalue())
     return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
