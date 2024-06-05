@@ -8,6 +8,8 @@ from django.http import JsonResponse
 
 
 
+
+
 # paso 1 filtrado de personal              #
 # paso 2 generar nuevo certificado         #
 # paso 3 descargar                         #
