@@ -1,21 +1,27 @@
 {% extends 'base/base_employees.html' %}
-<style>
-    .estado-pendiente {
-        background-color: yellow;
-    }
-    .estado-aprobado {
-        background-color: green;
-    }
-    .estado-rechazado {
-        background-color: red;
-    }
-    
-</style>
+
 {% load crispy_forms_tags %}
 
 {% block title %} Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias {% endblock %} 
 
 {% block content %}
+<style>
+    .table-custom-pendiente {
+        background-color: #7ccbec !important;
+        color: white !important;
+        text-align: center !important;
+    }
+    .table-custom-aprobado {
+        background-color:  #d12c88 !important;
+        color: white !important;
+        text-align: center !important;
+    }
+    .table-custom-rechazado {
+        background-color: #5050bc !important;
+        color: white !important;
+        text-align: center !important;
+    }
+</style>
 
 <!---CARDS INDICADORES---->
 <div class="d-flex justify-content-around flex-wrap" style="width: 100%;">
@@ -80,9 +86,9 @@
     <h3 class="text-center"> Historial de Solicitudes de Vacaciones / Licencias </h3>
                 
                 <div class="table-responsive">
-                    <table class="table table-rounded table-striped border gy-7 gs-7">
+                    <table class="table table-row-dashed table-row-gray-300 gy-7">
                         <thead>
-                            <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
+                            <tr class="fw-bold fs-6 text-gray-800 text-align: center">
                             <th width="100"><b>Fecha</b></th>
                             <th width="100"><b>Tipo Solicitud</b></th>
                             <th width="50"><b>Fecha Inicial</b></th>
@@ -90,34 +96,29 @@
                             <th width="50"><b>Dias Habiles</b></th>
                             <th width="50"><b>Dias Calendario</b></th>
                             <th width="50"><b>Estado</b></th>
-                            <th width="200"><b>Comentarios Emp.</b></th>
-                            <th width="20"><b>Comentarios GGHH</b></th>
                             <th width="20"><b>Editar</b></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for e in vacation_list %}
                             <tr>
-                                <td>{{ e.fecha_hora|date:"d-m-Y" }}</td>
+                                <td>{{ e.fecha_hora|date:"d-m-y" }}</td>
                                 <td>{{ e.tipovac.nombrevacaus }}</td>
-                                <td>{{ e.fechainicialvac|date:"d-m-Y" }}</td>
-                                <td>{{ e.fechafinalvac|date:"d-m-Y" }}</td>
+                                <td>{{ e.fechainicialvac|date:"d-m-y" }}</td>
+                                <td>{{ e.fechafinalvac|date:"d-m-y" }}</td>
                                 <td>{{ e.diasvac }}</td>
                                 <td>{{ e.diascalendario }}</td>
-                                <td> class="{% if estado == 1 %}estado-pendiente{% endif %}"</td>
-                                {% if estado == 1 %}
-                                    Pendiente
-                                {% elif estado == 2 %}
-                                    Aprobado
-                                {% elif estado == 3 %}
-                                    Rechazado
-                                {% elif estado == 4 %}
-                                    Completado
-                                {% else %}
-                                    Desconocido
-                                {% endif %}
-                                <td>{{ e.comentarios }}</td>
-                                <td>{{ e.comentarios2 }}</td>
+                                <td class="{% if e.estado == 1 %}table-custom-pendiente{% elif e.estado == 2 %}table-custom-aprobado{% elif e.estado == 3 %}table-custom-rechazado{% endif %}">
+                                    {% if e.estado == 1 %}
+                                        Pendiente
+                                    {% elif e.estado == 2 %}
+                                        Aprobado
+                                    {% elif e.estado == 3 %}
+                                        Rechazado
+                                    {% else %}
+                                        Desconocido
+                                    {% endif %}
+                                </td>
                                 <td><a class="btn btn-danger btn-sm" href="" target="_blank"></a></td>
                             </tr>
                             {% endfor %}

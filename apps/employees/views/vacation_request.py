@@ -25,10 +25,19 @@ def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados):
         dia_actual += timedelta(days=1)
     return total_dias
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
 def vacation_request_function(request):
     ide = request.session.get('idempleado')
 
-    contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
+    #contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
+    contrato = Contratos.objects.select_related('idempleado').filter(idempleado=ide, estadocontrato=1).first()
     if contrato:
         idc = contrato.idcontrato
     else:
@@ -57,6 +66,7 @@ def vacation_request_function(request):
 
         vacation_request = form.save(commit=False)
         vacation_request.estado = 1
+        vacation_request.ip_usuario = get_client_ip(request)
         vacation_request.fecha_hora = datetime.now()
         vacation_request.diascalendario = diascalendario
         vacation_request.diasvac = diasvac
@@ -65,7 +75,9 @@ def vacation_request_function(request):
 
     dias_vacaciones = Vacaciones.objects.filter(idcontrato=idc).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
 
-    vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
+    #vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
+
+    vacation_list = EmpVacaciones.objects.select_related('idcontrato').filter(idcontrato=idc).order_by('-id_sol_vac')
 
     context = {
         'form': form,
