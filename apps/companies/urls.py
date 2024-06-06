@@ -41,6 +41,8 @@ urlpatterns = [
     path('employees/workcertificate/',workcertificate.workcertificate , name='workcertificate'),
     path('employees/cargar_contratos/', workcertificate.cargar_contratos_view, name='cargar_contratos'),
     path('employees/workcertificate/generar_pdf/',workcertificate.generateworkcertificate , name='generateworkcertificate'),
+    path('employees/workcertificate/generar_pdf/',workcertificate.certificatedownload , name='certificatedownload'),
+
     
     
     path('employees/birthday',birthday.BirthdayView.as_view() , name='birthdayview'),

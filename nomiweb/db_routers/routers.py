@@ -1,39 +1,44 @@
-from django.db import connection, OperationalError
+from django.db import connections, OperationalError
 from apps.login.middlewares import NombreDBSingleton
+from functools import lru_cache
 
 class DatabaseRouter:
-    def table_exists(self, table_name, db_alias):
+    def __init__(self):
+        self.nombre_db_singleton = NombreDBSingleton()
+
+    @lru_cache(maxsize=None)
+    def table_exists(self, table_name, db_alias='default'):
         """
         Verifica si una tabla existe en la base de datos especificada.
         """
         try:
-            with connection.cursor() as cursor:
+            with connections[db_alias].cursor() as cursor:
                 cursor.execute("SELECT * FROM information_schema.tables WHERE table_name = %s", [table_name])
                 return bool(cursor.fetchone())
         except OperationalError:
             return False
 
-    def db_for_read(self, model, **hints):
+    def _determine_db(self, model):
         """
-        Devuelve el nombre de la base de datos a utilizar para operaciones de lectura.
+        Determina el nombre de la base de datos a utilizar para una operación.
         """
-        
-        nombre_db = NombreDBSingleton().get_nombre_db()
-        if self.table_exists(model._meta.db_table, 'default'):
+        nombre_db = self.nombre_db_singleton.get_nombre_db()
+        if self.table_exists(model._meta.db_table):
             return 'default'
         else:
             return nombre_db
 
+    def db_for_read(self, model, **hints):
+        """
+        Devuelve el nombre de la base de datos a utilizar para operaciones de lectura.
+        """
+        return self._determine_db(model)
+
     def db_for_write(self, model, **hints):
         """
         Devuelve el nombre de la base de datos a utilizar para operaciones de escritura.
-        
         """
-        nombre_db = NombreDBSingleton().get_nombre_db()
-        if self.table_exists(model._meta.db_table, 'default'):
-            return 'default'
-        else:
-            return nombre_db
+        return self._determine_db(model)
 
     def allow_relation(self, obj1, obj2, **hints):
         """

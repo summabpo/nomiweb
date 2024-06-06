@@ -61,8 +61,15 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    
+    
+    ## debug 
+    'debug_toolbar',
 ]
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
 
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
@@ -79,6 +86,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.login.middlewares.DatabaseRouterMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 

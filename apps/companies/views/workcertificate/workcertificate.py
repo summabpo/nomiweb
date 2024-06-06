@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from io import BytesIO
 from xhtml2pdf import pisa
 from django.http import JsonResponse
-from apps.components.workcertificategenerator import workcertificategenerator
+from apps.components.workcertificategenerator import workcertificategenerator , workcertificatedownload
 from django.contrib import messages
 from apps.employees.models import Certificaciones
 
@@ -17,12 +17,20 @@ from apps.employees.models import Certificaciones
 # paso 3 descargar                         #
 
 
-def workcertificate(request):    
-    certi_all = Certificaciones.objects.all()
 
+def workcertificate(request):
+    selected_empleado = request.GET.get('empleado')
+    
+    if selected_empleado:
+        certi_all = Certificaciones.objects.filter(idempleado=selected_empleado).select_related('idempleado')
+        contratos = Contratos.objects.filter(idempleado=selected_empleado)
+    else:
+        certi_all = Certificaciones.objects.all().select_related('idempleado')
+        contratos = None
+    
     empleados = []
     for certi in certi_all:
-        nombre_empleado = f"{certi.idempleado.papellido} {certi.idempleado.pnombre}  {certi.idempleado.snombre}" 
+        nombre_empleado = f"{certi.idempleado.papellido} {certi.idempleado.pnombre} {certi.idempleado.snombre}" 
         salario = "{:,.0f}".format(certi.salario).replace(',', '.')
         
         certi_data = {
@@ -36,36 +44,10 @@ def workcertificate(request):
             'promedio': certi.promediovariable,
         }
 
-        empleados.append(certi_data)   
-    
+        empleados.append(certi_data)
     
     empleados_select = Contratosemp.objects.all()
-    
-    # Si hay un empleado seleccionado, cargar sus contratos
-    contratos = None
-    selected_empleado = request.GET.get('empleado')
-    if selected_empleado:
-        contratos = Contratos.objects.filter(idempleado=selected_empleado)
-        certi_all = Certificaciones.objects.filter(idempleado=selected_empleado)
-        
-        empleados = []
-        for certi in certi_all:
-            nombre_empleado = f"{certi.idempleado.papellido} {certi.idempleado.pnombre}  {certi.idempleado.snombre}" 
-            salario = "{:,.0f}".format(certi.salario).replace(',', '.')
-            
-            certi_data = {
-                'idcert': certi.idcert,
-                'empleado': nombre_empleado,
-                'destino': certi.destino,
-                'Salario': salario,
-                'fecha': certi.fecha,
-                'cargo': certi.cargo,
-                'tipo': certi.tipocontrato,
-                'promedio': certi.promediovariable,
-            }
 
-            empleados.append(certi_data)  
-    
     context = {
         'empleados_select': empleados_select,
         'contratos': contratos,
@@ -74,7 +56,7 @@ def workcertificate(request):
     }
     
     return render(request, 'companies/workcertificate.html', context)
-    
+
 
 
 def cargar_contratos_view(request):
@@ -111,6 +93,28 @@ def generateworkcertificate(request):
             response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
             
             return response
+    
+    except Exception as e:
+        messages.error(request, 'Ocurrio un error inesperado')
+        return redirect('companies:workcertificate')
+    
+    
+def certificatedownload(request,idcert):
+    try:
+        context = workcertificatedownload(idcert)
+        html_string = render(request, './html/workcertificatework.html', context).content.decode('utf-8')
+        
+        pdf = BytesIO()
+        pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+        pdf.seek(0)
+
+        if pisa_status.err:
+            return HttpResponse('Error al generar el PDF', status=400)
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
+        
+        return response
     
     except Exception as e:
         messages.error(request, 'Ocurrio un error inesperado')
