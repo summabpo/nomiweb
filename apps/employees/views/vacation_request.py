@@ -4,8 +4,7 @@ from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos
 from datetime import timedelta, datetime
 
-
-def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados):
+def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
     """
     Calcula los días hábiles entre dos fechas.
     Si cuentasabados es 1, incluye los sábados. Los domingos nunca se cuentan.
@@ -14,12 +13,7 @@ def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados):
     total_dias = 0
     dia_actual = fechainicialvac
 
-    # Obtener todos los días festivos
-    dias_festivos = Festivos.objects.values_list('dia', flat=True)
-
     while dia_actual <= fechafinalvac:
-        # Si el día actual no es domingo (6) y no es festivo
-        # O es sábado (5) y cuentasabados es 1 y no es festivo
         if (dia_actual.weekday() != 6 and dia_actual not in dias_festivos) and (dia_actual.weekday() != 5 or cuentasabados == 1):
             total_dias += 1
         dia_actual += timedelta(days=1)
@@ -28,20 +22,13 @@ def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados):
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
+        return x_forwarded_for.split(',')[0]
+    return request.META.get('REMOTE_ADDR')
 
 def vacation_request_function(request):
     ide = request.session.get('idempleado')
-
-    #contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
-    contrato = Contratos.objects.select_related('idempleado').filter(idempleado=ide, estadocontrato=1).first()
-    if contrato:
-        idc = contrato.idcontrato
-    else:
-        idc = None
+    contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
+    idc = contrato.idcontrato if contrato else None
 
     form = EmpVacacionesForm(request.POST or None)
 
@@ -50,7 +37,7 @@ def vacation_request_function(request):
         tipovac = str(tipovac_obj.tipovac)
 
         if tipovac == '2':
-            diascalendario = form.cleaned_data.get('diascalendario')  # Usa el valor manual ingresado
+            diascalendario = form.cleaned_data.get('diascalendario')
             diasvac = diascalendario
         else:
             fechainicialvac = form.cleaned_data.get('fechainicialvac')
@@ -59,7 +46,8 @@ def vacation_request_function(request):
 
             if fechainicialvac and fechafinalvac:
                 diascalendario = (fechafinalvac - fechainicialvac).days + 1
-                diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados)
+                dias_festivos = Festivos.objects.values_list('dia', flat=True)
+                diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos)
             else:
                 form.add_error(None, 'Fechas de inicio y fin son requeridas.')
                 return render(request, 'employees/vacations_request.html', {'form': form})
@@ -75,9 +63,7 @@ def vacation_request_function(request):
 
     dias_vacaciones = Vacaciones.objects.filter(idcontrato=idc).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
 
-    #vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
-
-    vacation_list = EmpVacaciones.objects.select_related('idcontrato').filter(idcontrato=idc).order_by('-id_sol_vac')
+    vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
 
     context = {
         'form': form,
