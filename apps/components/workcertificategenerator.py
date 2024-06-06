@@ -3,7 +3,7 @@ import string
 import datetime
 from .datacompanies import datos_cliente
 from .dataemployees import datos_empleado
-from apps.employees.models import  Certificaciones, Nomina
+from apps.employees.models import  Certificaciones, Nomina ,Contratosemp
 from django.db.models import Q,Sum
 from django.utils import timezone
 import pytz
@@ -58,6 +58,9 @@ def workcertificategenerator(ide,destino ,modelo):
     datae = datos_empleado(ide)
     datac = datos_cliente()
     idc = datae['idc']
+    idemp = datae['ide']
+    empleado = Contratosemp.objects.get(idempleado=idemp)
+    print(empleado)
     
     fecha_actual = timezone.now().astimezone(zona_horaria)
     salario = datae['salario']
@@ -86,7 +89,7 @@ def workcertificategenerator(ide,destino ,modelo):
     cargo = datae['cargo']
     ide = datae['ide']
     nombre_contrato = datae['nombre_contrato']
-    certificacion = Certificaciones(destino=destino, idcontrato=idc, idempleado=ide, salario=salario_certificado, cargo=cargo, tipocontrato=nombre_contrato, codigoconfirmacion = codigo_confirmacion, promediovariable = tipo_certificado )
+    certificacion = Certificaciones(destino=destino, idcontrato=idc, idempleado=empleado, salario=salario_certificado, cargo=cargo, tipocontrato=nombre_contrato, codigoconfirmacion = codigo_confirmacion, promediovariable = tipo_certificado )
     certificacion.save()
     certificacion.fecha = fecha_actual
     certificacion.save()

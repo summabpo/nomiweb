@@ -153,7 +153,7 @@
                 <br />
             </div>
             <div class="cert-body">
-                {% if text == '1' %}
+                {% if tipo == '1' %}
                     <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
                     <p>Tiene un sueldo básico mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
                     <p>La presente certificación se expide con destino a:{{destino}} </p>
@@ -161,7 +161,7 @@
                     <br />
                     <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
 
-                {% elif text == '2' %}
+                {% elif tipo == '2' %}
                     <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
                     <p>Tiene un sueldo promedio mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
                     <p>La presente certificación se expide con destino a:{{destino}} </p>
@@ -169,7 +169,7 @@
                     <br />
                     <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
 
-                {% elif text == '3' %}
+                {% elif tipo == '3' %}
                     <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
                     <p>El tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
                     <p>La presente certificación se expide con destino a:{{destino}} </p>
@@ -178,7 +178,7 @@
                     <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
 
                 
-                {% elif text == '4' %}
+                {% elif tipo == '4' %}
                     <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }} hasta el {fechafincontrato} , desempeñando el cargo de <strong>{{ cargo }}</strong></p>
                     <p>El tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
                     <p>La presente certificación se expide con destino a:{{destino}} </p>

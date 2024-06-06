@@ -88,7 +88,6 @@ def cargar_contratos_view(request):
 
 def generateworkcertificate(request):
     
-    
     try:
         if request.method == 'POST':
             empleado_id = request.POST.get('empleado')
@@ -112,8 +111,11 @@ def generateworkcertificate(request):
             response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
             
             return response
+    
     except Exception as e:
         messages.error(request, 'Ocurrio un error inesperado')
         return redirect('companies:workcertificate')
+    
+    
 
 
