@@ -150,13 +150,8 @@ def workcertificategenerator(ide,destino ,modelo):
 
 def workcertificatedownload(idcert):
     datac = datos_cliente()
-    
     certificado = Certificaciones.objects.get(idcert = idcert)
     datae = datos_empleado(certificado.idcontrato)
-    
-    
-    
-    
     context = {
             ## empresa 
             'empresa':datac['nombre_empresa'],
