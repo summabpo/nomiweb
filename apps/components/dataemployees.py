@@ -1,0 +1,26 @@
+from apps.employees.models import Contratos, Contratosemp
+from django.db.models.functions import Concat
+from django.db.models import F, Value, CharField
+
+
+def datos_empleado(id_contrato=15):
+    
+    contrato = Contratos.objects.get(idcontrato=id_contrato)
+    empleado = Contratosemp.objects.filter(idempleado=contrato.idempleado_id).annotate(
+        nombre_letras=Concat(F('pnombre'), Value(' '), F('snombre'), Value(' '), 
+                                F('papellido'), Value(' '), F('sapellido'), output_field=CharField())
+                                ).values('nombre_letras').first()
+        
+    info_empleado = {
+        'nombre_completo': empleado['nombre_letras'], 
+        'fechainiciocontrato': contrato.fechainiciocontrato,
+        'fechafincontrato': contrato.fechafincontrato,
+        'cargo': contrato.cargo, 
+        'tipo_contrato': contrato.tipocontrato.idtipocontrato,
+        'nombre_contrato': contrato.tipocontrato.tipocontrato,
+        'docidentidad': contrato.idempleado.docidentidad ,
+        'salario': contrato.salario,
+        'idc': contrato.idcontrato,
+        'ide': contrato.idempleado_id
+    }
+    return info_empleado

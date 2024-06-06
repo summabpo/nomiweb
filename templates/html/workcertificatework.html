@@ -49,9 +49,7 @@
             align-items: center;
             margin-right: 20px;
         }
-        .header img {
-            width: 20%;
-        }
+        
         .header div {
             text-align: center;
         }
@@ -139,8 +137,8 @@
     <div id="content_content">
         <div class="header">
             <p>{{empresa}}</p>
-            <p>806003042</p>
-            <a href="http://{{web}}">{{web}}</a>
+            <p>{{nit}}</p>
+            <p href="http://{{web}}">{{web}}</p>
         </div>
         <hr />
         <div class="general-content">
@@ -149,18 +147,51 @@
             <div class="cert-info">
                 <h1>Certificación Laboral</h1>
                 <div class="cert-certi">
-                    <p>Certificado #: 17-597</p>
-                    <p>Código de validación: {{ codigo }}</p>
+                    <p>Certificado #: {{id_cliente}} - {{idcert}}</p>
+                    <p>Código de validación: {{ codigo_confirmacion }}</p>
                 </div>
                 <br />
             </div>
             <div class="cert-body">
-                <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
-                <p>Tiene un sueldo básico mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
-                <p>La presente certificación se expide con destino a: .</p>
-                <p>Puede verificar la validez de esta certificación en el email, recursoshumanos.bog@lecta.com.co, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
-                <br />
-                <p>Fecha de expedición de esta certificación: 2022-07-22</p>
+                {% if text == '1' %}
+                    <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
+                    <p>Tiene un sueldo básico mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
+                    <p>La presente certificación se expide con destino a:{{destino}} </p>
+                    <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
+                    <br />
+                    <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
+
+                {% elif text == '2' %}
+                    <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
+                    <p>Tiene un sueldo promedio mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
+                    <p>La presente certificación se expide con destino a:{{destino}} </p>
+                    <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
+                    <br />
+                    <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
+
+                {% elif text == '3' %}
+                    <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
+                    <p>El tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
+                    <p>La presente certificación se expide con destino a:{{destino}} </p>
+                    <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
+                    <br />
+                    <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
+
+                
+                {% elif text == '4' %}
+                    <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }} hasta el {fechafincontrato} , desempeñando el cargo de <strong>{{ cargo }}</strong></p>
+                    <p>El tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
+                    <p>La presente certificación se expide con destino a:{{destino}} </p>
+                    <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
+                    <br />
+                    <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
+
+                {% else %}
+                    <!-- Este bloque se mostrará si ninguna de las condiciones anteriores es verdadera -->
+                    <p>Este es el contenido por defecto si ninguna de las condiciones anteriores es verdadera.</p>
+                {% endif %}
+
+                
             </div>
         </div>
 
@@ -169,8 +200,8 @@
                 <hr />
             </div>
             <div class="data">
-                <p>Carlos Gonzalez</p>
-                <p>Gerente de Proyecto</p>
+                <p>{{rrhh}}</p>
+                <p>{{cargo_certificaciones}}</p>
             </div>
         </div>
     </div>
@@ -178,7 +209,7 @@
     <!-- Content for Static Frame 'footer_content' -->
     <div id="footer_frame">
         <div class="footer">
-            <p >N.I.T. 806003042 - Dirección: Cra. 23 no 69-32, BOGOTA, D.C. - Teléfono: 3003997 - email: <a href="mailto:info@lecta.com.co">info@lecta.com.co</a></p>
+            <p >N.I.T. {{nit}} - Dirección: Cra. {{direccion}},{{ciudad}}  - Teléfono: {{telefono}} - email: <a href="mailto:{{emailrrhh}}">{{emailrrhh}}</a></p>
         </div>
     </div>
 
