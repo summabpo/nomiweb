@@ -59,15 +59,6 @@ def workcertificate(request):
 
 
 
-def cargar_contratos_view(request):
-    empleado_id = request.GET.get('empleado')
-    contratos = Contratos.objects.filter(idempleado=empleado_id).values('idcontrato', 'cargo', 'fechafincontrato')
-    return JsonResponse(list(contratos), safe=False)
-
-
-
-
-
 def generateworkcertificate(request):
     
     try:

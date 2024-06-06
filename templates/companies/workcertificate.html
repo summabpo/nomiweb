@@ -162,6 +162,9 @@
                     <td>{{ empleado.promedio }}</td>
 
                     <td>
+                        <a href="{% url 'companies:certificatedownload' idcert=empleado.idcert %}" class="btn btn-icon btn-sm btn-light-facebook me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Contrato">
+                            <i class="fas fa-solid fa-pen-nib fs-3"></i>
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
