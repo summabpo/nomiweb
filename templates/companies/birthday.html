@@ -26,7 +26,7 @@
 {% block content %}
     <form method="get" action="">
 
-        <div class="row g-3 align-items-center">
+        <div class="row g-3">
             <div class="col-auto">
               <label for="inputPassword6" class="col-form-label">Seleccione el mes:</label>
             </div>
@@ -53,13 +53,16 @@
                 </select>
 
             </div>
-            
-          </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
 
+            <div class="col-auto">
+                <a href="?descargar=true&mes={{ mes }}" class="btn btn-light-primary">Descargar Cumpleañeros</a>
+            </div>
+
+        </div>
         
-        <br>
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-        <a href="?descargar=true&mes={{ mes }}" class="btn btn-secondary">Descargar Cumpleañeros</a>
         <br>
     </form>
     <div class="table-responsive">
