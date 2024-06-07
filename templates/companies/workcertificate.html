@@ -67,7 +67,7 @@
                                     <div class="input-group input-group-sm mb-5">
                                         <select name="contrato" id="contrato" class="form-select"  >
                                             {% for contrato in contratos %}
-                                                <option value="{{ contrato.idcontrato }}">{{ contrato.cargo }} - {{ contrato.fechafincontrato }}</option>
+                                                <option value="{{ contrato.idcontrato }}">{{ contrato.cc }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -81,13 +81,10 @@
 
                                     <div class="input-group input-group-sm mb-5">
                                         
-                                        <select class="form-select" aria-label="Select example" name='data_model' id='data_model' >
-                                            <option value="" disabled selected> Escoja el tipo de certificado</option>
-                                            <option value="1">Con salario básico</option>
-                                            <option value="2">Con salario promedio</option>
-                                            <option value="3">Sin salario</option>
-                                            <option value="4">Contrato Liquidado</option>
+                                        <select class="form-select" aria-label="Select example" name="data_model" id="data_model">
+                                            <option value="" disabled selected>Escoja el tipo de certificado</option>
                                         </select>
+
 
                                     </div>
 
@@ -166,6 +163,35 @@
 {% endblock %}
 
 {% block js %}
+
+<script>
+    function actualizarTipoCertificado() {
+        var contratoSelect = document.getElementById('contrato');
+        var estadoContrato = contratoSelect.options[contratoSelect.selectedIndex].text.split(' ').slice(-1)[0]; 
+        console.log("Estado del contrato:", estadoContrato); 
+        var dataModelSelect = document.getElementById('data_model');
+        var opciones = {
+            'ACTIVO': [
+                { value: '1', text: 'Con salario básico' },
+                { value: '2', text: 'Con salario promedio' },
+                { value: '3', text: 'Sin salario' },
+                { value: '4', text: 'Contrato Liquidado' }
+            ],
+            'TERMINADO': [
+                { value: '4', text: 'Contrato Liquidado' }
+            ]
+        };
+        dataModelSelect.innerHTML = ''; 
+        opciones[estadoContrato].forEach(function(opcion) {
+            var option = document.createElement('option');
+            option.value = opcion.value;
+            option.text = opcion.text;
+            dataModelSelect.appendChild(option);
+        });
+    }
+
+    document.getElementById('contrato').addEventListener('change', actualizarTipoCertificado);
+</script>
 
 <script>
     function cargarContratos() {

@@ -19,11 +19,30 @@ from apps.employees.models import Certificaciones
 
 
 def workcertificate(request):
+    ESTADOS_CONTRATO = {
+        1: "ACTIVO",
+        2: "TERMINADO"
+    }
+    
     selected_empleado = request.GET.get('empleado')
     
     if selected_empleado:
         certi_all = Certificaciones.objects.filter(idempleado=selected_empleado).select_related('idempleado')
-        contratos = Contratos.objects.filter(idempleado=selected_empleado)
+        contratos_sin = Contratos.objects.filter(idempleado=selected_empleado)
+        
+        contratos = []
+
+        for con in contratos_sin:
+            estado_contrato = ESTADOS_CONTRATO.get(con.estadocontrato, "")
+            fechafincontrato = con.fechafincontrato if con.fechafincontrato is not None else ""
+            contrato = {
+                'cc': f"{con.cargo} - {con.fechainiciocontrato}  {fechafincontrato} {estado_contrato}",
+                'idcontrato': con.idcontrato
+            }
+            contratos.append(contrato)
+            
+
+        
     else:
         certi_all = []
         contratos = None
