@@ -7,3 +7,5 @@ __pycache__/
 debug.log
 
 *.log
+
+templates/.DS_Store
