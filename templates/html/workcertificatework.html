@@ -3,6 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Certificación Laboral - {{empresa}}</title>
+
     <style type="text/css">
         @page {
             size: letter portrait;
@@ -30,10 +31,10 @@
                 left: 50pt;
                 width: 512pt;
                 top: 600pt;
-                height: 20pt;
-    
+                height: 20pt;    
             }
         }
+
         .header {
             display: flex;
             align-items: center;
@@ -82,7 +83,7 @@
             width: 100%;
             text-align: center;
             font-size: 14px;
-            padding-top: 890px; /* Espacio superior */
+            padding-top: 950px; /* Espacio superior */
             padding-bottom: 20px; /* Espacio inferior */ /* Ajusta el relleno según sea necesario */
             
         }
@@ -109,7 +110,6 @@
         }
         .img-firma {
             border: none;
-            border-top: 2px solid black;
             margin: 20px 0;
             width: 40%;
         }
@@ -120,6 +120,8 @@
             }
 
     </style>
+
+
 </head>
 <body >
     <!-- Content for Static Frame 'header_frame' -->
@@ -197,7 +199,7 @@
 
         <div class="firma">
             <div class="img-firma">
-                <hr />
+                <img src="static/img/FIRMA CARLOS GONZALEZ(1).png" alt="Logo empresa" />
             </div>
             <div class="data">
                 <p>{{rrhh}}</p>
@@ -208,6 +210,7 @@
 
     <!-- Content for Static Frame 'footer_content' -->
     <div id="footer_frame">
+        
         <div class="footer">
             <p >N.I.T. {{nit}} - Dirección: Cra. {{direccion}},{{ciudad}}  - Teléfono: {{telefono}} - email: <a href="mailto:{{emailrrhh}}">{{emailrrhh}}</a></p>
         </div>
