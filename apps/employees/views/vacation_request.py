@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.db.models import Sum
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
+from apps.components.utils import calcular_dias_360
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
     """
@@ -29,6 +30,9 @@ def vacation_request_function(request):
     ide = request.session.get('idempleado')
     contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
     idc = contrato.idcontrato if contrato else None
+
+    contrato = Contratos.objects.get(idcontrato=idc)
+    inicio_contrato = contrato.fechainiciocontrato.strftime('%Y-%m-%d')
 
     form = EmpVacacionesForm(request.POST or None)
 
@@ -63,6 +67,10 @@ def vacation_request_function(request):
 
     dias_vacaciones = Vacaciones.objects.filter(idcontrato=idc).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
 
+    fecha_hoy = date.today().strftime('%Y-%m-%d')
+    dias_trabajados = calcular_dias_360(inicio_contrato, fecha_hoy)
+    vacaciones_fecha = round(dias_trabajados * 15/360,2)
+
     vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
 
     context = {
@@ -70,6 +78,7 @@ def vacation_request_function(request):
         'dias_vacaciones': dias_vacaciones,
         'vacation_list': vacation_list,
         'idc': idc,
+        'vacaciones_fecha': vacaciones_fecha,
     }
 
     return render(request, 'employees/vacations_request.html', context)
