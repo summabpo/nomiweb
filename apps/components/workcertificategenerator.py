@@ -119,6 +119,7 @@ def workcertificategenerator(ide,destino ,modelo):
             'cargo':datae['cargo'],
             'sueldo': "{:,.0f}".format(salario).replace(',', '.'),
             'tipoc':datae['nombre_contrato'] , 
+            
             # certificado 
             'destino':destino,
             'idcert':certificacion.idcert,

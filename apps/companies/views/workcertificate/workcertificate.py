@@ -87,12 +87,11 @@ def generateworkcertificate(request):
     
     except Exception as e:
         messages.error(request, 'Ocurrio un error inesperado')
+        print(e)
         return redirect('companies:workcertificate')
     
     
 def certificatedownload(request,idcert):
-    
-    
 
     try:
         context = workcertificatedownload(idcert)
@@ -112,6 +111,7 @@ def certificatedownload(request,idcert):
     
     except Exception as e:
         messages.error(request, 'Ocurrio un error inesperado')
+        print(e)
         return redirect('companies:workcertificate')
     
     

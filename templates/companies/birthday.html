@@ -25,31 +25,42 @@
 
 {% block content %}
     <form method="get" action="">
-        <div class="form-group">
-            <label for="mes">Seleccione el mes:</label>
-            <select id="mes" name="mes" class="form-select mb-3">
-                {% for i in meses %}
-                    <option value="{{ i }}" {% if i == mes %}selected{% endif %}>
-                        {% if i == 1 %}Enero
-                        {% elif i == 2 %}Febrero
-                        {% elif i == 3 %}Marzo
-                        {% elif i == 4 %}Abril
-                        {% elif i == 5 %}Mayo
-                        {% elif i == 6 %}Junio
-                        {% elif i == 7 %}Julio
-                        {% elif i == 8 %}Agosto
-                        {% elif i == 9 %}Septiembre
-                        {% elif i == 10 %}Octubre
-                        {% elif i == 11 %}Noviembre
-                        {% elif i == 12 %}Diciembre
-                        {% endif %}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+              <label for="inputPassword6" class="col-form-label">Seleccione el mes:</label>
+            </div>
+            <div class="col-auto">
+
+                <select id="mes" name="mes" class="form-select mb-3">
+                    {% for i in meses %}
+                        <option value="{{ i }}" {% if i == mes %}selected{% endif %}>
+                            {% if i == 1 %}Enero
+                            {% elif i == 2 %}Febrero
+                            {% elif i == 3 %}Marzo
+                            {% elif i == 4 %}Abril
+                            {% elif i == 5 %}Mayo
+                            {% elif i == 6 %}Junio
+                            {% elif i == 7 %}Julio
+                            {% elif i == 8 %}Agosto
+                            {% elif i == 9 %}Septiembre
+                            {% elif i == 10 %}Octubre
+                            {% elif i == 11 %}Noviembre
+                            {% elif i == 12 %}Diciembre
+                            {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+
+            </div>
+            
+          </div>
+
+        
         <br>
         <button type="submit" class="btn btn-primary">Filtrar</button>
         <a href="?descargar=true&mes={{ mes }}" class="btn btn-secondary">Descargar Cumpleañeros</a>
+        <br>
     </form>
     <div class="table-responsive">
         <table class="table table-row-bordered gy-5" id="tabla-cumpleaños">

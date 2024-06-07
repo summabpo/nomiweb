@@ -36,7 +36,8 @@ Vista Contrato
 <button class="btn btn-light-primary" id="backButton">
     Regresar
 </button>
-    <div class="separator  border-2 my-10"> Datos de Contrato</div>
+    <div class="separator  border-2 my-10"> Datos de Contrato # {{contrato.idcontrato}} </div> 
+
     <div class="row">
         <div class="col-md-6">
             <label class="form-label" > Fecha Inicial del Contrato </label>
@@ -90,12 +91,24 @@ Vista Contrato
 
     <div class="row">
         <div class="col-md-6">
-            <label class="form-label" > Modalidad Salario - falta </label>
-            <input class="form-control" value='' disabled  />
+            <label class="form-label" > Modalidad Salario</label>
+
+            {% if contrato.salariovariable == 1 %}
+                <input class="form-control" value='Variable' disabled  />
+            {% elif contrato.salariovariable == 2 %}
+                <input class="form-control" value='Fijo' disabled  />
+            {% elif contrato.salariovariable == 3 %}
+                <input class="form-control" value='Mixto' disabled  />
+            {% else %}
+                <input class="form-control" value='Falla' disabled  />
+            {% endif %}
+
+
+            
         </div>
         <div class="col-md-6">
             <label class="form-label" > Vive en el lugar de trabajo  - falta </label>
-            <input class="form-control" value='{{contrato.ciudadcontratacion}}' disabled  />
+            <input class="form-control" value='{{contrato.ciudadcontratacion.ciudad}}' disabled  />
         </div>
     </div>
     
@@ -103,7 +116,16 @@ Vista Contrato
     <div class="row">
         <div class="col-md-6">
             <label class="form-label" > Forma de pago </label>
-            <input class="form-control" value='{{contrato.formapago}}' disabled  />
+            {% if contrato.formapago == '1' %}
+                <input class="form-control" value='Abono a cuenta' disabled  />
+            {% elif contrato.formapago == '2' %}
+                <input class="form-control" value='Cheque' disabled  />
+            {% elif contrato.formapago == '3' %}
+                <input class="form-control" value='Efectivo' disabled  />
+            {% else %}
+                <input class="form-control" value='Falla' disabled  />
+            {% endif %}
+
         </div>
         <div class="col-md-6">
             <label class="form-label" > Banco de la Cuenta </label>
