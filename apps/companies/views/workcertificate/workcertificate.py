@@ -25,7 +25,7 @@ def workcertificate(request):
         certi_all = Certificaciones.objects.filter(idempleado=selected_empleado).select_related('idempleado')
         contratos = Contratos.objects.filter(idempleado=selected_empleado)
     else:
-        certi_all = Certificaciones.objects.all().select_related('idempleado')
+        certi_all = []
         contratos = None
     
     empleados = []
@@ -91,25 +91,28 @@ def generateworkcertificate(request):
     
     
 def certificatedownload(request,idcert):
-    try:
-        context = workcertificatedownload(idcert)
-        html_string = render(request, './html/workcertificatework.html', context).content.decode('utf-8')
-        
-        pdf = BytesIO()
-        pisa_status = pisa.CreatePDF(html_string, dest=pdf)
-        pdf.seek(0)
-
-        if pisa_status.err:
-            return HttpResponse('Error al generar el PDF', status=400)
-
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
-        
-        return response
     
-    except Exception as e:
-        messages.error(request, 'Ocurrio un error inesperado')
-        return redirect('companies:workcertificate')
+    context = workcertificatedownload(idcert)
+    html_string = render(request, './html/workcertificatework.html', context).content.decode('utf-8')
+    
+    pdf = BytesIO()
+    pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+    pdf.seek(0)
+
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=400)
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
+    
+    return response
+
+    # try:
+        
+    
+    # except Exception as e:
+    #     messages.error(request, 'Ocurrio un error inesperado')
+    #     return redirect('companies:workcertificate')
     
     
 

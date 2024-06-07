@@ -66,6 +66,8 @@ class Certificaciones(models.Model):
     tipocontrato = models.CharField(max_length=30, blank=True, null=True)
     promediovariable = models.IntegerField(blank=True, null=True)
     codigoconfirmacion = models.CharField(max_length=8, blank=True, null=True)
+    tipocertificacion = models.IntegerField(blank=True, null=True)
+
 
     class Meta:
         managed = False

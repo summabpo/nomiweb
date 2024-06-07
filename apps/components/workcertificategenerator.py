@@ -88,7 +88,7 @@ def workcertificategenerator(ide,destino ,modelo):
     cargo = datae['cargo']
     ide = datae['ide']
     nombre_contrato = datae['nombre_contrato']
-    certificacion = Certificaciones(destino=destino, idcontrato=idc, idempleado=empleado, salario=salario_certificado, cargo=cargo, tipocontrato=nombre_contrato, codigoconfirmacion = codigo_confirmacion, promediovariable = tipo_certificado )
+    certificacion = Certificaciones(destino=destino, idcontrato=idc, idempleado=empleado, salario=salario_certificado, cargo=cargo, tipocontrato=nombre_contrato, codigoconfirmacion = codigo_confirmacion, tipocertificacion = tipo_certificado )
     certificacion.save()
     certificacion.fecha = fecha_actual
     certificacion.save()
@@ -181,7 +181,7 @@ def workcertificatedownload(idcert):
             'idcert':certificado.idcert,
             'codigo_confirmacion':certificado.codigoconfirmacion,
             'fecha_certificacion':certificado.fecha ,
-            'tipo':certificado.promediovariable ,
+            'tipo':str(certificado.tipocertificacion),
         }
     
     
