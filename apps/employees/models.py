@@ -58,7 +58,7 @@ class Contratos(models.Model):
 class Certificaciones(models.Model):
     idcert = models.AutoField(primary_key=True)
     destino = models.CharField(max_length=100, blank=True, null=True)
-    idempleado = models.IntegerField(blank=True, null=True)
+    idempleado = models.ForeignKey('Contratosemp', models.DO_NOTHING, db_column='idempleado')
     idcontrato = models.IntegerField(blank=True, null=True)
     fecha = models.DateField(blank=True, null=True)
     salario = models.IntegerField(blank=True, null=True)
@@ -66,6 +66,8 @@ class Certificaciones(models.Model):
     tipocontrato = models.CharField(max_length=30, blank=True, null=True)
     promediovariable = models.IntegerField(blank=True, null=True)
     codigoconfirmacion = models.CharField(max_length=8, blank=True, null=True)
+    tipocertificacion = models.IntegerField(blank=True, null=True)
+
 
     class Meta:
         managed = False

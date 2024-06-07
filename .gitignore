@@ -4,8 +4,4 @@ __pycache__/
 *$py.class
 
 .vscode
-debug.log
-
-*.log
-
 templates/.DS_Store
