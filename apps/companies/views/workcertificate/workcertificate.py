@@ -29,7 +29,6 @@ def workcertificate(request):
     if selected_empleado:
         certi_all = Certificaciones.objects.filter(idempleado=selected_empleado).select_related('idempleado')
         contratos_sin = Contratos.objects.filter(idempleado=selected_empleado)
-        
         contratos = []
 
         for con in contratos_sin:
@@ -65,7 +64,7 @@ def workcertificate(request):
 
         empleados.append(certi_data)
     
-    empleados_select = Contratosemp.objects.all()
+    empleados_select = Contratosemp.objects.all().order_by('papellido')
 
     context = {
         'empleados_select': empleados_select,

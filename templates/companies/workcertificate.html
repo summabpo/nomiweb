@@ -165,6 +165,42 @@
 {% block js %}
 
 <script>
+    function verificarUnicoContrato() {
+        var contratoSelect = document.getElementById('contrato');
+        
+        // Verificar si solo hay un contrato
+        if (contratoSelect.options.length === 1) {
+            var estadoContrato = contratoSelect.options[0].text.split(' ').slice(-1)[0];
+            console.log("Estado del contrato:", estadoContrato); 
+            
+            // Actualizar el tipo de certificado según el estado del contrato
+            var dataModelSelect = document.getElementById('data_model');
+            var opciones = {
+                'ACTIVO': [
+                    { value: '1', text: 'Con salario básico' },
+                    { value: '2', text: 'Con salario promedio' },
+                    { value: '3', text: 'Sin salario' },
+                    //{ value: '4', text: 'Contrato Liquidado' }
+                ],
+                'TERMINADO': [
+                    { value: '4', text: 'Contrato Liquidado' }
+                ]
+            };
+            
+            dataModelSelect.innerHTML = ''; 
+            opciones[estadoContrato].forEach(function(opcion) {
+                var option = document.createElement('option');
+                option.value = opcion.value;
+                option.text = opcion.text;
+                dataModelSelect.appendChild(option);
+            });
+        }
+    }
+
+    verificarUnicoContrato();  // Ejecutar la función al cargar la página
+</script>
+
+<script>
     function actualizarTipoCertificado() {
         var contratoSelect = document.getElementById('contrato');
         var estadoContrato = contratoSelect.options[contratoSelect.selectedIndex].text.split(' ').slice(-1)[0]; 
@@ -175,7 +211,7 @@
                 { value: '1', text: 'Con salario básico' },
                 { value: '2', text: 'Con salario promedio' },
                 { value: '3', text: 'Sin salario' },
-                { value: '4', text: 'Contrato Liquidado' }
+                //{ value: '4', text: 'Contrato Liquidado' }
             ],
             'TERMINADO': [
                 { value: '4', text: 'Contrato Liquidado' }
@@ -191,6 +227,7 @@
     }
 
     document.getElementById('contrato').addEventListener('change', actualizarTipoCertificado);
+    actualizarTipoCertificado()
 </script>
 
 <script>
@@ -230,7 +267,7 @@
                 }
             },
             dom: 'frtip',
-            order: [[0, 'des']],  
+            order: [[2, 'asc']], 
             "pageLength": 10,                
         });
     });
