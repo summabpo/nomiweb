@@ -40,7 +40,7 @@ urlpatterns = [
     
     path('employees/workcertificate/',workcertificate.workcertificate , name='workcertificate'),
     path('employees/workcertificate/generar_pdf/',workcertificate.generateworkcertificate , name='generateworkcertificate'),
-    path('employees/workcertificate/generar_pdf/<str:idcert>',workcertificate.certificatedownload , name='certificatedownload'),
+    path('employees/workcertificate/generar_pdf/<int:idcert>',workcertificate.certificatedownload , name='certificatedownload'),
 
     
     
