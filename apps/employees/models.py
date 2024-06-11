@@ -334,6 +334,9 @@ class Ciudades(models.Model):
 class Tipoavacaus(models.Model):
     tipovac = models.CharField(max_length=10, primary_key=True)
     nombrevacaus = models.CharField(max_length=30, blank=True, null=True)
+    
+    def __str__(self):
+        return self.nombrevacaus
 
     class Meta:
         managed = False
@@ -380,7 +383,19 @@ class EmpVacaciones(models.Model):
     comentarios = models.CharField(max_length=255, blank=True, null=True)
     comentarios2 = models.CharField(max_length=255, blank=True, null=True)
     update_ip = models.CharField(max_length=16, blank=True, null=True)
-
+    
+    def __str__(self):
+        return f"{self.idcontrato} - {self.tipovac} - {self.fecha_hora}"
+    
     class Meta:
         managed = False
         db_table = 'emp_vacaciones'
+class Festivos(models.Model):
+    idfestivo = models.IntegerField(primary_key=True)
+    dia = models.DateField(blank=True, null=True)
+    descripcion = models.CharField(max_length=60, blank=True, null=True)
+    ano = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'festivos'

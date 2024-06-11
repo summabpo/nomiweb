@@ -8,6 +8,7 @@ from apps.components.datacompanies import datos_cliente
 
 
 
+
 @custom_login_required
 @custom_permission('employees')
 def index_employees(request):
@@ -15,6 +16,7 @@ def index_employees(request):
     request.session['idempleado'] = usuario['id']
 
     return render(request, './employees/index.html')
+    
     
 
 
