@@ -1,9 +1,12 @@
-from django.shortcuts import render, redirect
+import apps.employees.context_global
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.db.models import Sum
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
+
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
     """
@@ -31,8 +34,8 @@ def vacation_request_function(request):
     contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
     idc = contrato.idcontrato if contrato else None
 
-    contrato = Contratos.objects.get(idcontrato=idc)
-    inicio_contrato = contrato.fechainiciocontrato.strftime('%Y-%m-%d')
+    contratof = Contratos.objects.get(idcontrato=idc)
+    inicio_contrato = contratof.fechainiciocontrato.strftime('%Y-%m-%d')
 
     form = EmpVacacionesForm(request.POST or None)
 
@@ -82,3 +85,19 @@ def vacation_request_function(request):
     }
 
     return render(request, 'employees/vacations_request.html', context)
+
+def vacation_detail_modal(request, pk):
+    vacation = get_object_or_404(EmpVacaciones, pk=pk)
+    context = {
+        'tipovac': str(vacation.tipovac.tipovac),
+        'nombre_tipovac': vacation.tipovac.nombrevacaus,
+        'fecha': vacation.fecha_hora.strftime('%d-%m-%Y'),
+        'dias_habiles': vacation.diasvac,
+        'dias_calendario': vacation.diascalendario,
+        'fecha_inicial': vacation.fechainicialvac.strftime('%d-%m-%Y') if vacation.fechainicialvac else '',
+        'fecha_final': vacation.fechafinalvac.strftime('%d-%m-%Y') if vacation.fechafinalvac else '',
+        'estado': vacation.estado,
+        'comentarios': vacation.comentarios,
+        'comentarios2': vacation.comentarios2,
+    }
+    return render(request, 'employees/vacation_detail_modal.html', context)

@@ -3,7 +3,7 @@ from . import views
 from apps.employees.views.certificaciones_laborales import vista_certificaciones
 from apps.employees.views.vacation_history import VacationList
 from apps.employees.views.vacation_list import VacationListAll
-from .views.vacation_request import vacation_request_function
+from apps.employees.views.vacation_request import vacation_request_function, vacation_detail_modal
 from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, ListaNominas, genera_comprobante
 from apps.employees.views import index
 
@@ -59,6 +59,10 @@ urlpatterns = [
     ),
     
     path('vacation_list/', 
-         VacationListAll.as_view(), 
-         name='vacation_list_all'),
+        VacationListAll.as_view(), 
+        name='vacation_list_all'),
+    
+    path('vacation/modal/<int:pk>/',
+        views.vacation_request.vacation_detail_modal,
+        name='vacation_detail_modal'),
 ]

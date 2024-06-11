@@ -385,8 +385,8 @@ class EmpVacaciones(models.Model):
     update_ip = models.CharField(max_length=16, blank=True, null=True)
     
     def __str__(self):
-        return f"{self.idcontrato} - {self.tipovac}"
-
+        return f"{self.idcontrato} - {self.tipovac} - {self.fecha_hora}"
+    
     class Meta:
         managed = False
         db_table = 'emp_vacaciones'
