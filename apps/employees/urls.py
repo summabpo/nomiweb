@@ -14,11 +14,11 @@ urlpatterns = [
         views.certificaciones_laborales.vista_certificaciones,
         name='certificaciones'
     ),
-    path(
-        'genera-certificaciones/<int:idcert>/',
-        views.certificaciones_laborales.genera_certificaciones,
-        name='genera-certificaciones'
-    ),
+    # path(
+    #     'genera-certificaciones/<int:idcert>/',
+    #     views.certificaciones_laborales.genera_certificaciones,
+    #     name='genera-certificaciones'
+    # ),
     path(
         'emp/comprobantes',
         views.comprobantes_nomina.ListaNominas.as_view(),
