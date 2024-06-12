@@ -1,5 +1,4 @@
 {% extends 'base/base_employees.html' %}
-{% load crispy_forms_tags %}
 
 {% block title %} Nomiweb.co - Portal Empleados -
 Certificaciones Laborales 
@@ -25,13 +24,35 @@ Certificaciones Laborales
                                     <select name="contrato" id="contrato" class="form-select"  >
                                         <option value="">----------------</option>
                                         {% for contrato in contratos %}
-                                            <option value="{{ contrato.idcontrato }}">{{ contrato.cc }}</option>
+                                            <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                                {{ contrato.cc }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                 </div>
                             
                             </div>
                         </form>
+
+                        {% if select %}
+                        <form method="post" action="{% url 'companies:generateworkcertificate'%}" target="_blank" >
+                            {% csrf_token %}
+                            <div class="input-group input-group-sm mb-5">
+                                <input type="text" name="data_input" id="data_input" class="form-control" aria-label="A quien va dirigida la certificación"   placeholder="A quien va dirigida la certificación"  >
+                                <input type="hidden" name="contrato" value="{{ selected_empleado }}">
+                            </div>
+                            <div class="input-group input-group-sm mb-5">
+                                <select class="form-select" aria-label="Select example" name="data_model" id="data_model" required>
+                                    <option value="" disabled selected>Escoja el tipo de certificado</option>
+                                    {% for key, value in select_data.items %}
+                                        <option value="{{ key }}">{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" >Generar</button>
+                        </form>
+                        {% endif %}
 
 
 
@@ -71,7 +92,7 @@ Certificaciones Laborales
                         <td>{{ certificacione.promedio }}</td>
     
                         <td>
-                            <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                            <a href="{% url 'companies:certificatedownload' idcert=certificacione.idcert %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
                                 <i class="fa-solid fa-file-arrow-down fs-3"></i>
                             </a>
                         </td>
@@ -93,5 +114,40 @@ Certificaciones Laborales
         var contratoId = contratoSelect.value;
         window.location.href = `?contrato=${contratoId}`;
     }
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-certi-work').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No se encontraron Certificados para este Contrato",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [[2, 'asc']], 
+            "pageLength": 10,                
+        });
+    });
 </script>
 {% endblock %}
