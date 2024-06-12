@@ -6,6 +6,7 @@ from apps.employees.views.vacation_list import VacationListAll
 from apps.employees.views.vacation_request import vacation_request_function, vacation_detail_modal
 from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, ListaNominas, genera_comprobante ,listaNomina 
 from apps.employees.views import index
+from apps.employees.views.viewdian import viewdian
 
 
 urlpatterns = [
@@ -65,4 +66,10 @@ urlpatterns = [
     path('vacation/modal/<int:pk>/',
         views.vacation_request.vacation_detail_modal,
         name='vacation_detail_modal'),
+    
+    path('Certificate/DIAN/',
+        viewdian.viewdian,
+        name='viewdian'),
+    
+
 ]

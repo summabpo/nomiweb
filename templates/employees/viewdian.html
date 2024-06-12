@@ -1,0 +1,105 @@
+{% extends 'base/base_employees.html' %}
+
+{% block title %} Nomiweb.co - Portal Empleados -
+Certificaciones DIAN
+{% endblock %} 
+
+{% block css %} 
+{% endblock %} 
+
+{% block sub_titulo1 %} 
+    Certificados
+{% endblock %}
+
+{% block sub_titulo2 %} 
+    Certificados DIAN
+{% endblock %}
+
+{% block titulo2 %} 
+    Certificados anteriores 
+{% endblock %}
+
+{% block content %}
+
+<div class="separator my-10"></div>
+<h3 class="text-center" >Lista de Certificaciones DIAN</h3>
+
+        
+        <div class="table-responsive">
+            <table class="table table-rounded table-striped border gy-7 gs-7" id='tabla-certi-nomi'>
+                <thead>
+                    <tr>
+                    <th width="200">ID Certificado</th>
+                    <th width="200">salarios</th>
+                    <th width="200">año</th>
+                    <th width="150">
+                        <div class="btn btn-icon btn-sm btn-light-facebook me-5 container d-flex justify-content-center align-items-center  ">
+                            <i class="fa-solid fa-certificate fs-3"></i>
+                        </div>
+                    </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rete in reten %}
+                    <tr>
+                        <td>{{ rete.idingret }}</td>
+                        <td>{{ rete.salarios }}</td>
+                        <td>{{ rete.anoacumular }}</td>
+                        <td>
+                            <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                                <i class="fa-solid fa-file-arrow-down fs-3"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    
+{% endblock %}
+
+
+{% block js %}
+<script>
+    function cargarContratos() {
+        var contratoSelect = document.getElementById('contrato');
+        var contratoId = contratoSelect.value;
+        window.location.href = `?contrato=${contratoId}`;
+    }
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-certi-nomi').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No se encontraron Certificados para este Contrato",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [[2, 'des']], 
+            "pageLength": 6,                
+        });
+    });
+</script>
+{% endblock %}
