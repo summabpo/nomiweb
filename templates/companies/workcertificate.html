@@ -72,20 +72,15 @@
                                         </select>
                                     </div>
                                     
-                    
                                     <div class="input-group input-group-sm mb-5">
                                         
                                         <input type="text" name="data_input" id="data_input" class="form-control" aria-label="A quien va dirigida la certificación"   placeholder="A quien va dirigida la certificación"  >
                                         <input type="hidden" name="empleado" value="{{ selected_empleado }}">
                                     </div>
-
                                     <div class="input-group input-group-sm mb-5">
-                                        
                                         <select class="form-select" aria-label="Select example" name="data_model" id="data_model">
                                             <option value="" disabled selected>Escoja el tipo de certificado</option>
                                         </select>
-
-
                                     </div>
 
 
@@ -244,7 +239,7 @@
         $('#tabla-certi-work').DataTable({
             language: {
                 "decimal":        "",
-                "emptyTable":     "No hay datos disponibles en la tabla",
+                "emptyTable":     "No se encontraron Certificados para este empleado",
                 "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
                 "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
                 "infoFiltered":   "(filtrado de _MAX_ entradas totales)",

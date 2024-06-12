@@ -4,7 +4,7 @@ from apps.employees.views.certificaciones_laborales import vista_certificaciones
 from apps.employees.views.vacation_history import VacationList
 from apps.employees.views.vacation_list import VacationListAll
 from apps.employees.views.vacation_request import vacation_request_function, vacation_detail_modal
-from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, ListaNominas, genera_comprobante
+from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, ListaNominas, genera_comprobante ,listaNomina 
 from apps.employees.views import index
 
 
@@ -14,14 +14,14 @@ urlpatterns = [
         views.certificaciones_laborales.vista_certificaciones,
         name='certificaciones'
     ),
-    path(
-        'genera-certificaciones/<int:idcert>/',
-        views.certificaciones_laborales.genera_certificaciones,
-        name='genera-certificaciones'
-    ),
+    # path(
+    #     'genera-certificaciones/<int:idcert>/',
+    #     views.certificaciones_laborales.genera_certificaciones,
+    #     name='genera-certificaciones'
+    # ),
     path(
         'emp/comprobantes',
-        views.comprobantes_nomina.ListaNominas.as_view(),
+        views.comprobantes_nomina.listaNomina,
         name='comprobantes_all'
     ),
     path(

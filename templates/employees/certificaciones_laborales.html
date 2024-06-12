@@ -1,56 +1,153 @@
 {% extends 'base/base_employees.html' %}
-{% load humanize %}
-{% load crispy_forms_tags %}
 
 {% block title %} Nomiweb.co - Portal Empleados -
 Certificaciones Laborales 
 {% endblock %} 
-{% block css %} 
-{% endblock %} 
+
+
+
 {% block content %}
-{% block cssarch %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{% endblock %}
 
     <h3 class="text-center" >SOLICITUD DE CERTIFICACION LABORAL</h3>
 
-      <main class="flex-grow-1">
-                <form method="post">
-                    {% csrf_token %}
-                    {% crispy formulario %}
-                </form>
-               
-      </main>
-<BR>
-<BR> 
-    
-<h3 class="text-center">LISTADO DE CERTIFICACIONES </h3>
-            
-            <div class="table-responsive">
-                <table class="table table-rounded table-striped border gy-7 gs-7">
-                    <thead>
-                        <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
-                        <th width="50"><b>ID<b></th>
-                        <th width="200"><b>Destino</b></th>
-                        <th width="200"><b>Fecha</b></th>
-                        <th width="150"><b>Salario</b></th>
-                        <th width="50"><b>Descargar</b></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for e in certificaciones %}
-                        <tr>
-                            <td>{{ e.idcert }}</td>
-                            <td>{{ e.destino }}</td>
-                            <td>{{ e.fecha }}</td>
-                            <td>{{ e.salario|intcomma }}</td>
-                            <td><a class="btn btn-warning btn-sm" href="{% url 'employees:genera-certificaciones' e.idcert %}" target="_blank">
-                                Ver
-                            </a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
 
-{% endblock content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Aquí puedes colocar tu formulario -->
+                        <form method="get">
+                            <div class="input-group input-group-sm mb-5"> 
+                        
+                                <div class="input-group input-group-sm mb-5"  onchange="cargarContratos()"  data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
+                                    <select name="contrato" id="contrato" class="form-select"  >
+                                        <option value="">----------------</option>
+                                        {% for contrato in contratos %}
+                                            <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                                {{ contrato.cc }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            
+                            </div>
+                        </form>
+
+                        {% if select %}
+                        <form method="post" action="{% url 'companies:generateworkcertificate'%}" target="_blank" >
+                            {% csrf_token %}
+                            <div class="input-group input-group-sm mb-5">
+                                <input type="text" name="data_input" id="data_input" class="form-control" aria-label="A quien va dirigida la certificación"   placeholder="A quien va dirigida la certificación"  >
+                                <input type="hidden" name="contrato" value="{{ selected_empleado }}">
+                            </div>
+                            <div class="input-group input-group-sm mb-5">
+                                <select class="form-select" aria-label="Select example" name="data_model" id="data_model" required>
+                                    <option value="" disabled selected>Escoja el tipo de certificado</option>
+                                    {% for key, value in select_data.items %}
+                                        <option value="{{ key }}">{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" >Generar</button>
+                        </form>
+                        {% endif %}
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="separator my-10"></div>
+    <div  class="table-responsive">
+        <table id='tabla-certi-work' class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                <th>Destino</th>
+                <th>Fecha</th>
+                <th>Salario</th>
+                <th>Cargo</th>
+                <th>Tipo contrato</th>
+                <th>Promedio variable</th>
+                <th> 
+                    <div class="btn btn-icon btn-sm btn-light-facebook me-5 container d-flex justify-content-center align-items-center  ">
+                        <i class="fa-solid fa-certificate fs-3"></i>
+                    </div>
+                </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for certificacione in certificaciones %}
+                    <tr>
+                        <td>{{ certificacione.destino }}</td>
+                        <td>{{ certificacione.fecha |date:'d-m-Y' }}</td>
+                        <td>{{ certificacione.Salario }}</td>
+                        <td>{{ certificacione.cargo }}</td>
+                        <td>{{ certificacione.tipo }}</td>
+                        <td>{{ certificacione.promedio }}</td>
+    
+                        <td>
+                            <a href="{% url 'companies:certificatedownload' idcert=certificacione.idcert %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                                <i class="fa-solid fa-file-arrow-down fs-3"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+    
+        </table>
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    function cargarContratos() {
+        var contratoSelect = document.getElementById('contrato');
+        var contratoId = contratoSelect.value;
+        window.location.href = `?contrato=${contratoId}`;
+    }
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-certi-work').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No se encontraron Certificados para este Contrato",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [[2, 'asc']], 
+            "pageLength": 10,                
+        });
+    });
+</script>
+{% endblock %}

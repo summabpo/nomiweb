@@ -16,6 +16,14 @@ from apps.employees.models import Certificaciones
 # paso 2 generar nuevo certificado         #
 # paso 3 descargar                         #
 
+def get_empleado_name(empleado):
+    papellido = empleado.get('idempleado__papellido', '') if empleado.get('idempleado__papellido') is not None else ""
+    sapellido = empleado.get('idempleado__sapellido', '') if empleado.get('idempleado__sapellido') is not None else ""
+    pnombre = empleado.get('idempleado__pnombre', '') if empleado.get('idempleado__pnombre') is not None else ""
+    snombre = empleado.get('idempleado__snombre', '') if empleado.get('idempleado__snombre') is not None else ""
+    return f"{papellido} {sapellido} {pnombre} {snombre}"
+
+
 
 
 def workcertificate(request):
@@ -27,16 +35,29 @@ def workcertificate(request):
     selected_empleado = request.GET.get('empleado')
     
     if selected_empleado:
-        certi_all = Certificaciones.objects.filter(idempleado=selected_empleado).select_related('idempleado')
-        contratos_sin = Contratos.objects.filter(idempleado=selected_empleado)
+        certi_all = Certificaciones.objects.filter(idempleado=selected_empleado).select_related('idempleado').values('idcert', 
+                                                                                                                        'idempleado__papellido',
+                                                                                                                        'idempleado__pnombre',
+                                                                                                                        'idempleado__snombre',
+                                                                                                                        'idempleado__sapellido',
+                                                                                                                        'destino',
+                                                                                                                        'fecha',
+                                                                                                                        'cargo',
+                                                                                                                        'salario',
+                                                                                                                        'tipocontrato',
+                                                                                                                        'promediovariable'
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        )
+        contratos_sin = Contratos.objects.filter(idempleado=selected_empleado).values('cargo', 'fechainiciocontrato', 'fechafincontrato', 'estadocontrato', 'idcontrato')
         contratos = []
 
         for con in contratos_sin:
-            estado_contrato = ESTADOS_CONTRATO.get(con.estadocontrato, "")
-            fechafincontrato = con.fechafincontrato if con.fechafincontrato is not None else ""
+            estado_contrato = ESTADOS_CONTRATO.get(con['estadocontrato'], "")
+            fechafincontrato = f"{con['fechafincontrato']}" if con['fechafincontrato'] is not None else ""
             contrato = {
-                'cc': f"{con.cargo} - {con.fechainiciocontrato}  {fechafincontrato} {estado_contrato}",
-                'idcontrato': con.idcontrato
+                'cc': f"{con['cargo']} - {con['fechainiciocontrato']} {estado_contrato}  {fechafincontrato} ",
+                'idcontrato': con['idcontrato']
             }
             contratos.append(contrato)
             
@@ -48,23 +69,33 @@ def workcertificate(request):
     
     empleados = []
     for certi in certi_all:
-        nombre_empleado = f"{certi.idempleado.papellido} {certi.idempleado.pnombre} {certi.idempleado.snombre}" 
-        salario = "{:,.0f}".format(certi.salario).replace(',', '.')
+        
+        
+        nombre_empleado = get_empleado_name(certi)
+        salario = "{:,.0f}".format(certi['salario']).replace(',', '.')
         
         certi_data = {
-            'idcert': certi.idcert,
+            'idcert': certi['idcert'],
             'empleado': nombre_empleado,
-            'destino': certi.destino,
+            'destino': certi['destino'],
             'Salario': salario,
-            'fecha': certi.fecha,
-            'cargo': certi.cargo,
-            'tipo': certi.tipocontrato,
-            'promedio': certi.promediovariable,
+            'fecha': certi['fecha'],
+            'cargo': certi['cargo'],
+            'tipo': certi['tipocontrato'],
+            'promedio': certi['promediovariable'],
         }
 
         empleados.append(certi_data)
+
+    empleados_select = Contratosemp.objects.all().order_by('papellido').values('pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado')
     
-    empleados_select = Contratosemp.objects.all().order_by('papellido')
+    for emp in empleados_select:
+        emp['pnombre'] = emp['pnombre'] if emp['pnombre'] is not None else ""
+        emp['snombre'] = emp['snombre'] if emp['snombre'] is not None else ""
+        emp['papellido'] = emp['papellido'] if emp['papellido'] is not None else ""
+        emp['sapellido'] = emp['sapellido'] if emp['sapellido'] is not None else ""
+
+
 
     context = {
         'empleados_select': empleados_select,
