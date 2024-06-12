@@ -3,18 +3,62 @@
 {% block title %} Nomiweb.co - Portal Empleados -
 Certificaciones Laborales 
 {% endblock %} 
+
 {% block css %} 
 {% endblock %} 
+
 {% block content %}
-{% block cssarch %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{% endblock %}
+
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Aquí puedes colocar tu formulario -->
+                    {% if not contratos %}
+                        <!-- Lógica para cuando contratos está vacío -->
+                        <p>Usted Solo cuenta con un contrato disponible </p>
+                    {% else %}
+                        <!-- Lógica para cuando contratos no está vacío -->
+                        <form method="get">
+                        
+                            <div class="input-group input-group-sm mb-5"> 
+                                <div class="input-group input-group-sm mb-5"  onchange="cargarContratos()"  data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
+                                    <select name="contrato" id="contrato" class="form-select"  >
+                                        <option value="">----------------</option>
+                                        {% for contrato in contratos %}
+                                            <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                                {{ contrato.cc }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            
+                            </div>
+                        
+                        </form>
+                    {% endif %}
+                    
+                    <!-- fin de formulario get  -->
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="separator my-10"></div>
 
 <h3 class="text-center" >Lista de Nominas</h3>
 
         
         <div class="table-responsive">
-            <table class="table table-rounded table-striped border gy-7 gs-7">
+            <table class="table table-rounded table-striped border gy-7 gs-7" id='tabla-certi-nomi'>
                 <thead>
                     <tr>
                     <th width="200">IDNOMINA</th>
@@ -36,4 +80,50 @@ Certificaciones Laborales
             </table>
         </div>
     
-{% endblock content %}
+{% endblock %}
+
+
+{% block js %}
+<script>
+    function cargarContratos() {
+        var contratoSelect = document.getElementById('contrato');
+        var contratoId = contratoSelect.value;
+        window.location.href = `?contrato=${contratoId}`;
+    }
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-certi-nomi').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No se encontraron Certificados para este Contrato",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [[2, 'asc']], 
+            "pageLength": 6,                
+        });
+    });
+</script>
+{% endblock %}
