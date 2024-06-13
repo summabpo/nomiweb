@@ -1,7 +1,7 @@
 from django.shortcuts import render 
 from apps.components.decorators import custom_login_required ,custom_permission
 from apps.employees.models import Contratosemp ,Ciudades
-from apps.employees.forms.edit_employees_form import EditEmployeesForm
+from apps.employees.forms.edit_employees_form import EditEmployeesForm 
 
 
 

@@ -5,9 +5,9 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 
 class EditEmployeesForm(forms.Form):
     
-    phone = forms.CharField(max_length=12, label='Phone',required=False)
-    address = forms.CharField(max_length=100, label='Address',required=False)
-    profile_picture = forms.ImageField(label='Profile Picture', required=False)
+    phone = forms.CharField(max_length=12, label='Telefono',required=False)
+    address = forms.CharField(max_length=100, label='Direccion',required=False)
+    profile_picture = forms.ImageField(label='Imagen de perfil', required=False)
     
     
 
@@ -32,3 +32,7 @@ class EditEmployeesForm(forms.Form):
             ),
             Submit('submit', 'Guardar')
         )
+
+
+
+
