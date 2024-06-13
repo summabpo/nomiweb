@@ -25,55 +25,52 @@ from apps.components.decorators import custom_login_required ,custom_permission
 
 
 
-idn = 499
-idc = 3863
-ide = 281
+
 
 def listaNomina(request):
-    ide = request.session.get('idempleado', {})
+    ide = request.session.get('idempleado')
     ESTADOS_CONTRATO = {
         1: "ACTIVO",
         2: "TERMINADO"
     }
     
+    # Obtener todos los contratos del empleado
     contratos_sin = Contratos.objects.filter(idempleado__idempleado=ide)
+    
+    # Lista para almacenar los contratos formateados
     contratos = []
-    nominas = {}
     
-    if contratos_sin.count() > 1:
-        
+    for con in contratos_sin:
+        estado_contrato = ESTADOS_CONTRATO.get(con.estadocontrato, "")
+        fechafincontrato = con.fechafincontrato.strftime("%Y-%m-%d") if con.fechafincontrato else ""
+        contrato = {
+            'cc': f"{con.cargo} - {con.fechainiciocontrato} {estado_contrato} {fechafincontrato}",
+            'idcontrato': con.idcontrato
+        }
+        contratos.append(contrato)
     
-        for con in contratos_sin:
-            estado_contrato = ESTADOS_CONTRATO.get(con.estadocontrato, "")
-            fechafincontrato = f"{con.fechafincontrato}" if con.fechafincontrato is not None else ""
-            contrato = {
-                'cc': f"{con.cargo} - {con.fechainiciocontrato} {estado_contrato} {fechafincontrato}",
-                'idcontrato': con.idcontrato
-            }
-            
-            contratos.append(contrato)
-            
-            
-            
-            
-        pass
+    # Contar el número de contratos
+    cont = len(contratos)
+    print(contratos)
+    # Obtener el contrato seleccionado, si existe
+    selected_contrato_id = request.GET.get('contrato')
+    if selected_contrato_id:
+        nominas = Nomina.objects.filter(idcontrato=selected_contrato_id).order_by('-idnomina')
+    elif cont == 1:
+        # Si solo hay un contrato, obtener las nóminas para ese contrato
+        nominas = Nomina.objects.filter(idcontrato=contratos[0]['idcontrato']).order_by('-idnomina')
     else:
-        nominas = Nomina.objects.distinct('idnomina').filter(idcontrato=idc).order_by('-idnomina').select_related('idnomina')
-        
-        pass
-    
-    selected_empleado = request.GET.get('contrato')
-    
-    if selected_empleado:
-        nominas = Nomina.objects.distinct('idnomina').filter(idcontrato=selected_empleado).order_by('-idnomina').select_related('idnomina')
-        
-    
+        # En otros casos, no mostrar nóminas
+        nominas = []
     
     return render(request, 'employees/comprobantes.html', {
-        'nominas':nominas,
-        'contratos':contratos,
-        'selected_empleado':selected_empleado
+        'nominas': nominas,
+        'contratos': contratos,
+        'selected_empleado': selected_contrato_id,
+        'cont': cont
     })
+
+
 
 
 class ListaNominas(ListView):

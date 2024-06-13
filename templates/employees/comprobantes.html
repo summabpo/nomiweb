@@ -16,9 +16,17 @@ Certificaciones Laborales
             <div class="card">
                 <div class="card-body">
                     <!-- Aquí puedes colocar tu formulario -->
-                    {% if not contratos %}
+                    {% if cont < 2 %}
                         <!-- Lógica para cuando contratos está vacío -->
-                        <p>Usted Solo cuenta con un contrato disponible </p>
+                        <select name="contrato" id="contrato" class="form-select" disabled >
+                            {% for contrato in contratos %}
+                                <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                    {{ contrato.cc }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        
+
                     {% else %}
                         <!-- Lógica para cuando contratos no está vacío -->
                         <form method="get">
@@ -41,12 +49,6 @@ Certificaciones Laborales
                     {% endif %}
                     
                     <!-- fin de formulario get  -->
-
-
-
-
-
-
                 </div>
             </div>
         </div>
@@ -71,8 +73,8 @@ Certificaciones Laborales
                     {% for e in nominas %}
                     <tr>
                         <td>{{ e.idnomina.idnomina }}</td>
-                        <td>{{ e.idcontrato }}</td>
                         <td>{{ e.idnomina.nombrenomina }}</td>
+                        <td>{{ e.idcontrato}}</td>
                         <td><a class="button warning" href="{% url 'employees:genera-comprobante' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
                     </tr>
                     {% endfor %}
@@ -98,7 +100,7 @@ Certificaciones Laborales
         $('#tabla-certi-nomi').DataTable({
             language: {
                 "decimal":        "",
-                "emptyTable":     "No se encontraron Certificados para este Contrato",
+                "emptyTable":     "No tiene certificados para este contrato o no ha seleccionado un contrato.",
                 "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
                 "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
                 "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
