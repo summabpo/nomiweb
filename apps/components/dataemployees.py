@@ -28,18 +28,22 @@ def datos_empleado(id_contrato=15):
 
 def datos_empleado2(id_empleado):
     try:
-        empleado = Contratosemp.objects.only('pnombre', 'snombre', 'papellido', 'sapellido', 'email').get(idempleado=id_empleado)
+        empleado = Contratosemp.objects.only('pnombre', 'snombre', 'papellido', 'sapellido', 'email','fotografiaempleado').get(idempleado=id_empleado)
         
         nombre_completo = f"{empleado.pnombre} {empleado.papellido}"
+        
+        print(type(empleado.fotografiaempleado))
         
         info_empleado = {
             'nombre_completo': nombre_completo.strip(),  # Elimina espacios en blanco adicionales
             'email': empleado.email,
+            'fotografiaempleado': empleado.fotografiaempleado.url,
         }
     except Contratosemp.DoesNotExist:
         info_empleado = {
             'nombre_completo': '',
             'email': '',
+            'fotografiaempleado': '',
         }
     
     return info_empleado
