@@ -58,7 +58,7 @@ class Contratos(models.Model):
 class Certificaciones(models.Model):
     idcert = models.AutoField(primary_key=True)
     destino = models.CharField(max_length=100, blank=True, null=True)
-    idempleado = models.IntegerField(blank=True, null=True)
+    idempleado = models.ForeignKey('Contratosemp', models.DO_NOTHING, db_column='idempleado')
     idcontrato = models.IntegerField(blank=True, null=True)
     fecha = models.DateField(blank=True, null=True)
     salario = models.IntegerField(blank=True, null=True)
@@ -66,6 +66,8 @@ class Certificaciones(models.Model):
     tipocontrato = models.CharField(max_length=30, blank=True, null=True)
     promediovariable = models.IntegerField(blank=True, null=True)
     codigoconfirmacion = models.CharField(max_length=8, blank=True, null=True)
+    tipocertificacion = models.IntegerField(blank=True, null=True)
+
 
     class Meta:
         managed = False
@@ -383,8 +385,8 @@ class EmpVacaciones(models.Model):
     update_ip = models.CharField(max_length=16, blank=True, null=True)
     
     def __str__(self):
-        return f"{self.idcontrato} - {self.tipovac}"
-
+        return f"{self.idcontrato} - {self.tipovac} - {self.fecha_hora}"
+    
     class Meta:
         managed = False
         db_table = 'emp_vacaciones'
@@ -397,3 +399,47 @@ class Festivos(models.Model):
     class Meta:
         managed = False
         db_table = 'festivos'
+    
+    
+
+
+
+class Ingresosyretenciones(models.Model):
+    idingret = models.SmallIntegerField(primary_key=True)
+    tipodocumento = models.CharField(blank=True, null=True)
+    docidentidad = models.CharField(blank=True, null=True)
+    papellido = models.CharField(blank=True, null=True)
+    sapellido = models.CharField(blank=True, null=True)
+    pnombre = models.CharField(blank=True, null=True)
+    snombre = models.CharField(blank=True, null=True)
+    salarios = models.IntegerField(blank=True, null=True)
+    honorarios = models.IntegerField(blank=True, null=True)
+    servicios = models.IntegerField(blank=True, null=True)
+    comisiones = models.IntegerField(blank=True, null=True)
+    prestacionessociales = models.IntegerField(blank=True, null=True)
+    viaticos = models.IntegerField(blank=True, null=True)
+    gastosderepresentacion = models.IntegerField(blank=True, null=True)
+    compensacioncta = models.IntegerField(blank=True, null=True)
+    cesantiasintereses = models.IntegerField(blank=True, null=True)
+    pensiones = models.IntegerField(blank=True, null=True)
+    totalingresosbrutos = models.IntegerField(blank=True, null=True)
+    aportessalud = models.IntegerField(blank=True, null=True)
+    aportespension = models.IntegerField(blank=True, null=True)
+    aportesvoluntarios = models.IntegerField(blank=True, null=True)
+    aportesafc = models.IntegerField(blank=True, null=True)
+    retefuente = models.IntegerField(blank=True, null=True)
+    anoacumular = models.CharField(blank=True, null=True)
+    idempleado = models.ForeignKey(Contratosemp, models.DO_NOTHING, db_column='idempleado', blank=True, null=True)
+    otrospagos = models.IntegerField(blank=True, null=True)
+    fondocesantias = models.IntegerField(blank=True, null=True)
+    excesoalim = models.IntegerField(blank=True, null=True)
+    cesantias90 = models.IntegerField(blank=True, null=True)
+    apoyoeconomico = models.IntegerField(blank=True, null=True)
+    aportesavc = models.IntegerField(blank=True, null=True)
+    ingresolaboralpromedio = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'ingresosyretenciones'
+
+

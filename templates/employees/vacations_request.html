@@ -119,11 +119,46 @@
                                         Desconocido
                                     {% endif %}
                                 </td>
-                                <td><a class="btn btn-danger btn-sm" href="" target="_blank"></a></td>
+                                <td><a href="javascript:void(0);" class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger" onclick="loadVacationDetails({{ e.pk }})">
+                                    <i class="bi bi-chat-square-text-fill fs-4 me-2"></i>Ver Detalle
+                                </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+
+                <div class="modal fade" tabindex="-1" id="kt_modal_2">
+                    <div class="modal-dialog">
+                        <div class="modal-content" id="kt_modal_2_content">
+                            
+                        </div>
+                    </div>
+                </div>
+
+<script>
+    function loadVacationDetails(pk) {
+
+        document.getElementById('kt_modal_2_content').innerHTML = '';
+
+        fetch(`/employees/vacation/modal/${pk}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById('kt_modal_2_content').innerHTML = html;
+                var modal = new bootstrap.Modal(document.getElementById('kt_modal_2'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error fetching vacation details:', error);
+                document.getElementById('kt_modal_2_content').innerHTML = '<p>Error al cargar los detalles.</p>';
+            });
+    }
+</script>
 
 {% endblock content %}

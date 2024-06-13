@@ -1,33 +1,31 @@
-from apps.employees.models import  Certificaciones, Tipocontrato, Empresa
+from apps.employees.models import  Empresa
 
 
 def datos_cliente():
-    nombre_empresa = Empresa.objects.get(idempresa=1).nombreempresa
-    nombre_rrhh = Empresa.objects.get(idempresa=1).contactorrhh
-    cargo_certificaciones = Empresa.objects.get(idempresa=1).cargocertificaciones
-    nit_empresa = Empresa.objects.get(idempresa=1).nit
-    direccion_empresa = Empresa.objects.get(idempresa=1).direccionempresa
-    ciudad_empresa = Empresa.objects.get(idempresa=1).ciudad
-    telefono_empresa = Empresa.objects.get(idempresa=1).telefono
-    website_empresa = Empresa.objects.get(idempresa=1).website
-    email_empresa = Empresa.objects.get(idempresa=1).email
-    logo_empresa = Empresa.objects.get(idempresa=1).logo
-    id_cliente = Empresa.objects.get(idempresa=1).idcliente
-    firma_certificaciones = Empresa.objects.get(idempresa=1).firmacertificaciones
+    empresa_data = Empresa.objects.filter(idempresa=1).values().first()
 
-    info_cliente = {
-        'nombre_empresa': nombre_empresa,
-        'nombre_rrhh': nombre_rrhh,
-        'nit_empresa': nit_empresa,
-        'direccion_empresa': direccion_empresa,
-        'ciudad_empresa': ciudad_empresa,
-        'telefono_empresa': telefono_empresa,
-        'website_empresa': website_empresa,
-        'email_empresa': email_empresa,
-        'logo_empresa': logo_empresa,
-        'id_cliente': id_cliente,
-        'cargo_certificaciones': cargo_certificaciones,
-        'firma_certificaciones': firma_certificaciones
-    }
+    if empresa_data:
+        info_cliente = {
+            'nombre_empresa': empresa_data['nombreempresa'],
+            'nombre_rrhh': empresa_data['contactorrhh'],
+            'nit_empresa': empresa_data['nit'],
+            'direccion_empresa': empresa_data['direccionempresa'],
+            'ciudad_empresa': empresa_data['ciudad'],
+            'telefono_empresa': empresa_data['telefono'],
+            'website_empresa': empresa_data['website'],
+            'email_empresa': empresa_data['email'],
+            'logo_empresa': empresa_data['logo'],
+            'id_cliente': empresa_data['idcliente'],
+            'cargo_certificaciones': empresa_data['cargocertificaciones'],
+            'firma_certificaciones': empresa_data['firmacertificaciones'],
+            'emailrrhh': empresa_data['emailrrhh']
+            
+        }
+    else:
+        # Manejar el caso donde no se encuentra la empresa con el id especificado
+        info_cliente = {}
+
     return info_cliente
+
+
 

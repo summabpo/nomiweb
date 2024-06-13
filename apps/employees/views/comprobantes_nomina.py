@@ -29,6 +29,53 @@ idn = 499
 idc = 3863
 ide = 281
 
+def listaNomina(request):
+    ide = request.session.get('idempleado', {})
+    ESTADOS_CONTRATO = {
+        1: "ACTIVO",
+        2: "TERMINADO"
+    }
+    
+    contratos_sin = Contratos.objects.filter(idempleado__idempleado=ide)
+    contratos = []
+    nominas = {}
+    
+    if contratos_sin.count() > 1:
+        
+    
+        for con in contratos_sin:
+            estado_contrato = ESTADOS_CONTRATO.get(con.estadocontrato, "")
+            fechafincontrato = f"{con.fechafincontrato}" if con.fechafincontrato is not None else ""
+            contrato = {
+                'cc': f"{con.cargo} - {con.fechainiciocontrato} {estado_contrato} {fechafincontrato}",
+                'idcontrato': con.idcontrato
+            }
+            
+            contratos.append(contrato)
+            
+            
+            
+            
+        pass
+    else:
+        nominas = Nomina.objects.distinct('idnomina').filter(idcontrato=idc).order_by('-idnomina').select_related('idnomina')
+        
+        pass
+    
+    selected_empleado = request.GET.get('contrato')
+    
+    if selected_empleado:
+        nominas = Nomina.objects.distinct('idnomina').filter(idcontrato=selected_empleado).order_by('-idnomina').select_related('idnomina')
+        
+    
+    
+    return render(request, 'employees/comprobantes.html', {
+        'nominas':nominas,
+        'contratos':contratos,
+        'selected_empleado':selected_empleado
+    })
+
+
 class ListaNominas(ListView):
     template_name = 'employees/comprobantes.html'
     paginate_by = 30
@@ -76,8 +123,8 @@ class ListaConceptosNomina(ListView):
         return context
 
 
-@custom_login_required
-@custom_permission('employees')
+# @custom_login_required
+# @custom_permission('employees')
 def genera_comprobante(request, idnomina, idcontrato):
         idc=idcontrato
         idn=idnomina
@@ -185,3 +232,98 @@ def genera_comprobante(request, idnomina, idcontrato):
 
         
         return response
+    
+
+
+## copiar y elimiar 
+
+
+def vista_certificaciones(request):
+    select_data = {}
+    ESTADOS_CONTRATO = {
+        1: "ACTIVO",
+        2: "TERMINADO"
+    }
+    
+    ide = request.session.get('idempleado', {})
+    selected_empleado = request.GET.get('contrato')
+    lista_certificaciones = []
+    select = None
+    
+    if selected_empleado:
+        auxcontrato = Contratos.objects.filter(idcontrato=selected_empleado).values('estadocontrato')
+        if auxcontrato.exists():
+            estado_contrato = auxcontrato[0]['estadocontrato']
+            
+            if estado_contrato == 1:
+                select_data = {
+                    '1': 'Con salario básico',
+                    '2': 'Con salario promedio',
+                    '3': 'Sin salario',
+                }
+            elif estado_contrato == 2:
+                select_data = {
+                    '4': 'Contrato Liquidado',
+                }
+            else:
+                select_data = {}
+            
+            select = True
+            certi_all = Certificaciones.objects.filter(idcontrato=selected_empleado).values(
+                'idcert', 
+                'idempleado__papellido',
+                'idempleado__pnombre',
+                'idempleado__snombre',
+                'idempleado__sapellido',
+                'destino',
+                'fecha',
+                'cargo',
+                'salario',
+                'tipocontrato',
+                'promediovariable'
+            )
+            
+            for certi in certi_all:
+                nombre_empleado = get_empleado_name(certi)
+                salario = "{:,.0f}".format(certi['salario']).replace(',', '.')
+                
+                certi_data = {
+                    'idcert': certi['idcert'],
+                    'empleado': nombre_empleado,
+                    'destino': certi['destino'],
+                    'Salario': salario,
+                    'fecha': certi['fecha'],
+                    'cargo': certi['cargo'],
+                    'tipo': certi['tipocontrato'],
+                    'promedio': certi['promediovariable'],
+                }
+
+                lista_certificaciones.append(certi_data)
+    
+    # contratos
+    contratos_sin = Contratos.objects.filter(idempleado__idempleado=ide)    
+    contratos = []
+    
+    for con in contratos_sin:
+        estado_contrato = ESTADOS_CONTRATO.get(con.estadocontrato, "")
+        fechafincontrato = f"{con.fechafincontrato}" if con.fechafincontrato is not None else ""
+        contrato = {
+            'cc': f"{con.cargo} - {con.fechainiciocontrato} {estado_contrato} {fechafincontrato}",
+            'idcontrato': con.idcontrato
+        }
+        
+        contratos.append(contrato)
+    
+    return render(request, 'employees/certificaciones_laborales.html', {
+        'contratos': contratos,
+        'certificaciones': lista_certificaciones,
+        'select': select,
+        'select_data': select_data ,
+        'selected_empleado':selected_empleado
+    })
+
+
+
+
+
+
