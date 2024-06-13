@@ -102,12 +102,16 @@ def vista_certificaciones(request):
         
         contratos.append(contrato)
     
+    cont = len(contratos)
+    
     return render(request, 'employees/certificaciones_laborales.html', {
         'contratos': contratos,
         'certificaciones': lista_certificaciones,
         'select': select,
         'select_data': select_data ,
-        'selected_empleado':selected_empleado
+        'selected_empleado':selected_empleado,
+        'cont':cont
+        
     })
 
 
