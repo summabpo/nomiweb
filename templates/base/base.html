@@ -1,5 +1,4 @@
 {% load static %}
-<!DOCTYPE html>
 <!--
 Author: Keenthemes
 Product Name: Saul 
@@ -13,38 +12,26 @@ Like: www.facebook.com/keenthemes
 License: For each use you must have a valid license purchased only from above link in order to legally use the theme for your project.
 -->
 
-
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
-    <title></title>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Portal Empleados{% endblock %}</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+  <!--end::Fonts-->
+  <!--begin::Vendor Stylesheets(used for this page only)-->
+  <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css" />
+  <!--end::Vendor Stylesheets-->
+  <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
+  <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+  <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
 
-    {% comment %} <meta name="description" content="Saul HTML Pro - Bootstrap 5 HTML Multipurpose Admin Dashboard Theme" />
-    <meta name="keywords" content="Saul, bootstrap, bootstrap 5, dmin themes, free admin themes, bootstrap admin, bootstrap dashboard" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" /> {% endcomment %}
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Website{% endblock %}</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-    <!--end::Fonts-->
-    <!--begin::Vendor Stylesheets(used for this page only)-->
-    <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css" />
-    <!--end::Vendor Stylesheets-->
-    <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
-    <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
-    <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
-
-
-
-
-    {% block cssarch %}
+  <style>
+    {% block css %}
     {% endblock %}
-
-    <style>
-        {% block css %}
-        {% endblock %}
-    </style>
+  </style>
 </head>
 <body id="kt_app_body" data-kt-app-header-fixed="true" data-kt-app-header-fixed-mobile="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" data-kt-app-sidebar-hoverable="true" data-kt-app-sidebar-push-toolbar="true" data-kt-app-sidebar-push-footer="true" data-kt-app-toolbar-enabled="true" data-kt-app-aside-enabled="true" data-kt-app-aside-fixed="true" data-kt-app-aside-push-toolbar="true" data-kt-app-aside-push-footer="true" class="app-default" >
 
@@ -70,9 +57,8 @@ License: For each use you must have a valid license purchased only from above li
                         <!--end::Sidebar mobile toggle-->
                         <!--begin::Logo-->
                         <a href="" class="app-sidebar-logo">
-                            <!--<img alt="Logo" src="assets/media/logos/default.svg" class="h-30px theme-light-show" />-->
-                            <img alt="Logo" src="https://placehold.it/90x17&text=NomiWEB/333" class="h-30px theme-dark-show" />
-                            NomiWEB
+                            <img alt="Logo" src="{% static 'img/logonomiweb.png' %}" class="h-30px theme-light-show" />
+                            <img alt="Logo" src="{% static 'img/logonomiweb.png' %}" class="h-30px theme-dark-show" />
                         </a>
                         <!--end::Logo-->
                         <!--begin::Sidebar toggle-->
@@ -99,8 +85,8 @@ License: For each use you must have a valid license purchased only from above li
                                         <!--end::Avatar-->
                                         <!--begin::Username-->
                                         <div class="d-flex flex-column">
-                                            <div class="fw-bold d-flex align-items-center fs-5">PEDRO PEREZ </div>
-                                            <a href="#" class="fw-semibold text-muted text-hover-primary fs-7">pedro@kt.com</a>
+                                            <div class="fw-bold d-flex align-items-center fs-7">{{ request.session.empleado.nombre_completo }}</div>
+                                            <a href="#" class="fw-semibold text-muted text-hover-primary fs-8">{{ request.session.empleado.email }}</a>
                                         </div>
                                         <!--end::Username-->
                                     </div>
@@ -111,15 +97,10 @@ License: For each use you must have a valid license purchased only from above li
                                 <!--end::Menu separator-->
                                 <!--begin::Menu item-->
                                 <div class="menu-item px-5">
-                                    <a href="" class="menu-link px-5">My Profile</a>
+                                    <a href="{% url 'employees:user'  %}" class="menu-link px-5">Mi Perfil</a>
                                 </div>
                                 <!--end::Menu item-->
                                 
-                                <!--begin::Menu item-->
-                                <div class="menu-item px-5">
-                                    <a href="" class="menu-link px-5">My Statements</a>
-                                </div>
-                                <!--end::Menu item-->
                                 <!--begin::Menu separator-->
                                 <div class="separator my-2"></div>
                                 <!--end::Menu separator-->
@@ -229,7 +210,10 @@ License: For each use you must have a valid license purchased only from above li
             <!--begin::Wrapper-->
             <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
                 <!--begin::Sidebar-->
-                {% include './navbar.html' %}
+                {% block nav %}
+                    {% include './navbar_employees.html' %}
+                {% endblock %}
+                
                 <!--end::Sidebar-->
                 <!--begin::Main-->
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">

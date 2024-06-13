@@ -50,8 +50,7 @@ def listaNomina(request):
         contratos.append(contrato)
     
     # Contar el número de contratos
-    cont = len(contratos)
-    print(contratos)
+    cont = len(contratos)    
     # Obtener el contrato seleccionado, si existe
     selected_contrato_id = request.GET.get('contrato')
     if selected_contrato_id:

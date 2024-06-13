@@ -18,18 +18,23 @@ Certificaciones Laborales
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-
+                        
                         {% if cont < 2 %}
                         <!-- Lógica para cuando contratos está vacío -->
-                        <select name="contrato" id="contrato" class="form-select"  disabled >
-                            {% for contrato in contratos %}
-                                <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
-                                    {{ contrato.cc }}
-                                </option>
-                            {% endfor %}
-                        </select>
                         
-
+                        
+                        
+                        <div class="input-group input-group-sm mb-5"> 
+                            <div class="input-group input-group-sm mb-5" data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
+                                <select name="contrato" id="contrato" class="form-select"  disabled >
+                                    {% for contrato in contratos %}
+                                        <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                            {{ contrato.cc }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                     {% else %}
                         <!-- Aquí puedes colocar tu formulario -->
                         <form method="get">
@@ -48,29 +53,28 @@ Certificaciones Laborales
                             
                             </div>
                         </form>
-
-                        {% if select %}
-                        <form method="post" action="{% url 'companies:generateworkcertificate'%}" target="_blank" >
-                            {% csrf_token %}
-                            <div class="input-group input-group-sm mb-5">
-                                <input type="text" name="data_input" id="data_input" class="form-control" aria-label="A quien va dirigida la certificación"   placeholder="A quien va dirigida la certificación"  >
-                                <input type="hidden" name="contrato" value="{{ selected_empleado }}">
-                            </div>
-                            <div class="input-group input-group-sm mb-5">
-                                <select class="form-select" aria-label="Select example" name="data_model" id="data_model" required>
-                                    <option value="" disabled selected>Escoja el tipo de certificado</option>
-                                    {% for key, value in select_data.items %}
-                                        <option value="{{ key }}">{{ value }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary" >Generar</button>
-                        </form>
-                        {% endif %}
                     {% endif %}
 
 
+                    {% if select %}
+                    <form method="post" action="{% url 'employees:generateworkcertificate'%}" target="_blank" >
+                        {% csrf_token %}
+                        <div class="input-group input-group-sm mb-5">
+                            <input type="text" name="data_input" id="data_input" class="form-control" aria-label="A quien va dirigida la certificación"   placeholder="A quien va dirigida la certificación"  >
+                            <input type="hidden" name="contrato" value="{{ selected_empleado }}">
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <select class="form-select" aria-label="Select example" name="data_model" id="data_model" required>
+                                <option value="" disabled selected>Escoja el tipo de certificado</option>
+                                {% for key, value in select_data.items %}
+                                    <option value="{{ key }}">{{ value }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" >Generar</button>
+                    </form>
+                    {% endif %}
 
 
 
@@ -114,7 +118,7 @@ Certificaciones Laborales
                         <td>{{ certificacione.promedio }}</td>
     
                         <td>
-                            <a href="{% url 'companies:certificatedownload' idcert=certificacione.idcert %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                            <a href="{% url 'employees:certificatedownload' idcert=certificacione.idcert %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
                                 <i class="fa-solid fa-file-arrow-down fs-3"></i>
                             </a>
                         </td>
