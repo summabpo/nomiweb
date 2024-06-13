@@ -37,7 +37,14 @@ Posible Dash
             <!--begin: Pic-->
             <div class="me-7 mb-4">
                 <div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
-                    <img src="{% static 'media/avatars/300-3.jpg' %}" alt="image" />
+                    
+                    {% if img_data_base64 %}
+                    <img src="{{data.fotografiaempleado.url}}" class="card-img-top" alt="Profile Picture">
+                {% else %}
+                    <img src="{% static 'media/avatars/300-3.jpg' %}" class="card-img-top" alt="Default Profile Picture">
+                {% endif %}
+
+
                     <a href="#" class="d-flex align-items-center text-gray-500 text-hover-primary me-5 mb-2">
                         <div class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-body h-20px w-20px"></div>
                     </a>
