@@ -24,3 +24,48 @@ def datos_empleado(id_contrato=15):
         'ide': contrato.idempleado_id
     }
     return info_empleado
+
+
+def datos_empleado2(id_empleado):
+    try:
+        empleado = Contratosemp.objects.only('pnombre', 'snombre', 'papellido', 'sapellido', 'email','fotografiaempleado').get(idempleado=id_empleado)
+        
+        nombre_completo = f"{empleado.pnombre} {empleado.papellido}"
+        
+        print(type(empleado.fotografiaempleado))
+        
+        info_empleado = {
+            'nombre_completo': nombre_completo.strip(),  # Elimina espacios en blanco adicionales
+            'email': empleado.email,
+            'fotografiaempleado': empleado.fotografiaempleado.url,
+        }
+    except Contratosemp.DoesNotExist:
+        info_empleado = {
+            'nombre_completo': '',
+            'email': '',
+            'fotografiaempleado': '',
+        }
+    
+    return info_empleado
+
+
+    try:
+        empleado = Contratosemp.objects.annotate(
+            nombre_letras=Concat(
+                F('pnombre'), Value(' '), F('snombre'), Value(' '), 
+                F('papellido'), Value(' '), F('sapellido'), 
+                output_field=CharField()
+            )
+        ).only('nombre_letras', 'email').get(idempleado=id_empleado)
+        
+        info_empleado = {
+            'nombre_completo': empleado.nombre_letras,
+            'email': empleado.email,
+        }
+    except Contratosemp.DoesNotExist:
+        info_empleado = {
+            'nombre_completo': '',
+            'email': '',
+        }
+    
+    return info_empleado

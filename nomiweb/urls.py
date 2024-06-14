@@ -19,6 +19,9 @@ from django.urls import path ,include
 from apps.login.views import custom_400 ,custom_403,custom_404 ,custom_500
 from allauth.account.views import LoginView
 from django.conf import settings
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 # Importa Django Debug Toolbar solo si DEBUG está activado
 if settings.DEBUG:
@@ -29,7 +32,7 @@ urlpatterns = [
     path('employees/', include(('apps.employees.urls', 'employees'))),
     path('companies/', include(('apps.companies.urls', 'companies'))),
     path('admin/', include(('apps.administrator.urls', 'admin'))),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Si DEBUG está activado, agrega las URLs de Django Debug Toolbar
 if settings.DEBUG:

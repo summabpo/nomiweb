@@ -38,6 +38,26 @@ def vista_certificaciones(request):
     lista_certificaciones = []
     select = None
     
+    
+    # contratos
+    contratos_sin = Contratos.objects.filter(idempleado__idempleado=ide)    
+    contratos = []
+    
+    for con in contratos_sin:
+        estado_contrato = ESTADOS_CONTRATO.get(con.estadocontrato, "")
+        fechafincontrato = f"{con.fechafincontrato}" if con.fechafincontrato is not None else ""
+        contrato = {
+            'cc': f"{con.cargo} - {con.fechainiciocontrato} {estado_contrato} {fechafincontrato}",
+            'idcontrato': con.idcontrato
+        }
+        
+        contratos.append(contrato)
+    
+    cont = len(contratos)
+    
+    if cont == 1 : 
+        selected_empleado = contratos[0]['idcontrato']    
+    
     if selected_empleado:
         auxcontrato = Contratos.objects.filter(idcontrato=selected_empleado).values('estadocontrato')
         if auxcontrato.exists():
@@ -55,7 +75,8 @@ def vista_certificaciones(request):
                 }
             else:
                 select_data = {}
-            
+        
+        
             select = True
             certi_all = Certificaciones.objects.filter(idcontrato=selected_empleado).values(
                 'idcert', 
@@ -88,21 +109,7 @@ def vista_certificaciones(request):
 
                 lista_certificaciones.append(certi_data)
     
-    # contratos
-    contratos_sin = Contratos.objects.filter(idempleado__idempleado=ide)    
-    contratos = []
     
-    for con in contratos_sin:
-        estado_contrato = ESTADOS_CONTRATO.get(con.estadocontrato, "")
-        fechafincontrato = f"{con.fechafincontrato}" if con.fechafincontrato is not None else ""
-        contrato = {
-            'cc': f"{con.cargo} - {con.fechainiciocontrato} {estado_contrato} {fechafincontrato}",
-            'idcontrato': con.idcontrato
-        }
-        
-        contratos.append(contrato)
-    
-    cont = len(contratos)
     
     return render(request, 'employees/certificaciones_laborales.html', {
         'contratos': contratos,
@@ -149,5 +156,29 @@ def generateworkcertificate(request):
         print(e)
         return redirect('companies:workcertificate')
 
+
+def certificatedownload(request,idcert):
+
+    try:
+        context = workcertificatedownload(idcert)
+        html_string = render(request, './html/workcertificatework.html', context).content.decode('utf-8')
+        
+        pdf = BytesIO()
+        pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+        pdf.seek(0)
+
+        if pisa_status.err:
+            return HttpResponse('Error al generar el PDF', status=400)
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
+        
+        return response
+    
+    except Exception as e:
+        messages.error(request, 'Ocurrio un error inesperado')
+        print(e)
+        return redirect('companies:workcertificate')
+    
 
 

@@ -16,21 +16,21 @@ Certificaciones DIAN
 {% endblock %}
 
 {% block titulo2 %} 
-    Certificados anteriores 
+        Ingresos y Retenciones
 {% endblock %}
 
 {% block content %}
+<div class="card mb-5 mb-xxl-8">
+    <div class="card-body pt-9 pb-0">
+        <div class="separator my-10"></div>
+        <h3 class="text-center" >Lista de Certificaciones Generadas </h3>
 
-<div class="separator my-10"></div>
-<h3 class="text-center" >Lista de Certificaciones DIAN</h3>
-
-        
+    
         <div class="table-responsive">
             <table class="table table-rounded table-striped border gy-7 gs-7" id='tabla-certi-nomi'>
                 <thead>
                     <tr>
                     <th width="200">ID Certificado</th>
-                    <th width="200">salarios</th>
                     <th width="200">año</th>
                     <th width="150">
                         <div class="btn btn-icon btn-sm btn-light-facebook me-5 container d-flex justify-content-center align-items-center  ">
@@ -43,7 +43,6 @@ Certificaciones DIAN
                     {% for rete in reten %}
                     <tr>
                         <td>{{ rete.idingret }}</td>
-                        <td>{{ rete.salarios }}</td>
                         <td>{{ rete.anoacumular }}</td>
                         <td>
                             <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
@@ -55,7 +54,8 @@ Certificaciones DIAN
                 </tbody>
             </table>
         </div>
-    
+    </div>
+</div>
 {% endblock %}
 
 
