@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>comp nomina 23</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 1cm; /* Márgenes de la página */
+
+            @frame content_frame {
+                left: 50pt;
+                width: 512pt;
+                top: 50pt;
+                height: 500pt;
+    
+            }
+
+        }
+
+        body {
+            font-family: Helvetica, Geneva, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        .header {
+            text-align: center;
+            font-size: 18px;
+            color: #428bca;
+            font-weight: bold;
+        }
+
+        .cabezote, .total {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .cabezote {
+            background-color: #b9c1c4;
+        }
+
+        .total {
+            background-color: #81DAF5;
+        }
+
+        .tablas{
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Contenido del cuerpo del HTML -->
+    <div class="header">Lista de Empleados</div>
+
+
+    <div id="content_content">
+        <!-- Primer bloque de tabla -->
+        <div class="tablas">
+            <table>
+                <tr>
+                    <th width="50%" class="cabezote" >Empleados</th>
+                    <th width="30%" class="cabezote" >Identificación</th>
+                    <th width="13%" class="cabezote" >Contrato</th>
+                    <th width="12%" class="cabezote" >IdNomina</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    
+
+    <!-- Segundo bloque de tabla -->
+    <table>
+        <tr>
+            <th width="20%">Fecha Ingreso</th>
+            <th width="42%">Cargo</th>
+            <th width="18%">Salario</th>
+            <th width="20%">Cuenta</th>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <!-- Tercer bloque de tabla -->
+    <table>
+        <tr>
+            <th width="30%">Centro de Costo</th>
+            <th width="30%">Periodo de Pago</th>
+            <th width="20%">Salud</th>
+            <th width="20%">Pensión</th>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <br>
+
+    <!-- Bloque de ingresos y deducciones -->
+    <table>
+        <tr>
+            <td width="50%" class="cabezote">INGRESOS</td>
+            <td width="50%" class="cabezote">DEDUCCIONES</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <!-- Tabla de totales -->
+    <table>
+        <tr>
+            <td width="32%" class="cabezote">Total Ingresos:</td>
+            <td width="18%"></td>
+            <td width="32%" class="cabezote">Total Deducciones:</td>
+            <td width="18%"></td>
+        </tr>
+    </table>
+
+    <!-- Total a pagar -->
+    <table>
+        <tr>
+            <td width="50%" class="total">Total a Pagar:</td>
+            <td></td>
+        </tr>
+    </table>
+</body>
+</html>

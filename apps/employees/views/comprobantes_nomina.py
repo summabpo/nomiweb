@@ -1,7 +1,7 @@
+from django.shortcuts import render,redirect
 from datetime import datetime
 import datetime
 from typing import Any, Dict
-from django.shortcuts import render
 from django.db.models import Sum, F, Value, CharField
 from django.db.models.functions import Concat
 from io import BytesIO
@@ -13,6 +13,10 @@ from reportlab.lib.utils import ImageReader
 from reportlab.lib.colors import PCMYKColor, PCMYKColorSep, Color, black, lightblue, red
 import imgkit
 
+
+from django.contrib import messages
+from io import BytesIO
+from xhtml2pdf import pisa
 
 # Create your views here.
 from django.views.generic import  ListView, DetailView
@@ -229,6 +233,43 @@ def genera_comprobante(request, idnomina, idcontrato):
         
         return response
     
+
+
+def generatepayrollcertificate(request):
+    
+    context = {
+                'pr':'datos'
+            }
+            
+            
+            
+    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+    
+    pdf = BytesIO()
+    pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+    pdf.seek(0)
+
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=400)
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
+    
+    return response
+    
+    
+    # try:
+    #     if request.method == 'POST':
+            
+            
+    
+    # except Exception as e:
+    #     messages.error(request, 'Ocurrio un error inesperado')
+    #     print(e)
+    #     return redirect('companies:workcertificate')
+
+
+
 
 
 ## copiar y elimiar 

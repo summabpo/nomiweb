@@ -8,13 +8,13 @@ from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, Lista
 from apps.employees.views import index
 from apps.employees.views.viewdian import viewdian
 from apps.employees.views import edituser
-
+from apps.employees.views import comprobantes_nomina
 
 
 urlpatterns = [
-    path('Certificate/labor',views.certificaciones_laborales.vista_certificaciones,name='certificaciones' ),
-    path('Certificate/labor/download/<int:idcert>/', views.certificaciones_laborales.certificatedownload, name='certificatedownload' ),
-    path('Certificate/labor/download/create/', views.certificaciones_laborales.generateworkcertificate,name='generateworkcertificate' ),
+    path('Certificate/labor',certificaciones_laborales.vista_certificaciones,name='certificaciones' ),
+    path('Certificate/labor/download/<int:idcert>/', certificaciones_laborales.certificatedownload, name='certificatedownload' ),
+    path('Certificate/labor/download/create/', certificaciones_laborales.generateworkcertificate,name='generateworkcertificate' ),
     # path(
     #     'genera-certificaciones/<int:idcert>/',
     #     views.certificaciones_laborales.genera_certificaciones,
@@ -70,4 +70,5 @@ urlpatterns = [
     path('Certificate/DIAN/',viewdian.viewdian,name='viewdian'),
     path('user', edituser.user_employees, name='user' ),
     path('edit/user', edituser.edit_user_employees, name='edituser' ),
+    path('Certificate/payroll', comprobantes_nomina.generatepayrollcertificate, name='generatepayrollcertificate' ),
 ]
