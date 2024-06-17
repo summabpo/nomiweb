@@ -18,8 +18,10 @@ def datos_cliente():
             'id_cliente': empresa_data['idcliente'],
             'cargo_certificaciones': empresa_data['cargocertificaciones'],
             'firma_certificaciones': empresa_data['firmacertificaciones'],
-            'emailrrhh': empresa_data['emailrrhh']
-            
+            'emailrrhh': empresa_data['emailrrhh'],
+            'dv':empresa_data['dv'], 
+            'coddpto':empresa_data['coddpto'], 
+            'codciudad':empresa_data['codciudad'], 
         }
     else:
         # Manejar el caso donde no se encuentra la empresa con el id especificado

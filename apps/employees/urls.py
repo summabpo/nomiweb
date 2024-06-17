@@ -69,6 +69,8 @@ urlpatterns = [
         name='vacation_detail_modal'),
     
     path('Certificate/DIAN/',viewdian.viewdian,name='viewdian'),
+    path('Certificate/DIAN/download/<str:idingret>',viewdian.viewdian_empleado,name='viewdiandownload'),
+    
     path('user', edituser.user_employees, name='user' ),
     path('edit/user', edituser.edit_user_employees, name='edituser' ),
     path('Certificate/payroll/<str:idnomina>/<str:idcontrato>', comprobantes_nomina.generatepayrollcertificate, name='generatepayrollcertificate' ),
