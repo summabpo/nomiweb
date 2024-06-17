@@ -1,6 +1,4 @@
-import apps.employees.context_global
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
 from django.db.models import Sum
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos
@@ -18,8 +16,11 @@ def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_fe
     dia_actual = fechainicialvac
 
     while dia_actual <= fechafinalvac:
-        if (dia_actual.weekday() != 6 and dia_actual not in dias_festivos) and (dia_actual.weekday() != 5 or cuentasabados == 1):
+        if (dia_actual.weekday() != 6) and (dia_actual not in dias_festivos) and (dia_actual.weekday() != 5 or cuentasabados == 1):
+            print(f"Incluyendo día: {dia_actual}")
             total_dias += 1
+        else:
+            print(f"Excluyendo día: {dia_actual}")
         dia_actual += timedelta(days=1)
     return total_dias
 
@@ -38,26 +39,36 @@ def vacation_request_function(request):
     inicio_contrato = contratof.fechainiciocontrato.strftime('%Y-%m-%d')
 
     form = EmpVacacionesForm(request.POST or None)
-
+    
     if request.method == 'POST' and form.is_valid():
         tipovac_obj = form.cleaned_data.get('tipovac')
         tipovac = str(tipovac_obj.tipovac)
+        cuentasabados = form.cleaned_data.get('cuentasabados')
+
+        print(f"cuentasabados after form.cleaned_data.get: {cuentasabados}")
 
         if tipovac == '2':
-            diascalendario = form.cleaned_data.get('diascalendario')
-            diasvac = diascalendario
+            diasvac = form.cleaned_data.get('diasvac')
+            diascalendario = diasvac
+            #cuentasabados = 0
         else:
             fechainicialvac = form.cleaned_data.get('fechainicialvac')
             fechafinalvac = form.cleaned_data.get('fechafinalvac')
             cuentasabados = form.cleaned_data.get('cuentasabados')
 
             if fechainicialvac and fechafinalvac:
+                print(f"fechainicialvac: {fechainicialvac}, fechafinalvac: {fechafinalvac}")
                 diascalendario = (fechafinalvac - fechainicialvac).days + 1
                 dias_festivos = Festivos.objects.values_list('dia', flat=True)
+                print(f"cuentasabados before calcular_dias_habiles xxxx: {cuentasabados}")
+                cuentasabados = int(cuentasabados)
                 diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos)
+                print(f"diasvac after calcular_dias_habiles: {diasvac}")
             else:
                 form.add_error(None, 'Fechas de inicio y fin son requeridas.')
                 return render(request, 'employees/vacations_request.html', {'form': form})
+        
+        print(f"vacation_request.diasvac before save: {diasvac}")
 
         vacation_request = form.save(commit=False)
         vacation_request.estado = 1
@@ -65,7 +76,13 @@ def vacation_request_function(request):
         vacation_request.fecha_hora = datetime.now()
         vacation_request.diascalendario = diascalendario
         vacation_request.diasvac = diasvac
+        print(f"vacation_request.cuentasabados before save: {vacation_request.cuentasabados}")
         vacation_request.save()
+        
+        # Verificación después de guardar
+        saved_request = EmpVacaciones.objects.get(pk=vacation_request.pk)
+        print(f"saved_request.diasvac after save: {saved_request.diasvac}")
+        
         return redirect('employees:form_vac')
 
     dias_vacaciones = Vacaciones.objects.filter(idcontrato=idc).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
@@ -75,6 +92,8 @@ def vacation_request_function(request):
     vacaciones_fecha = round(dias_trabajados * 15/360,2)
 
     vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
+    
+    
 
     context = {
         'form': form,
@@ -88,10 +107,19 @@ def vacation_request_function(request):
 
 def vacation_detail_modal(request, pk):
     vacation = get_object_or_404(EmpVacaciones, pk=pk)
+    
+    nom_cuentasabados = 'No'
+    
+    if vacation.cuentasabados == 1:
+        nom_cuentasabados = 'Si'
+    else:
+        nom_cuentasabados = 'No'
+            
     context = {
         'tipovac': str(vacation.tipovac.tipovac),
         'nombre_tipovac': vacation.tipovac.nombrevacaus,
         'fecha': vacation.fecha_hora.strftime('%d-%m-%Y'),
+        'cuentasabados': nom_cuentasabados,
         'dias_habiles': vacation.diasvac,
         'dias_calendario': vacation.diascalendario,
         'fecha_inicial': vacation.fechainicialvac.strftime('%d-%m-%Y') if vacation.fechainicialvac else '',

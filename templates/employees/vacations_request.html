@@ -5,23 +5,6 @@
 {% block title %} Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias {% endblock %} 
 
 {% block content %}
-<style>
-    .table-custom-pendiente {
-        background-color: #7ccbec !important;
-        color: white !important;
-        text-align: center !important;
-    }
-    .table-custom-aprobado {
-        background-color:  #d12c88 !important;
-        color: white !important;
-        text-align: center !important;
-    }
-    .table-custom-rechazado {
-        background-color: #5050bc !important;
-        color: white !important;
-        text-align: center !important;
-    }
-</style>
 
 <!---CARDS INDICADORES---->
 <div class="d-flex justify-content-around flex-wrap" style="width: 100%;">
@@ -108,18 +91,18 @@
                                 <td>{{ e.fechafinalvac|date:"d-m-y" }}</td>
                                 <td>{{ e.diasvac }}</td>
                                 <td>{{ e.diascalendario }}</td>
-                                <td class="{% if e.estado == 1 %}table-custom-pendiente{% elif e.estado == 2 %}table-custom-aprobado{% elif e.estado == 3 %}table-custom-rechazado{% endif %}">
+                                <td>
                                     {% if e.estado == 1 %}
-                                        Pendiente
+                                    <a href="" class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary"><i class="bi bi-stopwatch-fill fs-4 me-2"></i></i>Pendiente
                                     {% elif e.estado == 2 %}
-                                        Aprobado
+                                    <a href="" class="btn btn-outline btn-outline-dashed btn-outline-success btn-active-light-success"><i class="bi bi-check-circle-fill fs-4 me-2"></i></i>Aprobada
                                     {% elif e.estado == 3 %}
-                                        Rechazado
+                                    <a href="" class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger"><i class="bi bi-exclamation-triangle-fill fs-4 me-2"></i></i>Rechazada
                                     {% else %}
                                         Desconocido
                                     {% endif %}
                                 </td>
-                                <td><a href="javascript:void(0);" class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger" onclick="loadVacationDetails({{ e.pk }})">
+                                <td><a href="javascript:void(0);" class="btn btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning" onclick="loadVacationDetails({{ e.pk }})">
                                     <i class="bi bi-chat-square-text-fill fs-4 me-2"></i>Ver Detalle
                                 </a>
                                 </td>
@@ -159,6 +142,36 @@
                 document.getElementById('kt_modal_2_content').innerHTML = '<p>Error al cargar los detalles.</p>';
             });
     }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipovacSelect = document.getElementById('tipovac-select');
+        const diasvacField = document.getElementById('diasvac-column');
+        const fechainicialvacField = document.getElementById('fechainicialvac-column');
+        const fechafinalvacField = document.getElementById('fechafinalvac-column');
+        const cuentasabadosField = document.getElementById('cuentasabados-column');
+
+        function toggleFields() {
+            const selectedValue = tipovacSelect.value;
+
+            if (selectedValue !== '2') {
+                diasvacField.style.display = 'none';
+                fechainicialvacField.style.display = 'block';
+                fechafinalvacField.style.display = 'block';
+                cuentasabadosField.style.display = 'block';
+            } else {
+                diasvacField.style.display = 'block';
+                fechainicialvacField.style.display = 'none';
+                fechafinalvacField.style.display = 'none';
+                cuentasabadosField.style.display = 'none';
+            }
+        }
+
+        if (tipovacSelect) {
+            tipovacSelect.addEventListener('change', toggleFields);
+            toggleFields();
+        }
+    });
 </script>
 
 {% endblock content %}

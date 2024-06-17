@@ -9,9 +9,11 @@
     <p><strong>Fecha:</strong> {{ fecha }}</p>
     <p><strong>Días Hábiles:</strong> {{ dias_habiles }}</p>
     <p><strong>Días Calendario:</strong> {{ dias_calendario }}</p>
+    
     {% if tipovac != '2' %}
         <p><strong>Fecha Inicial:</strong> {{ fecha_inicial }}</p>
         <p><strong>Fecha Final:</strong> {{ fecha_final }}</p>
+        <p><strong>Cuenta Sabados:</strong> {{ cuentasabados }}</p>
     {% endif %}
     <p><strong>Estado:</strong> {% if estado == 1 %}Pendiente{% elif estado == 2 %}Aprobado{% elif estado == 3 %}Rechazado{% else %}Desconocido{% endif %}</p>
     <p><strong>Comentarios Empleado:</strong></p>
