@@ -71,7 +71,7 @@ urlpatterns = [
     path('Certificate/DIAN/',viewdian.viewdian,name='viewdian'),
     path('user', edituser.user_employees, name='user' ),
     path('edit/user', edituser.edit_user_employees, name='edituser' ),
-    path('Certificate/payroll', comprobantes_nomina.generatepayrollcertificate, name='generatepayrollcertificate' ),
+    path('Certificate/payroll/<str:idnomina>/<str:idcontrato>', comprobantes_nomina.generatepayrollcertificate, name='generatepayrollcertificate' ),
     path('user/new/password', newpassword.newpassword_employees, name='newpassword' ),
     
 ]

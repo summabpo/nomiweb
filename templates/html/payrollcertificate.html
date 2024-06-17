@@ -5,21 +5,21 @@
     <title>comp nomina 23</title>
     <style>
         @page {
-            size: letter portrait;
-            margin: 1cm; /* Márgenes de la página */
+            size:a4;
+            
 
             @frame content_frame {
                 left: 50pt;
                 width: 512pt;
-                top: 50pt;
-                height: 500pt;
-    
+                top: 40pt;
+                height: 700pt;
+                
             }
 
         }
 
         body {
-            font-family: Helvetica, Geneva, sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         table {
@@ -52,6 +52,9 @@
 
         .cabezote {
             background-color: #b9c1c4;
+            margen: 0;
+            padding :0; 
+            font-size: 15px;
         }
 
         .total {
@@ -59,31 +62,53 @@
         }
 
         .tablas{
-            width: 100%;
+            margin-bottom: 0;
+            border-spacing: 0;
+            height: 30pt;
+            font-size: 50px;
         }
 
+        .margen{
+            margin-bottom: 0;
+            border-spacing: 0;
+            font-size: 25px;
+        }
+
+        
+
+        .cuerpo {
+            font-family: 'Courier', monospace;
+            color: #8D8D8D;
+        }
+
+        .cuerpo2 {
+            font-family: 'Courier', monospace;
+            color: #8D8D8D;
+            text-align: left; /* Alinear texto a la izquierda */
+            padding-left: 5px; /* Eliminar el padding izquierdo */
+        }
     </style>
 </head>
 <body>
     <!-- Contenido del cuerpo del HTML -->
-    <div class="header">Lista de Empleados</div>
+    <div class="header">Comprobante de Nómina</div>
 
 
     <div id="content_content">
         <!-- Primer bloque de tabla -->
-        <div class="tablas">
-            <table>
+        <div class='margen' >
+            <table class="tablas">
                 <tr>
-                    <th width="50%" class="cabezote" >Empleados</th>
+                    <th width="40%" class="cabezote" >Empleados</th>
                     <th width="30%" class="cabezote" >Identificación</th>
-                    <th width="13%" class="cabezote" >Contrato</th>
-                    <th width="12%" class="cabezote" >IdNomina</th>
+                    <th width="15%" class="cabezote" >Contrato</th>
+                    <th width="15%" class="cabezote" >IdNomina</th>
                 </tr>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td class='cuerpo' >{{nombre_completo}}</td>
+                    <td class='cuerpo' >{{cc}}</td>
+                    <td class='cuerpo' >{{idcon}}</td>
+                    <td class='cuerpo' >{{idnomi}}</td>
                 </tr>
             </table>
         </div>
@@ -92,66 +117,108 @@
     
 
     <!-- Segundo bloque de tabla -->
-    <table>
+    <table class="tablas">
         <tr>
-            <th width="20%">Fecha Ingreso</th>
-            <th width="42%">Cargo</th>
-            <th width="18%">Salario</th>
-            <th width="20%">Cuenta</th>
+            <th width="20%" class="cabezote" >Fecha Ingreso</th>
+            <th width="42%" class="cabezote" >Cargo</th>
+            <th width="18%" class="cabezote" >Salario</th>
+            <th width="20%" class="cabezote" >Cuenta</th>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td class='cuerpo' >{{fecha1}}</td>
+            <td class='cuerpo' >{{cargo}}</td>
+            <td class='cuerpo' >{{salario}}</td>
+            <td class='cuerpo' >{{cuenta}}</td>
         </tr>
     </table>
 
     <!-- Tercer bloque de tabla -->
-    <table>
+    <table class="tablas">
         <tr>
-            <th width="30%">Centro de Costo</th>
-            <th width="30%">Periodo de Pago</th>
-            <th width="20%">Salud</th>
-            <th width="20%">Pensión</th>
+            <th width="30%" class="cabezote" >Centro de Costo</th>
+            <th width="30%" class="cabezote" >Periodo de Pago</th>
+            <th width="20%" class="cabezote" >Salud</th>
+            <th width="20%" class="cabezote" >Pensión</th>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td class='cuerpo' >{{ccostos}}</td>
+            <td class='cuerpo' >{{periodos}}</td>
+            <td class='cuerpo' >{{eps}} </td>
+            <td class='cuerpo' >{{pension}} </td>
         </tr>
     </table>
 
     <br>
 
     <!-- Bloque de ingresos y deducciones -->
-    <table>
+    <table class="tablas">
         <tr>
             <td width="50%" class="cabezote">INGRESOS</td>
             <td width="50%" class="cabezote">DEDUCCIONES</td>
         </tr>
-        <tr>
-            <td></td>
-            <td></td>
-        </tr>
     </table>
 
+    <table class="table2" >
+        <tr >
+            <td class='cuerpo2' width="5%"  >
+                {% for nomina in dataDevengado %}
+                    {{ nomina.idconcepto.idconcepto }}<br>
+                {% endfor %}
+            </td>
+            <td class='cuerpo2' width="27%" >
+                {% for nomina in dataDevengado %}
+                    {{ nomina.nombreconcepto }}<br>
+                {% endfor %}
+            </td>
+            <td class='cuerpo2' width="6%"  >
+                {% for nomina in dataDevengado %}
+                    {{ nomina.cantidad }}<br>
+                {% endfor %}
+            </td>
+            <td class='cuerpo2' width="12%" >
+                {% for nomina in dataDevengado %}
+                    {{ nomina.valor }}<br>
+                {% endfor %}
+            </td>
+            <td class='cuerpo2' width="5%"  >
+                {% for nomina in dataDescuento %}
+                    {{ nomina.idconcepto.idconcepto }}<br>
+                {% endfor %}
+            </td>
+            <td class='cuerpo2' width="27%" >
+                {% for nomina in dataDescuento %}
+                    {{ nomina.nombreconcepto }}<br>
+                {% endfor %}
+            </td>
+            <td class='cuerpo2' width="6%"  >
+                {% for nomina in dataDescuento %}
+                    {{ nomina.cantidad }}<br>
+                {% endfor %}
+            </td>
+            <td class='cuerpo2' width="12%" >
+                {% for nomina in dataDescuento %}
+                    {{ nomina.valor }}<br>
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+    
+
     <!-- Tabla de totales -->
-    <table>
+    <table class="tablas">
         <tr>
             <td width="32%" class="cabezote">Total Ingresos:</td>
-            <td width="18%"></td>
+            <td width="18%">{{sumadataDevengado}}</td>
             <td width="32%" class="cabezote">Total Deducciones:</td>
-            <td width="18%"></td>
+            <td width="18%">{{sumadataDescuento}}</td>
         </tr>
     </table>
 
     <!-- Total a pagar -->
-    <table>
+    <table class="tablas">
         <tr>
             <td width="50%" class="total">Total a Pagar:</td>
-            <td></td>
+            <td>{{total}}</td>
         </tr>
     </table>
 </body>
