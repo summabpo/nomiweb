@@ -12,7 +12,7 @@ import locale
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.colors import PCMYKColor, PCMYKColorSep, Color, black, lightblue, red
 import imgkit
-
+from datetime import datetime
 
 from django.contrib import messages
 from io import BytesIO
@@ -76,14 +76,12 @@ def listaNomina(request):
     })
 
 def generatepayrollcertificate(request ,idnomina,idcontrato,):
-    ide = request.session.get('idempleado',{})
-    context = genera_comprobante(idnomina,idcontrato,ide)
+    context = genera_comprobante(idnomina,idcontrato)
     
     
-            
-            
-            
     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+    
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
     
     pdf = BytesIO()
     pisa_status = pisa.CreatePDF(html_string, dest=pdf)
@@ -91,11 +89,14 @@ def generatepayrollcertificate(request ,idnomina,idcontrato,):
 
     if pisa_status.err:
         return HttpResponse('Error al generar el PDF', status=400)
+    
+    nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
 
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
+    response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
     
     return response
+
     
     
     # try:

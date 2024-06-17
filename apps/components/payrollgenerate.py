@@ -4,7 +4,7 @@ from django.db.models import Sum
 from .datacompanies import datos_cliente
 
 
-def genera_comprobante(idnomina, idcontrato, idempleado):
+def genera_comprobante(idnomina, idcontrato):
     contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
     crear = Crearnomina.objects.filter(idnomina=idnomina).first()
     datac = datos_cliente()
