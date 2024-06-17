@@ -1,5 +1,5 @@
 from django.shortcuts import render ,redirect
-from apps.components.decorators import custom_login_required ,custom_permission
+from apps.components.decorators import custom_permission
 from apps.employees.forms.newpasswordform import CustomPasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
@@ -7,9 +7,10 @@ from django.contrib.auth.decorators import login_required
 
 
 
-# @custom_login_required
-# @custom_permission('employees')
+
+
 @login_required
+@custom_permission('employees')
 def newpassword_employees(request):
     
     if request.method == 'POST':
