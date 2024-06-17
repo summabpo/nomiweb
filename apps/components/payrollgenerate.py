@@ -1,12 +1,13 @@
 from django.db.models import F, Value, CharField, IntegerField
 from apps.employees.models import Contratosemp, Contratos, Nomina ,Crearnomina
 from django.db.models import Sum
-
+from .datacompanies import datos_cliente
 
 
 def genera_comprobante(idnomina, idcontrato, idempleado):
     contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
     crear = Crearnomina.objects.filter(idnomina=idnomina).first()
+    datac = datos_cliente()
     
     if contrato:
         nombre_completo = f"{contrato.idempleado.papellido} {contrato.idempleado.sapellido} {contrato.idempleado.pnombre} {contrato.idempleado.snombre}"
@@ -27,11 +28,16 @@ def genera_comprobante(idnomina, idcontrato, idempleado):
         
         sumadataDescuento = dataDescuento.aggregate(total=Sum('valor'))['total'] or 0
         
-        total = sumadataDevengado - sumadataDescuento
+        total = sumadataDevengado + sumadataDescuento
         
         periodo = f" {crear.fechainicial} hasta: {crear.fechafinal}"
         
         context = {
+            #empresa
+            'empresa':datac['nombre_empresa'],
+            'nit': datac['nit_empresa'],
+            'web':datac['website_empresa'],            
+            # nomina y empleado 
             'nombre_completo': nombre_completo,
             'cc': contrato.idempleado.docidentidad,
             'idcon': idcontrato,

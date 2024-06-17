@@ -7,6 +7,7 @@
         @page {
             size:a4;
             
+        
 
             @frame content_frame {
                 left: 50pt;
@@ -37,7 +38,7 @@
             text-align: center;
         }
 
-        .header {
+        .header2 {
             text-align: center;
             font-size: 18px;
             color: #428bca;
@@ -65,13 +66,14 @@
             margin-bottom: 0;
             border-spacing: 0;
             height: 30pt;
-            font-size: 50px;
+            font-size: 52px;
         }
 
         .margen{
             margin-bottom: 0;
             border-spacing: 0;
             font-size: 25px;
+            border: 2px solid red;
         }
 
         
@@ -84,31 +86,86 @@
         .cuerpo2 {
             font-family: 'Courier', monospace;
             color: #8D8D8D;
-            text-align: left; /* Alinear texto a la izquierda */
-            padding-left: 5px; /* Eliminar el padding izquierdo */
+            text-align: left; 
+            padding-left: 5px;
+            padding-bottom:100px
+            
+
         }
+
+        .header {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+            text-align: center;
+            border: 2px solid blue;
+        }
+                
+        .header div {
+            text-align: center;
+            margin: 0; 
+            padding: 0; 
+            line-height: 1;
+            border: 2px solid red;
+        }
+        .header hr {
+            border: none;
+            border-top: 2px solid black;
+            margin: 10px 0;
+        }
+
+        .header h1 {
+            margin: 0; 
+            padding: 0; 
+            font-size: 24px;
+        }
+
+        .header h2 {
+            color: #8D8D8D;
+            
+            margin: 0; 
+            padding: 0; 
+            font-size: 18px;
+        }
+
+        .header h3 {
+            color: #8D8D8D;
+            
+            margin: 0; 
+            padding: 0; 
+            font-size: 18px;
+        }
+
     </style>
 </head>
 <body>
     <!-- Contenido del cuerpo del HTML -->
-    <div class="header">Comprobante de Nómina</div>
-
-
+    
     <div id="content_content">
+        <div class="header">
+            <h1>{{empresa}}</h1>
+            <h2>{{nit}}</h2>
+            <h3 href="http://{{web}}">{{web}}</h3>
+        </div>
+        <hr />
+        <div class="header2">Comprobante de Nómina - N {{idnomi}} </div>
+        <br>
         <!-- Primer bloque de tabla -->
         <div class='margen' >
             <table class="tablas">
                 <tr>
-                    <th width="40%" class="cabezote" >Empleados</th>
+                    <th width="55%" class="cabezote" >Empleados</th>
                     <th width="30%" class="cabezote" >Identificación</th>
-                    <th width="15%" class="cabezote" >Contrato</th>
-                    <th width="15%" class="cabezote" >IdNomina</th>
+                    <th width="20%" class="cabezote" >Contrato</th>
                 </tr>
                 <tr>
                     <td class='cuerpo' >{{nombre_completo}}</td>
                     <td class='cuerpo' >{{cc}}</td>
                     <td class='cuerpo' >{{idcon}}</td>
-                    <td class='cuerpo' >{{idnomi}}</td>
                 </tr>
             </table>
         </div>
@@ -160,7 +217,7 @@
 
     <table class="table2" >
         <tr >
-            <td class='cuerpo2' width="5%"  >
+            <td class='cuerpo2' width="4%"  >
                 {% for nomina in dataDevengado %}
                     {{ nomina.idconcepto.idconcepto }}<br>
                 {% endfor %}
@@ -170,7 +227,7 @@
                     {{ nomina.nombreconcepto }}<br>
                 {% endfor %}
             </td>
-            <td class='cuerpo2' width="6%"  >
+            <td class='cuerpo2' width="7%"  >
                 {% for nomina in dataDevengado %}
                     {{ nomina.cantidad }}<br>
                 {% endfor %}
@@ -180,7 +237,7 @@
                     {{ nomina.valor }}<br>
                 {% endfor %}
             </td>
-            <td class='cuerpo2' width="5%"  >
+            <td class='cuerpo2' width="4%"  >
                 {% for nomina in dataDescuento %}
                     {{ nomina.idconcepto.idconcepto }}<br>
                 {% endfor %}
@@ -190,7 +247,7 @@
                     {{ nomina.nombreconcepto }}<br>
                 {% endfor %}
             </td>
-            <td class='cuerpo2' width="6%"  >
+            <td class='cuerpo2' width="7%"  >
                 {% for nomina in dataDescuento %}
                     {{ nomina.cantidad }}<br>
                 {% endfor %}
