@@ -9,6 +9,7 @@ from apps.employees.views import index
 from apps.employees.views.viewdian import viewdian
 from apps.employees.views import edituser
 from apps.employees.views import comprobantes_nomina
+from apps.employees.views import newpassword
 
 
 urlpatterns = [
@@ -71,4 +72,6 @@ urlpatterns = [
     path('user', edituser.user_employees, name='user' ),
     path('edit/user', edituser.edit_user_employees, name='edituser' ),
     path('Certificate/payroll', comprobantes_nomina.generatepayrollcertificate, name='generatepayrollcertificate' ),
+    path('user/new/password', newpassword.newpassword_employees, name='newpassword' ),
+    
 ]
