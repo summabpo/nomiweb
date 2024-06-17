@@ -81,6 +81,7 @@
         .cuerpo {
             font-family: 'Courier', monospace;
             color: #212121;
+            
         }
 
         .cuerpo2 {
@@ -91,6 +92,20 @@
             padding-bottom:100px
             
 
+        }
+
+        .cuerpo3{
+            font-family: 'Courier', monospace;
+            color: #212121;
+            font-size: 16px;
+        }
+
+        .cuerpo4{
+            font-family: 'Courier', monospace;
+            color: #212121;
+            text-align: right;
+            padding-left: 5px;
+            padding-bottom:100px
         }
 
         .header {
@@ -152,20 +167,22 @@
             <h3 href="http://{{web}}">{{web}}</h3>
         </div>
         <hr />
-        <div class="header2">Comprobante de Nómina - N {{idnomi}} </div>
+        <div class="header2">Comprobante de Nómina </div>
         <br>
         <!-- Primer bloque de tabla -->
         <div class='margen' >
             <table class="tablas">
                 <tr>
-                    <th width="55%" class="cabezote" >Empleados</th>
+                    <th width="40%" class="cabezote" >Empleados</th>
                     <th width="30%" class="cabezote" >Identificación</th>
-                    <th width="20%" class="cabezote" >Contrato</th>
+                    <th width="15%" class="cabezote" >Contrato</th>
+                    <th width="15%" class="cabezote" >IdNomina</th>
                 </tr>
                 <tr>
                     <td class='cuerpo' >{{nombre_completo}}</td>
                     <td class='cuerpo' >{{cc}}</td>
                     <td class='cuerpo' >{{idcon}}</td>
+                    <td class='cuerpo' >{{idnomi}}</td>
                 </tr>
             </table>
         </div>
@@ -198,7 +215,7 @@
             <th width="20%" class="cabezote" >Pensión</th>
         </tr>
         <tr>
-            <td class='cuerpo' >{{ccostos}}</td>
+            <td class='cuerpo3'  >{{ccostos}}</td>
             <td class='cuerpo' >{{periodos}}</td>
             <td class='cuerpo' >{{eps}} </td>
             <td class='cuerpo' >{{pension}} </td>
@@ -232,7 +249,7 @@
                     {{ nomina.cantidad }}<br>
                 {% endfor %}
             </td>
-            <td class='cuerpo2' width="12%" >
+            <td class='cuerpo4' width="12%" >
                 {% for nomina in dataDevengado %}
                     {{ nomina.valor }}<br>
                 {% endfor %}
@@ -252,7 +269,7 @@
                     {{ nomina.cantidad }}<br>
                 {% endfor %}
             </td>
-            <td class='cuerpo2' width="12%" >
+            <td class='cuerpo4' width="12%" >
                 {% for nomina in dataDescuento %}
                     {{ nomina.valor }}<br>
                 {% endfor %}
