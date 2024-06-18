@@ -58,7 +58,7 @@ def viewdian_empleado(request,idingret ):
         'razon':{
             'x':136, 
             'y':175,
-            'data': str(certificado.docidentidad)
+            'data': str(dataempresa['nombre_empresa'])
         },
         'tipodni':{
             'x':64, 
@@ -153,8 +153,28 @@ def viewdian_empleado(request,idingret ):
             'data': str(dataempresa['codciudad'])
         },
         
+        'retenedor':{
+            'x':246, 
+            'y':795, 
+            'data': str(dataempresa['nombre_empresa'])
+        },
     }
     
+    
+    value = {
+        '36' : {
+            'data': str(dataempresa['codciudad'])
+        },
+        '37' : {
+            'data': str(dataempresa['codciudad'])
+        },
+        '38' : {
+            'data': str(dataempresa['codciudad'])
+        },
+        '39' : {
+            'data': str(dataempresa['codciudad'])
+        },
+    }
     
     
     
@@ -171,6 +191,29 @@ def viewdian_empleado(request,idingret ):
         text = str(info['data'])
         position = (info['x'], info['y'])  # Coordenadas (x, y) del texto
         draw.text(position, text, font=font, fill=fill_color)
+
+    max_width, max_height = image.size
+    
+    x = max_width - 50  # Offset desde el borde derecho
+    y = 294
+    line_spacing = 5  # Espacio entre líneas de texto
+    
+    
+    for campo, info in value.items():
+        dta = info['data']
+        bbox = draw.textbbox((0, 0),dta , font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+
+        # Calcular la coordenada X de inicio para alinear el texto a la derecha
+        start_x = x - text_width
+
+        # Dibujar el texto en la imagen
+        draw.text((start_x, y),dta , font=font, fill=fill_color)
+
+        # Actualizar la coordenada Y para la siguiente línea de texto
+        y += text_height + line_spacing 
+    
 
     # Guardar la imagen con el texto agregado
     image.save("imagen_con_texto.jpg")
