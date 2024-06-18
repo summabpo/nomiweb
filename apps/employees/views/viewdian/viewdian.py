@@ -3,7 +3,7 @@ from apps.employees.models import Ingresosyretenciones
 from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse
 from apps.components.datacompanies import datos_cliente
-
+from .diangenerate import last_business_day_of_march 
 
 
 def viewdian(request):
@@ -28,6 +28,11 @@ def viewdian_empleado(request,idingret ):
     ide = request.session.get('idempleado', {})
     certificado = Ingresosyretenciones.objects.filter(idingret=idingret).first()
     dataempresa = datos_cliente()
+    
+    
+    
+    year, month, day = last_business_day_of_march(certificado.anoacumular)
+    
     
     posision1 = {
         'año' : { 
@@ -116,11 +121,22 @@ def viewdian_empleado(request,idingret ):
             'y':252,
             'data': '31'
         },
-        'fechaexp':{
-            'x':0,
-            'y':0,
-            'data': str(certificado.docidentidad)
+        'fechaexp-1':{
+            'x':401, 
+            'y':252,
+            'data': str(year)
+        }, 
+        'fechaexp-2':{
+            'x':467,
+            'y':252,
+            'data': str(month)
         },
+        'fechaexp-3':{
+            'x':508,
+            'y':252,
+            'data': str(day)
+        },
+        
         'lugar':{
             'x':552, 
             'y':249,
