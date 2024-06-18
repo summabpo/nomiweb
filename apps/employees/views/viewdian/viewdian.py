@@ -26,6 +26,9 @@ def viewdian(request):
 
 def viewdian_empleado(request,idingret ):
     # Generar la imagen usando la función personalizada
+    
+    certificado = Ingresosyretenciones.objects.filter(idingret=idingret).values('anoacumular').first()
+    
     image = imggenerate1(idingret)
     
     # Guardar la imagen en un archivo temporal

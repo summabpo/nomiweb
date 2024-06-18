@@ -79,8 +79,8 @@ Desprendibles
             <table class="table table-rounded table-striped border gy-7 gs-7" id='tabla-certi-nomi'>
                 <thead>
                     <tr>
-                    <th width="200">IDNOMINA</th>
-                    <th width="200">NominaPRO</th>
+                    <th width="200">ID</th>
+                    <th width="200">Nomina</th>
                     <th width="150">Tipo</th>
                     </tr>
                 </thead>
@@ -90,7 +90,7 @@ Desprendibles
                         <td>{{ e.idnomina.idnomina }}</td>
                         <td>{{ e.idnomina.nombrenomina }}</td>
                         <td>
-                            <a  href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Certificado de Nomina" >
+                            <a  href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Comprobante de Nomina" >
                                 Ver
                                 <i class="ki-duotone ki-eye fs-2qx">
                                     <span class="path1"></span>
