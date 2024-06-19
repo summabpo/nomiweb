@@ -1,13 +1,14 @@
 from django.shortcuts import render 
-from apps.components.decorators import custom_login_required ,custom_permission
+from apps.components.decorators import custom_permission
 from apps.components.dataemployees import datos_empleado2
+from django.contrib.auth.decorators import login_required
 
 
 
 
 
 
-@custom_login_required
+@login_required
 @custom_permission('employees')
 def index_employees(request):
     usuario = request.session.get('usuario', {})
