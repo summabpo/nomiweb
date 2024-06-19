@@ -4,6 +4,9 @@ from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
+from apps.components.decorators import custom_permission
+from django.contrib.auth.decorators import login_required
+
 
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
@@ -21,12 +24,16 @@ def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_fe
         dia_actual += timedelta(days=1)
     return total_dias
 
+
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         return x_forwarded_for.split(',')[0]
     return request.META.get('REMOTE_ADDR')
 
+
+@login_required
+@custom_permission('employees')
 def vacation_request_function(request):
     ide = request.session.get('idempleado')
     contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
@@ -91,6 +98,8 @@ def vacation_request_function(request):
 
     return render(request, 'employees/vacations_request.html', context)
 
+@login_required
+@custom_permission('employees')
 def vacation_detail_modal(request, pk):
     vacation = get_object_or_404(EmpVacaciones, pk=pk)
 

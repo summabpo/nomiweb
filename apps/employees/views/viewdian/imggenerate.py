@@ -19,8 +19,8 @@ def imggenerate1(idingret):
         'nit': {'x': 63, 'y': 156, 'data': str(dataempresa['nit_empresa'])},
         'dv': {'x': 304, 'y': 156, 'data': str(dataempresa['dv'])},
         'razon': {'x': 136, 'y': 175, 'data': str(dataempresa['nombre_empresa'])},
-        'tipodni': {'x': 64, 'y': 214, 'data': str(certificado.tipodocumento)},
-        'dni': {'x': 134, 'y': 214, 'data': str(certificado.docidentidad)},
+        'tipodni': {'x': 64, 'y': 214, 'data':   str(certificado.tipodocumento)},
+        'dni': {'x': 134, 'y': 214, 'data': "{:,}".format(int(certificado.docidentidad)).replace(",", ".")},
         'papellido': {'x': 375, 'y': 214, 'data': str(certificado.papellido)},
         'sapellido': {'x': 523, 'y': 214, 'data': str(certificado.sapellido)},
         'pnombre': {'x': 669, 'y': 214, 'data': str(certificado.pnombre)},
@@ -71,10 +71,17 @@ def imggenerate1(idingret):
         '60': {'data': str(certificado.retefuente) if certificado.retefuente is not None else '0'},
     }
 
+    # value1
+    value1 = {k: {'data': '{:,.0f}'.format(float(v['data']))} if v['data'].replace('.', '', 1).isdigit() else v for k, v in value1.items()}
+
+    # value2
+    value2 = {k: {'data': '{:,.0f}'.format(float(v['data']))} if v['data'].replace('.', '', 1).isdigit() else v for k, v in value2.items()}
+
+
     image = Image.open(settings.STATICFILES_DIRS[0] + "/img/dian/220-2023.jpg")
     draw = ImageDraw.Draw(image)
     font_path = settings.STATICFILES_DIRS[0] + '/fonts/SpecialElite-Regular.ttf'
-    font = ImageFont.truetype(font_path, size=18)
+    font = ImageFont.truetype('cour.ttf', size=18)
     fill_color = "black"
 
     for campo, info in posision1.items():
@@ -85,7 +92,7 @@ def imggenerate1(idingret):
     max_width, max_height = image.size
     x = max_width - 50
     y = 294
-    line_spacing = 6
+    line_spacing = 7
 
     for campo, info in value1.items():
         dta = info['data']
@@ -97,6 +104,7 @@ def imggenerate1(idingret):
         y += text_height + line_spacing
 
     y += 20
+    line_spacing = 8
     for campo, info in value2.items():
         dta = info['data']
         bbox = draw.textbbox((0, 0), dta, font=font)

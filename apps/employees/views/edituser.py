@@ -1,6 +1,7 @@
 from django.shortcuts import render ,redirect
 from apps.components.decorators import custom_permission
 from apps.employees.models import Contratosemp ,Ciudades
+from apps.components.dataemployees import datos_empleado2
 from apps.employees.forms.edit_employees_form import EditEmployeesForm 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -26,7 +27,7 @@ def user_employees(request):
 @login_required
 @custom_permission('employees')    
 def edit_user_employees(request):
-    
+    usuario = request.session.get('usuario', {})
     ide = request.session.get('idempleado', {})
     data = Contratosemp.objects.only('direccionempleado', 'telefonoempleado', 'ciudadresidencia','celular').get(idempleado=ide)
     
@@ -50,6 +51,7 @@ def edit_user_employees(request):
                 data.direccionempleado = form.cleaned_data['address']
             
             data.save()
+            request.session['empleado'] = datos_empleado2(usuario['id'])
             messages.success(request, '¡Éxito! Tus datos han sido actualizados correctamente')
             return redirect('employees:user')
         else:

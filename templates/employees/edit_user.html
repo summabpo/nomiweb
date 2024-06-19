@@ -17,23 +17,35 @@
 
 
 {% block sub_titulo1 %} 
-inicio
+Usuario
 {% endblock %}
 
 {% block sub_titulo2 %} 
-Dash
+Editar Datos 
 {% endblock %}
 
 {% block titulo2 %} 
-    Editar Datos 
+    
 {% endblock %}
 
 
 
 {% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-end">
+        <a href="{% url 'employees:user'  %}" class="btn btn-secondary hover-scale">
+            <i class="ki-duotone ki-entrance-right fs-2qx ">
+            <span class="path1"></span>
+            <span class="path2"></span>
+            </i>
+        </a>
+    </div>
+</div>
+<br>
 <div class="card mb-5 mb-xxl-8">
     <div class="card-body pt-9 pb-0">
         {% crispy form %}
+        <br>
     </div>
 </div>
     
