@@ -36,7 +36,7 @@ class CustomPasswordChangeForm(PasswordChangeForm):
                 Column('new_password2', css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ),
-            Submit('submit', 'Cambiar contraseña')
+            Submit('submit', 'Cambiar contraseña',css_class='btn btn-light-info hover-elevate-up')
         )
 
     def clean_new_password2(self):
