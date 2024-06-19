@@ -7,18 +7,18 @@ from apps.employees.models import EmpVacaciones, Contratos, Tipoavacaus
 class EmpVacacionesForm(forms.ModelForm):
     class Meta:
         model = EmpVacaciones
-        fields = ['idcontrato', 'tipovac', 'fechainicialvac', 'fechafinalvac', 'cuentasabados', 'diascalendario', 'comentarios']
+        fields = ['idcontrato', 'tipovac', 'fechainicialvac', 'fechafinalvac', 'cuentasabados', 'diasvac', 'comentarios']
         labels = {
             'fechainicialvac': 'Fecha Inicial',
             'fechafinalvac': 'Fecha Final',
             'comentarios': 'Comentarios',
-            'diascalendario': 'Dias Calendario',
+            'diasvac': 'Dias a Compensar',
         }
         widgets = {
-            'fechainicialvac': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'fechafinalvac': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'fechainicialvac': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'id': 'fechainicialvac-field'}),
+            'fechafinalvac': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'id': 'fechafinalvac-field'}),
             'comentarios': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'diascalendario': forms.NumberInput(attrs={'class': 'form-control'}),
+            'diasvac': forms.NumberInput(attrs={'class': 'form-control', 'id': 'diasvac-field'}),
         }
     
     idcontrato = forms.ModelChoiceField(
@@ -30,13 +30,15 @@ class EmpVacacionesForm(forms.ModelForm):
     tipovac = forms.ModelChoiceField(
         queryset=Tipoavacaus.objects.exclude(tipovac=5),
         label="Tipo de Solicitud",
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'tipovac-select'}),
         empty_label="Seleccione --------->",
     )
     cuentasabados = forms.ChoiceField(
         label="Cuenta Sábados",
         choices=[(1, 'Sí'), (0, 'No')],
-        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        required=False,
+        initial=0,
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'cuentasabados-field'}),
     )
 
     def __init__(self, *args, **kwargs):
@@ -51,12 +53,12 @@ class EmpVacacionesForm(forms.ModelForm):
                 Column('tipovac', css_class='col-md-6 mb-3'),
             ),
             Row(
-                Column('fechainicialvac', css_class='col-md-6 mb-3'),
-                Column('fechafinalvac', css_class='col-md-6 mb-3'),
+                Column('fechainicialvac', css_class='col-md-6 mb-3', css_id='fechainicialvac-column'),
+                Column('fechafinalvac', css_class='col-md-6 mb-3', css_id='fechafinalvac-column'),
             ),
             Row(
-                Column('cuentasabados', css_class='col-md-6 mb-3'),
-                Column('diascalendario', css_class='col-md-6 mb-3'),
+                Column('cuentasabados', css_class='col-md-6 mb-3', id='cuentasabados-column'),
+                Column('diasvac', css_class='col-md-6 mb-3', id='diasvac-column'),
                 Column('comentarios', css_class='col-md-6 mb-3'),
             ),
             Submit('submit', 'Guardar',css_class='btn btn-light-info hover-elevate-up')
@@ -67,3 +69,5 @@ class EmpVacacionesForm(forms.ModelForm):
 
     def label_from_tipovac(self, obj):
         return obj.nombrevacaus
+    
+    
