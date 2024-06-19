@@ -40,7 +40,7 @@ class EditEmployeesForm(forms.Form):
                 Column('profile_picture', css_class='form-group col-md-12 mb-0'), 
                 css_class='form-row' 
             ),
-            Submit('submit', 'Guardar')
+            Submit('submit', 'Guardar',css_class='btn btn-light-info hover-elevate-up')
         )
 
 

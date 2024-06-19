@@ -7,6 +7,20 @@ Certificaciones Laborales
 {% block css %} 
 {% endblock %} 
 
+
+{% block sub_titulo1 %} 
+Nomina
+{% endblock %}
+
+{% block sub_titulo2 %} 
+Desprendibles 
+{% endblock %}
+
+{% block titulo2 %} 
+    
+{% endblock %}
+
+
 {% block content %}
 
 
@@ -17,6 +31,7 @@ Certificaciones Laborales
                 <div class="card-body">
                     <!-- Aquí puedes colocar tu formulario -->
                     {% if cont < 2 %}
+                        <h5 class="card-title">Su Contrato ha sido seleccionado automaticamente</h5>
                         <!-- Lógica para cuando contratos está vacío -->
                         <select name="contrato" id="contrato" class="form-select" disabled >
                             {% for contrato in contratos %}
@@ -28,9 +43,10 @@ Certificaciones Laborales
                         
 
                     {% else %}
+                    <h5 class="card-title">Seleccione un Contrato</h5>
                         <!-- Lógica para cuando contratos no está vacío -->
                         <form method="get">
-                        
+                            
                             <div class="input-group input-group-sm mb-5"> 
                                 <div class="input-group input-group-sm mb-5"  onchange="cargarContratos()"  data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
                                     <select name="contrato" id="contrato" class="form-select"  >
@@ -63,9 +79,8 @@ Certificaciones Laborales
             <table class="table table-rounded table-striped border gy-7 gs-7" id='tabla-certi-nomi'>
                 <thead>
                     <tr>
-                    <th width="200">IDNOMINA</th>
-                    <th width="200">NominaPRO</th>
-                    <th width="200">Contrato</th>
+                    <th width="200">ID</th>
+                    <th width="200">Nomina</th>
                     <th width="150">Tipo</th>
                     </tr>
                 </thead>
@@ -74,8 +89,16 @@ Certificaciones Laborales
                     <tr>
                         <td>{{ e.idnomina.idnomina }}</td>
                         <td>{{ e.idnomina.nombrenomina }}</td>
-                        <td>{{ e.idcontrato}}</td>
-                        <td><a class="button warning" href="{% url 'employees:genera-comprobante' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-sm btn-success">Ver</a></td>
+                        <td>
+                            <a  href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Comprobante de Nomina" >
+                                Ver
+                                <i class="ki-duotone ki-eye fs-2qx">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

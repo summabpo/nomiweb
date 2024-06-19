@@ -61,6 +61,7 @@ class EmpVacacionesForm(forms.ModelForm):
                 Column('diasvac', css_class='col-md-6 mb-3', id='diasvac-column'),
                 Column('comentarios', css_class='col-md-6 mb-3'),
             ),
+            Submit('submit', 'Guardar',css_class='btn btn-light-info hover-elevate-up')
         )
         
     def label_from_contrato(self, obj):

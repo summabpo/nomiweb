@@ -25,6 +25,6 @@ class FormularioCertificaciones(forms.Form):
             Div(
                 'destino',
                 'modelo',
-                Submit('submit', 'Enviar', css_class='btn btn-primary hover-elevate-up')
+                Submit('submit', 'Enviar',css_class='btn btn-light-info hover-elevate-up')
             )
         )

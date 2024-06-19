@@ -1,14 +1,13 @@
-from django.shortcuts import render 
-from apps.components.decorators import custom_login_required ,custom_permission
+from django.shortcuts import render ,redirect
+from apps.components.decorators import custom_permission
 from apps.employees.models import Contratosemp ,Ciudades
 from apps.employees.forms.edit_employees_form import EditEmployeesForm 
-import base64
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
-
-
-# @custom_login_required
-# @custom_permission('employees')
+@login_required
+@custom_permission('employees')
 def user_employees(request):
     ide = request.session.get('idempleado', {})
     data = Contratosemp.objects.only('direccionempleado', 'telefonoempleado', 'ciudadresidencia','fotografiaempleado','celular').get(idempleado=ide)
@@ -24,7 +23,8 @@ def user_employees(request):
                     }
                     )
     
-    
+@login_required
+@custom_permission('employees')    
 def edit_user_employees(request):
     
     ide = request.session.get('idempleado', {})
@@ -50,6 +50,10 @@ def edit_user_employees(request):
                 data.direccionempleado = form.cleaned_data['address']
             
             data.save()
+            messages.success(request, '¡Éxito! Tus datos han sido actualizados correctamente')
+            return redirect('employees:user')
+        else:
+            messages.error(request, 'Ha ocurrido un error inesperado. Por favor, intente nuevamente más tarde.')
     else:
         # Pre-poblar el formulario con datos existentes
         initial_data = {
