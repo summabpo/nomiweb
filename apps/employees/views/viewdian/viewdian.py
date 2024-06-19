@@ -13,8 +13,8 @@ import os
 
 
 
-@login_required
-@custom_permission('employees')
+# @login_required
+# @custom_permission('employees')
 def viewdian(request):
     ide = request.session.get('idempleado', {})
     
@@ -30,8 +30,8 @@ def viewdian(request):
     })
 
 
-@login_required
-@custom_permission('employees')
+# @login_required
+# @custom_permission('employees')
 def viewdian_empleado(request,idingret ):
     # Generar la imagen usando la función personalizada
     
