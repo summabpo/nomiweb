@@ -94,6 +94,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'nomiweb.urls'
 
 
+# Configuración de sesiones
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Usa la base de datos para almacenar sesiones
+SESSION_COOKIE_NAME = 'sessionid'  # Nombre de la cookie de sesión
+
 
 
 TEMPLATES = [
