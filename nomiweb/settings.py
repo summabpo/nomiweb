@@ -129,10 +129,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
 ]
 
-# SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
-# SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
-# SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el navegador
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
+SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
+SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador
 
 
 DATABASES = {
