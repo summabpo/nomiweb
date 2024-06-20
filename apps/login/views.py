@@ -58,9 +58,6 @@ class Login_View(View):
 
 @custom_login_required
 def logout_view(request):
-    singleton = NombreDBSingleton()
-    singleton.set_nombre_db('default')
-    del request.session['usuario']
     logout(request)
     session = TempSession()
     session.logout()
