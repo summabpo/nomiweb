@@ -1,23 +1,29 @@
+# Use the official Python image from the Docker Hub
 FROM python:3.9
 
-# Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y locales
+# Set environment variables to prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Generar la configuración regional específica
-RUN locale-gen es_ES.UTF-8
+# Install locales package and generate es_ES.UTF-8 locale
+RUN apt-get update && apt-get install -y locales && \
+    sed -i '/es_ES.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen es_ES.UTF-8
+
+# Set locale environment variables
 ENV LANG es_ES.UTF-8
 ENV LANGUAGE es_ES:es
 ENV LC_ALL es_ES.UTF-8
 
-# Crear el directorio de trabajo
+# Set the working directory
 WORKDIR /app
 
-# Copiar y instalar las dependencias de Python
+# Copy requirements.txt and install Python dependencies
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto de la aplicación
+# Copy the rest of the application code
 COPY . /app/
+
 
 # Exponer el puerto
 EXPOSE 8000
