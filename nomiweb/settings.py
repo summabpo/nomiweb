@@ -28,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'django-insecure-svftih64!=7dd*aj*3)bf$&@l%b^j2uc5qhnn7y7v2%7#7lhau'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -227,12 +227,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 
+# Define la URL base donde se servirán los archivos estáticos
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Define la ruta donde Django recolectará los archivos estáticos para producción
+STATIC_ROOT = '/app/nomiweb/staticfiles'
+
+# Define los directorios adicionales donde Django buscará archivos estáticos durante el desarrollo
+STATICFILES_DIRS = [
+    '/app/nomiweb/static',
+]
 
 
 
