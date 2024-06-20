@@ -55,12 +55,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize', #Para poner puntos en numeros para separar miles
+    'django.contrib.humanize', 
     'import_export',
     
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     
     
     ## debug 
@@ -84,8 +81,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'apps.login.middlewares.DatabaseRouterMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    #'apps.login.middlewares.DatabaseRouterMiddleware',
+    #'allauth.account.middleware.AccountMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -242,5 +239,7 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/'
 
 #AUTH_USER_MODEL = 'login.CustomUser'

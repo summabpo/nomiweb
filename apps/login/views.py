@@ -6,15 +6,14 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.contrib import messages
 from .forms import LoginForm , MiFormulario ,PasswordResetForm , PasswordResetTokenForm
-from .models import Usuario,Empresa,Token
+from .models import Usuario,Token
 from django.utils import timezone
 from django.contrib.auth.models import User
 import secrets
-from apps.components.role_redirect  import redirect_by_role
-from apps.login.middlewares import NombreDBSingleton
+from apps.components.role_redirect  import redirect_by_role , redirect_by_role2
 from apps.components.decorators import TempSession,custom_login_required , default_login
 from apps.components.mail import send_template_email
-from apps.components.dataemployees import datos_empleado2
+from django.urls import reverse
 
 
 
@@ -22,9 +21,9 @@ from apps.components.dataemployees import datos_empleado2
 
 
 
-@method_decorator(default_login, name='dispatch')
+
 class Login_View(View):
-    def get(self, request):
+    def get(self, request):        
         form = LoginForm()
         return render(request, './users/login.html', {'form': form})
 
@@ -58,7 +57,7 @@ class Login_View(View):
 
 
 
-@custom_login_required
+@login_required
 def logout_view(request):
     logout(request)
     session = TempSession()
