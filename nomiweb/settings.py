@@ -95,9 +95,12 @@ ROOT_URLCONF = 'nomiweb.urls'
 
 
 # Configuración de sesiones
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Usa la base de datos para almacenar sesiones
-SESSION_COOKIE_NAME = 'sessionid'  # Nombre de la cookie de sesión
-
+# Configurar sesiones en diferentes bases de datos
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'  # O el backend que prefieras
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_DOMAIN = None
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True
 
 
 TEMPLATES = [
