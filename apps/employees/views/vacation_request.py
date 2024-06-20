@@ -4,6 +4,8 @@ from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
+from django.contrib import messages
+from apps.components.mail import send_template_email
 
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
@@ -41,6 +43,7 @@ def vacation_request_function(request):
         tipovac_obj = form.cleaned_data.get('tipovac')
         tipovac = str(tipovac_obj.tipovac)
         cuentasabados = form.cleaned_data.get('cuentasabados')
+        comentarios = form.cleaned_data.get('comentarios')
 
         if tipovac == '2':
             diasvac = form.cleaned_data.get('diasvac')
@@ -65,7 +68,26 @@ def vacation_request_function(request):
         vacation_request.fecha_hora = datetime.now()
         vacation_request.diascalendario = diascalendario
         vacation_request.diasvac = diasvac
+        vacation_request.comentarios = comentarios
         vacation_request.save()
+        
+        email_type = 'vacations'
+        context = {
+            'tipovac': tipovac,
+            'fechainicialvac': fechainicialvac,
+            'fechafinalvac': fechafinalvac,
+            'diasvac': diasvac,
+            'comentarios': comentarios,
+            }
+        subject = 'Solicitud de Vacaciones / Licencias'
+        recipient_list = ['catalina@matchlink.co'] ## cambiar el correo por el del usuario 
+
+        if send_template_email(email_type, context, subject, recipient_list):
+            pass
+        else:
+            messages.error(request, 'Error en el procesamiento de la solicitud')
+
+        messages.success(request, 'La solicitud ha sido enviada correctamente.')
 
         return redirect('employees:form_vac')
 
