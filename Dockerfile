@@ -25,10 +25,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Install Gunicorn for serving Django application
-RUN pip install gunicorn
+
 
 # Expose port 8000
 EXPOSE 8000
 
 # Command to run the application using Gunicorn server
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "nomiweb.wsgi:application"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

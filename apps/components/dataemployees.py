@@ -30,14 +30,18 @@ def datos_empleado2(id_empleado):
     try:
         empleado = Contratosemp.objects.only('pnombre', 'snombre', 'papellido', 'sapellido', 'email','fotografiaempleado').get(idempleado=id_empleado)
         
+        
+        
+        if empleado.fotografiaempleado and hasattr(empleado.fotografiaempleado, 'url'):
+            url_foto = empleado.fotografiaempleado.url
+        else:
+            url_foto = None
+                
         nombre_completo = f"{empleado.pnombre} {empleado.papellido}"
-        
-        print(type(empleado.fotografiaempleado))
-        
         info_empleado = {
             'nombre_completo': nombre_completo.strip(),  # Elimina espacios en blanco adicionales
             'email': empleado.email,
-            'fotografiaempleado': empleado.fotografiaempleado.url,
+            'fotografiaempleado': url_foto ,
         }
     except Contratosemp.DoesNotExist:
         info_empleado = {

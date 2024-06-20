@@ -14,7 +14,7 @@ from apps.components.role_redirect  import redirect_by_role
 from apps.login.middlewares import NombreDBSingleton
 from apps.components.decorators import TempSession,custom_login_required , default_login
 from apps.components.mail import send_template_email
-
+from apps.components.dataemployees import datos_empleado2
 
 
 
@@ -44,6 +44,8 @@ class Login_View(View):
                     'name': f"{user.first_name} {user.last_name}",
                     'id': usuario.id_empleado
                 }
+                
+                
                 request.session['usuario'] = complements
                 session = TempSession()
                 session.login()

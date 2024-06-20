@@ -39,7 +39,7 @@ Vista Usuario
                 <div class="symbol symbol-200px symbol-lg-160px symbol-fixed position-relative">
                     
                 {% if data.fotografiaempleado %}
-                    <img src="{{data.fotografiaempleado.url}}" class="card-img-top" alt="Profile Picture">
+                    <img src="{{data.fotografiaempleado}}" class="card-img-top" alt="Profile Picture">
                 {% else %}
                     <img src="{% static 'media/avatars/300-3.jpg' %}" class="card-img-top" alt="Default Profile Picture">
                 {% endif %}
