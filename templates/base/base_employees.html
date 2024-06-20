@@ -88,7 +88,7 @@ License: For each use you must have a valid license purchased only from above li
                                             {% if request.session.empleado.fotografiaempleado  %}
                                                 <img src="{{ request.session.empleado.fotografiaempleado }}" class="card-img-top" alt="Profile Picture">
                                             {% else %}
-                                                <img src="'./media/profile_pics/300-11.jpg'" class="card-img-top" alt="Default Profile Picture">
+                                                <img src="{% static 'media/avatars/blank.png' %}" class="card-img-top" alt="Default Profile Picture">
                                             {% endif %}
                                         </div>
                                         <!--end::Avatar-->

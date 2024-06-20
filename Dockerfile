@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Install Gunicorn for serving Django application
-
+RUN python manage.py collectstatic
 
 # Expose port 8000
 EXPOSE 8000
