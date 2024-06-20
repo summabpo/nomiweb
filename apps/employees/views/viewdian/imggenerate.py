@@ -80,8 +80,8 @@ def imggenerate1(idingret):
 
     image = Image.open(settings.STATICFILES_DIRS[0] + "/img/dian/220-2023.jpg")
     draw = ImageDraw.Draw(image)
-    font_path = settings.STATICFILES_DIRS[0] + '/fonts/SpecialElite-Regular.ttf'
-    font = ImageFont.truetype('cour.ttf', size=18)
+    font_path = settings.STATICFILES_DIRS[0] + '/fonts/cour.ttf'
+    font = ImageFont.truetype(font_path, size=18)
     fill_color = "black"
 
     for campo, info in posision1.items():

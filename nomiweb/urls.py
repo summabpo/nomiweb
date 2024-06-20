@@ -5,7 +5,6 @@ from django.conf import settings
 from django.conf import settings
 from django.conf.urls.static import static
 
-
 # Importa Django Debug Toolbar solo si DEBUG está activado
 if settings.DEBUG:
     import debug_toolbar
