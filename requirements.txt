@@ -14,3 +14,4 @@ django-import-export==4.0.6
 xhtml2pdf==0.2.15
 openpyxl==3.1.2
 datetime==5.5
+django-debug-toolbar
