@@ -15,8 +15,10 @@ from django.urls import reverse_lazy
 
 from .db_credentials import DB_PASSWORD
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,27 +28,26 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'django-insecure-svftih64!=7dd*aj*3)bf$&@l%b^j2uc5qhnn7y7v2%7#7lhau'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
 # Application definition
 
 INSTALLED_APPS = [
+    
     # Generated applications
     'apps.login', 
     'apps.employees',     # Employees application
     'apps.companies',     # Companies application
     'apps.administrator',
     # 'apps.payroll',       # Payroll application
-    # 'apps.api_database',  # API database application
-    
+    # 'apps.api_database',  # API database applicatio#n
     # Django REST Framework
     'rest_framework',
-    
     # Crispy Forms
     'crispy_forms',
-    'crispy_bootstrap5',
+    "crispy_bootstrap5",
     
     'django.contrib.admin',
     'django.contrib.auth',
@@ -54,12 +55,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize', # Para poner puntos en números para separar miles
+    'django.contrib.humanize', #Para poner puntos en numeros para separar miles
     'import_export',
     
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    
     
     ## debug 
     'debug_toolbar',
@@ -69,7 +71,9 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
+
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
+
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 MIDDLEWARE = [
@@ -85,15 +89,12 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
+
+
 ROOT_URLCONF = 'nomiweb.urls'
 
-# Configuración de sesiones
-# Configurar sesiones en diferentes bases de datos
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Usando backend de sesiones en base de datos
-SESSION_COOKIE_NAME = 'sessionid'
-SESSION_COOKIE_DOMAIN = None
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Puedes cambiar a True si deseas que expire al cerrar el navegador
-SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
+
+
 
 TEMPLATES = [
     {
@@ -111,10 +112,13 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'nomiweb.wsgi.application'
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
 
 DATABASE_ROUTERS = [
     'nomiweb.db_routers.routers.DatabaseRouter'
@@ -125,12 +129,18 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
 ]
 
+# SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
+# SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
+# SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el navegador
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'userlectaen',
         'USER': 'devdjango',
-        'PASSWORD': DB_PASSWORD,
+        'PASSWORD': DB_PASSWORD,  
         'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
     },
@@ -139,20 +149,23 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'lectaen',
         'USER': 'devdjango',
-        'PASSWORD': DB_PASSWORD,
+        'PASSWORD': DB_PASSWORD,  
         'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
-    },
-    
+    } ,
     'nwp_2': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'nwp_lentes',
         'USER': 'devdjango',
-        'PASSWORD': DB_PASSWORD,
+        'PASSWORD': DB_PASSWORD,  
         'HOST': 'devatiempo.cqfpcv4ejul5.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
-    }
+    } 
+    
 }
+
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -171,6 +184,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.nomiweb.co'
@@ -191,6 +205,13 @@ EMAIL_FILE_PATH = None
 EMAIL_FROM = None
 EMAIL_SUBJECT_PREFIX = '[Django] '
 
+
+# EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+# EMAIL_HOST_USER = '0696ea5c99b771'
+# EMAIL_HOST_PASSWORD = 'be56bf78c3f67f'
+# EMAIL_PORT = '2525'
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -204,20 +225,22 @@ USE_L10N = True
 
 USE_TZ = True
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AUTH_USER_MODEL = 'login.CustomUser'
+#AUTH_USER_MODEL = 'login.CustomUser'
