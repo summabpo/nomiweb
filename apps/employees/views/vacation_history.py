@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.views.generic import  ListView
 
 #models
-from apps.employees.models import Vacaciones
+from apps.employees.models import Vacaciones, Contratos
 
 
 #security
@@ -21,7 +21,11 @@ class VacationList(ListView):
     ordering = 'idvacaciones'
     
     def get_queryset(self):
-        queryset = Vacaciones.objects.filter(Q(idcontrato=3313) & (Q(tipovac=1) | Q(tipovac=2))).select_related('tipovac')
+        ide = self.request.session.get('idempleado')
+        contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
+        idc = contrato.idcontrato if contrato else None
+        
+        queryset = Vacaciones.objects.filter(Q(idcontrato=idc) & (Q(tipovac=1) | Q(tipovac=2))).select_related('tipovac')
         return queryset
     
     def get_context_data(self, **kwargs):

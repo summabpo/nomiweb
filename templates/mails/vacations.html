@@ -73,11 +73,13 @@
         </div>
         <div class="content">
             <p>Hola {{ nombre_usuario }},</p>
-            <p>Tu solicitud ha sido creada exitosamente. A continuación, encontrarás los detalles de tu cuenta:</p>
+            <p>Tu solicitud ha sido creada exitosamente. A continuación, encontrarás los detalles de tu solicitud:</p>
             <div class="user-info">
-                <p><strong>Tipo de Solicitud:</strong> {{ tipovac }}</p>
-                <p><strong>Fecha Inicial:</strong> {{ fechainicialvac }}</p>
-                <p><strong>Fecha Final:</strong> {{ fechafinalvac }}</p>
+                <p><strong>Tipo de Solicitud:</strong> {{ nombre_tipovac }}</p>
+                {% if tipovac != '2' %}
+                    <p><strong>Fecha Inicial:</strong> {{ fechainicialvac }}</p>
+                    <p><strong>Fecha Final:</strong> {{ fechafinalvac }}</p>
+                {% endif %}
                 <p><strong>Dias Habiles:</strong> {{ diasvac }}</p>
                 <p><strong>Comentarios:</strong> {{ comentarios }}</p>
             </div>
