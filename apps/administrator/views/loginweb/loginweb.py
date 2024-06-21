@@ -25,7 +25,7 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
             is_superuser=False,
             is_active=True
         )
-
+        user.save()
         usuario = Usuario.objects.create(
             user=user,
             role='employees',
@@ -33,24 +33,28 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
             permission='none',
             id_empleado=id_empleado
         )
+        usuario.save()
+        
         return True, user, usuario
     except Exception as e:
         return False, None, None
 
 
 def loginweb_admin(request,empresa='default'):
-    db_name = request.session.get('usuario', {}).get('db')
-
+    
     if request.method == 'POST':
+        
         selected_ids = request.POST.getlist('selected_ids')
+        
         if selected_ids:
             for selected in selected_ids:
+                print(selected)
                 try:
-                    usertempo = Contratosemp.objects.get(idempleado = selected)
-                    usuario = Usuario.objects.get(id_empleado=usertempo.idempleado)
+                    usertempo = Contratosemp.objects.using(empresa).get(idempleado = int(selected))
+                    usuario = Usuario.objects.get(id_empleado = int(selected))
                 except Contratosemp.DoesNotExist:
                     messages.error(request, "No se encontró el empleado con ID seleccionado.")
-                    pass
+                    return redirect('admin:loginweb',empresa=empresa)
                 except Usuario.DoesNotExist:
                     usuario = None
 
@@ -62,7 +66,7 @@ def loginweb_admin(request,empresa='default'):
                     usuario.user.save()
                 else:
                     try:
-                        empresa = Empresa.objects.get(db_name=db_name)
+                        empresa = Empresa.objects.get(db_name=empresa)
                         success, user, usuario = create_user_and_usuario(usertempo.email, usertempo.pnombre, usertempo.papellido, password, empresa, usertempo.idempleado)
                         if not success:
                             raise Exception("Error al crear el usuario.")
@@ -83,12 +87,17 @@ def loginweb_admin(request,empresa='default'):
                 recipient_list = ['mikepruebas@yopmail.com']
 
                 if send_template_email(email_type, context, subject, recipient_list):
-                    pass
+                    messages.success(request, 'El usuario ha sido creado con exito')
+                    return redirect('admin:loginweb',empresa=empresa)
                 else:
                     messages.error(request, 'Todo lo que podria salir mal, salio mal')
 
-            messages.success(request, 'Los usuarios han sido enviados correctamente.')
-            return redirect('companies:loginweb')
+                messages.success(request, 'Los usuarios han sido enviados correctamente.')
+                return redirect('companies:loginweb')
+
+
+
+
 
     contratos_empleados = Contratos.objects\
         .using(empresa)\
@@ -123,35 +132,49 @@ def select_loginweb_admin(request):
     return render(request, './admin/selectloginweb.html', {'empresas': empresas})
 
 
-def edit_main(request,empresa):
+
+def edit_main(request, empresa):
     if request.method == 'POST':
         correo1 = request.POST.get('correo1')
         correo2 = request.POST.get('correo2')
         
         try:
-            usertempo = Contratosemp.objects.using(empresa).get(email = correo2)
-            usuario = Usuario.objects.get(id_empleado=usertempo.idempleado)
-            
-            if (correo1 == correo2 ):
-                messages.success(request, 'El corrreo que se ha ingresado ya se encuentra reistrado para este empleado')
-                return redirect('admin:loginweb',empresa=empresa)
-            else: 
-                usertempo.email = correo1
-                usertempo.save()
-                usuario.user.username = correo1
-                usuario.user.email = correo1
-                usuario.user.save()
-            
+            usertempo = Contratosemp.objects.using(empresa).get(email=correo2)
         except Contratosemp.DoesNotExist:
-            messages.error(request, "No se encontró el empleado con es posible que no tenga cuenta activa")
-            pass
+            messages.error(request, 'No se encontró empleado con el correo electrónico proporcionado.')
+            return redirect('admin:loginweb', empresa=empresa)
+        
+        try:
+            usuario = Usuario.objects.get(id_empleado=usertempo.idempleado)
         except Usuario.DoesNotExist:
-            messages.error(request, "No se encontró el empleado con es posible que no tenga cuenta")
-            pass
+            messages.error(request, 'No se encontró usuario con el ID de empleado proporcionado.')
+            return redirect('admin:loginweb', empresa=empresa)
+        
+        if correo1 == correo2:
+            messages.warning(request, 'El correo electrónico ingresado ya está registrado para este empleado.')
+            return redirect('admin:loginweb', empresa=empresa)
+        else:
+            usertempo.email = correo1
+            try:
+                usertempo.save(using=empresa)
+            except Exception as e:
+                print(f"Error saving usertempo: {e}")
+                messages.error(request, 'Error al actualizar el correo electrónico del empleado.')
+                return redirect('admin:loginweb', empresa=empresa)
             
+            usuario.user.username = correo1
+            usuario.user.email = correo1
+            try:
+                usuario.user.save()
+            except Exception as e:
+                print(f"Error saving usuario.user: {e}")
+                messages.error(request, 'Error al actualizar el correo electrónico del empleado.')
+                return redirect('admin:loginweb', empresa=empresa)
+            messages.success(request, 'Correo electrónico actualizado correctamente.')
+            return redirect('admin:loginweb', empresa=empresa)
+
+
         
-        
-    messages.success(request, 'El corrreo ha sido actualizado con exito')
-    return redirect('admin:loginweb',empresa=empresa)
+    
     
 
