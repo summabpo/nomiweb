@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum, Q
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
-from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos
+from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
 from django.contrib import messages
@@ -31,6 +31,7 @@ def get_client_ip(request):
 
 def vacation_request_function(request):
     ide = request.session.get('idempleado')
+    nombre_empleado = Contratosemp.objects.get(idempleado=ide).pnombre
     contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
     idc = contrato.idcontrato if contrato else None
 
@@ -38,12 +39,14 @@ def vacation_request_function(request):
     inicio_contrato = contratof.fechainiciocontrato.strftime('%Y-%m-%d')
 
     form = EmpVacacionesForm(request.POST or None)
-    
+
     if request.method == 'POST' and form.is_valid():
         tipovac_obj = form.cleaned_data.get('tipovac')
         tipovac = str(tipovac_obj.tipovac)
         cuentasabados = form.cleaned_data.get('cuentasabados')
         comentarios = form.cleaned_data.get('comentarios')
+        fechainicialvac = form.cleaned_data.get('fechainicialvac')
+        fechafinalvac = form.cleaned_data.get('fechafinalvac')
 
         if tipovac == '2':
             diasvac = form.cleaned_data.get('diasvac')
@@ -70,24 +73,29 @@ def vacation_request_function(request):
         vacation_request.diasvac = diasvac
         vacation_request.comentarios = comentarios
         vacation_request.save()
-        
+
         email_type = 'vacations'
         context = {
-            'tipovac': tipovac,
-            'fechainicialvac': fechainicialvac,
-            'fechafinalvac': fechafinalvac,
+            'nombre_empleado': nombre_empleado,
+            'tipovac_obj': tipovac_obj,
             'diasvac': diasvac,
             'comentarios': comentarios,
-            }
+            'tipovac': tipovac,
+        }
+        if fechainicialvac:
+            context['fechainicialvac'] = fechainicialvac
+        if fechafinalvac:
+            context['fechafinalvac'] = fechafinalvac
+
         subject = 'Solicitud de Vacaciones / Licencias'
-        recipient_list = ['catalina@matchlink.co'] ## cambiar el correo por el del usuario 
+        recipient_list = ['catalina@matchlink.co'] ## cambiar este correo por una variable que contenga el email del empleado y con copia a gghh
 
         if send_template_email(email_type, context, subject, recipient_list):
             pass
         else:
             messages.error(request, 'Error en el procesamiento de la solicitud')
 
-        messages.success(request, 'La solicitud ha sido enviada correctamente.')
+        messages.success(request, 'La solicitud de Vacaciones/Licencias ha sido enviada correctamente.')
 
         return redirect('employees:form_vac')
 
@@ -97,9 +105,7 @@ def vacation_request_function(request):
     dias_trabajados = calcular_dias_360(inicio_contrato, fecha_hoy)
     periodos_completos = round(dias_trabajados/360)
     vacaciones_fecha = round(dias_trabajados * 15/360,2) - dias_vacaciones
-
     vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
-
 
     context = {
         'form': form,
