@@ -159,7 +159,7 @@
 
 {% block js %}
 
-<script>
+{% comment %} <script>
     function verificarUnicoContrato() {
         var contratoSelect = document.getElementById('contrato');
         
@@ -223,7 +223,7 @@
 
     document.getElementById('contrato').addEventListener('change', actualizarTipoCertificado);
     actualizarTipoCertificado()
-</script>
+</script> {% endcomment %}
 
 <script>
     function cargarContratos() {
