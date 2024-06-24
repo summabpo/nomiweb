@@ -10,8 +10,8 @@ from xhtml2pdf import pisa
 from apps.components.workcertificategenerator import workcertificategenerator , workcertificatedownload
 from django.contrib import messages
 from apps.employees.models import  Certificaciones
-from apps.components.decorators import custom_login_required ,custom_permission
-
+from apps.components.decorators import custom_permission
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -24,8 +24,8 @@ def get_empleado_name(empleado):
 
 
 
-# @custom_login_required
-# @custom_permission('employees')
+@login_required
+@custom_permission('employees')
 def vista_certificaciones(request):
     select_data = {}
     ESTADOS_CONTRATO = {
@@ -124,7 +124,8 @@ def vista_certificaciones(request):
 
 
 
-
+@login_required
+@custom_permission('employees')
 def generateworkcertificate(request):
     
     try:
@@ -157,6 +158,8 @@ def generateworkcertificate(request):
         return redirect('companies:workcertificate')
 
 
+@login_required
+@custom_permission('employees')
 def certificatedownload(request,idcert):
 
     try:

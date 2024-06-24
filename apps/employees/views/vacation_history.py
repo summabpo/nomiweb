@@ -1,3 +1,5 @@
+# apps/employees/views.py
+from django.views.generic import ListView
 from django.db.models import Q, Sum
 from django.shortcuts import render
 from django.views.generic import  ListView
@@ -7,8 +9,13 @@ from apps.employees.models import Vacaciones, Contratos
 from apps.components.decorators import custom_permission
 
 @method_decorator([login_required, custom_permission('employees')], name='dispatch')
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from apps.employees.models import Vacaciones
+from apps.components.decorators import custom_permission
 
 
+@method_decorator([login_required, custom_permission('employees')], name='dispatch')
 class VacationList(ListView):
     template_name = 'employees/vacation_history.html'
     paginate_by = 10

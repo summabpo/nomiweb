@@ -55,12 +55,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize', #Para poner puntos en numeros para separar miles
+    'django.contrib.humanize', 
     'import_export',
     
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     
     
     ## debug 
@@ -85,7 +82,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.login.middlewares.DatabaseRouterMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    #'allauth.account.middleware.AccountMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -129,10 +126,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
 ]
 
-# SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
-# SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
-# SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el navegador
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
+SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
+SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador
 
 
 DATABASES = {
@@ -229,18 +226,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/'
+
+
+
 
 #AUTH_USER_MODEL = 'login.CustomUser'

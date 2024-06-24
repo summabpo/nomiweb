@@ -9,7 +9,7 @@ from apps.employees.views.viewdian import viewdian
 from apps.employees.views import edituser
 from apps.employees.views import comprobantes_nomina
 from apps.employees.views import newpassword
-
+from apps.employees.views.viewdian import elimiar
 
 urlpatterns = [
     path('Certificate/labor',certificaciones_laborales.vista_certificaciones,name='certificaciones' ),

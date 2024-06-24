@@ -2,7 +2,22 @@
 
 {% load crispy_forms_tags %}
 
-{% block title %} Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias {% endblock %} 
+{% block title %} 
+Nomiweb.co - Portal Empleados - Solicitud de Vacaciones / Licencias 
+{% endblock %} 
+
+
+{% block sub_titulo1 %} 
+Vacaciones y Licencias
+{% endblock %}
+
+{% block sub_titulo2 %} 
+Solicitudes
+{% endblock %}
+
+{% block titulo2 %} 
+    
+{% endblock %}
 
 {% block content %}
 
@@ -55,8 +70,8 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-info" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="vacation-form" class="btn btn-info">Enviar Solicitud</button>
+                <button type="button" class="btn btn-light-danger" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" form="vacation-form" class="btn btn-info hover-elevate-up">Enviar Solicitud</button>
             </div>
         </div>
     </div>
