@@ -40,7 +40,7 @@ urlpatterns = [
         views.comprobantes_nomina.genera_comprobante,
         name='genera-comprobante'
     ),
-    
+
     path(
         'employees/',
         index.index_employees,
@@ -58,21 +58,33 @@ urlpatterns = [
         views.vacation_request.vacation_request_function,
         name='form_vac',
     ),
-    
+
     path('vacation/modal/<int:pk>/',
         views.vacation_request.vacation_detail_modal,
         name='vacation_detail_modal'),
-    
-    path('Certificate/DIAN/',viewdian.viewdian,name='viewdian'),
-    path('Certificate/DIAN/download/<str:idingret>',viewdian.viewdian_empleado,name='viewdiandownload'),
-    
-    path('user', edituser.user_employees, name='user' ),
-    path('edit/user', edituser.edit_user_employees, name='edituser' ),
-    path('Certificate/payroll/<str:idnomina>/<str:idcontrato>', comprobantes_nomina.generatepayrollcertificate, name='generatepayrollcertificate' ),
-    path('user/new/password', newpassword.newpassword_employees, name='newpassword' ),
-    
-    ## eliminar
-    path('logs/views', elimiar.print_session),
- 
-    
+
+    path('Certificate/DIAN/',
+        viewdian.viewdian,
+        name='viewdian'),
+
+    path('Certificate/DIAN/download/<str:idingret>',
+        viewdian.viewdian_empleado,
+        name='viewdiandownload'),
+
+    path('user',
+        edituser.user_employees,
+        name='user'),
+
+    path('edit/user',
+        edituser.edit_user_employees,
+        name='edituser'),
+
+    path('Certificate/payroll/<str:idnomina>/<str:idcontrato>',
+        comprobantes_nomina.generatepayrollcertificate,
+        name='generatepayrollcertificate'),
+
+    path('user/new/password',
+        newpassword.newpassword_employees,
+        name='newpassword'),
+
 ]

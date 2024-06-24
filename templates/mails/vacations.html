@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de Vacaciones / Licencias</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content p {
+            margin: 0 0 10px;
+        }
+        .content .user-info {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .content .user-info p {
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Solicitud de Vacaciones / Licencias</h1>
+        </div>
+        <div class="content">
+            <p>¡¡Hola!!  {{ nombre_empleado }},</p>
+            <p>Tu solicitud ha sido creada exitosamente, a continuación encontrarás los detalles:</p>
+            <div class="user-info">
+                <p><strong>Tipo de Solicitud:</strong> {{ tipovac_obj }}</p>
+                {% if tipovac != '2' %}
+                    <p><strong>Fecha Inicial:</strong> {{ fechainicialvac }}</p>
+                    <p><strong>Fecha Final:</strong> {{ fechafinalvac }}</p>
+                {% endif %}
+                <p><strong>Dias Habiles:</strong> {{ diasvac }}</p>
+                <textarea class="form-control" readonly>Comentarios: {{ comentarios }}</textarea>
+            </div>
+            <p>Hemos recibido su solicitud y pronto la procesaremos</p>
+            
+            <p>Saludos cordiales,</p>
+            <br>
+            <p>Gestion Humana</p>
+        </div>
+        <div class="footer">
+            <p>&copy; SUMMA BPO SAS. -- Outsourcing de Nómina y RRHH.</p>
+        </div>
+    </div>
+</body>
+</html>
