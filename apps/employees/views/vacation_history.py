@@ -8,12 +8,6 @@ from django.utils.decorators import method_decorator
 from apps.employees.models import Vacaciones, Contratos
 from apps.components.decorators import custom_permission
 
-@method_decorator([login_required, custom_permission('employees')], name='dispatch')
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from apps.employees.models import Vacaciones
-from apps.components.decorators import custom_permission
-
 
 @method_decorator([login_required, custom_permission('employees')], name='dispatch')
 class VacationList(ListView):
