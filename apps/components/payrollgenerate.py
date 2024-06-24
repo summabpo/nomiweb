@@ -18,10 +18,10 @@ def genera_comprobante(idnomina, idcontrato):
 
         # Formatear valores con puntos para los miles en dataDevengado
         for item in dataDevengado:
-            item.valor = f"{item.valor:,}"  # Aplica formato de separador de miles
+            item.valor = "{:,}".format(int(item.valor)).replace(",", ".") # Aplica formato de separador de miles
             
         for item in dataDescuento:
-            item.valor = f"{item.valor:,}" 
+            item.valor = "{:,}".format(int(item.valor)).replace(",", ".") # Aplica formato de separador de miles
 
         # Calcular la suma de todos los valores en dataDevengado
         sumadataDevengado = dataDevengado.aggregate(total=Sum('valor'))['total'] or 0
@@ -30,13 +30,16 @@ def genera_comprobante(idnomina, idcontrato):
         
         total = sumadataDevengado + sumadataDescuento
         
+        
+        
         periodo = f" {crear.fechainicial} hasta: {crear.fechafinal}"
         
         context = {
             #empresa
             'empresa':datac['nombre_empresa'],
             'nit': datac['nit_empresa'],
-            'web':datac['website_empresa'],            
+            'web':datac['website_empresa'],
+            'logo':datac['logo_empresa'],        
             # nomina y empleado 
             'nombre_completo': nombre_completo,
             'cc': contrato.idempleado.docidentidad,
@@ -52,9 +55,9 @@ def genera_comprobante(idnomina, idcontrato):
             'pension': contrato.pension,
             'dataDevengado': dataDevengado,
             'dataDescuento': dataDescuento,
-            'sumadataDevengado': f"{sumadataDevengado:,}",  # Formatear la suma con separador de miles
-            'sumadataDescuento': f"{sumadataDescuento:,}",
-            'total':f"{total:,}",
+            'sumadataDevengado': "{:,}".format(int(sumadataDevengado)).replace(",", "."), # Formatear la suma con separador de miles
+            'sumadataDescuento': "{:,}".format(int(sumadataDescuento)).replace(",", "."), 
+            'total':"{:,}".format(int(total)).replace(",", "."),
             
         }
     else:

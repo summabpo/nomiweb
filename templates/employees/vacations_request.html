@@ -46,7 +46,7 @@ Solicitudes
 <!---BOTON MODAL--->
 <div class="text-end">
     <button type="button" class="btn btn-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_1">
-        Nueva Solicitud
+        +  Nueva Solicitud
     </button>
 </div>
 
@@ -87,19 +87,23 @@ Solicitudes
                     <table class="table table-row-dashed table-row-gray-300 gy-7">
                         <thead>
                             <tr class="fw-bold fs-6 text-gray-800 text-align: center">
-                            <th width="100"><b>Fecha</b></th>
+                            <th width="20"><b></b></th>
+                            <th width="50"><b>Fecha</b></th>
                             <th width="100"><b>Tipo Solicitud</b></th>
                             <th width="50"><b>Fecha Inicial</b></th>
                             <th width="50"><b>Fecha Final</b></th>
                             <th width="50"><b>Dias Habiles</b></th>
                             <th width="50"><b>Dias Calendario</b></th>
                             <th width="50"><b>Estado</b></th>
-                            <th width="20"><b>Editar</b></th>
+                            <th width="20"><b>Detalle</b></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for e in vacation_list %}
                             <tr>
+                                <td><a href="#">
+                                    <i class="bi bi-pencil-square fs-2 ms-0"></i>
+                                </a></td>
                                 <td>{{ e.fecha_hora|date:"d-m-y" }}</td>
                                 <td>{{ e.tipovac.nombrevacaus }}</td>
                                 <td>{{ e.fechainicialvac|date:"d-m-y" }}</td>
@@ -158,6 +162,7 @@ Solicitudes
             });
     }
 </script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tipovacSelect = document.getElementById('tipovac-select');

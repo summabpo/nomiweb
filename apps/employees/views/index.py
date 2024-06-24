@@ -13,7 +13,6 @@ from django.contrib.auth.decorators import login_required
 def index_employees(request):
     usuario = request.session.get('usuario', {})
     request.session['idempleado'] = usuario['id']
-
     request.session['empleado'] = datos_empleado2(usuario['id'])
     
     

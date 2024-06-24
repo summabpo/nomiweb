@@ -80,8 +80,8 @@ def imggenerate1(idingret):
 
     image = Image.open(settings.STATICFILES_DIRS[0] + "/img/dian/220-2023.jpg")
     draw = ImageDraw.Draw(image)
-    font_path = settings.STATICFILES_DIRS[0] + '/fonts/SpecialElite-Regular.ttf'
-    font = ImageFont.truetype('cour.ttf', size=18)
+    font_path = settings.STATICFILES_DIRS[0] + '/fonts/cour.ttf'
+    font = ImageFont.truetype(font_path, size=18)
     fill_color = "black"
 
     for campo, info in posision1.items():
@@ -91,7 +91,7 @@ def imggenerate1(idingret):
 
     max_width, max_height = image.size
     x = max_width - 50
-    y = 294
+    y = 296
     line_spacing = 7
 
     for campo, info in value1.items():
@@ -103,8 +103,9 @@ def imggenerate1(idingret):
         draw.text((start_x, y), dta, font=font, fill=fill_color)
         y += text_height + line_spacing
 
-    y += 20
-    line_spacing = 8
+    y = 640
+    line_spacing = 7
+    
     for campo, info in value2.items():
         dta = info['data']
         bbox = draw.textbbox((0, 0), dta, font=font)
@@ -112,6 +113,6 @@ def imggenerate1(idingret):
         text_height = bbox[3] - bbox[1]
         start_x = x - text_width
         draw.text((start_x, y), dta, font=font, fill=fill_color)
-        y += text_height + line_spacing
+        y += text_height + line_spacing 
     
     return image

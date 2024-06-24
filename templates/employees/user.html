@@ -1,5 +1,4 @@
-
-{% extends 'base/base.html' %}
+{% extends 'base/base_employees.html' %}
 {% load static %}
 
 {% block title %}
@@ -38,10 +37,10 @@ Vista Usuario
             <div class="me-7 mb-4">
                 <div class="symbol symbol-200px symbol-lg-160px symbol-fixed position-relative">
                     
-                {% if data.fotografiaempleado %}
-                    <img src="{{data.fotografiaempleado.url}}" class="card-img-top" alt="Profile Picture">
+                {% if request.session.empleado.fotografiaempleado %}
+                    <img src="{{ request.session.empleado.fotografiaempleado }}" class="card-img-top" alt="Profile Picture">
                 {% else %}
-                    <img src="{% static 'media/avatars/300-3.jpg' %}" class="card-img-top" alt="Default Profile Picture">
+                    <img src="{% static 'media/avatars/blank.png' %}" class="card-img-top" alt="Default Profile Picture">
                 {% endif %}
 
 

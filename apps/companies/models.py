@@ -68,7 +68,7 @@ class Contratosemp(models.Model):
     ciudadnacimiento = models.TextField(blank=True, null=True)
     telefonoempleado = models.CharField(max_length=12, blank=True, null=True)
     direccionempleado = models.CharField(max_length=100, blank=True, null=True)
-    fotografiaempleado = models.BinaryField(blank=True, null=True)
+    fotografiaempleado = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     sexo = models.CharField(max_length=255, blank=True, null=True)
     email = models.CharField(max_length=255, blank=True, null=True)
     ciudadresidencia = models.CharField(max_length=20, blank=True, null=True)
@@ -95,6 +95,7 @@ class Contratosemp(models.Model):
     class Meta:
         managed = False
         db_table = 'contratosemp'
+    
     
 
 

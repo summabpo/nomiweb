@@ -11,7 +11,8 @@ def send_template_email(email_type, context, subject, recipient_list, from_email
     email_templates = {
         'welcome': 'mails/bienvenido.html',
         'password_reset': 'mails/resetpassword.html',
-        'loginweb': 'mails/cuentausuario.html'
+        'loginweb': 'mails/cuentausuario.html',
+        'vacations': 'mails/vacations.html',
         
     }
     

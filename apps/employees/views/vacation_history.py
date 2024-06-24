@@ -1,10 +1,14 @@
 # apps/employees/views.py
 from django.views.generic import ListView
 from django.db.models import Q, Sum
+from django.shortcuts import render
+from django.views.generic import  ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from apps.employees.models import Vacaciones
+from apps.employees.models import Vacaciones, Contratos
 from apps.components.decorators import custom_permission
+
+
 
 @method_decorator([login_required, custom_permission('employees')], name='dispatch')
 class VacationList(ListView):
@@ -15,7 +19,11 @@ class VacationList(ListView):
     ordering = 'idvacaciones'
     
     def get_queryset(self):
-        queryset = Vacaciones.objects.filter(Q(idcontrato=3313) & (Q(tipovac=1) | Q(tipovac=2))).select_related('tipovac')
+        ide = self.request.session.get('idempleado')
+        contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
+        idc = contrato.idcontrato if contrato else None
+        
+        queryset = Vacaciones.objects.filter(Q(idcontrato=idc) & (Q(tipovac=1) | Q(tipovac=2))).select_related('tipovac')
         return queryset
     
     def get_context_data(self, **kwargs):
