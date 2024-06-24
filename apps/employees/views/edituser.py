@@ -46,7 +46,7 @@ def edit_user_employees(request):
             if form.cleaned_data['cell'] is not None:
                 data.direccionempleado = form.cleaned_data['cell']
             if form.cleaned_data['city'] is not None:
-                data.direccionempleado = form.cleaned_data['city']
+                data.ciudadresidencia = form.cleaned_data['city']
             if form.cleaned_data['address'] is not None:
                 data.direccionempleado = form.cleaned_data['address']
             
