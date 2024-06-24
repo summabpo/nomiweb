@@ -91,7 +91,7 @@ def imggenerate1(idingret):
 
     max_width, max_height = image.size
     x = max_width - 50
-    y = 294
+    y = 296
     line_spacing = 7
 
     for campo, info in value1.items():
@@ -103,8 +103,9 @@ def imggenerate1(idingret):
         draw.text((start_x, y), dta, font=font, fill=fill_color)
         y += text_height + line_spacing
 
-    y += 20
-    line_spacing = 8
+    y = 640
+    line_spacing = 7
+    
     for campo, info in value2.items():
         dta = info['data']
         bbox = draw.textbbox((0, 0), dta, font=font)
@@ -112,6 +113,6 @@ def imggenerate1(idingret):
         text_height = bbox[3] - bbox[1]
         start_x = x - text_width
         draw.text((start_x, y), dta, font=font, fill=fill_color)
-        y += text_height + line_spacing
+        y += text_height + line_spacing 
     
     return image
