@@ -2,7 +2,7 @@ from django.db.models import F, Value, CharField, IntegerField
 from apps.employees.models import Contratosemp, Contratos, Nomina ,Crearnomina
 from django.db.models import Sum
 from .datacompanies import datos_cliente
-from apps.components.humani import format_value
+from apps.components.humani import format_value ,format_value_float
 
 def limitar_cadena(cadena, max_length=25):
     if len(cadena) > max_length:
@@ -25,13 +25,13 @@ def genera_comprobante(idnomina, idcontrato):
         # Formatear valores con puntos para los miles en dataDevengado
         for item in dataDevengado:
             item.valor = format_value(item.valor) # Aplica formato de separador de mil
+            item.cantidad = format_value_float(item.cantidad)
             item.nombreconcepto = limitar_cadena(item.nombreconcepto)
-            print(item.nombreconcepto)
             
         for item in dataDescuento:
             item.valor = format_value(item.valor) # Aplica formato de separador de miles
+            item.cantidad = format_value_float(item.cantidad)
             item.nombreconcepto = limitar_cadena(item.nombreconcepto)
-            print(item.nombreconcepto)
 
         # Calcular la suma de todos los valores en dataDevengado
         sumadataDevengado = dataDevengado.aggregate(total=Sum('valor'))['total'] or 0

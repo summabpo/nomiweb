@@ -77,8 +77,8 @@ def listaNomina(request):
         'cont': cont
     })
 
-# @login_required
-# @custom_permission('employees')
+@login_required
+@custom_permission('employees')
 def generatepayrollcertificate(request ,idnomina,idcontrato,):
     context = genera_comprobante(idnomina,idcontrato)
 
