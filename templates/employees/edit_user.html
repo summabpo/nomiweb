@@ -48,23 +48,47 @@ Editar Datos
         <br>
     </div>
 </div>
-    <!-- Espacio para la vista previa de la foto capturada desde la cámara -->
-<div id="camera-preview"></div>
+
+<!-- Espacio para la vista previa de la foto capturada desde la cámara -->
+<!-- Modal para la captura de imagen desde la cámara -->
+<div class="modal fade" id="cameraModal" tabindex="-1" role="dialog" aria-labelledby="cameraModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cameraModalLabel">Captura de Foto desde la Cámara</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="camera-preview"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="capture-button" type="button" class="btn btn-primary">Capturar Imagen</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Botón para capturar foto desde la cámara -->
-<button id="capture-button">Capturar desde la cámara</button>
+<button id="open-camera-modal" class="btn btn-info">Abrir Cámara</button>
 
 {% endblock %}
 
 {% block js %}
 
-<!-- Script para manejar la captura desde la cámara -->
 <script>
-    // Obtener referencia al botón de captura
-    const captureButton = document.getElementById('capture-button');
+    // Obtener referencia al botón de abrir modal
+    const openCameraModalButton = document.getElementById('open-camera-modal');
     
-    // Añadir evento de click al botón de captura
-    captureButton.addEventListener('click', async () => {
+    // Añadir evento de click para abrir el modal
+    openCameraModalButton.addEventListener('click', () => {
+        $('#cameraModal').modal('show');  // Mostrar el modal de la cámara
+    });
+    
+    // Función para manejar la captura de imagen desde la cámara
+    const handleCaptureImage = async () => {
         try {
             // Obtener acceso a la cámara del usuario
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -89,35 +113,38 @@ Editar Datos
                 // Convertir la imagen capturada en base64
                 const imageDataURL = canvas.toDataURL('image/png');
                 
-                // Crear un input hidden para enviar la imagen al servidor
+                // Actualizar la imagen en el formulario (opcional)
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
                 hiddenInput.name = 'profile_picture';
                 hiddenInput.value = imageDataURL;
-                
-                // Adjuntar el input al formulario
                 const form = document.querySelector('form');
                 form.appendChild(hiddenInput);
                 
                 // Detener el stream de la cámara
                 stream.getTracks().forEach(track => track.stop());
                 
+                // Cerrar el modal de la cámara
+                $('#cameraModal').modal('hide');
+                
                 // Eliminar el video preview
                 cameraPreview.innerHTML = '';
             };
             
             // Botón para capturar la imagen
-            const captureImageButton = document.createElement('button');
-            captureImageButton.textContent = 'Capturar Imagen';
+            const captureImageButton = document.getElementById('capture-button');
             captureImageButton.addEventListener('click', captureImage);
-            
-            // Agregar el botón de captura de imagen al preview div
-            cameraPreview.appendChild(captureImageButton);
             
         } catch (error) {
             console.error('Error al acceder a la cámara:', error);
         }
-    });
+    };
+    
+    // Añadir evento de click al botón de captura de imagen
+    const captureButton = document.getElementById('capture-button');
+    captureButton.addEventListener('click', handleCaptureImage);
 </script>
+
+
 {% endblock %}
 

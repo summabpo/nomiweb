@@ -37,10 +37,12 @@ class EditEmployeesForm(forms.Form):
                 css_class='form-row'
             ),
             Row(
-                Column('profile_picture', css_class='form-group col-md-12 mb-0'), 
+                Column('profile_picture', css_class='form-group col-md-6'), 
+                Submit('submit', 'Tomar foto',css_class='btn btn-light-info hover-elevate-up',id="open-camera-modal"),
                 css_class='form-row' 
             ),
             Submit('submit', 'Guardar',css_class='btn btn-light-info hover-elevate-up'),
+            
         )
 
 
