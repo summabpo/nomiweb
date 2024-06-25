@@ -48,10 +48,76 @@ Editar Datos
         <br>
     </div>
 </div>
-    
+    <!-- Espacio para la vista previa de la foto capturada desde la cámara -->
+<div id="camera-preview"></div>
+
+<!-- Botón para capturar foto desde la cámara -->
+<button id="capture-button">Capturar desde la cámara</button>
+
 {% endblock %}
 
 {% block js %}
 
+<!-- Script para manejar la captura desde la cámara -->
+<script>
+    // Obtener referencia al botón de captura
+    const captureButton = document.getElementById('capture-button');
+    
+    // Añadir evento de click al botón de captura
+    captureButton.addEventListener('click', async () => {
+        try {
+            // Obtener acceso a la cámara del usuario
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            
+            // Mostrar la vista previa de la cámara en un video element
+            const videoElement = document.createElement('video');
+            videoElement.srcObject = stream;
+            videoElement.autoplay = true;
+            
+            // Agregar el video element al preview div
+            const cameraPreview = document.getElementById('camera-preview');
+            cameraPreview.innerHTML = '';
+            cameraPreview.appendChild(videoElement);
+            
+            // Función para capturar la imagen
+            const captureImage = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                canvas.getContext('2d').drawImage(videoElement, 0, 0);
+                
+                // Convertir la imagen capturada en base64
+                const imageDataURL = canvas.toDataURL('image/png');
+                
+                // Crear un input hidden para enviar la imagen al servidor
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'profile_picture';
+                hiddenInput.value = imageDataURL;
+                
+                // Adjuntar el input al formulario
+                const form = document.querySelector('form');
+                form.appendChild(hiddenInput);
+                
+                // Detener el stream de la cámara
+                stream.getTracks().forEach(track => track.stop());
+                
+                // Eliminar el video preview
+                cameraPreview.innerHTML = '';
+            };
+            
+            // Botón para capturar la imagen
+            const captureImageButton = document.createElement('button');
+            captureImageButton.textContent = 'Capturar Imagen';
+            captureImageButton.addEventListener('click', captureImage);
+            
+            // Agregar el botón de captura de imagen al preview div
+            cameraPreview.appendChild(captureImageButton);
+            
+        } catch (error) {
+            console.error('Error al acceder a la cámara:', error);
+        }
+    });
+</script>
 {% endblock %}
 
