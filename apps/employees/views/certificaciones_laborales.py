@@ -12,7 +12,7 @@ from django.contrib import messages
 from apps.employees.models import  Certificaciones
 from apps.components.decorators import custom_permission
 from django.contrib.auth.decorators import login_required
-
+from apps.components.humani import format_value
 
 
 def get_empleado_name(empleado):
