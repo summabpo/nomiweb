@@ -90,7 +90,7 @@ Desprendibles
                     <tr>
                         <td>{{ e.idnomina.idnomina }}</td>
                         <td>{{ e.idnomina.nombrenomina }}</td>
-                        <td>{{ e.anoacumular }} - {{ e.mesacumular }}</td>
+                        <td>{{ e.idnomina.fechapago }}</td>
                         <td>
                             <a  href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Comprobante de Nomina" >
                                 Ver
