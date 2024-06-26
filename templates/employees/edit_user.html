@@ -49,30 +49,40 @@ Editar Datos
     </div>
 </div>
 
+
+
+
 <!-- Espacio para la vista previa de la foto capturada desde la cámara -->
-<!-- Modal para la captura de imagen desde la cámara -->
-<div class="modal fade" id="cameraModal" tabindex="-1" role="dialog" aria-labelledby="cameraModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+    Abrir Cámara
+</button>
+
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cameraModalLabel">Captura de Foto desde la Cámara</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h3 class="modal-title">Modal title</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
             </div>
+
             <div class="modal-body">
                 <div id="camera-preview"></div>
             </div>
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                 <button id="capture-button" type="button" class="btn btn-primary">Capturar Imagen</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Botón para capturar foto desde la cámara -->
-<button id="open-camera-modal" class="btn btn-info">Abrir Cámara</button>
+
 
 {% endblock %}
 
