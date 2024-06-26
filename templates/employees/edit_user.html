@@ -66,8 +66,14 @@ Editar Datos
 
 
 
+<<<<<<< HEAD
 <!-- manejo la captura desde la cámara -->
 
+=======
+
+<!-- manejo la captura desde la cámara -->
+<button id="open-camera-modal" class="btn btn-info">Abrir Cámara</button>
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
 
 <!-- Modal para la captura de imagen desde la cámara -->
 <div class="modal fade" tabindex="-1" id="kt_modal_1">
@@ -81,7 +87,10 @@ Editar Datos
             </div>
             <div class="modal-body">
                 <div id="camera-preview" class="text-center">
+<<<<<<< HEAD
                     {% csrf_token %}
+=======
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
                     <video id="camera-stream" class="w-100"></video>
                 </div>
             </div>
@@ -104,11 +113,18 @@ Editar Datos
 
 <!-- Script para manejar la captura desde la cámara -->
 <script>
+<<<<<<< HEAD
     const uploadUrl = "{% url 'employees:user' %}";
     // Variables globales para la cámara y el stream
     let videoElement = null;
     let stream = null;
 
+=======
+    // Variables globales para la cámara y el stream
+    let videoElement = null;
+    let stream = null;
+    
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
     // Obtener referencia al botón de abrir modal
     const openCameraModalButton = document.getElementById('open-camera-modal');
 
@@ -117,13 +133,21 @@ Editar Datos
         $('#kt_modal_1').modal('show');  // Mostrar el modal de la cámara
         startCamera(); // Iniciar la cámara al abrir el modal
     });
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
     // Función para iniciar la cámara
     const startCamera = async () => {
         try {
             // Obtener acceso a la cámara del usuario
             stream = await navigator.mediaDevices.getUserMedia({ video: true });
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
             // Mostrar la vista previa de la cámara en un video element
             videoElement = document.getElementById('camera-stream');
             videoElement.srcObject = stream;
@@ -138,14 +162,22 @@ Editar Datos
             });
         }
     };
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
     // Función para detener la cámara
     const stopCamera = () => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
     };
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
     // Función para manejar la captura de imagen desde la cámara
     const handleCaptureImage = async () => {
         try {
@@ -158,12 +190,17 @@ Editar Datos
                 });
                 return;
             }
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
             // Capturar la imagen desde el video
             const canvas = document.createElement('canvas');
             canvas.width = videoElement.videoWidth;
             canvas.height = videoElement.videoHeight;
             canvas.getContext('2d').drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+<<<<<<< HEAD
 
             // Convertir la imagen capturada en base64 a Blob
             canvas.toBlob(async (blob) => {
@@ -216,6 +253,33 @@ Editar Datos
                     });
                 }
             }, 'image/png');
+=======
+            
+            // Convertir la imagen capturada en base64
+            const imageDataURL = canvas.toDataURL('image/png');
+            
+            // Actualizar el campo oculto en el formulario con la imagen capturada
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'profile_picture';
+            hiddenInput.value = imageDataURL;
+            document.getElementById('edit-employee-form').appendChild(hiddenInput);
+            
+            // Detener la cámara y cerrar el modal
+            stopCamera();
+            $('#kt_modal_1').modal('hide'); // Ocultar el modal de la cámara
+            
+            // Mostrar alerta de éxito
+            Swal.fire({
+                icon: 'success',
+                title: '¡Imagen Capturada!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            
+            // Limpiar la vista previa de la cámara
+            document.getElementById('camera-preview').innerHTML = '';
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
         } catch (error) {
             console.error('Error al capturar la imagen:', error);
             Swal.fire({
@@ -229,7 +293,11 @@ Editar Datos
     // Añadir evento de click al botón de captura de imagen
     const captureButton = document.getElementById('capture-button');
     captureButton.addEventListener('click', handleCaptureImage);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> f0797fecb1b130ab732897e7239bdd26e84e205c
     // Función para cerrar el modal y detener la cámara al cerrar el modal
     $('#kt_modal_1').on('hidden.bs.modal', function () {
         stopCamera();
