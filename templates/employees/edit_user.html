@@ -45,7 +45,19 @@ Editar Datos
 <div class="card mb-5 mb-xxl-8">
     <div class="card-body pt-9 pb-0">
         {% crispy form %}
-        <br>
+        <form method="POST" id="edit-form" >
+            {% csrf_token %}
+            <div class="input-group mb-5">
+                <span class="input-group-text" id="basic-addon3"> Imagen de perfil </span>
+                <input type="file" class="form-control col-md-6" name="profile_picture" accept="image/*" id="id_profile_picture"/>
+                <button id="open-camera-modal" class="btn btn-icon btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Tomar Fotografía" >
+                    <i class="fa-solid fa-camera fs-1"></i>
+                </button>
+            </div>
+            <button type="submit" form="edit-form"  class="btn btn-light-info hover-elevate-up">Actualizar</button>
+            <br>
+            <br>
+        </form>
     </div>
 </div>
 
@@ -54,9 +66,8 @@ Editar Datos
 
 
 
-
 <!-- manejo la captura desde la cámara -->
-<button id="open-camera-modal" class="btn btn-info">Abrir Cámara</button>
+
 
 <!-- Modal para la captura de imagen desde la cámara -->
 <div class="modal fade" tabindex="-1" id="kt_modal_1">
@@ -70,6 +81,7 @@ Editar Datos
             </div>
             <div class="modal-body">
                 <div id="camera-preview" class="text-center">
+                    {% csrf_token %}
                     <video id="camera-stream" class="w-100"></video>
                 </div>
             </div>
@@ -92,25 +104,26 @@ Editar Datos
 
 <!-- Script para manejar la captura desde la cámara -->
 <script>
+    const uploadUrl = "{% url 'employees:user' %}";
     // Variables globales para la cámara y el stream
     let videoElement = null;
     let stream = null;
-    
+
     // Obtener referencia al botón de abrir modal
     const openCameraModalButton = document.getElementById('open-camera-modal');
-    
+
     // Añadir evento de click para abrir el modal
     openCameraModalButton.addEventListener('click', () => {
         $('#kt_modal_1').modal('show');  // Mostrar el modal de la cámara
         startCamera(); // Iniciar la cámara al abrir el modal
     });
-    
+
     // Función para iniciar la cámara
     const startCamera = async () => {
         try {
             // Obtener acceso a la cámara del usuario
             stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            
+
             // Mostrar la vista previa de la cámara en un video element
             videoElement = document.getElementById('camera-stream');
             videoElement.srcObject = stream;
@@ -125,14 +138,14 @@ Editar Datos
             });
         }
     };
-    
+
     // Función para detener la cámara
     const stopCamera = () => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
     };
-    
+
     // Función para manejar la captura de imagen desde la cámara
     const handleCaptureImage = async () => {
         try {
@@ -145,37 +158,64 @@ Editar Datos
                 });
                 return;
             }
-            
+
             // Capturar la imagen desde el video
             const canvas = document.createElement('canvas');
             canvas.width = videoElement.videoWidth;
             canvas.height = videoElement.videoHeight;
             canvas.getContext('2d').drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-            
-            // Convertir la imagen capturada en base64
-            const imageDataURL = canvas.toDataURL('image/png');
-            
-            // Actualizar el campo oculto en el formulario con la imagen capturada
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'profile_picture';
-            hiddenInput.value = imageDataURL;
-            document.getElementById('edit-employee-form').appendChild(hiddenInput);
-            
-            // Detener la cámara y cerrar el modal
-            stopCamera();
-            $('#kt_modal_1').modal('hide'); // Ocultar el modal de la cámara
-            
-            // Mostrar alerta de éxito
-            Swal.fire({
-                icon: 'success',
-                title: '¡Imagen Capturada!',
-                showConfirmButton: false,
-                timer: 1500
-            });
-            
-            // Limpiar la vista previa de la cámara
-            document.getElementById('camera-preview').innerHTML = '';
+
+            // Convertir la imagen capturada en base64 a Blob
+            canvas.toBlob(async (blob) => {
+                // Crear un objeto FormData para enviar la imagen como archivo
+                const formData = new FormData();
+                formData.append('profile_picture', blob, 'captured_image.png');
+                // Obtener el token CSRF del formulario
+                const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+                formData.append('csrfmiddlewaretoken', csrfToken);
+
+                try {
+                    // Enviar la imagen al servidor usando fetch
+                    const response = await fetch("{% url 'employees:edituser' %}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        // Éxito al subir la imagen
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Imagen Capturada y Subida!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                        // Limpiar la vista previa de la cámara si es necesario
+                        document.getElementById('camera-preview').innerHTML = '';
+
+                        // Detener la cámara y cerrar el modal
+                        stopCamera();
+                        $('#kt_modal_1').modal('hide');
+
+                        // Redirigir al usuario a la nueva página
+                        window.location.href = uploadUrl;
+
+
+                    } else {
+                        throw new Error('Error al subir la imagen.');
+                    }
+                } catch (error) {
+                    console.error('Error al subir la imagen:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Hubo un error al subir la imagen al servidor.',
+                    });
+                }
+            }, 'image/png');
         } catch (error) {
             console.error('Error al capturar la imagen:', error);
             Swal.fire({
@@ -185,11 +225,11 @@ Editar Datos
             });
         }
     };
-    
+
     // Añadir evento de click al botón de captura de imagen
     const captureButton = document.getElementById('capture-button');
     captureButton.addEventListener('click', handleCaptureImage);
-    
+
     // Función para cerrar el modal y detener la cámara al cerrar el modal
     $('#kt_modal_1').on('hidden.bs.modal', function () {
         stopCamera();
