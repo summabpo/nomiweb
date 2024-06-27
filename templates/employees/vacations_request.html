@@ -64,14 +64,14 @@ Solicitudes
             </div>
 
             <div class="modal-body">
-                <form id="vacation-form-edit" method="post" action="{% url 'employees:form_vac' %}">
+                <form id="vacation-form" method="post" action="{% url 'employees:form_vac' %}">
                     {% crispy form %}
                 </form>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light-danger" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="vacation-form-edit" class="btn btn-info hover-elevate-up">Enviar Solicitud</button>
+                <button type="submit" form="vacation-form" class="btn btn-info hover-elevate-up">Enviar Solicitud</button>
             </div>
         </div>
     </div>
@@ -155,14 +155,15 @@ Solicitudes
                             </div>
 
                             <div class="modal-body">
-                                <form id="vacation-form" method="post" action="{% url 'employees:form_vac' %}">
+                                <form id="vacation-form-edit" method="post" action="{% url 'employees:my_get_view' %}">
                                     {% crispy form %}
+                                    <input type="text" value="" id="ghost" name="ghost" style="display: none;">
                                 </form>
                             </div>
 
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-primary">Actualizar</button>
+                                <button type="submit" form="vacation-form-edit"  class="btn btn-primary">Actualizar</button>
                             </div>
                         </div>
                     </div>
@@ -200,6 +201,7 @@ Solicitudes
                         modal.find('.modal-body #diasvac-field').val(response.data.diasvac)
                         modal.find('.modal-body #id_comentarios').val(response.data.comentarios)
                         modal.find('.modal-body #id_cuentasabados').val(response.data.si)
+                        modal.find('.modal-body #ghost').val(recipient)
                         //modal.find('.modal-body #cuentasabados-field').val(response.data.no)
                     },
                     error: function(response) {
@@ -240,7 +242,25 @@ Solicitudes
             const fechainicialvacField = document.querySelectorAll('#fechainicialvac-column')[1];
             const fechafinalvacField = document.querySelectorAll('#fechafinalvac-column')[1];
             const cuentasabadosField = document.querySelectorAll('#cuentasabados-column')[1];
-            
+
+            const selectedValue = tipovacSelect.value;
+                
+
+                if (selectedValue !== '2') {
+                    
+                    diasvacField.style.display = 'none';
+                    fechainicialvacField.style.display = 'block';
+                    fechafinalvacField.style.display = 'block';
+                    cuentasabadosField.style.display = 'block';
+                } else {
+                    
+                    diasvacField.style.display = 'block';
+                    fechainicialvacField.style.display = 'none';
+                    fechafinalvacField.style.display = 'none';
+                    cuentasabadosField.style.display = 'none';
+                }
+
+
 
             function toggleFields2() {
                 const selectedValue = tipovacSelect.value;

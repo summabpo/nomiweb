@@ -175,4 +175,20 @@ def my_get_view(request):
         }
         
         return JsonResponse(response_data)
+    if request.method == 'POST' :
+        tipovac_obj = request.POST.get('tipovac')
+        tipovac = str(tipovac_obj.tipovac)
+        cuentasabados = request.POST.get('cuentasabados')
+        comentarios = request.POST.get('comentarios')
+        fechainicialvac = request.POST.get('fechainicialvac')
+        fechafinalvac = request.POST.get('fechafinalvac')
+        diasvac = request.POST.get('diasvac')
+        ghost = request.POST.get('ghost')
+        
+        solicitud =  get_object_or_404(EmpVacaciones, pk=ghost)
+        
+        
+        
+        return redirect('employees:form_vac')
+    
     return JsonResponse({'error': 'Método no permitido'}, status=405)
