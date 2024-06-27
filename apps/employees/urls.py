@@ -11,6 +11,8 @@ from apps.employees.views import comprobantes_nomina
 from apps.employees.views import newpassword
 from apps.employees.views.viewdian import elimiar
 
+
+
 urlpatterns = [
     path('Certificate/labor',certificaciones_laborales.vista_certificaciones,name='certificaciones' ),
     path('Certificate/labor/download/<int:idcert>/', certificaciones_laborales.certificatedownload, name='certificatedownload' ),
@@ -86,5 +88,7 @@ urlpatterns = [
     path('user/new/password',
         newpassword.newpassword_employees,
         name='newpassword'),
+    
+    path('ajax/my_get_view/', views.vacation_request.my_get_view, name='my_get_view'),
 
 ]

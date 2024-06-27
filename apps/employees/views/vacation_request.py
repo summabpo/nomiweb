@@ -8,6 +8,8 @@ from apps.components.decorators import custom_permission
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.components.mail import send_template_email
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -152,3 +154,25 @@ def vacation_detail_modal(request, pk):
         'comentarios2': vacation.comentarios2,
     }
     return render(request, 'employees/vacation_detail_modal.html', context)
+
+
+@csrf_exempt
+def my_get_view(request):
+    if request.method == 'GET':
+        dato = request.GET.get('dato')
+        solicitud =  get_object_or_404(EmpVacaciones, pk=dato)
+
+        response_data = {
+            'data': {
+                'idcontrato':solicitud.idcontrato.idcontrato,
+                'tipovac':solicitud.tipovac.tipovac,
+                'fechainicialvac':solicitud.fechainicialvac,
+                'fechafinalvac':solicitud.fechafinalvac,
+                'diasvac':solicitud.diasvac,
+                'comentarios':solicitud.comentarios,
+                'si':solicitud.cuentasabados,
+            }
+        }
+        
+        return JsonResponse(response_data)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
