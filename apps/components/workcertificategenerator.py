@@ -7,7 +7,7 @@ from apps.employees.models import  Certificaciones, Nomina ,Contratosemp ,Contra
 from django.db.models import Q,Sum
 from django.utils import timezone
 import pytz
-
+from apps.components.humani import format_value
 
 
 
@@ -91,7 +91,7 @@ def workcertificategenerator(ide,destino ,modelo):
     certificacion = Certificaciones(destino=destino,
                                     idcontrato=idc, 
                                     idempleado=empleado, 
-                                    salario=salario_certificado, 
+                                    salario= salario_certificado, 
                                     cargo=cargo, 
                                     tipocontrato=nombre_contrato, 
                                     codigoconfirmacion = codigo_confirmacion, 
@@ -126,7 +126,7 @@ def workcertificategenerator(ide,destino ,modelo):
             'fecha':datae['fechainiciocontrato'],
             'fechafincontrato':datae['fechafincontrato'],
             'cargo':datae['cargo'],
-            'sueldo': "{:,.0f}".format(salario).replace(',', '.'),
+            'sueldo': format_value(salario),
             'tipoc':datae['nombre_contrato'] , 
             
             # certificado 

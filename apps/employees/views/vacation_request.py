@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum, Q
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
-from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp
+from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
 from apps.components.decorators import custom_permission
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.components.mail import send_template_email
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 
@@ -152,3 +155,78 @@ def vacation_detail_modal(request, pk):
         'comentarios2': vacation.comentarios2,
     }
     return render(request, 'employees/vacation_detail_modal.html', context)
+
+global_dato = None 
+
+@csrf_exempt
+def my_get_view(request):
+    global global_dato
+    
+    if request.method == 'GET':
+        dato = request.GET.get('dato')
+        solicitud =  get_object_or_404(EmpVacaciones, pk=dato)
+        global_dato = dato
+        response_data = {
+            'data': {
+                'idcontrato':solicitud.idcontrato.idcontrato,
+                'tipovac':solicitud.tipovac.tipovac,
+                'fechainicialvac':solicitud.fechainicialvac,
+                'fechafinalvac':solicitud.fechafinalvac,
+                'diasvac':solicitud.diasvac,
+                'comentarios':solicitud.comentarios,
+                'si':solicitud.cuentasabados,
+            }
+        }
+        
+        return JsonResponse(response_data)
+    
+    if request.method == 'POST' :
+        
+        for key, value in request.POST.items():
+            print(f"{key}: {value}")
+        
+        tipovac_obj = request.POST.get('tipovac')
+        tipovac = str(tipovac_obj) if tipovac_obj else None
+        cuentasabados = request.POST.get('cuentasabados')
+        comentarios = request.POST.get('comentarios')
+        fechainicialvac = request.POST.get('fechainicialvac')
+        fechafinalvac = request.POST.get('fechafinalvac')
+        diasvac = request.POST.get('diasvac')
+        ghost = global_dato
+        
+        fechainicialvac = datetime.strptime(fechainicialvac, '%Y-%m-%d')  # Convert string to datetime
+        fechafinalvac = datetime.strptime(fechafinalvac, '%Y-%m-%d') 
+        
+        solicitud =  get_object_or_404(EmpVacaciones, pk=ghost)
+        tipo = get_object_or_404(Tipoavacaus, tipovac=tipovac)
+
+        if tipovac == '2':
+            diascalendario = diasvac
+        else:
+            if fechainicialvac and fechafinalvac:
+                diascalendario = (fechafinalvac - fechainicialvac).days + 1
+                dias_festivos = Festivos.objects.values_list('dia', flat=True)
+                cuentasabados = int(cuentasabados)
+                diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos)
+        
+        solicitud.ip_usuario = get_client_ip(request)
+        solicitud.tipovac  =  tipo
+        solicitud.fechainicialvac  = fechainicialvac
+        solicitud.fechafinalvac  = fechafinalvac
+        solicitud.diascalendario = diascalendario
+        solicitud.diasvac = diasvac
+        solicitud.cuentasabados  = cuentasabados
+        solicitud.comentarios  = comentarios
+        solicitud.save()
+        
+        messages.success(request, 'La solicitud de Vacaciones/Licencias ha sido actualizada correctamente.')
+        return redirect('employees:form_vac')
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+
+
+
+
+

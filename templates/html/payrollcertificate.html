@@ -6,8 +6,16 @@
     <style>
         @page {
             size:a4;
-            
-        
+            size: letter portrait;
+
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 50pt;
+                width: 512pt;
+                top: 10pt;
+                height: 80pt;
+    
+            }
 
             @frame content_frame {
                 left: 50pt;
@@ -20,7 +28,7 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: Courier, monospace;
         }
 
         table {
@@ -39,27 +47,32 @@
         }
 
         .header2 {
+            font-family: Courier ;
             text-align: center;
             font-size: 18px;
             color: #428bca;
             font-weight: bold;
         }
 
-        .cabezote, .total {
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-        }
+        
 
         .cabezote {
             background-color: #b9c1c4;
             margen: 0;
             padding :0; 
             font-size: 15px;
+            font-weight: bold;
+            text-align: center;
         }
+
 
         .total {
             background-color: #81DAF5;
+            margen: 0;
+            padding :0; 
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
         }
 
         .tablas{
@@ -81,31 +94,54 @@
         .cuerpo {
             font-family: 'Courier', monospace;
             color: #212121;
+            border-collapse: collapse;
+            margen: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
+            font-size: 12px;
             
+            
+
+        }
+
+        .nombre {
+            font-family: 'Courier', monospace;
+            color: #212121;
+            border-collapse: collapse;
+            margen: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
+            font-size: 12px;
+            
+            
+
         }
 
         .cuerpo2 {
             font-family: 'Courier', monospace;
             color: #212121;
-            text-align: left; 
-            padding-left: 5px;
-            padding-bottom:100px
-            
-
+            text-align: left;
+            padding: 5px 2px 100px 5px; /* padding arriba, derecha, abajo, izquierda */
+            line-height: 1.2;
+            vertical-align: top;
+            font-size: 11px;
         }
 
         .cuerpo3{
             font-family: 'Courier', monospace;
             color: #212121;
-            font-size: 16px;
+            border-collapse: collapse;
+            margen: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
+            font-size: 12px;
         }
 
         .cuerpo4{
             font-family: 'Courier', monospace;
             color: #212121;
             text-align: right;
-            padding-left: 5px;
-            padding-bottom:100px
+            padding: 5px 4px 100px 5px;
+            line-height: 1.2;
+            vertical-align: top;
+            font-size: 11px;
         }
 
         .header {
@@ -155,9 +191,33 @@
             font-size: 18px;
         }
 
+        .body2 {
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
+        }
+
+        .header .image-container {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        .table2{
+            border-collapse: collapse;
+        }
+
     </style>
 </head>
-<body>
+<body class='body2' >
+    <!-- Content for Static Frame 'header_frame' -->
+    <div id="header_content">
+        <div class="header">
+            <div class="image-container">
+                <img src="static/img/{{logo}}" alt="Logo empresa" />
+            </div>
+        </div>
+    </div>
+
+
     <!-- Contenido del cuerpo del HTML -->
     
     <div id="content_content">
@@ -173,13 +233,13 @@
         <div class='margen' >
             <table class="tablas">
                 <tr>
-                    <th width="40%" class="cabezote" >Empleados</th>
+                    <th width="40%" class="cabezote" >Empleado</th>
                     <th width="30%" class="cabezote" >Identificación</th>
                     <th width="15%" class="cabezote" >Contrato</th>
                     <th width="15%" class="cabezote" >IdNomina</th>
                 </tr>
                 <tr>
-                    <td class='cuerpo' >{{nombre_completo}}</td>
+                    <td class='nombre' >{{nombre_completo}}</td>
                     <td class='cuerpo' >{{cc}}</td>
                     <td class='cuerpo' >{{idcon}}</td>
                     <td class='cuerpo' >{{idnomi}}</td>
@@ -244,7 +304,7 @@
                     {{ nomina.nombreconcepto }}<br>
                 {% endfor %}
             </td>
-            <td class='cuerpo2' width="7%"  >
+            <td class='cuerpo4' width="7%"  >
                 {% for nomina in dataDevengado %}
                     {{ nomina.cantidad }}<br>
                 {% endfor %}
@@ -264,7 +324,7 @@
                     {{ nomina.nombreconcepto }}<br>
                 {% endfor %}
             </td>
-            <td class='cuerpo2' width="7%"  >
+            <td class='cuerpo4' width="7%"  >
                 {% for nomina in dataDescuento %}
                     {{ nomina.cantidad }}<br>
                 {% endfor %}

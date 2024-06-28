@@ -1,6 +1,6 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row,Button, Column
+from crispy_forms.layout import Layout, Submit, Row,Button,Column,HTML ,Field
 from apps.employees.models import Ciudades
 
 class EditEmployeesForm(forms.Form):
@@ -26,6 +26,7 @@ class EditEmployeesForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
+            
             Row(
                 Column('phone', css_class='form-group col-md-6 mb-0'),
                 Column('cell', css_class='form-group col-md-6 mb-0'),
@@ -36,11 +37,7 @@ class EditEmployeesForm(forms.Form):
                 Column('address', css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ),
-            Row(
-                Column('profile_picture', css_class='form-group col-md-12 mb-0'), 
-                css_class='form-row' 
-            ),
-            Submit('submit', 'Guardar',css_class='btn btn-light-info hover-elevate-up'),
+            
         )
 
 

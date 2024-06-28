@@ -27,12 +27,14 @@ locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
 from apps.components.decorators import custom_permission
 from apps.components.payrollgenerate import genera_comprobante 
+from django.contrib.auth.decorators import login_required
 
 
 
 
 
-
+@login_required
+@custom_permission('employees')
 def listaNomina(request):
     ide = request.session.get('idempleado')
     ESTADOS_CONTRATO = {
@@ -75,10 +77,11 @@ def listaNomina(request):
         'cont': cont
     })
 
+@login_required
+@custom_permission('employees')
 def generatepayrollcertificate(request ,idnomina,idcontrato,):
     context = genera_comprobante(idnomina,idcontrato)
-    
-    
+
     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
     
     fecha_actual = datetime.now().strftime('%Y-%m-%d')
@@ -96,18 +99,6 @@ def generatepayrollcertificate(request ,idnomina,idcontrato,):
     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
     
     return response
-
-    
-    
-    # try:
-    #     if request.method == 'POST':
-            
-            
-    
-    # except Exception as e:
-    #     messages.error(request, 'Ocurrio un error inesperado')
-    #     print(e)
-    #     return redirect('companies:workcertificate')
 
 
 
