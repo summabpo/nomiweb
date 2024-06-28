@@ -43,7 +43,7 @@ def genera_comprobante(idnomina, idcontrato):
         
         
         periodo = f" {crear.fechainicial} hasta: {crear.fechafinal}"
-        
+        centro = f"{contrato.idcosto.idcosto} - {contrato.idcosto.nomcosto}"
         context = {
             #empresa
             'empresa':datac['nombre_empresa'],
@@ -55,11 +55,11 @@ def genera_comprobante(idnomina, idcontrato):
             'cc': contrato.idempleado.docidentidad,
             'idcon': idcontrato,
             'idnomi': idnomina,
-            'fecha1': contrato.fechainiciocontrato,
+            'fecha1': str(contrato.fechainiciocontrato),
             'cargo': contrato.cargo,
             'salario': format_value(contrato.salario),
             'cuenta': contrato.cuentanomina,
-            'ccostos': contrato.idcosto.nomcosto,
+            'ccostos': centro,
             'periodos': periodo,
             'eps': contrato.eps,
             'pension': contrato.pension,
