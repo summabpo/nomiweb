@@ -102,9 +102,17 @@ Solicitudes
                             {% for e in vacation_list %}
                             <tr>
                                 <td>
-                                    <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_3" data-whatever="{{ e.id_sol_vac }}" >
-                                        <i class="bi bi-pencil-square fs-2 ms-0"></i>
-                                    </button>
+                                    {% if e.estado == 1 %}
+                                        <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_3" data-whatever="{{ e.id_sol_vac }}" >
+                                            <i class="bi bi-pencil-square fs-2 ms-0"></i>
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-dismiss="click" title="Example tooltip" >
+                                            <i class="bi bi-pencil-square fs-2 ms-0"></i>
+                                        </button>
+                                        
+                                    {% endif %}
+
                                 </td>
                                 <td>{{ e.fecha_hora|date:"d-m-y" }}</td>
                                 <td>{{ e.tipovac.nombrevacaus }}</td>
@@ -157,7 +165,6 @@ Solicitudes
                             <div class="modal-body">
                                 <form id="vacation-form-edit" method="post" action="{% url 'employees:my_get_view' %}">
                                     {% crispy form %}
-                                    <input type="text" value="" id="ghost" name="ghost" style="display: none;">
                                 </form>
                             </div>
 
@@ -201,7 +208,6 @@ Solicitudes
                         modal.find('.modal-body #diasvac-field').val(response.data.diasvac)
                         modal.find('.modal-body #id_comentarios').val(response.data.comentarios)
                         modal.find('.modal-body #id_cuentasabados').val(response.data.si)
-                        modal.find('.modal-body #ghost').val(recipient)
                         //modal.find('.modal-body #cuentasabados-field').val(response.data.no)
                     },
                     error: function(response) {

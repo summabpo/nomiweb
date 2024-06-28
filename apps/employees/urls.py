@@ -17,11 +17,6 @@ urlpatterns = [
     path('Certificate/labor',certificaciones_laborales.vista_certificaciones,name='certificaciones' ),
     path('Certificate/labor/download/<int:idcert>/', certificaciones_laborales.certificatedownload, name='certificatedownload' ),
     path('Certificate/labor/download/create/', certificaciones_laborales.generateworkcertificate,name='generateworkcertificate' ),
-    # path(
-    #     'genera-certificaciones/<int:idcert>/',
-    #     views.certificaciones_laborales.genera_certificaciones,
-    #     name='genera-certificaciones'
-    # ),
     path(
         'vouchers/payroll/',
         views.comprobantes_nomina.listaNomina,
@@ -33,12 +28,12 @@ urlpatterns = [
         name='detalle_all'
     ),
     path(
-        'genera-comprobante',
+        'genera/comprobante',
         views.comprobantes_nomina.genera_comprobante,
         name='genera-comprobante'
     ),
     path(
-        'genera-comprobante/<int:idnomina>/<int:idcontrato>/',
+        'genera/comprobante/<int:idnomina>/<int:idcontrato>/',
         views.comprobantes_nomina.genera_comprobante,
         name='genera-comprobante'
     ),
@@ -50,13 +45,13 @@ urlpatterns = [
     ),
 
     path(
-        'vacation_history',
+        'vacation/history',
         views.vacation_history.VacationList.as_view(),
         name='vacation_list'
     ),
 
     path(
-        'vacation_request/',
+        'vacation/request/',
         views.vacation_request.vacation_request_function,
         name='form_vac',
     ),
