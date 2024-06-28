@@ -38,7 +38,7 @@ class EmpVacacionesForm(forms.ModelForm):
         choices=[(1, 'Sí'), (0, 'No')],
         required=False,
         initial=0,
-        widget=forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'cuentasabados-field'}),
+        
     )
 
     def __init__(self, *args, **kwargs):

@@ -2,6 +2,12 @@ from django.db.models import F, Value, CharField, IntegerField
 from apps.employees.models import Contratosemp, Contratos, Nomina ,Crearnomina
 from django.db.models import Sum
 from .datacompanies import datos_cliente
+from apps.components.humani import format_value ,format_value_float
+
+def limitar_cadena(cadena, max_length=25):
+    if len(cadena) > max_length:
+        return cadena[:max_length-3] + '...'
+    return cadena
 
 
 def genera_comprobante(idnomina, idcontrato):
@@ -18,10 +24,14 @@ def genera_comprobante(idnomina, idcontrato):
 
         # Formatear valores con puntos para los miles en dataDevengado
         for item in dataDevengado:
-            item.valor = f"{item.valor:,}"  # Aplica formato de separador de miles
+            item.valor = format_value(item.valor) # Aplica formato de separador de mil
+            item.cantidad = format_value_float(item.cantidad)
+            item.nombreconcepto = limitar_cadena(item.nombreconcepto)
             
         for item in dataDescuento:
-            item.valor = f"{item.valor:,}" 
+            item.valor = format_value(item.valor) # Aplica formato de separador de miles
+            item.cantidad = format_value_float(item.cantidad)
+            item.nombreconcepto = limitar_cadena(item.nombreconcepto)
 
         # Calcular la suma de todos los valores en dataDevengado
         sumadataDevengado = dataDevengado.aggregate(total=Sum('valor'))['total'] or 0
@@ -30,31 +40,34 @@ def genera_comprobante(idnomina, idcontrato):
         
         total = sumadataDevengado + sumadataDescuento
         
-        periodo = f" {crear.fechainicial} hasta: {crear.fechafinal}"
         
+        
+        periodo = f" {crear.fechainicial} hasta: {crear.fechafinal}"
+        centro = f"{contrato.idcosto.idcosto} - {contrato.idcosto.nomcosto}"
         context = {
             #empresa
             'empresa':datac['nombre_empresa'],
             'nit': datac['nit_empresa'],
-            'web':datac['website_empresa'],            
+            'web':datac['website_empresa'],
+            'logo':datac['logo_empresa'],        
             # nomina y empleado 
             'nombre_completo': nombre_completo,
             'cc': contrato.idempleado.docidentidad,
             'idcon': idcontrato,
             'idnomi': idnomina,
-            'fecha1': contrato.fechainiciocontrato,
+            'fecha1': str(contrato.fechainiciocontrato),
             'cargo': contrato.cargo,
-            'salario': contrato.salario,
+            'salario': format_value(contrato.salario),
             'cuenta': contrato.cuentanomina,
-            'ccostos': contrato.idcosto.nomcosto,
+            'ccostos': centro,
             'periodos': periodo,
             'eps': contrato.eps,
             'pension': contrato.pension,
             'dataDevengado': dataDevengado,
             'dataDescuento': dataDescuento,
-            'sumadataDevengado': f"{sumadataDevengado:,}",  # Formatear la suma con separador de miles
-            'sumadataDescuento': f"{sumadataDescuento:,}",
-            'total':f"{total:,}",
+            'sumadataDevengado': format_value(sumadataDevengado), # Formatear la suma con separador de miles
+            'sumadataDescuento': format_value(sumadataDescuento), 
+            'total':format_value(total),
             
         }
     else:

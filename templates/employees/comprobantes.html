@@ -81,6 +81,7 @@ Desprendibles
                     <tr>
                     <th width="200">ID</th>
                     <th width="200">Nomina</th>
+                    <th width="150">Fecha</th>
                     <th width="150">Tipo</th>
                     </tr>
                 </thead>
@@ -89,6 +90,7 @@ Desprendibles
                     <tr>
                         <td>{{ e.idnomina.idnomina }}</td>
                         <td>{{ e.idnomina.nombrenomina }}</td>
+                        <td>{{ e.idnomina.fechapago }}</td>
                         <td>
                             <a  href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Comprobante de Nomina" >
                                 Ver
@@ -147,7 +149,8 @@ Desprendibles
             },
             dom: 'frtip',
             order: [[2, 'asc']], 
-            "pageLength": 6,                
+            "pageLength": 6,
+            searching: false                
         });
     });
 </script>
