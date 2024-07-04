@@ -131,9 +131,10 @@ Solicitudes
                                         Desconocido
                                     {% endif %}
                                 </td>
-                                <td><a href="javascript:void(0);" class="btn btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning" onclick="loadVacationDetails({{ e.pk }})">
-                                    <i class="bi bi-chat-square-text-fill fs-4 me-2"></i>Ver Detalle
-                                </a>
+                                <td>
+                                    <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-edits="{{ e.id_sol_vac }}" >
+                                        <i class="bi bi-chat-square-text-fill fs-4 me-2"></i>Ver Detalle
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -143,8 +144,37 @@ Solicitudes
 
                 <div class="modal fade" tabindex="-1" id="kt_modal_2">
                     <div class="modal-dialog">
-                        <div class="modal-content" id="kt_modal_2_content">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Detalle de Vacaciones/Licencias</h3>
 
+                                <!--begin::Close-->
+                                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                                </div>
+                                <!--end::Close-->
+                            </div>
+
+                            <div class="modal-body">
+                                <p id="nombre_tipovac"><strong>Tipo de Vacaciones:</strong></p>
+                                <p id="fecha"><strong>Fecha:</strong></p>
+                                <p id="dias_habiles"><strong>Días Hábiles:</strong></p>
+                                <p id="dias_calendario"><strong>Días Calendario:</strong></p>
+                                
+                                <p id="fecha_inicial" style="display: none;"><strong>Fecha Inicial:</strong></p>
+                                <p id="fecha_final" style="display: none;"><strong>Fecha Final:</strong></p>
+                                <p id="cuentasabados" style="display: none;"><strong>Cuenta Sabados:</strong></p>
+                                
+                                <p id="estado"><strong>Estado:</strong></p>
+                                <p><strong>Comentarios Empleado:</strong></p>
+                                <textarea id="comentarios" class="form-control" readonly></textarea>
+                                <p><strong>Comentarios Empresa:</strong></p>
+                                <textarea id="comentarios2" class="form-control" readonly></textarea>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -185,7 +215,7 @@ Solicitudes
 
 {% block js %}
 
-<script>
+    <script>
     $('#kt_modal_3').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
         var recipient = button.data('whatever')
@@ -199,7 +229,7 @@ Solicitudes
                     },
 
                     success: function(response) {
-                        console.log(response.data);
+                        //console.log(response.data);
                         modal.find('.modal-title').text('Editar solicitud #' + recipient)
                         modal.find('.modal-body #tipovac-select').val(response.data.tipovac)
                         modal.find('.modal-body #fechainicialvac-field').val(response.data.fechainicialvac)
@@ -215,31 +245,67 @@ Solicitudes
                     }
                 });
     })
-  </script>
+    </script>
 
     <script>
-        function loadVacationDetails(pk) {
+    $('#kt_modal_2').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var recipient = button.data('edits')
+        var modal = $(this)
 
-            document.getElementById('kt_modal_2_content').innerHTML = '';
+        $.ajax({
+                    url: '/employees/ajax/my_get_view/',
+                    type: 'GET',
+                    data: {
+                        'dato': recipient
+                    },
+                    success: function(response) {
+                        // Actualiza el contenido del modal con los datos recibidos
+                        modal.find('p#nombre_tipovac').text('Tipo de Vacaciones: ' + response.data.nombre_tipovac);
+                        modal.find('p#fecha').text('Fecha: ' + response.data.fecha);
+                        modal.find('p#dias_habiles').text('Días Hábiles: ' + response.data.dias_habiles);
+                        modal.find('p#dias_calendario').text('Días Calendario: ' + response.data.dias_calendario);
+                        
 
-            fetch(`/employees/vacation/modal/${pk}/`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+
+                        if (response.data.tipovac != '2') {
+                            modal.find('p#fecha_inicial').text('Fecha Inicial: ' + response.data.fechainicialvac).show();
+                            modal.find('p#fecha_final').text('Fecha Final: ' + response.data.fechafinalvac).show();
+                            modal.find('p#cuentasabados').text('Cuenta Sabados: ' + response.data.cuentasabados).show();
+                        } else {
+                            modal.find('p#fecha_inicial').hide();
+                            modal.find('p#fecha_final').hide();
+                            modal.find('p#cuentasabados').hide();
+                        }
+                        
+                        var estadoText = '';
+                        switch(response.data.estado) {
+                            case 1:
+                                estadoText = 'Pendiente';
+                                break;
+                            case 2:
+                                estadoText = 'Aprobado';
+                                break;
+                            case 3:
+                                estadoText = 'Rechazado';
+                                break;
+                            default:
+                                estadoText = 'Desconocido';
+                        }
+                        modal.find('p#estado').text('Estado: ' + estadoText);
+                        modal.find('textarea#comentarios').text(response.data.comentarios);
+                        modal.find('textarea#comentarios2').text(response.data.comentarios2);
+                    },
+                    error: function(response) {
+                        console.log(response.error);
                     }
-                    return response.text();
-                })
-                .then(html => {
-                    document.getElementById('kt_modal_2_content').innerHTML = html;
-                    var modal = new bootstrap.Modal(document.getElementById('kt_modal_2'));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error('Error fetching vacation details:', error);
-                    document.getElementById('kt_modal_2_content').innerHTML = '<p>Error al cargar los detalles.</p>';
                 });
-        }
+
+                
+    })
     </script>
+    
+    
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

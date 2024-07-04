@@ -166,15 +166,33 @@ def my_get_view(request):
         dato = request.GET.get('dato')
         solicitud =  get_object_or_404(EmpVacaciones, pk=dato)
         global_dato = dato
+        
+        if solicitud.cuentasabados == 1:
+            nom_cuentasabados = 'Si'
+        else:
+            nom_cuentasabados = 'No'
+        
         response_data = {
             'data': {
                 'idcontrato':solicitud.idcontrato.idcontrato,
                 'tipovac':solicitud.tipovac.tipovac,
+                'nombre_tipovac': solicitud.tipovac.nombrevacaus,
                 'fechainicialvac':solicitud.fechainicialvac,
                 'fechafinalvac':solicitud.fechafinalvac,
                 'diasvac':solicitud.diasvac,
                 'comentarios':solicitud.comentarios,
                 'si':solicitud.cuentasabados,
+                
+                'tipovac2': str(solicitud.tipovac.tipovac),
+                'fecha': solicitud.fecha_hora.strftime('%d-%m-%Y'),
+                'cuentasabados': nom_cuentasabados,
+                'dias_habiles': solicitud.diasvac,
+                'dias_calendario': solicitud.diascalendario,
+                'fecha_inicial': solicitud.fechainicialvac.strftime('%d-%m-%Y') if solicitud.fechainicialvac else '',
+                'fecha_final': solicitud.fechafinalvac.strftime('%d-%m-%Y') if solicitud.fechafinalvac else '',
+                'estado': solicitud.estado,
+                'comentarios2': solicitud.comentarios2,
+                
             }
         }
         
