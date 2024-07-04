@@ -2,6 +2,14 @@ __pycache__/
 *.pyc
 *.py[cod]
 *$py.class
+*.env
 
 .vscode
 templates/.DS_Store
+.DS_Store
+
+# Entorno Virtual
+venv/
+env/
+.venv/
+ENV/
