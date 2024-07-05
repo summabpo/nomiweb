@@ -129,32 +129,6 @@ def vacation_request_function(request):
 
     return render(request, 'employees/vacations_request.html', context)
 
-@login_required
-@custom_permission('employees')
-def vacation_detail_modal(request, pk):
-    vacation = get_object_or_404(EmpVacaciones, pk=pk)
-
-    nom_cuentasabados = 'No'
-
-    if vacation.cuentasabados == 1:
-        nom_cuentasabados = 'Si'
-    else:
-        nom_cuentasabados = 'No'
-
-    context = {
-        'tipovac': str(vacation.tipovac.tipovac),
-        'nombre_tipovac': vacation.tipovac.nombrevacaus,
-        'fecha': vacation.fecha_hora.strftime('%d-%m-%Y'),
-        'cuentasabados': nom_cuentasabados,
-        'dias_habiles': vacation.diasvac,
-        'dias_calendario': vacation.diascalendario,
-        'fecha_inicial': vacation.fechainicialvac.strftime('%d-%m-%Y') if vacation.fechainicialvac else '',
-        'fecha_final': vacation.fechafinalvac.strftime('%d-%m-%Y') if vacation.fechafinalvac else '',
-        'estado': vacation.estado,
-        'comentarios': vacation.comentarios,
-        'comentarios2': vacation.comentarios2,
-    }
-    return render(request, 'employees/vacation_detail_modal.html', context)
 
 global_dato = None 
 

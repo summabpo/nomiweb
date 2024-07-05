@@ -31,18 +31,21 @@
 <main  class="flex-grow-1">
     <div class="card shadow-sm">
         <div class="card-header">
-            <h3 class="card-title">Nuevo Cargo</h3>
+            <h3 class="card-title">Platilla de Nomina</h3>
         </div>
         <div class="card-body">
-            <form action="" method="post">
-                {% csrf_token %}
-                <label for="nomina_select">Seleccione una nómina:</label>
-                <select name="nomina_select" id="nomina_select">
-                    {% for nomina in nominas %}
-                        <option value="{{ nomina.1 }}">{{ nomina.0 }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit">Submit</button>
+
+            <form method="get">
+                <div class="input-group input-group-sm mb-5">
+                    <select name="nomina" id="nomina" onchange="cargarNominas()" class="form-select" data-control="select2" data-placeholder="Seleccione una opción"  aria-label="Seleccione un empleado:" >
+                        <option value="">Seleccione...</option>
+                            {% for nomina in nominas %}
+                                <option value="{{ nomina.1 }}" {% if nomina.1|stringformat:"s" == selected_nomina %}selected{% endif %} >
+                                    {{ nomina.0 }}
+                                </option>
+                            {% endfor %}
+                    </select>
+                </div>
             </form>
 
         </div>
@@ -87,15 +90,15 @@
                         <td>{{ compect.documento }}</td>
                         <td>{{ compect.nombre }}</td>
                         <td>{{ compect.basico }}</td>
-                        <td>{{ compect.cargo }}</td>
-                        <td>{{ compect.centrocostos }}</td>
-                        <td>{{ compect.tipocontrato }}</td>
+                        <td>{{ compect.tpte }}</td>
+                        <td>{{ compect.extras }}</td>
+                        <td>{{ compect.otros1 }}</td>
+                        <td>{{ compect.ingresos }}</td>
+                        <td>{{ compect.aportess }}</td>
                         <td>{{ compect.tarifaARL }}</td>
                         <td>{{ compect.tarifaARL }}</td>
                         <td>{{ compect.tarifaARL }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
+                        <td>{{ compect.neto }}</td>
                         <td>{{ compect.tarifaARL }}</td>
                         <td>{{ compect.tarifaARL }}</td>
                         <td>{{ compect.tarifaARL }}</td>
@@ -118,7 +121,14 @@
 
 {% endblock %}
 {% block js %}
-
+    <script>
+        function cargarNominas() {
+            var nominaSelect = document.getElementById('nomina');
+            var nominaId = nominaSelect.value;
+            window.location.href = `?nomina=${nominaId}`;
+        }
+    </script>
+    
 
     <script>
         $(document).ready(function() {
