@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.9
+FROM python:3.11.5
 
 # Set environment variables to prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -21,14 +21,24 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install Gunicorn
+RUN pip install gunicorn
+
 # Copy the rest of the application code
 COPY . /app/
 
-# Install Gunicorn for serving Django application
+# Run Collectstatic para recolectar y copiar todos los archivos estaticos en S3 Cloud
 RUN python manage.py collectstatic --noinput
 
 # Expose port 8000
 EXPOSE 8000
 
+# Copy el script de entrada
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Establecer el script de entrada como el punto de entrada del contenedor
+ENTRYPOINT ["/app/entrypoint.sh"]
+
 # Command to run the application using Gunicorn server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+#CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

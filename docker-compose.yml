@@ -3,11 +3,13 @@ version: '3'
 services:
   django_app:
     build:
+      command: /app/entrypoint.sh
       context: .
       dockerfile: Dockerfile
     env_file:
       - .env
     environment:
-      DJANGO_SETTINGS_MODULE: 'nomiweb.settings.production'
+      - DJANGO_SETTINGS_MODULE: 'nomiweb.settings.production'
     ports:
-      - "80:8000"
+      - "88:8000"
+    restart: always
