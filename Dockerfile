@@ -28,7 +28,7 @@ RUN pip install gunicorn
 COPY . /app/
 
 # Run Collectstatic para recolectar y copiar todos los archivos estaticos en S3 Cloud
-RUN python manage.py collectstatic --noinput
+#RUN python manage.py collectstatic --noinput
 
 # Expose port 8000
 EXPOSE 8000
@@ -39,6 +39,3 @@ RUN chmod +x /app/entrypoint.sh
 
 # Establecer el script de entrada como el punto de entrada del contenedor
 ENTRYPOINT ["/app/entrypoint.sh"]
-
-# Command to run the application using Gunicorn server
-#CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
