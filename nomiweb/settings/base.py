@@ -23,7 +23,9 @@ BASE_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'storages',
 ]
+
 LOCAL_APPS = [
     # Generated applications
     'apps.login', 
