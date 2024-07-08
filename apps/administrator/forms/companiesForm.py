@@ -22,7 +22,5 @@ class  CompaniesForm(forms.Form):
                 Column('description', css_class='form-group col-md-12 mb-0'), 
                 css_class='form-row' 
             ),
-            
-            
             Submit('submit', 'Guardar')
         )

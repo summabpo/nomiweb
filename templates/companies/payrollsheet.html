@@ -74,14 +74,7 @@
                 <th>Comp</th>
                 <th>E-mail</th>
                 <th>Estado</th>
-                <th> 
-                    <div class="container d-flex justify-content-center align-items-center">
-                        <i class="ki-duotone ki-chart fs-3">
-                            <i class="path1"></i>
-                            <i class="path2"></i>
-                        </i>
-                    </div>
-                </th>
+                
                 </tr>
             </thead>
             <tbody>
@@ -92,20 +85,52 @@
                         <td>{{ compect.basico }}</td>
                         <td>{{ compect.tpte }}</td>
                         <td>{{ compect.extras }}</td>
-                        <td>{{ compect.otros1 }}</td>
+                        <td>{{ compect.otrosing  }}</td>
                         <td>{{ compect.ingresos }}</td>
                         <td>{{ compect.aportess }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
+                        <td>{{ compect.prestamos }}</td>
+                        <td>{{ compect.otrosdesc }}</td>
+                        <td>{{ compect.descuentos }}</td>
                         <td>{{ compect.neto }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
-                        <td>{{ compect.tarifaARL }}</td>
-                        <td><a href="#" class="btn btn-light-success hover-scale btn-sm ">Generar</a> </td>
+                        <td>
+                            <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm ">
+                                <i class="fa-solid fa-file fs-1 "></i>
+                            </a> 
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm ">
+                                <i class="fa-regular fa-paper-plane fs-1 "></i>
+                            </a> 
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm ">
+                                <i class="fa-solid fa-envelope-circle-check fs-1 "></i>
+                                <i class="fa-solid fa-envelope"></i>
+                            </a> 
+                        </td>
+                        
                     </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr class="border-top fw-semibold fs-6 text-gray-800">
+                        <th>Documento</th>
+                        <th>Nombre</th>
+                        <th>Basico</th>
+                        <th>Tpte</th>
+                        <th>Extras</th>
+                        <th>Otros ing.</th>
+                        <th>Ingresos</th>
+                        <th>Aportes</th>
+                        <th>Prestamos</th>
+                        <th>Otros Desc</th>
+                        <th>Descuentos</th>
+                        <th>Neto</th>
+                        <th>Comp</th>
+                        <th>E-mail</th>
+                        <th>Estado</th>
+                    </tr>
+                </tfoot>
                 
     
         </table>
