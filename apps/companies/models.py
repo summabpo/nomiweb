@@ -381,3 +381,18 @@ class Crearnomina(models.Model):
     class Meta:
         managed = False
         db_table = 'crearnomina'
+        
+class NominaComprobantes(models.Model):
+    idhistorico = models.AutoField(primary_key=True)
+    idcontrato = models.IntegerField(blank=True, null=True)
+    salario = models.IntegerField(blank=True, null=True)
+    cargo = models.CharField(max_length=120, blank=True, null=True)
+    idcosto = models.SmallIntegerField(blank=True, null=True)
+    pension = models.CharField(max_length=125, blank=True, null=True)
+    salud = models.CharField(max_length=125, blank=True, null=True)
+    idnomina = models.IntegerField(blank=True, null=True)
+    envio_email = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'nomina_comprobantes'

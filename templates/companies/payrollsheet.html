@@ -103,10 +103,20 @@
                             </a> 
                         </td>
                         <td>
-                            <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm ">
-                                <i class="fa-solid fa-envelope-circle-check fs-1 "></i>
-                                <i class="fa-solid fa-envelope"></i>
-                            </a> 
+                            {% if compect.estado == 'Enviado' %}
+                                <a href="" class="btn btn-icon btn-light-success hover-scale btn-sm ">
+                                    <i class="fa-solid fa-envelope-circle-check fs-1 "></i>
+                                </a> 
+                            {% elif compect.estado == 'Error' %}
+                                <a href="" class="btn btn-icon btn-light-success hover-scale btn-sm ">
+                                    <i class="fa-solid fa-circle-exclamation fs-1 "></i>
+                                </a> 
+                            {% else %}
+                                <a href="" class="btn btn-icon btn-light-success hover-scale btn-sm ">
+                                    <i class="fa-solid fa-envelope fs-1 "></i>
+                                </a> 
+                            {% endif %}
+                            
                         </td>
                         
                     </tr>

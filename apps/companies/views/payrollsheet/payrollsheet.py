@@ -1,6 +1,17 @@
 from django.shortcuts import render
-from apps.companies.models import Nomina
+from apps.companies.models import Nomina , NominaComprobantes
 from apps.components.humani import format_value
+
+def get_email_status(estado_email):
+    if estado_email == 1:
+        envio_email = 'Enviado'
+    elif estado_email == 2:
+        envio_email = 'Error'
+    else:
+        envio_email = 'Sin Enviar'
+
+    return envio_email
+
 
 def payrollsheet(request):
     nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
@@ -34,7 +45,7 @@ def payrollsheet(request):
         
         for data in compectos:
             docidentidad = data.idempleado.docidentidad
-            
+            compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina )
             if docidentidad not in acumulados:
                 acumulados[docidentidad] = {
                     'documento': docidentidad,
@@ -46,6 +57,7 @@ def payrollsheet(request):
                     'extras': 0,
                     'aportess': 0,
                     'prestamos': 0,
+                    'estado': get_email_status(compribanten.envio_email)
                 }
             
             acumulados[docidentidad]['neto'] += data.valor
