@@ -22,7 +22,7 @@ def payrollsheet(request):
 
     selected_nomina = request.GET.get('nomina')
     if selected_nomina:
-        compectos = Nomina.objects.filter(idnomina=selected_nomina)
+        compectos = Nomina.objects.filter(idnomina=selected_nomina)[:50]
         
         # Consulta 1: Total neto
         # neto = Nomina.objects.filter(idnomina=id_nomina).aggregate(Sum('valor'))['valor__sum'] or 0
@@ -46,6 +46,7 @@ def payrollsheet(request):
         
         
         for data in compectos:
+            
             docidentidad = data.idempleado.docidentidad
             compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato )
             if docidentidad not in acumulados:
