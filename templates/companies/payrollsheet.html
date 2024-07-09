@@ -50,11 +50,8 @@
 
         </div>
     </div>
-
-    <div class="separator my-10">
-        <h3> Cargos Activos </h3>
-    </div>
-
+    <br>
+    <br>
     <div class="table-responsive">
         <table id='tabla-planilla-nomina' class="table table-striped table-bordered">
             <thead>
@@ -152,6 +149,42 @@
     
 
 
+<div class="modal fade" tabindex="-1" id="emailModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Enviar Correos</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas enviar correos masivos de la nómina : </p>
+                <form method="get">
+                    <div class="input-group input-group-sm mb-5">
+                        <select name="nomina2" id="nomina2" class="form-select" data-control="select2" data-placeholder="Seleccione una opción" aria-label="Seleccione un empleado:" disabled>
+                            {% for nomina in nominas %}
+                                <option value="{{ nomina.1 }}" {% if nomina.1|stringformat:"s" == selected_nomina %}selected{% endif %}>
+                                    {{ nomina.0 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>                
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     
 
 {% endblock %}
@@ -192,8 +225,17 @@
                         "sortDescending": ": activar para ordenar la columna descendente"
                     }
                 },
-                dom: 'frtip',
-                order: [[0, 'des']],  
+                dom: 'Bfrtip',
+                buttons: [
+                        {
+                            text: '<i class="fas fa-envelope "></i> Enviar Correos',
+                            className: 'btn btn-info',
+                            action: function ( e, dt, node, config ) {
+                                $('#emailModal').modal('show'); // Abre el modal
+                            }
+                        }
+                    ],
+                order: [[1, 'asc']],  
                 "pageLength": 10,                
             });
         });

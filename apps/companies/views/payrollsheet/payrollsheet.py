@@ -14,7 +14,9 @@ def get_email_status(estado_email):
 
 
 def payrollsheet(request):
-    nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
+    #nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
+    nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
+
     compects = []
     acumulados = {}
 
@@ -45,7 +47,7 @@ def payrollsheet(request):
         
         for data in compectos:
             docidentidad = data.idempleado.docidentidad
-            compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina )
+            compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato )
             if docidentidad not in acumulados:
                 acumulados[docidentidad] = {
                     'documento': docidentidad,
@@ -84,3 +86,112 @@ def payrollsheet(request):
         'compects': compects,
         'selected_nomina': selected_nomina,
     })
+
+
+"""     
+from django.shortcuts import render
+from apps.companies.models import Nomina
+from apps.components.humani import format_value
+
+
+
+
+def payrollsheet(request):
+    nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
+    compects = []  # Define compects here
+    acumulados = {}
+    
+    selected_nomina = request.GET.get('nomina')
+    if selected_nomina:
+        compectos = Nomina.objects.filter(idnomina = selected_nomina )
+        
+        
+
+        
+        
+        
+        for data in compectos:
+            docidentidad = data.idempleado.docidentidad
+            
+            if docidentidad not in acumulados:
+                
+                acumulados[docidentidad] = {
+                    'documento': docidentidad,
+                    'nombre': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
+                    'neto': data.valor,
+                    'ingresos':data.valor if data.valor > 0 else 0 ,
+                    'basico': data.valor if data.idconcepto.sueldobasico == 1 else 0 ,
+                    'tpte': data.valor if data.idconcepto.auxtransporte == 1 else 0 ,
+                    'extras': data.valor if data.idconcepto.extras == 1 else 0 ,
+                    'aportess':data.valor if data.idconcepto.aportess == 1 else 0 ,
+                    'prestamos': data.valor if data.idconcepto.idconcepto == 50 else 0 ,
+                }
+            else:
+                acumulados[docidentidad]['neto'] += data.valor
+                
+                # Sumar el valor al campo ingresos si la condición se cumple
+                if data.valor  > 0 :
+                    print("anterir:",acumulados[docidentidad]['ingresos'],"Datos:", data, "Valor:", data.valor)
+                    acumulados[docidentidad]['ingresos'] += data.valor
+                    
+
+                    
+                
+                # Sumar el valor al campo basico si la condición se cumple
+                if data.idconcepto.sueldobasico == 1:
+                    acumulados[docidentidad]['basico'] += data.valor
+                
+                
+                # Sumar el valor al campo tpte si la condición se cumple
+                if data.idconcepto.auxtransporte == 1:
+                    acumulados[docidentidad]['tpte'] += data.valor
+                
+                
+                # Sumar el valor al campo extras si la condición se cumple
+                if data.idconcepto.extras == 1:
+                    acumulados[docidentidad]['extras'] += data.valor
+                    
+                    
+                # Sumar el valor al campo extras si la condición se cumple
+                if data.idconcepto.aportess == 1:
+                    acumulados[docidentidad]['aportess'] += data.valor
+                    
+                # Sumar el valor al campo extras si la condición se cumple
+                if data.idconcepto.idconcepto == 50:
+                    acumulados[docidentidad]['prestamos'] += data.valor
+                    
+        # Convertir el diccionario acumulado en una lista de diccionarios
+        compects = list(acumulados.values())
+    
+    
+    
+    for compect in compects:
+        # descuentos = neto - ingresos
+        compect['descuentos'] = compect['neto'] - compect['ingresos']
+        # otrosing = ingresos - basico - extras - transporte
+        compect['otrosing'] = compect['ingresos'] - compect['basico'] - compect['extras'] - compect['tpte']
+        # descuentos - prestamos - aportes
+        compect['otrosdesc'] = compect['descuentos'] - compect['prestamos'] - compect['aportess']
+    
+    
+    for compect in compects:
+        compect['neto'] = format_value(compect['neto'])
+        compect['ingresos'] = format_value(compect['ingresos'])
+        compect['basico'] = format_value(compect['basico'])
+        compect['tpte'] = format_value(compect['tpte'])
+        compect['extras'] = format_value(compect['extras'])
+        compect['aportess'] = format_value(compect['aportess'])
+        compect['prestamos'] = format_value(compect['prestamos'])
+        compect['descuentos'] = format_value(compect['descuentos'])
+        compect['otrosing'] = format_value(compect['otrosing'])
+        compect['otrosdesc'] = format_value(compect['otrosdesc'])
+    
+    
+    # No need for else here, compects will be an empty list if it's not a POST request
+    
+    return render(request, 'companies/payrollsheet.html', {
+        'nominas': nominas,
+        'compects': compects,
+        'selected_nomina':selected_nomina,
+    })
+""" 
