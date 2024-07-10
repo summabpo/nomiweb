@@ -5,6 +5,8 @@ from io import BytesIO
 from xhtml2pdf import pisa
 from datetime import datetime
 from django.http import HttpResponse
+from apps.components.payrollgenerate import generate_summary
+
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -95,16 +97,9 @@ def payrollsheet(request):
 
 
 
-def generatepayrollsummary(request):
-    #context = genera_comprobante(idnomina,idcontrato)
-    context = {
-            #empresa
-            'empresa':'prueba',
-            'nit': 'prueba',
-            'web':'prueba',
-            'logo':'prueba', 
-            'cc':'prueba',
-        }
+def generatepayrollsummary(request,idnomina):
+    context = generate_summary(idnomina)
+    
     html_string = render(request, './html/payrollsummary.html', context).content.decode('utf-8')
     
     fecha_actual = datetime.now().strftime('%Y-%m-%d')
@@ -116,7 +111,7 @@ def generatepayrollsummary(request):
     if pisa_status.err:
         return HttpResponse('Error al generar el PDF', status=400)
     
-    nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
+    nombre_archivo = f'Certificado_{idnomina}_{fecha_actual}.pdf'
 
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'

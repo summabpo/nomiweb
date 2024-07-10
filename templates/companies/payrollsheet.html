@@ -184,6 +184,7 @@
 
 <script>
     $(document).ready(function() {
+        var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=selected_nomina %}";
         // Inicializar DataTable
         var table = $('#tabla-planilla-nomina').DataTable({
             language: {
@@ -221,14 +222,12 @@
                 },
                 {
                     text: ' Resumen de Nomina ',
-                    action: function (e, dt, node, config) {
-                        showLoadingAnimation();
-                        setTimeout(function(){
-                            window.location.href = "{% url 'companies:exportar_excel1' %}";
-                        }, 100);
+                    action: function ( e, dt, node, config ) {
+                        window.open(exportUrl, '_blank');
                     },
                     className: 'btn btn-light-info'
                 },
+                
             ],
             order: [[1, 'asc']],  
             "footerCallback": function (row, data, start, end, display) {

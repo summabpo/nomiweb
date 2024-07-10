@@ -5,8 +5,8 @@
     <title>comp nomina {{idnomi}} - {{cc}} </title>
     <style>
         @page {
-            size:a4;
             size: letter portrait;
+            margin: 0.2cm;
 
             @frame header_frame {
                 -pdf-frame-content: header_content;
@@ -49,12 +49,20 @@
         .header2 {
             font-family: Courier ;
             text-align: center;
-            font-size: 18px;
-            color: #428bca;
+            font-size: 20px;
             font-weight: bold;
+            padding: 0; /* Eliminar padding */
+            margin: 0; /* Eliminar margen */
         }
 
-        
+        .header3 {
+            font-family: Courier ;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 0; /* Eliminar padding */
+            margin: 0; /* Eliminar margen */
+        }
 
         .cabezote {
             background-color: #b9c1c4;
@@ -177,7 +185,7 @@
 
         .header h2 {
             color: #212121;
-            
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
             margin: 0; 
             padding: 0; 
             font-size: 18px;
@@ -185,7 +193,7 @@
 
         .header h3 {
             color: #212121;
-            
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
             margin: 0; 
             padding: 0; 
             font-size: 18px;
@@ -205,21 +213,35 @@
         .tabla-sin-estilos {
             width: 100%;
             border-collapse: collapse;
+            width: 25px;
             border: none; /* Bordes invisibles */
         }
         .tabla-sin-estilos th, .tabla-sin-estilos td {
-            padding: 0; /* Eliminar padding */
             margin: 0; /* Eliminar margen */
+            padding: 0;
             border: none; /* Bordes invisibles */
             white-space: nowrap; /* Evita el salto de línea y los espacios entre palabras */
-            font-size: 10px; /* Ajuste el tamaño de fuente según sea necesario */
+            font-size: 11px; /* Ajuste el tamaño de fuente según sea necesario */
             text-align: left; /* Alineación izquierda por defecto */
             
         }
         
+
+        .tabla-sin-estilos .otros, .tabla-sin-estilos .valores {
+            text-align: right;
+
+        }
+
+        .tabla-sin-estilos .footertabla {
+            text-align: right;
+            width: 100px;
+            height: 60px;
+        }
+
         /* Alineación a la derecha para las columnas Id y Concepto */
         
         .tabla-sin-estilos .id {
+            padding: 0; /* Eliminar padding */
             width: 25px;
             /* Añadir separación de 10px a la derecha para el Id */
             text-align: right;
@@ -228,7 +250,7 @@
         }
         .tabla-sin-estilos .concepto {
             width: 250px;
-            padding-left: 10px; /* Añadir separación de 10px a la izquierda para el Concepto */
+            padding: 0px 5px 0px 10px; /* Añadir separación de 10px a la izquierda para el Concepto */
         }
         
         
@@ -254,115 +276,53 @@
             <h3 href="http://{{web}}">{{web}}</h3>
         </div>
         <hr />
+        <br>
         <div class="header2">Resumen de Nómina</div>
         <br>
         <!-- Primer bloque de tabla -->
-        <div class="header2" >NOMINA LIQUIDACION {{empresa}} </div>
+        <div class="header3" > {{nombre_nomina}} </div>
     </div>
     
-    
+    <br>
+    <br>
 
     <table class="tabla-sin-estilos">
         <thead>
             <tr>
                 <th class="id">Id</th>
                 <th class="concepto">Concepto</th>
-                <th>Cant.</th>
-                <th>Ingresos</th>
-                <th>Descuentos</th>
-                <th>Neto</th>
+                <th class="otros" >Cant.</th>
+                <th class="otros">Ingresos</th>
+                <th class="otros">Descuentos</th>
+                <th class="otros">Neto</th>
             </tr>
         </thead>
+        
         <tbody>
-            <tr>
-                <td class="id" >1</td>
-                <td class="concepto">Sueldo Basico</td>
-                <td>9.0</td>
-                <td>442184</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >2</td>
-                <td class="concepto">Auxilio de Transporte</td>
-                <td>9.0</td>
-                <td>48600</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >20</td>
-                <td class="concepto">Cesantias</td>
-                <td>107.0</td>
-                <td>492516</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >21</td>
-                <td class="concepto">Intereses de Cesantias</td>
-                <td>107.0</td>
-                <td>7226</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >23</td>
-                <td class="concepto">Prima de Servicios</td>
-                <td>109.0</td>
-                <td>501789</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >26</td>
-                <td class="concepto">Incapacidad 2 dias E.Gral.</td>
-                <td>2.0</td>
-                <td>86667</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >32</td>
-                <td class="concepto">Vacaciones 4.4</td>
-                <td>4.4</td>
-                <td>222274</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >60</td>
-                <td class="concepto">EPS</td>
-                <td>0.0</td>
-                <td>-21154</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >70</td>
-                <td class="concepto">AFP</td>
-                <td>0.0</td>
-                <td>-21154</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td class="id" >96</td>
-                <td class="concepto">Libranza Gesprocap</td>
-                <td>0.0</td>
-                <td>-520000</td>
-                <td>0</td>
-                <td> </td>
-            </tr>
-            <tr>
-                <td> </td>
-                <td colspan="2" style=" font-weight: bold;">Total Empleados: 3</td>
-                <td style=" font-weight: bold;" >1801256</td>
-                <td style=" font-weight: bold;" >-562308</td>
-                <td></td>
-                <td style=" font-weight: bold;" >1238948</td>
-            </tr>
+
+            {% for nomina in grouped_nominas %}
+                <tr>
+                    <td class="id"  >{{ nomina.idconcepto }}</td>
+                    <td class="concepto" >{{ nomina.nombreconcepto }}</td>
+                    <td class="valores">{{ nomina.cantidad_total }}</td>
+                    <td class="valores">{{ nomina.ingresos }}</td>
+                    <td class="valores">{{ nomina.descuentos }}</td>
+                    <td class="valores"> </td>
+                </tr>
+            {% endfor %}
+
         </tbody>
+        <br>
+        <tfoot>
+            <tr>
+                <td> </td>
+                <td colspan="2" style=" font-weight: bold;">Total Empleados: {{cantidad_empleados}}</td>
+                <td class="footertabla" style=" font-weight: bold;" >{{total_ingresos}}</td>
+                <td class="footertabla" style=" font-weight: bold;" >{{total_descuentos}}</td>
+                <td class="footertabla" style=" font-weight: bold;" >{{neto}}</td>
+                <td class="footertabla" style=" font-weight: bold;" ></td>
+            </tr>
+        </tfoot>
     </table>
     
 

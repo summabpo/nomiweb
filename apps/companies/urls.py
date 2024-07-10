@@ -69,7 +69,7 @@ urlpatterns = [
     path('payroll/payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
     path('payroll/payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
     
-    path('payroll/payroll/summary/download', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
+    path('payroll/payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
     
     ##! seguridad 
     path('security/user', loginweb.loginweb, name='loginweb'),
