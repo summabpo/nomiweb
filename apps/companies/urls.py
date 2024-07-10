@@ -68,11 +68,13 @@ urlpatterns = [
     path('payroll/nominated/certificate', nominatedcertificate.nominatedcertificate, name='nominatedcertificate'),
     path('payroll/payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
     path('payroll/payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
+    path('payroll/payroll/sheet//download/<int:idnomina>/<int:idcontrato>/', payrollsheet.generatepayrollcertificate, name='generatepayrollcertificate'),
+    
     
     path('payroll/payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
     
     ##* masivos 
-    path('payroll/payroll/summary/massive/mail', payrollsheet.massive_mail, name='massivemail'),
+    path('payroll/payroll/sheet/massive/mail', payrollsheet.massive_mail, name='massivemail'),
     
     ##! seguridad 
     path('security/user', loginweb.loginweb, name='loginweb'),

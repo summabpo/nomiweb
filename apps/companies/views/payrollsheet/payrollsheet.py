@@ -6,6 +6,7 @@ from xhtml2pdf import pisa
 from datetime import datetime
 from django.http import HttpResponse
 from apps.components.payrollgenerate import generate_summary
+from apps.components.payrollgenerate import genera_comprobante 
 
 from apps.components.mail import send_template_email2
 from django.http import JsonResponse
@@ -69,7 +70,9 @@ def payrollsheet(request):
                     'extras': 0,
                     'aportess': 0,
                     'prestamos': 0,
-                    'estado': get_email_status(compribanten.envio_email)
+                    'estado': get_email_status(compribanten.envio_email) ,
+                    'nominaid': data.idnomina.idnomina,
+                    'contratoid' :data.idcontrato.idcontrato,   
                 }
             
             acumulados[docidentidad]['neto'] += data.valor
@@ -120,6 +123,32 @@ def generatepayrollsummary(request,idnomina):
     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
     
     return response
+
+
+
+def generatepayrollcertificate(request ,idnomina,idcontrato,):
+    context = genera_comprobante(idnomina,idcontrato)
+
+    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+    
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+    
+    pdf = BytesIO()
+    pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+    pdf.seek(0)
+
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=400)
+    
+    nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
+    
+    return response
+
+
+
 
 """ 
 para el optimo funcionamiento del views , es requerido que se borre el icono 1 
@@ -197,6 +226,9 @@ def massive_mail(request):
         return JsonResponse(response_data)
     
     return JsonResponse({'error': 'Este view solo acepta peticiones POST.'}, status=405)
+
+
+
 
 
 

@@ -83,7 +83,7 @@
                             <td>{{ compect.descuentos }}</td>
                             <td>{{ compect.neto }}</td>
                             <td>
-                                <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm">
+                                <a  href="{% url 'companies:generatepayrollcertificate' compect.nominaid compect.contratoid %}" target="_blank"  class="btn btn-icon btn-light-success hover-scale btn-sm">
                                     <i class="fa-solid fa-file fs-1"></i>
                                 </a> 
                             </td>
@@ -182,7 +182,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" id="btn-enviar-ajax">Enviar</button>
-                <button type="button" class="btn btn-primary" id="btn-enviar-ajax">Enviar</button>
+                <button type="button" class="btn btn-primary" id="btn-enviar-ajax"> Enviar Comp con Error </button>
             </div>
         </div>
     </div>
