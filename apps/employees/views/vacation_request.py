@@ -174,9 +174,6 @@ def my_get_view(request):
     
     if request.method == 'POST' :
         
-        for key, value in request.POST.items():
-            print(f"{key}: {value}")
-        
         tipovac_obj = request.POST.get('tipovac')
         tipovac = str(tipovac_obj) if tipovac_obj else None
         cuentasabados = request.POST.get('cuentasabados')

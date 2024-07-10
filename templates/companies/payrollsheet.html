@@ -44,101 +44,115 @@
     </div>
     <br>
     <br>
-    <div class="table-responsive">
-        <table id='tabla-planilla-nomina' class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th>Documento</th>
-                    <th>Nombre</th>
-                    <th>Básico</th>
-                    <th>Tpte</th>
-                    <th>Extras</th>
-                    <th>Otros Ing.</th>
-                    <th>Ingresos</th>
-                    <th>Aportes</th>
-                    <th>Prestamos</th>
-                    <th>Otros Desc.</th>
-                    <th>Descuentos</th>
-                    <th>Neto</th>
-                    <th>Comp.</th>
-                    <th>E-mail</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for compect in compects %}
+
+    {% if selected_nomina %}
+        <div class="table-responsive">
+            <table id='tabla-planilla-nomina' class="table table-striped table-bordered">
+                <thead>
                     <tr>
-                        <td>{{ compect.documento }}</td>
-                        <td>{{ compect.nombre }}</td>
-                        <td>{{ compect.basico }}</td>
-                        <td>{{ compect.tpte }}</td>
-                        <td>{{ compect.extras }}</td>
-                        <td>{{ compect.otrosing }}</td>
-                        <td>{{ compect.ingresos }}</td>
-                        <td>{{ compect.aportess }}</td>
-                        <td>{{ compect.prestamos }}</td>
-                        <td>{{ compect.otrosdesc }}</td>
-                        <td>{{ compect.descuentos }}</td>
-                        <td>{{ compect.neto }}</td>
-                        <td>
-                            <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm">
-                                <i class="fa-solid fa-file fs-1"></i>
-                            </a> 
-                        </td>
-                        <td>
-                            <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm">
-                                <i class="fa-regular fa-paper-plane fs-1"></i>
-                            </a> 
-                        </td>
-                        <td>
-                            {% if compect.estado == 'Enviado' %}
-                                
-                                <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
-                                        <i class="fa-solid fa-envelope-circle-check fs-1"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-secondary">Enviado</button>
-                                </div>
-                            {% elif compect.estado == 'Error' %}
-                                <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
-                                        <i class="fa-solid fa-circle-exclamation fs-1"></i>
-                                    </button> 
-                                    <button type="button" class="btn btn-secondary">Error</button>
-                                </div>
-                            {% else %}
-                                <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
-                                        <i class="fa-solid fa-envelope fs-1"></i>
-                                    </button> 
-                                    <button type="button" class="btn btn-secondary">No Enviado</button>
-                                </div>
-                            {% endif %}
-                        </td>
+                        <th>Documento</th>
+                        <th>Nombre</th>
+                        <th>Básico</th>
+                        <th>Tpte</th>
+                        <th>Extras</th>
+                        <th>Otros Ing.</th>
+                        <th>Ingresos</th>
+                        <th>Aportes</th>
+                        <th>Prestamos</th>
+                        <th>Otros Desc.</th>
+                        <th>Descuentos</th>
+                        <th>Neto</th>
+                        <th>Comp.</th>
+                        <th>E-mail</th>
+                        <th>Estado</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>Total Acumulado</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    {% for compect in compects %}
+                        <tr>
+                            <td>{{ compect.documento }}</td>
+                            <td>{{ compect.nombre }}</td>
+                            <td>{{ compect.basico }}</td>
+                            <td>{{ compect.tpte }}</td>
+                            <td>{{ compect.extras }}</td>
+                            <td>{{ compect.otrosing }}</td>
+                            <td>{{ compect.ingresos }}</td>
+                            <td>{{ compect.aportess }}</td>
+                            <td>{{ compect.prestamos }}</td>
+                            <td>{{ compect.otrosdesc }}</td>
+                            <td>{{ compect.descuentos }}</td>
+                            <td>{{ compect.neto }}</td>
+                            <td>
+                                <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm">
+                                    <i class="fa-solid fa-file fs-1"></i>
+                                </a> 
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm">
+                                    <i class="fa-regular fa-paper-plane fs-1"></i>
+                                </a> 
+                            </td>
+                            <td>
+                                {% if compect.estado == 'Enviado' %}
+                                    
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
+                                            <i class="fa-solid fa-envelope-circle-check fs-1"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary">Enviado</button>
+                                    </div>
+                                {% elif compect.estado == 'Error' %}
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
+                                            <i class="fa-solid fa-circle-exclamation fs-1"></i>
+                                        </button> 
+                                        <button type="button" class="btn btn-secondary">Error</button>
+                                    </div>
+                                {% else %}
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
+                                            <i class="fa-solid fa-envelope fs-1"></i>
+                                        </button> 
+                                        <button type="button" class="btn btn-secondary">No Enviado</button>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total Acumulado</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <h4 class="alert-heading">¡Atención!</h4>
+            <p>Parece que la lista está vacía en este momento. Por favor, seleccione una nómina para visualizar los datos correspondientes.</p>
+            <hr>
+            <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+        </div>
+    {% endif %}
+
+    
+
+
 </main>
 
 <div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true">
@@ -150,13 +164,16 @@
             </div>
             <div class="modal-body">
                 <p>¿Estás seguro de que deseas enviar correos masivos de la nómina seleccionada?</p>
-                <form method="get">
+                <form method="post" action="{% url 'companies:massivemail' %}" id="mail-form-send"  >
+                    {% csrf_token %}
                     <div class="input-group input-group-sm mb-5">
-                        <select name="nomina2" id="nomina2" class="form-select" data-control="select2" data-placeholder="Seleccione una opción" aria-label="Seleccione un empleado:" disabled>
+                        <select name="nomina2" id="nomina2" class="form-select" data-control="select2" data-placeholder="Seleccione una opción" aria-label="Seleccione un empleado:" >
                             {% for nomina in nominas %}
-                                <option value="{{ nomina.1 }}" {% if nomina.1|stringformat:"s" == selected_nomina %}selected{% endif %}>
-                                    {{ nomina.0 }}
-                                </option>
+                                {% if nomina.1|stringformat:"s" == selected_nomina %}
+                                    <option value="{{ nomina.1 }}" {% if nomina.1|stringformat:"s" == selected_nomina %}selected{% endif %}>
+                                        {{ nomina.0 }}
+                                    </option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </div>
@@ -164,15 +181,61 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">Enviar</button>
+                <button type="button" class="btn btn-primary" id="btn-enviar-ajax">Enviar</button>
+                <button type="button" class="btn btn-primary" id="btn-enviar-ajax">Enviar</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal de Carga -->
+<div class="modal fade" id="modal-carga" tabindex="-1" aria-labelledby="modal-carga-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+                <p class="mt-2">Cargando...</p>
+                <p class="mt-2">Esto puede tomar unos minutos...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal de Indicaciones -->
+<div class="modal fade" id="modal-indicaciones" tabindex="-1" aria-labelledby="modal-indicaciones-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-indicaciones-label">Respuesta de envio masivo</h5>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <div class="modal-body">
+                <p id="enviados"><strong>Correos Enviados:</strong></p>
+                <p id="errores"><strong>Falla en el Envio:</strong></p>
+                <p id="use"><strong>Días Hábiles:</strong></p>
+                {% comment %} <p id="dias_calendario"><strong>Días Calendario:</strong></p> {% endcomment %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 {% endblock %}
 
 {% block js %}
+
+
+
 
 <script>
     function cargarNominas() {
@@ -184,8 +247,51 @@
 
 <script>
     $(document).ready(function() {
-        var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=selected_nomina %}";
-        // Inicializar DataTable
+        $('#btn-enviar-ajax').click(function() {
+            var formData = $('#mail-form-send').serialize();
+            // Cerrar el modal de selección
+            $('#emailModal').modal('hide');
+
+            // Mostrar el modal de carga
+            $('#modal-carga').modal('show');
+            $.ajax({
+                url: "{% url 'companies:massivemail' %}",
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    console.log("Respuesta recibida:", response);
+                    
+                    // Mostrar la respuesta del servidor en el modal de indicaciones
+                    $('#respuesta-servidor').text(JSON.stringify(response, null, 2));
+                    
+                    // Cerrar el modal de selección
+                    $('#modal-carga').modal('hide');
+                    
+                    // Mostrar el modal de indicaciones
+                    $('#modal-indicaciones').modal('show');
+                    $('#enviados').text('Correos Enviados: ' + response.correos_enviados);
+                    $('#errores').text('Falla en el Envio: ' + response.errores);
+                    $('#use').text('Total registros: ' + response.use);
+                    
+                },
+                error: function(error) {
+                    console.log("Error al enviar el formulario:", error);
+                }
+            });
+        });
+    });
+    </script>
+
+
+<script>
+    $(document).ready(function() {
+
+        {% if selected_nomina %}
+            var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=selected_nomina %}";
+        {% else %}
+            var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=0 %}"; // O el valor por defecto que desees
+        {% endif %}
+
         var table = $('#tabla-planilla-nomina').DataTable({
             language: {
                 "decimal":        "",
@@ -246,7 +352,7 @@
                     $(api.column(columnasNumericas[i]).footer()).html(total.toFixed(0).replace(/\./g, '.').replace(/\B(?=(\d{3})+(?!\d))/g, "."));
                 }
             },
-            "pageLength": 10
+            "pageLength": 5
         });
     });
 </script>

@@ -7,6 +7,9 @@ from datetime import datetime
 from django.http import HttpResponse
 from apps.components.payrollgenerate import generate_summary
 
+from apps.components.mail import send_template_email2
+from django.http import JsonResponse
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -117,6 +120,84 @@ def generatepayrollsummary(request,idnomina):
     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
     
     return response
+
+""" 
+para el optimo funcionamiento del views , es requerido que se borre el icono 1 
+se cambie la configuracion de correos electronicos y se cree la plantilla 
+
+icono 1 : [:5] - linea 145 
+icono 2 : recipient_list - entre la linea 152 - 158
+icono 3 :  success, message - linea 177
+
+"""
+
+
+def massive_mail(request):
+    if request.method == 'POST':
+        nomina = request.POST.get('nomina2', '')
+        
+        # Verificación de que el campo nomina no esté vacío y sea un número
+        if not nomina:
+            return JsonResponse({'error': 'El campo nomina no debe estar vacío.'}, status=400)
+        
+        if not nomina.isdigit():
+            return JsonResponse({'error': 'El campo nomina debe ser un número.'}, status=400)
+        
+        try:
+            compectos = Nomina.objects.filter(idnomina=int(nomina))[:5]
+        except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+            return JsonResponse({'error': f'Error al obtener los datos de Nomina: {str(e)}'}, status=500)
+        except Exception as e:
+            return JsonResponse({'error': f'Error inesperado al obtener los datos de Nomina: {str(e)}'}, status=500)
+
+        recipient_list = [
+            'mikepruebas@yopmail.com', 
+            'alt.ru-1lmzxan@yopmail.com', 
+            'alt.ya-9v5lsgo@yopmail.com', 
+            'alt.ya-9v5lsgo@ydsopmail.com',
+            'alt.ya-9v5lsgo@ydsopmail.com'
+        ]
+        
+        cont = 0
+        error = 0
+        use = 0
+        error_messages = []
+        
+        for comp in compectos:
+            email_type = 'loginweb'
+            context = {
+                'nombre_usuario': comp,
+                'usuario': 'usertempo.email',
+                'contrasena': 'passwordoriginal',
+            }
+            subject = 'Activacion de Usuario'
+            
+            try:
+                if use < len(recipient_list):
+                    success, message = send_template_email2(email_type, context, subject, [recipient_list[use]])
+                    if success:
+                        cont += 1
+                    else:
+                        error += 1
+                        error_messages.append(str(message))
+                    use += 1
+                else:
+                    error_messages.append('Número insuficiente de destinatarios en recipient_list.')
+            except Exception as e:
+                error += 1
+                error_messages.append(f'Error al enviar el correo: {str(e)}')
+
+        response_data = {
+            'correos_enviados': cont,
+            'errores': error,
+            'use': use,
+            'mensajes_error': error_messages
+        }
+        
+        return JsonResponse(response_data)
+    
+    return JsonResponse({'error': 'Este view solo acepta peticiones POST.'}, status=405)
+
 
 
 """     

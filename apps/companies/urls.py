@@ -71,6 +71,9 @@ urlpatterns = [
     
     path('payroll/payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
     
+    ##* masivos 
+    path('payroll/payroll/summary/massive/mail', payrollsheet.massive_mail, name='massivemail'),
+    
     ##! seguridad 
     path('security/user', loginweb.loginweb, name='loginweb'),
     
