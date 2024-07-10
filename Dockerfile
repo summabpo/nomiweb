@@ -5,9 +5,9 @@ FROM python:3.11.5
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install locales package and generate es_ES.UTF-8 locale
-RUN apt-get update && apt-get install -y locales && \
-    sed -i '/es_ES.UTF-8/s/^# //g' /etc/locale.gen && \
-    locale-gen es_ES.UTF-8
+RUN apt-get update && apt-get install -y locales \
+&& sed -i '/es_ES.UTF-8/s/^# //g' /etc/locale.gen \
+&& locale-gen es_ES.UTF-8
 
 # Set locale environment variables
 ENV LANG es_ES.UTF-8

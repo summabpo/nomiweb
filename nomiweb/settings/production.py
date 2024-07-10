@@ -43,12 +43,14 @@ DATABASES = {
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
-print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
-print("AWS_STORAGE_BUCKET_NAME:", os.getenv('AWS_STORAGE_BUCKET_NAME'))
-print("AWS_S3_REGION_NAME:", os.getenv('AWS_S3_REGION_NAME'))
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['localhost', '127.0.0.1']
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1',
+    'http://localhost',
+    'https://nomiweb.com.co',
+    'https://app.nomiweb.com.co',
+]
 
 
 # Configuración de S3
