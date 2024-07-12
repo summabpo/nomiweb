@@ -16,6 +16,8 @@ from .views.payrollsheet import payrollsheet
 from .views.assetsview import assetsview
 from .views.birthday import birthday
 from .views.workcertificate import workcertificate
+from .views.bank_list import bank_list
+
 
 from .views.index import index
 
@@ -72,7 +74,10 @@ urlpatterns = [
     
     
     path('payroll/payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
-    
+    path('payroll/payroll/bank/list', bank_list.bank_list, name='bank_list'),
+    path('payroll/payroll/bank/list/get', bank_list.bank_list_get, name='bank_list_get'),
+    path('payroll/payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
+        
     ##* masivos 
     path('payroll/payroll/sheet/massive/mail', payrollsheet.massive_mail, name='massivemail'),
     
