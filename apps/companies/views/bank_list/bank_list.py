@@ -112,7 +112,6 @@ def bank_file(request,idnomina):
         docidentidad = data.idempleado.docidentidad
 
         if docidentidad not in acumulados:
-            print(data.idempleado.papellido)
             acumulados[docidentidad] = {
                 'cc':data.idempleado.docidentidad,
                 'tipecc':data.idempleado.tipodocident,
@@ -176,7 +175,7 @@ def bank_file(request,idnomina):
         strrc += formtnun(data['pago'], 18)
         strrc += formttex('0', 6)
         strrc += formttex(obtener_numero_documento(data['tipecc']), 2)
-        strrc += formttex('1', 1)
+        strrc += formttex('0', 1)
         strrc += formttex('9999', 4)
         strrc += formttex('0', 40)
         strrc += formttex('0', 18)
