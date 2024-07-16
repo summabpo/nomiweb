@@ -396,3 +396,77 @@ class NominaComprobantes(models.Model):
     class Meta:
         managed = False
         db_table = 'nomina_comprobantes'
+        
+        
+        
+## liquidaciones 
+
+
+class Liquidacion(models.Model):
+    idliquidacion = models.IntegerField(primary_key=True)  # The composite primary key (idliquidacion, idcontrato) found, that is not supported. The first column is selected.
+    docidentidad = models.CharField(max_length=15, blank=True, null=True)
+    diastrabajados = models.CharField(max_length=8, blank=True, null=True)
+    cesantias = models.CharField(max_length=30, blank=True, null=True)
+    prima = models.CharField(max_length=30, blank=True, null=True)
+    vacaciones = models.CharField(max_length=30, blank=True, null=True)
+    intereses = models.CharField(max_length=30, blank=True, null=True)
+    totalliq = models.CharField(max_length=30, blank=True, null=True)
+    diascesantias = models.CharField(max_length=8, blank=True, null=True)
+    diasprimas = models.CharField(max_length=8, blank=True, null=True)
+    diasvacaciones = models.CharField(max_length=8, blank=True, null=True)
+    baseprima = models.CharField(max_length=30, blank=True, null=True)
+    basecesantias = models.CharField(max_length=30, blank=True, null=True)
+    basevacaciones = models.CharField(max_length=30, blank=True, null=True)
+    idcontrato = models.ForeignKey('Contratos', models.DO_NOTHING, db_column='idcontrato')
+    idempleado = models.ForeignKey('Contratosemp', models.DO_NOTHING, db_column='idempleado')
+    fechainiciocontrato = models.DateField(blank=True, null=True)
+    fechafincontrato = models.DateField(blank=True, null=True)
+    salario = models.IntegerField(blank=True, null=True)
+    motivoretiro = models.CharField(blank=True, null=True)
+    estadoliquidacion = models.CharField(blank=True, null=True)
+    diassusp = models.SmallIntegerField(blank=True, null=True)
+    indemnizacion = models.IntegerField(blank=True, null=True)
+    diassuspv = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'liquidacion'
+        unique_together = (('idliquidacion', 'idcontrato'),)
+
+
+class LiquidacionMasivo(models.Model):
+    idliquidacion = models.IntegerField(primary_key=True)  # The composite primary key (idliquidacion, idcontrato) found, that is not supported. The first column is selected.
+    docidentidad = models.CharField(max_length=15, blank=True, null=True)
+    diastrabajados = models.CharField(max_length=8, blank=True, null=True)
+    cesantias = models.CharField(max_length=30, blank=True, null=True)
+    prima = models.CharField(max_length=30, blank=True, null=True)
+    vacaciones = models.CharField(max_length=30, blank=True, null=True)
+    intereses = models.CharField(max_length=30, blank=True, null=True)
+    totalliq = models.CharField(max_length=30, blank=True, null=True)
+    diascesantias = models.CharField(max_length=8, blank=True, null=True)
+    diasprimas = models.CharField(max_length=8, blank=True, null=True)
+    diasvacaciones = models.CharField(max_length=8, blank=True, null=True)
+    baseprima = models.CharField(max_length=30, blank=True, null=True)
+    basecesantias = models.CharField(max_length=30, blank=True, null=True)
+    basevacaciones = models.CharField(max_length=30, blank=True, null=True)
+    idcontrato = models.IntegerField()
+    idempleado = models.IntegerField(blank=True, null=True)
+    fechainiciocontrato = models.DateField(blank=True, null=True)
+    fechafincontrato = models.DateField(blank=True, null=True)
+    salario = models.IntegerField(blank=True, null=True)
+    motivoretiro = models.CharField(blank=True, null=True)
+    estadoliquidacion = models.CharField(blank=True, null=True)
+    diassusp = models.SmallIntegerField(blank=True, null=True)
+    indemnizacion = models.IntegerField(blank=True, null=True)
+    diassuspv = models.CharField(max_length=16, blank=True, null=True)
+    idcosto = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'liquidacion_masivo'
+        unique_together = (('idliquidacion', 'idcontrato'),)
+
+
+
+
+
