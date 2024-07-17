@@ -25,8 +25,26 @@
                 
             }
 
-        }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 50pt;
+                width: 512pt;
+                top: 600pt;
+                height: 20pt;    
+            }
 
+        }
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            padding-top: 950px; /* Espacio superior */
+            padding-bottom: 20px; /* Espacio inferior */ /* Ajusta el relleno según sea necesario */
+            
+        }
+        
         body {
             font-family: Courier, monospace;
         }
@@ -327,7 +345,13 @@
     
 
     <br>
-
+    <!-- Content for Static Frame 'footer_content' -->
+    <div id="footer_frame">
+        
+        <div class="footer">
+            <p > Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS</p>
+        </div>
+    </div>
     
 
 </body>

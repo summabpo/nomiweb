@@ -14,11 +14,6 @@ ALLOWED_HOSTS = ['*']
 
 SETTINGS_ENV = 'development'
 
-print("DB_USER_DEV:", os.getenv('DB_USER_DEV'))
-print("DB_PASSWORD_DEV:", os.getenv('DB_PASSWORD_DEV'))
-print("DB_HOST_DEV:", os.getenv('DB_HOST_DEV'))
-print("DB_PORT_DEV:", os.getenv('DB_PORT_DEV'))
-
 
 
 DATABASES = {

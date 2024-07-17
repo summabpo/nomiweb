@@ -47,10 +47,10 @@ def genera_comprobante(idnomina, idcontrato):
         centro = f"{contrato.idcosto.idcosto} - {contrato.idcosto.nomcosto}"
         context = {
             #empresa
-            'empresa':datac['nombre_empresa'],
-            'nit': datac['nit_empresa'],
-            'web':datac['website_empresa'],
-            'logo':datac['logo_empresa'],        
+            'empresa':datac['nombreempresa'],
+            'nit': datac['nit'],
+            'web':datac['website'],
+            'logo':datac['logo'],        
             # nomina y empleado 
             'nombre_completo': nombre_completo,
             'cc': contrato.idempleado.docidentidad,
@@ -114,6 +114,16 @@ def generate_summary(idnomina):
         )),
     ).order_by('idconcepto')
     
+    # Separar ingresos y descuentos, y ordenar por idconcepto
+    ingresos = [compect for compect in grouped_nominas if compect['ingresos'] > 0]
+    descuentos = [compect for compect in grouped_nominas if compect['descuentos'] < 0]
+    
+    ingresos.sort(key=lambda x: x['idconcepto'])
+    descuentos.sort(key=lambda x: x['idconcepto'])
+    
+    # Combinar ingresos y descuentos
+    grouped_nominas = ingresos + descuentos
+    
     # Obtener la cantidad de empleados distintos
     cantidad_empleados = nominas.values('idempleado').distinct().count()
     
@@ -134,10 +144,10 @@ def generate_summary(idnomina):
     
     # Construir el contexto
     context = {
-        'empresa': datac.get('nombre_empresa', ''),
-        'nit': datac.get('nit_empresa', ''),
-        'web': datac.get('website_empresa', ''),
-        'logo': datac.get('logo_empresa', ''),
+        'empresa': datac.get('nombreempresa', ''),
+        'nit': datac.get('nit', ''),
+        'web': datac.get('website', ''),
+        'logo': datac.get('logo', ''),
         'grouped_nominas': grouped_nominas,
         'total_ingresos': total_ingresos,
         'total_descuentos': total_descuentos,
