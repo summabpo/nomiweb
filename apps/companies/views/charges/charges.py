@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def charges(request): 
-    print(request.session)
     if request.method == 'POST':
         form = chargesForm(request.POST)
         if form.is_valid():
