@@ -1,42 +1,49 @@
-from django.shortcuts import render
-from apps.companies.models import Liquidacion
+from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.forms.AbstractConceptForm import AbstractConceptForm
 from apps.companies.models import Nomina
 from apps.components.humani import format_value
-
+from django.contrib import messages
 
 
 def abstractconcept(request):
     
-    
-    
     if request.method == 'POST':
         form = AbstractConceptForm(request.POST)
         if form.is_valid():
-            nomina = Nomina.objects.filter(idcontrato__estadocontrato = 2 )[:20]
-            
-            sconcept = form.cleaned_data['sconcept']
-            payroll = form.cleaned_data['payroll']
-            employee = form.cleaned_data['employee']
-            month = form.cleaned_data['month']
-            year = form.cleaned_data['year']
+            # Obtener los datos del formulario
+            sconcept = form.cleaned_data.get('sconcept')
+            payroll = form.cleaned_data.get('payroll')
+            employee = form.cleaned_data.get('employee')
+            month = form.cleaned_data.get('month')
+            year = form.cleaned_data.get('year')
 
-            if sconcept:
-                nomina = nomina.filter(nombreconcepto = sconcept )
-        
-            if payroll:
-                nomina = nomina.filter(idnomina__idnomina=payroll)
+            # Construir los filtros dinámicamente
+            filters = {
+                'nombreconcepto': sconcept,
+                'idnomina__idnomina': payroll,
+                'idempleado__idempleado': employee,
+                'mesacumular': month,
+                'anoacumular': year,
+            }
+
+            # Eliminar filtros con valores vacíos
+            filters = {k: v for k, v in filters.items() if v}
+
+            # Filtrar los datos
+            nominas = Nomina.objects.filter(idcontrato__estadocontrato=2, **filters)
+            nomina = nominas if nominas.exists() else None
             
-            if employee:
-                nomina = nomina.filter(idempleado__idempleado = employee)
             
-            if month:
-                nomina = nomina.filter(mesacumular=month)
+            return render(request, 'companies/abstractconcept.html', {
+                'liquidaciones': nomina,
+                'form': form,
+            })
             
-            if year:    
-                nomina = nomina.filter(anoacumular=year)
-        else :
-            nomina = {}
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
+            return redirect('companies:abstractconcept')
     else :
         nomina = {}
     #Crear una instancia del formulario de filtro para enviar al template

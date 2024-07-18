@@ -91,53 +91,10 @@
 {% block js %}
 
 
-
-
 <script>
-    function updateURL() {
-        var formData = new FormData(document.querySelector('form'));
-        var queryString = new URLSearchParams(formData);
-        
-        // Eliminar el campo csrfmiddlewaretoken del queryString si existe
-        if (queryString.has('csrfmiddlewaretoken')) {
-            queryString.delete('csrfmiddlewaretoken');
-        }
-
-        var newUrl = window.location.pathname + '?' + queryString.toString();
-        window.history.replaceState(null, null, newUrl);
-
-        console.log('Current URL:', newUrl);
-
-        // Hacer la petición AJAX para actualizar los resultados dinámicamente
-        fetch(newUrl, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
-        .catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        });
-    }
-
-    // Escuchar el evento change en los elementos select y input del formulario
-    document.querySelectorAll('select, input').forEach((input) => {
-        input.addEventListener('change', updateURL);
-    });
-
-    // Inicializa los valores de los campos del formulario con los parámetros de la URL actual
-    document.addEventListener('DOMContentLoaded', (event) => {
-        var urlParams = new URLSearchParams(window.location.search);
-        document.querySelectorAll('select, input').forEach((input) => {
-            if (urlParams.has(input.name)) {
-                input.value = urlParams.get(input.name);
-            }
+    $(document).ready(function() {
+        $('#Filto_acomulados').on('submit', function() {
+            $('#loadingModal').modal('show');
         });
     });
 </script>

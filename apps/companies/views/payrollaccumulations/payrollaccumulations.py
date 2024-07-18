@@ -1,36 +1,47 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.models import Liquidacion
 from apps.companies.forms.ReportFilterForm import ReportFilterForm
-from apps.companies.forms.AbstractConceptForm import AbstractConceptForm
+from django.contrib import messages
 
 
 
 def payrollaccumulations(request):
-    # Obtener los parámetros de búsqueda del request.GET
-    employee = request.GET.get('employee')
-    cost_center = request.GET.get('cost_center')
-    city = request.GET.get('city')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    liquidaciones = None
+    
+    if request.method == 'POST':
+        form = ReportFilterForm(request.POST)
+        if form.is_valid():
+            # Aplicar filtros a la consulta de Liquidacion
+            liquidaciones = Liquidacion.objects.all()
+            
+            # Obtener los parámetros de búsqueda del request.GET
+            employee = form.cleaned_data['employee']
+            cost_center = form.cleaned_data['cost_center']
+            city = form.cleaned_data['city']
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+    
 
-    # Aplicar filtros a la consulta de Liquidacion
-    liquidaciones = Liquidacion.objects.all()
-
-    if employee:
-        print(employee)
-    if cost_center:
-        print(cost_center)
-    if city:
-        print(city)
-    if start_date:
-        print(start_date)
-    if end_date:
-        print(end_date)
-
-    # Limitar los resultados a 10 registros como en tu ejemplo original
-    liquidaciones = liquidaciones[:10]
-
-    # Crear una instancia del formulario de filtro para enviar al template
+            if employee:
+                liquidaciones = liquidaciones.filter(idempleado = employee )
+            if cost_center:
+                liquidaciones = liquidaciones.filter(idcontrato__idcosto = cost_center )
+            if city:
+                liquidaciones = liquidaciones.filter(idcontrato__idsede = city )
+            if start_date:
+                liquidaciones = liquidaciones.filter(fechainiciocontrato = start_date )
+            if end_date:
+                liquidaciones = liquidaciones.filter(fechafincontrato = end_date )
+                
+            return render(request, 'companies/payrollaccumulations.html', {
+                    'liquidaciones': liquidaciones,
+                    'form': form,
+                })
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
+            return redirect('companies:payrollaccumulations')
     form = ReportFilterForm()
 
     # Renderizar el template con los resultados filtrados y el formulario

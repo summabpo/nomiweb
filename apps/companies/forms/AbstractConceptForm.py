@@ -1,6 +1,6 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column , Div
+from crispy_forms.layout import Layout, Submit, Row, Column ,Button
 from apps.companies.models import Contabgrupos , Nomina
 from apps.companies.models import Contratosemp
 
@@ -62,11 +62,11 @@ class AbstractConceptForm(forms.Form):
     
 
     
-    sconcept = forms.ChoiceField(choices=CONCEPT_CHOICES, label='Concepto' , required=False)
+    sconcept = forms.ChoiceField(choices=CONCEPT_CHOICES, label='Concepto' , required=False,widget=forms.Select(attrs={'data-control': 'select2'}))
     
-    payroll = forms.ChoiceField(choices=EMPLOYEE_CHOICES, label='Nómina' , required=False)
+    payroll = forms.ChoiceField(choices=EMPLOYEE_CHOICES, label='Nómina' , required=False,widget=forms.Select(attrs={'data-control': 'select2'}))
     
-    employee = forms.ChoiceField(choices=EMPLOYEE_CHOICES, label='Empleado' , required=False)
+    employee = forms.ChoiceField(choices=EMPLOYEE_CHOICES, label='Empleado' , required=False,widget=forms.Select(attrs={'data-control': 'select2'}))
     
     month = forms.ChoiceField(choices=MONTH_CHOICES, label='Mes Acumular' , required=False)
     
@@ -77,34 +77,19 @@ class AbstractConceptForm(forms.Form):
         filled_fields_count = sum(1 for field in self.fields if cleaned_data.get(field))
         
         if filled_fields_count < 2:
-            raise forms.ValidationError('Debe completar al menos dos campos.')
+            raise forms.ValidationError('Debe Seleccionar al menos dos campos.' )
 
         return cleaned_data
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        self.fields['sconcept'] = forms.ChoiceField(choices=[('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.values_list('nombreconcepto', flat=True).distinct() ], label='Concepto', required=False, widget=forms.Select(attrs={'data-control': 'select2'}) )
-        
-        self.fields['year'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('anoacumular', flat=True).distinct()],
-            label='Año Acumular',
-            required=False
-        )
-                
-        self.fields['employee'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(idempleado, f"{pnombre} {snombre} {papellido} {sapellido}") for idempleado, pnombre, snombre, papellido, sapellido , in Contratosemp.objects.values_list('idempleado', 'pnombre', 'papellido','snombre', 'sapellido')],
-            label='Empleado',
-            required=False, 
-            widget=forms.Select(attrs={'data-control': 'select2'})
-        )
-        
-        self.fields['payroll'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(idnomina, nombrenomina) for nombrenomina, idnomina in Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')],
-            label='Nómina',
-            required=False,
-            widget=forms.Select(attrs={'data-control': 'select2'})
-        )
+
+        # Actualizar choices dinámicamente
+        self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.values_list('nombreconcepto', flat=True).distinct()]
+        self.fields['payroll'].choices = [('', '----------')] + [(idnomina, nombrenomina) for nombrenomina, idnomina in Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')]
+        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido')]
+        self.fields['month'].choices = [('', '----------')] + [(mes, mes) for mes in range(1, 13)]
+        self.fields['year'].choices = [('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('anoacumular', flat=True).distinct()]
         
         
         # self.fields['cost_center'] = forms.ChoiceField(choices=[('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.all()], label='Centro de Costos', required=False,)
@@ -126,15 +111,16 @@ class AbstractConceptForm(forms.Form):
             ),
             Row(
                 Column(
-                    Submit('submit', 'Filtrar', css_class='btn btn-light-info w-100'),  # 100% ancho de la columna
-                    css_class='col-md-6'  # Ancho especificado
+                    Submit('submit', 'Filtrar', css_class='btn btn-light-info w-100'),  # Botón de envío
+                    css_class='col-md-6'
                 ),
                 Column(
-                    Submit('submit', 'Limpiar filtrado', css_class='btn btn-light-primary w-100'),  # 100% ancho de la columna
-                    css_class='col-md-6'  # Ancho especificado
+                    Button('button', 'Limpiar filtrado', css_class='btn btn-light-primary w-100', id='my-custom-button'),  # Botón sin acción de envío
+                    css_class='col-md-6'
                 ),
                 css_class='row'
-            )
+            ),
+            
             
         )
     
