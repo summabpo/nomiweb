@@ -192,9 +192,7 @@ def massive_mail(request):
         use = 0
         error_messages = []
         
-        for comp in compectos:
-            print(comp.idcontrato.idcontrato)
-            
+        for comp in compectos:            
             context = genera_comprobante(nomina, comp.idcontrato.idcontrato)
 
             html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')

@@ -111,7 +111,6 @@ def send_template_email3(email_type, context, subject, recipient_list, from_emai
     
     try:
         email.send()
-        return True
+        return True , '0k'
     except Exception as e:
-        print(f"Error al enviar el correo: {e}")
-        return False
+        return False , e
