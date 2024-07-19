@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from apps.components.payrollgenerate import generate_summary
 from apps.components.payrollgenerate import genera_comprobante 
 
-from apps.components.mail import send_template_email2
+from apps.components.mail import send_template_email2 ,send_template_email3
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
@@ -173,7 +173,7 @@ def massive_mail(request):
             return JsonResponse({'error': 'El campo nomina debe ser un número.'}, status=400)
         
         try:
-            compectos = Nomina.objects.filter(idnomina=int(nomina))[:5]
+            compectos = Nomina.objects.filter(idnomina=int(nomina)).distinct('idcontrato')[:5]
         except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
             return JsonResponse({'error': f'Error al obtener los datos de Nomina: {str(e)}'}, status=500)
         except Exception as e:
@@ -193,17 +193,44 @@ def massive_mail(request):
         error_messages = []
         
         for comp in compectos:
-            email_type = 'loginweb'
-            context = {
-                'nombre_usuario': comp,
-                'usuario': 'usertempo.email',
-                'contrasena': 'passwordoriginal',
+            print(comp.idcontrato.idcontrato)
+            
+            context = genera_comprobante(nomina, comp.idcontrato.idcontrato)
+
+            html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+
+            fecha_actual = datetime.now().strftime('%Y-%m-%d')
+
+            pdf = BytesIO()
+            pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+            pdf.seek(0)
+
+            if pisa_status.err:
+                return HttpResponse('Error al generar el PDF', status=400)
+            
+            nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
+            
+            # Enviar el PDF por correo
+            email_subject = 'Tu Certificado de Nómina'
+            
+            recipient_list = ['mikepruebas@yopmail.com']  # Lista de destinatarios
+
+            attachment = {
+                'filename': nombre_archivo,
+                'content': pdf.getvalue(),
+                'mimetype': 'application/pdf'
             }
-            subject = 'Activacion de Usuario'
+            
             
             try:
                 if use < len(recipient_list):
-                    success, message = send_template_email2(email_type, context, subject, [recipient_list[use]])
+                    success, message = send_template_email3(
+                        email_type='nomina1',  # Ajusta el tipo de correo según corresponda
+                        context=context,
+                        subject=email_subject,
+                        recipient_list=recipient_list,
+                        attachment=attachment
+                    )
                     if success:
                         cont += 1
                     else:
@@ -227,6 +254,54 @@ def massive_mail(request):
     
     return JsonResponse({'error': 'Este view solo acepta peticiones POST.'}, status=405)
 
+
+def unique_mail(request,idnomina,idcontrato):
+    print('llege perra')
+    context = genera_comprobante(idnomina, idcontrato)
+
+    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+
+    pdf = BytesIO()
+    pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+    pdf.seek(0)
+
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=400)
+    
+    nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
+
+    # Enviar el PDF por correo
+    email_subject = 'Tu Certificado de Nómina'
+    email_body_context = {
+        'some_context_variable': 'some_value',
+        
+    }
+    recipient_list = ['mikepruebas@yopmail.com']  # Lista de destinatarios
+
+    attachment = {
+        'filename': nombre_archivo,
+        'content': pdf.getvalue(),
+        'mimetype': 'application/pdf'
+    }
+
+    email_sent = send_template_email3(
+        email_type='nomina1',  # Ajusta el tipo de correo según corresponda
+        context=context,
+        subject=email_subject,
+        recipient_list=recipient_list,
+        attachment=attachment
+    )
+
+    email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo.'
+    
+    
+    
+    response_data = {
+        'message': 'ID recibido correctamente',
+    }
+    return JsonResponse(response_data)
 
 
 

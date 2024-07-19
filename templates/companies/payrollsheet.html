@@ -70,7 +70,7 @@
                 <tbody>
                     {% for compect in compects %}
                         <tr>
-                            <td>{{ compect.documento }}</td>
+                            <td class="data">{{ compect.documento }}</td>
                             <td>{{ compect.nombre }}</td>
                             <td>{{ compect.basico }}</td>
                             <td>{{ compect.tpte }}</td>
@@ -88,8 +88,8 @@
                                 </a> 
                             </td>
                             <td>
-                                <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm">
-                                    <i class="fa-regular fa-paper-plane fs-1"></i>
+                                <a class="btn btn-icon btn-light-success hover-scale btn-sm">
+                                    <i class="fa-regular fa-paper-plane fs-1" onclick="enviarDatos('{{ compect.nominaid }}', '{{ compect.contratoid }}')" ></i>
                                 </a> 
                             </td>
                             <td>
@@ -234,7 +234,26 @@
 
 {% block js %}
 
-
+<script>
+    function enviarDatos(nominaid, contratoid) {
+        
+        // Construye la URL con el ID
+        var url = '/companies/payroll/payroll/sheet/send/' + nominaid + '/' + contratoid + '/';
+    
+        // Envía el ID usando AJAX
+        $.ajax({
+            url: url, // URL con el ID incluido
+            type: 'GET', // Método GET para enviar el ID en la URL
+            success: function(response) {
+                console.log('ID enviado:', id);
+                // Puedes hacer algo con la respuesta aquí
+            },
+            error: function(xhr, status, error) {
+                console.error('Error al enviar el ID:', error);
+            }
+        });
+    }
+    </script>
 
 
 <script>

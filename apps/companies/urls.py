@@ -72,8 +72,9 @@ urlpatterns = [
     path('payroll/nominated/certificate', nominatedcertificate.nominatedcertificate, name='nominatedcertificate'),
     path('payroll/payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
     path('payroll/payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
-    path('payroll/payroll/sheet//download/<int:idnomina>/<int:idcontrato>/', payrollsheet.generatepayrollcertificate, name='generatepayrollcertificate'),
-    
+    path('payroll/payroll/sheet/download/<int:idnomina>/<int:idcontrato>/', payrollsheet.generatepayrollcertificate, name='generatepayrollcertificate'),
+    path('payroll/payroll/sheet/send/<int:idnomina>/<int:idcontrato>/', payrollsheet.unique_mail, name='unique_mail'),
+
     
     path('payroll/payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
     path('payroll/payroll/bank/list', bank_list.bank_list, name='bank_list'),
