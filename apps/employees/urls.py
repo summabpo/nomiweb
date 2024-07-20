@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from apps.employees.views import certificaciones_laborales
 from apps.employees.views.vacation_history import VacationList
-from apps.employees.views.vacation_request import vacation_request_function, vacation_detail_modal
+from apps.employees.views.vacation_request import vacation_request_function 
 from apps.employees.views.comprobantes_nomina import ListaConceptosNomina, ListaNominas, genera_comprobante ,listaNomina 
 from apps.employees.views import index
 from apps.employees.views.viewdian import viewdian
@@ -55,10 +55,6 @@ urlpatterns = [
         views.vacation_request.vacation_request_function,
         name='form_vac',
     ),
-
-    path('vacation/modal/<int:pk>/',
-        views.vacation_request.vacation_detail_modal,
-        name='vacation_detail_modal'),
 
     path('Certificate/DIAN/',
         viewdian.viewdian,

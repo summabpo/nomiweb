@@ -1,0 +1,139 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Nomiweb.co - Portal Empresas -nomina
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block sub_titulo1 %} 
+    Nomina
+{% endblock %}
+
+{% block sub_titulo2 %} 
+    Acumulados de Nomina
+{% endblock %}
+
+{% block titulo2 %} 
+    Filtrados
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h3 class="card-title">Acumulados de Nomina - Filtros </h3>
+        </div>
+        <div class="card-body">
+            {% crispy form %}
+        </div>
+    </div>
+    <br>
+    <br>
+    <div class="separator  border-0 my-10"></div>
+    
+    <div  class="table-responsive">
+        <table id='tabla-liquidacion' class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                <th>Idcontrato</th>
+                <th>Docidentidad</th>
+                <th>Empleado</th>
+                <th>Dias</th>
+                <th>Ingreso</th>
+                <th>Retiro</th>
+                <th>Cesantias</th>
+                <th>Intereses</th>
+                <th>Prima</th>
+                <th>Vacaciones</th>
+                <th>Total</th>
+                <th>Ver</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for liquidacion in liquidaciones %}
+                    <tr>
+                        <td>{{ liquidacion.idcontrato.idcontrato }}</td>
+                        <td>{{ liquidacion.docidentidad }}</td>
+                        <td>{{ liquidacion.idempleado.papellido }} {{ liquidacion.idempleado.sapellido }} {{ liquidacion.idempleado.pnombre }} {{ liquidacion.idempleado.snombre }} </td>
+                        <td>{{ liquidacion.diastrabajados }}</td>
+                        <td>{{ liquidacion.fechainiciocontrato |date:'d-m-Y' }}</td>
+                        <td>{{ liquidacion.fechafincontrato |date:'d-m-Y' }}</td>
+                        <td>{{ liquidacion.cesantias }}</td>
+                        <td>{{ liquidacion.intereses }}</td>
+                        <td>{{ liquidacion.prima }}</td>
+                        <td>{{ liquidacion.vacaciones }}</td>
+                        <td>{{ liquidacion.totalliq }}</td>
+
+                        <td>
+                            <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                                <i class="ki-duotone ki-eye  fs-3">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+
+<script>
+    $(document).ready(function() {
+        $('#Filto_acomulados').on('submit', function() {
+            $('#loadingModal').modal('show');
+        });
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-liquidacion').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No se encontraron Certificados para este empleado",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [[5, 'des']], 
+            "pageLength": 10,                
+        });
+    });
+</script>
+
+
+
+{% endblock %}

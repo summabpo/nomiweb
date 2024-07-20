@@ -16,6 +16,10 @@ from .views.payrollsheet import payrollsheet
 from .views.assetsview import assetsview
 from .views.birthday import birthday
 from .views.workcertificate import workcertificate
+from .views.bank_list import bank_list
+from .views.settlementlist import settlementlist
+from .views.payrollaccumulations import payrollaccumulations
+from .views.abstractconcept import abstractconcept
 
 from .views.index import index
 
@@ -68,7 +72,21 @@ urlpatterns = [
     path('payroll/nominated/certificate', nominatedcertificate.nominatedcertificate, name='nominatedcertificate'),
     path('payroll/payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
     path('payroll/payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
+    path('payroll/payroll/sheet/download/<int:idnomina>/<int:idcontrato>/', payrollsheet.generatepayrollcertificate, name='generatepayrollcertificate'),
+    path('payroll/payroll/sheet/send/<int:idnomina>/<int:idcontrato>/', payrollsheet.unique_mail, name='unique_mail'),
+
     
+    path('payroll/payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
+    path('payroll/payroll/bank/list', bank_list.bank_list, name='bank_list'),
+    path('payroll/payroll/bank/list/get', bank_list.bank_list_get, name='bank_list_get'),
+    path('payroll/payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
+    
+    path('payroll/payroll/settlement/list', settlementlist.settlementlist, name='settlementlist'),
+    path('payroll/payroll/payroll/accumulations', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
+    path('payroll/payroll/payroll/abstract/concept', abstractconcept.abstractconcept, name='abstractconcept'),
+        
+    ##* masivos 
+    path('payroll/payroll/sheet/massive/mail', payrollsheet.massive_mail, name='massivemail'),
     
     ##! seguridad 
     path('security/user', loginweb.loginweb, name='loginweb'),
