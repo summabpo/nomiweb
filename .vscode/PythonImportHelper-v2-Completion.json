@@ -1128,6 +1128,22 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "transaction",
         "importPath": "django.db",
         "description": "django.db",
@@ -6032,6 +6048,15 @@
         "documentation": {}
     },
     {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "apps.companies.migrations.0004_liquidacion_liquidacionmasivo_nominacomprobantes",
+        "description": "apps.companies.migrations.0004_liquidacion_liquidacionmasivo_nominacomprobantes",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('companies', '0003_conceptosdenomina_contabgrupos_crearnomina_nomina'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Liquidacion',\n            fields=[\n                ('idliquidacion', models.IntegerField(primary_key=True, serialize=False)),\n                ('docidentidad', models.CharField(blank=True, max_length=15, null=True)),",
+        "detail": "apps.companies.migrations.0004_liquidacion_liquidacionmasivo_nominacomprobantes",
+        "documentation": {}
+    },
+    {
         "label": "startCompanies",
         "kind": 2,
         "importPath": "apps.companies.views.ContractsList.ContractsList",
@@ -7665,7 +7690,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.base",
         "description": "nomiweb.settings.base",
-        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n# Cargar las variables de entorno desde el archivo .env\nload_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))\nSETTINGS_ENV = 'base'\n# Application definition\nBASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n# Cargar las variables de entorno desde el archivo .env\nload_dotenv(dotenv_path=os.path.join(os.path.dirname(BASE_DIR), '.env'))\nSETTINGS_ENV = 'base'\n# Application definition\nBASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',",
         "detail": "nomiweb.settings.base",
         "documentation": {}
     },
@@ -8102,11 +8127,11 @@
         "documentation": {}
     },
     {
-        "label": "dotenv_path",
+        "label": "#dotenv_path",
         "kind": 5,
         "importPath": "nomiweb.settings.development",
         "description": "nomiweb.settings.development",
-        "peekOfCode": "dotenv_path = os.path.join(os.path.dirname(__file__), '.env')\nload_dotenv(dotenv_path)\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'En_dev_no_importa'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['*']\nSETTINGS_ENV = 'development'\nDATABASES = {\n    'default': {",
+        "peekOfCode": "#dotenv_path = os.path.join(os.path.dirname(__file__), '.env')\n#load_dotenv(dotenv_path)\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'En_dev_no_importa'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['*']\nSETTINGS_ENV = 'development'\nDATABASES = {\n    'default': {",
         "detail": "nomiweb.settings.development",
         "documentation": {}
     },
@@ -8196,7 +8221,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "SECRET_KEY =  os.getenv('SECRET_KEY')\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',",
+        "peekOfCode": "SECRET_KEY =  os.getenv('SECRET_KEY')\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8205,7 +8230,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "DEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),",
+        "peekOfCode": "DEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8214,7 +8239,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),",
+        "peekOfCode": "ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),\n        'PORT':  os.getenv('DB_PORT_PROD'),",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8241,7 +8266,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "CSRF_COOKIE_SECURE = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3",
+        "peekOfCode": "CSRF_COOKIE_SECURE = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8250,7 +8275,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "SESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')",
+        "peekOfCode": "SESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8259,7 +8284,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "CSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')",
+        "peekOfCode": "CSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8268,7 +8293,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "CSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')\nAWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')",
+        "peekOfCode": "CSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },

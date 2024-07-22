@@ -7,7 +7,6 @@ SECRET_KEY =  os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-print("ALLOWED_HOSTS:", os.getenv('ALLOWED_HOSTS'))
 
 SETTINGS_ENV = 'production'
 
@@ -43,11 +42,12 @@ DATABASES = {
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_HTTPONLY = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1',
-    'http://localhost',
+    'http://127.0.0.1:8081',
+    'http://127.0.0.1:8000',
+    'http://localhost:8081',
     'https://nomiweb.com.co',
     'https://app.nomiweb.com.co',
 ]
