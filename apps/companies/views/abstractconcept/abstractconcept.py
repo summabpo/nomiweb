@@ -30,7 +30,7 @@ def abstractconcept(request):
             filters = {k: v for k, v in filters.items() if v}
 
             # Filtrar los datos
-            nominas = Nomina.objects.filter(idcontrato__estadocontrato=2, **filters)
+            nominas = Nomina.objects.filter(idcontrato__estadocontrato=2, **filters).order_by('-idnomina')
             nomina = nominas if nominas.exists() else None
             
             

@@ -82,6 +82,7 @@ urlpatterns = [
     path('payroll/payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
     
     path('payroll/payroll/settlement/list', settlementlist.settlementlist, name='settlementlist'),
+    path('payroll/payroll/settlement/download/<int:idliqui>/', settlementlist.settlementlistdownload, name='settlementlistdownload'),
     path('payroll/payroll/payroll/accumulations', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
     path('payroll/payroll/payroll/abstract/concept', abstractconcept.abstractconcept, name='abstractconcept'),
         

@@ -119,7 +119,7 @@
         $('#tabla-liquidacion').DataTable({
             language: {
                 "decimal":        "",
-                "emptyTable":     "No se encontraron Certificados para este empleado",
+                "emptyTable":     "No se encontraron registros coincidentes",
                 "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
                 "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
                 "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
@@ -143,9 +143,9 @@
             },
             dom: 'Bfrtip', // Agregamos 'B' para habilitar los botones
             buttons: [
-                'excel', 'pdf', 'word' // Botones de exportación a Excel, PDF y Word
+                'excel', 'pdf' // Botones de exportación a Excel, PDF y Word
             ],
-            order: [[5, 'des']], 
+            order: [[0, 'asc']], 
             "pageLength": 10,                
         });
     });

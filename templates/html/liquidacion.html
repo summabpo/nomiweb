@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Certificación Laboral - {{empresa}}</title>
+
+    <style type="text/css">
+        @page {
+            size: letter portrait;
+            margin: 0.2cm;
+
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 50pt;
+                width: 250pt;
+                top: 50pt;
+                height: 80pt;
+    
+            }
+
+            @frame content_frame {
+                left: 50pt;
+                width: 512pt;
+                top: 50pt;
+                height: 500pt;
+    
+            }
+
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 50pt;
+                width: 512pt;
+                top: 600pt;
+                height: 20pt;    
+            }
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+            text-align: center;
+        }
+        .header .image-container {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .header div {
+            text-align: center;
+        }
+        .header hr {
+            border: none;
+            border-top: 2px solid black;
+            margin: 10px 0;
+        }
+        .header a {
+            text-decoration: none;
+        }
+        .cert-info {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .cert-info p {
+            margin: 5px 0;
+        }
+        .cert-body {
+            margin: 20px 0;
+            
+        }
+        .cert-body p {
+            margin: 5px 0;
+            
+        }
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            padding-top: 950px; /* Espacio superior */
+            padding-bottom: 20px; /* Espacio inferior */ /* Ajusta el relleno según sea necesario */
+            
+        }
+        hr {
+            border: none;
+            border-top: 2px solid black;
+            margin: 20px 0;
+        }
+        .cert-certi {
+            text-align: right;
+            padding: 0;
+            line-height: 1;
+            margin-top: 20px;
+        }
+        .firma {
+            padding: 0;
+            line-height: 1;
+        }
+        .data {
+            line-height: 1;
+            margin-top: 30px;
+
+
+        }
+        .img-firma {
+            border: none;
+            margin: 20px 0;
+            width: 35%;
+        }
+
+        .general-content{
+            font-size: larger;
+            text-align: justify; /* Alineación justificada */
+            }
+
+    </style>
+
+
+</head>
+<body >
+    <!-- Content for Static Frame 'header_frame' -->
+    <div id="header_content">
+        <div class="header">
+            <div class="image-container">
+                <img src="static/img/{{logo}}" alt="Logo empresa" />
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- HTML Content -->
+    <!-- Content for Content Frame 'content_frame' -->
+    <div id="content_content">
+        <div class="header">
+            <p>{{empresa}}</p>
+            <p>{{nit}}</p>
+            <p href="http://{{web}}">{{web}}</p>
+        </div>
+        <hr />
+        
+        <div class="general-content">
+            
+            
+            <div class="cert-info">
+                <h1>Liquidación de Contrato de Trabajo</h1>
+                <table >
+                    <tr>
+                      <th>Empleado:</th>
+                      <td>{{nombre_completo}}</td>
+                    </tr>
+                    <tr>
+                      <th>Documento de Id.:</th>
+                      <td>{{ cc }}</td>
+                    </tr>
+                    <tr>
+                      <th>Cargo:</th>
+                      <td>{{cargo}}</td>
+                    </tr>
+                    <tr>
+                      <th>Fecha de Ingreso:</th>
+                      <td>{{ ingreso }}</td>
+                    </tr>
+                    <tr>
+                      <th>Fecha de Terminación:</th>
+                      <td>{{terminación}}</td>
+                    </tr>
+                    <tr>
+                      <th>Tipo de Contrato:</th>
+                      <td>{{ tipoc }}</td>
+                    </tr>
+                    <tr>
+                      <th>Causa de Liquidación</th>
+                      <td>{{causa}}</td>
+                    </tr>
+                    <tr>
+                      <th>Salario</th>
+                      <td>{{salario}}</td>
+                    </tr>
+                    <tr>
+                      <th>Suspensión/Lic. N. R.</th>
+                      <td>{{sus}}</td>
+                    </tr>
+                  
+                </table>
+                <hr />
+
+                
+                
+                <br />
+            </div>
+            <div class="cert-body">
+                                
+            </div>
+        </div>
+
+        <div class="firma">
+            <div class="img-firma">
+                <img src="static/img/FIRMA CARLOS GONZALEZ(1).png" alt="Logo empresa" />
+            </div>
+            <div class="data">
+                <p>{{rrhh}}</p>
+                <p>{{cargo_certificaciones}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content for Static Frame 'footer_content' -->
+    <div id="footer_frame">
+        
+        <div class="footer">
+            <p > Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS</p>
+        </div>
+    </div>
+
+
+</body>
+</html>

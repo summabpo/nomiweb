@@ -57,7 +57,7 @@
                         <td>{{ liquidacion.totalliq }}</td>
 
                         <td>
-                            <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                            <a href="{% url 'companies:settlementlistdownload' idliqui=liquidacion.idliquidacion %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
                                 <i class="ki-duotone ki-eye  fs-3">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
