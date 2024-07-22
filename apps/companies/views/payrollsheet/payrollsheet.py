@@ -253,8 +253,9 @@ def massive_mail(request):
     return JsonResponse({'error': 'Este view solo acepta peticiones POST.'}, status=405)
 
 
+
+
 def unique_mail(request,idnomina,idcontrato):
-    print('llege perra')
     context = genera_comprobante(idnomina, idcontrato)
 
     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')

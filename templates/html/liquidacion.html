@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
-<head>
+<html lang="es">
+  <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Certificación Laboral - {{empresa}}</title>
 
-    <style type="text/css">
+    <style >
         @page {
             size: letter portrait;
             margin: 0.2cm;
@@ -12,18 +12,18 @@
             @frame header_frame {
                 -pdf-frame-content: header_content;
                 left: 50pt;
-                width: 250pt;
-                top: 50pt;
-                height: 80pt;
+                width: 512pt;
+                top: 10pt;
+                height: 60pt;
     
             }
 
             @frame content_frame {
                 left: 50pt;
                 width: 512pt;
-                top: 50pt;
-                height: 500pt;
-    
+                top: 20pt;
+                height: 700pt;
+                
             }
 
             @frame footer_frame {
@@ -31,9 +31,12 @@
                 left: 50pt;
                 width: 512pt;
                 top: 600pt;
-                height: 20pt;    
+                height: 600pt;   
             }
+
         }
+
+      
 
         .header {
             display: flex;
@@ -45,86 +48,192 @@
             line-height: 1;
             text-align: center;
         }
-        .header .image-container {
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
-        }
-        
+                
         .header div {
             text-align: center;
+            margin: 0; 
+            padding: 0; 
+            line-height: 1;
         }
         .header hr {
             border: none;
             border-top: 2px solid black;
             margin: 10px 0;
         }
-        .header a {
-            text-decoration: none;
-        }
-        .cert-info {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .cert-info p {
-            margin: 5px 0;
-        }
-        .cert-body {
-            margin: 20px 0;
-            
-        }
-        .cert-body p {
-            margin: 5px 0;
-            
-        }
-        .footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 14px;
-            padding-top: 950px; /* Espacio superior */
-            padding-bottom: 20px; /* Espacio inferior */ /* Ajusta el relleno según sea necesario */
-            
-        }
-        hr {
-            border: none;
-            border-top: 2px solid black;
-            margin: 20px 0;
-        }
-        .cert-certi {
-            text-align: right;
-            padding: 0;
-            line-height: 1;
-            margin-top: 20px;
-        }
-        .firma {
-            padding: 0;
-            line-height: 1;
-        }
-        .data {
-            line-height: 1;
-            margin-top: 30px;
 
-
-        }
-        .img-firma {
-            border: none;
-            margin: 20px 0;
-            width: 35%;
+        .header h1 {
+            margin: 0; 
+            padding: 0; 
+            font-size: 24px;
         }
 
-        .general-content{
-            font-size: larger;
-            text-align: justify; /* Alineación justificada */
-            }
+        .header h2 {
+            color: #212121;
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
+            margin: 0; 
+            padding: 0; 
+            font-size: 18px;
+        }
+
+        .header h3 {
+            color: #212121;
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
+            margin: 0; 
+            padding: 0; 
+            font-size: 18px;
+        }
+
+        .body2 {
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
+        }
+
+        .header .image-container {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+            
+        }
+
+
+
+      .cert-info {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .cert-info p,
+      .cert-body p {
+        margin: 5px 0;
+      }
+
+      .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 14px;
+        padding-top: 950px;
+        padding-bottom: 20px;
+      }
+
+      hr {
+        border: none;
+        border-top: 2px solid black;
+        margin: 20px 0;
+      }
+
+      .cert-certi,
+      .firma,
+      .data2 {
+        line-height: 1;
+        margin-top: 20px;
+      }
+
+      .img-firma {
+        border: none;
+        margin: 20px 0;
+        width: 25%;
+      }
+
+      .tabla-sin-estilos {
+        font-family: Courier, monospace;
+        width: 100%;
+        border-collapse: collapse;
+        border: none;
+        margin: 0; /* Eliminar margen */
+        padding: 0;
+        border: none; /* Bordes invisibles */
+        white-space: nowrap; /* Evita el salto de línea y los espacios entre palabras */
+        font-size: 14px; /* Ajuste el tamaño de fuente según sea necesario */
+      }
+
+      .tabla-sin-estilos th {
+        text-align: left; /* Alineación izquierda por defecto */
+        font-weight: normal;
+      }
+
+      .tabla-sin-estilos td {
+        text-align: left; /* Alineación izquierda por defecto */
+        font-weight: bold;
+      }
+
+      .tabla-sin-estilos .otros,
+      .tabla-sin-estilos .valores,
+      .tabla-sin-estilos .footertabla {
+        text-align: right;
+      }
+
+      .tabla-sin-estilos .id {
+        padding: 0;
+        width: 25px;
+        text-align: right;
+      }
+
+      .tabla-sin-estilos .concepto {
+        width: 250px;
+        padding: 0px 5px 0px 10px;
+      }
+
+      .tabla2 {
+        font-size: 11px;
+        font-family: Courier, monospace;
+        width: 100%;
+        border-collapse: collapse;
+        border: none;
+      }
+
+      .tabla2 th {
+        font-weight: bold;
+        padding: 1px 0px 5px 5px;
+      }
+
+      .tabla2 td {
+        padding: 0px 0px 5px 0px;
+        text-align: center;
+        
+      }
+
+      .tabla2 .concepto {
+        text-align: left;
+      }
+
+      .constancias {
+        text-align: justify;
+        font-size: 11px;
+        font-weight: bold;
+        line-height: 1.2;
+      }
+
+      .general-content {
+        font-size: larger;
+        text-align: justify;
+        
+      }
+
+      .body2 {
+        color: black;
+        font-weight: normal;
+    }
+
+
+    .signature-container {
+        border-top: 1px solid #000; /* Línea horizontal de 1px de grosor */
+        margin: 400px 0px 0px 400px;
+        text-align: right; /* Alinea el contenido del contenedor a la derecha */
+    }
+    
+    .signature-label {
+        font-size: 15px;
+        padding: 5px 0px 0px 0px;
+        margin-top: 80px; /* Espaciado superior para ajustar la alineación */
+        font-weight: bold; /* Negrita para el texto de la firma */
+    }
+
 
     </style>
-
-
-</head>
-<body >
-    <!-- Content for Static Frame 'header_frame' -->
+  </head>
+  <body class='body2' >
+    <!-- Header Content -->
     <div id="header_content">
         <div class="header">
             <div class="image-container">
@@ -132,92 +241,116 @@
             </div>
         </div>
     </div>
+
+    <!-- Content Frame -->
+        <div id="content_content">
+            <div class="header">
+                <h1>{{empresa}}</h1>
+                <h2>{{nit}}</h2>
+                <h3 href="http://{{web}}">{{web}}</h3>
+            </div>
+            <hr />
+        </div>
+
+      <div class="general-content">
+        <div class="cert-info">
+          <h1>Liquidación de Contrato de Trabajo</h1>
+          <table class="tabla-sin-estilos">
+            <tr>
+              <th>Empleado:</th>
+              <td>{{nombre_completo}}</td>
+            </tr>
+            <tr>
+              <th>Documento de Id.:</th>
+              <td>{{ cc }}</td>
+            </tr>
+            <tr>
+              <th>Cargo:</th>
+              <td>{{cargo}}</td>
+            </tr>
+            <tr>
+              <th>Fecha de Ingreso:</th>
+              <td>{{ ingreso |date:"d-m-Y"}}</td>
+            </tr>
+            <tr>
+              <th>Fecha de Terminación:</th>
+              <td>{{terminación |date:"d-m-Y"}}</td>
+            </tr>
+            <tr>
+              <th>Tipo de Contrato:</th>
+              <td>{{ tipoc }}</td>
+            </tr>
+            <tr>
+              <th>Causa de Liquidación</th>
+              <td>{{causa}}</td>
+            </tr>
+            <tr>
+              <th>Salario</th>
+              <td>{{salario}}</td>
+            </tr>
+            <tr>
+              <th>Suspensión/Lic. N. R.</th>
+              <td>{{sus}}</td>
+            </tr>
+          </table>
+          <hr />
+          <table class="tabla2">
+            <thead>
+              <tr>
+                <th>CONCEPTO</th>
+                <th>BASE DE LIQUIDACION</th>
+                <th>DIAS</th>
+                <th>VALOR A PAGAR</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for dat in data %}
+              <tr>
+                <td class="concepto">{{ dat.concepto }}</td>
+                <td>{{ dat.base }}</td>
+                <td>{{ dat.dias }}</td>
+                <td>{{ dat.valor }}</td>
+              </tr>
+              {% endfor %}
+              <tr>
+                <td colspan="3"><strong>TOTAL LIQUIDACION</strong></td>
+                <td><strong>{{total}}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <hr />
+
+          <p class="constancias" >
+            Se hace constar: 1. Que el empleador ha pagado la totalidad de los
+            valores correspondientes a salarios, horas extras,descansos
+            compensatorios, trabajos suplementarios, cesantías, intereses de
+            cesantías, vacaciones, prima de servicios,auxilio de transporte, y
+            en sí, todo concepto relacionado con salarios, prestaciones o
+            indemnizaciones causadas en larelación laboral. 2. Que con el pago
+            del dinero anotado en la presente liquidación, queda transada
+            cualquier diferenciarelativa al contrato de trabajo extinguido, o a
+            cualquier diferencia anterior. Por lo tanto, esta transacción tiene
+            comoefecto la terminación de las obligaciones provenientes de la
+            relación laboral que existió entre LECTA LTDA y eltrabajador,
+            quienes declaran estar a paz y salvo por todo concepto. A la entrega
+            de esta liquidación tambien certifico quehe recibido una orden para
+            practicarme el exámen médico de egreso y una copia del último pago
+            de aportes a laseguridad social.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Content -->
     
-
-    <!-- HTML Content -->
-    <!-- Content for Content Frame 'content_frame' -->
-    <div id="content_content">
-        <div class="header">
-            <p>{{empresa}}</p>
-            <p>{{nit}}</p>
-            <p href="http://{{web}}">{{web}}</p>
-        </div>
-        <hr />
-        
-        <div class="general-content">
-            
-            
-            <div class="cert-info">
-                <h1>Liquidación de Contrato de Trabajo</h1>
-                <table >
-                    <tr>
-                      <th>Empleado:</th>
-                      <td>{{nombre_completo}}</td>
-                    </tr>
-                    <tr>
-                      <th>Documento de Id.:</th>
-                      <td>{{ cc }}</td>
-                    </tr>
-                    <tr>
-                      <th>Cargo:</th>
-                      <td>{{cargo}}</td>
-                    </tr>
-                    <tr>
-                      <th>Fecha de Ingreso:</th>
-                      <td>{{ ingreso }}</td>
-                    </tr>
-                    <tr>
-                      <th>Fecha de Terminación:</th>
-                      <td>{{terminación}}</td>
-                    </tr>
-                    <tr>
-                      <th>Tipo de Contrato:</th>
-                      <td>{{ tipoc }}</td>
-                    </tr>
-                    <tr>
-                      <th>Causa de Liquidación</th>
-                      <td>{{causa}}</td>
-                    </tr>
-                    <tr>
-                      <th>Salario</th>
-                      <td>{{salario}}</td>
-                    </tr>
-                    <tr>
-                      <th>Suspensión/Lic. N. R.</th>
-                      <td>{{sus}}</td>
-                    </tr>
-                  
-                </table>
-                <hr />
-
-                
-                
-                <br />
-            </div>
-            <div class="cert-body">
-                                
-            </div>
-        </div>
-
-        <div class="firma">
-            <div class="img-firma">
-                <img src="static/img/FIRMA CARLOS GONZALEZ(1).png" alt="Logo empresa" />
-            </div>
-            <div class="data">
-                <p>{{rrhh}}</p>
-                <p>{{cargo_certificaciones}}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Content for Static Frame 'footer_content' -->
     <div id="footer_frame">
-        
-        <div class="footer">
-            <p > Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS</p>
+        <br>
+        <div class="signature-container">
+            <div class="signature-label">{{nombre_completo}}</div>
         </div>
+      <div class="footer">
+        <p>Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS</p>
+      </div>
     </div>
-
-
-</body>
+  </body>
 </html>

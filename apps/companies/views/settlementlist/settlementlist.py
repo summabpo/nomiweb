@@ -11,12 +11,10 @@ from apps.components.settlementgenerator import settlementgenerator
 def settlementlist(request):
     liquidaciones = Liquidacion.objects.all()
     
-    
-    
-    
     return render(request, 'companies/settlementlist.html',{
         'liquidaciones':liquidaciones,
     } )
+
 
 def settlementlistdownload(request,idliqui):
     
