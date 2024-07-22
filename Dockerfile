@@ -1,25 +1,16 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.11.5-slim
+FROM python:3.11.5
 
 # Set environment variables to prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install locales package and generate es_ES.UTF-8 locale
-RUN apt-get update && apt-get install -y locales && \
-    sed -i '/es_ES.UTF-8/s/^# //g' /etc/locale.gen && \
-    locale-gen es_ES.UTF-8
-
-# Install locales package, libpq-dev, and generate es_ES.UTF-8 locale
-#RUN apt-get update && \
-#    apt-get install -y --no-install-recommends \
-#    locales \
-#    libpq-dev \
-#    gcc \
-#    python3-dev \
-#    && sed -i '/es_ES.UTF-8/s/^# //g' /etc/locale.gen \
-#    && locale-gen es_ES.UTF-8 \
-#    && apt-get clean \
-#    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    locales \
+    python3-dev \
+    && sed -i '/es_ES.UTF-8/s/^# //g' /etc/locale.gen \
+    && locale-gen es_ES.UTF-8 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set locale environment variables
 ENV LANG=es_ES.UTF-8 
