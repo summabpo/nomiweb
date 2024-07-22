@@ -3032,6 +3032,14 @@
         "documentation": {}
     },
     {
+        "label": "Liquidacion",
+        "importPath": "apps.companies.models",
+        "description": "apps.companies.models",
+        "isExtraImport": true,
+        "detail": "apps.companies.models",
+        "documentation": {}
+    },
+    {
         "label": "*",
         "importPath": "apps.companies.models",
         "description": "apps.companies.models",
@@ -3612,6 +3620,22 @@
         "documentation": {}
     },
     {
+        "label": "HttpResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "HttpResponseRedirect",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
         "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -3757,11 +3781,27 @@
         "documentation": {}
     },
     {
+        "label": "BytesIO",
+        "importPath": "io",
+        "description": "io",
+        "isExtraImport": true,
+        "detail": "io",
+        "documentation": {}
+    },
+    {
         "label": "datetime",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "datetime",
         "description": "datetime",
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
         "detail": "datetime",
         "documentation": {}
     },
@@ -4206,6 +4246,14 @@
         "documentation": {}
     },
     {
+        "label": "pisa",
+        "importPath": "xhtml2pdf",
+        "description": "xhtml2pdf",
+        "isExtraImport": true,
+        "detail": "xhtml2pdf",
+        "documentation": {}
+    },
+    {
         "label": "generate_summary",
         "importPath": "apps.components.payrollgenerate",
         "description": "apps.components.payrollgenerate",
@@ -4251,6 +4299,14 @@
         "description": "django.core.exceptions",
         "isExtraImport": true,
         "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "settlementgenerator",
+        "importPath": "apps.components.settlementgenerator",
+        "description": "apps.components.settlementgenerator",
+        "isExtraImport": true,
+        "detail": "apps.components.settlementgenerator",
         "documentation": {}
     },
     {
@@ -6328,7 +6384,16 @@
         "kind": 2,
         "importPath": "apps.companies.views.settlementlist.settlementlist",
         "description": "apps.companies.views.settlementlist.settlementlist",
-        "peekOfCode": "def settlementlist(request):\n    liquidaciones = Liquidacion.objects.all()\n    return render(request, 'companies/settlementlist.html',{\n        'liquidaciones':liquidaciones,\n    } )",
+        "peekOfCode": "def settlementlist(request):\n    liquidaciones = Liquidacion.objects.all()\n    return render(request, 'companies/settlementlist.html',{\n        'liquidaciones':liquidaciones,\n    } )\ndef settlementlistdownload(request,idliqui):\n    context = settlementgenerator(idliqui)\n    html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()",
+        "detail": "apps.companies.views.settlementlist.settlementlist",
+        "documentation": {}
+    },
+    {
+        "label": "settlementlistdownload",
+        "kind": 2,
+        "importPath": "apps.companies.views.settlementlist.settlementlist",
+        "description": "apps.companies.views.settlementlist.settlementlist",
+        "peekOfCode": "def settlementlistdownload(request,idliqui):\n    context = settlementgenerator(idliqui)\n    html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()\n    pisa_status = pisa.CreatePDF(html_string, dest=pdf)\n    pdf.seek(0)\n    if pisa_status.err:\n        return HttpResponse('Error al generar el PDF', status=400)\n    nombre_archivo = f'Certificado_{context[\"cc\"]}_{fecha_actual}.pdf'",
         "detail": "apps.companies.views.settlementlist.settlementlist",
         "documentation": {}
     },
@@ -6810,6 +6875,15 @@
         "documentation": {}
     },
     {
+        "label": "settlementgenerator",
+        "kind": 2,
+        "importPath": "apps.components.settlementgenerator",
+        "description": "apps.components.settlementgenerator",
+        "peekOfCode": "def settlementgenerator(idliqui):\n    datac = datos_cliente()\n    liquidacion = Liquidacion.objects.filter(idliquidacion = idliqui ).first()\n    nombre_completo = f\"{liquidacion.idempleado.papellido} {liquidacion.idempleado.sapellido} {liquidacion.idempleado.pnombre} {liquidacion.idempleado.snombre}\"\n    print(type(liquidacion.salario))\n    context  = {\n        #empresa\n        'empresa':datac['nombreempresa'],\n        'nit': datac['nit'],\n        'web':datac['website'],",
+        "detail": "apps.components.settlementgenerator",
+        "documentation": {}
+    },
+    {
         "label": "calcular_dias_360",
         "kind": 2,
         "importPath": "apps.components.utils",
@@ -6859,7 +6933,7 @@
         "kind": 2,
         "importPath": "apps.components.workcertificategenerator",
         "description": "apps.components.workcertificategenerator",
-        "peekOfCode": "def workcertificatedownload(idcert):\n    datac = datos_cliente()\n    certificado = Certificaciones.objects.get(idcert = idcert)\n    datae = datos_empleado(certificado.idcontrato)\n    context = {\n            ## empresa \n            'empresa':datac['nombre_empresa'],\n            'rrhh':datac['nombre_rrhh'],\n            'nit': datac['nit_empresa'],\n            'direccion':datac['direccion_empresa'],",
+        "peekOfCode": "def workcertificatedownload(idcert):\n    datac = datos_cliente()\n    certificado = Certificaciones.objects.get(idcert = idcert)\n    datae = datos_empleado(certificado.idcontrato)\n    context = {\n            ## empresa \n            'empresa':datac['nombreempresa'],\n            'rrhh':datac['contactorrhh'],\n            'nit': datac['nit'],\n            'direccion':datac['direccionempresa'],",
         "detail": "apps.components.workcertificategenerator",
         "documentation": {}
     },
