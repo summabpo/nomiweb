@@ -42,41 +42,22 @@
                 <th>Idcontrato</th>
                 <th>Docidentidad</th>
                 <th>Empleado</th>
-                <th>Dias</th>
-                <th>Ingreso</th>
-                <th>Retiro</th>
-                <th>Cesantias</th>
-                <th>Intereses</th>
-                <th>Prima</th>
-                <th>Vacaciones</th>
+                <th>Basico</th>
+                <th>Aportes</th>
+                <th>Prestamos</th>
                 <th>Total</th>
-                <th>Ver</th>
                 </tr>
             </thead>
             <tbody>
-                {% for liquidacion in liquidaciones %}
+                {% for compect in compects %}
                     <tr>
-                        <td>{{ liquidacion.idcontrato.idcontrato }}</td>
-                        <td>{{ liquidacion.docidentidad }}</td>
-                        <td>{{ liquidacion.idempleado.papellido }} {{ liquidacion.idempleado.sapellido }} {{ liquidacion.idempleado.pnombre }} {{ liquidacion.idempleado.snombre }} </td>
-                        <td>{{ liquidacion.diastrabajados }}</td>
-                        <td>{{ liquidacion.fechainiciocontrato |date:'d-m-Y' }}</td>
-                        <td>{{ liquidacion.fechafincontrato |date:'d-m-Y' }}</td>
-                        <td>{{ liquidacion.cesantias }}</td>
-                        <td>{{ liquidacion.intereses }}</td>
-                        <td>{{ liquidacion.prima }}</td>
-                        <td>{{ liquidacion.vacaciones }}</td>
-                        <td>{{ liquidacion.totalliq }}</td>
-
-                        <td>
-                            <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
-                                <i class="ki-duotone ki-eye  fs-3">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                </i>
-                            </a>
-                        </td>
+                        <td>{{ compect.contrato  }}</td>
+                        <td>{{ compect.documento }}</td>
+                        <td>{{ compect.empleado  }}</td>
+                        <td>{{ compect.basico    }}</td>
+                        <td>{{ compect.aportess  }}</td>
+                        <td>{{ compect.prestamos }}</td>
+                        <td>{{ compect.total     }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -105,7 +86,7 @@
         $('#tabla-liquidacion').DataTable({
             language: {
                 "decimal":        "",
-                "emptyTable":     "No se encontraron Certificados para este empleado",
+                "emptyTable":     "No se encontraron registros coincidentes",
                 "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
                 "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
                 "infoFiltered":   "(filtrado de _MAX_ entradas totales)",

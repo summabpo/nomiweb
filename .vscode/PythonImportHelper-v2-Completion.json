@@ -1128,6 +1128,7 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
         "label": "migrations",
         "importPath": "django.db",
         "description": "django.db",
@@ -1144,6 +1145,8 @@
         "documentation": {}
     },
     {
+=======
+>>>>>>> main
         "label": "transaction",
         "importPath": "django.db",
         "description": "django.db",
@@ -1192,6 +1195,7 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
         "label": "migrations",
         "importPath": "django.db",
         "description": "django.db",
@@ -1208,6 +1212,8 @@
         "documentation": {}
     },
     {
+=======
+>>>>>>> main
         "label": "models",
         "importPath": "django.db",
         "description": "django.db",
@@ -2992,6 +2998,17 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "Nomina",
+        "importPath": "apps.companies.models",
+        "description": "apps.companies.models",
+        "isExtraImport": true,
+        "detail": "apps.companies.models",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "NominaComprobantes",
         "importPath": "apps.companies.models",
         "description": "apps.companies.models",
@@ -3064,6 +3081,17 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "Liquidacion",
+        "importPath": "apps.companies.models",
+        "description": "apps.companies.models",
+        "isExtraImport": true,
+        "detail": "apps.companies.models",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "*",
         "importPath": "apps.companies.models",
         "description": "apps.companies.models",
@@ -3620,6 +3648,17 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "HttpResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -3644,6 +3683,25 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "HttpResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "HttpResponseRedirect",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -3789,6 +3847,25 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "BytesIO",
+        "importPath": "io",
+        "description": "io",
+        "isExtraImport": true,
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "BytesIO",
+        "importPath": "io",
+        "description": "io",
+        "isExtraImport": true,
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "datetime",
         "kind": 6,
         "isExtraImport": true,
@@ -3854,6 +3931,17 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "timedelta",
         "importPath": "datetime",
         "description": "datetime",
@@ -3958,6 +4046,17 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "format_value",
+        "importPath": "apps.components.humani",
+        "description": "apps.components.humani",
+        "isExtraImport": true,
+        "detail": "apps.components.humani",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "format_value_float",
         "importPath": "apps.components.humani",
         "description": "apps.components.humani",
@@ -4206,6 +4305,25 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "generate_employee_excel",
+        "importPath": "apps.components.generate_employee_excel",
+        "description": "apps.components.generate_employee_excel",
+        "isExtraImport": true,
+        "detail": "apps.components.generate_employee_excel",
+        "documentation": {}
+    },
+    {
+        "label": "pisa",
+        "importPath": "xhtml2pdf",
+        "description": "xhtml2pdf",
+        "isExtraImport": true,
+        "detail": "xhtml2pdf",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "pisa",
         "importPath": "xhtml2pdf",
         "description": "xhtml2pdf",
@@ -4286,6 +4404,17 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "settlementgenerator",
+        "importPath": "apps.components.settlementgenerator",
+        "description": "apps.components.settlementgenerator",
+        "isExtraImport": true,
+        "detail": "apps.components.settlementgenerator",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "workcertificategenerator",
         "importPath": "apps.components.workcertificategenerator",
         "description": "apps.components.workcertificategenerator",
@@ -4926,6 +5055,25 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "PatternFill",
+        "importPath": "openpyxl.styles",
+        "description": "openpyxl.styles",
+        "isExtraImport": true,
+        "detail": "openpyxl.styles",
+        "documentation": {}
+    },
+    {
+        "label": "Alignment",
+        "importPath": "openpyxl.styles",
+        "description": "openpyxl.styles",
+        "isExtraImport": true,
+        "detail": "openpyxl.styles",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "EmailMessage",
         "importPath": "django.core.mail",
         "description": "django.core.mail",
@@ -5599,6 +5747,7 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
         "label": "load_dotenv",
         "importPath": "dotenv",
         "description": "dotenv",
@@ -5615,6 +5764,8 @@
         "documentation": {}
     },
     {
+=======
+>>>>>>> main
         "label": "Session",
         "importPath": "boto3.session",
         "description": "boto3.session",
@@ -6048,6 +6199,7 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
         "label": "Migration",
         "kind": 6,
         "importPath": "apps.companies.migrations.0004_liquidacion_liquidacionmasivo_nominacomprobantes",
@@ -6057,6 +6209,8 @@
         "documentation": {}
     },
     {
+=======
+>>>>>>> main
         "label": "startCompanies",
         "kind": 2,
         "importPath": "apps.companies.views.ContractsList.ContractsList",
@@ -6304,7 +6458,20 @@
         "kind": 2,
         "importPath": "apps.companies.views.payrollaccumulations.payrollaccumulations",
         "description": "apps.companies.views.payrollaccumulations.payrollaccumulations",
+<<<<<<< HEAD
         "peekOfCode": "def payrollaccumulations(request):\n    liquidaciones = None\n    if request.method == 'POST':\n        form = ReportFilterForm(request.POST)\n        if form.is_valid():\n            # Aplicar filtros a la consulta de Liquidacion\n            liquidaciones = Liquidacion.objects.all()\n            # Obtener los parámetros de búsqueda del request.GET\n            employee = form.cleaned_data['employee']\n            cost_center = form.cleaned_data['cost_center']",
+=======
+        "peekOfCode": "def payrollaccumulations(request):\n    acumulados = {}\n    compects = []\n    if request.method == 'POST':\n        form = ReportFilterForm(request.POST)\n        if form.is_valid():\n            # Obtener los parámetros de búsqueda del formulario\n            employee = form.cleaned_data['employee']\n            cost_center = form.cleaned_data['cost_center']\n            city = form.cleaned_data['city']",
+        "detail": "apps.companies.views.payrollaccumulations.payrollaccumulations",
+        "documentation": {}
+    },
+    {
+        "label": "descargar_excel_empleados",
+        "kind": 2,
+        "importPath": "apps.companies.views.payrollaccumulations.payrollaccumulations",
+        "description": "apps.companies.views.payrollaccumulations.payrollaccumulations",
+        "peekOfCode": "def descargar_excel_empleados(request):\n    acumulados = {}\n    # Diccionario de ejemplo con 6 empleados y datos asociados\n    nominas = Nomina.objects.all()[:70] ## .order_by('idconcepto__idconcepto')\n    for data in nominas:\n            docidentidad = data.idempleado.docidentidad\n            if docidentidad not in acumulados:\n                acumulados[docidentidad] = {\n                    'documento': docidentidad,\n                    'Empleado': f\"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre} - {data.idempleado.docidentidad} - {data.idcontrato.idcontrato} \",",
+>>>>>>> main
         "detail": "apps.companies.views.payrollaccumulations.payrollaccumulations",
         "documentation": {}
     },
@@ -6358,7 +6525,11 @@
         "kind": 2,
         "importPath": "apps.companies.views.payrollsheet.payrollsheet",
         "description": "apps.companies.views.payrollsheet.payrollsheet",
+<<<<<<< HEAD
         "peekOfCode": "def unique_mail(request,idnomina,idcontrato):\n    print('llege perra')\n    context = genera_comprobante(idnomina, idcontrato)\n    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()\n    pisa_status = pisa.CreatePDF(html_string, dest=pdf)\n    pdf.seek(0)\n    if pisa_status.err:\n        return HttpResponse('Error al generar el PDF', status=400)",
+=======
+        "peekOfCode": "def unique_mail(request,idnomina,idcontrato):\n    context = genera_comprobante(idnomina, idcontrato)\n    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()\n    pisa_status = pisa.CreatePDF(html_string, dest=pdf)\n    pdf.seek(0)\n    if pisa_status.err:\n        return HttpResponse('Error al generar el PDF', status=400)\n    nombre_archivo = f'Certificado_{context[\"cc\"]}_{fecha_actual}.pdf'",
+>>>>>>> main
         "detail": "apps.companies.views.payrollsheet.payrollsheet",
         "documentation": {}
     },
@@ -6385,7 +6556,20 @@
         "kind": 2,
         "importPath": "apps.companies.views.settlementlist.settlementlist",
         "description": "apps.companies.views.settlementlist.settlementlist",
+<<<<<<< HEAD
         "peekOfCode": "def settlementlist(request):\n    liquidaciones = Liquidacion.objects.all()\n    return render(request, 'companies/settlementlist.html',{\n        'liquidaciones':liquidaciones,\n    } )",
+=======
+        "peekOfCode": "def settlementlist(request):\n    liquidaciones = Liquidacion.objects.all()\n    return render(request, 'companies/settlementlist.html',{\n        'liquidaciones':liquidaciones,\n    } )\ndef settlementlistdownload(request,idliqui):\n    context = settlementgenerator(idliqui)\n    html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()",
+        "detail": "apps.companies.views.settlementlist.settlementlist",
+        "documentation": {}
+    },
+    {
+        "label": "settlementlistdownload",
+        "kind": 2,
+        "importPath": "apps.companies.views.settlementlist.settlementlist",
+        "description": "apps.companies.views.settlementlist.settlementlist",
+        "peekOfCode": "def settlementlistdownload(request,idliqui):\n    context = settlementgenerator(idliqui)\n    html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()\n    pisa_status = pisa.CreatePDF(html_string, dest=pdf)\n    pdf.seek(0)\n    if pisa_status.err:\n        return HttpResponse('Error al generar el PDF', status=400)\n    nombre_archivo = f'Certificado_{context[\"cc\"]}_{fecha_actual}.pdf'",
+>>>>>>> main
         "detail": "apps.companies.views.settlementlist.settlementlist",
         "documentation": {}
     },
@@ -6759,6 +6943,18 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "generate_employee_excel",
+        "kind": 2,
+        "importPath": "apps.components.generate_employee_excel",
+        "description": "apps.components.generate_employee_excel",
+        "peekOfCode": "def generate_employee_excel(diccionario_empleados):\n    # Crear un archivo en memoria\n    output = BytesIO()\n    # Crear un nuevo libro de trabajo y seleccionar la hoja activa\n    wb = openpyxl.Workbook()\n    ws = wb.active\n    ws.title = \"Reporte de acumulados\"\n    # Definir colores y alineación\n    azul_fill = PatternFill(start_color=\"00B0F0\", end_color=\"00B0F0\", fill_type=\"solid\")\n    amarillo_fill = PatternFill(start_color=\"FFFF00\", end_color=\"FFFF00\", fill_type=\"solid\")",
+        "detail": "apps.components.generate_employee_excel",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "format_value",
         "kind": 2,
         "importPath": "apps.components.humani",
@@ -6867,6 +7063,18 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
+        "label": "settlementgenerator",
+        "kind": 2,
+        "importPath": "apps.components.settlementgenerator",
+        "description": "apps.components.settlementgenerator",
+        "peekOfCode": "def settlementgenerator(idliqui):\n    datac = datos_cliente()\n    liquidacion = Liquidacion.objects.filter(idliquidacion = idliqui ).first()\n    nombre_completo = f\"{liquidacion.idcontrato.idempleado.papellido} {liquidacion.idcontrato.idempleado.sapellido} {liquidacion.idcontrato.idempleado.pnombre} {liquidacion.idcontrato.idempleado.snombre}\"\n    context = {\n            # empresa\n            'empresa': str(datac['nombreempresa']),\n            'nit': str(datac['nit']),\n            'web': str(datac['website']),\n            'logo': str(datac['logo']),   ",
+        "detail": "apps.components.settlementgenerator",
+        "documentation": {}
+    },
+    {
+>>>>>>> main
         "label": "calcular_dias_360",
         "kind": 2,
         "importPath": "apps.components.utils",
@@ -6916,7 +7124,11 @@
         "kind": 2,
         "importPath": "apps.components.workcertificategenerator",
         "description": "apps.components.workcertificategenerator",
+<<<<<<< HEAD
         "peekOfCode": "def workcertificatedownload(idcert):\n    datac = datos_cliente()\n    certificado = Certificaciones.objects.get(idcert = idcert)\n    datae = datos_empleado(certificado.idcontrato)\n    context = {\n            ## empresa \n            'empresa':datac['nombre_empresa'],\n            'rrhh':datac['nombre_rrhh'],\n            'nit': datac['nit_empresa'],\n            'direccion':datac['direccion_empresa'],",
+=======
+        "peekOfCode": "def workcertificatedownload(idcert):\n    datac = datos_cliente()\n    certificado = Certificaciones.objects.get(idcert = idcert)\n    datae = datos_empleado(certificado.idcontrato)\n    context = {\n            ## empresa \n            'empresa':datac['nombreempresa'],\n            'rrhh':datac['contactorrhh'],\n            'nit': datac['nit'],\n            'direccion':datac['direccionempresa'],",
+>>>>>>> main
         "detail": "apps.components.workcertificategenerator",
         "documentation": {}
     },
@@ -6975,6 +7187,7 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
         "label": "Migration",
         "kind": 6,
         "importPath": "apps.employees.migrations.0003_festivos_ingresosyretenciones",
@@ -6984,6 +7197,8 @@
         "documentation": {}
     },
     {
+=======
+>>>>>>> main
         "label": "last_business_day_of_march",
         "kind": 2,
         "importPath": "apps.employees.views.viewdian.diangenerate",
@@ -7690,7 +7905,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.base",
         "description": "nomiweb.settings.base",
+<<<<<<< HEAD
         "peekOfCode": "BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n# Cargar las variables de entorno desde el archivo .env\nload_dotenv(dotenv_path=os.path.join(os.path.dirname(BASE_DIR), '.env'))\nSETTINGS_ENV = 'base'\n# Application definition\nBASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',",
+=======
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n# Cargar las variables de entorno desde el archivo .env\nload_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))\nSETTINGS_ENV = 'base'\n# Application definition\nBASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',",
+>>>>>>> main
         "detail": "nomiweb.settings.base",
         "documentation": {}
     },
@@ -8127,11 +8346,19 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
         "label": "#dotenv_path",
         "kind": 5,
         "importPath": "nomiweb.settings.development",
         "description": "nomiweb.settings.development",
         "peekOfCode": "#dotenv_path = os.path.join(os.path.dirname(__file__), '.env')\n#load_dotenv(dotenv_path)\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'En_dev_no_importa'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['*']\nSETTINGS_ENV = 'development'\nDATABASES = {\n    'default': {",
+=======
+        "label": "dotenv_path",
+        "kind": 5,
+        "importPath": "nomiweb.settings.development",
+        "description": "nomiweb.settings.development",
+        "peekOfCode": "dotenv_path = os.path.join(os.path.dirname(__file__), '.env')\nload_dotenv(dotenv_path)\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'En_dev_no_importa'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['*']\nSETTINGS_ENV = 'development'\nDATABASES = {\n    'default': {",
+>>>>>>> main
         "detail": "nomiweb.settings.development",
         "documentation": {}
     },
@@ -8221,7 +8448,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
         "peekOfCode": "SECRET_KEY =  os.getenv('SECRET_KEY')\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),",
+=======
+        "peekOfCode": "SECRET_KEY =  os.getenv('SECRET_KEY')\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8230,7 +8461,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
         "peekOfCode": "DEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),",
+=======
+        "peekOfCode": "DEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8239,7 +8474,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
         "peekOfCode": "ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),\n        'PORT':  os.getenv('DB_PORT_PROD'),",
+=======
+        "peekOfCode": "ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8266,7 +8505,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
         "peekOfCode": "CSRF_COOKIE_SECURE = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]",
+=======
+        "peekOfCode": "CSRF_COOKIE_SECURE = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8275,7 +8518,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
         "peekOfCode": "SESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3",
+=======
+        "peekOfCode": "SESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8284,7 +8531,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
         "peekOfCode": "CSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')",
+=======
+        "peekOfCode": "CSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8293,7 +8544,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
         "peekOfCode": "CSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')",
+=======
+        "peekOfCode": "CSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')\nAWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8424,6 +8679,7 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
         "label": "BASE_DIR",
         "kind": 5,
         "importPath": "nomiweb.settings_old",
@@ -8865,6 +9121,8 @@
         "documentation": {}
     },
     {
+=======
+>>>>>>> main
         "label": "urlpatterns",
         "kind": 5,
         "importPath": "nomiweb.urls",
@@ -8910,6 +9168,7 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
         "label": "BASE_DIR",
         "kind": 5,
         "importPath": "nomiweb.wsgi",
@@ -8919,6 +9178,8 @@
         "documentation": {}
     },
     {
+=======
+>>>>>>> main
         "label": "application",
         "kind": 5,
         "importPath": "nomiweb.wsgi",

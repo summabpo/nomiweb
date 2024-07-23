@@ -70,23 +70,25 @@ urlpatterns = [
     ##! nomina 
     path('payroll/labor/certification', laborcertification.laborcertification, name='laborcertification'),
     path('payroll/nominated/certificate', nominatedcertificate.nominatedcertificate, name='nominatedcertificate'),
-    path('payroll/payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
-    path('payroll/payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
-    path('payroll/payroll/sheet/download/<int:idnomina>/<int:idcontrato>/', payrollsheet.generatepayrollcertificate, name='generatepayrollcertificate'),
-    path('payroll/payroll/sheet/send/<int:idnomina>/<int:idcontrato>/', payrollsheet.unique_mail, name='unique_mail'),
+    path('payroll/summary', payrollsummary.payrollsummary, name='payrollsummary'),
+    path('payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
+    path('payroll/sheet/download/<int:idnomina>/<int:idcontrato>/', payrollsheet.generatepayrollcertificate, name='generatepayrollcertificate'),
+    path('payroll/sheet/send/<int:idnomina>/<int:idcontrato>/', payrollsheet.unique_mail, name='unique_mail'),
 
     
-    path('payroll/payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
-    path('payroll/payroll/bank/list', bank_list.bank_list, name='bank_list'),
-    path('payroll/payroll/bank/list/get', bank_list.bank_list_get, name='bank_list_get'),
-    path('payroll/payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
+    path('payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
+    path('payroll/bank/list', bank_list.bank_list, name='bank_list'),
+    path('payroll/bank/list/get', bank_list.bank_list_get, name='bank_list_get'),
+    path('payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
     
-    path('payroll/payroll/settlement/list', settlementlist.settlementlist, name='settlementlist'),
-    path('payroll/payroll/payroll/accumulations', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
-    path('payroll/payroll/payroll/abstract/concept', abstractconcept.abstractconcept, name='abstractconcept'),
+    path('payroll/settlement/list', settlementlist.settlementlist, name='settlementlist'),
+    path('payroll/settlement/download/<int:idliqui>/', settlementlist.settlementlistdownload, name='settlementlistdownload'),
+    path('payroll/payroll/accumulations', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
+    path('payroll/payroll/accumulations/download', payrollaccumulations.descargar_excel_empleados, name='descargar_excel_empleados'),
+    path('payroll/payroll/abstract/concept', abstractconcept.abstractconcept, name='abstractconcept'),
         
     ##* masivos 
-    path('payroll/payroll/sheet/massive/mail', payrollsheet.massive_mail, name='massivemail'),
+    path('payroll/sheet/massive/mail', payrollsheet.massive_mail, name='massivemail'),
     
     ##! seguridad 
     path('security/user', loginweb.loginweb, name='loginweb'),
