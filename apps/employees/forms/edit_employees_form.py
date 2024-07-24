@@ -37,6 +37,11 @@ class EditEmployeesForm(forms.Form):
                 Column('address', css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ),
+            Row(
+                Column('profile_picture', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Submit('submit', 'Actualizar',css_class='btn btn-light-info hover-elevate-up')
             
         )
 

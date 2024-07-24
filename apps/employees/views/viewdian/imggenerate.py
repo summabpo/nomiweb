@@ -17,9 +17,9 @@ def imggenerate1(idingret):
     posision1 = {
         'año': {'x': 507, 'y': 68, 'data': str(certificado.anoacumular)},
         'nformulario': {'x': 522, 'y': 115, 'data': str(certificado.idingret)},
-        'nit': {'x': 63, 'y': 156, 'data': str(dataempresa['nit_empresa'])},
+        'nit': {'x': 63, 'y': 156, 'data': str(dataempresa['nit'])},
         'dv': {'x': 304, 'y': 156, 'data': str(dataempresa['dv'])},
-        'razon': {'x': 136, 'y': 175, 'data': str(dataempresa['nombre_empresa'])},
+        'razon': {'x': 136, 'y': 175, 'data': str(dataempresa['nombreempresa'])},
         'tipodni': {'x': 64, 'y': 214, 'data':   str(certificado.tipodocumento)},
         'dni': {'x': 134, 'y': 214, 'data': "{:,}".format(int(certificado.docidentidad)).replace(",", ".")},
         'papellido': {'x': 375, 'y': 214, 'data': str(certificado.papellido)},
@@ -35,10 +35,10 @@ def imggenerate1(idingret):
         'fechaexp-1': {'x': 401, 'y': 254, 'data': str(year)},
         'fechaexp-2': {'x': 467, 'y': 254, 'data': str(month)},
         'fechaexp-3': {'x': 508, 'y': 254, 'data': str(day)},
-        'lugar': {'x': 552, 'y': 254, 'data': str(dataempresa['ciudad_empresa'])},
+        'lugar': {'x': 552, 'y': 254, 'data': str(dataempresa['ciudad'])},
         'codedespartamento': {'x': 841, 'y': 254, 'data': str(dataempresa['coddpto'])},
         'codemunicipio': {'x': 886, 'y': 254, 'data': str(dataempresa['codciudad'])},
-        'retenedor': {'x': 246, 'y': 795, 'data': str(dataempresa['nombre_empresa'])},
+        'retenedor': {'x': 246, 'y': 795, 'data': str(dataempresa['nombreempresa'])},
     }
     
     value1 = {
