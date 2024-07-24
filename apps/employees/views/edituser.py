@@ -39,7 +39,6 @@ def edit_user_employees(request):
         if 'profile_picture' in request.FILES:
             data.fotografiaempleado = request.FILES['profile_picture']
             data.save()
-            print('rapido')
             request.session['empleado'] = datos_empleado2(usuario['id'])
             return redirect('employees:user')
         
@@ -48,7 +47,6 @@ def edit_user_employees(request):
         if form.is_valid():            
             # Verificar si se proporcionó una nueva imagen
             if 'profile_picture' in request.FILES:
-                print('rapido')
                 data.fotografiaempleado = request.FILES['profile_picture']
             
             # Actualizar otros campos del empleado si es necesario

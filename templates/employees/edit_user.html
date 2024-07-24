@@ -45,19 +45,6 @@ Editar Datos
 <div class="card mb-5 mb-xxl-8">
     <div class="card-body pt-9 pb-0">
         {% crispy form %}
-        <form method="POST" id="edit-form" >
-            {% csrf_token %}
-            <div class="input-group mb-5">
-                <span class="input-group-text" id="basic-addon3"> Imagen de perfil </span>
-                <input type="file" class="form-control col-md-6" name="profile_picture" accept="image/*" id="id_profile_picture"/>
-                <button id="open-camera-modal" class="btn btn-icon btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Tomar Fotografía" >
-                    <i class="fa-solid fa-camera fs-1"></i>
-                </button>
-            </div>
-            <button type="submit" form="edit-form"  class="btn btn-light-info hover-elevate-up">Actualizar</button>
-            <br>
-            <br>
-        </form>
     </div>
 </div>
 
@@ -68,10 +55,10 @@ Editar Datos
 
 
 <!-- manejo la captura desde la cámara -->
-<button id="open-camera-modal" class="btn btn-info">Abrir Cámara</button>
+<!-- <button id="open-camera-modal" class="btn btn-info">Abrir Cámara</button> -->
 
 <!-- Modal para la captura de imagen desde la cámara -->
-<div class="modal fade" tabindex="-1" id="kt_modal_1">
+<!-- <div class="modal fade" tabindex="-1" id="kt_modal_1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -91,7 +78,7 @@ Editar Datos
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <!-- Botón para capturar foto desde la cámara -->
 
