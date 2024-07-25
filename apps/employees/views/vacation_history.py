@@ -9,7 +9,6 @@ from apps.employees.models import Vacaciones, Contratos
 from apps.components.decorators import custom_permission
 
 
-
 @method_decorator([login_required, custom_permission('employees')], name='dispatch')
 class VacationList(ListView):
     template_name = 'employees/vacation_history.html'

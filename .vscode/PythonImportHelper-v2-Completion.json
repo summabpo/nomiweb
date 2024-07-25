@@ -1128,6 +1128,25 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+=======
+>>>>>>> main
         "label": "transaction",
         "importPath": "django.db",
         "description": "django.db",
@@ -1176,6 +1195,25 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+=======
+>>>>>>> main
         "label": "models",
         "importPath": "django.db",
         "description": "django.db",
@@ -2960,6 +2998,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "Nomina",
         "importPath": "apps.companies.models",
         "description": "apps.companies.models",
@@ -2968,6 +3008,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "NominaComprobantes",
         "importPath": "apps.companies.models",
         "description": "apps.companies.models",
@@ -3040,6 +3081,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "Liquidacion",
         "importPath": "apps.companies.models",
         "description": "apps.companies.models",
@@ -3048,6 +3091,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "*",
         "importPath": "apps.companies.models",
         "description": "apps.companies.models",
@@ -3604,6 +3648,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "HttpResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -3612,6 +3658,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -3636,6 +3683,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "HttpResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -3652,6 +3701,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "JsonResponse",
         "importPath": "django.http",
         "description": "django.http",
@@ -3797,6 +3847,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "BytesIO",
         "importPath": "io",
         "description": "io",
@@ -3813,6 +3865,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "datetime",
         "kind": 6,
         "isExtraImport": true,
@@ -3878,6 +3931,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
@@ -3886,6 +3941,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "timedelta",
         "importPath": "datetime",
         "description": "datetime",
@@ -3990,6 +4046,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "format_value",
         "importPath": "apps.components.humani",
         "description": "apps.components.humani",
@@ -3998,6 +4056,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "format_value_float",
         "importPath": "apps.components.humani",
         "description": "apps.components.humani",
@@ -4246,6 +4305,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "generate_employee_excel",
         "importPath": "apps.components.generate_employee_excel",
         "description": "apps.components.generate_employee_excel",
@@ -4262,6 +4323,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "pisa",
         "importPath": "xhtml2pdf",
         "description": "xhtml2pdf",
@@ -4342,6 +4404,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "settlementgenerator",
         "importPath": "apps.components.settlementgenerator",
         "description": "apps.components.settlementgenerator",
@@ -4350,6 +4414,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "workcertificategenerator",
         "importPath": "apps.components.workcertificategenerator",
         "description": "apps.components.workcertificategenerator",
@@ -4990,6 +5055,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "PatternFill",
         "importPath": "openpyxl.styles",
         "description": "openpyxl.styles",
@@ -5006,6 +5073,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "EmailMessage",
         "importPath": "django.core.mail",
         "description": "django.core.mail",
@@ -5679,6 +5747,25 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+=======
+>>>>>>> main
         "label": "Session",
         "importPath": "boto3.session",
         "description": "boto3.session",
@@ -6112,6 +6199,18 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "apps.companies.migrations.0004_liquidacion_liquidacionmasivo_nominacomprobantes",
+        "description": "apps.companies.migrations.0004_liquidacion_liquidacionmasivo_nominacomprobantes",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('companies', '0003_conceptosdenomina_contabgrupos_crearnomina_nomina'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Liquidacion',\n            fields=[\n                ('idliquidacion', models.IntegerField(primary_key=True, serialize=False)),\n                ('docidentidad', models.CharField(blank=True, max_length=15, null=True)),",
+        "detail": "apps.companies.migrations.0004_liquidacion_liquidacionmasivo_nominacomprobantes",
+        "documentation": {}
+    },
+    {
+=======
+>>>>>>> main
         "label": "startCompanies",
         "kind": 2,
         "importPath": "apps.companies.views.ContractsList.ContractsList",
@@ -6359,6 +6458,9 @@
         "kind": 2,
         "importPath": "apps.companies.views.payrollaccumulations.payrollaccumulations",
         "description": "apps.companies.views.payrollaccumulations.payrollaccumulations",
+<<<<<<< HEAD
+        "peekOfCode": "def payrollaccumulations(request):\n    liquidaciones = None\n    if request.method == 'POST':\n        form = ReportFilterForm(request.POST)\n        if form.is_valid():\n            # Aplicar filtros a la consulta de Liquidacion\n            liquidaciones = Liquidacion.objects.all()\n            # Obtener los parámetros de búsqueda del request.GET\n            employee = form.cleaned_data['employee']\n            cost_center = form.cleaned_data['cost_center']",
+=======
         "peekOfCode": "def payrollaccumulations(request):\n    acumulados = {}\n    compects = []\n    if request.method == 'POST':\n        form = ReportFilterForm(request.POST)\n        if form.is_valid():\n            # Obtener los parámetros de búsqueda del formulario\n            employee = form.cleaned_data['employee']\n            cost_center = form.cleaned_data['cost_center']\n            city = form.cleaned_data['city']",
         "detail": "apps.companies.views.payrollaccumulations.payrollaccumulations",
         "documentation": {}
@@ -6369,6 +6471,7 @@
         "importPath": "apps.companies.views.payrollaccumulations.payrollaccumulations",
         "description": "apps.companies.views.payrollaccumulations.payrollaccumulations",
         "peekOfCode": "def descargar_excel_empleados(request):\n    acumulados = {}\n    # Diccionario de ejemplo con 6 empleados y datos asociados\n    nominas = Nomina.objects.all()[:70] ## .order_by('idconcepto__idconcepto')\n    for data in nominas:\n            docidentidad = data.idempleado.docidentidad\n            if docidentidad not in acumulados:\n                acumulados[docidentidad] = {\n                    'documento': docidentidad,\n                    'Empleado': f\"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre} - {data.idempleado.docidentidad} - {data.idcontrato.idcontrato} \",",
+>>>>>>> main
         "detail": "apps.companies.views.payrollaccumulations.payrollaccumulations",
         "documentation": {}
     },
@@ -6422,7 +6525,11 @@
         "kind": 2,
         "importPath": "apps.companies.views.payrollsheet.payrollsheet",
         "description": "apps.companies.views.payrollsheet.payrollsheet",
+<<<<<<< HEAD
+        "peekOfCode": "def unique_mail(request,idnomina,idcontrato):\n    print('llege perra')\n    context = genera_comprobante(idnomina, idcontrato)\n    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()\n    pisa_status = pisa.CreatePDF(html_string, dest=pdf)\n    pdf.seek(0)\n    if pisa_status.err:\n        return HttpResponse('Error al generar el PDF', status=400)",
+=======
         "peekOfCode": "def unique_mail(request,idnomina,idcontrato):\n    context = genera_comprobante(idnomina, idcontrato)\n    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()\n    pisa_status = pisa.CreatePDF(html_string, dest=pdf)\n    pdf.seek(0)\n    if pisa_status.err:\n        return HttpResponse('Error al generar el PDF', status=400)\n    nombre_archivo = f'Certificado_{context[\"cc\"]}_{fecha_actual}.pdf'",
+>>>>>>> main
         "detail": "apps.companies.views.payrollsheet.payrollsheet",
         "documentation": {}
     },
@@ -6449,6 +6556,9 @@
         "kind": 2,
         "importPath": "apps.companies.views.settlementlist.settlementlist",
         "description": "apps.companies.views.settlementlist.settlementlist",
+<<<<<<< HEAD
+        "peekOfCode": "def settlementlist(request):\n    liquidaciones = Liquidacion.objects.all()\n    return render(request, 'companies/settlementlist.html',{\n        'liquidaciones':liquidaciones,\n    } )",
+=======
         "peekOfCode": "def settlementlist(request):\n    liquidaciones = Liquidacion.objects.all()\n    return render(request, 'companies/settlementlist.html',{\n        'liquidaciones':liquidaciones,\n    } )\ndef settlementlistdownload(request,idliqui):\n    context = settlementgenerator(idliqui)\n    html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()",
         "detail": "apps.companies.views.settlementlist.settlementlist",
         "documentation": {}
@@ -6459,6 +6569,7 @@
         "importPath": "apps.companies.views.settlementlist.settlementlist",
         "description": "apps.companies.views.settlementlist.settlementlist",
         "peekOfCode": "def settlementlistdownload(request,idliqui):\n    context = settlementgenerator(idliqui)\n    html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')\n    fecha_actual = datetime.now().strftime('%Y-%m-%d')\n    pdf = BytesIO()\n    pisa_status = pisa.CreatePDF(html_string, dest=pdf)\n    pdf.seek(0)\n    if pisa_status.err:\n        return HttpResponse('Error al generar el PDF', status=400)\n    nombre_archivo = f'Certificado_{context[\"cc\"]}_{fecha_actual}.pdf'",
+>>>>>>> main
         "detail": "apps.companies.views.settlementlist.settlementlist",
         "documentation": {}
     },
@@ -6832,6 +6943,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "generate_employee_excel",
         "kind": 2,
         "importPath": "apps.components.generate_employee_excel",
@@ -6841,6 +6954,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "format_value",
         "kind": 2,
         "importPath": "apps.components.humani",
@@ -6949,6 +7063,8 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+=======
         "label": "settlementgenerator",
         "kind": 2,
         "importPath": "apps.components.settlementgenerator",
@@ -6958,6 +7074,7 @@
         "documentation": {}
     },
     {
+>>>>>>> main
         "label": "calcular_dias_360",
         "kind": 2,
         "importPath": "apps.components.utils",
@@ -7007,7 +7124,11 @@
         "kind": 2,
         "importPath": "apps.components.workcertificategenerator",
         "description": "apps.components.workcertificategenerator",
+<<<<<<< HEAD
+        "peekOfCode": "def workcertificatedownload(idcert):\n    datac = datos_cliente()\n    certificado = Certificaciones.objects.get(idcert = idcert)\n    datae = datos_empleado(certificado.idcontrato)\n    context = {\n            ## empresa \n            'empresa':datac['nombre_empresa'],\n            'rrhh':datac['nombre_rrhh'],\n            'nit': datac['nit_empresa'],\n            'direccion':datac['direccion_empresa'],",
+=======
         "peekOfCode": "def workcertificatedownload(idcert):\n    datac = datos_cliente()\n    certificado = Certificaciones.objects.get(idcert = idcert)\n    datae = datos_empleado(certificado.idcontrato)\n    context = {\n            ## empresa \n            'empresa':datac['nombreempresa'],\n            'rrhh':datac['contactorrhh'],\n            'nit': datac['nit'],\n            'direccion':datac['direccionempresa'],",
+>>>>>>> main
         "detail": "apps.components.workcertificategenerator",
         "documentation": {}
     },
@@ -7066,6 +7187,18 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "apps.employees.migrations.0003_festivos_ingresosyretenciones",
+        "description": "apps.employees.migrations.0003_festivos_ingresosyretenciones",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('employees', '0002_centrotrabajo_ciudades_costos_empvacaciones_and_more'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Festivos',\n            fields=[\n                ('idfestivo', models.IntegerField(primary_key=True, serialize=False)),\n                ('dia', models.DateField(blank=True, null=True)),",
+        "detail": "apps.employees.migrations.0003_festivos_ingresosyretenciones",
+        "documentation": {}
+    },
+    {
+=======
+>>>>>>> main
         "label": "last_business_day_of_march",
         "kind": 2,
         "importPath": "apps.employees.views.viewdian.diangenerate",
@@ -7772,7 +7905,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.base",
         "description": "nomiweb.settings.base",
+<<<<<<< HEAD
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n# Cargar las variables de entorno desde el archivo .env\nload_dotenv(dotenv_path=os.path.join(os.path.dirname(BASE_DIR), '.env'))\nSETTINGS_ENV = 'base'\n# Application definition\nBASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',",
+=======
         "peekOfCode": "BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n# Cargar las variables de entorno desde el archivo .env\nload_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))\nSETTINGS_ENV = 'base'\n# Application definition\nBASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',",
+>>>>>>> main
         "detail": "nomiweb.settings.base",
         "documentation": {}
     },
@@ -8209,11 +8346,19 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+        "label": "#dotenv_path",
+        "kind": 5,
+        "importPath": "nomiweb.settings.development",
+        "description": "nomiweb.settings.development",
+        "peekOfCode": "#dotenv_path = os.path.join(os.path.dirname(__file__), '.env')\n#load_dotenv(dotenv_path)\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'En_dev_no_importa'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['*']\nSETTINGS_ENV = 'development'\nDATABASES = {\n    'default': {",
+=======
         "label": "dotenv_path",
         "kind": 5,
         "importPath": "nomiweb.settings.development",
         "description": "nomiweb.settings.development",
         "peekOfCode": "dotenv_path = os.path.join(os.path.dirname(__file__), '.env')\nload_dotenv(dotenv_path)\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'En_dev_no_importa'\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['*']\nSETTINGS_ENV = 'development'\nDATABASES = {\n    'default': {",
+>>>>>>> main
         "detail": "nomiweb.settings.development",
         "documentation": {}
     },
@@ -8303,7 +8448,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
+        "peekOfCode": "SECRET_KEY =  os.getenv('SECRET_KEY')\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),",
+=======
         "peekOfCode": "SECRET_KEY =  os.getenv('SECRET_KEY')\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8312,7 +8461,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
+        "peekOfCode": "DEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),",
+=======
         "peekOfCode": "DEBUG = False\nALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8321,7 +8474,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
+        "peekOfCode": "ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),\n        'PORT':  os.getenv('DB_PORT_PROD'),",
+=======
         "peekOfCode": "ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')\nprint(\"ALLOWED_HOSTS:\", os.getenv('ALLOWED_HOSTS'))\nSETTINGS_ENV = 'production'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'userlectaen',\n        'USER':  os.getenv('DB_USER_PROD'),\n        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),\n        'HOST':  os.getenv('DB_HOST_PROD'),",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8348,7 +8505,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
+        "peekOfCode": "CSRF_COOKIE_SECURE = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]",
+=======
         "peekOfCode": "CSRF_COOKIE_SECURE = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8357,7 +8518,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
+        "peekOfCode": "SESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3",
+=======
         "peekOfCode": "SESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8366,7 +8531,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
+        "peekOfCode": "CSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')",
+=======
         "peekOfCode": "CSRF_COOKIE_HTTPONLY = False\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8375,7 +8544,11 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
+<<<<<<< HEAD
+        "peekOfCode": "CSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',\n    'http://localhost:8081',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')",
+=======
         "peekOfCode": "CSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1',\n    'http://localhost',\n    'https://nomiweb.com.co',\n    'https://app.nomiweb.com.co',\n]\n# Configuración de S3\nAWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')\nAWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')",
+>>>>>>> main
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8506,6 +8679,450 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n# Cargar las variables de entorno desde el archivo .env\nload_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))\nSETTINGS_ENV = 'base'\n# Application definition\nBASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "SETTINGS_ENV",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "SETTINGS_ENV = 'base'\n# Application definition\nBASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_APPS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "BASE_APPS = [\n    # Django REST Framework\n    'rest_framework',\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'django.contrib.humanize',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "LOCAL_APPS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "LOCAL_APPS = [\n    # Generated applications\n    'apps.login', \n    'apps.employees',     # Employees application\n    'apps.companies',     # Companies application\n    'apps.administrator',\n    # 'apps.payroll',       # Payroll application\n    # 'apps.api_database',  # API database applicatio#n\n]\nTHIRD_APPS = [",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "THIRD_APPS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "THIRD_APPS = [\n    # Crispy Forms\n    'crispy_forms',\n    \"crispy_bootstrap5\",\n    # Importar excel\n    'import_export',\n    ## Debug toolbar\n    'debug_toolbar',\n]\nINSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "INSTALLED_APPS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS\nINTERNAL_IPS = [\n    '127.0.0.1',\n]\nCRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'\nCRISPY_TEMPLATE_PACK = 'bootstrap5'\nBASE_MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "INTERNAL_IPS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "INTERNAL_IPS = [\n    '127.0.0.1',\n]\nCRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'\nCRISPY_TEMPLATE_PACK = 'bootstrap5'\nBASE_MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "CRISPY_ALLOWED_TEMPLATE_PACKS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'\nCRISPY_TEMPLATE_PACK = 'bootstrap5'\nBASE_MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "CRISPY_TEMPLATE_PACK",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "CRISPY_TEMPLATE_PACK = 'bootstrap5'\nBASE_MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n    'apps.login.middlewares.DatabaseRouterMiddleware',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_MIDDLEWARE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "BASE_MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n    'apps.login.middlewares.DatabaseRouterMiddleware',\n    #'allauth.account.middleware.AccountMiddleware',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "LOCAL_MIDDLEWARE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "LOCAL_MIDDLEWARE = [\n]\nTHIRD_MIDDLEWARE = [\n]\nMIDDLEWARE = BASE_MIDDLEWARE + LOCAL_MIDDLEWARE + THIRD_MIDDLEWARE\nROOT_URLCONF = 'nomiweb.urls'\n=======\n# \"\"\"\n# Django settings for nomiweb project.\n# Generated by 'django-admin startproject' using Django 5.0.3.",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "THIRD_MIDDLEWARE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "THIRD_MIDDLEWARE = [\n]\nMIDDLEWARE = BASE_MIDDLEWARE + LOCAL_MIDDLEWARE + THIRD_MIDDLEWARE\nROOT_URLCONF = 'nomiweb.urls'\n=======\n# \"\"\"\n# Django settings for nomiweb project.\n# Generated by 'django-admin startproject' using Django 5.0.3.\n# For more information on this file, see\n# https://docs.djangoproject.com/en/5.0/topics/settings/",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "MIDDLEWARE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "MIDDLEWARE = BASE_MIDDLEWARE + LOCAL_MIDDLEWARE + THIRD_MIDDLEWARE\nROOT_URLCONF = 'nomiweb.urls'\n=======\n# \"\"\"\n# Django settings for nomiweb project.\n# Generated by 'django-admin startproject' using Django 5.0.3.\n# For more information on this file, see\n# https://docs.djangoproject.com/en/5.0/topics/settings/\n# For the full list of settings and their values, see\n# https://docs.djangoproject.com/en/5.0/ref/settings/",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "ROOT_URLCONF",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "ROOT_URLCONF = 'nomiweb.urls'\n=======\n# \"\"\"\n# Django settings for nomiweb project.\n# Generated by 'django-admin startproject' using Django 5.0.3.\n# For more information on this file, see\n# https://docs.djangoproject.com/en/5.0/topics/settings/\n# For the full list of settings and their values, see\n# https://docs.djangoproject.com/en/5.0/ref/settings/\n# \"\"\"",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "TEMPLATES",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "TEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [os.path.join(BASE_DIR, '..', 'templates')],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "WSGI_APPLICATION",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "WSGI_APPLICATION = 'nomiweb.wsgi.application'\n# Database\n# https://docs.djangoproject.com/en/5.0/ref/settings/#databases\nDATABASE_ROUTERS = [\n    'nomiweb.db_routers.routers.DatabaseRouter'\n]\nAUTHENTICATION_BACKENDS = [\n    'apps.components.custom_auth_backend.CustomAuthBackend',\n    'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica\n]",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "DATABASE_ROUTERS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "DATABASE_ROUTERS = [\n    'nomiweb.db_routers.routers.DatabaseRouter'\n]\nAUTHENTICATION_BACKENDS = [\n    'apps.components.custom_auth_backend.CustomAuthBackend',\n    'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica\n]\nSESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando\nSESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)\nSESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "AUTHENTICATION_BACKENDS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "AUTHENTICATION_BACKENDS = [\n    'apps.components.custom_auth_backend.CustomAuthBackend',\n    'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica\n]\nSESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando\nSESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)\nSESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud\nSESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador\n=======\n# TEMPLATES = [",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "SESSION_ENGINE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando\nSESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)\nSESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud\nSESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador\n=======\n# TEMPLATES = [\n#     {\n#         'BACKEND': 'django.template.backends.django.DjangoTemplates',\n#         'DIRS': [os.path.join(BASE_DIR, 'templates')],\n#         'APP_DIRS': True,",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "SESSION_COOKIE_AGE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)\nSESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud\nSESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador\n=======\n# TEMPLATES = [\n#     {\n#         'BACKEND': 'django.template.backends.django.DjangoTemplates',\n#         'DIRS': [os.path.join(BASE_DIR, 'templates')],\n#         'APP_DIRS': True,\n#         'OPTIONS': {",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "SESSION_SAVE_EVERY_REQUEST",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud\nSESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador\n=======\n# TEMPLATES = [\n#     {\n#         'BACKEND': 'django.template.backends.django.DjangoTemplates',\n#         'DIRS': [os.path.join(BASE_DIR, 'templates')],\n#         'APP_DIRS': True,\n#         'OPTIONS': {\n#             'context_processors': [",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "SESSION_EXPIRE_AT_BROWSER_CLOSE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador\n=======\n# TEMPLATES = [\n#     {\n#         'BACKEND': 'django.template.backends.django.DjangoTemplates',\n#         'DIRS': [os.path.join(BASE_DIR, 'templates')],\n#         'APP_DIRS': True,\n#         'OPTIONS': {\n#             'context_processors': [\n#                 'django.template.context_processors.debug',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "AUTH_PASSWORD_VALIDATORS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',\n    },",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_BACKEND",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'\nEMAIL_HOST = os.environ.get('EMAIL_HOST')\nEMAIL_PORT = os.environ.get('EMAIL_PORT')\nEMAIL_USE_TLS = False\nEMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')\nEMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')\nEMAIL_USE_SSL = True\nEMAIL_TIMEOUT = None\nEMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_HOST",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_HOST = os.environ.get('EMAIL_HOST')\nEMAIL_PORT = os.environ.get('EMAIL_PORT')\nEMAIL_USE_TLS = False\nEMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')\nEMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')\nEMAIL_USE_SSL = True\nEMAIL_TIMEOUT = None\nEMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_PORT",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_PORT = os.environ.get('EMAIL_PORT')\nEMAIL_USE_TLS = False\nEMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')\nEMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')\nEMAIL_USE_SSL = True\nEMAIL_TIMEOUT = None\nEMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_USE_TLS",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_USE_TLS = False\nEMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')\nEMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')\nEMAIL_USE_SSL = True\nEMAIL_TIMEOUT = None\nEMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_HOST_USER",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')\nEMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')\nEMAIL_USE_SSL = True\nEMAIL_TIMEOUT = None\nEMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_HOST_PASSWORD",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')\nEMAIL_USE_SSL = True\nEMAIL_TIMEOUT = None\nEMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_USE_SSL",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_USE_SSL = True\nEMAIL_TIMEOUT = None\nEMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_TIMEOUT",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_TIMEOUT = None\nEMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None\nEMAIL_FROM = None",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_SSL_KEYFILE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_SSL_KEYFILE = None\nEMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None\nEMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_SSL_CERTFILE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_SSL_CERTFILE = None\nEMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None\nEMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_SSL_CAFILE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_SSL_CAFILE = None\nEMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None\nEMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization\n# https://docs.djangoproject.com/en/5.0/topics/i18n/",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_SSL_CERT_SUBJ",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_SSL_CERT_SUBJ = None\nEMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None\nEMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization\n# https://docs.djangoproject.com/en/5.0/topics/i18n/\nLANGUAGE_CODE = 'es-co'",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_SSL_CERT_PASSWD",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_SSL_CERT_PASSWD = None\nEMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None\nEMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization\n# https://docs.djangoproject.com/en/5.0/topics/i18n/\nLANGUAGE_CODE = 'es-co'\nTIME_ZONE = 'America/Bogota'",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_SSL_CIPHER",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_SSL_CIPHER = None\nEMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None\nEMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization\n# https://docs.djangoproject.com/en/5.0/topics/i18n/\nLANGUAGE_CODE = 'es-co'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_USE_LOCALTIME",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_USE_LOCALTIME = False\nEMAIL_FILE_PATH = None\nEMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization\n# https://docs.djangoproject.com/en/5.0/topics/i18n/\nLANGUAGE_CODE = 'es-co'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_L10N = True",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_FILE_PATH",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_FILE_PATH = None\nEMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization\n# https://docs.djangoproject.com/en/5.0/topics/i18n/\nLANGUAGE_CODE = 'es-co'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_FROM",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_FROM = None\nEMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization\n# https://docs.djangoproject.com/en/5.0/topics/i18n/\nLANGUAGE_CODE = 'es-co'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Default primary key field type",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_SUBJECT_PREFIX",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "EMAIL_SUBJECT_PREFIX = '[Django] '\n# Internationalization\n# https://docs.djangoproject.com/en/5.0/topics/i18n/\nLANGUAGE_CODE = 'es-co'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "LANGUAGE_CODE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "LANGUAGE_CODE = 'es-co'\nTIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\nLOGIN_REDIRECT_URL = '/'",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "TIME_ZONE",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "TIME_ZONE = 'America/Bogota'\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\nLOGIN_REDIRECT_URL = '/'\n#AUTH_USER_MODEL = 'login.CustomUser'",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "USE_I18N",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "USE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\nLOGIN_REDIRECT_URL = '/'\n#AUTH_USER_MODEL = 'login.CustomUser'\n=======\n# # Password validation",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "USE_L10N",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "USE_L10N = True\nUSE_TZ = True\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\nLOGIN_REDIRECT_URL = '/'\n#AUTH_USER_MODEL = 'login.CustomUser'\n=======\n# # Password validation\n# # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "USE_TZ",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "USE_TZ = True\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\nLOGIN_REDIRECT_URL = '/'\n#AUTH_USER_MODEL = 'login.CustomUser'\n=======\n# # Password validation\n# # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators\n# AUTH_PASSWORD_VALIDATORS = [",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "DEFAULT_AUTO_FIELD",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\nLOGIN_REDIRECT_URL = '/'\n#AUTH_USER_MODEL = 'login.CustomUser'\n=======\n# # Password validation\n# # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators\n# AUTH_PASSWORD_VALIDATORS = [\n#     {\n#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n#     },",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "LOGIN_REDIRECT_URL",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "LOGIN_REDIRECT_URL = '/'\n#AUTH_USER_MODEL = 'login.CustomUser'\n=======\n# # Password validation\n# # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators\n# AUTH_PASSWORD_VALIDATORS = [\n#     {\n#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n#     },\n#     {",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+        "label": "#AUTH_USER_MODEL",
+        "kind": 5,
+        "importPath": "nomiweb.settings_old",
+        "description": "nomiweb.settings_old",
+        "peekOfCode": "#AUTH_USER_MODEL = 'login.CustomUser'\n=======\n# # Password validation\n# # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators\n# AUTH_PASSWORD_VALIDATORS = [\n#     {\n#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n#     },\n#     {\n#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',",
+        "detail": "nomiweb.settings_old",
+        "documentation": {}
+    },
+    {
+=======
+>>>>>>> main
         "label": "urlpatterns",
         "kind": 5,
         "importPath": "nomiweb.urls",
@@ -8551,6 +9168,18 @@
         "documentation": {}
     },
     {
+<<<<<<< HEAD
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "nomiweb.wsgi",
+        "description": "nomiweb.wsgi",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\nload_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))\nos.environ.setdefault('DJANGO_SETTINGS_MODULE', 'nomiweb.settings.production')\napplication = get_wsgi_application()",
+        "detail": "nomiweb.wsgi",
+        "documentation": {}
+    },
+    {
+=======
+>>>>>>> main
         "label": "application",
         "kind": 5,
         "importPath": "nomiweb.wsgi",
