@@ -31,6 +31,9 @@ def newEmployee(request):
             nombre_db = singleton.get_nombre_db()
             empresa = Empresa.objects.using('default').get(db_name=nombre_db)
             
+            passwordoriginal = generate_random_password()
+            password = make_password(passwordoriginal)
+            
             
             try:
                 height = form.cleaned_data['height']
@@ -118,8 +121,8 @@ def newEmployee(request):
             
             email_type = 'loginweb'
             context = {
-                'nombre_usuario': usertempo.pnombre,
-                'usuario': usertempo.email,
+                'nombre_usuario': contratosemp_instance.pnombre,
+                'usuario': contratosemp_instance.email,
                 'contrasena': passwordoriginal,
             }
             subject = 'Activacion de Usuario'

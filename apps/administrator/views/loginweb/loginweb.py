@@ -60,7 +60,7 @@ def loginweb_admin(request,empresa='default'):
 
                 passwordoriginal = generate_random_password()
                 password = make_password(passwordoriginal)
-
+                
                 if usuario:
                     usuario.user.password = password
                     usuario.user.save()
