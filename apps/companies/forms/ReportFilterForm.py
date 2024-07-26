@@ -5,12 +5,12 @@ from apps.companies.models import Costos, Sedes, Contratosemp
 
 class ReportFilterForm(forms.Form):
     start_date = forms.DateField(
-        required=False,
+        required=True,
         label='Fecha Inicial',
         widget=forms.DateInput(attrs={'type': 'date'})
     )
     end_date = forms.DateField(
-        required=False,
+        required=True,
         label='Fecha Final',
         widget=forms.DateInput(attrs={'type': 'date'})
     )
