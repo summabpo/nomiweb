@@ -22,10 +22,22 @@ Edicion de Hoja de vida Empleado  - {{DicContract.nombre}}
 {% endblock %}
 
 {% block content %}
+<button class="btn btn-light-primary" id="backButton">
+    Regresar
+</button>
     {% crispy form %}
 {% endblock %}
 
-{% block js %} {% endblock %}
+{% block js %} 
+
+<script>
+    document.getElementById('backButton').addEventListener('click', function() {
+        window.history.back();
+    });
+</script>
+
+
+{% endblock %}
 
 
 

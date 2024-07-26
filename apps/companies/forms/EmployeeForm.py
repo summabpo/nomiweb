@@ -7,7 +7,17 @@ from crispy_forms.layout import Layout, Div, Submit,HTML
 
 
 class EmployeeForm(forms.Form):
+    height = forms.CharField(
+        required=False,
+        initial='0.0',
+        label='Estatura (Mts)'
+    )
     
+    weight = forms.CharField(
+        required=False,
+        initial='0.0',
+        label='Peso (Kg)'
+    )
     
     def clean(self):
         cleaned_data = super().clean()
@@ -42,10 +52,14 @@ class EmployeeForm(forms.Form):
         else:
             cleaned_data['second_last_name'] = second_last_name.upper()
 
+        
+        # Validación para height y weight si tienen contenido
         if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
             self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
         if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
             self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
+
+
 
         if identification_number and not re.match(r'^\d+$', str(identification_number)):
             self.add_error('identification_number', "Este campo debe contener solo números.")
@@ -102,12 +116,13 @@ class EmployeeForm(forms.Form):
             choices=[('', '----------'), ('masculino', 'Masculino'), ('femenino', 'Femenino')],
             label='Sexo'
         )
-        self.fields['height'] = forms.CharField(label='Estatura (Mts)', required=False)
+        
+        
         self.fields['marital_status'] = forms.ChoiceField(
             choices=[('', '----------'), ('soltero', 'Soltero'), ('casado', 'Casado'), ('viudo', 'Viudo'), ('divorciado', 'Divorciado'), ('unionlibre', 'Unión Libre')],
             label='Estado Civil'
         )
-        self.fields['weight'] = forms.CharField(label='Peso (Kg)', required=False)
+        
         self.fields['birthdate'] = forms.DateField(
             label='Fecha de Nacimiento',
             widget=forms.DateInput(attrs={'type': 'date'})
