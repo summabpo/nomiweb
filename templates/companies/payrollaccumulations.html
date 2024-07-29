@@ -154,6 +154,7 @@
                                 document.body.appendChild(a);
                                 a.click();
                                 window.URL.revokeObjectURL(url);
+                                document.body.removeChild(a);
                             },
                             error: function(xhr, status, error) {
                                 $('#loadingModal').modal('hide');

@@ -91,4 +91,4 @@ def generate_employee_excel(diccionario_empleados):
     wb.save(output)
     output.seek(0)
     
-    return output
+    return output.read()
