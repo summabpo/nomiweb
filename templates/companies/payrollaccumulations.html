@@ -67,6 +67,21 @@
     </div>
 </div>
 
+
+
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+                <p>Cargando...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block js %}
@@ -90,32 +105,68 @@
     $(document).ready(function() {
         $('#tabla-liquidacion').DataTable({
             language: {
-                "decimal":        "",
-                "emptyTable":     "No se encontraron registros coincidentes",
-                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
-                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix":    "",
-                "thousands":      ",",
-                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
                 "loadingRecords": "Cargando...",
-                "processing":     "Procesando...",
-                "search":         "Buscar:",
-                "zeroRecords":    "No se encontraron registros coincidentes",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
                 "paginate": {
-                    "first":      "Primero",
-                    "last":       "Último",
-                    "next":       "Siguiente",
-                    "previous":   "Anterior"
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
                 },
                 "aria": {
-                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortAscending": ": activar para ordenar la columna ascendente",
                     "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            dom: 'frtip',
-            order: [[5, 'des']], 
-            "pageLength": 10,                
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    text: 'Descargar Acomulados',
+                    action: function (e, dt, node, config) {
+                        $('#loadingModal').modal('show');
+                        $.ajax({
+                            url: '{% url "companies:descargar_excel_empleados" %}', // Reemplaza "handle_post_request" con el nombre de tu URL
+                            type: 'POST',
+                            data: {
+                                'csrfmiddlewaretoken': '{{ csrf_token }}', // Incluye el token CSRF
+                                'start_date': $('#id_start_date').val(),
+                                'end_date': $('#id_end_date').val(),
+                                'employee': $('#id_employee').val(),
+                                'cost_center': $('#id_cost_center').val(),
+                                'city': $('#id_city').val()
+                            },
+                            success: function(response) {
+                                $('#loadingModal').modal('hide');
+                                // Crear un enlace temporal para la descarga del archivo
+                                const url = window.URL.createObjectURL(new Blob([response]));
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'empleado_info.xlsx';
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                            },
+                            error: function(xhr, status, error) {
+                                $('#loadingModal').modal('hide');
+                                alert('Error al realizar el Documento');
+                            }
+                        });
+                    },
+                    className: 'btn btn-light-info'
+                }
+
+            ],
+            order: [[5, 'desc']],
+            "pageLength": 10
         });
     });
 </script>
