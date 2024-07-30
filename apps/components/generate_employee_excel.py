@@ -5,6 +5,7 @@ from io import BytesIO
 
 
 def generate_employee_excel(diccionario_empleados):
+    print(diccionario_empleados)
     # Crear un archivo en memoria
     output = BytesIO()
     
@@ -90,5 +91,6 @@ def generate_employee_excel(diccionario_empleados):
     # Guardar el archivo en memoria
     wb.save(output)
     output.seek(0)
+    print('finalizado')
     
     return output.read()
