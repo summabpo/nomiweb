@@ -6,6 +6,43 @@
 {% endblock %}
 
 {% block css %}
+/* Estilo para el botón con indicador */
+.btn-light-info {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Estilo para el indicador de carga */
+[data-kt-indicator="on"] .indicator-label {
+    opacity: 0;
+}
+
+[data-kt-indicator="on"] .indicator-progress {
+    display: flex;
+}
+
+.indicator-label {
+    display: inline-block;
+    transition: opacity 0.3s ease;
+}
+
+.indicator-progress {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.2em;
+}
+
 {% endblock %}
 
 {% block sub_titulo1 %} 
@@ -67,14 +104,34 @@
     </div>
 </div>
 
+
+
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+                <p>Cargando...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block js %}
 
 
 <script>
+    // codigo de post de formualrio para generar filtro de excel 
+</script>
+
+
+<script>
     $(document).ready(function() {
-        $('#Filto_acomulados').on('submit', function() {
+        $('#Filter_report').on('submit', function() {
             $('#loadingModal').modal('show');
         });
     });
@@ -83,34 +140,95 @@
 
 <script>
     $(document).ready(function() {
-        $('#tabla-liquidacion').DataTable({
+        // Inicializar DataTable
+        var table = $('#tabla-liquidacion').DataTable({
             language: {
-                "decimal":        "",
-                "emptyTable":     "No se encontraron registros coincidentes",
-                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
-                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix":    "",
-                "thousands":      ",",
-                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
                 "loadingRecords": "Cargando...",
-                "processing":     "Procesando...",
-                "search":         "Buscar:",
-                "zeroRecords":    "No se encontraron registros coincidentes",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
                 "paginate": {
-                    "first":      "Primero",
-                    "last":       "Último",
-                    "next":       "Siguiente",
-                    "previous":   "Anterior"
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
                 },
                 "aria": {
-                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortAscending": ": activar para ordenar la columna ascendente",
                     "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            dom: 'frtip',
-            order: [[5, 'des']], 
-            "pageLength": 10,                
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    text: 'Descargar Acumulados',
+                    action: function (e, dt, node, config) {
+                        // Activar indicador
+                        $(node).attr("data-kt-indicator", "on");
+
+                        $.ajax({
+                            url: '{% url "companies:descargar_excel_empleados" %}', // Reemplaza "handle_post_request" con el nombre de tu URL
+                            type: 'POST',
+                            data: {
+                                'csrfmiddlewaretoken': '{{ csrf_token }}', // Incluye el token CSRF
+                                'start_date': $('#id_start_date').val(),
+                                'end_date': $('#id_end_date').val(),
+                                'employee': $('#id_employee').val(),
+                                'cost_center': $('#id_cost_center').val(),
+                                'city': $('#id_city').val()
+                            },
+                            xhrFields: {
+                                responseType: 'blob'
+                            },
+                            success: function(response) {
+                                var url = window.URL.createObjectURL(new Blob([response]));
+                                var a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'filtered_data.xlsx';
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                
+                                // Desactivar indicador
+                                $(node).removeAttr("data-kt-indicator");
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error:', error);
+                                alert('Error al realizar el Documento');
+                                
+                                // Desactivar indicador
+                                $(node).removeAttr("data-kt-indicator");
+                            }
+                        });
+                    },
+                    className: 'btn btn-light-info',
+                    attr: {
+                        id: 'kt_button_1'
+                    }
+                }
+            ],
+            order: [[5, 'desc']],
+            pageLength: 10
+        });
+
+        // Manejar clic en el botón para activar el indicador
+        $(document).on('click', '#kt_button_1', function() {
+            var button = $(this);
+
+            // Activar indicador
+            button.attr("data-kt-indicator", "on");
+
+            // Desactivar indicador después de 3 segundos o cuando la solicitud se completa
+            setTimeout(function() {
+                button.removeAttr("data-kt-indicator");
+            }, 3000);
         });
     });
 </script>
