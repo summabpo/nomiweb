@@ -4,8 +4,9 @@ from openpyxl.styles import PatternFill, Alignment
 from io import BytesIO
 
 
+output_path = './static/docs/excel_temporal.xlsx'
+
 def generate_employee_excel(diccionario_empleados):
-    print(diccionario_empleados)
     # Crear un archivo en memoria
     output = BytesIO()
     
@@ -33,14 +34,14 @@ def generate_employee_excel(diccionario_empleados):
     ws["G2"] = "Año"
     ws["H2"] = "2023"
     
-    # Estilos para la fila de Mes Inicial y Año
+    #Estilos para la fila de Mes Inicial y Año
     for cell in ["A2", "E2", "C2", "G2"]:
         ws[cell].fill = azul_fill
     for cell in ["B2", "F2", "D2", "H2"]:
         ws[cell].fill = amarillo_fill
         ws[cell].alignment = centro_alignment
     
-    # Datos de empleados
+    #Datos de empleados
     row_start = 7
     for empleado, info in diccionario_empleados.items():
         # Escribir el nombre del empleado
@@ -74,7 +75,7 @@ def generate_employee_excel(diccionario_empleados):
             ws[f"E{row_start}"] = concepto["valor"]
             
         row_start += 1
-        # Dejar una fila en blanco después de cada empleado
+        #Dejar una fila en blanco después de cada empleado
         ws[f"B{row_start}"] = 'Total'
         ws[f"C{row_start}"] = info["total"]
         
@@ -82,15 +83,14 @@ def generate_employee_excel(diccionario_empleados):
         row_start += 2
     
     # Ajustar el ancho de las columnas
-    ws.column_dimensions['A'].width = 30
-    ws.column_dimensions['B'].width = 15
-    ws.column_dimensions['C'].width = 25
-    ws.column_dimensions['D'].width = 15
-    ws.column_dimensions['E'].width = 15
+    for col in ['A', 'B', 'C', 'D', 'E']:
+        ws.column_dimensions[col].width = 20
+    
+    wb.save(output_path)
     
     # Guardar el archivo en memoria
     wb.save(output)
     output.seek(0)
-    print('finalizado')
     
-    return output.read()
+    
+    return output.getvalue()

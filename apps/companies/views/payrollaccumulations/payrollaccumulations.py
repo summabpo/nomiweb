@@ -55,7 +55,7 @@ def payrollaccumulations(request):
             # Procesar los datos acumulados
             compects = list(acumulados.values())
             for compect in compects:
-                compect['total'] = compect['basico'] - compect['aportess'] - compect['prestamos']
+                compect['total'] = compect['basico'] + compect['aportess'] + compect['prestamos']
                 for key in ['basico', 'aportess', 'prestamos', 'total']:
                     compect[key] = format_value(compect[key])
             
@@ -81,7 +81,6 @@ def payrollaccumulations(request):
 def descargar_excel_empleados(request):
     if request.method == 'POST':
         acumulados = {}
-        print('entre')
         # Obtener parámetros del POST
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
@@ -104,8 +103,6 @@ def descargar_excel_empleados(request):
             filtros['idnomina__fechafinal__lte'] = end_date
         
         nominas = Nomina.objects.filter(**filtros)
-            
-        
         
         for data in nominas:
                 docidentidad = data.idempleado.docidentidad
@@ -129,16 +126,14 @@ def descargar_excel_empleados(request):
                     
                     acumulados[docidentidad]["data"].append(nuevo_concepto)
                 acumulados[docidentidad]['total'] += data.valor
-          
-          
-        print(acumulados)      
         # Generar el archivo Excel
         output = generate_employee_excel(acumulados)
         
         # Crear una respuesta HTTP con el archivo Excel
-        response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="empleado_info.xlsx"'
-        print(response)
         return response
     
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
+    return JsonResponse({'error': 'Falla en la creacion de Documento'}, status=405)
