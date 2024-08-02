@@ -127,7 +127,7 @@ def descargar_excel_empleados(request):
                     acumulados[docidentidad]["data"].append(nuevo_concepto)
                 acumulados[docidentidad]['total'] += data.valor
         # Generar el archivo Excel
-        output = generate_employee_excel(acumulados)
+        output = generate_employee_excel(acumulados,month1,year1,month2,year2)
         
         # Crear una respuesta HTTP con el archivo Excel
         response = HttpResponse(

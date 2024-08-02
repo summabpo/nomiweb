@@ -6,7 +6,7 @@ from io import BytesIO
 
 output_path = './static/docs/excel_temporal.xlsx'
 
-def generate_employee_excel(diccionario_empleados):
+def generate_employee_excel(diccionario_empleados,month1,year1,month2,year2):
     # Crear un archivo en memoria
     output = BytesIO()
     
