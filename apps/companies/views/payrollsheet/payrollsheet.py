@@ -7,7 +7,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from apps.components.payrollgenerate import generate_summary
 from apps.components.payrollgenerate import genera_comprobante 
-
+from django.template.loader import render_to_string
 from apps.components.mail import send_template_email2 ,send_template_email3
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -32,7 +32,7 @@ def payrollsheet(request):
 
     selected_nomina = request.GET.get('nomina')
     if selected_nomina:
-        compectos = Nomina.objects.filter(idnomina=selected_nomina)[:50]
+        compectos = Nomina.objects.filter(idnomina=selected_nomina)
         
         # Consulta 1: Total neto
         # neto = Nomina.objects.filter(idnomina=id_nomina).aggregate(Sum('valor'))['valor__sum'] or 0
@@ -125,8 +125,42 @@ def generatepayrollsummary(request,idnomina):
     return response
 
 
+def generatepayrollsummary2(request,idnomina):
+    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).values_list('idcontrato', flat=True).distinct()
+    idcontratoslist = list(idcontratos_unicos)
+    
+    
+    context1 = generate_summary(idnomina)
+    # Modificar para que obtenga datos diferentes
+    combined_html_string = ''
+    
+    
+    for idcontrato in idcontratoslist:
+        context = genera_comprobante(idnomina,idcontrato)
+        html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+        
+        combined_html_string += f"{html_string}<div class='page-break'></div>"
+    # Combinar ambos HTMLs con un salto de página entre ellos
+    
+    # Generar el PDF
+    pdf = BytesIO()
+    pisa_status = pisa.CreatePDF(combined_html_string, dest=pdf)
+    pdf.seek(0)
 
-def generatepayrollcertificate(request ,idnomina,idcontrato,):
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=400)
+    
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+    nombre_archivo = f'Certificado_{idnomina}_{fecha_actual}.pdf'
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
+    
+    return response
+
+
+
+def generatepayrollcertificate(request ,idnomina,idcontrato):
     context = genera_comprobante(idnomina,idcontrato)
 
     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')

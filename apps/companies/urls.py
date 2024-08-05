@@ -77,6 +77,7 @@ urlpatterns = [
 
     
     path('payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
+    path('payroll/summary/download/<int:idnomina>/all/', payrollsheet.generatepayrollsummary2, name='generatepayrollsummary2'),
     path('payroll/bank/list', bank_list.bank_list, name='bank_list'),
     path('payroll/bank/list/get', bank_list.bank_list_get, name='bank_list_get'),
     path('payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
