@@ -20,22 +20,25 @@ def abstractconcept(request):
             # Construir los filtros dinámicamente
             filters = {
                 'nombreconcepto': sconcept,
-                'idnomina__idnomina': payroll,
+                'idnomina__idnomina': int(payroll),
                 'idempleado__idempleado': employee,
                 'mesacumular': month,
                 'anoacumular': year,
             }
-
+            print(filters)
+            
             # Eliminar filtros con valores vacíos
             filters = {k: v for k, v in filters.items() if v}
-
+            
+            
+            
             # Filtrar los datos
-            nominas = Nomina.objects.filter(idcontrato__estadocontrato=2, **filters).order_by('-idnomina')
+            nominas = Nomina.objects.filter(**filters).order_by('-idnomina')
             nomina = nominas if nominas.exists() else None
             
             
             return render(request, 'companies/abstractconcept.html', {
-                'liquidaciones': nomina,
+                'liquidaciones': nominas,
                 'form': form,
             })
             

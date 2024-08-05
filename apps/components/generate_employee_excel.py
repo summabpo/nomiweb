@@ -26,13 +26,13 @@ def generate_employee_excel(diccionario_empleados,month1,year1,month2,year2):
     
     # Fila de Mes Inicial y Año
     ws["A2"] = "Mes Inicial"
-    ws["B2"] = "JULIO"
+    ws["B2"] = month1
     ws["C2"] = "Año"
-    ws["D2"] = "2022"
+    ws["D2"] = year1
     ws["E2"] = "Mes Final"
-    ws["F2"] = "JUNIO"
+    ws["F2"] = month2
     ws["G2"] = "Año"
-    ws["H2"] = "2023"
+    ws["H2"] = year2
     
     #Estilos para la fila de Mes Inicial y Año
     for cell in ["A2", "E2", "C2", "G2"]:

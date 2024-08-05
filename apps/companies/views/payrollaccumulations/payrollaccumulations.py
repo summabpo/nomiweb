@@ -6,6 +6,8 @@ from django.http import HttpResponse
 from apps.components.generate_employee_excel import generate_employee_excel
 from apps.components.humani import format_value
 from django.http import JsonResponse
+from .parse_dates import parse_dates
+
 
 
 def payrollaccumulations(request):
@@ -21,7 +23,7 @@ def payrollaccumulations(request):
             city = form.cleaned_data['city']
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
-            
+    
             # Aplicar filtros a la consulta de Nomina
             nominas = Nomina.objects.all()
             if employee:
@@ -42,22 +44,30 @@ def payrollaccumulations(request):
                     acumulados[docidentidad] = {
                         'documento': docidentidad,
                         'empleado': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
+                        'total':0,
                         'contrato': data.idcontrato.idcontrato,
-                        'basico': 0,
-                        'aportess': 0,
-                        'prestamos': 0,
-                        'total': 0,
+                        'data':[
+                            {"idconcepto": data.idconcepto.idconcepto,
+                            "nombreconcepto": data.nombreconcepto, 
+                            "cantidad": data.cantidad, 
+                            "valor": data.valor},
+                        ]
                     }
-                acumulados[docidentidad]['basico'] += data.valor if data.idconcepto.sueldobasico == 1 else 0
-                acumulados[docidentidad]['aportess'] += data.valor if data.idconcepto.aportess == 1 else 0
-                acumulados[docidentidad]['prestamos'] += data.valor if data.idconcepto.idconcepto == 50 else 0
+                else:
+                    nuevo_concepto = {"idconcepto": data.idconcepto.idconcepto, 
+                                    "nombreconcepto": data.nombreconcepto,
+                                    "cantidad": data.cantidad,  
+                                    "valor": data.valor }
+                    
+                    acumulados[docidentidad]["data"].append(nuevo_concepto)
+                acumulados[docidentidad]['total'] += data.valor
             
             # Procesar los datos acumulados
             compects = list(acumulados.values())
-            for compect in compects:
-                compect['total'] = compect['basico'] + compect['aportess'] + compect['prestamos']
-                for key in ['basico', 'aportess', 'prestamos', 'total']:
-                    compect[key] = format_value(compect[key])
+            # for compect in compects:
+            #     compect['total'] = compect['basico'] + compect['aportess'] + compect['prestamos']
+            #     for key in ['basico', 'aportess', 'prestamos', 'total']:
+            #         compect[key] = format_value(compect[key])
             
             return render(request, 'companies/payrollaccumulations.html', {
                 'compects': compects,
@@ -71,6 +81,7 @@ def payrollaccumulations(request):
     
     # Inicializar el formulario vacío
     form = ReportFilterForm()
+
     
     return render(request, 'companies/payrollaccumulations.html', {
         'compects': compects,
@@ -126,8 +137,11 @@ def descargar_excel_empleados(request):
                     
                     acumulados[docidentidad]["data"].append(nuevo_concepto)
                 acumulados[docidentidad]['total'] += data.valor
+        
+        # Convertir las fechas y extraer el año y el mes
+        start_year, start_month, end_year, end_month = parse_dates(start_date, end_date)
         # Generar el archivo Excel
-        output = generate_employee_excel(acumulados,month1,year1,month2,year2)
+        output = generate_employee_excel(acumulados,start_month,start_year,end_month,end_year)
         
         # Crear una respuesta HTTP con el archivo Excel
         response = HttpResponse(
