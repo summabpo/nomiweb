@@ -34,9 +34,6 @@ MONTH_CHOICES = [
 
 
 
-
-
-
 YEAR_CHOICES = [
     ('', '---------------'),
     ('2023', '2023'),
@@ -85,11 +82,11 @@ class AbstractConceptForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Actualizar choices dinámicamente
-        self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.values_list('nombreconcepto', flat=True).distinct()]
+        self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.values_list('nombreconcepto', flat=True).distinct().order_by('-nombreconcepto')]
         self.fields['payroll'].choices = [('', '----------')] + [(idnomina, nombrenomina) for nombrenomina, idnomina in Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')]
         self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido')]
-        self.fields['month'].choices = [('', '----------')] + [(mes, mes) for mes in range(1, 13)]
-        self.fields['year'].choices = [('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('anoacumular', flat=True).distinct()]
+        #self.fields['month'].choices = [('', '----------')] + [(mes, mes) for mes in range(1, 13)]
+        self.fields['year'].choices = [('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('anoacumular', flat=True).distinct().order_by('-anoacumular')]
         
         
         # self.fields['cost_center'] = forms.ChoiceField(choices=[('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.all()], label='Centro de Costos', required=False,)

@@ -72,39 +72,61 @@
     <br>
     <div class="separator  border-0 my-10"></div>
     
-    <div  class="table-responsive">
-        <table id='tabla-liquidacion' class="table table-striped table-bordered">
+    <div class="table-responsive">
+        <table id="tabla-liquidacion" class="table table-striped table-bordered">
             <thead>
                 <tr>
-                <th>Idcontrato</th>
-                <th>Docidentidad</th>
-                <th>Empleado</th>
-                <th>Basico</th>
-                <th>Aportes</th>
-                <th>Prestamos</th>
-                <th>Total</th>
+                    <th>Docidentidad</th>
+                    <th>Empleado</th>
+                    <th>Contrato</th>
+                    <th>Total</th>
+                    <th>Conceptos</th>
                 </tr>
             </thead>
             <tbody>
                 {% for compect in compects %}
                     <tr>
-                        <td>{{ compect.contrato  }}</td>
                         <td>{{ compect.documento }}</td>
-                        <td>{{ compect.empleado  }}</td>
-                        <td>{{ compect.basico    }}</td>
-                        <td>{{ compect.aportess  }}</td>
-                        <td>{{ compect.prestamos }}</td>
-                        <td>{{ compect.total     }}</td>
+                        <td>{{ compect.empleado }}</td>
+                        <td>{{ compect.contrato }}</td>
+                        <td>{{ compect.total }}</td>
+                        <td>
+                            <!-- Mostrar conceptos en una lista -->
+                            <table class="table table-sm inner-table">
+                                <thead>
+                                    <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200" >
+                                        <th>Concepto</th>
+                                        <th>Nombre</th>
+                                        <th>Cantidad</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for concepto in compect.data %}
+                                        <tr>
+                                            <td>{{ concepto.idconcepto }}</td>
+                                            <td>{{ concepto.nombreconcepto }}</td>
+                                            <td>{{ concepto.cantidad }}</td>
+                                            <td>{{ concepto.valor }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="4">No hay conceptos para mostrar</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </td>
                     </tr>
-                    {% endfor %}
-                </tbody>
-                
-
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No se encontraron resultados</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
-
-
 
 <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -123,12 +145,6 @@
 
 {% block js %}
 
-
-<script>
-    // codigo de post de formualrio para generar filtro de excel 
-</script>
-
-
 <script>
     $(document).ready(function() {
         $('#Filter_report').on('submit', function() {
@@ -136,7 +152,6 @@
         });
     });
 </script>
-
 
 <script>
     $(document).ready(function() {
@@ -214,7 +229,13 @@
                     }
                 }
             ],
-            order: [[5, 'desc']],
+            columnDefs: [
+                {
+                    targets: 4, // Índice de la columna de conceptos
+                    orderable: false // Desactivar la ordenación en esta columna
+                }
+            ],
+            order: [[0, 'asc']], // Cambia el índice de la columna por defecto para ordenar
             pageLength: 10
         });
 
@@ -232,7 +253,5 @@
         });
     });
 </script>
-
-
 
 {% endblock %}

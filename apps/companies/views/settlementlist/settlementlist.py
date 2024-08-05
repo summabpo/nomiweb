@@ -5,11 +5,20 @@ from xhtml2pdf import pisa
 from django.http import HttpResponse, HttpResponseRedirect
 from datetime import datetime
 from apps.components.settlementgenerator import settlementgenerator
-
+from apps.components.humani import format_value
 
 
 def settlementlist(request):
-    liquidaciones = Liquidacion.objects.all()
+    liquidaciones = Liquidacion.objects.all().order_by('-idliquidacion')
+    
+    
+    for compect in liquidaciones:
+        # Accede a los atributos del modelo usando la notación de punto
+        compect.cesantias = format_value(compect.cesantias)
+        compect.intereses = format_value(compect.intereses)
+        compect.prima = format_value(compect.prima)
+        compect.vacaciones = format_value(compect.vacaciones)
+        compect.totalliq = format_value(compect.totalliq)
     
     return render(request, 'companies/settlementlist.html',{
         'liquidaciones':liquidaciones,
