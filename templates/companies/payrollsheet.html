@@ -311,6 +311,12 @@
             var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=0 %}"; // O el valor por defecto que desees
         {% endif %}
 
+        {% if selected_nomina %}
+            var exportUrl2 = "{% url 'companies:generatepayrollsummary2' idnomina=selected_nomina %}";
+        {% else %}
+            var exportUrl2 = "{% url 'companies:generatepayrollsummary2' idnomina=0 %}"; // O el valor por defecto que desees
+        {% endif %}
+
         var table = $('#tabla-planilla-nomina').DataTable({
             language: {
                 "decimal":        "",
@@ -349,6 +355,13 @@
                     text: ' Resumen de Nomina ',
                     action: function ( e, dt, node, config ) {
                         window.open(exportUrl, '_blank');
+                    },
+                    className: 'btn btn-light-info'
+                },
+                {
+                    text: ' Nominas ',
+                    action: function ( e, dt, node, config ) {
+                        window.open(exportUrl2, '_blank');
                     },
                     className: 'btn btn-light-info'
                 },
