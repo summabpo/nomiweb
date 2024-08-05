@@ -229,6 +229,36 @@
     </div>
 </div>
 
+<!-- Modal de archivo plano de nomina -->
+<div class="modal fade" id="planoModal" tabindex="-1" role="dialog" aria-labelledby="planoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="planoModalLabel">Pago de Nómina</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger " >Archivo Plano - Pago de Nómina</p>
+                <hr class="dotted-separator">
+                <p><strong>Banco:</strong> <span id="banco"></span></p>
+                <p><strong>Cuenta:</strong> <span id="cuenta"></span></p>
+                <p><strong>Registros con Cuenta:</strong> <span id="registrosConCuenta"></span></p>
+                <p><strong>Valor Pagos en el Archivo:</strong> <span id="valorPagos"></span></p>
+                <p><strong>Registros sin Cuenta:</strong> <span id="registrosSinCuenta"></span></p>               
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                {% if selected_nomina %}
+                    <a href="{% url 'companies:bank_file' selected_nomina %}" class="btn btn-light-primary">
+                        <i class="fa-solid fa-download fs-1"></i> 
+                        Descargar
+                    </a> 
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}
 
@@ -238,7 +268,7 @@
     function enviarDatos(nominaid, contratoid) {
         
         // Construye la URL con el ID
-        var url = '/companies/payroll/payroll/sheet/send/' + nominaid + '/' + contratoid + '/';
+        var url = '/companies/payroll/sheet/send/' + nominaid + '/' + contratoid + '/';
     
         // Envía el ID usando AJAX
         $.ajax({
@@ -253,8 +283,39 @@
             }
         });
     }
-    </script>
+</script>
 
+<script>
+    $(document).ready(function() {
+        // Función para cargar la información cuando se abre el modal
+        $('#planoModal').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            
+            // Obtener el ID de cuenta desde el contexto de Django en el template
+            var idnomina = '{{ selected_nomina }}'; // Asegúrate de que el nombre de la variable coincida con el contexto que pasas
+            
+            // Realizar la solicitud AJAX a la vista de Django con el ID de cuenta
+            $.ajax({
+                type: 'GET',
+                url: '{% url "companies:bank_list_get" %}',
+                data: {
+                    'id_nomina': idnomina
+                },
+                success: function(data) {
+                    // Mostrar los datos obtenidos en el modal
+                    modal.find('#banco').text(data.banco);
+                    modal.find('#cuenta').text(data.cuenta);
+                    modal.find('#registrosConCuenta').text(data.registros_con_cuenta);
+                    modal.find('#valorPagos').text(data.valor_pagos);
+                    modal.find('#registrosSinCuenta').text(data.registros_sin_cuenta);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al obtener la información:', error);
+                }
+            });
+        });
+    });
+</script>
 
 <script>
     function cargarNominas() {
@@ -352,18 +413,25 @@
                     }
                 },
                 {
-                    text: ' Resumen de Nomina ',
+                    text: '<i class="fa-solid fa-list-check"></i>  Resumen de Nomina ',
                     action: function ( e, dt, node, config ) {
                         window.open(exportUrl, '_blank');
                     },
                     className: 'btn btn-light-info'
                 },
                 {
-                    text: ' Nominas ',
+                    text: '<i class="fa-solid fa-receipt"></i>  Nominas ',
                     action: function ( e, dt, node, config ) {
                         window.open(exportUrl2, '_blank');
                     },
                     className: 'btn btn-light-info'
+                },
+                {
+                    text: ' <i class="fa-solid fa-money-check-dollar"></i> Plano Banco	 ',
+                    className: 'btn btn-light-info',
+                    action: function ( e, dt, node, config ) {
+                        $('#planoModal').modal('show'); // Abre el modal
+                    }
                 },
                 
             ],

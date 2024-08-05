@@ -13,47 +13,6 @@ from .identificador import obtener_numero_documento
 
 
 
-def bank_list(request):
-    #nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
-    nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
-
-    compects = []
-    acumulados = {}
-
-    selected_nomina = request.GET.get('nomina')
-    if selected_nomina:
-        compectos = Nomina.objects.filter(idnomina=selected_nomina)
-        
-        for data in compectos:
-            
-            docidentidad = data.idempleado.docidentidad
-        
-            if docidentidad not in acumulados:
-                acumulados[docidentidad] = {
-                    'documento': docidentidad,
-                    'nombre': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
-                    'numcuenta': data.idcontrato.cuentanomina,
-                    'banco': data.idcontrato.bancocuenta,
-                    'cuenta': data.idcontrato.tipocuentanomina,
-                    'pago': 0,
-                }
-            
-            acumulados[docidentidad]['pago'] += data.valor
-        
-        compects = list(acumulados.values())
-
-    for compect in compects:
-        # Formatear los valores
-        for key in ['pago']:
-            compect[key] = format_value(compect[key])
-
-    return render(request, 'companies/bank_list.html', {
-        'nominas': nominas,
-        'compects': compects,
-        'selected_nomina': selected_nomina,
-    })
-    
-
 
 def bank_list_get(request):
     count_cuenta_1 = 0
