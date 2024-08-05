@@ -165,7 +165,6 @@
                 },
                 success: function(data) {
                     // Mostrar los datos obtenidos en el modal
-                    console.log('hola perra ')
                     modal.find('#banco').text(data.banco);
                     modal.find('#cuenta').text(data.cuenta);
                     modal.find('#registrosConCuenta').text(data.registros_con_cuenta);
@@ -185,7 +184,7 @@
             console.log('Hacer POST al otro view para guardar los cambios...');
         });
     });
-    </script>
+</script>
 
 
 <script>
