@@ -126,12 +126,13 @@ def generatepayrollsummary(request,idnomina):
 
 
 def generatepayrollsummary2(request,idnomina):
-    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).values_list('idcontrato', flat=True).distinct()
+    # idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).values_list('idcontrato', flat=True).distinct()
+    # idcontratoslist = list(idcontratos_unicos)
+    
+    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idempleado__papellido').values_list('idcontrato', flat=True).distinct()
     idcontratoslist = list(idcontratos_unicos)
     
     
-    context1 = generate_summary(idnomina)
-    # Modificar para que obtenga datos diferentes
     combined_html_string = ''
     
     
@@ -243,7 +244,7 @@ def massive_mail(request):
             nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
             
             # Enviar el PDF por correo
-            email_subject = 'Tu Certificado de Nómina'
+            email_subject = 'Tu Comprobante de Nòmina'
             
             recipient_list = ['mikepruebas@yopmail.com']  # Lista de destinatarios
 
@@ -290,7 +291,6 @@ def massive_mail(request):
 
 
 def unique_mail(request,idnomina,idcontrato):
-    print('entre aqui y no veo nada ')
     context = genera_comprobante(idnomina, idcontrato)
 
     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
@@ -303,16 +303,16 @@ def unique_mail(request,idnomina,idcontrato):
 
     if pisa_status.err:
         return HttpResponse('Error al generar el PDF', status=400)
-    
     nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
-    print('sigo sin ver... ')
     # Enviar el PDF por correo
-    email_subject = 'Tu Certificado de Nómina'
+    email_subject = 'Tu Comprobante de Nòmina'
     email_body_context = {
         'some_context_variable': 'some_value',
         
     }
-    recipient_list = ['mikepruebas@yopmail.com']  # Lista de destinatarios
+    
+    
+    recipient_list = ['mikepruebas@yopmail.com', context["mail"]]  # Lista de destinatarios
 
     attachment = {
         'filename': nombre_archivo,
@@ -329,8 +329,6 @@ def unique_mail(request,idnomina,idcontrato):
     )
 
     email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo.'
-    
-    print('sigo sin ver... ')
     
     response_data = {
         'message': 'ID recibido correctamente',

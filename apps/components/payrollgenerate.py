@@ -69,6 +69,7 @@ def genera_comprobante(idnomina, idcontrato):
             'sumadataDevengado': format_value(sumadataDevengado), # Formatear la suma con separador de miles
             'sumadataDescuento': format_value(sumadataDescuento), 
             'total':format_value(total),
+            'mail':str(contrato.idempleado.email),
             
         }
     else:
