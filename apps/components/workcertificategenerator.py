@@ -174,7 +174,7 @@ def workcertificatedownload(idcert):
             'email ': datac['email'],
             'logo' : datac['logo'],
             'firma' : datac['firmacertificaciones'],
-            'idempresa' : datac['idempresa'],
+            'idempresa' : datac['idcliente'],
             'emailrrhh' : datac['emailcontab'],
             'cargo_certificaciones':datac['cargocertificaciones'],
             
