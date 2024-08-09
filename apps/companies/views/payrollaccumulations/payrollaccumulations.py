@@ -57,9 +57,6 @@ def payrollaccumulations(request):
                     }
                 else:
                     concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
-                    print('////////////////')
-                    print(concepto_existente)
-                    print('////////////////')
                     
                     if concepto_existente:
                         # Si existe, sumar la cantidad y el valor, y actualizar el nombreconcepto con el multiplicador
@@ -78,12 +75,13 @@ def payrollaccumulations(request):
                             "multiplicador": 1
                         }
                     
+                        acumulados[docidentidad]["data"].append(nuevo_concepto)
                     # nuevo_concepto = {"idconcepto": data.idconcepto.idconcepto, 
                     #                 "nombreconcepto": data.nombreconcepto,
                     #                 "cantidad": data.cantidad,  
                     #                 "valor": data.valor }
                     
-                    acumulados[docidentidad]["data"].append(nuevo_concepto)
+                    
                 acumulados[docidentidad]['total'] += data.valor
             
             # Procesar los datos acumulados
