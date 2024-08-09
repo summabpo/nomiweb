@@ -50,16 +50,38 @@ def payrollaccumulations(request):
                             {"idconcepto": data.idconcepto.idconcepto,
                             "nombreconcepto": data.nombreconcepto, 
                             "cantidad": data.cantidad, 
-                            "valor": data.valor},
+                            "valor": data.valor,
+                            "multiplicador": 1},
+                            
                         ]
                     }
                 else:
-                    nuevo_concepto = {"idconcepto": data.idconcepto.idconcepto, 
-                                    "nombreconcepto": data.nombreconcepto,
-                                    "cantidad": data.cantidad,  
-                                    "valor": data.valor }
+                    concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
                     
-                    acumulados[docidentidad]["data"].append(nuevo_concepto)
+                    if concepto_existente:
+                        # Si existe, sumar la cantidad y el valor, y actualizar el nombreconcepto con el multiplicador
+                        concepto_existente["cantidad"] += data.cantidad
+                        concepto_existente["valor"] += data.valor
+                        concepto_existente["multiplicador"] += 1
+                        # Actualizar el nombreconcepto con el multiplicador
+                        concepto_existente["nombreconcepto"] = f'{data.nombreconcepto} x{concepto_existente["multiplicador"]}'
+                    else:
+                        # Si no existe, añadir el nuevo concepto
+                        nuevo_concepto = {
+                            "idconcepto": data.idconcepto.idconcepto,
+                            "nombreconcepto": data.nombreconcepto,
+                            "cantidad": data.cantidad,
+                            "valor": data.valor,
+                            "multiplicador": 1
+                        }
+                    
+                        acumulados[docidentidad]["data"].append(nuevo_concepto)
+                    # nuevo_concepto = {"idconcepto": data.idconcepto.idconcepto, 
+                    #                 "nombreconcepto": data.nombreconcepto,
+                    #                 "cantidad": data.cantidad,  
+                    #                 "valor": data.valor }
+                    
+                    
                 acumulados[docidentidad]['total'] += data.valor
             
             # Procesar los datos acumulados
@@ -87,8 +109,6 @@ def payrollaccumulations(request):
         'compects': compects,
         'form': form,
     })
-    
-    
 def descargar_excel_empleados(request):
     if request.method == 'POST':
         acumulados = {}
