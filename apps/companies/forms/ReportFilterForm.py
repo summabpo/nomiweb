@@ -49,8 +49,11 @@ class ReportFilterForm(forms.Form):
         initial_data = kwargs.pop('initial', {})
         super().__init__(*args, **kwargs)
 
+        self.fields['start_date'].widget.attrs.update({'class': 'form-control'})
+        self.fields['end_date'].widget.attrs.update({'class': 'form-control'})
+        
         # Actualizar choices dinámicamente
-        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{pnombre} {snombre} {papellido} {sapellido}") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido')]
+        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').order_by('papellido')]
         self.fields['cost_center'].choices = [('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.all()]
         self.fields['city'].choices = [('', '----------')] + [(ciudad.idsede, f"{ciudad.nombresede}") for ciudad in Sedes.objects.all().order_by('nombresede')]
 

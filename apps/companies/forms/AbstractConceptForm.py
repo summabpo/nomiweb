@@ -82,9 +82,9 @@ class AbstractConceptForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Actualizar choices dinámicamente
-        self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.values_list('nombreconcepto', flat=True).distinct().order_by('-nombreconcepto')]
+        self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.values_list('nombreconcepto', flat=True).distinct().order_by('nombreconcepto')]
         self.fields['payroll'].choices = [('', '----------')] + [(idnomina, nombrenomina) for nombrenomina, idnomina in Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')]
-        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido')]
+        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').distinct().order_by('papellido')]
         #self.fields['month'].choices = [('', '----------')] + [(mes, mes) for mes in range(1, 13)]
         self.fields['year'].choices = [('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('anoacumular', flat=True).distinct().order_by('-anoacumular')]
         
