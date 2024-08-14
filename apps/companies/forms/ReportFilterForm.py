@@ -1,6 +1,6 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column
+from crispy_forms.layout import Layout, Submit, Row, Column,Button
 from apps.companies.models import Costos, Sedes, Contratosemp
 
 class ReportFilterForm(forms.Form):
@@ -87,7 +87,7 @@ class ReportFilterForm(forms.Form):
                     css_class='col-md-6'  # Ancho especificado
                 ),
                 Column(
-                    Submit('submit', 'Limpiar filtrado', css_class='btn btn-light-primary w-100'),  # 100% ancho de la columna
+                    Button('button', 'Limpiar filtrado', css_class='btn btn-light-primary w-100', id='my-custom-button'), # 100% ancho de la columna
                     css_class='col-md-6'  # Ancho especificado
                 ),
                 css_class='row'
