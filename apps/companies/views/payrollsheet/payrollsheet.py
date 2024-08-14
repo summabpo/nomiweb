@@ -308,8 +308,8 @@ def unique_mail(request,idnomina,idcontrato):
     # Enviar el PDF por correo
     email_subject = 'Tu Comprobante de Nòmina'
     
-    #, context["mail"]
-    recipient_list = ['mikepruebas@yopmail.com']  # Lista de destinatarios
+    #
+    recipient_list = ['mikepruebas@yopmail.com', context["mail"]]  # Lista de destinatarios
 
     attachment = {
         'filename': nombre_archivo,
