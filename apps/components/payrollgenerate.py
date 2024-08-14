@@ -44,6 +44,7 @@ def genera_comprobante(idnomina, idcontrato):
         
         
         periodo = f" {crear.fechainicial} hasta: {crear.fechafinal}"
+        name = crear.nombrenomina
         centro = f"{contrato.idcosto.idcosto} - {contrato.idcosto.nomcosto}"
         context = {
             #empresa
@@ -70,7 +71,7 @@ def genera_comprobante(idnomina, idcontrato):
             'sumadataDescuento': format_value(sumadataDescuento), 
             'total':format_value(total),
             'mail':str(contrato.idempleado.email),
-            
+            'name':name,
         }
     else:
         context = {

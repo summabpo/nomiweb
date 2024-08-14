@@ -96,21 +96,21 @@
                                 {% if compect.estado == 'Enviado' %}
                                     
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
                                             <i class="fa-solid fa-envelope-circle-check fs-1"></i>
                                         </button>
                                         <button type="button" class="btn btn-secondary">Enviado</button>
                                     </div>
                                 {% elif compect.estado == 'Error' %}
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
                                             <i class="fa-solid fa-circle-exclamation fs-1"></i>
                                         </button> 
                                         <button type="button" class="btn btn-secondary">Error</button>
                                     </div>
                                 {% else %}
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
                                             <i class="fa-solid fa-envelope fs-1"></i>
                                         </button> 
                                         <button type="button" class="btn btn-secondary">No Enviado</button>
@@ -264,9 +264,27 @@
 
 {% block js %}
 
+
 <script>
+    toastr.options = {
+        "closeButton": true,
+        "debug": true,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toastr-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "1500",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
     function enviarDatos(nominaid, contratoid) {
-        
         // Construye la URL con el ID
         var url = '/companies/payroll/sheet/send/' + nominaid + '/' + contratoid + '/';
     
@@ -275,14 +293,28 @@
             url: url, // URL con el ID incluido
             type: 'GET', // Método GET para enviar el ID en la URL
             success: function(response) {
-                console.log('ID enviado:', id);
-                // Puedes hacer algo con la respuesta aquí
+                console.log('Respuesta recibida:', response); // Muestra la respuesta completa
+                
+                // Verifica si la respuesta contiene 'message' y 'name'
+                if (response.message ) {
+                    var message = "El correo con el comprobante de nómina se ha enviado correctamente a " + response.name + ".";
+                    toastr.success(message, "Envio de Correo");
+                } else {
+                    toastr.error("Hubo un problema al enviar el correo. Por favor, intenta nuevamente.", "Error");
+                }
             },
             error: function(xhr, status, error) {
                 console.error('Error al enviar el ID:', error);
+                toastr.error("Hubo un problema al enviar el correo. Intente de nuevo más tarde. Si el error persiste, por favor, contacte al soporte.", "Error");
             }
         });
     }
+
+    document.addEventListener('wheel', function(event) {
+        // Manejo del evento
+    }, { passive: true });
+
+
 </script>
 
 <script>
@@ -420,7 +452,7 @@
                     className: 'btn btn-light-info'
                 },
                 {
-                    text: '<i class="fa-solid fa-receipt"></i>  Nominas ',
+                    text: '<i class="fa-solid fa-receipt"></i> comprobantes de Nominas ',
                     action: function ( e, dt, node, config ) {
                         window.open(exportUrl2, '_blank');
                     },

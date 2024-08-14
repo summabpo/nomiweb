@@ -167,6 +167,30 @@
 </script>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var clearButton = document.getElementById('button-id-button');
+        if (clearButton) {
+            clearButton.addEventListener('click', function() {
+                var form = document.getElementById('Filter_report');
+                if (form) {
+                    form.reset();
+                    // Limpiar los campos de fecha manualmente
+                    var dateInputs = form.querySelectorAll('input[type="date"]');
+                    dateInputs.forEach(function(input) {
+                        input.value = '';
+                    });
+                    // Opcional: Reconfigurar select2 si se usa
+                    $(form).find('select[data-control="select2"]').val(null).trigger('change');
+                    $('#loadingModal').modal('show');
+                    // Recargar la página para eliminar el POST
+                    window.location.href = window.location.pathname;
+                }
+            });
+        }
+    });
+</script>
+
+<script>
     $(document).ready(function() {
         // Inicializar DataTable
         var table = $('#tabla-liquidacion').DataTable({

@@ -108,6 +108,9 @@
                         form.reset();
                         // Opcional: Reconfigurar select2 si se usa
                         $(form).find('select[data-control="select2"]').val(null).trigger('change');
+                        $('#loadingModal').modal('show');
+                        // Recargar la página para eliminar el POST
+                        window.location.href = window.location.pathname;
                     }
                 });
             }

@@ -20,12 +20,12 @@ def abstractconcept(request):
             # Construir los filtros dinámicamente
             filters = {
                 'nombreconcepto': sconcept,
-                'idnomina__idnomina': int(payroll),
+                'idnomina__idnomina': int(payroll) if payroll else None,
                 'idempleado__idempleado': employee,
                 'mesacumular': month,
                 'anoacumular': year,
             }
-            print(filters)
+            
             
             # Eliminar filtros con valores vacíos
             filters = {k: v for k, v in filters.items() if v}

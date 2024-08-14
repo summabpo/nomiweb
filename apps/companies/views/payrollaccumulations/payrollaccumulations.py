@@ -4,7 +4,7 @@ from apps.companies.forms.ReportFilterForm import ReportFilterForm
 from django.contrib import messages
 from django.http import HttpResponse
 from apps.components.generate_employee_excel import generate_employee_excel
-from apps.components.humani import format_value
+from apps.components.humani import format_value , format_value_float
 from django.http import JsonResponse
 from .parse_dates import parse_dates
 
@@ -49,8 +49,8 @@ def payrollaccumulations(request):
                         'data':[
                             {"idconcepto": data.idconcepto.idconcepto,
                             "nombreconcepto": data.nombreconcepto, 
-                            "cantidad": data.cantidad, 
-                            "valor": data.valor,
+                            "cantidad": format_value_float(data.cantidad), 
+                            "valor": format_value(data.valor),
                             "multiplicador": 1},
                             
                         ]
@@ -70,8 +70,8 @@ def payrollaccumulations(request):
                         nuevo_concepto = {
                             "idconcepto": data.idconcepto.idconcepto,
                             "nombreconcepto": data.nombreconcepto,
-                            "cantidad": data.cantidad,
-                            "valor": data.valor,
+                            "cantidad": format_value_float(data.cantidad), 
+                            "valor": format_value(data.valor),
                             "multiplicador": 1
                         }
                     
@@ -83,13 +83,11 @@ def payrollaccumulations(request):
                     
                     
                 acumulados[docidentidad]['total'] += data.valor
-            
+                
+            for docidentidad, datos in acumulados.items():
+                datos['total'] = format_value(datos['total'])
             # Procesar los datos acumulados
             compects = list(acumulados.values())
-            # for compect in compects:
-            #     compect['total'] = compect['basico'] + compect['aportess'] + compect['prestamos']
-            #     for key in ['basico', 'aportess', 'prestamos', 'total']:
-            #         compect[key] = format_value(compect[key])
             
             return render(request, 'companies/payrollaccumulations.html', {
                 'compects': compects,
@@ -109,6 +107,10 @@ def payrollaccumulations(request):
         'compects': compects,
         'form': form,
     })
+    
+    
+    
+    
 def descargar_excel_empleados(request):
     if request.method == 'POST':
         acumulados = {}
