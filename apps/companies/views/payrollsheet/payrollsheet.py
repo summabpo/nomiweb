@@ -291,6 +291,7 @@ def massive_mail(request):
 
 
 def unique_mail(request,idnomina,idcontrato):
+    datacn = NominaComprobantes.objects.get(idnomina = idnomina ,idcontrato = idcontrato )
     context = genera_comprobante(idnomina, idcontrato)
 
     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
@@ -306,13 +307,9 @@ def unique_mail(request,idnomina,idcontrato):
     nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
     # Enviar el PDF por correo
     email_subject = 'Tu Comprobante de Nòmina'
-    email_body_context = {
-        'some_context_variable': 'some_value',
-        
-    }
     
-    
-    recipient_list = ['mikepruebas@yopmail.com', context["mail"]]  # Lista de destinatarios
+    #, context["mail"]
+    recipient_list = ['mikepruebas@yopmail.com']  # Lista de destinatarios
 
     attachment = {
         'filename': nombre_archivo,
@@ -329,9 +326,18 @@ def unique_mail(request,idnomina,idcontrato):
     )
 
     email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo.'
-    
+    if email_sent :
+        datacn.envio_email = 1
+        datacn.save()
+    else:
+        datacn.envio_email = 2
+        datacn.save()
+        
+
     response_data = {
         'message': 'ID recibido correctamente',
+        'status' : email_status,
+        'name' : context["nombre_completo"]
     }
     return JsonResponse(response_data)
 
