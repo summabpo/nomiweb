@@ -49,8 +49,8 @@ def payrollaccumulations(request):
                         'data':[
                             {"idconcepto": data.idconcepto.idconcepto,
                             "nombreconcepto": data.nombreconcepto, 
-                            "cantidad": format_value_float(data.cantidad), 
-                            "valor": format_value(data.valor),
+                            "cantidad": data.cantidad, 
+                            "valor": data.valor,
                             "multiplicador": 1},
                             
                         ]
@@ -59,19 +59,21 @@ def payrollaccumulations(request):
                     concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
                     
                     if concepto_existente:
+                        
                         # Si existe, sumar la cantidad y el valor, y actualizar el nombreconcepto con el multiplicador
                         concepto_existente["cantidad"] += data.cantidad
-                        concepto_existente["valor"] += data.valor
+                        concepto_existente["valor"] += data.valor  
                         concepto_existente["multiplicador"] += 1
                         # Actualizar el nombreconcepto con el multiplicador
                         concepto_existente["nombreconcepto"] = f'{data.nombreconcepto} x{concepto_existente["multiplicador"]}'
+                        
                     else:
                         # Si no existe, añadir el nuevo concepto
                         nuevo_concepto = {
                             "idconcepto": data.idconcepto.idconcepto,
                             "nombreconcepto": data.nombreconcepto,
-                            "cantidad": format_value_float(data.cantidad), 
-                            "valor": format_value(data.valor),
+                            "cantidad": data.cantidad, 
+                            "valor": data.valor,
                             "multiplicador": 1
                         }
                     
@@ -86,6 +88,8 @@ def payrollaccumulations(request):
                 
             for docidentidad, datos in acumulados.items():
                 datos['total'] = format_value(datos['total'])
+                for concepto in datos['data']:
+                    concepto['valor'] = format_value(concepto['valor'])
             # Procesar los datos acumulados
             compects = list(acumulados.values())
             
