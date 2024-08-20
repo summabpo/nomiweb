@@ -15,7 +15,7 @@ class VacationList(ListView):
     paginate_by = 10
     context_object_name = 'vacation_history'
     model = Vacaciones
-    ordering = 'idvacaciones'
+    ordering = ['-fechapago']
     
     def get_queryset(self):
         ide = self.request.session.get('idempleado')

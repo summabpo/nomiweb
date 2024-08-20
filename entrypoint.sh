@@ -7,7 +7,7 @@ export DJANGO_SETTINGS_MODULE=nomiweb.settings.production
 
 # Collect static files
 echo "Collecting static files..."
-#python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput
 
 echo 'Running server...'
 exec gunicorn --bind 0.0.0.0:8000 nomiweb.wsgi:application --workers 3
