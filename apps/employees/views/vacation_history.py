@@ -15,14 +15,13 @@ class VacationList(ListView):
     paginate_by = 10
     context_object_name = 'vacation_history'
     model = Vacaciones
-    ordering = ['-fechapago']
     
     def get_queryset(self):
         ide = self.request.session.get('idempleado')
         contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
         idc = contrato.idcontrato if contrato else None
         
-        queryset = Vacaciones.objects.filter(Q(idcontrato=idc) & (Q(tipovac=1) | Q(tipovac=2))).select_related('tipovac')
+        queryset = Vacaciones.objects.filter(Q(idcontrato=idc) & (Q(tipovac=1) | Q(tipovac=2))).select_related('tipovac').order_by('-fechapago')
         return queryset
     
     def get_context_data(self, **kwargs):
