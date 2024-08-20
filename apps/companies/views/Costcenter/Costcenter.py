@@ -4,7 +4,11 @@ from apps.components.decorators import custom_login_required ,custom_permission
 from apps.companies.forms.CostcenterForm import CostcenterForm
 from django.contrib import messages
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
+@login_required
+@role_required('entrepreneur')
 def Costcenter(request): 
     if request.method == 'POST':
         form = CostcenterForm(request.POST)

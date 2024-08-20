@@ -1,40 +1,29 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render
 from datetime import datetime
 import datetime
-from typing import Any, Dict
-from django.db.models import Sum, F, Value, CharField
-from django.db.models.functions import Concat
+from django.db.models import Sum
 from io import BytesIO
-from reportlab.pdfgen import canvas
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import letter
 import locale
-from reportlab.lib.utils import ImageReader
-from reportlab.lib.colors import PCMYKColor, PCMYKColorSep, Color, black, lightblue, red
-import imgkit
 from datetime import datetime
-
-from django.contrib import messages
 from io import BytesIO
 from xhtml2pdf import pisa
 
 # Create your views here.
-from django.views.generic import  ListView, DetailView
+from django.views.generic import  ListView
 
 #models
-from apps.employees.models import Crearnomina, Nomina, Contratos, Contratosemp
+from apps.employees.models import Crearnomina, Nomina, Contratos
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
-from apps.components.decorators import custom_permission
 from apps.components.payrollgenerate import genera_comprobante 
+from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 
 
-
-
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def listaNomina(request):
     ide = request.session.get('idempleado')
     ESTADOS_CONTRATO = {
@@ -76,9 +65,10 @@ def listaNomina(request):
         'selected_empleado': selected_contrato_id,
         'cont': cont
     })
-
+    
+    
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def generatepayrollcertificate(request ,idnomina,idcontrato,):
     context = genera_comprobante(idnomina,idcontrato)
 

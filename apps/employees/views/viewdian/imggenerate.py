@@ -8,6 +8,7 @@ from io import BytesIO
 from apps.components.humani import format_value
 
 
+
 def imggenerate1(idingret):
     
     certificado = Ingresosyretenciones.objects.filter(idingret=idingret).first()

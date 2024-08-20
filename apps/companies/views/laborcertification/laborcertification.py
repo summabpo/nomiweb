@@ -1,7 +1,11 @@
 from django.shortcuts import render
 from apps.companies.models import Contratos 
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
+@login_required
+@role_required('entrepreneur')
 def laborcertification(request):
     
     contratos_empleados = Contratos.objects\

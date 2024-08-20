@@ -1,0 +1,19 @@
+# Ignorar archivos de control de versiones
+.git
+.gitignore
+.dockerignore
+Dockerfile
+
+
+
+# Ignorar dependencias y archivos temporales
+node_modules/
+*.log
+*.tmp
+build/
+dist/
+
+
+# Archivos y directorios de Visual Studio Code
+.vscode/
+*.code-workspace

@@ -4,13 +4,13 @@ from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
-from apps.components.decorators import custom_permission
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.components.mail import send_template_email
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
+from apps.components.decorators import  role_required
 
 
 
@@ -38,7 +38,7 @@ def get_client_ip(request):
 
 
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def vacation_request_function(request):
     ide = request.session.get('idempleado')
     nombre_empleado = Contratosemp.objects.get(idempleado=ide).pnombre

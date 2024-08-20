@@ -4,10 +4,11 @@ from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
 from apps.components.decorators import custom_login_required ,custom_permission
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-
-# @custom_login_required
-# @custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def EditEmployeeVisual(request,idempleado):
     empleado = Contratosemp.objects.get(idempleado=idempleado) 
     
@@ -139,8 +140,8 @@ def EditEmployeeVisual(request,idempleado):
 
 
 
-@custom_login_required
-@custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def EditEmployeeSearch(request):
     contratos_empleados = Contratos.objects \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \

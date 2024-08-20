@@ -7,10 +7,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 import random
 import string
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+
 
 def generate_random_password(length=12):
     characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(characters) for i in range(length))
+
 
 def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_empleado):
     try:
@@ -36,7 +40,8 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
     except Exception as e:
         return False, None, None
 
-
+@login_required
+@role_required('entrepreneur')
 def loginweb(request):
     db_name = request.session.get('usuario', {}).get('db')
 

@@ -3,14 +3,11 @@ from apps.companies.models import Contratosemp,Contratos, Costos ,Subcostos,Cent
 from apps.companies.forms.ContractForm import ContractForm 
 from django.contrib import messages
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-from apps.components.decorators import custom_login_required ,custom_permission
-
-
-
-
-# @custom_login_required
-# @custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.get(idempleado=int(idempleado)) 
     contrato = Contratos.objects.get(idempleado=idempleado, estadocontrato=1)

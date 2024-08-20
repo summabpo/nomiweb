@@ -3,8 +3,11 @@ from apps.companies.forms.AbstractConceptForm import AbstractConceptForm
 from apps.companies.models import Nomina
 from apps.components.humani import format_value
 from django.contrib import messages
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
+@role_required('entrepreneur')
 def abstractconcept(request):
     
     if request.method == 'POST':

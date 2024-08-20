@@ -1,13 +1,17 @@
 from django.shortcuts import render
 from apps.companies.models import Contratos , Contratosemp ,Ciudades
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
+@role_required('entrepreneur')
 def contractview(request,idcontrato): 
     contrato = Contratos.objects.get(idcontrato = idcontrato)
     
     return render(request, './companies/contractview.html',{'contrato': contrato })
 
-
+@login_required
+@role_required('entrepreneur')
 def resumeview(request, idempleado):
     empleado = Contratosemp.objects.get(idempleado=idempleado)
     ciudadnacimiento = Ciudades.objects.get(idciudad=empleado.ciudadnacimiento) if empleado.ciudadnacimiento else None

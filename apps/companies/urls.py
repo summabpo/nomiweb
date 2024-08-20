@@ -48,7 +48,7 @@ urlpatterns = [
 
     
     
-    path('employees/birthday',birthday.BirthdayView.as_view() , name='birthdayview'),
+    path('employees/birthday',birthday.birthday_view , name='birthdayview'),
     ##! vistas 
     path('employees/views/contract/<str:idcontrato>',assetsview.contractview , name='contractview'),
     path('employees/views/employee/<str:idempleado>',assetsview.resumeview , name='resumeview'),

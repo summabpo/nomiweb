@@ -7,10 +7,13 @@ from datetime import datetime
 from django.http import HttpResponse
 from apps.components.payrollgenerate import generate_summary
 from apps.components.payrollgenerate import genera_comprobante 
-from django.template.loader import render_to_string
 from apps.components.mail import send_template_email2 ,send_template_email3
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+
+
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -22,7 +25,8 @@ def get_email_status(estado_email):
 
     return envio_email
 
-
+@login_required
+@role_required('entrepreneur')
 def payrollsheet(request):
     #nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
     nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
@@ -102,7 +106,8 @@ def payrollsheet(request):
 
 
 
-
+@login_required
+@role_required('entrepreneur')
 def generatepayrollsummary(request,idnomina):
     context = generate_summary(idnomina)
     
@@ -124,7 +129,8 @@ def generatepayrollsummary(request,idnomina):
     
     return response
 
-
+@login_required
+@role_required('entrepreneur')
 def generatepayrollsummary2(request,idnomina):
     # idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).values_list('idcontrato', flat=True).distinct()
     # idcontratoslist = list(idcontratos_unicos)
@@ -160,7 +166,8 @@ def generatepayrollsummary2(request,idnomina):
     return response
 
 
-
+@login_required
+@role_required('entrepreneur')
 def generatepayrollcertificate(request ,idnomina,idcontrato):
     context = genera_comprobante(idnomina,idcontrato)
 
@@ -195,7 +202,8 @@ icono 3 :  success, message - linea 177
 
 """
 
-
+@login_required
+@role_required('entrepreneur')
 def massive_mail(request):
     if request.method == 'POST':
         nomina = request.POST.get('nomina2', '')
@@ -289,7 +297,8 @@ def massive_mail(request):
 
 
 
-
+@login_required
+@role_required('entrepreneur')
 def unique_mail(request,idnomina,idcontrato):
     datacn = NominaComprobantes.objects.get(idnomina = idnomina ,idcontrato = idcontrato )
     context = genera_comprobante(idnomina, idcontrato)

@@ -7,7 +7,11 @@ from datetime import datetime
 from apps.components.settlementgenerator import settlementgenerator
 from apps.components.humani import format_value
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
+@login_required
+@role_required('entrepreneur')
 def settlementlist(request):
     liquidaciones = Liquidacion.objects.all().order_by('-idliquidacion')
     
@@ -24,7 +28,8 @@ def settlementlist(request):
         'liquidaciones':liquidaciones,
     } )
 
-
+@login_required
+@role_required('entrepreneur')
 def settlementlistdownload(request,idliqui):
     
     context = settlementgenerator(idliqui)

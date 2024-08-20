@@ -13,7 +13,11 @@ from .identificador import obtener_numero_documento
 
 
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
+@login_required
+@role_required('entrepreneur')
 def bank_list_get(request):
     count_cuenta_1 = 0
     count_cuenta_2 = 0
@@ -53,6 +57,8 @@ def bank_list_get(request):
     
     return JsonResponse(data)
 
+@login_required
+@role_required('entrepreneur')
 def bank_file(request,idnomina):
     # Obtener la fecha actual
     fecha_actual = datetime.now()

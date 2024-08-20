@@ -3,10 +3,11 @@ from apps.companies.models import Cargos
 from apps.components.decorators import custom_login_required ,custom_permission
 from apps.companies.forms.chargesForm import chargesForm
 from django.contrib import messages
+from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
-
 @login_required
+@role_required('entrepreneur')
 def charges(request): 
     if request.method == 'POST':
         form = chargesForm(request.POST)

@@ -1,15 +1,19 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from apps.companies.models import Liquidacion , Nomina
+from django.shortcuts import render, redirect
+from apps.companies.models import Nomina
 from apps.companies.forms.ReportFilterForm import ReportFilterForm
 from django.contrib import messages
 from django.http import HttpResponse
 from apps.components.generate_employee_excel import generate_employee_excel
-from apps.components.humani import format_value , format_value_float
+from apps.components.humani import format_value
 from django.http import JsonResponse
 from .parse_dates import parse_dates
 
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
+@login_required
+@role_required('entrepreneur')
 def payrollaccumulations(request):
     acumulados = {}
     compects = []
@@ -114,7 +118,8 @@ def payrollaccumulations(request):
     
     
     
-    
+@login_required
+@role_required('entrepreneur')    
 def descargar_excel_empleados(request):
     if request.method == 'POST':
         acumulados = {}
