@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.11.5
+FROM amd64/python:3.11.5
 
 # Set environment variables to prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
