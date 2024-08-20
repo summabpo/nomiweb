@@ -38,6 +38,10 @@ DATABASES = {
     }
 }
 
+STATICFILES_DIRS = [
+     os.path.join(BASE_DIR, '..', 'static')
+]
+
 # Seguridad de cookies
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
@@ -63,6 +67,11 @@ AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
 
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
 # Almacén estático y de medios
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -70,10 +79,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # URL estática y de medios
 STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Configuración de caché
 AWS_QUERYSTRING_AUTH = False
-AWS_S3_FILE_OVERWRITE = False
-
-STATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')
+AWS_S3_FILE_OVERWRITE = True
