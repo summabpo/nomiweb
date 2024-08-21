@@ -12,8 +12,8 @@ from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
-
-
+from PyPDF2 import PdfMerger
+from django.template.loader import render_to_string
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -131,36 +131,42 @@ def generatepayrollsummary(request,idnomina):
 
 @login_required
 @role_required('entrepreneur')
-def generatepayrollsummary2(request,idnomina):
-    # idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).values_list('idcontrato', flat=True).distinct()
-    # idcontratoslist = list(idcontratos_unicos)
-    
+def generatepayrollsummary2(request, idnomina):
+    # Obtener los contratos únicos ordenados por apellido
     idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idempleado__papellido').values_list('idcontrato', flat=True).distinct()
-    idcontratoslist = list(idcontratos_unicos)
     
+    # Crear un objeto para combinar PDFs
+    merger = PdfMerger()
     
-    combined_html_string = ''
-    
-    
-    for idcontrato in idcontratoslist:
-        context = genera_comprobante(idnomina,idcontrato)
-        html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+    for idcontrato in idcontratos_unicos:
+        # Generar el contexto para cada contrato
+        context = genera_comprobante(idnomina, idcontrato)
         
-        combined_html_string += f"{html_string}<div class='page-break'></div>"
-    # Combinar ambos HTMLs con un salto de página entre ellos
-    
-    # Generar el PDF
-    pdf = BytesIO()
-    pisa_status = pisa.CreatePDF(combined_html_string, dest=pdf)
-    pdf.seek(0)
+        # Renderizar el template a una cadena HTML
+        html_string = render_to_string('./html/payrollcertificate.html', context)
+        
+        # Crear el PDF para cada documento
+        pdf = BytesIO()
+        pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+        pdf.seek(0)
 
-    if pisa_status.err:
-        return HttpResponse('Error al generar el PDF', status=400)
+        if pisa_status.err:
+            return HttpResponse('Error al generar uno de los PDFs', status=400)
+        
+        # Agregar el PDF al merger
+        merger.append(pdf)
     
+    # Crear un archivo PDF final combinando todos los PDFs
+    combined_pdf = BytesIO()
+    merger.write(combined_pdf)
+    combined_pdf.seek(0)
+    
+    # Crear el nombre del archivo con la fecha actual
     fecha_actual = datetime.now().strftime('%Y-%m-%d')
     nombre_archivo = f'Certificado_{idnomina}_{fecha_actual}.pdf'
 
-    response = HttpResponse(pdf, content_type='application/pdf')
+    # Preparar la respuesta HTTP con el PDF final
+    response = HttpResponse(combined_pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
     
     return response

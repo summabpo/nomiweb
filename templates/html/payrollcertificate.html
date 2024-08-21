@@ -1,8 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>comp nomina {{idnomi}} - {{cc}} </title>
+    <link rel="icon" href="../../static/img/logonomiweb.ico" type="image/x-icon">
     <style>
         @page {
             size:a4;
@@ -14,6 +16,7 @@
                 width: 512pt;
                 top: 10pt;
                 height: 80pt;
+                
     
             }
 
@@ -22,7 +25,6 @@
                 width: 512pt;
                 top: 40pt;
                 height: 700pt;
-                
             }
 
         }
@@ -147,13 +149,13 @@
         .header {
             display: flex;
             align-items: center;
+            position: relative;
             font-size: 16px;
             font-weight: bold;
             margin: 0;
             padding: 0;
             line-height: 1;
             text-align: center;
-            border: 2px solid blue;
         }
                 
         .header div {
@@ -161,7 +163,6 @@
             margin: 0; 
             padding: 0; 
             line-height: 1;
-            border: 2px solid red;
         }
         .header hr {
             border: none;
@@ -189,15 +190,67 @@
             margin: 0; 
             padding: 0; 
             font-size: 18px;
+            
         }
 
         
+        .container{
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center; /* Centra el contenido horizontalmente */
+            align-items: center; /* Centra el contenido verticalmente */
+            width: 30pt;
+            height: 80pt;
+        }
 
-        .header .image-container {
+        .image-container {
+            margin: 0;
+            padding-top: -90px;
+            width: auto; 
+            height: 80pt;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .text {
+            
             display: flex;
             align-items: center;
-            margin-right: 20px;
+            position: relative;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            line-height: 1;
+            text-align: center;
+            
         }
+                
+        
+
+        .text h1 {
+            margin: 0; 
+            padding: 0; 
+            font-size: 24px;
+        }
+
+        .text h2 {
+            color: #212121;
+            
+            margin: 0; 
+            padding: 0; 
+            font-size: 18px;
+        }
+
+        .text h3 {
+            color: #212121;
+            
+            margin: 0; 
+            padding: 0; 
+            font-size: 18px;
+            
+        }
+
 
         .table2{
             border-collapse: collapse;
@@ -206,27 +259,28 @@
         .page-break {
             page-break-before: always;
         }
+
+        
     </style>
 </head>
 <body >
     <!-- Content for Static Frame 'header_frame' -->
-    <div id="header_content">
-        <div class="header">
-            <div class="image-container">
-                <img src="static/img/{{logo}}" alt="Logo empresa" />
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Contenido del cuerpo del HTML -->
-    
-    <div id="content_content">
-        <div class="header">
+    <div class="container">
+        <div class="text">
             <h1>{{empresa}}</h1>
             <h2>{{nit}}</h2>
             <h3 href="http://{{web}}">{{web}}</h3>
         </div>
+        <div class="image-container">
+            <img src="static/img/{{logo}}" alt="Logo empresa" />
+            
+        </div>
+        
+    </div>
+    <!-- Contenido del cuerpo del HTML -->
+    
+    <div id="content_frame">
+        
         <hr />
         <div class="header2">Comprobante de Nómina </div>
         <br>

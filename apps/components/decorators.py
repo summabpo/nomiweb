@@ -15,8 +15,6 @@ def role_required(allowed_role):
             user_role = request.session.get('usuario', {}).get('rol')
             
             if user_role == allowed_role:
-                # Redirige a la página correspondiente al rol
-                print(user_role)
                 return view_func(request, *args, **kwargs)
             else:
                 return redirect(redirect_by_role(user_role))

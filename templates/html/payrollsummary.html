@@ -54,6 +54,8 @@
             font-family: Courier, monospace;
         }
 
+
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -201,11 +203,18 @@
             padding: 0px 5px 0px 10px; /* Añadir separación de 10px a la izquierda para el Concepto */
         }
         
+        .header4 {
+            -pdf-frame-content: header_content;
+            left: 50pt;
+            width: 512pt;
+            top: 10pt;
+            height: 80pt;
+        }
         
     </style>
 </head>
 <body class='body2' >
-    <!-- Content for Static Frame 'header_frame' -->
+    
     <div id="header_content">
         <div class="header">
             <div class="image-container">
@@ -217,7 +226,7 @@
 
     <!-- Contenido del cuerpo del HTML -->
     
-    <div id="content_content">
+    <div id="content_frame">
         <div class="header">
             <h1>{{empresa}}</h1>
             <h2>{{nit}}</h2>

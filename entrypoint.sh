@@ -4,12 +4,12 @@
 export DJANGO_SETTINGS_MODULE=nomiweb.settings.production
 
 # Apply migrations
-# echo 'Applying migrations...'
-# python manage.py migrate --noinput
+echo 'Applying migrations...'
+python manage.py migrate --noinput
 
 # # Collect static files
-# echo "Collecting static files..."
-# python manage.py collectstatic --noinput
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
 
 # Run server with Gunicorn
 echo 'Running server...'
