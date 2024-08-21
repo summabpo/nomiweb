@@ -7,13 +7,15 @@ services:
     image: nomiweb-alfa:latest
     command: /app/entrypoint.sh
     env_file:
-      - ./.env
+      - ./.en
     volumes:
       - ./:/app
     environment:
       DJANGO_SETTINGS_MODULE: 'nomiweb.settings.production'
     expose:
       - "8000"  # Este es el puerto interno expuesto dentro del contenedor
+    ports:
+      - "88:8000"
     restart: always
 networks:
   default:
