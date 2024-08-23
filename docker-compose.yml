@@ -20,4 +20,4 @@ services:
 networks:
   default:
     external:
-      name: webnet
+      name: proxy
