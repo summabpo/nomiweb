@@ -35,9 +35,13 @@ ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"
 
 
 {% block content %}
-<button class="btn btn-light-primary" id="backButton">
+<a href="{% url 'companies:startcompanies' %}"  class="btn btn-light-primary"   >
     Regresar
-</button>
+    <i class="ki-duotone ki-exit-left fs-2x ">             
+        <span class="path1"></span>
+        <span class="path2"></span>
+    </i>
+</a>  
     {% crispy form %}
 {% endblock %}
 
