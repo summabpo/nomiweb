@@ -29,7 +29,7 @@ def payrollaccumulations(request):
             end_date = form.cleaned_data['end_date']
     
             # Aplicar filtros a la consulta de Nomina
-            nominas = Nomina.objects.all()
+            nominas = Nomina.objects.all().order_by('idconcepto__idconcepto')
             if employee:
                 nominas = nominas.filter(idempleado__idempleado=employee)
             if cost_center:
@@ -48,14 +48,12 @@ def payrollaccumulations(request):
                     acumulados[docidentidad] = {
                         'documento': docidentidad,
                         'empleado': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
-                        'total':0,
                         'contrato': data.idcontrato.idcontrato,
                         'data':[
                             {"idconcepto": data.idconcepto.idconcepto,
                             "nombreconcepto": data.nombreconcepto, 
                             "cantidad": data.cantidad, 
-                            "valor": data.valor,
-                            "multiplicador": 1},
+                            "valor": data.valor,},
                             
                         ]
                     }
@@ -67,7 +65,6 @@ def payrollaccumulations(request):
                         # Si existe, sumar la cantidad y el valor, y actualizar el nombreconcepto con el multiplicador
                         concepto_existente["cantidad"] += data.cantidad
                         concepto_existente["valor"] += data.valor  
-                        concepto_existente["multiplicador"] += 1
                         # Actualizar el nombreconcepto con el multiplicador
                         concepto_existente["nombreconcepto"] = f'{data.nombreconcepto} x{concepto_existente["multiplicador"]}'
                         
@@ -78,7 +75,6 @@ def payrollaccumulations(request):
                             "nombreconcepto": data.nombreconcepto,
                             "cantidad": data.cantidad, 
                             "valor": data.valor,
-                            "multiplicador": 1
                         }
                     
                         acumulados[docidentidad]["data"].append(nuevo_concepto)
@@ -87,11 +83,8 @@ def payrollaccumulations(request):
                     #                 "cantidad": data.cantidad,  
                     #                 "valor": data.valor }
                     
-                    
-                acumulados[docidentidad]['total'] += data.valor
                 
             for docidentidad, datos in acumulados.items():
-                datos['total'] = format_value(datos['total'])
                 for concepto in datos['data']:
                     concepto['valor'] = format_value(concepto['valor'])
             # Procesar los datos acumulados
@@ -144,7 +137,7 @@ def descargar_excel_empleados(request):
         if end_date:
             filtros['idnomina__fechafinal__lte'] = end_date
         
-        nominas = Nomina.objects.filter(**filtros)
+        nominas = Nomina.objects.filter(**filtros).order_by('idconcepto__idconcepto')
         
         for data in nominas:
                 docidentidad = data.idempleado.docidentidad
@@ -152,7 +145,6 @@ def descargar_excel_empleados(request):
                     acumulados[docidentidad] = {
                         'documento': docidentidad,
                         'Empleado': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre} - {data.idempleado.docidentidad} - {data.idcontrato.idcontrato} ",
-                        'total':0,
                         'data':[
                             {"idconcepto": data.idconcepto.idconcepto,
                             "nombreconcepto": data.nombreconcepto, 
@@ -161,13 +153,26 @@ def descargar_excel_empleados(request):
                         ]
                     }
                 else:
-                    nuevo_concepto = {"idconcepto": data.idconcepto.idconcepto, 
-                                    "nombreconcepto": data.nombreconcepto,
-                                    "cantidad": data.cantidad,  
-                                    "valor": data.valor }
+                    concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
                     
-                    acumulados[docidentidad]["data"].append(nuevo_concepto)
-                acumulados[docidentidad]['total'] += data.valor
+                    if concepto_existente:
+                        
+                        # Si existe, sumar la cantidad y el valor, y actualizar el nombreconcepto con el multiplicador
+                        concepto_existente["cantidad"] += data.cantidad
+                        concepto_existente["valor"] += data.valor  
+                        # Actualizar el nombreconcepto con el multiplicador
+                        concepto_existente["nombreconcepto"] = f'{data.nombreconcepto} x{concepto_existente["multiplicador"]}'
+                        
+                    else:
+                        # Si no existe, añadir el nuevo concepto
+                        nuevo_concepto = {
+                            "idconcepto": data.idconcepto.idconcepto,
+                            "nombreconcepto": data.nombreconcepto,
+                            "cantidad": data.cantidad, 
+                            "valor": data.valor,
+                        }
+                    
+
         
         # Convertir las fechas y extraer el año y el mes
         start_year, start_month, end_year, end_month = parse_dates(start_date, end_date)

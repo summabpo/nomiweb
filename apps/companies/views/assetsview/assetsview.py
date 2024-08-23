@@ -4,7 +4,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('entrepreneur')
+@role_required('entrepreneur') 
 def contractview(request,idcontrato): 
     contrato = Contratos.objects.get(idcontrato = idcontrato)
     

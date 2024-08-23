@@ -81,20 +81,18 @@
                         <th>Docidentidad</th>
                         <th>Empleado</th>
                         <th>Contrato</th>
-                        <th>Total</th>
-                        <th>Conceptos</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for compect in compects %}
                         <tr>
                             <td>{{ compect.documento }}</td>
-                            <td>{{ compect.empleado }}</td>
-                            <td>{{ compect.contrato }}</td>
-                            <td>{{ compect.total }}</td>
+                            
                             <td>
-                                <!-- Mostrar conceptos en una lista -->
-                                <table class="table table-sm inner-table">
+                                
+                                {{ compect.empleado }}
+
+                                 <table class="table table-sm inner-table">
                                     <thead>
                                         <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200" >
                                             <th>Concepto</th>
@@ -117,8 +115,12 @@
                                             </tr>
                                         {% endfor %}
                                     </tbody>
-                                </table>
+                                </table> 
+                            
                             </td>
+
+                            <td>{{ compect.contrato }}</td>
+
                         </tr>
                     {% empty %}
                         <tr>
@@ -266,12 +268,8 @@
                     }
                 }
             ],
-            columnDefs: [
-                {
-                    targets: 4, // Índice de la columna de conceptos
-                    orderable: false // Desactivar la ordenación en esta columna
-                }
-            ],
+
+            
             order: [[0, 'asc']], // Cambia el índice de la columna por defecto para ordenar
             pageLength: 10
         });
