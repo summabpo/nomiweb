@@ -8466,6 +8466,15 @@
         "documentation": {}
     },
     {
+        "label": "STATICFILES_DIRS",
+        "kind": 5,
+        "importPath": "nomiweb.settings.production",
+        "description": "nomiweb.settings.production",
+        "peekOfCode": "STATICFILES_DIRS = [\n     os.path.join(BASE_DIR, '..', 'static')\n]\n# Seguridad de cookies\nCSRF_COOKIE_SECURE = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_HTTPONLY = True\nCSRF_TRUSTED_ORIGINS = [\n    'http://127.0.0.1:8081',\n    'http://127.0.0.1:8000',",
+        "detail": "nomiweb.settings.production",
+        "documentation": {}
+    },
+    {
         "label": "CSRF_COOKIE_SECURE",
         "kind": 5,
         "importPath": "nomiweb.settings.production",
@@ -8506,7 +8515,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')\nAWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')\nAWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')\nAWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'",
+        "peekOfCode": "AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')\nAWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')\nAWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')\nAWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')\nAWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\nSTATICFILES_FINDERS = [\n    'django.contrib.staticfiles.finders.FileSystemFinder',",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8515,7 +8524,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')\nAWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')\nAWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')\nAWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'",
+        "peekOfCode": "AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')\nAWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')\nAWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')\nAWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\nSTATICFILES_FINDERS = [\n    'django.contrib.staticfiles.finders.FileSystemFinder',\n    'django.contrib.staticfiles.finders.AppDirectoriesFinder',",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8524,7 +8533,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')\nAWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')\nAWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios",
+        "peekOfCode": "AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')\nAWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')\nAWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\nSTATICFILES_FINDERS = [\n    'django.contrib.staticfiles.finders.FileSystemFinder',\n    'django.contrib.staticfiles.finders.AppDirectoriesFinder',\n]",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8533,7 +8542,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')\nAWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios\nSTATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'",
+        "peekOfCode": "AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')\nAWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\nSTATICFILES_FINDERS = [\n    'django.contrib.staticfiles.finders.FileSystemFinder',\n    'django.contrib.staticfiles.finders.AppDirectoriesFinder',\n]\n# Almacén estático y de medios",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8542,7 +8551,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios\nSTATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'",
+        "peekOfCode": "AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'\nAWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\nSTATICFILES_FINDERS = [\n    'django.contrib.staticfiles.finders.FileSystemFinder',\n    'django.contrib.staticfiles.finders.AppDirectoriesFinder',\n]\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8551,7 +8560,16 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "AWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios\nSTATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'",
+        "peekOfCode": "AWS_S3_OBJECT_PARAMETERS = {\n    'CacheControl': 'max-age=86400',\n}\nSTATICFILES_FINDERS = [\n    'django.contrib.staticfiles.finders.FileSystemFinder',\n    'django.contrib.staticfiles.finders.AppDirectoriesFinder',\n]\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'",
+        "detail": "nomiweb.settings.production",
+        "documentation": {}
+    },
+    {
+        "label": "STATICFILES_FINDERS",
+        "kind": 5,
+        "importPath": "nomiweb.settings.production",
+        "description": "nomiweb.settings.production",
+        "peekOfCode": "STATICFILES_FINDERS = [\n    'django.contrib.staticfiles.finders.FileSystemFinder',\n    'django.contrib.staticfiles.finders.AppDirectoriesFinder',\n]\n# Almacén estático y de medios\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios\nSTATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8560,7 +8578,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios\nSTATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = False\nSTATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')",
+        "peekOfCode": "STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\nDEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios\nSTATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = True",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8569,7 +8587,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios\nSTATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = False\nSTATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')",
+        "peekOfCode": "DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# URL estática y de medios\nSTATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = True",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8578,7 +8596,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = False\nSTATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')",
+        "peekOfCode": "STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'\nMEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = True",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8587,16 +8605,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\nSTATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = False\nSTATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')",
-        "detail": "nomiweb.settings.production",
-        "documentation": {}
-    },
-    {
-        "label": "STATICFILES_STORAGE",
-        "kind": 5,
-        "importPath": "nomiweb.settings.production",
-        "description": "nomiweb.settings.production",
-        "peekOfCode": "STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = False\nSTATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')",
+        "peekOfCode": "MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'\n# Configuración de caché\nAWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = True",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8605,7 +8614,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "AWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = False\nSTATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')",
+        "peekOfCode": "AWS_QUERYSTRING_AUTH = False\nAWS_S3_FILE_OVERWRITE = True",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
@@ -8614,16 +8623,7 @@
         "kind": 5,
         "importPath": "nomiweb.settings.production",
         "description": "nomiweb.settings.production",
-        "peekOfCode": "AWS_S3_FILE_OVERWRITE = False\nSTATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')",
-        "detail": "nomiweb.settings.production",
-        "documentation": {}
-    },
-    {
-        "label": "STATIC_ROOT",
-        "kind": 5,
-        "importPath": "nomiweb.settings.production",
-        "description": "nomiweb.settings.production",
-        "peekOfCode": "STATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')",
+        "peekOfCode": "AWS_S3_FILE_OVERWRITE = True",
         "detail": "nomiweb.settings.production",
         "documentation": {}
     },
