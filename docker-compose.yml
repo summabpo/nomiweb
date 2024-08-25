@@ -15,7 +15,7 @@ services:
     expose:
       - "8000"  # Este es el puerto interno expuesto dentro del contenedor
     ports:
-      - "89:8000"
+      - "89:8000" # Este puerto es al que nginx va a redireccionar y debe estar generado desde aqui.
     restart: always
     networks:
       - proxy-network # Asocia el contenedor a la red "proxy-network"

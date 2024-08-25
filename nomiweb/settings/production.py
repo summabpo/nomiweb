@@ -54,6 +54,10 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8081',
     'https://nomiweb.com.co',
     'https://app.nomiweb.com.co',
+    'https://dev.nomiweb.com.co',
+    'http://app.nomiweb.com.co',
+    'http://dev.nomiweb.com.co',
+    'http://nomiweb.com.co'
 ]
 
 
