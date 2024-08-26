@@ -8,7 +8,6 @@ from apps.components.humani import format_value
 from django.http import JsonResponse
 from .parse_dates import parse_dates
 
-
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
@@ -17,97 +16,86 @@ from django.contrib.auth.decorators import login_required
 def payrollaccumulations(request):
     acumulados = {}
     compects = []
-
+    form = ReportFilterForm()
     if request.method == 'POST':
         form = ReportFilterForm(request.POST)
         if form.is_valid():
-            # Obtener los parámetros de búsqueda del formulario
-            employee = form.cleaned_data['employee']
-            cost_center = form.cleaned_data['cost_center']
-            city = form.cleaned_data['city']
-            start_date = form.cleaned_data['start_date']
-            end_date = form.cleaned_data['end_date']
-    
-            # Aplicar filtros a la consulta de Nomina
-            nominas = Nomina.objects.all().order_by('idconcepto__idconcepto')
-            if employee:
-                nominas = nominas.filter(idempleado__idempleado=employee)
-            if cost_center:
-                nominas = nominas.filter(idcontrato__idcosto=cost_center)
-            if city:
-                nominas = nominas.filter(idcontrato__idsede=city)
-            if start_date:
-                nominas = nominas.filter(idnomina__fechainicial__gte=start_date)
-            if end_date:
-                nominas = nominas.filter(idnomina__fechafinal__lte=end_date)
-            
-            # Acumular los datos
-            for data in nominas:
-                docidentidad = data.idempleado.docidentidad
-                if docidentidad not in acumulados:
-                    acumulados[docidentidad] = {
-                        'documento': docidentidad,
-                        'empleado': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
-                        'contrato': data.idcontrato.idcontrato,
-                        'data':[
-                            {"idconcepto": data.idconcepto.idconcepto,
-                            "nombreconcepto": data.nombreconcepto, 
-                            "cantidad": data.cantidad, 
-                            "valor": data.valor,},
-                            
-                        ]
-                    }
-                else:
-                    concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
-                    
-                    if concepto_existente:
-                        
-                        # Si existe, sumar la cantidad y el valor, y actualizar el nombreconcepto con el multiplicador
-                        concepto_existente["cantidad"] += data.cantidad
-                        concepto_existente["valor"] += data.valor  
-                        # Actualizar el nombreconcepto con el multiplicador
-                        concepto_existente["nombreconcepto"] = f'{data.nombreconcepto} x{concepto_existente["multiplicador"]}'
-                        
-                    else:
-                        # Si no existe, añadir el nuevo concepto
-                        nuevo_concepto = {
-                            "idconcepto": data.idconcepto.idconcepto,
-                            "nombreconcepto": data.nombreconcepto,
-                            "cantidad": data.cantidad, 
-                            "valor": data.valor,
-                        }
-                    
-                        acumulados[docidentidad]["data"].append(nuevo_concepto)
-                    # nuevo_concepto = {"idconcepto": data.idconcepto.idconcepto, 
-                    #                 "nombreconcepto": data.nombreconcepto,
-                    #                 "cantidad": data.cantidad,  
-                    #                 "valor": data.valor }
-                    
+            try:
+                # Obtener los parámetros de búsqueda del formulario
+                employee = form.cleaned_data['employee']
+                cost_center = form.cleaned_data['cost_center']
+                city = form.cleaned_data['city']
+                start_date = form.cleaned_data['start_date']
+                end_date = form.cleaned_data['end_date']
+        
+                # Aplicar filtros a la consulta de Nomina
+                nominas = Nomina.objects.all().order_by('idconcepto__idconcepto')
+                if employee:
+                    nominas = nominas.filter(idempleado__idempleado=employee)
+                if cost_center:
+                    nominas = nominas.filter(idcontrato__idcosto=cost_center)
+                if city:
+                    nominas = nominas.filter(idcontrato__idsede=city)
+                if start_date:
+                    nominas = nominas.filter(idnomina__fechainicial__gte=start_date)
+                if end_date:
+                    nominas = nominas.filter(idnomina__fechafinal__lte=end_date)
                 
-            for docidentidad, datos in acumulados.items():
-                for concepto in datos['data']:
-                    concepto['valor'] = format_value(concepto['valor'])
-            # Procesar los datos acumulados
-            compects = list(acumulados.values())
-            
-            return render(request, 'companies/payrollaccumulations.html', {
-                'compects': compects,
-                'form': form,
-            })
+                # Acumular los datos
+                for data in nominas:
+                    docidentidad = data.idempleado.docidentidad
+                    if docidentidad not in acumulados:
+                        acumulados[docidentidad] = {
+                            'documento': docidentidad,
+                            'empleado': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
+                            'contrato': data.idcontrato.idcontrato,
+                            'data': [
+                                {"idconcepto": data.idconcepto.idconcepto,
+                                 "nombreconcepto": data.nombreconcepto,
+                                 "cantidad": data.cantidad,
+                                 "valor": data.valor,},
+                            ]
+                        }
+                    else:
+                        concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
+                        
+                        if concepto_existente:
+                            # Si existe, sumar la cantidad y el valor
+                            concepto_existente["cantidad"] += data.cantidad
+                            concepto_existente["valor"] += data.valor
+                        else:
+                            # Si no existe, añadir el nuevo concepto
+                            nuevo_concepto = {
+                                "idconcepto": data.idconcepto.idconcepto,
+                                "nombreconcepto": data.nombreconcepto,
+                                "cantidad": data.cantidad,
+                                "valor": data.valor,
+                            }
+                            acumulados[docidentidad]["data"].append(nuevo_concepto)
+                
+                for docidentidad, datos in acumulados.items():
+                    for concepto in datos['data']:
+                        concepto['valor'] = format_value(concepto['valor'])
+                
+                # Procesar los datos acumulados
+                compects = list(acumulados.values())
+                form = ReportFilterForm(request.POST)
+            except Exception as e:
+                print(f"Tipo de excepción: {type(e).__name__}") 
+                messages.error(request, "Algo salió mal. Por favor, intenta nuevamente.")
+                return  redirect('companies:payrollaccumulations')
         else:
+            # Si el formulario no es válido, mostrar los errores
             for error in form.errors.values():
                 for e in error:
                     messages.error(request, e)
-            return redirect('companies:payrollaccumulations')
-    
-    # Inicializar el formulario vacío
-    form = ReportFilterForm()
 
-    
+
     return render(request, 'companies/payrollaccumulations.html', {
         'compects': compects,
         'form': form,
     })
+    
     
     
     
@@ -160,8 +148,6 @@ def descargar_excel_empleados(request):
                         # Si existe, sumar la cantidad y el valor, y actualizar el nombreconcepto con el multiplicador
                         concepto_existente["cantidad"] += data.cantidad
                         concepto_existente["valor"] += data.valor  
-                        # Actualizar el nombreconcepto con el multiplicador
-                        concepto_existente["nombreconcepto"] = f'{data.nombreconcepto} x{concepto_existente["multiplicador"]}'
                         
                     else:
                         # Si no existe, añadir el nuevo concepto
@@ -171,6 +157,7 @@ def descargar_excel_empleados(request):
                             "cantidad": data.cantidad, 
                             "valor": data.valor,
                         }
+                        acumulados[docidentidad]["data"].append(nuevo_concepto)
                     
 
         
