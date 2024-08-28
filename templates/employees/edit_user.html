@@ -31,21 +31,31 @@ Editar Datos
 
 
 {% block content %}
-<div class="container mt-5">
-    <div class="d-flex justify-content-end">
-        <a href="{% url 'employees:user'  %}" class="btn btn-secondary hover-scale">
-            <i class="ki-duotone ki-entrance-right fs-2qx ">
+
+<div class="d-flex justify-content-end">
+    <a href="{% url 'employees:user'  %}" class="btn btn-light-primary">
+        Regresar
+        <i class="ki-duotone ki-exit-left fs-2x">             
             <span class="path1"></span>
             <span class="path2"></span>
-            </i>
-        </a>
-    </div>
+        </i>
+    </a>
 </div>
 <br>
 <div class="card mb-5 mb-xxl-8">
     <div class="card-body pt-9 pb-0">
         {% crispy form %}
     </div>
+
+</div>
+<div class="d-flex justify-content-end">
+    <button type="submit" class="btn btn-light-info" form="form_editemployees" >
+        Actualizar
+        <i class="ki-duotone ki-save fs-2x">             
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+    </button>
 </div>
 
 

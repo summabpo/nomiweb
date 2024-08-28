@@ -11,7 +11,7 @@ empleados
 {% endblock %}
 
 {% block sub_titulo2 %} 
-ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"> {{DicContract.EstadoContrato}} </span> 
+ID Contrato {{DicContract.Idcontrato}} - 2 <br>  <span class="badge badge-success"> {{DicContract.EstadoContrato}} </span> 
 {% endblock %}
 
 {% block titulo2 %} 
@@ -23,25 +23,16 @@ ID Contrato {{DicContract.Idcontrato}} - <br>  <span class="badge badge-success"
 {% endblock %}
 
 
-
-
-
-
-
-
-
-
-
-
-
 {% block content %}
-<a href="{% url 'companies:startcompanies' %}"  class="btn btn-light-primary"   >
-    Regresar
-    <i class="ki-duotone ki-exit-left fs-2x ">             
-        <span class="path1"></span>
-        <span class="path2"></span>
-    </i>
-</a>  
+<div class="d-flex justify-content-end">
+    <a href="{% url 'companies:startcompanies' %}" class="btn btn-light-primary">
+        Regresar
+        <i class="ki-duotone ki-exit-left fs-2x">             
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+    </a>
+</div> 
     {% crispy form %}
 {% endblock %}
 
