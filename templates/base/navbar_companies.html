@@ -3,6 +3,21 @@
     <div class="d-flex flex-column justify-content-between h-100 hover-scroll-overlay-y my-2 mx-8 d-flex flex-column" id="kt_app_sidebar_main" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_header" data-kt-scroll-wrappers="#kt_app_main" data-kt-scroll-offset="4px">
         <!--begin::Sidebar menu-->
         <div id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false" class="flex-column-fluid menu menu-sub-indention menu-column menu-rounded menu--bg mb-7">
+            
+            <!--begin:Menu item-->
+            <div class="menu-item here">
+                <!--begin:Menu link-->
+                <a class="menu-link" href="{% url 'companies:index_companies'  %}">
+                    <span class="menu-icon">
+                        <i class="fa-solid fa-house fs-1 text-gray-500 me-n1  "></i>
+                    </span>
+                    <span class="menu-title">Inicio</span>
+                </a>
+                <!--end:Menu link-->
+            </div>
+            <!--end:Menu item-->
+            
+            
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
