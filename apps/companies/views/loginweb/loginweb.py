@@ -84,8 +84,8 @@ def loginweb(request):
                     'contrasena': passwordoriginal,
                 }
                 subject = 'Activacion de Usuario'
-                recipient_list = ['mikepruebas@yopmail.com'] ## cambiar el correo por el del usuario 
-                #recipient_list = usertempo.email 
+                #recipient_list = ['mikepruebas@yopmail.com'] ## cambiar el correo por el del usuario 
+                recipient_list = usertempo.email 
 
                 if send_template_email(email_type, context, subject, recipient_list):
                     pass
