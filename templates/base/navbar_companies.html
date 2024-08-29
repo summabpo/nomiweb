@@ -1,8 +1,23 @@
-<div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="250px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
+<div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="100px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
     <!--begin::Main-->
-    <div class="d-flex flex-column justify-content-between h-100 hover-scroll-overlay-y my-2 mx-5 d-flex flex-column" id="kt_app_sidebar_main" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_header" data-kt-scroll-wrappers="#kt_app_main" data-kt-scroll-offset="5px">
+    <div class="d-flex flex-column justify-content-between h-100 hover-scroll-overlay-y my-2 mx-8 d-flex flex-column" id="kt_app_sidebar_main" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_header" data-kt-scroll-wrappers="#kt_app_main" data-kt-scroll-offset="4px">
         <!--begin::Sidebar menu-->
-        <div id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false" class="flex-column-fluid menu menu-sub-indention menu-column menu-rounded menu-active-bg mb-7">
+        <div id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false" class="flex-column-fluid menu menu-sub-indention menu-column menu-rounded menu--bg mb-7">
+            
+            <!--begin:Menu item-->
+            <div class="menu-item here">
+                <!--begin:Menu link-->
+                <a class="menu-link" href="{% url 'companies:index_companies'  %}">
+                    <span class="menu-icon">
+                        <i class="fa-solid fa-house fs-1 text-gray-500 me-n1  "></i>
+                    </span>
+                    <span class="menu-title">Inicio</span>
+                </a>
+                <!--end:Menu link-->
+            </div>
+            <!--end:Menu item-->
+            
+            
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
@@ -22,7 +37,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link active" href="">
+                        <a class="menu-link " href="">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -168,7 +183,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link active" href="">
+                        <a class="menu-link " href="">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -470,46 +485,24 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+                
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:nominatedcertificate'  %}">
+                        <a class="menu-link" href="{% url 'companies:payrollaccumulations'  %}">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Comprobantes de Nomina</span>
+                            <span class="menu-title">Acumulados de Nomina</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+                    
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:payrollsummary'  %}">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Resumen de Nomina</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Informes</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
+                        <a class="menu-link" href="{% url 'companies:abstractconcept'  %}">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -521,23 +514,11 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
+                        <a class="menu-link" href="{% url 'companies:settlementlist'  %}">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Liquidaciones</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Gestión Documental</span>
+                            <span class="menu-title">Listado de LIquidaciones</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
@@ -546,7 +527,8 @@
                 <!--end:Menu sub-->
             </div>
             <!--end:Menu item-->
-            <!--begin:Menu item-->
+
+            {% comment %} <!--begin:Menu item-->
             <div  data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
                 <span class="menu-link">
@@ -577,7 +559,8 @@
                 </div>
                 <!--end:Menu sub-->
             </div>
-            <!--end:Menu item-->
+            <!--end:Menu item--> {% endcomment %}
+
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
@@ -593,6 +576,7 @@
                     <span class="menu-arrow"></span>
                 </span>
                 <!--end:Menu link-->
+
                 <!--begin:Menu sub-->
                 <div class="menu-sub menu-sub-accordion">
                     <!--begin:Menu item-->
@@ -607,7 +591,8 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
-                    <!--begin:Menu item-->
+
+                    {% comment %} <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
                         <a class="menu-link" href="#">
@@ -619,6 +604,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -631,6 +617,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -643,6 +630,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -655,6 +643,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -667,6 +656,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -679,6 +669,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -691,6 +682,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -703,6 +695,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -714,12 +707,12 @@
                         </a>
                         <!--end:Menu link-->
                     </div>
-                    <!--end:Menu item-->
+                    <!--end:Menu item--> {% endcomment %}
+
                 </div>
                 <!--end:Menu sub-->
             </div>
             <!--end:Menu item-->
-            
             
         </div>
         <!--end::Sidebar menu-->

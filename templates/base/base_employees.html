@@ -238,7 +238,7 @@ License: For each use you must have a valid license purchased only from above li
                                             <!--begin::Item-->
                                             <li class="breadcrumb-item text-gray-700 fw-bold lh-1">
                                                 <a href="{% url 'employees:index_employees'  %}" class="text-gray-500 text-hover-primary">
-                                                    <i class="ki-duotone ki-home fs-3 text-gray-500 me-n1"></i>
+                                                    <i class="fa-solid fa-house fs-3 text-gray-500 me-n1"></i>
                                                 </a>
                                             </li>
                                             <!--end::Item-->
@@ -290,10 +290,7 @@ License: For each use you must have a valid license purchased only from above li
                     <!--begin::Footer-->
                     <div id="kt_app_footer" class="app-footer align-items-center justify-content-center justify-content-md-between flex-column flex-md-row py-3">
                         <!--begin::Copyright-->
-                        <div class="text-gray-900 order-2 order-md-1">
-                            <span class="text-muted fw-semibold me-1">2023&copy;</span>
-                            <a href="" target="_blank" class="text-gray-800 text-hover-primary">Fotter prueba </a>
-                        </div>
+                        {% include './footer.html' %}
                         <!--end::Copyright-->
                         <!--begin::Menu-->
                         

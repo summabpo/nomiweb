@@ -6,10 +6,14 @@ from xhtml2pdf import pisa
 from datetime import datetime
 from django.http import HttpResponse
 from apps.components.payrollgenerate import generate_summary
-
-from apps.components.mail import send_template_email2
+from apps.components.payrollgenerate import genera_comprobante 
+from apps.components.mail import send_template_email2 ,send_template_email3
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+from PyPDF2 import PdfMerger
+from django.template.loader import render_to_string
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -21,7 +25,8 @@ def get_email_status(estado_email):
 
     return envio_email
 
-
+@login_required
+@role_required('entrepreneur')
 def payrollsheet(request):
     #nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
     nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
@@ -31,7 +36,7 @@ def payrollsheet(request):
 
     selected_nomina = request.GET.get('nomina')
     if selected_nomina:
-        compectos = Nomina.objects.filter(idnomina=selected_nomina)[:50]
+        compectos = Nomina.objects.filter(idnomina=selected_nomina)
         
         # Consulta 1: Total neto
         # neto = Nomina.objects.filter(idnomina=id_nomina).aggregate(Sum('valor'))['valor__sum'] or 0
@@ -69,7 +74,9 @@ def payrollsheet(request):
                     'extras': 0,
                     'aportess': 0,
                     'prestamos': 0,
-                    'estado': get_email_status(compribanten.envio_email)
+                    'estado': get_email_status(compribanten.envio_email) ,
+                    'nominaid': data.idnomina.idnomina,
+                    'contratoid' :data.idcontrato.idcontrato,   
                 }
             
             acumulados[docidentidad]['neto'] += data.valor
@@ -99,7 +106,8 @@ def payrollsheet(request):
 
 
 
-
+@login_required
+@role_required('entrepreneur')
 def generatepayrollsummary(request,idnomina):
     context = generate_summary(idnomina)
     
@@ -121,6 +129,75 @@ def generatepayrollsummary(request,idnomina):
     
     return response
 
+@login_required
+@role_required('entrepreneur')
+def generatepayrollsummary2(request, idnomina):
+    # Obtener los contratos únicos ordenados por apellido
+    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idempleado__papellido').values_list('idcontrato', flat=True).distinct()
+    
+    # Crear un objeto para combinar PDFs
+    merger = PdfMerger()
+    
+    for idcontrato in idcontratos_unicos:
+        # Generar el contexto para cada contrato
+        context = genera_comprobante(idnomina, idcontrato)
+        
+        # Renderizar el template a una cadena HTML
+        html_string = render_to_string('./html/payrollcertificate.html', context)
+        
+        # Crear el PDF para cada documento
+        pdf = BytesIO()
+        pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+        pdf.seek(0)
+
+        if pisa_status.err:
+            return HttpResponse('Error al generar uno de los PDFs', status=400)
+        
+        # Agregar el PDF al merger
+        merger.append(pdf)
+    
+    # Crear un archivo PDF final combinando todos los PDFs
+    combined_pdf = BytesIO()
+    merger.write(combined_pdf)
+    combined_pdf.seek(0)
+    
+    # Crear el nombre del archivo con la fecha actual
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+    nombre_archivo = f'Certificado_{idnomina}_{fecha_actual}.pdf'
+
+    # Preparar la respuesta HTTP con el PDF final
+    response = HttpResponse(combined_pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
+    
+    return response
+
+
+@login_required
+@role_required('entrepreneur')
+def generatepayrollcertificate(request ,idnomina,idcontrato):
+    context = genera_comprobante(idnomina,idcontrato)
+
+    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+    
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+    
+    pdf = BytesIO()
+    pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+    pdf.seek(0)
+
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=400)
+    
+    nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
+    
+    return response
+
+
+
+
 """ 
 para el optimo funcionamiento del views , es requerido que se borre el icono 1 
 se cambie la configuracion de correos electronicos y se cree la plantilla 
@@ -131,7 +208,8 @@ icono 3 :  success, message - linea 177
 
 """
 
-
+@login_required
+@role_required('entrepreneur')
 def massive_mail(request):
     if request.method == 'POST':
         nomina = request.POST.get('nomina2', '')
@@ -144,7 +222,7 @@ def massive_mail(request):
             return JsonResponse({'error': 'El campo nomina debe ser un número.'}, status=400)
         
         try:
-            compectos = Nomina.objects.filter(idnomina=int(nomina))[:5]
+            compectos = Nomina.objects.filter(idnomina=int(nomina)).distinct('idcontrato')[:5]
         except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
             return JsonResponse({'error': f'Error al obtener los datos de Nomina: {str(e)}'}, status=500)
         except Exception as e:
@@ -163,18 +241,43 @@ def massive_mail(request):
         use = 0
         error_messages = []
         
-        for comp in compectos:
-            email_type = 'loginweb'
-            context = {
-                'nombre_usuario': comp,
-                'usuario': 'usertempo.email',
-                'contrasena': 'passwordoriginal',
+        for comp in compectos:            
+            context = genera_comprobante(nomina, comp.idcontrato.idcontrato)
+
+            html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+
+            fecha_actual = datetime.now().strftime('%Y-%m-%d')
+
+            pdf = BytesIO()
+            pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+            pdf.seek(0)
+
+            if pisa_status.err:
+                return HttpResponse('Error al generar el PDF', status=400)
+            
+            nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
+            
+            # Enviar el PDF por correo
+            email_subject = 'Tu Comprobante de Nòmina'
+            
+            recipient_list = ['mikepruebas@yopmail.com']  # Lista de destinatarios
+
+            attachment = {
+                'filename': nombre_archivo,
+                'content': pdf.getvalue(),
+                'mimetype': 'application/pdf'
             }
-            subject = 'Activacion de Usuario'
+            
             
             try:
                 if use < len(recipient_list):
-                    success, message = send_template_email2(email_type, context, subject, [recipient_list[use]])
+                    success, message = send_template_email3(
+                        email_type='nomina1',  # Ajusta el tipo de correo según corresponda
+                        context=context,
+                        subject=email_subject,
+                        recipient_list=recipient_list,
+                        attachment=attachment
+                    )
                     if success:
                         cont += 1
                     else:
@@ -197,6 +300,63 @@ def massive_mail(request):
         return JsonResponse(response_data)
     
     return JsonResponse({'error': 'Este view solo acepta peticiones POST.'}, status=405)
+
+
+
+@login_required
+@role_required('entrepreneur')
+def unique_mail(request,idnomina,idcontrato):
+    datacn = NominaComprobantes.objects.get(idnomina = idnomina ,idcontrato = idcontrato )
+    context = genera_comprobante(idnomina, idcontrato)
+
+    html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+
+    pdf = BytesIO()
+    pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+    pdf.seek(0)
+
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=400)
+    nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
+    # Enviar el PDF por correo
+    email_subject = 'Tu Comprobante de Nòmina'
+    
+    #
+    recipient_list = ['mikepruebas@yopmail.com', context["mail"]]  # Lista de destinatarios
+
+    attachment = {
+        'filename': nombre_archivo,
+        'content': pdf.getvalue(),
+        'mimetype': 'application/pdf'
+    }
+
+    email_sent = send_template_email3(
+        email_type='nomina1',  # Ajusta el tipo de correo según corresponda
+        context=context,
+        subject=email_subject,
+        recipient_list=recipient_list,
+        attachment=attachment
+    )
+
+    email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo.'
+    if email_sent :
+        datacn.envio_email = 1
+        datacn.save()
+    else:
+        datacn.envio_email = 2
+        datacn.save()
+        
+
+    response_data = {
+        'message': 'ID recibido correctamente',
+        'status' : email_status,
+        'name' : context["nombre_completo"]
+    }
+    return JsonResponse(response_data)
+
+
 
 
 

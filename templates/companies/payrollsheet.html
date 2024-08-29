@@ -2,10 +2,24 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-    Nomiweb.co - Portal Empresas - Cargos 
+    Nomiweb.co - Portal Empresas -nomina
 {% endblock %}
 
+
 {% block css %}
+    .btn-light-info {
+        margin-right: 10px; /* Ajusta el valor según sea necesario */
+    }
+
+    .loading-animation {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000; /* Asegura que la animación esté por encima de otros elementos */
+    }
+
+
 {% endblock %}
 
 {% block sub_titulo1 %} 
@@ -70,7 +84,7 @@
                 <tbody>
                     {% for compect in compects %}
                         <tr>
-                            <td>{{ compect.documento }}</td>
+                            <td class="data">{{ compect.documento }}</td>
                             <td>{{ compect.nombre }}</td>
                             <td>{{ compect.basico }}</td>
                             <td>{{ compect.tpte }}</td>
@@ -83,34 +97,34 @@
                             <td>{{ compect.descuentos }}</td>
                             <td>{{ compect.neto }}</td>
                             <td>
-                                <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm">
+                                <a  href="{% url 'companies:generatepayrollcertificate' compect.nominaid compect.contratoid %}" target="_blank"  class="btn btn-icon btn-light-success hover-scale btn-sm">
                                     <i class="fa-solid fa-file fs-1"></i>
                                 </a> 
                             </td>
                             <td>
-                                <a href="#" class="btn btn-icon btn-light-success hover-scale btn-sm">
-                                    <i class="fa-regular fa-paper-plane fs-1"></i>
+                                <a class="btn btn-icon btn-light-success hover-scale btn-sm">
+                                    <i class="fa-regular fa-paper-plane fs-1" onclick="enviarDatos('{{ compect.nominaid }}', '{{ compect.contratoid }}')" ></i>
                                 </a> 
                             </td>
                             <td>
                                 {% if compect.estado == 'Enviado' %}
                                     
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
                                             <i class="fa-solid fa-envelope-circle-check fs-1"></i>
                                         </button>
                                         <button type="button" class="btn btn-secondary">Enviado</button>
                                     </div>
                                 {% elif compect.estado == 'Error' %}
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
                                             <i class="fa-solid fa-circle-exclamation fs-1"></i>
                                         </button> 
                                         <button type="button" class="btn btn-secondary">Error</button>
                                     </div>
                                 {% else %}
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
+                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
                                             <i class="fa-solid fa-envelope fs-1"></i>
                                         </button> 
                                         <button type="button" class="btn btn-secondary">No Enviado</button>
@@ -182,7 +196,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" id="btn-enviar-ajax">Enviar</button>
-                <button type="button" class="btn btn-primary" id="btn-enviar-ajax">Enviar</button>
+                <button type="button" class="btn btn-primary" id="btn-enviar-ajax"> Enviar Comp con Error </button>
             </div>
         </div>
     </div>
@@ -229,13 +243,125 @@
     </div>
 </div>
 
+<!-- Modal de archivo plano de nomina -->
+<div class="modal fade" id="planoModal" tabindex="-1" role="dialog" aria-labelledby="planoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="planoModalLabel">Pago de Nómina</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger " >Archivo Plano - Pago de Nómina</p>
+                <hr class="dotted-separator">
+                <p><strong>Banco:</strong> <span id="banco"></span></p>
+                <p><strong>Cuenta:</strong> <span id="cuenta"></span></p>
+                <p><strong>Registros con Cuenta:</strong> <span id="registrosConCuenta"></span></p>
+                <p><strong>Valor Pagos en el Archivo:</strong> <span id="valorPagos"></span></p>
+                <p><strong>Registros sin Cuenta:</strong> <span id="registrosSinCuenta"></span></p>               
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                {% if selected_nomina %}
+                    <a href="{% url 'companies:bank_file' selected_nomina %}" class="btn btn-light-primary">
+                        <i class="fa-solid fa-download fs-1"></i> 
+                        Descargar
+                    </a> 
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}
 
 {% block js %}
 
 
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "debug": true,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toastr-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "1500",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
 
+    function enviarDatos(nominaid, contratoid) {
+        // Construye la URL con el ID
+        var url = '/companies/payroll/sheet/send/' + nominaid + '/' + contratoid + '/';
+    
+        // Envía el ID usando AJAX
+        $.ajax({
+            url: url, // URL con el ID incluido
+            type: 'GET', // Método GET para enviar el ID en la URL
+            success: function(response) {
+                console.log('Respuesta recibida:', response); // Muestra la respuesta completa
+                
+                // Verifica si la respuesta contiene 'message' y 'name'
+                if (response.message ) {
+                    var message = "El correo con el comprobante de nómina se ha enviado correctamente a " + response.name + ".";
+                    toastr.success(message, "Envio de Correo");
+                } else {
+                    toastr.error("Hubo un problema al enviar el correo. Por favor, intenta nuevamente.", "Error");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error al enviar el ID:', error);
+                toastr.error("Hubo un problema al enviar el correo. Intente de nuevo más tarde. Si el error persiste, por favor, contacte al soporte.", "Error");
+            }
+        });
+    }
+
+    document.addEventListener('wheel', function(event) {
+        // Manejo del evento
+    }, { passive: true });
+
+
+</script>
+
+<script>
+    $(document).ready(function() {
+        // Función para cargar la información cuando se abre el modal
+        $('#planoModal').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            
+            // Obtener el ID de cuenta desde el contexto de Django en el template
+            var idnomina = '{{ selected_nomina }}'; // Asegúrate de que el nombre de la variable coincida con el contexto que pasas
+            
+            // Realizar la solicitud AJAX a la vista de Django con el ID de cuenta
+            $.ajax({
+                type: 'GET',
+                url: '{% url "companies:bank_list_get" %}',
+                data: {
+                    'id_nomina': idnomina
+                },
+                success: function(data) {
+                    // Mostrar los datos obtenidos en el modal
+                    modal.find('#banco').text(data.banco);
+                    modal.find('#cuenta').text(data.cuenta);
+                    modal.find('#registrosConCuenta').text(data.registros_con_cuenta);
+                    modal.find('#valorPagos').text(data.valor_pagos);
+                    modal.find('#registrosSinCuenta').text(data.registros_sin_cuenta);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al obtener la información:', error);
+                }
+            });
+        });
+    });
+</script>
 
 <script>
     function cargarNominas() {
@@ -292,6 +418,12 @@
             var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=0 %}"; // O el valor por defecto que desees
         {% endif %}
 
+        {% if selected_nomina %}
+            var exportUrl2 = "{% url 'companies:generatepayrollsummary2' idnomina=selected_nomina %}";
+        {% else %}
+            var exportUrl2 = "{% url 'companies:generatepayrollsummary2' idnomina=0 %}"; // O el valor por defecto que desees
+        {% endif %}
+
         var table = $('#tabla-planilla-nomina').DataTable({
             language: {
                 "decimal":        "",
@@ -327,11 +459,25 @@
                     }
                 },
                 {
-                    text: ' Resumen de Nomina ',
+                    text: '<i class="fa-solid fa-list-check"></i>  Resumen de Nomina ',
                     action: function ( e, dt, node, config ) {
                         window.open(exportUrl, '_blank');
                     },
                     className: 'btn btn-light-info'
+                },
+                {
+                    text: '<i class="fa-solid fa-receipt"></i> comprobantes de Nominas ',
+                    action: function ( e, dt, node, config ) {
+                        window.open(exportUrl2, '_blank');
+                    },
+                    className: 'btn btn-light-info'
+                },
+                {
+                    text: ' <i class="fa-solid fa-money-check-dollar"></i> Plano Banco	 ',
+                    className: 'btn btn-light-info',
+                    action: function ( e, dt, node, config ) {
+                        $('#planoModal').modal('show'); // Abre el modal
+                    }
                 },
                 
             ],

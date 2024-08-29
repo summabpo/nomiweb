@@ -4,10 +4,11 @@ from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
 from apps.components.decorators import custom_login_required ,custom_permission
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-
-@custom_login_required
-@custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def EditEmployeeVisual(request,idempleado):
     empleado = Contratosemp.objects.get(idempleado=idempleado) 
     
@@ -31,8 +32,7 @@ def EditEmployeeVisual(request,idempleado):
         'id': empleado.idempleado
     }
     
-    
-    
+
     initial_data = {
         'identification_type':empleado.tipodocident,
         'identification_number':empleado.docidentidad,
@@ -43,9 +43,9 @@ def EditEmployeeVisual(request,idempleado):
         'first_last_name':empleado.papellido,
         'second_last_name':empleado.sapellido,
         'sex':empleado.sexo,
-        'height':str(empleado.estatura),
+        'height': str(empleado.estatura) if empleado.estatura not in [None,'None', ''] else "0",
         'marital_status':empleado.estadocivil,
-        'weight':empleado.peso,
+        'weight': empleado.peso if empleado.peso not in [None,'None', ''] else 0,
         'first_name':empleado.pnombre,
         'second_name':empleado.snombre,
         'birthdate':str(empleado.fechanac),
@@ -69,37 +69,78 @@ def EditEmployeeVisual(request,idempleado):
             }
     
     if request.method == 'POST':
-        form = EmployeeForm(request.POST)            
+        form = EmployeeForm(request.POST)     
+        form.set_all_fields_optional()       
         if form.is_valid():
             
-            messages.success(request, 'El Contrato ha sido creado')
-            return  redirect('companies:newcontractvisual')
-            # try:
+            # Campos del formulario y su relación con el modelo Contratosemp
+            # Formulario Field         -> Modelo Field
+            # -------------------------|-------------------------
+            # height                   -> estatura 
+            # marital_status           -> estadocivil
+            # weight                   -> peso
+            # education_level          -> niveleducativo
+            # stratum                  -> estrato
+            # military_id              -> numlibretamil
+            # profession               -> profesion
+            # residence_address        -> direccionempleado
+            # email                    -> email
+            # residence_city           -> ciudadresidencia
+            # cell_phone               -> celular
+            # residence_country        -> paisresidencia
+            # employee_phone           -> telefonoempleado
+            # pants_size               -> dotpantalon
+            # shirt_size               -> dotcamisa
+            # shoes_size               -> dotzapatos
+            
+            try:
+                empleado.estatura =form.cleaned_data['height']
+                empleado.estadocivil =form.cleaned_data['marital_status']
+                empleado.peso =form.cleaned_data['weight']
+                empleado.niveleducativo =form.cleaned_data['education_level']
+                empleado.estrato =form.cleaned_data['stratum']
+                empleado.numlibretamil =form.cleaned_data['military_id']
+                empleado.profesion =form.cleaned_data['profession']
+                empleado.direccionempleado =form.cleaned_data['residence_address']
+                empleado.email =form.cleaned_data['email']
+                empleado.ciudadresidencia =form.cleaned_data['residence_city']
+                empleado.celular =form.cleaned_data['cell_phone']
+                empleado.paisresidencia =form.cleaned_data['residence_country']
+                empleado.telefonoempleado =form.cleaned_data['employee_phone']
+                empleado.dotpantalon =form.cleaned_data['pants_size']
+                empleado.dotcamisa =form.cleaned_data['shirt_size']
+                empleado.dotzapatos =form.cleaned_data['shoes_size']
                 
-            # except Exception as e:
-            #     print(e)
-            #     messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
-            #     messages.error(request, messages_error)
-            #     return redirect('companies:newemployee')
+                
+                empleado.save()
+                messages.success(request, 'El Empleado ha sido Actualizado')
+                return  redirect('companies:startcompanies')
+            except Exception as e:
+                messages_error = 'Se produjo un error al guardar el Empleado.' + str(e.args)
+                messages.error(request, messages_error)
+                return redirect('companies:editemployeevisual',idempleado=empleado.idempleado)
+            
+            
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"Error en el campo '{field}': {error}")
-            return redirect('companies:newemployee')
+            return redirect('companies:editemployeevisual',idempleado=empleado.idempleado)
     else:
         
         
         activate = request.GET.get('premium', False)
         form = EmployeeForm(initial=initial_data) 
         form.set_premium_fields(premium=activate, fields_to_adjust=campos_a_ajustar) 
+        form.set_all_fields_optional()   
         
     
     return render(request, './companies/EditEmployeevisual.html',{'DicContract':DicContract , 'form':form})
 
 
 
-@custom_login_required
-@custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def EditEmployeeSearch(request):
     contratos_empleados = Contratos.objects \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \

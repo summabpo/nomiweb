@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
-from apps.companies.models import Tipodocumento , Paises , Ciudades , Contratosemp,Profesiones
+from apps.companies.models import Contratosemp
 from apps.companies.forms.EmployeeForm import EmployeeForm
-from apps.components.decorators import custom_login_required ,custom_permission
 from apps.login.models import Usuario , Empresa
 from django.contrib.auth.models import User
 
@@ -13,15 +12,17 @@ from apps.components.mail import send_template_email
 
 import random
 import string
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+
 
 def generate_random_password(length=12):
     characters = string.ascii_letters + string.digits + string.punctuation
     random_password = ''.join(random.choice(characters) for i in range(length))
     return random_password
 
-
-@custom_login_required
-@custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def newEmployee(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
@@ -30,6 +31,9 @@ def newEmployee(request):
             singleton = NombreDBSingleton()
             nombre_db = singleton.get_nombre_db()
             empresa = Empresa.objects.using('default').get(db_name=nombre_db)
+            
+            passwordoriginal = generate_random_password()
+            password = make_password(passwordoriginal)
             
             
             try:
@@ -118,8 +122,8 @@ def newEmployee(request):
             
             email_type = 'loginweb'
             context = {
-                'nombre_usuario': usertempo.pnombre,
-                'usuario': usertempo.email,
+                'nombre_usuario': contratosemp_instance.pnombre,
+                'usuario': contratosemp_instance.email,
                 'contrasena': passwordoriginal,
             }
             subject = 'Activacion de Usuario'

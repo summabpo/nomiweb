@@ -6,10 +6,11 @@ from django.http import HttpResponse
 from io import BytesIO
 from datetime import datetime
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-
-# @custom_login_required
-# @custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def startCompanies(request): 
     contratos_empleados = Contratos.objects\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
@@ -40,7 +41,8 @@ def startCompanies(request):
     
     return render(request, './companies/ActiveList.html', {'empleados': empleados})
 
-
+@login_required
+@role_required('entrepreneur')
 def exportar_excel1(request):
     
     citys = Ciudades.objects.all()
@@ -146,7 +148,8 @@ def exportar_excel1(request):
 
 
 
-
+@login_required
+@role_required('entrepreneur')
 def exportar_excel2(request):
     
     citys = Ciudades.objects.all()

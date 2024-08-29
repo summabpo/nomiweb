@@ -43,12 +43,7 @@ class Login_View(View):
                     'name': f"{user.first_name} {user.last_name}",
                     'id': usuario.id_empleado
                 }
-                
-                
                 request.session['usuario'] = complements
-                session = TempSession()
-                session.login()
-                session.set_user_type(usuario.role)
                 return redirect_by_role(usuario.role)
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')

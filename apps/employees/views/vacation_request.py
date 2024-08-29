@@ -4,14 +4,14 @@ from apps.employees.forms.vacation_request_form import EmpVacacionesForm
 from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
-from apps.components.decorators import custom_permission
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.components.mail import send_template_email
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-
+from apps.components.decorators import  role_required
+from apps.components.humani import format_decimal
 
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
@@ -38,7 +38,7 @@ def get_client_ip(request):
 
 
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def vacation_request_function(request):
     ide = request.session.get('idempleado')
     nombre_empleado = Contratosemp.objects.get(idempleado=ide).pnombre
@@ -115,6 +115,9 @@ def vacation_request_function(request):
     dias_trabajados = calcular_dias_360(inicio_contrato, fecha_hoy)
     periodos_completos = round(dias_trabajados/360)
     vacaciones_fecha = round(dias_trabajados * 15/360,2) - dias_vacaciones
+    
+    
+    
     vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
 
     context = {
@@ -124,7 +127,7 @@ def vacation_request_function(request):
         'vacation_list': vacation_list,
         'periodos_completos': periodos_completos,
         'idc': idc,
-        'vacaciones_fecha': vacaciones_fecha,
+        'vacaciones_fecha': format_decimal(vacaciones_fecha),
     }
 
     return render(request, 'employees/vacations_request.html', context)

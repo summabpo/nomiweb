@@ -79,26 +79,25 @@ Desprendibles
             <table class="table table-rounded table-striped border gy-7 gs-7" id='tabla-certi-nomi'>
                 <thead>
                     <tr>
-                    <th width="200">ID</th>
-                    <th width="200">Nomina</th>
-                    <th width="150">Fecha</th>
-                    <th width="150">Tipo</th>
+                        <th class="text-center">ID</th>
+                        <th class="text-center">Nomina</th>
+                        <th class="text-center">Fecha</th>
+                        <th class="text-center"> 
+                            <div class="btn btn-icon btn-sm btn-light-facebook me-5 container d-flex justify-content-center align-items-center  ">
+                                <i class="fa-solid fa-certificate fs-3"></i>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for e in nominas %}
                     <tr>
-                        <td>{{ e.idnomina.idnomina }}</td>
-                        <td>{{ e.idnomina.nombrenomina }}</td>
-                        <td>{{ e.idnomina.fechapago }}</td>
-                        <td>
-                            <a  href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato %}" target="_blank" class="btn btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Comprobante de Nomina" >
-                                Ver
-                                <i class="ki-duotone ki-eye fs-2qx">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                </i>
+                        <td class="text-center" >{{ e.idnomina.idnomina }}</td>
+                        <td class="text-center" >{{ e.idnomina.nombrenomina }}</td>
+                        <td class="text-center" >{{ e.idnomina.fechapago }}</td>
+                        <td class="text-center" >
+                            <a href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                                <i class="fa-solid fa-file-arrow-down fs-3"></i>
                             </a>
                         </td>
                     </tr>

@@ -108,9 +108,9 @@ License: For each use you must have a valid license purchased only from above li
                                 <div class="separator my-2"></div>
                                 <!--end::Menu separator-->
                                 <!--begin::Menu item-->
-                                <div class="menu-item px-5">
+                                {% comment %} <div class="menu-item px-5">
                                     <a href="" class="menu-link px-5">Mi Perfil</a>
-                                </div>
+                                </div> {% endcomment %}
                                 <!--end::Menu item-->
                                 
                                 <!--begin::Menu separator-->
@@ -240,8 +240,8 @@ License: For each use you must have a valid license purchased only from above li
                                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold mb-6">
                                             <!--begin::Item-->
                                             <li class="breadcrumb-item text-gray-700 fw-bold lh-1">
-                                                <a href="" class="text-gray-500 text-hover-primary">
-                                                    <i class="ki-duotone ki-home fs-3 text-gray-500 me-n1"></i>
+                                                <a href="{% url 'companies:index_companies'  %}" class="text-gray-500 text-hover-primary">
+                                                    <i class="fa-solid fa-house fs-3 text-gray-500 me-n1"></i>
                                                 </a>
                                             </li>
                                             <!--end::Item-->
@@ -293,10 +293,7 @@ License: For each use you must have a valid license purchased only from above li
                     <!--begin::Footer-->
                     <div id="kt_app_footer" class="app-footer align-items-center justify-content-center justify-content-md-between flex-column flex-md-row py-3">
                         <!--begin::Copyright-->
-                        <div class="text-gray-900 order-2 order-md-1">
-                            <span class="text-muted fw-semibold me-1">2023&copy;</span>
-                            <a href="" target="_blank" class="text-gray-800 text-hover-primary">Fotter prueba </a>
-                        </div>
+                            {% include './footer.html' %}
                         <!--end::Copyright-->
                         <!--begin::Menu-->
                         

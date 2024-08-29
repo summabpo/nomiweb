@@ -1,0 +1,292 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Nomiweb.co - Portal Empresas -nomina
+{% endblock %}
+
+{% block css %}
+/* Estilo para el botón con indicador */
+.btn-light-info {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Estilo para el indicador de carga */
+[data-kt-indicator="on"] .indicator-label {
+    opacity: 0;
+}
+
+[data-kt-indicator="on"] .indicator-progress {
+    display: flex;
+}
+
+.indicator-label {
+    display: inline-block;
+    transition: opacity 0.3s ease;
+}
+
+.indicator-progress {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.2em;
+}
+
+{% endblock %}
+
+{% block sub_titulo1 %} 
+    Nomina
+{% endblock %}
+
+{% block sub_titulo2 %} 
+    Acumulados de Nomina
+{% endblock %}
+
+{% block titulo2 %} 
+    Filtrados
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h3 class="card-title">Acumulados de Nomina - Filtros </h3>
+        </div>
+        <div class="card-body">
+            {% crispy form %}
+        </div>
+    </div>
+    <br>
+    <br>
+    <div class="separator  border-0 my-10"></div>
+
+
+    {% if compects %}
+        <div class="table-responsive">
+            <table id="tabla-liquidacion" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Docidentidad</th>
+                        <th>Empleado</th>
+                        <th>Contrato</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for compect in compects %}
+                        <tr>
+                            <td>{{ compect.documento }}</td>
+                            
+                            <td>
+                                
+                                {{ compect.empleado }}
+
+                                 <table class="table table-sm inner-table">
+                                    <thead>
+                                        <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200" >
+                                            <th>Concepto</th>
+                                            <th>Nombre</th>
+                                            <th>Cantidad</th>
+                                            <th>Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for concepto in compect.data %}
+                                            <tr>
+                                                <td>{{ concepto.idconcepto }}</td>
+                                                <td>{{ concepto.nombreconcepto }}</td>
+                                                <td>{{ concepto.cantidad }}</td>
+                                                <td>{{ concepto.valor }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="4">No hay conceptos para mostrar</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table> 
+                            
+                            </td>
+
+                            <td>{{ compect.contrato }}</td>
+
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No se encontraron resultados</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <h4 class="alert-heading">¡Atención!</h4>
+            <p>Parece que la lista está vacía en este momento. Por favor, seleccione una nómina para visualizar los datos correspondientes.</p>
+            <hr>
+            <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+        </div>
+    {% endif %}
+
+    
+
+</div>
+
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+                <p>Cargando...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function() {
+        $('#Filter_report').on('submit', function() {
+            $('#loadingModal').modal('show');
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var clearButton = document.getElementById('button-id-button');
+        if (clearButton) {
+            clearButton.addEventListener('click', function() {
+                var form = document.getElementById('Filter_report');
+                if (form) {
+                    form.reset();
+                    // Limpiar los campos de fecha manualmente
+                    var dateInputs = form.querySelectorAll('input[type="date"]');
+                    dateInputs.forEach(function(input) {
+                        input.value = '';
+                    });
+                    // Opcional: Reconfigurar select2 si se usa
+                    $(form).find('select[data-control="select2"]').val(null).trigger('change');
+                    $('#loadingModal').modal('show');
+                    // Recargar la página para eliminar el POST
+                    window.location.href = window.location.pathname;
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        // Inicializar DataTable
+        var table = $('#tabla-liquidacion').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    text: 'Descargar Acumulados',
+                    action: function (e, dt, node, config) {
+                        // Activar indicador
+                        $(node).attr("data-kt-indicator", "on");
+
+                        $.ajax({
+                            url: '{% url "companies:descargar_excel_empleados" %}', // Reemplaza "handle_post_request" con el nombre de tu URL
+                            type: 'POST',
+                            data: {
+                                'csrfmiddlewaretoken': '{{ csrf_token }}', // Incluye el token CSRF
+                                'start_date': $('#id_start_date').val(),
+                                'end_date': $('#id_end_date').val(),
+                                'employee': $('#id_employee').val(),
+                                'cost_center': $('#id_cost_center').val(),
+                                'city': $('#id_city').val()
+                            },
+                            xhrFields: {
+                                responseType: 'blob'
+                            },
+                            success: function(response) {
+                                var url = window.URL.createObjectURL(new Blob([response]));
+                                var a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'filtered_data.xlsx';
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                
+                                // Desactivar indicador
+                                $(node).removeAttr("data-kt-indicator");
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error:', error);
+                                alert('Error al realizar el Documento');
+                                
+                                // Desactivar indicador
+                                $(node).removeAttr("data-kt-indicator");
+                            }
+                        });
+                    },
+                    className: 'btn btn-light-info',
+                    attr: {
+                        id: 'kt_button_1'
+                    }
+                }
+            ],
+
+            
+            order: [[0, 'asc']], // Cambia el índice de la columna por defecto para ordenar
+            pageLength: 10
+        });
+
+        // Manejar clic en el botón para activar el indicador
+        $(document).on('click', '#kt_button_1', function() {
+            var button = $(this);
+
+            // Activar indicador
+            button.attr("data-kt-indicator", "on");
+
+            // Desactivar indicador después de 3 segundos o cuando la solicitud se completa
+            setTimeout(function() {
+                button.removeAttr("data-kt-indicator");
+            }, 3000);
+        });
+    });
+</script>
+
+{% endblock %}

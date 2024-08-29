@@ -1,9 +1,25 @@
-version: '3'
-
 services:
-  django_app:
+
+  django_app_emp:
     build:
       context: .
       dockerfile: Dockerfile
+    image: nomiweb-beta:latest
+    command: /app/entrypoint.sh
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/app
+    environment:
+      DJANGO_SETTINGS_MODULE: 'nomiweb.settings.production'
+    expose:
+      - "8000"  # Este es el puerto interno expuesto dentro del contenedor
     ports:
-      - "80:8000"
+      - "89:8000" # Este puerto es al que nginx va a redireccionar y debe estar generado desde aqui.
+    restart: always
+    networks:
+      - proxy-network # Asocia el contenedor a la red "proxy-network"
+networks:
+  proxy-network:
+    external:
+      name: nginx-proxy_proxy  # Indica que la red es externa y ya existe
