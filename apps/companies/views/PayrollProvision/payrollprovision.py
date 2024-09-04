@@ -192,87 +192,170 @@ def contributionsprovision(request):
         'compects': compects
     })
     
-    
-""" 
-def calcular_provision_prestaciones_sociales(contrato_id, mes_acumular, ano_acumular):
-    # Calculo de la base para las prestaciones sociales
-    # Se suman los valores de nómina que corresponden a conceptos
-    # con base prestacional o sueldo básico para el contrato, mes y año específicos.
-    base = Nomina.objects.filter(
-        models.Q(conceptosdenomina__baseprestacionsocial=1) |
-        models.Q(conceptosdenomina__sueldobasico=1),
-        mesacumular=mes_acumular,
-        anoacumular=ano_acumular,
-        idcontrato=contrato_id
-    ).aggregate(total=models.Sum('valor'))['total'] or 0
 
-    # Obtiene datos del contrato: porcentaje de ARL y tipo de salario
-    # Se obtiene el tipo de salario y el salario básico del contrato específico.
-    contrato = Contrato.objects.filter(idcontrato=contrato_id).first()
-    tiposal = contrato.tiposalario if contrato else None
-    basico = contrato.salario if contrato else 0
+def calcular_provision(request, idcontrato, mesacumular, anoacumular):
+    # Calcular los días a liquidar en la nómina
+    idmes = mesacumular.zfill(2)  # Asegura que el mes tenga dos dígitos
+    fechainicial = f"{anoacumular}-{idmes}-01"
+    fechafinal = f"{anoacumular}-{idmes}-30"
 
-    # Obtiene los porcentajes fijos
-    # Se consultan todos los conceptos fijos, que incluyen porcentajes y valores
-    # que se utilizarán para calcular las prestaciones.
-    conceptos_fijos = Conceptosfijos.objects.order_by('idfijo').all()
+    contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
 
-    # Inicialización de variables para los diferentes porcentajes fijos.
-    pces, ppri, pint, pvac, ppene, psalude, pccf, psena, picbf, nummin, maxibc, facint = [0]*12
+    if contrato:
+        fechacontrato = contrato.fechainiciocontrato
+        fechaterminacion = contrato.fechafincontrato
 
-    # Asignación de valores a cada porcentaje fijo según su ID en la base de datos.
-    for concepto in conceptos_fijos:
-        if concepto.idfijo == 7:
-            pces = concepto.valorfijo
-        elif concepto.idfijo == 6:
-            ppri = concepto.valorfijo
-        elif concepto.idfijo == 8:
-            pint = concepto.valorfijo
-        elif concepto.idfijo == 9:
-            pvac = concepto.valorfijo
-        elif concepto.idfijo == 13:
-            ppene = concepto.valorfijo
-        elif concepto.idfijo == 20:
-            psalude = concepto.valorfijo
-        elif concepto.idfijo == 21:
-            pccf = concepto.valorfijo
-        elif concepto.idfijo == 22:
-            psena = concepto.valorfijo
-        elif concepto.idfijo == 23:
-            picbf = concepto.valorfijo
-        elif concepto.idfijo == 24:
-            nummin = concepto.valorfijo
-        elif concepto.idfijo == 4:
-            maxibc = concepto.valorfijo
-        elif concepto.idfijo == 3:
-            facint = concepto.valorfijo
+        if fechacontrato <= fechainicial:
+            diasaportes = 30
+        else:
+            diasaportes = (fechafinal - fechacontrato).days + 1
 
-    # Calculo de prestaciones sociales
-    # Se inicializan las prestaciones con valores base.
-    cesantias = 0
-    intcesa = 0
-    prima = 0
-    vacaciones = basico * pvac / 100
+        if fechaterminacion:
+            if fechaterminacion >= fechainicial and fechaterminacion <= fechafinal:
+                resto = (fechafinal - fechaterminacion).days
+                diasaportes -= resto
+    else:
+        diasaportes = 0
 
-    # Si el tipo de salario no es 2 (salario integral),
-    # se calculan las prestaciones sociales como cesantías, intereses sobre cesantías, y prima.
-    if tiposal != 2:
-        cesantias = base * pces / 100
-        intcesa = base * pint / 100
-        prima = base * ppri / 100
+    # Calcular valores de seguridad social
+    base_ss = AportesSS.objects.filter(
+        basesegsocial=1, mesacumular=mesacumular, anoacumular=anoacumular, idcontrato=idcontrato
+    ).aggregate(Sum('valor'))['valor__sum'] or 0
 
-    # Se calcula el total de las prestaciones sociales sumando todos los conceptos calculados.
-    total_ps = cesantias + intcesa + prima + vacaciones
-    
-    # Retorna un diccionario con los resultados de las prestaciones calculadas.
-    return {
-        'base_ps': base,          # Base para prestaciones sociales
-        'cesantias': cesantias,   # Monto de cesantías
-        'intcesa': intcesa,       # Intereses sobre cesantías
-        'prima': prima,           # Prima de servicios
-        'vacaciones': vacaciones, # Monto para vacaciones
-        'total_ps': total_ps,     # Total de prestaciones sociales
+    base_arl = AportesSS.objects.filter(
+        baserarl=1, mesacumular=mesacumular, anoacumular=anoacumular, idcontrato=idcontrato
+    ).aggregate(Sum('valor'))['valor__sum'] or 0
+
+    base_caja = AportesSS.objects.filter(
+        basecaja=1, mesacumular=mesacumular, anoacumular=anoacumular, idcontrato=idcontrato
+    ).aggregate(Sum('valor'))['valor__sum'] or 0
+
+    pension_t = AportesSS.objects.filter(
+        idconcepto=70, mesacumular=mesacumular, anoacumular=anoacumular, idcontrato=idcontrato
+    ).aggregate(Sum('valor'))['valor__sum'] or 0
+
+    pension_ft = AportesSS.objects.filter(
+        idconcepto=90, mesacumular=mesacumular, anoacumular=anoacumular, idcontrato=idcontrato
+    ).aggregate(Sum('valor'))['valor__sum'] or 0
+
+    salud_t = AportesSS.objects.filter(
+        idconcepto=60, mesacumular=mesacumular, anoacumular=anoacumular, idcontrato=idcontrato
+    ).aggregate(Sum('valor'))['valor__sum'] or 0
+
+    variable = base_ss - AportesSS.objects.filter(
+        mesacumular=mesacumular, anoacumular=anoacumular, idcontrato=idcontrato
+    ).aggregate(Sum('valor'))['valor__sum'] or 0
+
+    suspension = AportesSS.objects.filter(
+        suspcontrato=1, mesacumular=mesacumular, anoacumular=anoacumular, idcontrato=idcontrato
+    ).aggregate(Sum('valor'))['valor__sum'] or 0
+
+    # Determinar porcentaje de ARL y tipo de salario por empleado
+    contrato = Contratos.objects.filter(idcontrato=idcontrato).values(
+        'tarifaarl', 'tiposalario', 'eps', 'pension', 'cajacompensacion', 'tipocontrato'
+    ).first()
+
+    if contrato:
+        tararl = contrato['tarifaarl']
+        tiposal = contrato['tiposalario']
+        afp = contrato['pension']
+        eps = contrato['eps']
+        caja = contrato['cajacompensacion']
+        tipocontrato = contrato['tipocontrato']
+    else:
+        tararl = tiposal = afp = eps = caja = tipocontrato = 0
+
+    # Porcentajes fijos
+    conceptos_fijos = ConceptosFijos.objects.all()
+    fixed_values = {cf.conceptofijo: cf.valorfijo for cf in conceptos_fijos}
+
+    ppene = fixed_values.get(13, 0)
+    psalude = fixed_values.get(20, 0)
+    pccf = fixed_values.get(21, 0)
+    psena = fixed_values.get(22, 0)
+    picbf = fixed_values.get(23, 0)
+    nummin = fixed_values.get(24, 0)
+    maxibc = fixed_values.get(4, 0)
+    facint = fixed_values.get(3, 0)
+    pepse = fixed_values.get(10, 0)
+    ppenem = fixed_values.get(12, 0)
+
+    salmin = 1000  # Define el salario mínimo según tus necesidades
+
+    if tiposal == 2:
+        base_ss *= facint / 100
+        base_caja = base_ss
+        base_arl = base_ss
+
+    if base_ss > (salmin * maxibc):
+        base_ss = salmin * maxibc
+        base_caja = base_ss
+        base_arl = base_ss
+
+    if base_ss <= (salmin * nummin):
+        salud = 0
+        pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
+        arl = base_arl * tararl / 100
+        ccf = base_caja * pccf / 100
+        sena = 0
+        icbf = 0
+    else:
+        salud = (base_ss + suspension) * psalude / 100
+        pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
+        arl = base_arl * tararl / 100
+        ccf = base_caja * pccf / 100
+        sena = base_ss * psena / 100
+        icbf = base_ss * picbf / 100
+
+    if tiposal == 2:
+        salud = base_ss * psalude / 100
+        pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
+        arl = base_arl * tararl / 100
+        ccf = base_caja * pccf / 100
+        sena = base_ss * psena / 100
+        icbf = base_ss * picbf / 100
+
+    if (base_ss / diasaportes * 30) < salmin and base_ss > 0:
+        base_ss = salmin
+        ajuste = (((base_ss * pepse / 100) + salud_t) + ((base_ss * ppenem / 100) + pension_t))
+        pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
+        base_arl = base_ss
+        base_caja = base_ss
+        arl = base_arl * tararl / 100
+        ccf = base_caja * pccf / 100
+        sena = 0
+        icbf = 0
+        variable = 0
+    else:
+        ajuste = 0
+
+    if tipocontrato == 5:
+        salud = salmin * (psalude / 100 + pepse / 100)
+
+    totalap = salud + pension + arl + ccf + sena + icbf - salud_t - pension_t - pension_ft + ajuste
+    provision = totalap + salud_t + pension_t
+
+    context = {
+        'diasaportes': diasaportes,
+        'base_ss': base_ss,
+        'base_arl': base_arl,
+        'base_caja': base_caja,
+        'pension_t': pension_t,
+        'pension_ft': pension_ft,
+        'salud_t': salud_t,
+        'variable': variable,
+        'suspension': suspension,
+        'salud': salud,
+        'pension': pension,
+        'arl': arl,
+        'ccf': ccf,
+        'sena': sena,
+        'icbf': icbf,
+        'ajuste': ajuste,
+        'totalap': totalap,
+        'provision': provision,
     }
 
-"""
+    return render(request, 'path/to/your/template.html', context)
+
 
