@@ -21,6 +21,11 @@ from .views.settlementlist import settlementlist
 from .views.payrollaccumulations import payrollaccumulations
 from .views.abstractconcept import abstractconcept
 
+
+# accounting
+from .views.PayrollProvision import payrollprovision
+
+
 from .views.index import index
 
 
@@ -65,6 +70,8 @@ urlpatterns = [
     
     
     ##! contabilidad 
+    path('accounting/payroll/provision', payrollprovision.payrollprovision, name='payrollprovision'),
+    path('accounting/contributions/provision', payrollprovision.contributionsprovision, name='contributionsprovision'),
     
     
     ##! nomina 

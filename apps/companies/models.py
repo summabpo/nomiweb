@@ -468,5 +468,13 @@ class LiquidacionMasivo(models.Model):
 
 
 
+class Conceptosfijos(models.Model):
+    idfijo = models.IntegerField(primary_key=True)
+    conceptofijo = models.CharField(max_length=80, blank=True, null=True)
+    valorfijo = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'conceptosfijos'
 
 
