@@ -81,11 +81,11 @@ def payrollprovision(request):
                         'contrato': data.idcontrato.idcontrato,
                         'idcosto': data.idcosto.idcosto,
                         'base': data.valor if data.idconcepto.sueldobasico == 1 else 0,
-                        'cesantias': cesantias,
-                        'intcesa': intcesa,
-                        'prima': prima,
-                        'vacaciones': vacaciones,
-                        'total_ps': total_ps
+                        'cesantias': int(cesantias),
+                        'intcesa': int(intcesa),
+                        'prima': int(prima),
+                        'vacaciones': int(vacaciones),
+                        'total_ps': int(total_ps)
                     }
                 else:
                     # Actualiza la base si ya existe
