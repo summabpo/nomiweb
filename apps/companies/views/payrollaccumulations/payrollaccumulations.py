@@ -128,36 +128,41 @@ def descargar_excel_empleados(request):
         nominas = Nomina.objects.filter(**filtros).order_by('idconcepto__idconcepto')
         
         for data in nominas:
-                docidentidad = data.idempleado.docidentidad
-                if docidentidad not in acumulados:
-                    acumulados[docidentidad] = {
-                        'documento': docidentidad,
-                        'Empleado': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre} - {data.idempleado.docidentidad} - {data.idcontrato.idcontrato} ",
-                        'data':[
-                            {"idconcepto": data.idconcepto.idconcepto,
-                            "nombreconcepto": data.nombreconcepto, 
-                            "cantidad": data.cantidad, 
-                            "valor": data.valor},
-                        ]
-                    }
-                else:
-                    concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
-                    
-                    if concepto_existente:
-                        
-                        # Si existe, sumar la cantidad y el valor, y actualizar el nombreconcepto con el multiplicador
-                        concepto_existente["cantidad"] += data.cantidad
-                        concepto_existente["valor"] += data.valor  
-                        
-                    else:
-                        # Si no existe, añadir el nuevo concepto
-                        nuevo_concepto = {
+            docidentidad = data.idempleado.docidentidad
+            if docidentidad not in acumulados:
+                acumulados[docidentidad] = {
+                    'documento': docidentidad,
+                    'Empleado': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre} - {data.idempleado.docidentidad} - {data.idcontrato.idcontrato}",
+                    'data': [
+                        {
                             "idconcepto": data.idconcepto.idconcepto,
-                            "nombreconcepto": data.nombreconcepto,
+                            "nombreconcepto": data.nombreconcepto, 
                             "cantidad": data.cantidad, 
                             "valor": data.valor,
                         }
-                        acumulados[docidentidad]["data"].append(nuevo_concepto)
+                    ],
+                    'total': data.valor,  
+                    'id': data.idcontrato.idcontrato ,
+                }
+            else:
+                concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
+                
+                if concepto_existente:
+                    # Si el concepto existe, sumamos la cantidad y el valor
+                    concepto_existente["cantidad"] += data.cantidad
+                    concepto_existente["valor"] += data.valor
+                else:
+                    # Si no existe, añadimos el nuevo concepto
+                    nuevo_concepto = {
+                        "idconcepto": data.idconcepto.idconcepto,
+                        "nombreconcepto": data.nombreconcepto,
+                        "cantidad": data.cantidad, 
+                        "valor": data.valor,
+                    }
+                    acumulados[docidentidad]["data"].append(nuevo_concepto)
+                
+                # Actualizar el total con el nuevo valor
+                acumulados[docidentidad]['total'] += data.valor
                     
 
         

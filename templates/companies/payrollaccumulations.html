@@ -80,7 +80,6 @@
                     <tr>
                         <th>Docidentidad</th>
                         <th>Empleado</th>
-                        <th>Contrato</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,7 +89,7 @@
                             
                             <td>
                                 
-                                {{ compect.empleado }}
+                                {{ compect.empleado }}  Contrato {{ compect.contrato }}
 
                                  <table class="table table-sm inner-table">
                                     <thead>
@@ -105,9 +104,9 @@
                                         {% for concepto in compect.data %}
                                             <tr>
                                                 <td>{{ concepto.idconcepto }}</td>
-                                                <td>{{ concepto.nombreconcepto }}</td>
-                                                <td>{{ concepto.cantidad }}</td>
-                                                <td>{{ concepto.valor }}</td>
+                                                <td class="text-start">{{ concepto.nombreconcepto }}</td>
+                                                <td class="text-end" >{{ concepto.cantidad }}</td>
+                                                <td class="text-end">{{ concepto.valor }}</td>
                                             </tr>
                                         {% empty %}
                                             <tr>
@@ -119,7 +118,6 @@
                             
                             </td>
 
-                            <td>{{ compect.contrato }}</td>
 
                         </tr>
                     {% empty %}
