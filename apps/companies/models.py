@@ -478,3 +478,12 @@ class Conceptosfijos(models.Model):
         db_table = 'conceptosfijos'
 
 
+class Salariominimoanual(models.Model):
+    idano = models.SmallIntegerField(primary_key=True)
+    salariominimo = models.IntegerField(blank=True, null=True)
+    auxtransporte = models.IntegerField(blank=True, null=True)
+    uvt = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'salariominimoanual'
