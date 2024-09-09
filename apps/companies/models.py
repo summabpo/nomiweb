@@ -399,6 +399,7 @@ class NominaComprobantes(models.Model):
         
         
         
+        
 ## liquidaciones 
 
 

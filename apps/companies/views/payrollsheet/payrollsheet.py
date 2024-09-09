@@ -25,6 +25,7 @@ def get_email_status(estado_email):
 
     return envio_email
 
+
 @login_required
 @role_required('entrepreneur')
 def payrollsheet(request):
@@ -61,7 +62,7 @@ def payrollsheet(request):
         
         for data in compectos:
             
-            docidentidad = data.idempleado.docidentidad
+            docidentidad = data.idcontrato.idcontrato
             compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato )
             if docidentidad not in acumulados:
                 acumulados[docidentidad] = {

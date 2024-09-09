@@ -48054,15 +48054,15 @@ a:hover {
 }
 
 [data-bs-theme=light] {
-  --bs-app-bg-color: #d9f5ff;
-  --bs-app-blank-bg-color: #ffffff;
-  --bs-app-header-base-bg-color: #d9f5ff;
-  --bs-app-toolbar-base-bg-color: #ffffff;
-  --bs-app-sidebar-base-bg-color: #d9f5ff;
-  --bs-app-sidebar-base-box-shadow: none;
-  --bs-app-sidebar-minimize-bg-color: #d9f5ff;
-  --bs-app-aside-base-bg-color: #d9f5ff;
-  --bs-app-aside-base-box-shadow: none;
+    --bs-app-bg-color: #d9f5ff;
+    --bs-app-blank-bg-color: #ffffff;
+    --bs-app-header-base-bg-color: #d9f5ff;
+    --bs-app-toolbar-base-bg-color: #ffffff;
+    --bs-app-sidebar-base-bg-color: #d9f5ff;
+    --bs-app-sidebar-base-box-shadow: none;
+    --bs-app-sidebar-minimize-bg-color: #d9f5ff;
+    --bs-app-aside-base-bg-color: #d9f5ff;
+    --bs-app-aside-base-box-shadow: none;
 }
 
 [data-bs-theme=dark] {
@@ -49714,50 +49714,39 @@ body,
   [data-kt-app-footer-fixed-mobile=true] .app-wrapper {
     margin-bottom: var(--bs-app-footer-height);
   }
-}.app-main {
+}
+.app-main {
   display: flex;
-  flex-grow: 1; /* Asegura que el contenedor ocupe más espacio */
 }
 
 @media (min-width: 992px) {
   .app-main {
     transition: margin 0.3s ease;
-    /* Incrementar el tamaño del contenedor */
-    flex-grow: 1.2; /* Aumentar el crecimiento para pantallas grandes */
   }
-  
   [data-kt-app-sidebar-sticky=true] .app-main {
-    margin-left: calc(var(--bs-app-sidebar-width) + var(--bs-app-sidebar-gap-start, 0px) + var(--bs-app-sidebar-gap-end, 0px) - 20px); /* Reduce el margen para aumentar el tamaño visible */
+    margin-left: calc(var(--bs-app-sidebar-width) + var(--bs-app-sidebar-gap-start, 0px) + var(--bs-app-sidebar-gap-end, 0px));
   }
-
   [data-kt-app-sidebar-panel-sticky=true] .app-main {
-    margin-left: calc(var(--bs-app-sidebar-width) + var(--bs-app-sidebar-gap-start, 0px) + var(--bs-app-sidebar-gap-end, 0px) + var(--bs-app-sidebar-panel-width) + var(--bs-app-sidebar-panel-gap-start, 0px) + var(--bs-app-sidebar-panel-gap-end, 0px) - 20px); /* Ajustar margen */
+    margin-left: calc(var(--bs-app-sidebar-width) + var(--bs-app-sidebar-gap-start, 0px) + var(--bs-app-sidebar-gap-end, 0px) + var(--bs-app-sidebar-panel-width) + var(--bs-app-sidebar-panel-gap-start, 0px) + var(--bs-app-sidebar-panel-gap-end, 0px));
   }
-
   [data-kt-app-aside-sticky=true] .app-main {
-    margin-right: calc(var(--bs-app-aside-width) + var(--bs-app-aside-gap-start, 0px) + var(--bs-app-aside-gap-end, 0px) - 20px); /* Ajustar margen derecho */
+    margin-right: calc(var(--bs-app-aside-width) + var(--bs-app-aside-gap-start, 0px) + var(--bs-app-aside-gap-end, 0px));
   }
 }
-
 @media (max-width: 991.98px) {
   .app-main {
     padding-left: 0;
     padding-right: 0;
-    flex-grow: 1; /* Mantener el tamaño completo para pantallas pequeñas */
   }
 }
-
 @media (min-width: 992px) {
   .app-content {
     padding-top: 35px;
     padding-bottom: 35px;
     padding-left: 0;
     padding-right: 0;
-    /* Añadir un max-width para evitar que crezca demasiado */
-    max-width: 1200px; /* Ajustar este valor según sea necesario */
   }
 }
-
 @media (max-width: 991.98px) {
   .app-content {
     max-width: none;

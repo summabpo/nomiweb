@@ -71,7 +71,9 @@ urlpatterns = [
     
     ##! contabilidad 
     path('accounting/payroll/provision', payrollprovision.payrollprovision, name='payrollprovision'),
+    path('accounting/payroll/provision/download', payrollprovision.payrollprovisiondownload_excel, name='payrollprovisiondownload_excel'),
     path('accounting/contributions/provision', payrollprovision.contributionsprovision, name='contributionsprovision'),
+    
     
     
     ##! nomina 
