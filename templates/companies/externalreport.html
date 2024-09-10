@@ -1,0 +1,137 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Movimientos Por Tercero
+{% endblock %}
+
+
+{% block css %}
+{% endblock %}
+
+{% block sub_titulo1 %} 
+    Contabilidad
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Movimientos Por Tercero
+{% endblock %}
+
+
+
+{% block titulo2 %} 
+Movimientos Por Tercero
+{% endblock %}
+
+
+{% block content %}
+    
+<div class="container">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h3 class="card-title">Movimientos Por Tercero - Filtros </h3>
+        </div>
+        <div class="card-body">
+            {% crispy form %}
+        </div>
+    </div>
+    <div class="separator  border-0 my-10"></div>
+    {% if visual %}
+        <div class="table-responsive">
+            <table class="table table-bordered" id="table-report-external" >
+                <thead>
+                    <tr class="fw-bold fs-6 text-gray-800"> 
+                        <th>Idcontrato</th>
+                        <th>Cuenta</th>
+                        <th>Cedula</th>
+                        <th>Idconcepto</th>
+                        <th>Concepto</th>
+                        <th>Valor</th>
+                        <th>C. Costo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for items in nominas %}
+                        <tr>
+                            <td>{{ items.idcontrato__idcontrato }}</td>
+                            <td>{{ items.idconcepto__cuentacontable }}</td>
+                            <td>{{ items.idempleado__docidentidad }}</td>
+                            <td>{{ items.idconcepto__idconcepto }}</td>
+                            <td>{{ items.idconcepto__nombreconcepto }}</td>
+                            <td class="text-end" >{{ items.valor }}</td>
+                            <td class="text-end">{{ items.idcosto__idcosto }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <h4 class="alert-heading">¡Atención!</h4>
+            <p>Parece que la lista está vacía en este momento. Por favor, seleccione una nómina para visualizar los datos correspondientes.</p>
+            <hr>
+            <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+
+
+{% block js %}
+
+<script>
+    $(document).ready(function() {
+
+        var year = '{{ year }}';  // Obtener el año del contexto de Django
+        var mth = '{{ mth }}';  
+        // Inicializar DataTable
+        var table = $('#table-report-external').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+                    className: 'btn btn-light-info',
+                    action: function (e, dt, node, config) {
+                        window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+                    }
+                },
+            ],
+
+            
+            order: [[0, 'asc']], // Cambia el índice de la columna por defecto para ordenar
+            pageLength: 20
+        });
+    });
+</script>
+
+
+{% endblock %}
+

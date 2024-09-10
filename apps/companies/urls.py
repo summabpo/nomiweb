@@ -24,6 +24,7 @@ from .views.abstractconcept import abstractconcept
 
 # accounting
 from .views.PayrollProvision import payrollprovision
+from .views.externalreport import externalreport
 
 
 from .views.index import index
@@ -73,6 +74,8 @@ urlpatterns = [
     path('accounting/payroll/provision', payrollprovision.payrollprovision, name='payrollprovision'),
     path('accounting/payroll/provision/download', payrollprovision.payrollprovisiondownload_excel, name='payrollprovisiondownload_excel'),
     path('accounting/contributions/provision', payrollprovision.contributionsprovision, name='contributionsprovision'),
+    path('accounting/external/report', externalreport.externalreport, name='externalreport'),
+    path('accounting/external/report/download', externalreport.download_excel_report, name='download_excel_report'),
     
     
     

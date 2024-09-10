@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Q, Sum
 from django.contrib import messages
 from apps.components.filterform import FilterForm  ,FiltercompleteForm
-from apps.companies.models import  Nomina, Contratos, Conceptosfijos , Salariominimoanual
+from apps.companies.models import  Nomina, Contratos, Conceptosfijos , Salariominimoanual ,NominaComprobantes
 from datetime import datetime
 from .provisionFuncion import calcular_descuento , mes_a_numero
 from apps.components.humani import format_value
@@ -26,6 +26,7 @@ def payrollprovision(request):
         if form.is_valid():
             año = form.cleaned_data['año']
             mes = form.cleaned_data['mes']
+            dta = form.cleaned_data['liquidation']
             
             year = año
             mth = mes
@@ -50,14 +51,19 @@ def payrollprovision(request):
                     sueldo_basico = Q(idconcepto__sueldobasico=1)
 
                     
+                    if dta == '1' : 
+                        base = Nomina.objects.filter(
+                            (base_prestacion_social | sueldo_basico),
+                            mesacumular=mes,
+                            anoacumular=año,
+                            idcontrato=docidentidad
+                        ).aggregate(total=Sum('valor'))['total'] or 0
+                    else :
+                        base = NominaComprobantes.objects.filter(
+                            idcontrato=docidentidad,
+                            idnomina= data.idnomina.idnomina
+                        ).values_list('salario', flat=True).first()
                     
-                    base = Nomina.objects.filter(
-                        (base_prestacion_social | sueldo_basico),
-                        mesacumular=mes,
-                        anoacumular=año,
-                        idcontrato=docidentidad
-                    ).aggregate(total=Sum('valor'))['total'] or 0
-
                     contrato = contratos_dict.get(docidentidad)
                     tiposal = contrato.tiposalario if contrato else None
                     basico = contrato.salario if contrato else 0
