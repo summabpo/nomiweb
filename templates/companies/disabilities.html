@@ -1,0 +1,212 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Incapacidades
+{% endblock %}
+
+
+{% block css %}
+
+    .loan-status-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Novedades de Nomina
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Incapacidades
+{% endblock %}
+
+{% block actions %}
+
+<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+    <i class="fa-solid fa-plus"></i> Nueva Incapacidad
+</button>  
+
+{% endblock %}
+
+{% block titulo2 %} 
+Listado de Incapacidades
+{% endblock %}
+
+
+{% block content %}
+    
+    {% if incapacidades %}
+    <div class="table-responsive">
+        <table class="table table-bordered" id="table-disabilities" >
+            <thead>
+                <tr class="fw-bold fs-6 text-gray-800"> 
+                    <th>Id Contrato</th>
+                    <th>Documento</th>
+                    <th>Apellidos y Nombre</th>
+                    <th>Entidad</th>
+                    <th>Codigo Diagnostico</th>
+                    <th>Diagnostico</th>
+                    <th>Prorroga</th>
+                    <th>Fecha Inicial</th>
+                    <th>dias Incapacidad</th>
+                    <th ><i class="fa-regular fa-image fs-3"></i></th>
+                    <th> </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in incapacidades %}
+                    <tr>
+                        <td>{{ item.idcontrato__idcontrato }}</td>
+                        <td>{{ item.idempleado__docidentidad }}</td>
+                        <td> {{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }} </td>
+                        <td>{{ item.entidad }}</td>
+                        <td>{{ item.coddiagnostico__coddiagnostico }}</td>
+                        <td>{{ item.diagnostico }}</td>
+                        <td>{{ item.prorroga }}</td>
+                        <td>{{ item.fechainicial | date:"d/m/Y"  }}</td>
+                        <td>{{ item.dias }}</td>
+                        <td>
+                            <a href="#" class="btn btn-icon btn-light-info">
+                                <i class="fa-solid fa-file-image fs-3"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-whatever="@mdo" >
+                                <i class="fa-solid fa-pen-to-square fs-3"></i>
+                            </button>   
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+    <div class="alert alert-primary" role="alert">
+        <h4 class="alert-heading">¡Atención!</h4>
+        <p>Parece que no hay incapacidades registradas en este momento. Por favor, agregue una incapacidad para visualizar los datos correspondientes.</p>
+        <hr>
+        <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+    </div>
+{% endif %}
+
+
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Nueva Incapacidad</h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                {% crispy form %}
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_loans" >Crear Incapacidad</button>
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+<div class="modal fade" tabindex="-1" id="kt_modal_2">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Editar Incapacidad</h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                {% crispy form %}
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_loans" >Actualizar Incapacidad</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
+
+{% block js %}
+
+<script>
+    $(document).ready(function() {
+
+        var year = '{{ year }}';  // Obtener el año del contexto de Django
+        var mth = '{{ mth }}';  
+        // Inicializar DataTable
+        var table = $('#table-disabilities').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            // buttons: [
+            //     {
+            //         text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+            //         className: 'btn btn-light-info',
+            //         action: function (e, dt, node, config) {
+            //             window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+            //         }
+            //     },
+            // ],
+            order: [],
+            pageLength: 6
+        });
+    });
+</script>
+
+
+{% endblock %}
+

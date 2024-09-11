@@ -268,9 +268,14 @@ License: For each use you must have a valid license purchased only from above li
                                         <!--end::Title-->
                                     </div>
                                     <!--end::Page title-->
-                                    <!--begin::Actions
-                                    <a href="#" class="btn btn-sm btn-success ms-3 px-4 py-3" data-bs-toggle="modal" data-bs-target="#kt_modal_create_app">Create Project</a>
-                                    end::Actions-->
+                                    <!--begin::Actions  -->
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        {% block actions %}
+                                        
+                                        {% endblock %}
+                                        
+                                    </div>
+                                    <!-- end::Actions-->
                                 </div>
                                 <!--end::Toolbar wrapper-->
                             </div>

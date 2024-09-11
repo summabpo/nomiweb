@@ -12,7 +12,7 @@ from apps.components.humani import format_value
 from django.http import HttpResponse 
 from apps.components.generate_nomina_excel import generate_nomina_excel
 
-
+from decimal import Decimal
 
 
 def payrollprovision(request):
@@ -59,10 +59,12 @@ def payrollprovision(request):
                             idcontrato=docidentidad
                         ).aggregate(total=Sum('valor'))['total'] or 0
                     else :
+                        
                         base = NominaComprobantes.objects.filter(
                             idcontrato=docidentidad,
                             idnomina= data.idnomina.idnomina
-                        ).values_list('salario', flat=True).first()
+                        ).values_list('salario', flat=True).first() or 0
+                        
                     
                     contrato = contratos_dict.get(docidentidad)
                     tiposal = contrato.tiposalario if contrato else None
@@ -78,11 +80,18 @@ def payrollprovision(request):
                     vacaciones = basico * pvac / 100
                     
                     if tiposal != 2:  # Si el tipo de salario no es integral
-                        cesantias = base * pces / 100
+                        cesantias = float(base) * float(pces) / 100
                         intcesa = base * pint / 100
                         prima = base * ppri / 100
                     else:
                         cesantias = intcesa = prima = 0
+                        
+                    cesantias = Decimal(cesantias) if not isinstance(cesantias, Decimal) else cesantias
+                    intcesa = Decimal(intcesa) if not isinstance(intcesa, Decimal) else intcesa
+                    prima = Decimal(prima) if not isinstance(prima, Decimal) else prima
+                    vacaciones = Decimal(vacaciones) if not isinstance(vacaciones, Decimal) else vacaciones
+
+                    total_ps = cesantias + intcesa + prima + vacaciones
 
                     total_ps = cesantias + intcesa + prima + vacaciones
 
@@ -146,7 +155,7 @@ def contributionsprovision(request):
             mes = form.cleaned_data['mes']
             
             # Obtener las nóminas filtradas y limitadas
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')
+            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')[:100]
             
             # Obtener los conceptos fijos y almacenarlos en un diccionario
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
@@ -273,33 +282,33 @@ def contributionsprovision(request):
                         salud = 0
                         pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
                         arl = float(base_arl) * float(tararl) / 100
-                        ccf = base_caja * pccf / 100
+                        ccf = base_caja * float(pccf) / 100
                         sena = 0
                         icbf = 0
                     else:
                         salud = (base_ss + suspension) * psalude / 100
                         pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
-                        arl = base_arl * tararl / 100
-                        ccf = base_caja * pccf / 100
-                        sena = base_ss * psena / 100
-                        icbf = base_ss * picbf / 100
+                        arl = base_arl * float(tararl) / 100
+                        ccf = base_caja * float(pccf) / 100
+                        sena = base_ss * float(psena) / 100
+                        icbf = base_ss *float(picbf) / 100
 
                     if tiposal == 2:
                         salud = base_ss * psalude / 100
                         pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
-                        arl = base_arl * tararl / 100
-                        ccf = base_caja * pccf / 100
-                        sena = base_ss * psena / 100
-                        icbf = base_ss * picbf / 100
+                        arl = base_arl * float (tararl) / 100
+                        ccf = base_caja * float(pccf) / 100
+                        sena = base_ss * float(psena) / 100
+                        icbf = base_ss * float(picbf) / 100
 
                     if (base_ss / diasaportes * 30) < salmin and base_ss > 0:
-                        base_ss = salmin
+                        base_ss = float(salmin)
                         ajuste = (((base_ss * pepse / 100) + salud_t) + ((base_ss * ppenem / 100) + pension_t))
                         pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
                         base_arl = base_ss
                         base_caja = base_ss
-                        arl = base_arl * tararl / 100
-                        ccf = base_caja * pccf / 100
+                        arl = float(base_arl) * float(tararl) / 100
+                        ccf = base_caja * float(pccf) / 100
                         sena = 0
                         icbf = 0
                         variable = 0

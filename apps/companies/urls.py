@@ -27,6 +27,11 @@ from .views.PayrollProvision import payrollprovision
 from .views.externalreport import externalreport
 
 
+# Payroll News
+from .views.loans import loans
+from .views.disabilities import disabilities
+from .views.vacation import vacation
+
 from .views.index import index
 
 
@@ -79,7 +84,7 @@ urlpatterns = [
     
     
     
-    ##! nomina 
+    ##! Payroll
     path('payroll/labor/certification', laborcertification.laborcertification, name='laborcertification'),
 
     path('payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
@@ -98,6 +103,14 @@ urlpatterns = [
     path('payroll/payroll/accumulations', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
     path('payroll/payroll/accumulations/download', payrollaccumulations.descargar_excel_empleados, name='descargar_excel_empleados'),
     path('payroll/payroll/abstract/concept', abstractconcept.abstractconcept, name='abstractconcept'),
+    
+    
+    ##! Payroll News
+    path('payroll/new/loans', loans.loans, name='loans'),
+    path('payroll/new/disabilities', disabilities.disabilities, name='disabilities'),
+    path('payroll/new/vacation', vacation.vacation, name='vacation'),
+    
+    
         
     ##* masivos 
     path('payroll/sheet/massive/mail', payrollsheet.massive_mail, name='massivemail'),

@@ -9,8 +9,8 @@ from apps.components.humani import format_value
 from django.http import HttpResponse 
 from .generate_docu import generate_nomina_excel
 
-# @login_required
-# @role_required('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def externalreport(request):
     nominas ={}
     form = FilterForm()
@@ -51,7 +51,10 @@ def externalreport(request):
                         'mth' : mth,
                         'form':form,
                     })
-
+    
+    
+@login_required
+@role_required('entrepreneur')
 def download_excel_report(request):
     year = request.GET.get('year')
     month = request.GET.get('mth')

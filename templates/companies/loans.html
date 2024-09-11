@@ -1,0 +1,178 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Prestamos 
+{% endblock %}
+
+
+{% block css %}
+
+    .loan-status-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Novedades de Nomina
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Prestamos 
+{% endblock %}
+
+{% block actions %}
+
+<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_stacked_1">
+    <i class="fa-solid fa-plus"></i> Nuevo Prestamo
+</button>  
+
+{% endblock %}
+
+{% block titulo2 %} 
+Listado de  Prestamos 
+{% endblock %}
+
+
+{% block content %}
+    
+
+
+    
+    <div class="modal fade" tabindex="-1" id="kt_modal_stacked_1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Nuevo Prestamo</h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                {% crispy form %}
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_loans" >Crear Prestamo</button>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    
+    
+
+
+
+    
+<div class="container">
+
+    {% if prestamos %}
+        <div class="table-responsive">
+            <table class="table table-bordered" id="table-prestamos" >
+                <thead>
+                    <tr class="fw-bold fs-6 text-gray-800"> 
+                        <th>Id Contrato</th>
+                        <th>Documento</th>
+                        <th>Apellidos y Nombre</th>
+                        <th>Fecha Préstamo</th>
+                        <th>Valor Préstamo</th>
+                        <th>Valor Cuota</th>
+                        <th>Saldo</th>
+                        <th> </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for items in prestamos %}
+                        <tr>
+                            <td>{{ items.idcontrato.idcontrato }}</td>
+                            <td>{{ items.idempleado.docidentidad }}</td>
+                            <td>{{ items.empleado }}</td>
+                            <td>{{ items.fechaprestamo }}</td>
+                            <td class="text-end" >{{ items.saldoprestamo }}</td>
+                            <td class="text-end" >{{ items.valorcuota }}</td>
+                            <td class="text-end">{{ items.saldoprestamo }}</td>
+                            <td class="text-end">{{ items.saldoprestamo }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <h4 class="alert-heading">¡Atención!</h4>
+            <p>Parece que no hay préstamos registrados en este momento. Por favor, agregue un préstamo para visualizar los datos correspondientes.</p>
+            <hr>
+            <p class="mb-0">Agradecemos su colaboración para mantener actualizada esta información.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+
+
+{% block js %}
+
+<script>
+    $(document).ready(function() {
+
+        var year = '{{ year }}';  // Obtener el año del contexto de Django
+        var mth = '{{ mth }}';  
+        // Inicializar DataTable
+        var table = $('#table-prestamos').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            // buttons: [
+            //     {
+            //         text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+            //         className: 'btn btn-light-info',
+            //         action: function (e, dt, node, config) {
+            //             window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+            //         }
+            //     },
+            // ],
+
+            
+            order: [], // Cambia el índice de la columna por defecto para ordenar
+            pageLength: 6
+        });
+    });
+</script>
+
+
+{% endblock %}
+

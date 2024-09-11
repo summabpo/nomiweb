@@ -165,6 +165,9 @@ EMAIL_FILE_PATH = None
 EMAIL_FROM = None
 EMAIL_SUBJECT_PREFIX = '[Django] '
 
+# settings.py
+
+LOGIN_URL = '/'
 
 
 # Internationalization
