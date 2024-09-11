@@ -551,3 +551,40 @@ class Diagnosticosenfermedades(models.Model):
     class Meta:
         managed = False
         db_table = 'diagnosticosenfermedades'
+        
+        
+class Tipoavacaus(models.Model):
+    tipovac = models.CharField(primary_key=True, max_length=255)
+    nombrevacaus = models.CharField(max_length=30, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tipoavacaus'
+
+
+class Vacaciones(models.Model):
+    idempleado = models.SmallIntegerField(blank=True, null=True)
+    idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING, db_column='idcontrato', blank=True, null=True)
+    fechainicialvac = models.DateField(blank=True, null=True)
+    ultimodiavac = models.DateField(blank=True, null=True)
+    diascalendario = models.SmallIntegerField(blank=True, null=True)
+    diasvac = models.SmallIntegerField(blank=True, null=True)
+    diaspendientes = models.SmallIntegerField(blank=True, null=True)
+    idvacaciones = models.IntegerField(primary_key=True)
+    pagovac = models.IntegerField(blank=True, null=True)
+    totaldiastomados = models.SmallIntegerField(blank=True, null=True)
+    basepago = models.IntegerField(blank=True, null=True)
+    estadovac = models.SmallIntegerField(blank=True, null=True)
+    idnomina = models.IntegerField(blank=True, null=True)
+    cuentasabados = models.SmallIntegerField(blank=True, null=True)
+    tipovac = models.ForeignKey(Tipoavacaus, models.DO_NOTHING, db_column='tipovac')
+    idvacmaster = models.IntegerField(blank=True, null=True)
+    perinicio = models.DateField(blank=True, null=True)
+    perfinal = models.DateField(blank=True, null=True)
+    fechapago = models.DateField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'vacaciones'
+        
+        
