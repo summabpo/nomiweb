@@ -3,7 +3,7 @@ from django.contrib import messages
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
 from apps.companies.models import Incapacidades
-from apps.companies.forms.loansForm import LoansForm
+from apps.companies.forms.disabilitiesForm  import DisabilitiesForm
 
 
 
@@ -22,7 +22,9 @@ def disabilities(request):
         'fechainicial',
         'dias',
     ).order_by('-idincapacidad')
-    form = LoansForm()
+    
+    
+    form = DisabilitiesForm()
     
     
     return render (request, './companies/disabilities.html',
