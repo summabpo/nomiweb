@@ -93,16 +93,20 @@ Listado de  Prestamos
                     </tr>
                 </thead>
                 <tbody>
-                    {% for items in prestamos %}
+                    {% for item in prestamos %}
                         <tr>
-                            <td>{{ items.idcontrato.idcontrato }}</td>
-                            <td>{{ items.idempleado.docidentidad }}</td>
-                            <td>{{ items.empleado }}</td>
-                            <td>{{ items.fechaprestamo }}</td>
-                            <td class="text-end" >{{ items.saldoprestamo }}</td>
-                            <td class="text-end" >{{ items.valorcuota }}</td>
-                            <td class="text-end">{{ items.saldoprestamo }}</td>
-                            <td class="text-end">{{ items.saldoprestamo }}</td>
+                            <td>{{ item.idcontrato__idcontrato }}</td>
+                            <td>{{ item.idempleado__docidentidad }}</td>
+                            <td>{{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }}</td>
+                            <td>{{ item.fechaprestamo | date:"d/m/Y"  }}</td>
+                            <td class="text-end" >{{ item.valorprestamo }}</td>
+                            <td class="text-end" >{{ item.valorcuota }}</td>
+                            <td class="text-end">{{ item.saldoprestamo }}</td>
+                            <td class="text-end"> 
+                                <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-whatever="@mdo" >
+                                    <i class="fa-solid fa-pen-to-square fs-3"></i>
+                                </button>  
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -119,11 +123,68 @@ Listado de  Prestamos
     {% endif %}
 </div>
 
+
+<div class="modal fade" tabindex="-1" id="kt_modal_2">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Editar Prestamo</h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                {% crispy form %}
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_loans" >Actualizar Prestamo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 
 
 {% block js %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if errors %}
+            var modal = new bootstrap.Modal(document.getElementById('kt_modal_stacked_1'));
+            modal.show();
+        {% endif %}
+    });
+</script>
+
+
+<script>
+    $("#kt_daterangepicker_1").daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        minYear: 2000,
+        maxYear: parseInt(moment().format("YYYY"), 12),
+        endDate: moment(),
+        minDate: '01/01/2020',
+        maxDate: moment(),
+        autoApply: true,
+        locale: {
+            format: 'YYYY-MM-DD',
+            applyLabel: 'Aplicar',
+            cancelLabel: 'Cancelar',
+            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        },
+    });
+</script>
+
 
 <script>
     $(document).ready(function() {

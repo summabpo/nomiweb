@@ -494,7 +494,7 @@ class Salariominimoanual(models.Model):
 
 
 class Prestamos(models.Model):
-    idprestamo = models.SmallIntegerField(primary_key=True)
+    idprestamo = models.AutoField(primary_key=True)
     idcontrato = models.ForeignKey('Contratos', models.DO_NOTHING, db_column='idcontrato')
     idempleado = models.ForeignKey('Contratosemp', models.DO_NOTHING, db_column='idempleado')
     valorprestamo = models.IntegerField(blank=True, null=True)
@@ -516,7 +516,7 @@ class Prestamos(models.Model):
 
 
 class Incapacidades(models.Model):
-    idincapacidad = models.IntegerField(primary_key=True)
+    idincapacidad = models.AutoField(primary_key=True)
     empleado = models.CharField(max_length=80, blank=True, null=True)
     certificadoincapacidad = models.CharField(max_length=15, blank=True, null=True)
     tipoentidad = models.CharField(max_length=5, blank=True, null=True)
