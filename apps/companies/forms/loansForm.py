@@ -26,6 +26,8 @@ class LoansForm(forms.Form):
     )
     
     def __init__(self, *args, **kwargs):
+        dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_1')
+        select2_ids = kwargs.pop('select2_ids', {})
         super().__init__(*args, **kwargs)
         
         self.fields['contract'] = forms.ChoiceField(
@@ -43,12 +45,17 @@ class LoansForm(forms.Form):
         self.helper.form_id = 'form_loans'
         self.helper.enctype = 'multipart/form-data'
         
-        self.fields['contract'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-dropdown-parent': '#kt_modal_stacked_1',
-            'class': 'form-select',
-            
-        })
+        
+        for field_name in ['entity', 'contract', 'diagnosis_code']:
+            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs.update({
+                    'data-control': 'select2',
+                    'data-dropdown-parent': dropdown_parent,
+                    'class': 'form-select',
+                    'id': field_id,
+                })
+        
         
         
         self.helper.layout = Layout(
@@ -63,11 +70,10 @@ class LoansForm(forms.Form):
             ),
             Row(
                 Column('installment_value', css_class='form-group col-md-4 mb-3'),
-                
                 Column('loan_status', css_class='form-check form-check-custom form-check-danger form-check-solid d-flex align-items-end col-md-4 mb-3'),
-                HTML('<div class="fs-6 fw-bold d-flex align-items-center col-md-2 mb-3"> Activo </div>'),
+                HTML('<button id="loan_status_btn" type="button" class="btn btn-bg-success" disabled> Activo </button>'),
                 css_class='row'
             ),
-            
+
         )
     

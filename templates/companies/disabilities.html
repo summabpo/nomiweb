@@ -83,7 +83,7 @@ Listado de Incapacidades
                             <!--end::Overlay-->
                         </td>
                         <td>
-                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-cliente_id="{{ item.idincapacidad }}" >
+                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-disabilites_id="{{ item.idincapacidad }}" >
                                 <i class="fa-solid fa-pen-to-square fs-3"></i>
                             </button>   
                         </td>
@@ -224,7 +224,7 @@ Listado de Incapacidades
     
     $('#kt_modal_2').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
-        var recipient = button.data('cliente_id');
+        var recipient = button.data('disabilites_id');
         var modal = $(this);
     
         $.ajax({ 

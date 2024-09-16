@@ -28,7 +28,7 @@ Prestamos
 
 {% block actions %}
 
-<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_stacked_1">
+<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
     <i class="fa-solid fa-plus"></i> Nuevo Prestamo
 </button>  
 
@@ -44,7 +44,7 @@ Listado de  Prestamos
 
 
     
-    <div class="modal fade" tabindex="-1" id="kt_modal_stacked_1">
+    <div class="modal fade" tabindex="-1" id="kt_modal_1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -58,7 +58,7 @@ Listado de  Prestamos
             </div>
     
             <div class="modal-body">
-                {% crispy form %}
+                {% crispy form1 %}
             </div>
     
             <div class="modal-footer">
@@ -103,7 +103,7 @@ Listado de  Prestamos
                             <td class="text-end" >{{ item.valorcuota }}</td>
                             <td class="text-end">{{ item.saldoprestamo }}</td>
                             <td class="text-end"> 
-                                <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-whatever="@mdo" >
+                                <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-loans_id="{{ item.idprestamo }}" >
                                     <i class="fa-solid fa-pen-to-square fs-3"></i>
                                 </button>  
                             </td>
@@ -138,12 +138,14 @@ Listado de  Prestamos
             </div>
     
             <div class="modal-body">
-                {% crispy form %}
+                <form id="form_edit_loans" method="post" action="{% url 'companies:edit_loans' %}"></form>
+                    {% crispy form2 %}
+                </form>
             </div>
     
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary" form="form_loans" >Actualizar Prestamo</button>
+                <button type="submit" class="btn btn-primary" form="form_edit_loans" >Actualizar Prestamo</button>
             </div>
         </div>
     </div>
@@ -164,6 +166,26 @@ Listado de  Prestamos
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('id_loan_status');
+        const loanStatusBtn = document.getElementById('loan_status_btn');
+
+        checkbox.addEventListener('change', function() {
+            if (checkbox.checked) {
+                // Cambia el texto y el color cuando el checkbox está seleccionado (cancelado)
+                loanStatusBtn.textContent = 'Cancelado';
+                loanStatusBtn.classList.remove('btn-bg-success');
+                loanStatusBtn.classList.add('btn-bg-danger');
+            } else {
+                // Cambia el texto y el color cuando el checkbox no está seleccionado (activo)
+                loanStatusBtn.textContent = 'Activo';
+                loanStatusBtn.classList.remove('btn-bg-danger');
+                loanStatusBtn.classList.add('btn-bg-success');
+            }
+        });
+    });
+</script>
 
 <script>
     $("#kt_daterangepicker_1").daterangepicker({
@@ -185,13 +207,88 @@ Listado de  Prestamos
     });
 </script>
 
+<script>
+    $(document).ready(function() {
+        $('#kt_modal_2').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var recipient = button.data('loans_id');
+            var modal = $(this);
+        
+            $.ajax({ 
+                url: '/companies/payroll/new/loans/edit',
+                type: 'GET',
+                data: {
+                    'dato': recipient
+                },
+        
+                success: function(response) {
+                    console.log(response.data);
+                    modal.find('.modal-title').text('Editar Préstamo #' + response.data.id);
+                    modal.find('.modal-body #id_loan_amount').val(response.data.loan_amount);
+                    modal.find('.modal-body #id_installment_value').val(response.data.installment_value);
+                    
+                    // Asegúrate de que las fechas estén en el formato correcto para daterangepicker
+                    var initialDate = response.data.loan_date ? moment(response.data.loan_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
+                    modal.find('.modal-body #kt_daterangepicker_1').val(initialDate);
+                    
+                    // Referencia al botón de estado
+                    const loanStatusBtn = modal.find('.modal-body #loan_status_btn');
+                    const loanStatusCheckbox = modal.find('.modal-body #id_loan_status');
+                    
+                    // Verifica el estado del préstamo y ajusta el botón
+                    if (response.data.loan_status) {
+                        loanStatusCheckbox.prop('checked', true);
+                        loanStatusBtn.text('Cancelado');
+                        loanStatusBtn.removeClass('btn-bg-success').addClass('btn-bg-danger');
+                    } else {
+                        loanStatusCheckbox.prop('checked', false);
+                        loanStatusBtn.text('Activo');
+                        loanStatusBtn.removeClass('btn-bg-danger').addClass('btn-bg-success');
+                    }
+
+                    // Cambia el estado del botón al cambiar el checkbox
+                    loanStatusCheckbox.on('change', function() {
+                        if (loanStatusCheckbox.is(':checked')) {
+                            loanStatusBtn.text('Cancelado');
+                            loanStatusBtn.removeClass('btn-bg-success').addClass('btn-bg-danger');
+                        } else {
+                            loanStatusBtn.text('Activo');
+                            loanStatusBtn.removeClass('btn-bg-danger').addClass('btn-bg-success');
+                        }
+                    });
+
+                    var $select1 = modal.find('.modal-body #contract_kt_modal_2');
+                    $select1.val(response.data.contract).trigger('change');
+                    
+                    // Inicializa daterangepicker en los campos de fecha
+                    modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
+                        singleDatePicker: true,
+                        showDropdowns: true,
+                        minYear: 2000,
+                        maxYear: parseInt(moment().format("YYYY"), 12),
+                        maxDate: moment(),
+                        minDate: '01/01/2020',
+                        autoApply: true,
+                        locale: {
+                            format: 'YYYY-MM-DD',
+                            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                        },
+                    });
+                },
+                error: function(response) {
+                    console.log(response.error);
+                }
+            });
+        });
+    });
+</script>
+
+
+
 
 <script>
     $(document).ready(function() {
-
-        var year = '{{ year }}';  // Obtener el año del contexto de Django
-        var mth = '{{ mth }}';  
-        // Inicializar DataTable
         var table = $('#table-prestamos').DataTable({
             language: {
                 "decimal": "",
@@ -217,18 +314,7 @@ Listado de  Prestamos
                 }
             },
             dom: 'frtip',
-            // buttons: [
-            //     {
-            //         text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
-            //         className: 'btn btn-light-info',
-            //         action: function (e, dt, node, config) {
-            //             window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
-            //         }
-            //     },
-            // ],
-
-            
-            order: [], // Cambia el índice de la columna por defecto para ordenar
+            order: [],
             pageLength: 6
         });
     });
