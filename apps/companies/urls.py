@@ -25,6 +25,7 @@ from .views.abstractconcept import abstractconcept
 # accounting
 from .views.PayrollProvision import payrollprovision
 from .views.externalreport import externalreport
+from .views.dian import dian
 
 
 # Payroll News
@@ -34,6 +35,8 @@ from .views.vacation import vacation
 
 from .views.index import index
 
+
+app_name = 'companies'
 
 urlpatterns = [
     ##todo novedades de nomina
@@ -81,7 +84,8 @@ urlpatterns = [
     path('accounting/contributions/provision', payrollprovision.contributionsprovision, name='contributionsprovision'),
     path('accounting/external/report', externalreport.externalreport, name='externalreport'),
     path('accounting/external/report/download', externalreport.download_excel_report, name='download_excel_report'),
-    
+    path('accounting/dian/certificate/', dian.viewdian, name='viewdian'),
+    path('accounting/dian/certificate/download/<str:idingret>', dian.viewdian_download, name='viewdian_download'),
     
     
     ##! Payroll
