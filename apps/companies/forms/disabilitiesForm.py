@@ -52,6 +52,10 @@ class DisabilitiesForm(forms.Form):
 
     
     def __init__(self, *args, **kwargs):
+        # Obtener la variable externa pasada al formulario
+        dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_1')
+        select2_ids = kwargs.pop('select2_ids', {})
+        
         super().__init__(*args, **kwargs)
         self.fields['entity'] = forms.ChoiceField(
             choices=[('', '----------')] + [
@@ -89,43 +93,28 @@ class DisabilitiesForm(forms.Form):
         self.helper.form_id = 'form_loans'
         self.helper.enctype = 'multipart/form-data'
         
-        self.fields['entity'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-dropdown-parent': '#kt_modal_1',
-            'class': 'form-select',
-            
-        })
+        for field_name in ['entity', 'contract', 'diagnosis_code']:
+            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs.update({
+                    'data-control': 'select2',
+                    'data-dropdown-parent': dropdown_parent,
+                    'class': 'form-select',
+                    'id': field_id,
+                })
         
-        self.fields['contract'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-dropdown-parent': '#kt_modal_1',
-            'class': 'form-select',
-            
-        })
-        
-        self.fields['origin'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-dropdown-parent': '#kt_modal_1',
-            'class': 'form-select',
-            'data-hide-search': 'true' ,
-            
-        })
-        
-        self.fields['diagnosis_code'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-dropdown-parent': '#kt_modal_1',
-            'class': 'form-select',
-            
-            
-        })
-        
-        self.fields['extension'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-dropdown-parent': '#kt_modal_1',
-            'class': 'form-select',
-            'data-hide-search': 'true' ,
-        })
-        
+        for field_name in [ 'origin','extension']:
+            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs.update({
+                    'data-control': 'select2',
+                    'data-dropdown-parent': dropdown_parent,
+                    'class': 'form-select',
+                    'data-hide-search': 'true' ,
+                    'id': field_id,
+                })
+                
+                
         self.helper.layout = Layout(
             Row(
                 Column('contract', css_class=' form-group col-md-12 mb-3'),

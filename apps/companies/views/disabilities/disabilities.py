@@ -5,6 +5,11 @@ from apps.components.decorators import  role_required
 from apps.companies.models import Incapacidades , Contratosemp ,Contratos,Entidadessegsocial ,Diagnosticosenfermedades
 from apps.companies.forms.disabilitiesForm  import DisabilitiesForm
 from datetime import datetime
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 
 
 def disabilities(request):
@@ -22,14 +27,16 @@ def disabilities(request):
       'prorroga',
       'fechainicial',
       'dias',
+      'idincapacidad'
   ).order_by('-idincapacidad')
   
   
-  form = DisabilitiesForm()
+  form1 = DisabilitiesForm()
+  form2 = DisabilitiesForm(dropdown_parent='#kt_modal_2')
   
   if request.method == 'POST':
-    form = DisabilitiesForm(request.POST)
-    if form.is_valid():
+    form1 = DisabilitiesForm(request.POST)
+    if form1.is_valid():
       # Procesa los datos del formulario
       contract = form.cleaned_data['contract']
       entity = form.cleaned_data['entity']
@@ -73,6 +80,71 @@ def disabilities(request):
   return render (request, './companies/disabilities.html',
                   {
                     'incapacidades' :incapacidades,  
-                    'form' :form,
+                    'form1' :form1,
+                    'form2' :form2,
                     'errors':errors,
                   })
+  
+  
+  
+
+@csrf_exempt
+def edit_disabilities(request):
+  
+  if request.method == 'GET':
+      dato = request.GET.get('dato')
+      incapacidad =  get_object_or_404(Incapacidades, pk=dato)
+      print('--------ok-----------')
+      entidad = Entidadessegsocial.objects.get(entidad = incapacidad.entidad , tipoentidad = incapacidad.tipoentidad )
+      data ={ 
+            'data': {
+              
+              "contract": incapacidad.idcontrato.idcontrato,
+              "entity": entidad.codigo ,
+              "initial_date": incapacidad.fechainicial,
+              "id":str(incapacidad.idincapacidad),
+              "diagnosis_code":incapacidad.coddiagnostico.coddiagnostico,
+              "incapacity_days":incapacidad.dias,
+              "extension": incapacidad.prorroga,
+              "previous_month_ibc":incapacidad.ibc,
+              "end_date": incapacidad.finincap ,
+            },
+            'status': 'success',
+          }
+      return JsonResponse(data)
+
+  elif request.method == 'POST':
+      data = json.loads(request.body.decode('utf-8'))
+      # Obtén los valores de los campos
+      field1 = data.get('field1')
+      field2 = data.get('field2')
+      response_data = {
+          'message': f'Datos recibidos correctamente',
+          'field1': field1,
+          'field2': field2,
+          'status': 'success'
+      }
+      return JsonResponse(response_data)
+  
+  # Si el método no es GET ni POST, retornamos un error
+  return JsonResponse({'message': 'Método no permitido', 'status': 'error'}, status=405)
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

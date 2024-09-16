@@ -1,5 +1,6 @@
 {% extends 'base/base_companies.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 
 {% block title %}
@@ -73,12 +74,16 @@ Listado de Incapacidades
                         <td>{{ item.fechainicial | date:"d/m/Y"  }}</td>
                         <td>{{ item.dias }}</td>
                         <td>
-                            <a href="#" class="btn btn-icon btn-light-info">
+                            <!--begin::Overlay-->
+                            <a class="btn btn-icon btn-light-info" data-fslightbox="lightbox-basic" href="{% static 'media/stock/900x600/23.jpg' %}">
+                                <!--begin::Image-->
                                 <i class="fa-solid fa-file-image fs-3"></i>
+                                <!--end::Image-->
                             </a>
+                            <!--end::Overlay-->
                         </td>
                         <td>
-                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-whatever="@mdo" >
+                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-cliente_id="{{ item.idincapacidad }}" >
                                 <i class="fa-solid fa-pen-to-square fs-3"></i>
                             </button>   
                         </td>
@@ -113,7 +118,7 @@ Listado de Incapacidades
             </div>
 
             <div class="modal-body">
-                {% crispy form %}
+                {% crispy form1 %}
             </div>
 
             <div class="modal-footer">
@@ -139,12 +144,14 @@ Listado de Incapacidades
             </div>
     
             <div class="modal-body">
-                
+                <form id="disabilities-form-edit" method="post" action="{% url 'employees:my_get_view' %}">
+                    {% crispy form2 %}
+                </form>
             </div>
     
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary" form="form_loans" >Actualizar Incapacidad</button>
+                <button type="submit" form="disabilities-form-edit"  class="btn btn-primary">Actualizar</button>
             </div>
         </div>
     </div>
@@ -170,7 +177,6 @@ Listado de Incapacidades
         {% endif %}
     });
 </script>
-
 
 <script>
     $("#kt_daterangepicker_1").daterangepicker({
@@ -210,6 +216,100 @@ Listado de Incapacidades
         },
     });
 </script>
+
+
+<script>
+    $(document).ready(function() {
+    })
+    
+    $('#kt_modal_2').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var recipient = button.data('cliente_id');
+        var modal = $(this);
+    
+        $.ajax({ 
+            url: '/companies/payroll/new/disabilities/edit',
+            type: 'GET',
+            data: {
+                'dato': recipient
+            },
+    
+            success: function(response) {
+                console.log(response.data);
+                modal.find('.modal-title').text('Editar Incapacidad #' + response.data.id)
+                modal.find('.modal-body #id_incapacity_days').val(response.data.incapacity_days)
+                modal.find('.modal-body #id_previous_month_ibc').val(response.data.previous_month_ibc)
+                
+                // Asegúrate de que las fechas estén en el formato correcto para daterangepicker
+                var initialDate = response.data.initial_date ? moment(response.data.initial_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
+                modal.find('.modal-body #kt_daterangepicker_1').val(initialDate);
+
+                var endDate = response.data.end_date ? moment(response.data.end_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
+                modal.find('.modal-body #kt_daterangepicker_2').val(endDate);
+                
+
+                var $select1 = modal.find('.modal-body #contract_kt_modal_2');
+                $select1.val(response.data.contract).trigger('change');
+
+                var $select2 = modal.find('.modal-body #entity_kt_modal_2');
+                $select2.val(response.data.entity).trigger('change'); // Actualiza el valor y refleja el cambio
+                
+
+                var $select3 = modal.find('.modal-body #diagnosis_code_kt_modal_2');
+                $select3.val(response.data.diagnosis_code).trigger('change');
+
+                var $select4 = modal.find('.modal-body #extension_kt_modal_2');
+                $select4.val(response.data.extension).trigger('change');
+
+
+                // Inicializa daterangepicker en los campos de fecha
+                modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 2000,
+                    maxYear: parseInt(moment().format("YYYY"), 12),
+                    
+                    endDate: moment(),
+                    minDate: '01/01/2020',
+                    autoApply: true,
+                    locale: {
+                        format: 'YYYY-MM-DD',
+                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                    },
+                });
+            
+                modal.find('.modal-body #kt_daterangepicker_2').daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 2000,
+                    maxYear: parseInt(moment().format("YYYY"), 12),
+                    
+                    endDate: moment(),
+                    minDate: '01/01/2020',
+                    autoApply: true,
+                    locale: {
+                        format: 'YYYY-MM-DD',
+                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                    },
+                });
+
+
+            },
+            error: function(response) {
+                console.log(response.error);
+            }
+        })
+    })
+    
+
+
+</script>
+    
+
+
+
 
 <script>
     $(document).ready(function() {
