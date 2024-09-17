@@ -399,6 +399,7 @@ class NominaComprobantes(models.Model):
         
         
         
+        
 ## liquidaciones 
 
 
@@ -468,5 +469,122 @@ class LiquidacionMasivo(models.Model):
 
 
 
+class Conceptosfijos(models.Model):
+    idfijo = models.IntegerField(primary_key=True)
+    conceptofijo = models.CharField(max_length=80, blank=True, null=True)
+    valorfijo = models.DecimalField(max_digits=15, decimal_places=3, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'conceptosfijos'
 
 
+class Salariominimoanual(models.Model):
+    idano = models.SmallIntegerField(primary_key=True)
+    salariominimo = models.IntegerField(blank=True, null=True)
+    auxtransporte = models.IntegerField(blank=True, null=True)
+    uvt = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'salariominimoanual'
+        
+        
+# prestamos 
+
+
+class Prestamos(models.Model):
+    idprestamo = models.AutoField(primary_key=True)
+    idcontrato = models.ForeignKey('Contratos', models.DO_NOTHING, db_column='idcontrato')
+    idempleado = models.ForeignKey('Contratosemp', models.DO_NOTHING, db_column='idempleado')
+    valorprestamo = models.IntegerField(blank=True, null=True)
+    fechaprestamo = models.DateField(blank=True, null=True)
+    cuotasprestamo = models.SmallIntegerField(blank=True, null=True)
+    valorcuota = models.IntegerField(blank=True, null=True)
+    saldoprestamo = models.IntegerField(blank=True, null=True)
+    cuotaspagadas = models.SmallIntegerField(blank=True, null=True)
+    empleado = models.CharField(max_length=40, blank=True, null=True)
+    estadoprestamo = models.BooleanField(blank=True, null=True)
+    formapago = models.SmallIntegerField(blank=True, null=True)
+    diapago = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'prestamos'
+
+
+
+
+class Incapacidades(models.Model):
+    idincapacidad = models.AutoField(primary_key=True)
+    empleado = models.CharField(max_length=80, blank=True, null=True)
+    certificadoincapacidad = models.CharField(max_length=15, blank=True, null=True)
+    tipoentidad = models.CharField(max_length=5, blank=True, null=True)
+    entidad = models.CharField(max_length=80, blank=True, null=True)
+    coddiagnostico = models.ForeignKey('Diagnosticosenfermedades', models.DO_NOTHING, db_column='coddiagnostico')
+    diagnostico = models.CharField(max_length=255, blank=True, null=True)
+    fechainicial = models.DateField(blank=True, null=True)
+    dias = models.IntegerField(blank=True, null=True)
+    nominaincap = models.CharField(max_length=30, blank=True, null=True)
+    imagenincapacidad = models.CharField(blank=True, null=True)
+    idempleado = models.ForeignKey('Contratosemp', models.DO_NOTHING, db_column='idempleado')
+    idcontrato = models.ForeignKey('Contratos', models.DO_NOTHING, db_column='idcontrato')
+    estadonovincap = models.SmallIntegerField(blank=True, null=True)
+    prorroga = models.CharField(max_length=5, blank=True, null=True)
+    ibc = models.IntegerField(blank=True, null=True)
+    saldodias = models.SmallIntegerField(blank=True, null=True)
+    origenincap = models.CharField(blank=True, null=True)
+    finincap = models.DateField(blank=True, null=True)
+    imagenblob = models.BinaryField(blank=True, null=True)
+    liq = models.CharField(max_length=255, blank=True, null=True)
+    prefijo = models.CharField(max_length=7, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'incapacidades'
+        
+class Diagnosticosenfermedades(models.Model):
+    coddiagnostico = models.CharField(primary_key=True, max_length=255)
+    diagnostico = models.CharField(max_length=255, blank=True, null=True)
+    prefijo = models.CharField(max_length=1, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'diagnosticosenfermedades'
+        
+        
+class Tipoavacaus(models.Model):
+    tipovac = models.CharField(primary_key=True, max_length=255)
+    nombrevacaus = models.CharField(max_length=30, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tipoavacaus'
+
+
+class Vacaciones(models.Model):
+    idempleado = models.SmallIntegerField(blank=True, null=True)
+    idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING, db_column='idcontrato', blank=True, null=True)
+    fechainicialvac = models.DateField(blank=True, null=True)
+    ultimodiavac = models.DateField(blank=True, null=True)
+    diascalendario = models.SmallIntegerField(blank=True, null=True)
+    diasvac = models.SmallIntegerField(blank=True, null=True)
+    diaspendientes = models.SmallIntegerField(blank=True, null=True)
+    idvacaciones = models.IntegerField(primary_key=True)
+    pagovac = models.IntegerField(blank=True, null=True)
+    totaldiastomados = models.SmallIntegerField(blank=True, null=True)
+    basepago = models.IntegerField(blank=True, null=True)
+    estadovac = models.SmallIntegerField(blank=True, null=True)
+    idnomina = models.IntegerField(blank=True, null=True)
+    cuentasabados = models.SmallIntegerField(blank=True, null=True)
+    tipovac = models.ForeignKey(Tipoavacaus, models.DO_NOTHING, db_column='tipovac')
+    idvacmaster = models.IntegerField(blank=True, null=True)
+    perinicio = models.DateField(blank=True, null=True)
+    perfinal = models.DateField(blank=True, null=True)
+    fechapago = models.DateField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'vacaciones'
+        
+        

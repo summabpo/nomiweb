@@ -1,0 +1,187 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Certificados de Ingreso y Retenciones 
+{% endblock %}
+
+
+{% block css %}
+
+    .loan-status-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Novedades de Nomina
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Certificados de Ingreso y Retenciones 
+{% endblock %}
+
+{% block actions %}
+
+{% endblock %}
+
+{% block titulo2 %} 
+
+{% endblock %}
+
+
+{% block content %}
+    
+
+
+<!--begin::Accordion-->
+<!--end::Accordion-->
+<div class="separator my-10"></div>
+
+
+
+
+
+<div class="card card-dashed">
+    <br>
+    
+    <div class="card-header">
+        <form method="get" class="w-100">
+            <div class="input-group w-100">
+                <select name="empleado" id="empleado" onchange="cargarContratos()" class="form-select w-100" data-control="select2" data-placeholder="Seleccione una opción" aria-label="Seleccione un empleado:">
+                    <option value="">Seleccione...</option>
+                    {% for emp in empleados_select %}
+                        <option value="{{ emp.idempleado }}" {% if emp.idempleado|stringformat:"s" == selected_empleado %}selected{% endif %}>
+                            {{ emp.pnombre }} {{ emp.snombre }} {{ emp.papellido }} {{ emp.sapellido }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <div class="container">
+            <div class="row">
+                {% if selected_empleado %}
+                    {% if reten %}
+                    <div  class="table-responsive"> 
+                        <table id='tabla-lista-dian' class="table table-striped table-bordered" >
+                            <thead>
+                                <tr>
+                                    <th width="200">ID Certificado</th>
+                                    <th width="200">año</th>
+                                    <th width="150">
+                                        <div class="btn btn-icon btn-sm btn-light-facebook me-5 container d-flex justify-content-center align-items-center  ">
+                                            <i class="fa-solid fa-certificate fs-3"></i>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rete in reten %}
+                                    <tr>
+                                        <td>{{ rete.idingret }}</td>
+                                        <td>{{ rete.anoacumular }}</td>
+                                        <td>
+                                            {% if  rete.anoacumular == '2023' %}
+                                                <a href="{% url 'companies:viewdian_download' rete.idingret  %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                                                    <i class="fa-solid fa-file-arrow-down fs-3"></i>
+                                                </a>
+                                            {% else %}
+                                                <button type="button" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Tooltip on top">
+                                                    <i class="fa-solid fa-file-arrow-down fs-3"></i>
+                                                </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table> 
+
+                    </div>
+                        
+                    {% else %}
+                    <div class="alert alert-warning" role="alert">
+                        <h4 class="alert-heading">¡Atención!</h4>
+                        <p>El empleado seleccionado no tiene certificados de retención disponibles en este momento.</p>
+                        <hr>
+                        <p class="mb-0">Por favor, verifica la selección si la persona que busca tiene certificados </p>
+                    </div>             
+                    {% endif %}
+                {% else %}
+                <div class="alert alert-primary" role="alert">
+                    <h4 class="alert-heading">¡Oye, mira esto!</h4>
+                    <p>Aún no has seleccionado un empleado. Por favor, elige uno para que podamos mostrar la información de sus Retenciones.</p>
+                    <hr>
+                    <p class="mb-0">¡Selecciona un empleado para ver los detalles de sus Retenciones y llenar este espacio con la información correspondiente!</p>
+                </div>                
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+      
+
+
+{% endblock %}
+
+
+
+
+
+
+{% block js %}
+
+<script>
+    function cargarContratos() {
+        var empleadoSelect = document.getElementById('empleado');
+        var empleadoId = empleadoSelect.value;
+        window.location.href = `?empleado=${empleadoId}`;
+    }
+</script>
+<script>
+    $(document).ready(function() {
+        $('#tabla-lista-dian').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No se encontraron Certificados para este empleado",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [[1, 'des']], 
+            "pageLength": 10,                
+        });
+    });
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,165 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Provisión de Nómina 
+{% endblock %}
+
+
+{% block css %}
+    .btn-light-info {
+        margin-right: 10px; /* Ajusta el valor según sea necesario */
+    }
+
+    .loading-animation {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000; /* Asegura que la animación esté por encima de otros elementos */
+    }
+
+
+{% endblock %}
+
+
+
+{% block sub_titulo1 %} 
+    Contabilidad 
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+    Provisión de aportes seguridad social 
+{% endblock %}
+
+
+
+{% block titulo2 %} 
+    Listado de Provision de Seguridad Social
+{% endblock %}
+
+
+
+{% block content %}
+    <div>
+        {% crispy form %}
+    </div>
+    <div class="separator my-10"></div>
+    <div class="table-responsive">
+        <table id='tabla-aportes-nomina' class="table table-bordered">
+            <thead>
+                <tr class="fw-bold fs-6 text-gray-800" >
+                    <th>contrato</th>
+                    <th>Identificación</th>
+                    <th>Nombre</th>
+                    <th>Salario</th>
+                    <th>Base SS</th>
+                    <th>Base ARL</th>
+                    <th>Base Caja</th>
+                    <th>Variable</th>
+                    <th>Susp. Contrato</th>
+                    <th>Días</th>
+                    <th>SALUD</th>
+                    <th>PENSIÓN</th>
+                    <th>Ajuste</th>
+                    <th>ARL</th>
+                    <th>CCF</th>
+                    <th>SENA</th>
+                    <th>ICBF</th>
+                    <th>SALUD TR</th>
+                    <th>PENSIÓN TR</th>
+                    <th>FSP</th>
+                    <th>Total AP</th>
+                    <th>Provision</th>
+                    <th>AFP</th>
+                    <th>EPS</th>
+                    <th>CAJA</th>
+                    <th>Idcosto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for empleado in compects %}
+                    <tr>
+                        <td>{{ empleado.contrato }}</td>
+                        <td>{{ empleado.documento }}</td>
+                        <td>{{ empleado.nombre }}</td>
+                        <td>{{ empleado.salario }}</td>
+                        <td>{{ empleado.base_ss }}</td>
+                        <td>{{ empleado.base_arl }}</td>
+                        <td>{{ empleado.base_caja }}</td>
+                        <td>{{ empleado.variable }}</td>
+                        <td>{{ empleado.suspension }}</td>
+                        <td>{{ empleado.diasaportes }}</td>
+                        <td>{{ empleado.salud }}</td>
+                        <td>{{ empleado.pension }}</td>
+                        <td>{{ empleado.ajuste }}</td>
+                        <td>{{ empleado.arl }}</td>
+                        <td>{{ empleado.ccf }}</td>
+                        <td>{{ empleado.sena }}</td>
+                        <td>{{ empleado.icbf }}</td>
+                        <td>{{ empleado.salud_t }}</td>
+                        <td>{{ empleado.pension_t }}</td>
+                        <td>{{ empleado.fsp }}</td>
+                        <td>{{ empleado.totalap }}</td>
+                        <td>{{ empleado.provision }}</td>
+                        <td>{{ empleado.afp }}</td>
+                        <td>{{ empleado.eps }}</td>
+                        <td>{{ empleado.caja }}</td>
+                        <td>{{ empleado.idcosto }}</td>
+                    </tr>
+                    {% endfor %}
+            </tbody>
+                
+
+        </table>
+        
+    </div>
+    
+    
+    
+
+{% endblock %}
+{% block js %}
+
+
+<script>
+    $(document).ready(function() {
+
+        var table = $('#tabla-aportes-nomina').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No hay datos disponibles en la tabla",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ".",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'Bfrtip',
+            order: [[2, 'asc']],  
+            "pageLength": 5
+        });
+    });
+</script>
+
+
+
+{% endblock %}
+

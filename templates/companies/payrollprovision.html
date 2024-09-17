@@ -1,0 +1,190 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Provisionalidades Prestaciones 
+{% endblock %}
+
+
+{% block css %}
+    .btn-light-info {
+        margin-right: 10px; /* Ajusta el valor según sea necesario */
+    }
+
+    .loading-animation {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000; /* Asegura que la animación esté por encima de otros elementos */
+    }
+
+    .asteriskField {
+        display: none !important;
+    }
+
+{% endblock %}
+
+
+
+{% block sub_titulo1 %} 
+    Contabilidad 
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+    Provisionalidades Prestaciones 
+{% endblock %}
+
+
+
+{% block titulo2 %} 
+    Listado de Provisiones 
+{% endblock %}
+
+
+
+{% block content %}
+    <div>
+        {% crispy form %}
+    </div>
+
+
+
+    <div class="separator my-10"></div>
+    
+    {% if visual %}
+        <div class="table-responsive">
+            <table id='tabla-provision-nomina' class="table table-bordered">
+                <thead>
+                    <tr class="fw-bold fs-6 text-gray-800" >
+                        <th>contrato</th>
+                        <th>Identificación</th>
+                        <th>Nombre</th>
+                        <th>Costo</th>
+                        <th class="text-end" >Base PS</th>
+                        <th class="text-end" >Cesantías</th>
+                        <th class="text-end" >Int. cesa</th>
+                        <th class="text-end" >Prima</th>
+                        <th class="text-end" >Vacaciones</th>
+                        <th class="text-end" >Total PS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empleado in compects %}
+                        <tr>
+                            <td>{{ empleado.contrato }}</td>
+                            <td>{{ empleado.documento }}</td>
+                            <td>{{ empleado.nombre }}</td>
+                            <td>{{ empleado.idcosto }}</td>
+                            <td class="text-end">{{ empleado.base }}</td>
+                            <td class="text-end">{{ empleado.cesantias }}</td>
+                            <td class="text-end">{{ empleado.intcesa }}</td>
+                            <td class="text-end">{{ empleado.prima }}</td>
+                            <td class="text-end">{{ empleado.vacaciones }}</td>
+                            <td class="text-end">{{ empleado.total_ps }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th class="text-end" ></th>
+                            <th class="text-end" ></th>
+                            <th class="text-end" ></th>
+                            <th class="text-end" ></th>
+                            <th class="text-end" ></th>
+                            <th class="text-end" ></th>
+                            <th class="text-end" ></th>
+                            <th class="text-end" ></th>
+                            <th class="text-end" ></th>
+                        </tr>
+                    </tfoot>
+
+            </table>
+            
+        </div>
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <h4 class="alert-heading">¡Atención!</h4>
+            <p>Parece que la lista está vacía en este momento. Por favor, seleccione una nómina para visualizar los datos correspondientes.</p>
+            <hr>
+            <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+        </div>
+    {% endif %}
+    
+    
+
+{% endblock %}
+{% block js %}
+
+<script>
+    $(document).ready(function() {
+        var year = '{{ year }}';  // Obtener el año del contexto de Django
+        var mth = '{{ mth }}';  
+
+        var table = $('#tabla-provision-nomina').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No hay datos disponibles en la tabla",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ".",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+                    className: 'btn btn-light-info',
+                    action: function (e, dt, node, config) {
+                        window.location.href = '{% url "companies:payrollprovisiondownload_excel" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+                    }
+                },
+            
+            ],
+
+            order: [[2, 'asc']],  
+            "pageLength": 10,
+            "footerCallback": function (row, data, start, end, display) {
+                var api = this.api(), data;
+
+                // Total de cada columna numérica
+                var columnasNumericas = [4, 5, 6, 7, 8, 9];
+                
+                for (var i = 0; i < columnasNumericas.length; i++) {
+                    var total = api
+                        .column(columnasNumericas[i], { search: 'applied' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return parseFloat(a.toString().replace(/\./g,'').replace(/\,/g,'.')) + parseFloat(b.toString().replace(/\./g,'').replace(/\,/g,'.'));
+                        }, 0);
+                    $(api.column(columnasNumericas[i]).footer()).html(total.toFixed(0).replace(/\./g, '.').replace(/\B(?=(\d{3})+(?!\d))/g, "."));
+                }
+            },
+            
+        });
+    });
+</script>
+
+
+
+{% endblock %}
+

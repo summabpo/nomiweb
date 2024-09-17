@@ -1,7 +1,6 @@
 from functools import wraps
 from django.shortcuts import redirect
 from apps.components.role_redirect  import redirect_by_role
-
 from django.core.exceptions import PermissionDenied
 
 def role_required(allowed_role):
@@ -17,11 +16,12 @@ def role_required(allowed_role):
             if user_role == allowed_role:
                 return view_func(request, *args, **kwargs)
             else:
-                return redirect(redirect_by_role(user_role))
+                return redirect_by_role(user_role)
         
         return _wrapped_view
     
     return decorator
+
 
 
 def custom_login_required(view_func):

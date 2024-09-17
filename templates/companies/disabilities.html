@@ -1,0 +1,362 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Incapacidades
+{% endblock %}
+
+
+{% block css %}
+
+    .loan-status-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Novedades de Nomina
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Incapacidades
+{% endblock %}
+
+{% block actions %}
+
+<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+    <i class="fa-solid fa-plus"></i> Nueva Incapacidad
+</button>  
+
+{% endblock %}
+
+{% block titulo2 %} 
+Listado de Incapacidades
+{% endblock %}
+
+
+{% block content %}
+
+
+    {% if incapacidades %}
+    <div class="table-responsive">
+        <table class="table table-bordered" id="table-disabilities" >
+            <thead>
+                <tr class="fw-bold fs-6 text-gray-800"> 
+                    <th>Id Contrato</th>
+                    <th>Documento</th>
+                    <th>Apellidos y Nombre</th>
+                    <th>Entidad</th>
+                    <th>Codigo Diagnostico</th>
+                    <th>Diagnostico</th>
+                    <th>Prorroga</th>
+                    <th>Fecha Inicial</th>
+                    <th>dias Incapacidad</th>
+                    <th ><i class="fa-regular fa-image fs-3"></i></th>
+                    <th> </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in incapacidades %}
+                    <tr>
+                        <td>{{ item.idcontrato__idcontrato }}</td>
+                        <td>{{ item.idempleado__docidentidad }}</td>
+                        <td> {{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }} </td>
+                        <td>{{ item.entidad }}</td>
+                        <td>{{ item.coddiagnostico__coddiagnostico }}</td>
+                        <td>{{ item.diagnostico }}</td>
+                        <td>{{ item.prorroga }}</td>
+                        <td>{{ item.fechainicial | date:"d/m/Y"  }}</td>
+                        <td>{{ item.dias }}</td>
+                        <td>
+                            <!--begin::Overlay-->
+                            <a class="btn btn-icon btn-light-info" data-fslightbox="lightbox-basic" href="{% static 'media/stock/900x600/23.jpg' %}">
+                                <!--begin::Image-->
+                                <i class="fa-solid fa-file-image fs-3"></i>
+                                <!--end::Image-->
+                            </a>
+                            <!--end::Overlay-->
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-disabilites_id="{{ item.idincapacidad }}" >
+                                <i class="fa-solid fa-pen-to-square fs-3"></i>
+                            </button>   
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+    <div class="alert alert-primary" role="alert">
+        <h4 class="alert-heading">¡Atención!</h4>
+        <p>Parece que no hay incapacidades registradas en este momento. Por favor, agregue una incapacidad para visualizar los datos correspondientes.</p>
+        <hr>
+        <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+    </div>
+{% endif %}
+    
+
+<!--begin::Modal-->
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Nueva Incapacidad</h5>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                {% crispy form1 %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_loans" >Guardar Incapacidad</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Modal-->
+
+<div class="modal fade" tabindex="-1" id="kt_modal_2">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Editar Incapacidad</h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                <form id="disabilities-form-edit" method="post" action="{% url 'employees:my_get_view' %}">
+                    {% crispy form2 %}
+                </form>
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="disabilities-form-edit"  class="btn btn-primary">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
+
+{% block js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if errors %}
+            var modal = new bootstrap.Modal(document.getElementById('kt_modal_1'));
+            modal.show();
+        {% endif %}
+    });
+</script>
+
+<script>
+    $("#kt_daterangepicker_1").daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        minYear: 2000,
+        maxYear: parseInt(moment().format("YYYY"), 12),
+        
+        endDate: moment(),
+        minDate: '01/01/2020',
+        maxDate: moment(),
+        autoApply: true,
+        locale: {
+            format: 'YYYY-MM-DD',
+            applyLabel: 'Aplicar',
+            cancelLabel: 'Cancelar',
+            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        },
+    });
+</script>
+
+<script>
+    $("#kt_daterangepicker_2").daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        minYear: 2000,
+        maxYear: parseInt(moment().format("YYYY"), 12),
+        
+        endDate: moment(),
+        minDate: '01/01/2020',
+        autoApply: true,
+        locale: {
+            format: 'YYYY-MM-DD',
+            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        },
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+    })
+    
+    $('#kt_modal_2').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var recipient = button.data('disabilites_id');
+        var modal = $(this);
+    
+        $.ajax({ 
+            url: '/companies/payroll/new/disabilities/edit',
+            type: 'GET',
+            data: {
+                'dato': recipient
+            },
+    
+            success: function(response) {
+                console.log(response.data);
+                modal.find('.modal-title').text('Editar Incapacidad #' + response.data.id)
+                modal.find('.modal-body #id_incapacity_days').val(response.data.incapacity_days)
+                modal.find('.modal-body #id_previous_month_ibc').val(response.data.previous_month_ibc)
+                
+                // Asegúrate de que las fechas estén en el formato correcto para daterangepicker
+                var initialDate = response.data.initial_date ? moment(response.data.initial_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
+                modal.find('.modal-body #kt_daterangepicker_1').val(initialDate);
+
+                var endDate = response.data.end_date ? moment(response.data.end_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
+                modal.find('.modal-body #kt_daterangepicker_2').val(endDate);
+                
+
+                var $select1 = modal.find('.modal-body #contract_kt_modal_2');
+                $select1.val(response.data.contract).trigger('change');
+
+                var $select2 = modal.find('.modal-body #entity_kt_modal_2');
+                $select2.val(response.data.entity).trigger('change'); // Actualiza el valor y refleja el cambio
+                
+
+                var $select3 = modal.find('.modal-body #diagnosis_code_kt_modal_2');
+                $select3.val(response.data.diagnosis_code).trigger('change');
+
+                var $select4 = modal.find('.modal-body #extension_kt_modal_2');
+                $select4.val(response.data.extension).trigger('change');
+
+
+                // Inicializa daterangepicker en los campos de fecha
+                modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 2000,
+                    maxYear: parseInt(moment().format("YYYY"), 12),
+                    
+                    endDate: moment(),
+                    minDate: '01/01/2020',
+                    autoApply: true,
+                    locale: {
+                        format: 'YYYY-MM-DD',
+                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                    },
+                });
+            
+                modal.find('.modal-body #kt_daterangepicker_2').daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 2000,
+                    maxYear: parseInt(moment().format("YYYY"), 12),
+                    
+                    endDate: moment(),
+                    minDate: '01/01/2020',
+                    autoApply: true,
+                    locale: {
+                        format: 'YYYY-MM-DD',
+                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                    },
+                });
+
+
+            },
+            error: function(response) {
+                console.log(response.error);
+            }
+        })
+    })
+    
+
+
+</script>
+    
+
+
+
+
+<script>
+    $(document).ready(function() {
+
+        var year = '{{ year }}';  // Obtener el año del contexto de Django
+        var mth = '{{ mth }}';  
+        // Inicializar DataTable
+        var table = $('#table-disabilities').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            // buttons: [
+            //     {
+            //         text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+            //         className: 'btn btn-light-info',
+            //         action: function (e, dt, node, config) {
+            //             window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+            //         }
+            //     },
+            // ],
+            order: [],
+            pageLength: 6
+        });
+    });
+</script>
+
+
+{% endblock %}
+

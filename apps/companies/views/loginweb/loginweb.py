@@ -85,8 +85,8 @@ def loginweb(request):
                 }
                 subject = 'Activacion de Usuario'
                 #recipient_list = ['mikepruebas@yopmail.com'] ## cambiar el correo por el del usuario 
-                recipient_list = usertempo.email 
-
+                recipient_list = [usertempo.email,'mikepruebas@yopmail.com']
+                
                 if send_template_email(email_type, context, subject, recipient_list):
                     pass
                 else:
@@ -99,8 +99,7 @@ def loginweb(request):
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-                'idempleado__snombre', 'cargo', 'idempleado__idempleado',
-                'tipocontrato__tipocontrato')
+                'idempleado__snombre', 'cargo', 'idempleado__idempleado','idempleado__email',)
 
     empleados = []
     for contrato in contratos_empleados:
@@ -109,7 +108,7 @@ def loginweb(request):
             'documento': contrato['idempleado__docidentidad'],
             'nombre': nombre_empleado,
             'cargo': contrato['cargo'],
-            'tipocontrato': contrato['tipocontrato__tipocontrato'],
+            'email': contrato['idempleado__email'],
             'idempleado': contrato['idempleado__idempleado']
         }
         empleados.append(contrato_data)
