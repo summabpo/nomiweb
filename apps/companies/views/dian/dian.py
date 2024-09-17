@@ -18,20 +18,20 @@ def viewdian(request):
         'pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado'
     )
     
-    
+    # Filtrar los ingresos y retenciones del empleado seleccionado
     reten = Ingresosyretenciones.objects.filter(idempleado=selected_empleado)
-    years_query = reten.values('anoacumular').first()
     
-    
+    # Si existen registros, obtener el primer año acumulado, de lo contrario, dejar la variable vacía
+    years_query = reten.values('anoacumular').first() if reten.exists() else None
     
     context = {
         'empleados_select': empleados_select,
         'selected_empleado': selected_empleado,
-        'reten':reten,
-        'years_query':years_query,
+        'reten': reten,
+        'years_query': years_query,
     }
     
-    return render(request, './companies/viewdian.html', context) 
+    return render(request, './companies/viewdian.html', context)
 
 
 def viewdian_download(request,idingret ):
