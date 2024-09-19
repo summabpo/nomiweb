@@ -89,6 +89,7 @@ Listado de  Prestamos
                         <th>Valor Préstamo</th>
                         <th>Valor Cuota</th>
                         <th>Saldo</th>
+                        <th>Estado</th>
                         <th> </th>
                     </tr>
                 </thead>
@@ -102,6 +103,19 @@ Listado de  Prestamos
                             <td class="text-end" >{{ item.valorprestamo }}</td>
                             <td class="text-end" >{{ item.valorcuota }}</td>
                             <td class="text-end">{{ item.saldoprestamo }}</td>
+                            <td >
+                                {% if item.estadoprestamo %}
+                                    <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="La deuda ha sido pagada">
+                                        <i class="fa-solid fa-square-check fs-3"></i>
+                                        Pagada
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="La deuda está activa">
+                                        <i class="fa-solid fa-square-xmark fs-3"></i>
+                                        Activa
+                                    </button>
+                                {% endif %}
+                            </td>
                             <td class="text-end"> 
                                 <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-loans_id="{{ item.idprestamo }}" >
                                     <i class="fa-solid fa-pen-to-square fs-3"></i>
@@ -138,7 +152,7 @@ Listado de  Prestamos
             </div>
     
             <div class="modal-body">
-                <form id="form_edit_loans" method="post" action="{% url 'companies:edit_loans' %}"></form>
+                <form id="form_edit_loans" method="post" action="{% url 'companies:edit_loans' %}">
                     {% crispy form2 %}
                 </form>
             </div>

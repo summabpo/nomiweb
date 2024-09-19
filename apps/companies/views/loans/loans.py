@@ -22,6 +22,7 @@ def loans(request):
       'valorprestamo',
       'valorcuota',
       'saldoprestamo',
+      'estadoprestamo',
       'idprestamo',
       )
     
@@ -70,7 +71,7 @@ def loans(request):
                       'form2' :form2,
                       'errors' : errors,
                     })
-    
+global_id = None 
     
 
 @csrf_exempt    
@@ -96,60 +97,47 @@ def edit_loans(request):
         }
     return JsonResponse(data)
 
-  elif request.method == 'POST':
-      for key, value in request.POST.items():
-        print(f"{key}: {value}")
+  if request.method == 'POST':
+    contract_id = request.POST.get('contract')
+    loan_amount_str = request.POST.get('loan_amount')
+    loan_date_str = request.POST.get('loan_date')
+    loan_status_str = request.POST.get('loan_status')
+    installment_value_str = request.POST.get('installment_value')
     
-      contract = request.POST.get('contract')
-      loan_amount = request.POST.get('loan_amount')
-      loan_date = request.POST.get('loan_date')
-      loan_status = request.POST.get('loan_status')
-      installment_value = request.POST.get('installment_value')
-      
-      print(f"Contract: {contract}")
-      print(f"Loan Amount: {loan_amount}")
-      print(f"Loan Date: {loan_date}")
-      print(f"Loan Status: {loan_status}")
-      print(f"Installment Value: {installment_value}")
-        
-        
-      form = LoansForm(request.POST)
-      if form.is_valid():
-        contract = request.POST.get('contract')
-        loan_amount = request.POST.get('loan_amount')
-        loan_date = request.POST.get('loan_date')
-        loan_status = request.POST.get('loan_status')
-        installment_value = request.POST.get('installment_value')
-        
-        print(f"Contract: {contract}")
-        print(f"Loan Amount: {loan_amount}")
-        print(f"Loan Date: {loan_date}")
-        print(f"Loan Status: {loan_status}")
-        print(f"Installment Value: {installment_value}")
-              
-        contrato = Contratos.objects.get(idcontrato = contract)
-        empleado = Contratosemp.objects.get(idempleado = contrato.idempleado.idempleado)
-        
-        
-        prestamo_modificar = get_object_or_404(Prestamos, pk= global_id )
-        
-        prestamo_modificar.idcontrato = contrato 
-        prestamo_modificar.idempleado = empleado 
-        prestamo_modificar.valorprestamo = loan_amount 
-        prestamo_modificar.fechaprestamo = datetime.strptime(loan_date, "%Y-%m-%d"),
-        prestamo_modificar.cuotasprestamo = int(loan_amount/installment_value)
-        prestamo_modificar.valorcuota = installment_value 
-        prestamo_modificar.saldoprestamo = loan_amount 
-        prestamo_modificar.estadoprestamo = not(loan_status),
-        
-        prestamo_modificar.save()
-        
-        response_data = {
-            'status': 'success'
-        }
-        
-        return JsonResponse(response_data)
+    loan_amount = float(loan_amount_str)
+    installment_value = float(installment_value_str)
+    
+    if loan_amount <= 0 or installment_value <= 0:
+        raise ValueError("El monto del préstamo y el valor de la cuota deben ser mayores a 0.")
+    
+    # Validar y convertir la fecha
+    if isinstance(loan_date_str, str):
+        loan_date = datetime.strptime(loan_date_str, "%Y-%m-%d").date()
+    else:
+        raise ValueError("La fecha del préstamo debe ser una cadena en formato YYYY-MM-DD.")
+    if loan_status_str in ['on', None]:
+      loan_status = True
+    elif loan_status_str in ['off']:
+      loan_status = False
+    
+    contrato = get_object_or_404(Contratos, idcontrato=contract_id)
+    empleado = get_object_or_404(Contratosemp, idempleado=contrato.idempleado.idempleado)
+    prestamo_modificar = get_object_or_404(Prestamos, pk=global_id)
+    
+    # Actualizar el préstamo
+    prestamo_modificar.idcontrato = contrato
+    prestamo_modificar.idempleado = empleado
+    prestamo_modificar.valorprestamo = loan_amount
+    prestamo_modificar.fechaprestamo = loan_date
+    prestamo_modificar.cuotasprestamo = int(loan_amount / installment_value)
+    prestamo_modificar.valorcuota = installment_value
+    prestamo_modificar.saldoprestamo = loan_amount
+    prestamo_modificar.estadoprestamo = not loan_status
+    
+    prestamo_modificar.save()
   
+    messages.success(request, 'Se ha realizado la actualización del registro éxito.')
+    return redirect('companies:loans')
   # Si el método no es GET ni POST, retornamos un error
   return JsonResponse({'message': 'Metodo no permitido', 'status': 'error'}, status=405)
 

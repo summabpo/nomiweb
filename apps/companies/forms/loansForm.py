@@ -12,7 +12,7 @@ class LoansForm(forms.Form):
     # loan_balance = forms.IntegerField(label='Saldo Prestamo', required=False, widget=forms.NumberInput(attrs={'class': 'form-control'}))
     # installments_paid = forms.IntegerField(label='Cuotas Pagadas', required=False, widget=forms.NumberInput(attrs={'class': 'form-control'}))
     # employee_name = forms.CharField(label='Empleado', max_length=40, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    loan_status = forms.BooleanField(label='Estado Prestamo', required=True, widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
+    loan_status = forms.BooleanField(label='Estado Prestamo', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
     # payment_method = forms.IntegerField(label='Forma de Pago', required=False, widget=forms.NumberInput(attrs={'class': 'form-control'}))
     # payment_day = forms.IntegerField(label='Día de Pago', required=False, widget=forms.NumberInput(attrs={'class': 'form-control'}))
     
