@@ -31,7 +31,7 @@ from .views.dian import dian
 # Payroll News
 from .views.loans import loans
 from .views.disabilities import disabilities
-from .views.vacation import vacation , vacation_general
+from .views.vacation import vacation , vacation_general ,vacation_balance
 
 from .views.index import index
 
@@ -116,6 +116,7 @@ urlpatterns = [
     path('payroll/new/vacation', vacation.vacation, name='vacation'),
     path('payroll/vacation/general', vacation_general.vacation_general, name='vacation_general'),
     path('payroll/vacation/general/data', vacation_general.get_novedades, name='get_novedades'),
+    path('payroll/vacation/vacation/balance', vacation_balance.vacation_balance, name='vacation_balance'),
     
     
     

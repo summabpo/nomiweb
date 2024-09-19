@@ -49,7 +49,7 @@ def payrollprovision(request):
             mth = mes
             
             # Obtener las nóminas filtradas con `select_related` para optimizar la carga de datos relacionados
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).select_related('idempleado', 'idcontrato', 'idcosto').order_by('idempleado__papellido')
+            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).select_related('idempleado', 'idcontrato', 'idcosto').order_by('idempleado__papellido')[:200]
 
             # Obtener los conceptos fijos y almacenarlos en un diccionario fuera del bucle
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
@@ -171,7 +171,7 @@ def contributionsprovision(request):
             mes = form.cleaned_data['mes']
             
             # Obtener las nóminas filtradas y limitadas
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')
+            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')[:200]
             
             # Obtener los conceptos fijos y almacenarlos en un diccionario
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
