@@ -171,7 +171,7 @@ def contributionsprovision(request):
             mes = form.cleaned_data['mes']
             
             # Obtener las nóminas filtradas y limitadas
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')[:100]
+            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')
             
             # Obtener los conceptos fijos y almacenarlos en un diccionario
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
@@ -328,8 +328,6 @@ def contributionsprovision(request):
                         icbf = base_ss * float(picbf) / 100
 
                     if (base_ss / diasaportes * 30) < (salmin and base_ss > 0)  :
-                        if data.idempleado.docidentidad == 1031150274 : 
-                            print('---entre aqui --')
                         base_ss = float(salmin)
                         ajuste = (((float(base_ss) * float(pepse) / 100) + float(salud_t)) + ((float(base_ss) * float(ppenem) / 100) + float(pension_t)))
                         pension = ((float(base_ss) + float(suspension)) * float(ppene) / 100) + (float(suspension) * float(ppenem) / 100)
@@ -351,18 +349,7 @@ def contributionsprovision(request):
                     provision = totalap + salud_t + pension_t
                     
                     fsp = calcular_descuento(base_ss,salmin)
-                    
-                    if data.idempleado.docidentidad == 1031150274 : 
-                        print('-------------')
-                        print(data.idempleado.docidentidad)
-                        print('------------------')
-                        print(tiposal)
-                        print('-------------------------')
-                        print(fechacontrato)
-                        print('----------------')
-                        
-                        
-                    # Agregar los cálculos al diccionario
+                
                     acumulados[docidentidad] = {
                         'documento': data.idempleado.docidentidad,
                         'nombre': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",

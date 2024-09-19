@@ -55,11 +55,11 @@ Listado de Personal
                     <td >{{ item.idcontrato }}</td>
                     <td>
                         <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-icon btn-sm btn-light-facebook me-2 btn-novedad" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-tipo="vacaciones">
+                            <button type="button" class="btn btn-icon btn-sm btn-light-facebook me-2 btn-novedad" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-tipo="vacaciones" data-contrato="{{ item.idcontrato }}">
                                 <i class="fa-solid fa-plane-departure fs-3"></i>
                             </button>
                             
-                            <button type="button" class="btn btn-icon btn-sm btn-light-instagram me-2 btn-novedad" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-tipo="ausencias">
+                            <button type="button" class="btn btn-icon btn-sm btn-light-instagram me-2 btn-novedad" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-tipo="ausencias" data-contrato="{{ item.idcontrato }}" >
                                 <i class="fa-solid fa-calendar-xmark fs-3"></i>
                             </button>
                         </div>
@@ -161,7 +161,7 @@ Listado de Personal
             },
             dom: 'frtip',
             order: [[1, 'asc']], 
-            "pageLength": 10,                
+            "pageLength": 6,                
         });
     });
 </script>
@@ -169,48 +169,11 @@ Listado de Personal
 
     
     
+
 <script>
     $(document).ready(function() {
-        // Definir la variable global tipoNovedad
-        let tipoNovedad = '';
-    
-        // Evento al hacer clic en el botón que abre el modal
-        $('.btn-novedad').click(function() {
-            // Obtener el tipo de novedad desde el botón presionado
-            tipoNovedad = $(this).data('tipo');
-        });
-    
-        // Evento al abrir el modal
-        $('#kt_modal_1').on('show.bs.modal', function () {
-            // Asegúrate de que tipoNovedad esté actualizado
-            $.ajax({
-                url: "{% url 'companies:get_novedades' %}",
-                method: "GET",
-                data: { tipo: tipoNovedad },
-                success: function(data) {
-                    // Limpiar el contenido actual de la tabla
-                    $('#tabla-lista-novedad').DataTable().clear().destroy();
-                    let tableBody = $('#tabla-lista-novedad tbody');
-                    tableBody.empty(); // Limpiar la tabla antes de agregar los nuevos datos
-    
-                    // Agregar nuevos datos
-                    data.forEach(function(item) {
-                        let row = `<tr>
-                            <td>${item.novedad}</td>
-                            <td>${item.fecha_inicial}</td>
-                            <td>${item.ultimo_dia}</td>
-                            <td>${item.dias_cal}</td>
-                            <td>${item.dias_vac}</td>
-                            <td>${item.pago}</td>
-                            <td>${item.periodo_ini}</td>
-                            <td>${item.periodo_fin}</td>
-                            <td>${item.id}</td>
-                        </tr>`;
-                        tableBody.append(row);
-                    });
-    
-                    // Inicializar DataTable
-                    $('#tabla-lista-novedad').DataTable({
+        // Inicializar el DataTable
+        var table = $('#tabla-lista-novedad').DataTable({
                         language: {
                             "decimal":        "",
                             "emptyTable":     "No se encontraron empleados para listar",
@@ -236,18 +199,69 @@ Listado de Personal
                             }
                         },
                         dom: 'frtip',
-                        order: [[1, 'asc']],
-                        "pageLength": 10
+                        order: [[8, 'des']],
+                        "pageLength": 5
                     });
+
+        // Manejar la apertura del modal y cargar datos mediante AJAX
+        $('#kt_modal_1').on('show.bs.modal', function(event) {
+            // Botón que disparó el modal
+            var button = $(event.relatedTarget); 
+            var tipo = button.data('tipo'); // Obtener el tipo de novedad (vacaciones, ausencias)
+            var contratoId = button.data('contrato'); // Obtener el ID del contrato
+            var modal = $(this);
+
+            // Limpiar la tabla antes de cargar los datos
+            table.clear(); // Limpiar datos actuales
+            table.draw(); // Redibujar la tabla después de limpiar
+
+            // Hacer la solicitud AJAX
+            $.ajax({
+                url: '{% url "companies:get_novedades" %}', // URL de la vista en Django
+                type: 'GET',
+                data: {
+                    tipo: tipo,
+                    idcontrato: contratoId
                 },
-                error: function(xhr, status, error) {
-                    console.error("Error loading data:", error);
+                success: function(response) {
+                    modal.find('.modal-title').text('Vista ' + tipo)
+                    if (response.length === 0) {
+                        table.row.add([
+                            'No se encontraron novedades.', '', '', '', '', '', '', '', ''
+                        ]).draw();
+                    } else {
+                        // Iterar sobre los datos recibidos y agregarlos a la tabla
+                        $.each(response, function(index, novedad) {
+                            var row = `
+                                <tr>
+                                    <td>${novedad.novedad || ''}</td>
+                                    <td>${novedad.fecha_inicial || ''}</td>
+                                    <td>${novedad.ultimo_dia || ''}</td>
+                                    <td>${novedad.dias_cal || ''}</td>
+                                    <td>${novedad.dias_vac || ''}</td>
+                                    <td>${novedad.pago || ''}</td>
+                                    <td>${novedad.periodo_ini || ''}</td>
+                                    <td>${novedad.periodo_fin || ''}</td>
+                                    <td>${novedad.id || ''}</td>
+                                </tr>
+                            `;
+                            table.row.add($(row)).draw(); // Agregar la fila a la tabla
+                        });
+                    }
+
+                    
+
+                },
+                error: function() {
+                    alert('Error al cargar las novedades.');
                 }
             });
         });
     });
 </script>
-    
+
+
+
 
 {% endblock %}
 
