@@ -144,7 +144,7 @@ Listado de Incapacidades
             </div>
     
             <div class="modal-body">
-                <form id="disabilities-form-edit" method="post" action="{% url 'employees:my_get_view' %}">
+                <form id="disabilities-form-edit" method="post" action="{% url 'companies:edit_disabilities' %}">
                     {% crispy form2 %}
                 </form>
             </div>

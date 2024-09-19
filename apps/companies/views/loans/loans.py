@@ -32,14 +32,14 @@ def loans(request):
     
     errors = False
     if request.method == 'POST':
-      form = LoansForm(request.POST)
-      if form.is_valid():
+      form1 = LoansForm(request.POST)
+      if form1.is_valid():
         # Procesar los datos del formulario aquí
-        loan_amount = form.cleaned_data['loan_amount']
-        loan_date = form.cleaned_data['loan_date']
-        installment_value = form.cleaned_data['installment_value']
-        loan_status = form.cleaned_data['loan_status']
-        contract = form.cleaned_data['contract']
+        loan_amount = form1.cleaned_data['loan_amount']
+        loan_date = form1.cleaned_data['loan_date']
+        installment_value = form1.cleaned_data['installment_value']
+        loan_status = form1.cleaned_data['loan_status']
+        contract = form1.cleaned_data['contract']
         
         
         contrato = Contratos.objects.get(idcontrato = contract)
