@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from apps.components.filterform import FilterForm 
-from apps.components.decorators import  role_required
-from apps.companies.models import Contratosemp , Vacaciones ,Contratos 
-
+from apps.components.filterform import FilterForm
+from apps.components.decorators import role_required
+from apps.companies.models import Contratosemp, Vacaciones, Contratos
 
 
 def vacation(request):
@@ -38,6 +37,13 @@ def vacation(request):
             'perinicio',
             'perfinal'
         )
+
+        # Reemplazar los valores None de forma personalizada
+        vacaciones = [
+            {k: (0 if k in ['diascalendario', 'diasvac'] and v is None else ("" if v is None else v))
+             for k, v in vac.items()}
+            for vac in vacaciones
+        ]
     else:
         vacaciones = []
 
@@ -53,7 +59,5 @@ def vacation(request):
         'selected_empleado': selected_empleado,
         'vacaciones': vacaciones,
     }
-    
+
     return render(request, './companies/vacation.html', context)
-
-

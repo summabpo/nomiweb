@@ -13,25 +13,39 @@ from PIL import Image
 
 def viewdian(request):
     selected_empleado = request.GET.get('empleado')
-    # Obtener la lista de empleados
-    empleados_select = Contratosemp.objects.all().order_by('papellido').values(
-        'pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado'
-    )
-    
-    # Filtrar los ingresos y retenciones del empleado seleccionado
-    reten = Ingresosyretenciones.objects.filter(idempleado=selected_empleado)
-    
-    # Si existen registros, obtener el primer año acumulado, de lo contrario, dejar la variable vacía
-    years_query = reten.values('anoacumular').first() if reten.exists() else None
-    
+    selected_contra = request.GET.get('data')
+
+    # Valor por defecto para empleados_select
+    empleados_select = []
+
+    if selected_contra == "activo":
+        empleados_select = Contratosemp.objects.filter(estadocontrato=1).order_by('papellido').values(
+            'pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado'
+        )
+    elif selected_contra == "inactivo":
+        empleados_select = Contratosemp.objects.filter(estadocontrato=2).order_by('papellido').values(
+            'pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado'
+        )
+
+    if selected_empleado:
+        # Filtrar los ingresos y retenciones del empleado seleccionado
+        reten = Ingresosyretenciones.objects.filter(idempleado=selected_empleado)
+        # Si existen registros, obtener el primer año acumulado, de lo contrario, dejar la variable vacía
+        years_query = reten.values('anoacumular').first() if reten.exists() else None
+    else:
+        reten = []
+        years_query = {}
+
     context = {
         'empleados_select': empleados_select,
         'selected_empleado': selected_empleado,
+        'selected_contra': selected_contra,
         'reten': reten,
         'years_query': years_query,
     }
-    
+
     return render(request, './companies/viewdian.html', context)
+
 
 
 def viewdian_download(request,idingret ):

@@ -69,43 +69,50 @@ Listado de Vacaciones
             <div class="row">
                 {% if selected_empleado %}
                     {% if vacaciones %}
-                    <div  class="table-responsive"> 
-                        <table id='tabla-lista-vacation' class="table table-striped table-bordered" >
-                            <thead>
-                                <tr>
-                                    <th>Documento</th>
-                                    <th>Id Contrato</th>
-                                    <th>Apellidos y Nombre Empleado</th>
-                                    <th>Tipo Vac</th>
-                                    <th>Fecha Inicial Vac</th>
-                                    <th>Fecha Final Vac</th>
-                                    <th>Días Calendario</th>
-                                    <th>Días Vac</th>
-                                    <th>Periodo Inicial</th>
-                                    <th>Periodo Final</th>
-                                    <th>Totalización de Días Vac al Final</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in vacaciones %}
-                                    <tr>
-                                        <td>{{item.idcontrato__idempleado__docidentidad }}</td>
-                                        <td>{{item.idcontrato__idcontrato }}</td>
-                                        <td>{{item.idcontrato__idempleado__papellido }} {{item.idcontrato__idempleado__sapellido }} {{item.idcontrato__idempleado__pnombre }} {{item.idcontrato__idempleado__snombre }} </td>
-                                        <td>{{item.tipovac__nombrevacaus }}</td>
-                                        <td>{{item.fechainicialvac | date:"d-m-Y " }}</td>
-                                        <td>{{item.ultimodiavac | date:"d-m-Y " }}</td>
-                                        <td>{{item.diascalendario  }}</td>
-                                        <td>{{item.diasvac  }}</td>
-                                        <td>{{item.perinicio  }}</td>
-                                        <td>{{item.perfinal  }}</td>
-                                        <td> </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table> 
-
-                    </div>
+                    <table id='tabla-lista-vacation' class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Documento</th>
+                                <th>Id Contrato</th>
+                                <th>Apellidos y Nombre Empleado</th>
+                                <th>Tipo Vac</th>
+                                <th>Fecha Inicial Vac</th>
+                                <th>Fecha Final Vac</th>
+                                <th>Días Calendario</th>
+                                <th>Días Vac</th>
+                                <th>Periodo Inicial</th>
+                                <th>Periodo Final</th>
+                                <th>Totalización de Días Vac al Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in vacaciones %}
+                            <tr>
+                                <td>{{item.idcontrato__idempleado__docidentidad }}</td>
+                                <td>{{item.idcontrato__idcontrato }}</td>
+                                <td>{{item.idcontrato__idempleado__papellido }} {{item.idcontrato__idempleado__sapellido }} {{item.idcontrato__idempleado__pnombre }} {{item.idcontrato__idempleado__snombre }} </td>
+                                <td>{{item.tipovac__nombrevacaus }}</td>
+                                <td>{{item.fechainicialvac | date:"d-m-Y " }}</td>
+                                <td>{{item.ultimodiavac | date:"d-m-Y " }}</td>
+                                <td>{{item.diascalendario  }}</td>
+                                <td>{{item.diasvac  }}</td>
+                                <td>{{item.perinicio  }}</td>
+                                <td>{{item.perfinal  }}</td>
+                                <td>{{ item.diascalendario|default_if_none:0|add:item.diasvac|default_if_none:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="6" style="text-align:right">Total:</th>
+                                <th></th> <!-- Total Días Calendario -->
+                                <th></th> <!-- Total Días Vac -->
+                                <th colspan="2"></th>
+                                <th></th> <!-- Total Totalización de Días Vac al Final -->
+                            </tr>
+                        </tfoot>
+                    </table>
+                    
                         
                     {% else %}
                     <div class="alert alert-warning" role="alert">
@@ -178,11 +185,79 @@ Listado de Vacaciones
                 }
             },
             dom: 'frtip',
-            order: [[2, 'asc']], 
-            "pageLength": 10,                
+            order: [[2, 'asc']],
+            pageLength: 10,
+            footerCallback: function (row, data, start, end, display) {
+                var api = this.api();
+
+                // Función para convertir en número
+                var intVal = function (i) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '') * 1 :
+                        typeof i === 'number' ?
+                            i : 0;
+                };
+
+                // Total en todas las páginas para las tres columnas
+                var totalDiasCalendario = api
+                    .column(6) // Índice de la columna "Días Calendario"
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                var totalDiasVac = api
+                    .column(7) // Índice de la columna "Días Vac"
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                var totalTotalizacionDiasVac = api
+                    .column(10) // Índice de la columna "Totalización de Días Vac al Final"
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Total en la página actual para las tres columnas
+                var pageTotalDiasCalendario = api
+                    .column(6, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                var pageTotalDiasVac = api
+                    .column(7, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                var pageTotalTotalizacionDiasVac = api
+                    .column(10, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+
+                // Actualizar el pie de la tabla con los totales de la página y los totales generales
+                $(api.column(6).footer()).html(
+                    totalDiasCalendario
+                );
+                $(api.column(7).footer()).html(
+                    totalDiasVac 
+                );
+                $(api.column(10).footer()).html(
+                    totalTotalizacionDiasVac
+                );
+            }
         });
     });
 </script>
+
+
 
 {% endblock %}
 
