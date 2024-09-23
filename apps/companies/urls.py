@@ -31,7 +31,8 @@ from .views.dian import dian
 # Payroll News
 from .views.loans import loans
 from .views.disabilities import disabilities
-from .views.vacation import vacation , vacation_general ,vacation_balance
+from .views.vacation import vacation , vacation_general ,vacation_balance ,vacation_request
+
 
 from .views.index import index
 
@@ -113,10 +114,12 @@ urlpatterns = [
     path('payroll/new/loans/edit', loans.edit_loans, name='edit_loans'),
     path('payroll/new/disabilities', disabilities.disabilities, name='disabilities'),
     path('payroll/new/disabilities/edit', disabilities.edit_disabilities, name='edit_disabilities'),
+    path('payroll/new/disabilities/entity', disabilities.get_entity, name='get_entity'),
     path('payroll/new/vacation', vacation.vacation, name='vacation'),
     path('payroll/vacation/general', vacation_general.vacation_general, name='vacation_general'),
     path('payroll/vacation/general/data', vacation_general.get_novedades, name='get_novedades'),
-    path('payroll/vacation/vacation/balance', vacation_balance.vacation_balance, name='vacation_balance'),
+    path('payroll/vacation/balance', vacation_balance.vacation_balance, name='vacation_balance'),
+    path('payroll/vacation/request', vacation_request.vacation_request, name='vacation_request'),
     
     
     

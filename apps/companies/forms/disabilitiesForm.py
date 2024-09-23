@@ -6,7 +6,7 @@ from datetime import timedelta
 from apps.companies.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
 
 class DisabilitiesForm(forms.Form):
-    origin = forms.ChoiceField(choices=[('', '----------'),('EG', 'Enfermedad General - Común'), ('AT', 'Profesional - Acc. Trabajo'), ('MP', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
+    origin = forms.ChoiceField(choices=[('', '----------'),('EPS', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
     #entity = forms.ModelChoiceField(queryset=Entidadessegsocial.objects.none(), label="Entidad", widget=forms.Select(attrs={'class': 'form-select'}))
     
     extension = forms.ChoiceField(choices=[('', '-----'),('1', 'Sí'), ('0', 'No')], label="Prórroga", widget=forms.Select(attrs={'class': 'form-select'}))
@@ -30,6 +30,7 @@ class DisabilitiesForm(forms.Form):
    
     end_date  = forms.CharField(
         label="Fin de la Incapacidad",
+        required=False ,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Pick date range',
@@ -38,16 +39,6 @@ class DisabilitiesForm(forms.Form):
     )
     
 
-    
-    previous_month_ibc = forms.DecimalField(
-        label="IBC Mes Anterior", 
-        max_digits=10, 
-        decimal_places=2, 
-        initial=0.00, 
-        min_value=0,   
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
-    )
-    
     image = forms.ImageField(label="Imagen",required=False , widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
 
     
@@ -60,7 +51,7 @@ class DisabilitiesForm(forms.Form):
         self.fields['entity'] = forms.ChoiceField(
             choices=[('', '----------')] + [
                 (item['codigo'], f"{item['entidad']}")
-                for item in Entidadessegsocial.objects.filter( tipoentidad__in=['EPS', 'ERL'])
+                for item in Entidadessegsocial.objects.filter( tipoentidad__in=['EPS', 'ARL'])
                 .order_by('codigo')  # Aplica el orden antes de hacer el slice
                 .values('codigo', 'entidad')
             ],
@@ -121,8 +112,8 @@ class DisabilitiesForm(forms.Form):
                 css_class='row'
             ),
             Row(
-                Column('entity', css_class=' form-group col-md-6 mb-3'),
                 Column('origin', css_class=' form-group col-md-6 mb-3'),
+                Column('entity', css_class=' form-group col-md-6 mb-3'),
                 css_class='row'
             ),
             Row(
@@ -137,8 +128,7 @@ class DisabilitiesForm(forms.Form):
                 css_class='row'
             ),
             Row(
-                Column('previous_month_ibc', css_class=' form-group col-md-6 mb-3'),
-                Column('image', css_class=' form-group col-md-6 mb-3'),
+                Column('image', css_class=' form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             

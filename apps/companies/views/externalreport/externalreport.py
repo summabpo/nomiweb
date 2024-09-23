@@ -65,10 +65,11 @@ def download_excel_report(request):
 
     # Generar el archivo Excel
     excel_data = generate_nomina_excel(year, month)
-
+    file_name = f"informe_tercero_{month}_{year}.xlsx"
+    
     # Crear la respuesta con el archivo Excel
     response = HttpResponse(excel_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="nomina_report.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
 
     return response
 

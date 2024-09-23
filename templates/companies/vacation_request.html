@@ -1,0 +1,107 @@
+{% extends 'base/base_employees.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+Nomiweb.co - Portal Empresa - Solicitud de Vacaciones / Licencias
+{% endblock %}
+
+
+{% block sub_titulo1 %}
+Vacaciones 
+{% endblock %}
+
+{% block sub_titulo2 %}
+Solicitudes de Vacaciones
+{% endblock %}
+
+{% block titulo2 %}
+Listado de Solicitudes
+{% endblock %}
+
+{% block content %}
+
+<table class="table table-bordered table-hover" id="tabla-lista-vacation">
+    <thead>
+        <tr>
+            <th>Contrato</th>
+            <th>Empleado</th>
+            <th>Tipo de Vacación</th>
+            <th>Fecha Inicial</th>
+            <th>Fecha Final</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for vacacion in vacaciones %}
+        <tr>
+            <td>{{ vacacion.idcontrato__idcontrato }}</td>
+            <td> {{ vacacion.idcontrato__idempleado__papellido }} {{ vacacion.idcontrato__idempleado__sapellido }} {{ vacacion.idcontrato__idempleado__pnombre }} {{ vacacion.idcontrato__idempleado__snombre }} </td>
+            <td>{{ vacacion.tipovac }}</td>
+            <td>{{ vacacion.fechainicialvac }}</td>
+            <td>{{ vacacion.fechafinalvac }}</td>
+            <td>
+                {% if vacacion.estado == 1 %}
+                    <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary w-100">
+                        <i class="bi bi-stopwatch-fill fs-4 me-2"></i>Pendiente
+                    </button>
+                {% elif vacacion.estado == 2 %}
+                    <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-success btn-active-light-success w-100">
+                        <i class="bi bi-check-circle-fill fs-4 me-2"></i>Aprobada
+                    </button>
+                {% elif vacacion.estado == 3 %}
+                    <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger w-100">
+                        <i class="bi bi-exclamation-triangle-fill fs-4 me-2"></i>Rechazada
+                    </button>
+                {% else %}
+                    <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning w-100" onclick="handleUnknownState()">
+                        <i class="bi bi-question-circle-fill fs-4 me-2"></i>Desconocido
+                    </button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock content %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $('#tabla-lista-vacation').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No se encontraron Certificados para este empleado",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [[2, 'asc']],
+            pageLength: 10,
+            
+
+        });
+    });
+</script>
+
+{% endblock %}

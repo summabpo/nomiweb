@@ -56,7 +56,7 @@ Listado de Vacaciones
                     <option value="">Seleccione...</option>
                     {% for emp in empleados_select %}
                         <option value="{{ emp.idempleado }}" {% if emp.idempleado|stringformat:"s" == selected_empleado %}selected{% endif %}>
-                            {{ emp.pnombre }} {{ emp.snombre }} {{ emp.papellido }} {{ emp.sapellido }}
+                            {{ emp.papellido }} {{ emp.sapellido }} {{ emp.pnombre }} {{ emp.snombre }} 
                         </option>
                     {% endfor %}
                 </select>

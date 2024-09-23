@@ -70,7 +70,15 @@ Listado de Incapacidades
                         <td>{{ item.entidad }}</td>
                         <td>{{ item.coddiagnostico__coddiagnostico }}</td>
                         <td>{{ item.diagnostico }}</td>
-                        <td>{{ item.prorroga }}</td>
+                        <td>
+                            
+                            {% if item.prorroga == '0'  %}
+                                <h4>No</h4>
+                            {% else %}
+                                <h4>sI</h4>
+                            {% endif %}
+
+                        </td>
                         <td>{{ item.fechainicial | date:"d/m/Y"  }}</td>
                         <td>{{ item.dias }}</td>
                         <td>
@@ -169,6 +177,106 @@ Listado de Incapacidades
 
 
 {% block js %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Asigna el evento 'change' al select que usa select2
+        const originSelect = $('#origin_kt_modal_1');
+
+        if (originSelect.length) {
+            // Detectar el cambio de valor en select2
+            originSelect.on('select2:select', function(e) {
+                const idOrigin = e.params.data.id;  // Obtén el valor seleccionado
+                fetchEntities(idOrigin);  // Llama a la función con el valor seleccionado
+            });
+        } else {
+            console.log("No se ha podido detectar el select con id origin_kt_modal_1.");
+        }
+    });
+
+    const entitiesUrl = "{% url 'companies:get_entity' %}";
+
+    async function fetchEntities(idOrigin) {
+        if (idOrigin) {
+            try {
+                const entities = await get_entity(idOrigin);
+
+                const idEntitySelect = document.getElementById('entity_kt_modal_1');
+                idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
+
+                entities.forEach(entity => {
+                    const option = document.createElement('option');
+                    option.value = entity.codigo;
+                    option.textContent = entity.entidad;
+                    idEntitySelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error al obtener las entidades:', error);
+            }
+        } else {
+            const idEntitySelect = document.getElementById('entity_kt_modal_1');
+            idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
+        }
+    }
+
+    async function get_entity(idOrigin) {
+        try {
+            const response = await fetch(`${entitiesUrl}?dato=${idOrigin}`);
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error en la petición AJAX:', error);
+            throw error;
+        }
+    }
+</script>
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('kt_daterangepicker_1');
+        const daysInput = document.getElementById('id_incapacity_days');
+        const endDateInput = document.getElementById('kt_daterangepicker_2');
+    
+        function calculateEndDate() {
+            const startDate = new Date(startDateInput.value);
+            const daysToAdd = parseInt(daysInput.value) || 0;
+    
+            if (!isNaN(startDate) && daysToAdd) {
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + daysToAdd);
+                endDateInput.value = endDate.toLocaleDateString(); 
+                endDateInput.disabled = true;
+            } else {
+                endDateInput.value = '';
+            }
+        }
+    
+        const modalElement = document.getElementById('kt_modal_1');
+    
+        modalElement.addEventListener('shown.bs.modal', function() {
+            startDateInput.value = ''; // Limpia los campos al abrir el modal
+            daysInput.value = '';      // Limpia los campos al abrir el modal
+            endDateInput.value = '';   // Limpia los campos al abrir el modal
+            endDateInput.disabled = true;
+    
+            startDateInput.addEventListener('change', calculateEndDate);
+            daysInput.addEventListener('input', calculateEndDate);
+        });
+    
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            startDateInput.removeEventListener('change', calculateEndDate);
+            daysInput.removeEventListener('input', calculateEndDate);
+        });
+    });
+</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         {% if errors %}
@@ -215,6 +323,7 @@ Listado de Incapacidades
             monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
         },
     });
+    
 </script>
 
 
@@ -268,7 +377,7 @@ Listado de Incapacidades
                     showDropdowns: true,
                     minYear: 2000,
                     maxYear: parseInt(moment().format("YYYY"), 12),
-                    
+                    startDate: moment(initialDate),
                     endDate: moment(),
                     minDate: '01/01/2020',
                     autoApply: true,
@@ -278,22 +387,23 @@ Listado de Incapacidades
                         monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
                     },
                 });
-            
-                modal.find('.modal-body #kt_daterangepicker_2').daterangepicker({
-                    singleDatePicker: true,
-                    showDropdowns: true,
-                    minYear: 2000,
-                    maxYear: parseInt(moment().format("YYYY"), 12),
+                
+                modal.find('.modal-body #kt_daterangepicker_2').attr('disabled', true);
+                // modal.find('.modal-body #kt_daterangepicker_2').daterangepicker({
+                //     singleDatePicker: true,
+                //     showDropdowns: true,
+                //     minYear: 2000,
+                //     maxYear: parseInt(moment().format("YYYY"), 12),
                     
-                    endDate: moment(),
-                    minDate: '01/01/2020',
-                    autoApply: true,
-                    locale: {
-                        format: 'YYYY-MM-DD',
-                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-                    },
-                });
+                //     endDate: moment(),
+                //     minDate: '01/01/2020',
+                //     autoApply: true,
+                //     locale: {
+                //         format: 'YYYY-MM-DD',
+                //         daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                //         monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                //     },
+                // });
 
 
             },
