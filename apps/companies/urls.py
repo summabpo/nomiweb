@@ -79,19 +79,19 @@ urlpatterns = [
     
     
     ##! contabilidad 
-    path('accounting/payroll/provision', payrollprovision.payrollprovision, name='payrollprovision'),
-    path('accounting/payroll/provision/download', payrollprovision.payrollprovisiondownload_excel, name='payrollprovisiondownload_excel'),
-    path('accounting/contributions/provision', payrollprovision.contributionsprovision, name='contributionsprovision'),
-    path('accounting/external/report', externalreport.externalreport, name='externalreport'),
-    path('accounting/external/report/download', externalreport.download_excel_report, name='download_excel_report'),
+    path('accounting/payroll/provision/', payrollprovision.payrollprovision, name='payrollprovision'),
+    path('accounting/payroll/provision/download/', payrollprovision.payrollprovisiondownload_excel, name='payrollprovisiondownload_excel'),
+    path('accounting/contributions/provision/', payrollprovision.contributionsprovision, name='contributionsprovision'),
+    path('accounting/external/report/', externalreport.externalreport, name='externalreport'),
+    path('accounting/external/report/download/', externalreport.download_excel_report, name='download_excel_report'),
     path('accounting/dian/certificate/', dian.viewdian, name='viewdian'),
-    path('accounting/dian/certificate/download/<str:idingret>', dian.viewdian_download, name='viewdian_download'),
+    path('accounting/dian/certificate/download/<str:idingret>/', dian.viewdian_download, name='viewdian_download'),
     
     
     ##! Payroll
-    path('payroll/labor/certification', laborcertification.laborcertification, name='laborcertification'),
+    path('payroll/labor/certification/', laborcertification.laborcertification, name='laborcertification'),
 
-    path('payroll/sheet', payrollsheet.payrollsheet, name='payrollsheet'),
+    path('payroll/sheet/', payrollsheet.payrollsheet, name='payrollsheet'),
     path('payroll/sheet/download/<int:idnomina>/<int:idcontrato>/', payrollsheet.generatepayrollcertificate, name='generatepayrollcertificate'),
     path('payroll/sheet/send/<int:idnomina>/<int:idcontrato>/', payrollsheet.unique_mail, name='unique_mail'),
 
@@ -99,38 +99,38 @@ urlpatterns = [
     path('payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
     path('payroll/summary/download/<int:idnomina>/all/', payrollsheet.generatepayrollsummary2, name='generatepayrollsummary2'),
     
-    path('payroll/bank/list/get', bank_list.bank_list_get, name='bank_list_get'),
+    path('payroll/bank/list/get/', bank_list.bank_list_get, name='bank_list_get'),
     path('payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
     
-    path('payroll/settlement/list', settlementlist.settlementlist, name='settlementlist'),
+    path('payroll/settlement/list/', settlementlist.settlementlist, name='settlementlist'),
     path('payroll/settlement/download/<int:idliqui>/', settlementlist.settlementlistdownload, name='settlementlistdownload'),
-    path('payroll/payroll/accumulations', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
-    path('payroll/payroll/accumulations/download', payrollaccumulations.descargar_excel_empleados, name='descargar_excel_empleados'),
-    path('payroll/payroll/abstract/concept', abstractconcept.abstractconcept, name='abstractconcept'),
+    path('payroll/payroll/accumulations/', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
+    path('payroll/payroll/accumulations/download/', payrollaccumulations.descargar_excel_empleados, name='descargar_excel_empleados'),
+    path('payroll/payroll/abstract/concept/', abstractconcept.abstractconcept, name='abstractconcept'),
     
     
     ##! Payroll News
-    path('payroll/new/loans', loans.loans, name='loans'),
-    path('payroll/new/loans/edit', loans.edit_loans, name='edit_loans'),
-    path('payroll/new/disabilities', disabilities.disabilities, name='disabilities'),
-    path('payroll/new/disabilities/edit', disabilities.edit_disabilities, name='edit_disabilities'),
-    path('payroll/new/disabilities/entity', disabilities.get_entity, name='get_entity'),
-    path('payroll/new/vacation', vacation.vacation, name='vacation'),
-    path('payroll/vacation/general', vacation_general.vacation_general, name='vacation_general'),
-    path('payroll/vacation/general/data', vacation_general.get_novedades, name='get_novedades'),
-    path('payroll/vacation/balance', vacation_balance.vacation_balance, name='vacation_balance'),
-    path('payroll/vacation/request', vacation_request.vacation_request, name='vacation_request'),
-    path('payroll/vacation/request/get', vacation_request.get_vacation_details, name='get_vacation_details'),
-    path('payroll/vacation/request/acction', vacation_request.get_vacation_acction, name='get_vacation_acction'),
+    path('payroll/new/loans/', loans.loans, name='loans'),
+    path('payroll/new/loans/edit/', loans.edit_loans, name='edit_loans'),
+    path('payroll/new/disabilities/', disabilities.disabilities, name='disabilities'),
+    path('payroll/new/disabilities/edit/', disabilities.edit_disabilities, name='edit_disabilities'),
+    path('payroll/new/disabilities/entity/', disabilities.get_entity, name='get_entity'),
+    path('payroll/new/vacation/', vacation.vacation, name='vacation'),
+    path('payroll/vacation/general/', vacation_general.vacation_general, name='vacation_general'),
+    path('payroll/vacation/general/data/', vacation_general.get_novedades, name='get_novedades'),
+    path('payroll/vacation/balance/', vacation_balance.vacation_balance, name='vacation_balance'),
+    path('payroll/vacation/request/', vacation_request.vacation_request, name='vacation_request'),
+    path('payroll/vacation/request/get/', vacation_request.get_vacation_details, name='get_vacation_details'),
+    path('payroll/vacation/request/acction/', vacation_request.get_vacation_acction, name='get_vacation_acction'),
     
     
     
         
     ##* masivos 
-    path('payroll/sheet/massive/mail', payrollsheet.massive_mail, name='massivemail'),
+    path('payroll/sheet/massive/mail/', payrollsheet.massive_mail, name='massivemail'),
     
     ##! seguridad 
-    path('security/user', loginweb.loginweb, name='loginweb'),
+    path('security/user/', loginweb.loginweb, name='loginweb'),
     
     #// admin login 
     # path('logout/', views.Logout, name='logout'),

@@ -21,7 +21,8 @@ def vacation(request):
 
         # Obtener las vacaciones relacionadas con el contrato
         vacaciones = Vacaciones.objects.filter(
-            idcontrato=contrato
+            idcontrato=contrato,
+            tipovac__tipovac__in=[1,2]
         ).values(
             'idcontrato__idempleado__docidentidad',
             'idcontrato__idcontrato',
@@ -41,7 +42,7 @@ def vacation(request):
         # Reemplazar los valores None de forma personalizada
         vacaciones = [
             {k: (0 if k in ['diascalendario', 'diasvac'] and v is None else ("" if v is None else v))
-             for k, v in vac.items()}
+                for k, v in vac.items()}
             for vac in vacaciones
         ]
     else:

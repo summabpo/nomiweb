@@ -587,4 +587,3 @@ class Vacaciones(models.Model):
         managed = False
         db_table = 'vacaciones'
         
-        

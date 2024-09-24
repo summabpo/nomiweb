@@ -28,7 +28,7 @@ def get_novedades(request):
     
     if tipo_novedad == 'vacaciones':
         data = []
-        vacaciones =  Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[1, 2, 3]) 
+        vacaciones =  Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[1,2]) 
         for vacacion in vacaciones:
             novedad = {
                 "novedad": vacacion.tipovac.nombrevacaus if vacacion.tipovac and vacacion.tipovac.nombrevacaus else '',
@@ -47,7 +47,7 @@ def get_novedades(request):
     else:  # Asumimos 'ausencias' o 'licencias no remuneradas'
         
         data = []
-        vacaciones =  Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[4, 5]) 
+        vacaciones =  Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[3,4,5]) 
         
         for vacacion in vacaciones:
             novedad = {
