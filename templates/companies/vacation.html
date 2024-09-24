@@ -82,7 +82,6 @@ Listado de Vacaciones
                                 <th>Días Vac</th>
                                 <th>Periodo Inicial</th>
                                 <th>Periodo Final</th>
-                                <th>Totalización de Días Vac al Final</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,7 +97,6 @@ Listado de Vacaciones
                                 <td>{{item.diasvac  }}</td>
                                 <td>{{item.perinicio  }}</td>
                                 <td>{{item.perfinal  }}</td>
-                                <td>{{ item.diascalendario|default_if_none:0|add:item.diasvac|default_if_none:0 }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -108,7 +106,6 @@ Listado de Vacaciones
                                 <th></th> <!-- Total Días Calendario -->
                                 <th></th> <!-- Total Días Vac -->
                                 <th colspan="2"></th>
-                                <th></th> <!-- Total Totalización de Días Vac al Final -->
                             </tr>
                         </tfoot>
                     </table>
@@ -213,13 +210,6 @@ Listado de Vacaciones
                         return intVal(a) + intVal(b);
                     }, 0);
 
-                var totalTotalizacionDiasVac = api
-                    .column(10) // Índice de la columna "Totalización de Días Vac al Final"
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
                 // Total en la página actual para las tres columnas
                 var pageTotalDiasCalendario = api
                     .column(6, { page: 'current' })
@@ -235,23 +225,12 @@ Listado de Vacaciones
                         return intVal(a) + intVal(b);
                     }, 0);
 
-                var pageTotalTotalizacionDiasVac = api
-                    .column(10, { page: 'current' })
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
 
                 // Actualizar el pie de la tabla con los totales de la página y los totales generales
-                $(api.column(6).footer()).html(
-                    totalDiasCalendario
-                );
                 $(api.column(7).footer()).html(
                     totalDiasVac 
                 );
-                $(api.column(10).footer()).html(
-                    totalTotalizacionDiasVac
-                );
+                
             }
         });
     });

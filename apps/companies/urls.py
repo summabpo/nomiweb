@@ -120,6 +120,8 @@ urlpatterns = [
     path('payroll/vacation/general/data', vacation_general.get_novedades, name='get_novedades'),
     path('payroll/vacation/balance', vacation_balance.vacation_balance, name='vacation_balance'),
     path('payroll/vacation/request', vacation_request.vacation_request, name='vacation_request'),
+    path('payroll/vacation/request/get', vacation_request.get_vacation_details, name='get_vacation_details'),
+    path('payroll/vacation/request/acction', vacation_request.get_vacation_acction, name='get_vacation_acction'),
     
     
     
