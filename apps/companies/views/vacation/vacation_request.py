@@ -50,7 +50,7 @@ def vacation_request(request):
     vacaciones = EmpVacaciones.objects.all().order_by('-id_sol_vac').values('idcontrato__idempleado__docidentidad', 'idcontrato__idempleado__sapellido', 'idcontrato__idempleado__papellido', 
                 'idcontrato__idempleado__pnombre', 'idcontrato__idempleado__snombre', 'idcontrato__idempleado__idempleado', 
                 'tipovac__nombrevacaus','fechainicialvac', 'fechafinalvac','estado','idcontrato__idcontrato','id_sol_vac')
-    
+
     context ={ 
             'vacaciones' : vacaciones,
         }
@@ -130,31 +130,78 @@ def get_vacation_details(request):
 @csrf_exempt
 def get_vacation_acction(request):
     try:
-        if request.method == 'GET':
-            action = request.GET.get('action')
-            vacation = request.GET.get('vacation')
+        if request.method == 'POST':
+            option = request.POST.get('loanSelect')
+            comments = request.POST.get('comments')
+            vacation = request.POST.get('vacationDetails') 
             
             data = EmpVacaciones.objects.get(id_sol_vac = vacation )
             
-            if action == 'approve':
+            if option == '1':
                 status = '2'
-            elif action == 'reject':
+                response_message = "Solicitud aprobada."
+            elif option == '2':
                 status = '3'
-            elif action == 'pending':
+                response_message = "Solicitud rechazada."
+            elif option == '3':
                 status = '1'
-            
+                response_message = "Solicitud en estado pendiente."
+            else:
+                response_message = "Acción no válida."
+                
             data.estado = status
+            data.comentarios2 = comments
             data.save()
             
-            return JsonResponse({'success': True})
+            return JsonResponse({'success': True, 'message': 'Solicitud procesada correctamente.'})
     
     
     except Exception as e:
-        return JsonResponse({'success': False})
+        return JsonResponse({'success': False, 'message': 'Ocurrio Un error inesperado '})
     
     return JsonResponse({'message': 'Metodo no permitido', 'status': 'error'}, status=405)
 
 
+""" 
+<!--begin::Toggle-->
+<button type="button" class="btn btn-light-info rotate" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-start" data-kt-menu-offset="0, 0">
+    <i class="fa-solid fa-list-check fs-3 "></i>
+    Gestionar
+</button>
+<!--end::Toggle-->
 
+<!--begin::Menu-->
+<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-auto min-w-200 mw-300px" data-kt-menu="true">
+    <!--begin::Menu item-->
+    <div class="menu-item px-3">
+        <a href="#" class="menu-link px-3 menu-state-bg-info" data-vacation="{{ vacacion.id_sol_vac }}" data-action="approve" onclick="sendAction(this)">
+            Aprobar
+        </a>
+    </div>
+    <!--end::Menu item-->
+
+    <!--begin::Menu item-->
+    <div class="menu-item px-3">
+        <a href="#" class="menu-link px-3" data-vacation="{{ vacacion.id_sol_vac }}" data-action="reject" onclick="sendAction(this)">
+            Rechazar
+        </a>
+    </div>
+    <!--end::Menu item-->
+
+    <!--begin::Menu item-->
+    <div class="menu-item px-3">
+        <a href="#" class="menu-link px-3" data-vacation="{{ vacacion.id_sol_vac }}" data-action="pending" onclick="sendAction(this)">
+            Pendiente
+        </a>
+    </div>
+    <!--end::Menu item-->
+    <!--begin::Menu separator-->
+    <div class="separator mt-3 opacity-75"></div>
+    <!--end::Menu separator-->
+</div>
+<!--end::Menu-->
+
+
+"""
 
 

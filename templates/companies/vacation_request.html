@@ -73,50 +73,10 @@ Listado de Solicitudes
                             detalles
                         </button>
 
-                        <!--begin::Toggle-->
-                        <button type="button" class="btn btn-light-info rotate" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-start" data-kt-menu-offset="0, 0">
+                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2"  data-vacation_details="{{ vacacion.id_sol_vac }}">
                             <i class="fa-solid fa-list-check fs-3 "></i>
                             Gestionar
-                        </button>
-                        <!--end::Toggle-->
-
-                        <!--begin::Menu-->
-                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-auto min-w-200 mw-300px" data-kt-menu="true">
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-3 menu-state-bg-info" data-vacation="{{ vacacion.id_sol_vac }}" data-action="approve" onclick="sendAction(this)">
-                                    Aprobar
-                                </a>
-                            </div>
-                            <!--end::Menu item-->
-
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-3" data-vacation="{{ vacacion.id_sol_vac }}" data-action="reject" onclick="sendAction(this)">
-                                    Rechazar
-                                </a>
-                            </div>
-                            <!--end::Menu item-->
-
-                            <!--begin::Menu item-->
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-3" data-vacation="{{ vacacion.id_sol_vac }}" data-action="pending" onclick="sendAction(this)">
-                                    Pendiente
-                                </a>
-                            </div>
-                            <!--end::Menu item-->
-                            <!--begin::Menu separator-->
-                            <div class="separator mt-3 opacity-75"></div>
-                            <!--end::Menu separator-->
-                        </div>
-                        <!--end::Menu-->
-
-
-
-                        <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_2">
-                            <i class="fa-solid fa-list-check fs-3 "></i>
-                            Gestionar
-                        </button> -->
+                        </button> 
 
                         
 
@@ -222,11 +182,100 @@ Listado de Solicitudes
         </div>
     </div>
     
+    <div class="modal fade" tabindex="-1" id="kt_modal_2">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Gestion  de Vacaciones/Licencias</h3>
+        
+                    <!--begin::Close-->
+                    <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                    </div>
+                    <!--end::Close-->
+                </div>
+                <div class="modal-body" >
 
+                    <form id="form_vacation_request" method="post" class="p-4 border rounded shadow-sm bg-light">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="loanSelect" class="form-label fw-semibold">Seleccione una Opción</label>
+                            <div class="input-group">
+                                <select id="loanSelect" class="form-select" data-control="select2" data-dropdown-css-class="w-200px" data-placeholder="Seleccione Una Opcion" data-hide-search="true">
+                                    <option></option>
+                                    <option value="1">Aprobar</option>
+                                    <option value="2">Rechazar</option>
+                                    <option value="3">Pendiente</option>
+                                </select>
+                            </div>
+                        </div>
+                    
+                        <div class="mb-3">
+                            <label for="comments" class="form-label fw-semibold">Comentarios</label>
+                            <textarea id="comments" class="form-control" rows="4" style="resize: none; height: 100px;" data-kt-autosize="true" placeholder="Escriba sus Comentarios de La solicitud"></textarea>
+                        </div>
+                
+                    </form>
+                    
+                </div>
+                
+        
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" form="form_vacation_request" >Actualizar Prestamo</button>
+                </div>
+            </div> 
+        </div>
+    </div>
 
 {% endblock content %}
 
 {% block js %}
+
+<script>
+    
+var vacationDetails;
+$('#kt_modal_2').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget); 
+    vacationDetails = button.data('vacation_details'); 
+});
+
+$('#form_vacation_request').on('submit', function (e) {
+    e.preventDefault();  
+    var loanSelect = $('#loanSelect').val();  
+    var comments = $('#comments').val();  
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'companies:get_vacation_acction' %}",  
+        data: {
+            'loanSelect': loanSelect,
+            'comments': comments,
+            'vacationDetails': vacationDetails, 
+            'csrfmiddlewaretoken': '{{ csrf_token }}'  
+        },
+        success: function (response) {
+            if (response.success) {
+                toastr.success(response.message, "Éxito");  
+                $('#kt_modal_2').modal('hide');
+                setTimeout(function() {
+                    location.reload();
+                }, 4000); 
+            } else {
+                toastr.error(response.message, "Error"); 
+                $('#kt_modal_2').modal('hide');
+                setTimeout(function() {
+                    location.reload();
+                }, 4000); 
+            }
+        },
+        error: function (xhr, status, error) {
+            toastr.error("Ocurrió un error al procesar la solicitud.", "Error");
+        }
+    });
+});
+</script>
+    
+
 
 <script>
     // Configuración de Toastr para notificaciones
@@ -401,3 +450,18 @@ function sendAction(element) {
 </script>
 
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
