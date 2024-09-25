@@ -41,7 +41,7 @@ def vacation_balance(request):
             .filter(estadocontrato=1) \
             .values('idempleado__docidentidad', 'idempleado__sapellido', 'idempleado__papellido',
                     'idempleado__pnombre', 'idempleado__snombre', 'idempleado__idempleado',
-                    'idcontrato', 'fechainiciocontrato').order_by('idempleado__papellido')
+                    'idcontrato', 'fechainiciocontrato','salario').order_by('idempleado__papellido')
 
         acumulados = {
             data['idcontrato']: {
@@ -49,9 +49,12 @@ def vacation_balance(request):
                 'documento': data['idempleado__docidentidad'],
                 'empleado': f"{data['idempleado__papellido']} {data['idempleado__sapellido']} {data['idempleado__pnombre']} {data['idempleado__snombre']}",
                 'fechacontrato': data['fechainiciocontrato'],
+                'salario': data['salario'],
+                'parcial': round(float(data['salario']) / 30, 2),
             }
             for data in contratos_empleados
         }
+
 
         for contrato_id in acumulados.keys():
             contrato = Contratos.objects.get(idcontrato=contrato_id)

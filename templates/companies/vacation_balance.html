@@ -1,4 +1,6 @@
 {% extends 'base/base_companies.html' %}
+{% load extras %} 
+{% load humanize %}
 {% load crispy_forms_tags %}
 
 
@@ -93,8 +95,8 @@ Listado de Vacaciones
                             <td >{{ item.total_vac }}</td>
                             <td >{{ item.total_vac_disf }}</td>
                             <td >{{ item.saldo  }}</td>
-                            <td > --</td>
-                            <td > -- </td>
+                            <td >{{ item.salario|intcomma  }}</td>
+                            <td>{{ item.parcial|multiply:item.saldo|intcomma }}</td>
                             <td></td>
                         </tr>
                     {% endfor %}
