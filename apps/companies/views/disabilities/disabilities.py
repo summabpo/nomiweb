@@ -70,7 +70,7 @@ def disabilities(request):
       'fechainicial',
       'dias',
       'idincapacidad'
-  ).order_by('-idincapacidad')[:10]
+  ).order_by('-idincapacidad')
   
   
   form1 = DisabilitiesForm()
