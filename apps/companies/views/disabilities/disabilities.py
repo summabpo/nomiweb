@@ -119,7 +119,6 @@ def disabilities(request):
               salario = 0 
               
       fin_incap = fecha1 + timedelta(days=int(incapacity_days))
-      print(fin_incap)
       new_incapacity = Incapacidades(
         empleado = f"{empleado.papellido} {empleado.sapellido} {empleado.snombre} {empleado.pnombre} - {empleado.snombre}" , 
         tipoentidad = entidad.tipoentidad, 
@@ -164,9 +163,18 @@ def edit_disabilities(request):
     incapacidad =  get_object_or_404(Incapacidades, pk=dato)
     entidad = Entidadessegsocial.objects.get(entidad = incapacidad.entidad , tipoentidad = incapacidad.tipoentidad )
     global_id = incapacidad.idincapacidad
+    if entidad.tipoentidad == 'EPS':
+        if incapacidad.dias >= 100:
+            origin = 'EPS2'
+        else:
+            origin = 'EPS1'
+    else:
+        origin = 'ARL'
+
+    
     data ={ 
           'data': {
-            
+            'origin':origin,
             "contract": incapacidad.idcontrato.idcontrato,
             "entity": entidad.codigo ,
             "initial_date": incapacidad.fechainicial,
@@ -174,7 +182,6 @@ def edit_disabilities(request):
             "diagnosis_code":incapacidad.coddiagnostico.coddiagnostico,
             "incapacity_days":incapacidad.dias,
             "extension": incapacidad.prorroga,
-            "previous_month_ibc":incapacidad.ibc,
             "end_date": incapacidad.finincap ,
           },
           'status': 'success',
@@ -194,27 +201,32 @@ def edit_disabilities(request):
     end_date = request.POST.get('end_date')
     previous_month_ibc = request.POST.get('previous_month_ibc')
     
-        
-    contrato = Contratos.objects.get(idcontrato = contract)
-    empleado = Contratosemp.objects.get(idempleado = contrato.idempleado.idempleado)
+    fecha1 = datetime.strptime(initial_date, "%Y-%m-%d")
+    fin_incap = fecha1 + timedelta(days=int(incapacity_days))
+    # contrato = Contratos.objects.get(idcontrato = contract)
+    # empleado = Contratosemp.objects.get(idempleado = contrato.idempleado.idempleado)
     entidad = Entidadessegsocial.objects.get(codigo = entity)
     dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
+    
+    print('-----------------')
+    print(contract)
+    print('-----------------')
     
     
     incapacidad_modificar = get_object_or_404(Incapacidades, pk=global_id)
     
-    incapacidad_modificar.idempleado = empleado
-    incapacidad_modificar.empleado = f"{empleado.papellido} {empleado.sapellido} {empleado.snombre} {empleado.pnombre} - {empleado.snombre} P" ,
+    # incapacidad_modificar.idempleado = empleado
+    # incapacidad_modificar.empleado = f"{empleado.papellido} {empleado.sapellido} {empleado.snombre} {empleado.pnombre} - {empleado.snombre} " ,
     incapacidad_modificar.tipoentidad = entidad.tipoentidad
     incapacidad_modificar.entidad = entidad.entidad
     incapacidad_modificar.coddiagnostico = dianostico
     incapacidad_modificar.diagnostico =  dianostico.diagnostico,
     incapacidad_modificar.fechainicial = datetime.strptime(initial_date, "%Y-%m-%d")
     incapacidad_modificar.dias = int (incapacity_days)
-    incapacidad_modificar.idcontrato = contrato
+    # incapacidad_modificar.idcontrato = contrato
     incapacidad_modificar.prorroga =  extension
     incapacidad_modificar.ibc = previous_month_ibc
-    incapacidad_modificar.finincap =  datetime.strptime(end_date, "%Y-%m-%d")
+    incapacidad_modificar.finincap =  fin_incap
     
     incapacidad_modificar.save()
     
@@ -230,8 +242,8 @@ def get_entity(request):
   
   if request.method == 'GET':
     dato = request.GET.get('dato')
-    
-    entidad = Entidadessegsocial.objects.filter( tipoentidad=dato).order_by('codigo').values('codigo', 'entidad')
+    dato_sin_numeros = ''.join([char for char in dato if not char.isdigit()])
+    entidad = Entidadessegsocial.objects.filter( tipoentidad=dato_sin_numeros).order_by('codigo').values('codigo', 'entidad')
 
   # Convertir el queryset en una lista de diccionarios
   entidad_list = list(entidad)

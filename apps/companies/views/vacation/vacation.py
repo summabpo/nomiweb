@@ -9,7 +9,7 @@ def vacation(request):
     selected_empleado = request.GET.get('empleado')
     
     # Obtener la lista de empleados
-    empleados_select = Contratosemp.objects.all().order_by('papellido').values(
+    empleados_select = Contratosemp.objects.filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ).order_by('papellido').values(
         'pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado'
     )
     

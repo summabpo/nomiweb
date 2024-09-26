@@ -171,7 +171,7 @@ def contributionsprovision(request):
             mes = form.cleaned_data['mes']
             
             # Obtener las nóminas filtradas y limitadas
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')
+            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')[:100]
             
             # Obtener los conceptos fijos y almacenarlos en un diccionario
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')

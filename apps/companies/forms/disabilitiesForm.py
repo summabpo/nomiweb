@@ -6,7 +6,7 @@ from datetime import timedelta
 from apps.companies.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
 
 class DisabilitiesForm(forms.Form):
-    origin = forms.ChoiceField(choices=[('', '----------'),('EPS', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
+    origin = forms.ChoiceField(choices=[('', '----------'),('EPS1', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS2', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
     #entity = forms.ModelChoiceField(queryset=Entidadessegsocial.objects.none(), label="Entidad", widget=forms.Select(attrs={'class': 'form-select'}))
     
     extension = forms.ChoiceField(choices=[('', '-----'),('1', 'Sí'), ('0', 'No')], label="Prórroga", widget=forms.Select(attrs={'class': 'form-select'}))
@@ -117,14 +117,15 @@ class DisabilitiesForm(forms.Form):
                 css_class='row'
             ),
             Row(
-                Column('initial_date', css_class=' form-group col-md-6 mb-3'),
-                Column('end_date', css_class=' form-group col-md-6 mb-3'),
+                Column('initial_date', css_class=' form-group col-md-4 mb-3'),
+                Column('incapacity_days', css_class=' form-group col-md-4 mb-3'),
+                Column('end_date', css_class=' form-group col-md-4 mb-3'),
                 css_class='row'
             ),
             Row(
-                Column('diagnosis_code', css_class=' form-group col-md-6 mb-3'),
-                Column('incapacity_days', css_class=' form-group col-md-4 mb-3'),
-                Column('extension', css_class=' form-group col-md-2 mb-3'),
+                Column('diagnosis_code', css_class=' form-group col-md-8 mb-3'),
+                
+                Column('extension', css_class=' form-group col-md-4 mb-3'),
                 css_class='row'
             ),
             Row(

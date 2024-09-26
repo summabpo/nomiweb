@@ -38,7 +38,7 @@ def vacation_balance(request):
 
     if fecha_param :
         contratos_empleados = Contratos.objects.prefetch_related('idempleado') \
-            .filter(estadocontrato=1) \
+            .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ) \
             .values('idempleado__docidentidad', 'idempleado__sapellido', 'idempleado__papellido',
                     'idempleado__pnombre', 'idempleado__snombre', 'idempleado__idempleado',
                     'idcontrato', 'fechainiciocontrato','salario').order_by('idempleado__papellido')
