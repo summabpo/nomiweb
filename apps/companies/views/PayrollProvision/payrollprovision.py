@@ -68,21 +68,29 @@ def payrollprovision(request):
 
             for data in nominas:
                 docidentidad = data.idcontrato.idcontrato
-
                 if docidentidad not in acumulados:
                     # Condición para calcular base dependiendo de 'dta'
+                    
                     if dta == '1':
+                        
                         base = Nomina.objects.filter(
                             (base_prestacion_social | sueldo_basico | aux_transporte ),
                             mesacumular=mes,
                             anoacumular=año,
                             idcontrato=docidentidad
                         ).aggregate(total=Sum('valor'))['total'] or 0
-                    else:
-                        base = NominaComprobantes.objects.filter(
+                        
+                        base_vacaciones = NominaComprobantes.objects.filter(
                             idcontrato=docidentidad,
                         ).values_list('salario', flat=True).order_by('-idhistorico').first() or 0
-
+                    
+                    else:
+                        base = base_vacaciones = NominaComprobantes.objects.filter(
+                            idcontrato=docidentidad,
+                        ).values_list('salario', flat=True).order_by('-idhistorico').first() or 0
+                    
+                    
+                    
                     contrato = contratos_dict.get(docidentidad)
                     tiposal = contrato.tiposalario if contrato else None
 
@@ -93,13 +101,15 @@ def payrollprovision(request):
                     pvac = conceptos_dict.get(9, 0)
 
                     # Calcular prestaciones sociales
-                    vacaciones = base * pvac / 100
+                    vacaciones = base_vacaciones * pvac / 100
                     cesantias = float(base) * float(pces) / 100
                     intcesa = base * pint / 100
                     prima = base * ppri / 100
                     
-                    if tiposal == 2: 
-                        cesantias = intcesa = prima = 0
+                    if tiposal.idtiposalario == 2: 
+                        cesantias = 0
+                        intcesa = 0
+                        prima = 0
                     
                     if data.idcontrato.tipocontrato.idtipocontrato not in [1, 2, 3, 4]: 
                         cesantias = intcesa = prima = vacaciones = 0
@@ -333,7 +343,6 @@ def contributionsprovision(request):
                         icbf = float(base_ss) * float(picbf) / 100
 
                     if (base_ss / diasaportes * 30) < (salmin and base_ss > 0)  :
-                        base_ss = float(salmin)
                         ajuste = (((float(base_ss) * float(pepse) / 100) + float(salud_t)) + ((float(base_ss) * float(ppenem) / 100) + float(pension_t)))
                         pension = ((float(base_ss) + float(suspension)) * float(ppene) / 100) + (float(suspension) * float(ppenem) / 100)
                         base_arl = float(base_ss)
