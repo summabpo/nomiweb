@@ -9,8 +9,8 @@ def vacation(request):
     selected_empleado = request.GET.get('empleado')
     
     # Obtener la lista de empleados
-    empleados_select = Contratosemp.objects.filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ).order_by('papellido').values(
-        'pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado'
+    empleados_select = Contratos.objects.filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ).order_by('idempleado__papellido').values(
+        'idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido', 'idempleado__idempleado','idcontrato'
     )
     
     if selected_empleado:
@@ -50,10 +50,10 @@ def vacation(request):
 
     # Manejar valores nulos en empleados_select
     for emp in empleados_select:
-        emp['pnombre'] = emp.get('pnombre', "")
-        emp['snombre'] = emp.get('snombre', "")
-        emp['papellido'] = emp.get('papellido', "")
-        emp['sapellido'] = emp.get('sapellido', "")
+        emp['idempleado__pnombre'] = emp.get('idempleado__pnombre', "")
+        emp['idempleado__snombre'] = emp.get('idempleado__snombre', "")
+        emp['idempleado__papellido'] = emp.get('idempleado__papellido', "")
+        emp['idempleado__sapellido'] = emp.get('idempleado__sapellido', "")
 
     context = {
         'empleados_select': empleados_select,

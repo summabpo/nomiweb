@@ -59,16 +59,16 @@
             <table id='tabla-provision-nomina' class="table table-bordered">
                 <thead>
                     <tr class="fw-bold fs-6 text-gray-800" >
-                        <th>contrato</th>
-                        <th>Identificación</th>
-                        <th>Nombre</th>
-                        <th>Costo</th>
-                        <th class="text-end" >Base PS</th>
-                        <th class="text-end" >Cesantías</th>
-                        <th class="text-end" >Int. cesa</th>
-                        <th class="text-end" >Prima</th>
-                        <th class="text-end" >Vacaciones</th>
-                        <th class="text-end" >Total PS</th>
+                        <th class="text-center">contrato</th>
+                        <th class="text-center">Identificación</th>
+                        <th class="text-center">Nombre</th>
+                        <th class="text-center">Costo</th>
+                        <th class="text-center" >Base PS</th>
+                        <th class="text-center" >Cesantías</th>
+                        <th class="text-center" >Int. cesa</th>
+                        <th class="text-center" >Prima</th>
+                        <th class="text-center" >Vacaciones</th>
+                        <th class="text-center" >Total PS</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -121,54 +121,69 @@
 
 <script>
     $(document).ready(function() {
-        var year = '{{ year }}';  // Obtener el año del contexto de Django
-        var mth = '{{ mth }}';  
+        var year = '{{ year }}';
+        var mth = '{{ mth }}';
+
+        // Custom sorting for numbers with periods as thousand separators
+        $.fn.dataTable.ext.type.order['formatted-num-pre'] = function (data) {
+            // Remueve puntos de miles y cambia comas a puntos para números decimales
+            return parseFloat(data.replace(/\./g, '').replace(',', '.')) || 0;
+        };
 
         var table = $('#tabla-provision-nomina').DataTable({
             language: {
-                "decimal":        "",
-                "emptyTable":     "No hay datos disponibles en la tabla",
-                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
-                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix":    "",
-                "thousands":      ".",
-                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "lengthMenu": "Mostrar _MENU_ entradas",
                 "loadingRecords": "Cargando...",
-                "processing":     "Procesando...",
-                "search":         "Buscar:",
-                "zeroRecords":    "No se encontraron registros coincidentes",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
                 "paginate": {
-                    "first":      "Primero",
-                    "last":       "Último",
-                    "next":       "Siguiente",
-                    "previous":   "Anterior"
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
                 },
                 "aria": {
-                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortAscending": ": activar para ordenar la columna ascendente",
                     "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
             dom: 'Bfrtip',
             buttons: [
                 {
-                    text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+                    text: '<i class="fa-solid fa-receipt"></i> Descargar Excel',
                     className: 'btn btn-light-info',
                     action: function (e, dt, node, config) {
                         window.location.href = '{% url "companies:payrollprovisiondownload_excel" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
                     }
                 },
+            ],
+            order: [[2, 'asc']],
+            pageLength: 20,
+            scrollY: "400px",
+            scrollX: true,
+            scrollCollapse: true,
+            fixedHeader: true,
+            autoWidth: false,
+
             
+            columnDefs: [
+                {
+                    targets: [4, 5, 6, 7, 8, 9], 
+                    type: 'formatted-num'
+                }
             ],
 
-            order: [[2, 'asc']],  
-            "pageLength": 20,
             "footerCallback": function (row, data, start, end, display) {
                 var api = this.api(), data;
 
-                // Total de cada columna numérica
                 var columnasNumericas = [4, 5, 6, 7, 8, 9];
-                
+
                 for (var i = 0; i < columnasNumericas.length; i++) {
                     var total = api
                         .column(columnasNumericas[i], { search: 'applied' })
@@ -179,10 +194,11 @@
                     $(api.column(columnasNumericas[i]).footer()).html(total.toFixed(0).replace(/\./g, '.').replace(/\B(?=(\d{3})+(?!\d))/g, "."));
                 }
             },
-            
         });
     });
 </script>
+
+
 
 
 

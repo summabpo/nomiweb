@@ -64,6 +64,7 @@ def payrollprovision(request):
             # Calcular la base para prestaciones sociales y sueldo básico fuera del bucle
             base_prestacion_social = Q(idconcepto__baseprestacionsocial=1)
             sueldo_basico = Q(idconcepto__sueldobasico=1)
+            aux_transporte = Q(idconcepto__auxtransporte=1)
 
             for data in nominas:
                 docidentidad = data.idcontrato.idcontrato
@@ -72,7 +73,7 @@ def payrollprovision(request):
                     # Condición para calcular base dependiendo de 'dta'
                     if dta == '1':
                         base = Nomina.objects.filter(
-                            (base_prestacion_social | sueldo_basico),
+                            (base_prestacion_social | sueldo_basico | aux_transporte ),
                             mesacumular=mes,
                             anoacumular=año,
                             idcontrato=docidentidad
@@ -93,13 +94,15 @@ def payrollprovision(request):
 
                     # Calcular prestaciones sociales
                     vacaciones = base * pvac / 100
-
-                    if tiposal != 2:  # Si el tipo de salario no es integral
-                        cesantias = float(base) * float(pces) / 100
-                        intcesa = base * pint / 100
-                        prima = base * ppri / 100
-                    else:
+                    cesantias = float(base) * float(pces) / 100
+                    intcesa = base * pint / 100
+                    prima = base * ppri / 100
+                    
+                    if tiposal == 2: 
                         cesantias = intcesa = prima = 0
+                    
+                    if data.idcontrato.tipocontrato.idtipocontrato not in [1, 2, 3, 4]: 
+                        cesantias = intcesa = prima = vacaciones = 0
 
                     # Convertir a Decimal si no lo son
                     cesantias = Decimal(cesantias)
@@ -171,7 +174,7 @@ def contributionsprovision(request):
             mes = form.cleaned_data['mes']
             
             # Obtener las nóminas filtradas y limitadas
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')[:100]
+            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')
             
             # Obtener los conceptos fijos y almacenarlos en un diccionario
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
@@ -376,7 +379,7 @@ def contributionsprovision(request):
                         'ajuste': format_value(int(ajuste)) ,
                         'totalap': format_value(int(totalap)) ,
                         'provision': format_value(int(provision)) ,
-                        'fsp' : fsp ,
+                        'fsp' : format_value(int(fsp)) ,
                         'afp' : afp  ,
                         'eps' : eps,
                         'caja' : caja,

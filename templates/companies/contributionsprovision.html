@@ -50,10 +50,10 @@
     <div class="table-responsive">
         <table id='tabla-aportes-nomina' class="table table-bordered">
             <thead>
-                <tr class="fw-bold fs-6 text-gray-800" >
+                <tr class="fw-bold fs-6 text-gray-800">
                     <th>contrato</th>
                     <th>Identificación</th>
-                    <th>Nombre</th>
+                    <th class="w-25 text-nowrap text-truncate" >Nombre</th> <!-- Clase personalizada -->
                     <th>Salario</th>
                     <th>Base SS</th>
                     <th>Base ARL</th>
@@ -74,46 +74,45 @@
                     <th>Total AP</th>
                     <th>Provision</th>
                     <th>AFP</th>
-                    <th>EPS</th>
-                    <th>CAJA</th>
+                    <th class="w-25 text-nowrap text-truncate" >EPS</th>
+                    <th class="w-25 text-nowrap text-truncate" >CAJA</th>
                     <th>Idcosto</th>
                 </tr>
             </thead>
             <tbody>
                 {% for empleado in compects %}
-                    <tr>
-                        <td>{{ empleado.contrato }}</td>
-                        <td>{{ empleado.documento }}</td>
-                        <td>{{ empleado.nombre }}</td>
-                        <td>{{ empleado.salario }}</td>
-                        <td>{{ empleado.base_ss }}</td>
-                        <td>{{ empleado.base_arl }}</td>
-                        <td>{{ empleado.base_caja }}</td>
-                        <td>{{ empleado.variable }}</td>
-                        <td>{{ empleado.suspension }}</td>
-                        <td>{{ empleado.diasaportes }}</td>
-                        <td>{{ empleado.salud }}</td>
-                        <td>{{ empleado.pension }}</td>
-                        <td>{{ empleado.ajuste }}</td>
-                        <td>{{ empleado.arl }}</td>
-                        <td>{{ empleado.ccf }}</td>
-                        <td>{{ empleado.sena }}</td>
-                        <td>{{ empleado.icbf }}</td>
-                        <td>{{ empleado.salud_t }}</td>
-                        <td>{{ empleado.pension_t }}</td>
-                        <td>{{ empleado.fsp }}</td>
-                        <td>{{ empleado.totalap }}</td>
-                        <td>{{ empleado.provision }}</td>
-                        <td>{{ empleado.afp }}</td>
-                        <td>{{ empleado.eps }}</td>
-                        <td>{{ empleado.caja }}</td>
-                        <td>{{ empleado.idcosto }}</td>
-                    </tr>
-                    {% endfor %}
+                <tr>
+                    <td>{{ empleado.contrato }}</td>
+                    <td>{{ empleado.documento }}</td>
+                    <td class="text-nowrap text-truncate">{{ empleado.nombre }}</td> <!-- Clase personalizada -->
+                    <td class="text-end">{{ empleado.salario }}</td>
+                    <td class="text-end">{{ empleado.base_ss }}</td>
+                    <td class="text-end">{{ empleado.base_arl }}</td>
+                    <td class="text-end">{{ empleado.base_caja }}</td>
+                    <td class="text-end">{{ empleado.variable }}</td>
+                    <td class="text-end">{{ empleado.suspension }}</td>
+                    <td class="text-end">{{ empleado.diasaportes }}</td>
+                    <td class="text-end">{{ empleado.salud }}</td>
+                    <td class="text-end">{{ empleado.pension }}</td>
+                    <td class="text-end">{{ empleado.ajuste }}</td>
+                    <td class="text-end">{{ empleado.arl }}</td>
+                    <td class="text-end">{{ empleado.ccf }}</td>
+                    <td class="text-end">{{ empleado.sena }}</td>
+                    <td class="text-end">{{ empleado.icbf }}</td>
+                    <td class="text-end">{{ empleado.salud_t }}</td>
+                    <td class="text-end">{{ empleado.pension_t }}</td>
+                    <td class="text-end">{{ empleado.fsp }}</td>
+                    <td class="text-end">{{ empleado.totalap }}</td>
+                    <td class="text-end">{{ empleado.provision }}</td>
+                    <td class="text-end">{{ empleado.afp }}</td>
+                    <td  class="text-nowrap text-truncate">{{ empleado.eps }}</td>
+                    <td class="text-nowrap text-truncate">{{ empleado.caja }}</td>
+                    <td class="text-end">{{ empleado.idcosto }}</td>
+                </tr>
+                {% endfor %}
             </tbody>
-                
-
         </table>
+        
         
     </div>
     
@@ -154,7 +153,19 @@
             },
             dom: 'Bfrtip',
             order: [[2, 'asc']],  
-            "pageLength": 20
+            "pageLength": 20,
+            // Scroll options
+            columnDefs: [
+                {
+                    targets: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 
+                    type: 'formatted-num'
+                }
+            ],
+
+
+            scrollY: "500px", // La altura del scroll vertical
+            scrollCollapse: true,
+            fixedHeader: true, // Activa el header fijo al hacer scroll
         });
     });
 </script>
