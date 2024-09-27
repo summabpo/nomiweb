@@ -182,6 +182,12 @@ Listado de Incapacidades
     document.addEventListener("DOMContentLoaded", function() {
         // Asigna el evento 'change' al select que usa select2
         const originSelect = $('#origin_kt_modal_1');
+        const entitySelect = document.getElementById('entity_kt_modal_1');
+        
+        // Deshabilita el select de entidades al cargar la página
+        if (entitySelect) {
+            entitySelect.disabled = true;
+        }
 
         if (originSelect.length) {
             // Detectar el cambio de valor en select2
@@ -197,13 +203,17 @@ Listado de Incapacidades
     const entitiesUrl = "{% url 'companies:get_entity' %}";
 
     async function fetchEntities(idOrigin) {
+        const idEntitySelect = document.getElementById('entity_kt_modal_1');
         if (idOrigin) {
             try {
+                // Deshabilitar el select mientras se cargan las entidades
+                idEntitySelect.disabled = true;
+
                 const entities = await get_entity(idOrigin);
 
-                const idEntitySelect = document.getElementById('entity_kt_modal_1');
                 idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
 
+                // Agregar las nuevas opciones
                 entities.forEach(entity => {
                     const option = document.createElement('option');
                     option.value = entity.codigo;
@@ -211,12 +221,16 @@ Listado de Incapacidades
                     idEntitySelect.appendChild(option);
                 });
 
+                // Habilitar el select si hay entidades disponibles
+                idEntitySelect.disabled = entities.length === 0;
+
             } catch (error) {
                 console.error('Error al obtener las entidades:', error);
             }
         } else {
-            const idEntitySelect = document.getElementById('entity_kt_modal_1');
+            // Restablecer el select si no se ha seleccionado ningún origen
             idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
+            idEntitySelect.disabled = true;
         }
     }
 
@@ -233,6 +247,7 @@ Listado de Incapacidades
         }
     }
 </script>
+
 
 
 
