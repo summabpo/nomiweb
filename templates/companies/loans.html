@@ -189,13 +189,14 @@ Listado de  Prestamos
             if (checkbox.checked) {
                 // Cambia el texto y el color cuando el checkbox está seleccionado (cancelado)
                 loanStatusBtn.textContent = 'Cancelado';
-                loanStatusBtn.classList.remove('btn-bg-success');
-                loanStatusBtn.classList.add('btn-bg-danger');
+                loanStatusBtn.classList.remove('btn-bg-danger');
+                loanStatusBtn.classList.add('btn-bg-success');
             } else {
                 // Cambia el texto y el color cuando el checkbox no está seleccionado (activo)
                 loanStatusBtn.textContent = 'Activo';
-                loanStatusBtn.classList.remove('btn-bg-danger');
-                loanStatusBtn.classList.add('btn-bg-success');
+                
+                loanStatusBtn.classList.remove('btn-bg-success');
+                loanStatusBtn.classList.add('btn-bg-danger');
             }
         });
     });
@@ -252,27 +253,27 @@ Listado de  Prestamos
                     // Verifica el estado del préstamo y ajusta el botón
                     if (response.data.loan_status) {
                         loanStatusCheckbox.prop('checked', true);
-                        loanStatusBtn.text('Cancelado');
-                        loanStatusBtn.removeClass('btn-bg-success').addClass('btn-bg-danger');
+                        loanStatusBtn.text('Pagado');
+                        loanStatusBtn.removeClass('btn-bg-danger').addClass('btn-bg-success ');
                     } else {
                         loanStatusCheckbox.prop('checked', false);
                         loanStatusBtn.text('Activo');
-                        loanStatusBtn.removeClass('btn-bg-danger').addClass('btn-bg-success');
+                        loanStatusBtn.removeClass('btn-bg-success').addClass('btn-bg-danger');
                     }
 
                     // Cambia el estado del botón al cambiar el checkbox
                     loanStatusCheckbox.on('change', function() {
                         if (loanStatusCheckbox.is(':checked')) {
-                            loanStatusBtn.text('Cancelado');
-                            loanStatusBtn.removeClass('btn-bg-success').addClass('btn-bg-danger');
+                            loanStatusBtn.text('Pagado');
+                            loanStatusBtn.removeClass('btn-bg-danger').addClass('btn-bg-success ');
                         } else {
                             loanStatusBtn.text('Activo');
-                            loanStatusBtn.removeClass('btn-bg-danger').addClass('btn-bg-success');
+                            loanStatusBtn.removeClass('btn-bg-success').addClass('btn-bg-danger');
                         }
                     });
 
                     var $select1 = modal.find('.modal-body #contract_kt_modal_2');
-                    $select1.val(response.data.contract).trigger('change');
+                    $select1.val(response.data.contract).trigger('change').prop('disabled', true);;
                     
                     // Inicializa daterangepicker en los campos de fecha
                     modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
@@ -300,9 +301,14 @@ Listado de  Prestamos
 
 
 
-
 <script>
     $(document).ready(function() {
+        // Función personalizada para la ordenación numérica
+        $.fn.dataTable.ext.type.order['formatted-num-pre'] = function (data) {
+            // Remueve puntos de miles y cambia comas a puntos para números decimales
+            return parseFloat(data.replace(/\./g, '').replace(',', '.')) || 0;
+        };
+
         var table = $('#table-prestamos').DataTable({
             language: {
                 "decimal": "",
@@ -327,12 +333,24 @@ Listado de  Prestamos
                     "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
+            columnDefs: [
+                {
+                    targets: [4,5,6], 
+                    type: 'formatted-num'
+                }
+            ],
             dom: 'frtip',
-            order: [],
-            pageLength: 6
+            order: [], // Si deseas ordenar por defecto en alguna columna, especifica el índice aquí
+            pageLength: 6,
+            // Otras configuraciones opcionales
+            ordering: true, // Asegúrate de que la ordenación esté habilitada
+            paging: true,   // Asegúrate de que la paginación esté habilitada
+            
         });
     });
 </script>
+
+
 
 
 {% endblock %}

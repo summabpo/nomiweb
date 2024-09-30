@@ -73,6 +73,8 @@ def get_vacation_details(request):
             dias_licencia=Coalesce(Sum('diasvac', filter=Q(tipovac__in=['3', '4'])), 0)
         )
 
+        empleado = f"{vacaciones_data['idcontrato__idempleado__papellido'] } {vacaciones_data['idcontrato__idempleado__sapellido']}  {vacaciones_data['idcontrato__idempleado__pnombre']} vacaciones_data['idcontrato__idempleado__snombre'] "
+        
         # Asigna los valores a variables con solo dos decimales
         dias_vacaciones = round(vacaciones_data['dias_vacaciones'], 2)
         dias_licencia = round(vacaciones_data['dias_licencia'], 2)
@@ -103,6 +105,7 @@ def get_vacation_details(request):
                 'vac_sum':vacaciones_fecha,
                 'vac_licenses':dias_licencia,
                 'status':data.estado,
+                'empleado': empleado,
                 
                 ## data vacation 
                 'tipovac': str(data.tipovac.tipovac),
@@ -161,47 +164,5 @@ def get_vacation_acction(request):
     
     return JsonResponse({'message': 'Metodo no permitido', 'status': 'error'}, status=405)
 
-
-""" 
-<!--begin::Toggle-->
-<button type="button" class="btn btn-light-info rotate" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-start" data-kt-menu-offset="0, 0">
-    <i class="fa-solid fa-list-check fs-3 "></i>
-    Gestionar
-</button>
-<!--end::Toggle-->
-
-<!--begin::Menu-->
-<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-auto min-w-200 mw-300px" data-kt-menu="true">
-    <!--begin::Menu item-->
-    <div class="menu-item px-3">
-        <a href="#" class="menu-link px-3 menu-state-bg-info" data-vacation="{{ vacacion.id_sol_vac }}" data-action="approve" onclick="sendAction(this)">
-            Aprobar
-        </a>
-    </div>
-    <!--end::Menu item-->
-
-    <!--begin::Menu item-->
-    <div class="menu-item px-3">
-        <a href="#" class="menu-link px-3" data-vacation="{{ vacacion.id_sol_vac }}" data-action="reject" onclick="sendAction(this)">
-            Rechazar
-        </a>
-    </div>
-    <!--end::Menu item-->
-
-    <!--begin::Menu item-->
-    <div class="menu-item px-3">
-        <a href="#" class="menu-link px-3" data-vacation="{{ vacacion.id_sol_vac }}" data-action="pending" onclick="sendAction(this)">
-            Pendiente
-        </a>
-    </div>
-    <!--end::Menu item-->
-    <!--begin::Menu separator-->
-    <div class="separator mt-3 opacity-75"></div>
-    <!--end::Menu separator-->
-</div>
-<!--end::Menu-->
-
-
-"""
 
 

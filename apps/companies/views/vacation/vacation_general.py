@@ -24,11 +24,18 @@ def vacation_general(request):
 def get_novedades(request):
     tipo_novedad = request.GET.get('tipo', '')  
     idcontaro = request.GET.get('idcontrato', '')  
+    # Obtenemos el contrato y el nombre del empleado relacionado
+    contrato = Contratos.objects.filter(idcontrato=idcontaro).first()
+    nombre_empleado = f" {contrato.idempleado.papellido}  {contrato.idempleado.sapellido} {contrato.idempleado.pnombre}  {contrato.idempleado.snombre} " 
 
-    
+    # Inicializamos la estructura de datos con el nombre del empleado
+    data = {
+        "nombre_empleado": nombre_empleado,
+        "novedades": []  # Aquí almacenaremos las novedades
+    }
+
     if tipo_novedad == 'vacaciones':
-        data = []
-        vacaciones =  Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[1,2]) 
+        vacaciones = Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[1,2]) 
         for vacacion in vacaciones:
             novedad = {
                 "novedad": vacacion.tipovac.nombrevacaus if vacacion.tipovac and vacacion.tipovac.nombrevacaus else '',
@@ -39,16 +46,12 @@ def get_novedades(request):
                 "pago": str(vacacion.pagovac) if vacacion.pagovac is not None else '0',
                 "periodo_ini": vacacion.perinicio.strftime('%Y-%m-%d') if vacacion.perinicio else '',
                 "periodo_fin": vacacion.perfinal.strftime('%Y-%m-%d') if vacacion.perfinal else '',
-                "id": vacacion.idvacaciones 
+                "id": vacacion.idvacaciones
             }
-            data.append(novedad)
-            
+            data["novedades"].append(novedad)
             
     else:  # Asumimos 'ausencias' o 'licencias no remuneradas'
-        
-        data = []
-        vacaciones =  Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[3,4,5]) 
-        
+        vacaciones = Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[3,4,5]) 
         for vacacion in vacaciones:
             novedad = {
                 "novedad": vacacion.tipovac.nombrevacaus if vacacion.tipovac and vacacion.tipovac.nombrevacaus else '',
@@ -59,9 +62,9 @@ def get_novedades(request):
                 "pago": str(vacacion.pagovac) if vacacion.pagovac is not None else '0',
                 "periodo_ini": vacacion.perinicio.strftime('%Y-%m-%d') if vacacion.perinicio else '',
                 "periodo_fin": vacacion.perfinal.strftime('%Y-%m-%d') if vacacion.perfinal else '',
-                "id": vacacion.idvacaciones 
+                "id": vacacion.idvacaciones
             }
-            data.append(novedad)
+            data["novedades"].append(novedad)
             
     return JsonResponse(data, safe=False)
 
