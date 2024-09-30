@@ -23,7 +23,7 @@ Novedades de Nomina
 
 
 {% block sub_titulo2 %} 
-Vacaciones
+Vacaciones 
 {% endblock %}
 
 {% block actions %}
@@ -31,7 +31,7 @@ Vacaciones
 {% endblock %}
 
 {% block titulo2 %} 
-Listado de Personal 
+Resumen de vacaciones
 {% endblock %}
 
 
@@ -107,7 +107,7 @@ Listado de Personal
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -161,7 +161,7 @@ Listado de Personal
             },
             dom: 'frtip',
             order: [[1, 'asc']], 
-            "pageLength": 6,                
+            "pageLength": 20,                
         });
     });
 </script>
@@ -224,14 +224,16 @@ Listado de Personal
                     idcontrato: contratoId
                 },
                 success: function(response) {
-                    modal.find('.modal-title').text('Vista ' + tipo)
-                    if (response.length === 0) {
+                    // Actualizar el título del modal con el nombre del empleado y el tipo de novedad
+                    modal.find('.modal-title').text('Novedades de ' + response.nombre_empleado + ' - ' + tipo);
+
+                    if (response.novedades.length === 0) {
                         table.row.add([
                             'No se encontraron novedades.', '', '', '', '', '', '', '', ''
                         ]).draw();
                     } else {
                         // Iterar sobre los datos recibidos y agregarlos a la tabla
-                        $.each(response, function(index, novedad) {
+                        $.each(response.novedades, function(index, novedad) {
                             var row = `
                                 <tr>
                                     <td>${novedad.novedad || ''}</td>
@@ -248,9 +250,6 @@ Listado de Personal
                             table.row.add($(row)).draw(); // Agregar la fila a la tabla
                         });
                     }
-
-                    
-
                 },
                 error: function() {
                     alert('Error al cargar las novedades.');
@@ -259,6 +258,7 @@ Listado de Personal
         });
     });
 </script>
+
 
 
 

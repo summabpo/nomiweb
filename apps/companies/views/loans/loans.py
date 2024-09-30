@@ -8,10 +8,12 @@ from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from apps.components.humani import format_value
 
 
 def loans(request):
-    prestamos = Prestamos.objects.values(
+  # Obtener los datos de la tabla Prestamos
+  prestamos = Prestamos.objects.values(
       'idcontrato__idcontrato',
       'idempleado__docidentidad',
       'idempleado__pnombre',
@@ -24,53 +26,64 @@ def loans(request):
       'saldoprestamo',
       'estadoprestamo',
       'idprestamo',
+  ).order_by('-idprestamo')
+
+  # Aplicar format_value a los campos deseados
+  prestamos_formateados = []
+  for prestamo in prestamos:
+    prestamo['valorprestamo'] = format_value(prestamo['valorprestamo'])
+    prestamo['valorcuota'] = format_value(prestamo['valorcuota'])
+    prestamo['saldoprestamo'] = format_value(prestamo['saldoprestamo'])
+    prestamos_formateados.append(prestamo)
+
+# Ahora `prestamos_formateados` contiene los datos con los valores formateados
+
+    
+  form1 = LoansForm()
+  form2 = LoansForm(dropdown_parent='#kt_modal_2')
+  
+  
+  errors = False
+  if request.method == 'POST':
+    form1 = LoansForm(request.POST)
+    if form1.is_valid():
+      # Procesar los datos del formulario aquí
+      loan_amount = form1.cleaned_data['loan_amount']
+      loan_date = form1.cleaned_data['loan_date']
+      installment_value = form1.cleaned_data['installment_value']
+      loan_status = form1.cleaned_data['loan_status']
+      contract = form1.cleaned_data['contract']
+      
+      
+      contrato = Contratos.objects.get(idcontrato = contract)
+      empleado = Contratosemp.objects.get(idempleado = contrato.idempleado.idempleado)
+      
+      nuevo_prestamo = Prestamos(
+        idempleado= empleado,
+        idcontrato = contrato,
+        valorprestamo = loan_amount,
+        saldoprestamo = loan_amount,
+        cuotaspagadas = 0,
+        estadoprestamo = not(loan_status),
+        fechaprestamo = datetime.strptime(loan_date, "%Y-%m-%d"),
+        valorcuota = installment_value ,
+        cuotasprestamo = int(loan_amount/installment_value),
       )
-    
-    form1 = LoansForm()
-    form2 = LoansForm(dropdown_parent='#kt_modal_2')
-    
-    
-    errors = False
-    if request.method == 'POST':
-      form1 = LoansForm(request.POST)
-      if form1.is_valid():
-        # Procesar los datos del formulario aquí
-        loan_amount = form1.cleaned_data['loan_amount']
-        loan_date = form1.cleaned_data['loan_date']
-        installment_value = form1.cleaned_data['installment_value']
-        loan_status = form1.cleaned_data['loan_status']
-        contract = form1.cleaned_data['contract']
-        
-        
-        contrato = Contratos.objects.get(idcontrato = contract)
-        empleado = Contratosemp.objects.get(idempleado = contrato.idempleado.idempleado)
-        
-        nuevo_prestamo = Prestamos(
-          idempleado= empleado,
-          idcontrato = contrato,
-          valorprestamo = loan_amount,
-          saldoprestamo = loan_amount,
-          cuotaspagadas = 0,
-          estadoprestamo = not(loan_status),
-          fechaprestamo = datetime.strptime(loan_date, "%Y-%m-%d"),
-          valorcuota = installment_value ,
-          cuotasprestamo = int(loan_amount/installment_value),
-        )
-        nuevo_prestamo.save()
-        errors = False
-        messages.success(request, 'La Incapacidad ha sido añadido con éxito.')
-        return redirect('companies:loans')
-      else:
-        errors = True
-    
-    
-    return render (request, './companies/loans.html',
-                    {
-                      'prestamos' :prestamos,  
-                      'form1' :form1,
-                      'form2' :form2,
-                      'errors' : errors,
-                    })
+      nuevo_prestamo.save()
+      errors = False
+      messages.success(request, 'La Incapacidad ha sido añadido con éxito.')
+      return redirect('companies:loans')
+    else:
+      errors = True
+  
+  
+  return render (request, './companies/loans.html',
+                  {
+                    'prestamos' :prestamos_formateados,  
+                    'form1' :form1,
+                    'form2' :form2,
+                    'errors' : errors,
+                  })
 global_id = None 
     
 

@@ -7,7 +7,7 @@ from .imggenerate import imggenerate1
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from PIL import Image
-
+from .diangenerate import last_business_day_of_march 
 
 
 
@@ -52,13 +52,16 @@ def viewdian_download(request,idingret ):
     # Generar la imagen usando la función personalizada
     
     image = imggenerate1(idingret)
-    
+    certificado = Ingresosyretenciones.objects.filter(idingret=idingret).first()
+    year, month, day = last_business_day_of_march(certificado.anoacumular)
     # Guardar la imagen en un archivo temporal
     temp_image_path = "temp_image.png"
     image.save(temp_image_path, format='PNG')
     
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="imagen_modificada.pdf"'  # Cambiar a 'inline' para abrir en el navegador
+    file_name = f"Certificado_220_{certificado.docidentidad}_{month}_{year}.pdf"
+    
+    response['Content-Disposition'] = f'inline; filename="{file_name}"'  # Cambiar a 'inline' para abrir en el navegador
     
     pdf = canvas.Canvas(response, pagesize=letter)
     

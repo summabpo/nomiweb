@@ -49,7 +49,7 @@ def payrollprovision(request):
             mth = mes
             
             # Obtener las nóminas filtradas con `select_related` para optimizar la carga de datos relacionados
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).select_related('idempleado', 'idcontrato', 'idcosto').order_by('idempleado__papellido')[:200]
+            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).select_related('idempleado', 'idcontrato', 'idcosto').order_by('idempleado__papellido')
 
             # Obtener los conceptos fijos y almacenarlos en un diccionario fuera del bucle
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
@@ -64,24 +64,33 @@ def payrollprovision(request):
             # Calcular la base para prestaciones sociales y sueldo básico fuera del bucle
             base_prestacion_social = Q(idconcepto__baseprestacionsocial=1)
             sueldo_basico = Q(idconcepto__sueldobasico=1)
+            aux_transporte = Q(idconcepto__auxtransporte=1)
 
             for data in nominas:
                 docidentidad = data.idcontrato.idcontrato
-
                 if docidentidad not in acumulados:
                     # Condición para calcular base dependiendo de 'dta'
+                    
                     if dta == '1':
+                        
                         base = Nomina.objects.filter(
-                            (base_prestacion_social | sueldo_basico),
+                            (base_prestacion_social | sueldo_basico | aux_transporte ),
                             mesacumular=mes,
                             anoacumular=año,
                             idcontrato=docidentidad
                         ).aggregate(total=Sum('valor'))['total'] or 0
-                    else:
-                        base = NominaComprobantes.objects.filter(
+                        
+                        base_vacaciones = NominaComprobantes.objects.filter(
                             idcontrato=docidentidad,
                         ).values_list('salario', flat=True).order_by('-idhistorico').first() or 0
-
+                    
+                    else:
+                        base = base_vacaciones = NominaComprobantes.objects.filter(
+                            idcontrato=docidentidad,
+                        ).values_list('salario', flat=True).order_by('-idhistorico').first() or 0
+                    
+                    
+                    
                     contrato = contratos_dict.get(docidentidad)
                     tiposal = contrato.tiposalario if contrato else None
 
@@ -92,14 +101,18 @@ def payrollprovision(request):
                     pvac = conceptos_dict.get(9, 0)
 
                     # Calcular prestaciones sociales
-                    vacaciones = base * pvac / 100
-
-                    if tiposal != 2:  # Si el tipo de salario no es integral
-                        cesantias = float(base) * float(pces) / 100
-                        intcesa = base * pint / 100
-                        prima = base * ppri / 100
-                    else:
-                        cesantias = intcesa = prima = 0
+                    vacaciones = base_vacaciones * pvac / 100
+                    cesantias = float(base) * float(pces) / 100
+                    intcesa = base * pint / 100
+                    prima = base * ppri / 100
+                    
+                    if tiposal.idtiposalario == 2: 
+                        cesantias = 0
+                        intcesa = 0
+                        prima = 0
+                    
+                    if data.idcontrato.tipocontrato.idtipocontrato not in [1, 2, 3, 4]: 
+                        cesantias = intcesa = prima = vacaciones = 0
 
                     # Convertir a Decimal si no lo son
                     cesantias = Decimal(cesantias)
@@ -171,7 +184,7 @@ def contributionsprovision(request):
             mes = form.cleaned_data['mes']
             
             # Obtener las nóminas filtradas y limitadas
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')[:200]
+            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')
             
             # Obtener los conceptos fijos y almacenarlos en un diccionario
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
@@ -186,6 +199,7 @@ def contributionsprovision(request):
                 # Formar la fecha inicial y final
                 fechainicial = datetime.strptime(f"{año}-{mes_numero}-01", "%Y-%m-%d").date()
                 fechafinal = datetime.strptime(f"{año}-{mes_numero}-{ultimo_dia}", "%Y-%m-%d").date()     
+
 
                 if docidentidad not in acumulados:
                     
@@ -251,9 +265,11 @@ def contributionsprovision(request):
                         'tarifaarl', 'tiposalario', 'eps', 'pension', 'cajacompensacion', 'tipocontrato'
                     ).first()
                     
+                    
+                    
                     salario = NominaComprobantes.objects.filter(
-                            idcontrato=docidentidad,
-                            idnomina= data.idnomina.idnomina
+                            idcontrato = docidentidad,
+                            idnomina = data.idnomina.idnomina
                         ).values_list('salario', flat=True).order_by('-idhistorico').first() or 0
 
                     if contrato:
@@ -308,27 +324,26 @@ def contributionsprovision(request):
                         salud = 0
                         pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
                         arl = float(base_arl) * float(tararl) / 100
-                        ccf = base_caja * float(pccf) / 100
+                        ccf = float(base_caja) * float(pccf) / 100
                         sena = 0
                         icbf = 0
                     else:
                         salud = (base_ss + suspension) * psalude / 100
                         pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
-                        arl = base_arl * float(tararl) / 100
-                        ccf = base_caja * float(pccf) / 100
-                        sena = base_ss * float(psena) / 100
-                        icbf = base_ss *float(picbf) / 100
+                        arl = float(base_arl) * float(tararl) / 100
+                        ccf = float(base_caja) * float(pccf) / 100
+                        sena = float(base_ss) * float(psena) / 100
+                        icbf = float(base_ss) *float(picbf) / 100
 
                     if tiposal == 2:
                         salud = base_ss * psalude / 100
                         pension = ((base_ss + suspension) * ppene / 100) + (suspension * ppenem / 100)
-                        arl = base_arl * float (tararl) / 100
-                        ccf = base_caja * float(pccf) / 100
-                        sena = base_ss * float(psena) / 100
-                        icbf = base_ss * float(picbf) / 100
+                        arl = float(base_arl) * float (tararl) / 100
+                        ccf = float(base_caja) * float(pccf) / 100
+                        sena = float(base_ss) * float(psena) / 100
+                        icbf = float(base_ss) * float(picbf) / 100
 
-                    if (base_ss / diasaportes * 30) < (salmin and base_ss > 0)  :
-                        base_ss = float(salmin)
+                    if (base_ss / diasaportes * 30) < salmin and base_ss > 0 :
                         ajuste = (((float(base_ss) * float(pepse) / 100) + float(salud_t)) + ((float(base_ss) * float(ppenem) / 100) + float(pension_t)))
                         pension = ((float(base_ss) + float(suspension)) * float(ppene) / 100) + (float(suspension) * float(ppenem) / 100)
                         base_arl = float(base_ss)
@@ -348,7 +363,7 @@ def contributionsprovision(request):
 
                     provision = totalap + salud_t + pension_t
                     
-                    fsp = calcular_descuento(base_ss,salmin)
+                    fsp = calcular_descuento(int(base_ss),salmin)
                 
                     acumulados[docidentidad] = {
                         'documento': data.idempleado.docidentidad,
@@ -374,7 +389,7 @@ def contributionsprovision(request):
                         'ajuste': format_value(int(ajuste)) ,
                         'totalap': format_value(int(totalap)) ,
                         'provision': format_value(int(provision)) ,
-                        'fsp' : fsp ,
+                        'fsp' : format_value(int(fsp)) ,
                         'afp' : afp  ,
                         'eps' : eps,
                         'caja' : caja,

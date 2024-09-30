@@ -115,8 +115,7 @@ def vacation_request_function(request):
     dias_trabajados = calcular_dias_360(inicio_contrato, fecha_hoy)
     periodos_completos = round(dias_trabajados/360)
     vacaciones_fecha = round(dias_trabajados * 15/360,2) - dias_vacaciones
-    
-    
+
     
     vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
 

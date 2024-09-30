@@ -70,7 +70,15 @@ Listado de Incapacidades
                         <td>{{ item.entidad }}</td>
                         <td>{{ item.coddiagnostico__coddiagnostico }}</td>
                         <td>{{ item.diagnostico }}</td>
-                        <td>{{ item.prorroga }}</td>
+                        <td>
+                            
+                            {% if item.prorroga == '0'  %}
+                                <h4>No</h4>
+                            {% else %}
+                                <h4>sI</h4>
+                            {% endif %}
+
+                        </td>
                         <td>{{ item.fechainicial | date:"d/m/Y"  }}</td>
                         <td>{{ item.dias }}</td>
                         <td>
@@ -169,6 +177,121 @@ Listado de Incapacidades
 
 
 {% block js %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Asigna el evento 'change' al select que usa select2
+        const originSelect = $('#origin_kt_modal_1');
+        const entitySelect = document.getElementById('entity_kt_modal_1');
+        
+        // Deshabilita el select de entidades al cargar la página
+        if (entitySelect) {
+            entitySelect.disabled = true;
+        }
+
+        if (originSelect.length) {
+            // Detectar el cambio de valor en select2
+            originSelect.on('select2:select', function(e) {
+                const idOrigin = e.params.data.id;  // Obtén el valor seleccionado
+                fetchEntities(idOrigin);  // Llama a la función con el valor seleccionado
+            });
+        } else {
+            console.log("No se ha podido detectar el select con id origin_kt_modal_1.");
+        }
+    });
+
+    const entitiesUrl = "{% url 'companies:get_entity' %}";
+
+    async function fetchEntities(idOrigin) {
+        const idEntitySelect = document.getElementById('entity_kt_modal_1');
+        if (idOrigin) {
+            try {
+                // Deshabilitar el select mientras se cargan las entidades
+                idEntitySelect.disabled = true;
+
+                const entities = await get_entity(idOrigin);
+
+                idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
+
+                // Agregar las nuevas opciones
+                entities.forEach(entity => {
+                    const option = document.createElement('option');
+                    option.value = entity.codigo;
+                    option.textContent = entity.entidad;
+                    idEntitySelect.appendChild(option);
+                });
+
+                // Habilitar el select si hay entidades disponibles
+                idEntitySelect.disabled = entities.length === 0;
+
+            } catch (error) {
+                console.error('Error al obtener las entidades:', error);
+            }
+        } else {
+            // Restablecer el select si no se ha seleccionado ningún origen
+            idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
+            idEntitySelect.disabled = true;
+        }
+    }
+
+    async function get_entity(idOrigin) {
+        try {
+            const response = await fetch(`${entitiesUrl}?dato=${idOrigin}`);
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error en la petición AJAX:', error);
+            throw error;
+        }
+    }
+</script>
+
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('kt_daterangepicker_1');
+        const daysInput = document.getElementById('id_incapacity_days');
+        const endDateInput = document.getElementById('kt_daterangepicker_2');
+    
+        function calculateEndDate() {
+            const startDate = new Date(startDateInput.value);
+            const daysToAdd = parseInt(daysInput.value) || 0;
+    
+            if (!isNaN(startDate) && daysToAdd) {
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + daysToAdd);
+                endDateInput.value = endDate.toLocaleDateString(); 
+                endDateInput.disabled = true;
+            } else {
+                endDateInput.value = '';
+            }
+        }
+    
+        const modalElement = document.getElementById('kt_modal_1');
+    
+        modalElement.addEventListener('shown.bs.modal', function() {
+            startDateInput.value = ''; // Limpia los campos al abrir el modal
+            daysInput.value = '';      // Limpia los campos al abrir el modal
+            endDateInput.value = '';   // Limpia los campos al abrir el modal
+            endDateInput.disabled = true;
+    
+            startDateInput.addEventListener('change', calculateEndDate);
+            daysInput.addEventListener('input', calculateEndDate);
+        });
+    
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            startDateInput.removeEventListener('change', calculateEndDate);
+            daysInput.removeEventListener('input', calculateEndDate);
+        });
+    });
+</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         {% if errors %}
@@ -215,98 +338,106 @@ Listado de Incapacidades
             monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
         },
     });
+    
 </script>
 
 
 <script>
     $(document).ready(function() {
-    })
-    
-    $('#kt_modal_2').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var recipient = button.data('disabilites_id');
-        var modal = $(this);
-    
-        $.ajax({ 
-            url: '/companies/payroll/new/disabilities/edit',
-            type: 'GET',
-            data: {
-                'dato': recipient
-            },
-    
-            success: function(response) {
-                console.log(response.data);
-                modal.find('.modal-title').text('Editar Incapacidad #' + response.data.id)
-                modal.find('.modal-body #id_incapacity_days').val(response.data.incapacity_days)
-                modal.find('.modal-body #id_previous_month_ibc').val(response.data.previous_month_ibc)
-                
-                // Asegúrate de que las fechas estén en el formato correcto para daterangepicker
-                var initialDate = response.data.initial_date ? moment(response.data.initial_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
-                modal.find('.modal-body #kt_daterangepicker_1').val(initialDate);
-
-                var endDate = response.data.end_date ? moment(response.data.end_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
-                modal.find('.modal-body #kt_daterangepicker_2').val(endDate);
-                
-
-                var $select1 = modal.find('.modal-body #contract_kt_modal_2');
-                $select1.val(response.data.contract).trigger('change');
-
-                var $select2 = modal.find('.modal-body #entity_kt_modal_2');
-                $select2.val(response.data.entity).trigger('change'); // Actualiza el valor y refleja el cambio
-                
-
-                var $select3 = modal.find('.modal-body #diagnosis_code_kt_modal_2');
-                $select3.val(response.data.diagnosis_code).trigger('change');
-
-                var $select4 = modal.find('.modal-body #extension_kt_modal_2');
-                $select4.val(response.data.extension).trigger('change');
-
-
-                // Inicializa daterangepicker en los campos de fecha
-                modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
-                    singleDatePicker: true,
-                    showDropdowns: true,
-                    minYear: 2000,
-                    maxYear: parseInt(moment().format("YYYY"), 12),
-                    
-                    endDate: moment(),
-                    minDate: '01/01/2020',
-                    autoApply: true,
-                    locale: {
-                        format: 'YYYY-MM-DD',
-                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-                    },
-                });
+        $('#kt_modal_2').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var recipient = button.data('disabilites_id');
+            var modal = $(this);
             
-                modal.find('.modal-body #kt_daterangepicker_2').daterangepicker({
-                    singleDatePicker: true,
-                    showDropdowns: true,
-                    minYear: 2000,
-                    maxYear: parseInt(moment().format("YYYY"), 12),
-                    
-                    endDate: moment(),
-                    minDate: '01/01/2020',
-                    autoApply: true,
-                    locale: {
-                        format: 'YYYY-MM-DD',
-                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-                    },
-                });
+            const startDateInput = modal.find('.modal-body #kt_daterangepicker_1');
+            const daysInput = modal.find('.modal-body #id_incapacity_days');
+            const endDateInput = modal.find('.modal-body #kt_daterangepicker_2');
 
+            function calculateEndDate() {
+                const startDate = moment(startDateInput.val(), 'YYYY-MM-DD');
+                const daysToAdd = parseInt(daysInput.val()) || 0;
 
-            },
-            error: function(response) {
-                console.log(response.error);
+                if (startDate.isValid() && daysToAdd > 0) {
+                    const endDate = startDate.clone().add(daysToAdd, 'days');
+                    endDateInput.val(endDate.format('YYYY-MM-DD'));
+                    endDateInput.prop('disabled', true); // Bloquear campo de fecha final
+                } else {
+                    endDateInput.val('');
+                }
             }
-        })
-    })
-    
 
+            modal.on('shown.bs.modal', function() {
+                startDateInput.val(''); // Limpia los campos al abrir el modal
+                daysInput.val('');      // Limpia los campos al abrir el modal
+                endDateInput.val('');   // Limpia los campos al abrir el modal
+                endDateInput.prop('disabled', true); // Deshabilitar campo de fecha final
 
+                // Agregar eventos para calcular la fecha final
+                startDateInput.on('change', calculateEndDate);
+                daysInput.on('input', calculateEndDate);
+            });
+
+            modal.on('hidden.bs.modal', function() {
+                // Eliminar los eventos de cálculo al cerrar el modal
+                startDateInput.off('change', calculateEndDate);
+                daysInput.off('input', calculateEndDate);
+            });
+
+            $.ajax({ 
+                url: '/companies/payroll/new/disabilities/edit',
+                type: 'GET',
+                data: {
+                    'dato': recipient
+                },
+                success: function(response) {
+                    console.log(response.data);
+                    modal.find('.modal-title').text('Editar Incapacidad #' + response.data.id);
+                    modal.find('.modal-body #id_incapacity_days').val(response.data.incapacity_days);
+                    
+                    var initialDate = response.data.initial_date ? moment(response.data.initial_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
+                    modal.find('.modal-body #kt_daterangepicker_1').val(initialDate);
+
+                    var endDate = response.data.end_date ? moment(response.data.end_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
+                    modal.find('.modal-body #kt_daterangepicker_2').val(endDate);
+
+                    var $select1 = modal.find('.modal-body #contract_kt_modal_2');
+                    $select1.val(response.data.contract).trigger('change').prop('disabled', true);
+
+                    var $select2 = modal.find('.modal-body #entity_kt_modal_2');
+                    $select2.val(response.data.entity).trigger('change'); // Actualiza el valor y refleja el cambio
+                    
+
+                    var $select3 = modal.find('.modal-body #diagnosis_code_kt_modal_2');
+                    $select3.val(response.data.diagnosis_code).trigger('change');
+
+                    var $select4 = modal.find('.modal-body #extension_kt_modal_2');
+                    $select4.val(response.data.extension).trigger('change');
+
+                    var $select5 = modal.find('.modal-body #origin_kt_modal_2');
+                    $select5.val(response.data.origin).trigger('change');
+                    
+                    // Inicializar daterangepicker en el campo de fecha inicial
+                    modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
+                        singleDatePicker: true,
+                        showDropdowns: true,
+                        startDate: moment(initialDate),
+                        locale: {
+                            format: 'YYYY-MM-DD',
+                            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                        },
+                    });
+
+                    endDateInput.prop('disabled', true); // Asegurarse de que la fecha final esté deshabilitada
+                },
+                error: function(response) {
+                    console.log(response.error);
+                }
+            });
+        });
+    });
 </script>
-    
+
 
 
 
@@ -342,15 +473,6 @@ Listado de Incapacidades
                 }
             },
             dom: 'frtip',
-            // buttons: [
-            //     {
-            //         text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
-            //         className: 'btn btn-light-info',
-            //         action: function (e, dt, node, config) {
-            //             window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
-            //         }
-            //     },
-            // ],
             order: [],
             pageLength: 6
         });

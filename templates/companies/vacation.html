@@ -55,8 +55,8 @@ Listado de Vacaciones
                 <select name="empleado" id="empleado" onchange="cargarContratos()" class="form-select w-100" data-control="select2" data-placeholder="Seleccione una opción" aria-label="Seleccione un empleado:">
                     <option value="">Seleccione...</option>
                     {% for emp in empleados_select %}
-                        <option value="{{ emp.idempleado }}" {% if emp.idempleado|stringformat:"s" == selected_empleado %}selected{% endif %}>
-                            {{ emp.pnombre }} {{ emp.snombre }} {{ emp.papellido }} {{ emp.sapellido }}
+                        <option value="{{ emp.idempleado__idempleado }}" {% if emp.idempleado__idempleado|stringformat:"s" == selected_empleado %}selected{% endif %}>
+                            {{ emp.idempleado__papellido }} {{ emp.idempleado__sapellido }} {{ emp.idempleado__pnombre }} {{ emp.idempleado__snombre }} 
                         </option>
                     {% endfor %}
                 </select>
@@ -82,7 +82,6 @@ Listado de Vacaciones
                                 <th>Días Vac</th>
                                 <th>Periodo Inicial</th>
                                 <th>Periodo Final</th>
-                                <th>Totalización de Días Vac al Final</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,9 +95,8 @@ Listado de Vacaciones
                                 <td>{{item.ultimodiavac | date:"d-m-Y " }}</td>
                                 <td>{{item.diascalendario  }}</td>
                                 <td>{{item.diasvac  }}</td>
-                                <td>{{item.perinicio  }}</td>
-                                <td>{{item.perfinal  }}</td>
-                                <td>{{ item.diascalendario|default_if_none:0|add:item.diasvac|default_if_none:0 }}</td>
+                                <td>{{item.perinicio| date:"d-m-Y "  }}</td>
+                                <td>{{item.perfinal | date:"d-m-Y " }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -108,7 +106,6 @@ Listado de Vacaciones
                                 <th></th> <!-- Total Días Calendario -->
                                 <th></th> <!-- Total Días Vac -->
                                 <th colspan="2"></th>
-                                <th></th> <!-- Total Totalización de Días Vac al Final -->
                             </tr>
                         </tfoot>
                     </table>
@@ -186,7 +183,7 @@ Listado de Vacaciones
             },
             dom: 'frtip',
             order: [[2, 'asc']],
-            pageLength: 10,
+            pageLength: 20,
             footerCallback: function (row, data, start, end, display) {
                 var api = this.api();
 
@@ -213,13 +210,6 @@ Listado de Vacaciones
                         return intVal(a) + intVal(b);
                     }, 0);
 
-                var totalTotalizacionDiasVac = api
-                    .column(10) // Índice de la columna "Totalización de Días Vac al Final"
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
-
                 // Total en la página actual para las tres columnas
                 var pageTotalDiasCalendario = api
                     .column(6, { page: 'current' })
@@ -235,23 +225,12 @@ Listado de Vacaciones
                         return intVal(a) + intVal(b);
                     }, 0);
 
-                var pageTotalTotalizacionDiasVac = api
-                    .column(10, { page: 'current' })
-                    .data()
-                    .reduce(function (a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0);
 
                 // Actualizar el pie de la tabla con los totales de la página y los totales generales
-                $(api.column(6).footer()).html(
-                    totalDiasCalendario
-                );
                 $(api.column(7).footer()).html(
                     totalDiasVac 
                 );
-                $(api.column(10).footer()).html(
-                    totalTotalizacionDiasVac
-                );
+                
             }
         });
     });

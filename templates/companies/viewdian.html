@@ -68,7 +68,7 @@ Certificados de Ingreso y Retenciones
                     <option value="">Seleccione...</option>
                     {% for emp in empleados_select %}
                         <option value="{{ emp.idempleado }}" {% if emp.idempleado|stringformat:"s" == selected_empleado %}selected{% endif %}>
-                            {{ emp.pnombre }} {{ emp.snombre }} {{ emp.papellido }} {{ emp.sapellido }}
+                            {{ emp.papellido }} {{ emp.sapellido }} {{ emp.pnombre }} {{ emp.snombre }} 
                         </option>
                     {% endfor %}
                 </select>
@@ -167,9 +167,16 @@ Certificados de Ingreso y Retenciones
     function cargarContratos() {
         var empleadoSelect = document.getElementById('empleado');
         var empleadoId = empleadoSelect.value;
-        window.location.href = `?empleado=${empleadoId}`;
+
+        // Obtener la URL actual
+        var currentUrl = new URL(window.location.href);
+        // Establecer el nuevo parámetro o actualizar el existente
+        currentUrl.searchParams.set('empleado', empleadoId);
+        // Redirigir a la nueva URL
+        window.location.href = currentUrl.href;
     }
 </script>
+
 <script>
     $(document).ready(function() {
         $('#tabla-lista-dian').DataTable({

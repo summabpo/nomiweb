@@ -71,7 +71,7 @@ class LoansForm(forms.Form):
             Row(
                 Column('installment_value', css_class='form-group col-md-4 mb-3'),
                 Column('loan_status', css_class='form-check form-check-custom form-check-danger form-check-solid d-flex align-items-end col-md-4 mb-3'),
-                HTML('<button id="loan_status_btn" type="button" class="btn btn-bg-success" disabled> Activo </button>'),
+                HTML('<button id="loan_status_btn" type="button" class="btn btn-bg-danger" disabled> Activo </button>'),
                 css_class='row'
             ),
 
