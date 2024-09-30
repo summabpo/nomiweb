@@ -356,8 +356,8 @@ def contributionsprovision(request):
                     else:
                         ajuste = 0
 
-                    # if tipocontrato == 5:
-                    #     salud = salmin * (psalude / 100 + pepse / 100)
+                    if tipocontrato == 5:
+                        salud = salmin * (psalude / 100 + pepse / 100)
 
                     totalap = float(salud) + float(pension) + float(arl) + float(ccf) + float(sena) + float(icbf) - float(salud_t) - float(pension_t) - float(pension_ft) + float(ajuste)
 
