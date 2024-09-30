@@ -200,6 +200,7 @@ def contributionsprovision(request):
                 fechainicial = datetime.strptime(f"{año}-{mes_numero}-01", "%Y-%m-%d").date()
                 fechafinal = datetime.strptime(f"{año}-{mes_numero}-{ultimo_dia}", "%Y-%m-%d").date()     
 
+
                 if docidentidad not in acumulados:
                     
                     contrato = Contratos.objects.filter(idcontrato=docidentidad).first()
@@ -342,7 +343,7 @@ def contributionsprovision(request):
                         sena = float(base_ss) * float(psena) / 100
                         icbf = float(base_ss) * float(picbf) / 100
 
-                    if (base_ss / diasaportes * 30) < (salmin and base_ss > 0)  :
+                    if (base_ss / diasaportes * 30) < salmin and base_ss > 0 :
                         ajuste = (((float(base_ss) * float(pepse) / 100) + float(salud_t)) + ((float(base_ss) * float(ppenem) / 100) + float(pension_t)))
                         pension = ((float(base_ss) + float(suspension)) * float(ppene) / 100) + (float(suspension) * float(ppenem) / 100)
                         base_arl = float(base_ss)
@@ -355,8 +356,8 @@ def contributionsprovision(request):
                     else:
                         ajuste = 0
 
-                    if tipocontrato == 5:
-                        salud = salmin * (psalude / 100 + pepse / 100)
+                    # if tipocontrato == 5:
+                    #     salud = salmin * (psalude / 100 + pepse / 100)
 
                     totalap = float(salud) + float(pension) + float(arl) + float(ccf) + float(sena) + float(icbf) - float(salud_t) - float(pension_t) - float(pension_ft) + float(ajuste)
 

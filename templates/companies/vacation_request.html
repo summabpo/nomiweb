@@ -38,6 +38,7 @@ Listado de Solicitudes
                     <th>Fecha Final</th>
                     <th>Estado</th>
                     <th>Acciones</th>
+                    <th> </th>
                 </tr>
             </thead>
             <tbody>
@@ -68,18 +69,16 @@ Listado de Solicitudes
                         {% endif %}
                     </td>
                     <td> 
-                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-vacation_details="{{ vacacion.id_sol_vac }}">
+                        <button type="button" class="btn btn-light-info btn-sm" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-vacation_details="{{ vacacion.id_sol_vac }}">
                             <i class="fa-solid fa-eye fs-3"></i>
                             detalles
                         </button>
-
-                        <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2"  data-vacation_details="{{ vacacion.id_sol_vac }}">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-light-info btn-sm" data-bs-toggle="modal" data-bs-target="#kt_modal_2"  data-vacation_details="{{ vacacion.id_sol_vac }}">
                             <i class="fa-solid fa-list-check fs-3 "></i>
                             Gestionar
                         </button> 
-
-                        
-
                     </td>
                 </tr>
                 {% endfor %}
@@ -442,7 +441,7 @@ function sendAction(element) {
             },
             dom: 'frtip',
             order: [],
-            pageLength: 5,
+            pageLength: 20,
             
 
         });
