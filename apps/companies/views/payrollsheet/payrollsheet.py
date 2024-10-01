@@ -325,7 +325,7 @@ def unique_mail(request,idnomina,idcontrato):
     email_subject = 'Tu Comprobante de Nòmina'
     
     #
-    recipient_list = ['mikepruebas@yopmail.com', context["mail"]]  # Lista de destinatarios
+    recipient_list = [context["mail"]]  # Lista de destinatarios
 
     attachment = {
         'filename': nombre_archivo,
