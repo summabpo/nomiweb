@@ -79,7 +79,7 @@ Listado de  Prestamos
 
     {% if prestamos %}
         <div class="table-responsive">
-            <table class="table table-bordered" id="table-prestamos" >
+            <table class="table table-striped table-bordered" id="table-prestamos" >
                 <thead>
                     <tr class="fw-bold fs-6 text-gray-800"> 
                         <th>Id Contrato</th>
@@ -237,7 +237,7 @@ Listado de  Prestamos
                 },
         
                 success: function(response) {
-                    console.log(response.data);
+                    
                     modal.find('.modal-title').text('Editar Préstamo #' + response.data.id);
                     modal.find('.modal-body #id_loan_amount').val(response.data.loan_amount);
                     modal.find('.modal-body #id_installment_value').val(response.data.installment_value);

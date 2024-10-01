@@ -73,8 +73,8 @@ def get_vacation_details(request):
             dias_licencia=Coalesce(Sum('diasvac', filter=Q(tipovac__in=['3', '4'])), 0)
         )
 
-        empleado = f"{vacaciones_data['idcontrato__idempleado__papellido'] } {vacaciones_data['idcontrato__idempleado__sapellido']}  {vacaciones_data['idcontrato__idempleado__pnombre']} vacaciones_data['idcontrato__idempleado__snombre'] "
-        
+        empleado = f"{vacaciones_data.get('idcontrato__idempleado__papellido', '')} {vacaciones_data.get('idcontrato__idempleado__sapellido', '')} {vacaciones_data.get('idcontrato__idempleado__pnombre', '')} {vacaciones_data.get('idcontrato__idempleado__snombre', '')}"
+
         # Asigna los valores a variables con solo dos decimales
         dias_vacaciones = round(vacaciones_data['dias_vacaciones'], 2)
         dias_licencia = round(vacaciones_data['dias_licencia'], 2)

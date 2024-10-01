@@ -45,7 +45,7 @@ Listado de Incapacidades
 
     {% if incapacidades %}
     <div class="table-responsive">
-        <table class="table table-bordered" id="table-disabilities" >
+        <table class="table table-striped table-bordered" id="table-disabilities" >
             <thead>
                 <tr class="fw-bold fs-6 text-gray-800"> 
                     <th>Id Contrato</th>
@@ -367,9 +367,6 @@ Listado de Incapacidades
             }
 
             modal.on('shown.bs.modal', function() {
-                startDateInput.val(''); // Limpia los campos al abrir el modal
-                daysInput.val('');      // Limpia los campos al abrir el modal
-                endDateInput.val('');   // Limpia los campos al abrir el modal
                 endDateInput.prop('disabled', true); // Deshabilitar campo de fecha final
 
                 // Agregar eventos para calcular la fecha final
@@ -390,7 +387,7 @@ Listado de Incapacidades
                     'dato': recipient
                 },
                 success: function(response) {
-                    console.log(response.data);
+                    
                     modal.find('.modal-title').text('Editar Incapacidad #' + response.data.id);
                     modal.find('.modal-body #id_incapacity_days').val(response.data.incapacity_days);
                     
@@ -474,7 +471,7 @@ Listado de Incapacidades
             },
             dom: 'frtip',
             order: [],
-            pageLength: 6
+            pageLength: 20
         });
     });
 </script>
