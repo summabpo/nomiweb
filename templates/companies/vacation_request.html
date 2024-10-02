@@ -312,7 +312,7 @@ function sendAction(element) {
             if (response.success) {
                 toastr.success("El proceso se ha completado con éxito: " + action, "Operación Exitosa");
             } else {
-                toastr.error("Hubo un error al procesar: " + action, "Error en la Operación");
+                toastr.error("Hubo un error al procesar: " + action , "Error en la Operación");
             }
             setTimeout(function() {
                 location.reload();
