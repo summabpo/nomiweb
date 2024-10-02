@@ -208,10 +208,7 @@ def edit_disabilities(request):
     entidad = Entidadessegsocial.objects.get(codigo = entity)
     dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
     
-    print('-----------------')
-    print(contract)
-    print('-----------------')
-    
+
     
     incapacidad_modificar = get_object_or_404(Incapacidades, pk=global_id)
     
@@ -237,23 +234,24 @@ def edit_disabilities(request):
 
   
 
-csrf_exempt
+@csrf_exempt
 def get_entity(request):
-  
   if request.method == 'GET':
     dato = request.GET.get('dato')
     dato_sin_numeros = ''.join([char for char in dato if not char.isdigit()])
-    entidad = Entidadessegsocial.objects.filter( tipoentidad=dato_sin_numeros).order_by('codigo').values('codigo', 'entidad')
 
-  # Convertir el queryset en una lista de diccionarios
-  entidad_list = list(entidad)
+    if dato_sin_numeros.upper() == "TDO":
+      # Filtrar tanto ARL como EPS
+      entidad = Entidadessegsocial.objects.filter(tipoentidad__in=['ARL', 'EPS']).order_by('codigo').values('codigo', 'entidad')
+    else:
+      # Filtrar por tipoentidad específico
+      entidad = Entidadessegsocial.objects.filter(tipoentidad=dato_sin_numeros).order_by('codigo').values('codigo', 'entidad')
+    entidad_list = list(entidad)
 
-  # Devolver la respuesta JSON
-  return JsonResponse(entidad_list, safe=False) 
+    # Devolver la respuesta JSON
+    return JsonResponse(entidad_list, safe=False)
 
-  
-  
-  
+
   
   
   
