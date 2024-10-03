@@ -45,7 +45,7 @@ Listado de Incapacidades
 
     {% if incapacidades %}
     <div class="table-responsive">
-        <table class="table table-bordered" id="table-disabilities" >
+        <table class="table table-striped table-bordered" id="table-disabilities" >
             <thead>
                 <tr class="fw-bold fs-6 text-gray-800"> 
                     <th>Id Contrato</th>
@@ -180,74 +180,98 @@ Listado de Incapacidades
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Asigna el evento 'change' al select que usa select2
-        const originSelect = $('#origin_kt_modal_1');
-        const entitySelect = document.getElementById('entity_kt_modal_1');
+    // Asigna eventos 'change' a los selects de origen de ambos modales
+    initializeSelect('origin_kt_modal_1', 'entity_kt_modal_1');
+    initializeSelect('origin_kt_modal_2', 'entity_kt_modal_2');
+
+    // Agregar el evento para el cierre del modal
+    $('#kt_modal_2').on('hidden.bs.modal', function () {
+        const entitySelect2 = document.getElementById('entity_kt_modal_2');
         
-        // Deshabilita el select de entidades al cargar la página
-        if (entitySelect) {
-            entitySelect.disabled = true;
+        // Deshabilitar el select de entidades al cerrar el modal
+        if (entitySelect2) {
+            entitySelect2.disabled = true;
         }
 
-        if (originSelect.length) {
-            // Detectar el cambio de valor en select2
-            originSelect.on('select2:select', function(e) {
-                const idOrigin = e.params.data.id;  // Obtén el valor seleccionado
-                fetchEntities(idOrigin);  // Llama a la función con el valor seleccionado
-            });
-        } else {
-            console.log("No se ha podido detectar el select con id origin_kt_modal_1.");
-        }
+        fetchEntities('TDO', entitySelect2);
     });
 
-    const entitiesUrl = "{% url 'companies:get_entity' %}";
-
-    async function fetchEntities(idOrigin) {
-        const idEntitySelect = document.getElementById('entity_kt_modal_1');
-        if (idOrigin) {
-            try {
-                // Deshabilitar el select mientras se cargan las entidades
-                idEntitySelect.disabled = true;
-
-                const entities = await get_entity(idOrigin);
-
-                idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
-
-                // Agregar las nuevas opciones
-                entities.forEach(entity => {
-                    const option = document.createElement('option');
-                    option.value = entity.codigo;
-                    option.textContent = entity.entidad;
-                    idEntitySelect.appendChild(option);
-                });
-
-                // Habilitar el select si hay entidades disponibles
-                idEntitySelect.disabled = entities.length === 0;
-
-            } catch (error) {
-                console.error('Error al obtener las entidades:', error);
-            }
-        } else {
-            // Restablecer el select si no se ha seleccionado ningún origen
-            idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
-            idEntitySelect.disabled = true;
+    // Agregar el evento para abrir el modal
+    $('#kt_modal_2').on('shown.bs.modal', function () {
+        const entitySelect2 = document.getElementById('entity_kt_modal_2');
+        // Asegurarse de que el select esté deshabilitado al abrir el modal
+        if (entitySelect2) {
+            entitySelect2.disabled = true;
         }
+    });
+});
+
+const entitiesUrl = "{% url 'companies:get_entity' %}";
+
+function initializeSelect(originSelectId, entitySelectId) {
+    const originSelect = $(`#${originSelectId}`);
+    const entitySelect = document.getElementById(entitySelectId);
+
+    // Deshabilita el select de entidades al cargar la página
+    if (entitySelect) {
+        entitySelect.disabled = true;
     }
 
-    async function get_entity(idOrigin) {
+    if (originSelect.length) {
+        // Detectar el cambio de valor en select2
+        originSelect.on('select2:select', function(e) {
+            const idOrigin = e.params.data.id;  // Obtén el valor seleccionado
+            fetchEntities(idOrigin, entitySelect);  // Pasa el select correspondiente
+        });
+    } else {
+        console.log(`No se ha podido detectar el select con id ${originSelectId}.`);
+    }
+}
+
+async function fetchEntities(idOrigin, idEntitySelect) {
+    if (idOrigin) {
         try {
-            const response = await fetch(`${entitiesUrl}?dato=${idOrigin}`);
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error en la petición AJAX:', error);
-            throw error;
-        }
-    }
-</script>
+            // Deshabilitar el select mientras se cargan las entidades
+            idEntitySelect.disabled = true;
 
+            const entities = await get_entity(idOrigin);
+
+            idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
+
+            // Agregar las nuevas opciones
+            entities.forEach(entity => {
+                const option = document.createElement('option');
+                option.value = entity.codigo;
+                option.textContent = entity.entidad;
+                idEntitySelect.appendChild(option);
+            });
+
+            // Habilitar el select si hay entidades disponibles
+            idEntitySelect.disabled = entities.length === 0;
+
+        } catch (error) {
+            console.error('Error al obtener las entidades:', error);
+        }
+    } else {
+        // Restablecer el select si no se ha seleccionado ningún origen
+        idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
+        idEntitySelect.disabled = true;
+    }
+}
+
+async function get_entity(idOrigin) {
+    try {
+        const response = await fetch(`${entitiesUrl}?dato=${idOrigin}`);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error en la petición AJAX:', error);
+        throw error;
+    }
+}
+</script>
 
 
 
@@ -367,9 +391,6 @@ Listado de Incapacidades
             }
 
             modal.on('shown.bs.modal', function() {
-                startDateInput.val(''); // Limpia los campos al abrir el modal
-                daysInput.val('');      // Limpia los campos al abrir el modal
-                endDateInput.val('');   // Limpia los campos al abrir el modal
                 endDateInput.prop('disabled', true); // Deshabilitar campo de fecha final
 
                 // Agregar eventos para calcular la fecha final
@@ -390,7 +411,7 @@ Listado de Incapacidades
                     'dato': recipient
                 },
                 success: function(response) {
-                    console.log(response.data);
+                    
                     modal.find('.modal-title').text('Editar Incapacidad #' + response.data.id);
                     modal.find('.modal-body #id_incapacity_days').val(response.data.incapacity_days);
                     
@@ -401,11 +422,10 @@ Listado de Incapacidades
                     modal.find('.modal-body #kt_daterangepicker_2').val(endDate);
 
                     var $select1 = modal.find('.modal-body #contract_kt_modal_2');
-                    $select1.val(response.data.contract).trigger('change').prop('disabled', true);
+                    $select1.val(response.data.contract).trigger('change').prop('disabled', true); // Establece el valor y deshabilita el select
 
                     var $select2 = modal.find('.modal-body #entity_kt_modal_2');
-                    $select2.val(response.data.entity).trigger('change'); // Actualiza el valor y refleja el cambio
-                    
+                    $select2.val(response.data.entity).trigger('change').prop('disabled', true);; // Actualiza el valor y refleja el cambio
 
                     var $select3 = modal.find('.modal-body #diagnosis_code_kt_modal_2');
                     $select3.val(response.data.diagnosis_code).trigger('change');
@@ -420,9 +440,16 @@ Listado de Incapacidades
                     modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
                         singleDatePicker: true,
                         showDropdowns: true,
+                        minYear: 2000,
+                        maxYear: parseInt(moment().format("YYYY"), 12),
                         startDate: moment(initialDate),
+                        endDate: moment(),
+                        minDate: '01/01/2020',
+                        autoApply: true,
                         locale: {
                             format: 'YYYY-MM-DD',
+                            applyLabel: 'Aplicar',
+                            cancelLabel: 'Cancelar',
                             daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
                             monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
                         },
@@ -474,7 +501,7 @@ Listado de Incapacidades
             },
             dom: 'frtip',
             order: [],
-            pageLength: 6
+            pageLength: 20
         });
     });
 </script>

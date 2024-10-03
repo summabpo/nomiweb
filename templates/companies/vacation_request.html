@@ -28,7 +28,7 @@ Listado de Solicitudes
 {% block content %}
 
     <div class="table-responsive">
-        <table class="table table-bordered table-hover" id="tabla-lista-vacation">
+        <table class="table table-striped table-bordered" id="tabla-lista-vacation">
             <thead>
                 <tr>
                     <th>Contrato</th>
@@ -312,7 +312,7 @@ function sendAction(element) {
             if (response.success) {
                 toastr.success("El proceso se ha completado con éxito: " + action, "Operación Exitosa");
             } else {
-                toastr.error("Hubo un error al procesar: " + action, "Error en la Operación");
+                toastr.error("Hubo un error al procesar: " + action , "Error en la Operación");
             }
             setTimeout(function() {
                 location.reload();

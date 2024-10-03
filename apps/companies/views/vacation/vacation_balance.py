@@ -4,6 +4,8 @@ from django.db.models import Q, Sum
 from django.utils import timezone
 from apps.components.utils import calcular_dias_360
 from datetime import datetime
+from django.http import HttpResponse 
+from apps.components.generate_vacation_balance import generate_balance_excel
 
 
 def calcular_vacaciones(contrato, concepto,fecha_actual):
@@ -34,6 +36,13 @@ def vacation_balance(request):
     valor_fijo = float(concepto)
     
     fecha_param = request.GET.get('fecha')
+    if fecha_param:
+        date = datetime.strptime(fecha_param, "%Y-%m-%d").date()  # Convertir la fecha a formato 'datetime.date'
+        visual = True
+    else:
+        date = timezone.now().date() 
+        visual = False
+        
     fecha_actual = timezone.now().date() if fecha_param is None else datetime.strptime(fecha_param, "%Y-%m-%d").date()
 
     if fecha_param :
@@ -65,6 +74,35 @@ def vacation_balance(request):
 
     context = {
         'contratos_empleados': list(acumulados.values()),
+        'date': date,
+        'visual':visual,
     }
-
+    print(date)
     return render(request, './companies/vacation_balance.html', context)
+
+
+
+def vacation_balance_download(request):
+    date_str = request.GET.get('date')
+
+    # Verificar si date está presente
+    if not date_str:
+        return HttpResponse("Faltan parámetros.", status=400)
+
+    # Convertir el string a un objeto datetime
+    try:
+        date = datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return HttpResponse("Formato de fecha inválido. Use YYYY-MM-DD.", status=400)
+
+    # Generar el archivo Excel
+    excel_data = generate_balance_excel(date_str)
+
+    fecha_str = date.strftime("%Y-%m-%d")
+    filename = f"vacaciones_saldo_{fecha_str}.xlsx"
+
+    # Crear la respuesta HTTP con el archivo adjunto
+    response = HttpResponse(excel_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    return response

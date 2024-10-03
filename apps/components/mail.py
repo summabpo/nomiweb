@@ -13,6 +13,8 @@ def send_template_email(email_type, context, subject, recipient_list, from_email
         'password_reset': 'mails/resetpassword.html',
         'loginweb': 'mails/cuentausuario.html',
         'vacations': 'mails/vacations.html',
+        'vacation_request': 'mails/vacation_request.html',
+        'nomina1':'mails/correo_de_nomina.html'
         
     }
     
@@ -51,6 +53,8 @@ def send_template_email2(email_type, context, subject, recipient_list, from_emai
         'password_reset': 'mails/resetpassword.html',
         'loginweb': 'mails/cuentausuario.html',
         'vacations': 'mails/vacations.html',
+        'vacation_request': 'mails/vacation_request.html',
+        'nomina1':'mails/correo_de_nomina.html'
         
     }
     
@@ -87,6 +91,7 @@ def send_template_email3(email_type, context, subject, recipient_list, from_emai
         'password_reset': 'mails/resetpassword.html',
         'loginweb': 'mails/cuentausuario.html',
         'vacations': 'mails/vacations.html',
+        'vacation_request': 'mails/vacation_request.html',
         'nomina1':'mails/correo_de_nomina.html'
     }
     

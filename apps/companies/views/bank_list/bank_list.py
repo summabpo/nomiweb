@@ -26,14 +26,22 @@ def bank_list_get(request):
     id_nomina = request.GET.get('id_nomina')  
     dataempresa = datos_cliente()
     compectos = Nomina.objects.filter(idnomina=id_nomina)
-    
-    banco = Bancos.objects.get(digchequeo =dataempresa['banco'] )
-    
-    
+
+    # Inicializar valores en caso de que no se encuentre el banco
+    banco_nota = "Data no encontrada"
+    num_cuenta = "Data no encontrada"
+
+    try:
+        banco = Bancos.objects.get(digchequeo=dataempresa['banco'])
+        banco_nota = f"{banco.nombanco} - {banco.digchequeo}"
+        num_cuenta = dataempresa.get('numcuenta', 'Data no encontrada')
+    except Bancos.DoesNotExist:
+        # Si no se encuentra el banco, se usan las notas por defecto
+        pass
+
     for data in compectos:
-            
         docidentidad = data.idempleado.docidentidad
-    
+
         if docidentidad not in acumulados:
             acumulados[docidentidad] = {
                 'cuenta': 1 if data.idcontrato.formapago == '1' else 2
@@ -43,19 +51,20 @@ def bank_list_get(request):
                 count_cuenta_1 += 1
             elif acumulados[docidentidad]['cuenta'] == 2:
                 count_cuenta_2 += 1
-            
+
         suma_total_pagos += data.valor
-        
-    
+
+    # Generar el JSON de respuesta
     data = {
-            'banco': f"{banco.nombanco} - {banco.digchequeo} ",
-            'cuenta': dataempresa['numcuenta'],
-            'registros_con_cuenta': count_cuenta_1,
-            'valor_pagos': format_value(suma_total_pagos),
-            'registros_sin_cuenta': count_cuenta_2
-        }
-    
+        'banco': banco_nota,
+        'cuenta': num_cuenta,
+        'registros_con_cuenta': count_cuenta_1,
+        'valor_pagos': format_value(suma_total_pagos),
+        'registros_sin_cuenta': count_cuenta_2
+    }
+
     return JsonResponse(data)
+
 
 @login_required
 @role_required('entrepreneur')

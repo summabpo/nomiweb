@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Q
 from datetime import timedelta, datetime, date
 from django.db.models.functions import Coalesce
-
+from apps.components.mail import send_template_email
 
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
@@ -73,8 +73,8 @@ def get_vacation_details(request):
             dias_licencia=Coalesce(Sum('diasvac', filter=Q(tipovac__in=['3', '4'])), 0)
         )
 
-        empleado = f"{vacaciones_data['idcontrato__idempleado__papellido'] } {vacaciones_data['idcontrato__idempleado__sapellido']}  {vacaciones_data['idcontrato__idempleado__pnombre']} vacaciones_data['idcontrato__idempleado__snombre'] "
-        
+        empleado = f"{vacaciones_data.get('idcontrato__idempleado__papellido', '')} {vacaciones_data.get('idcontrato__idempleado__sapellido', '')} {vacaciones_data.get('idcontrato__idempleado__pnombre', '')} {vacaciones_data.get('idcontrato__idempleado__snombre', '')}"
+
         # Asigna los valores a variables con solo dos decimales
         dias_vacaciones = round(vacaciones_data['dias_vacaciones'], 2)
         dias_licencia = round(vacaciones_data['dias_licencia'], 2)
@@ -139,7 +139,6 @@ def get_vacation_acction(request):
             vacation = request.POST.get('vacationDetails') 
             
             data = EmpVacaciones.objects.get(id_sol_vac = vacation )
-            
             if option == '1':
                 status = '2'
                 response_message = "Solicitud aprobada."
@@ -155,9 +154,54 @@ def get_vacation_acction(request):
             data.estado = status
             data.comentarios2 = comments
             data.save()
+            email_subject = 'Notificación del Estado de su Solicitud de Vacaciones'
             
-            return JsonResponse({'success': True, 'message': 'Solicitud procesada correctamente.'})
-    
+            recipient_list = ['mikepruebas@yopmail.com',data.idcontrato.idempleado.email] 
+            
+            
+            if status == '2':
+                
+                if data.tipovac.tipovac == '1':
+                    mensaje1 = f'Su solicitud ha sido '
+                    mensaje2 = 'Aprobada. '
+                    mensaje3 = f'Disfrute de sus vacaciones desde el {data.fechainicialvac} hasta el {data.fechafinalvac}.'
+                else:
+                    mensaje1 = f'Su solicitud ha sido aprobada. '
+                    mensaje2 = 'Aprobada. '
+                    mensaje3 = f'Se le informará más detalles con el tiempo.'
+                    
+            elif status == '3':
+                mensaje1 = f'Lamentamos informarle que su solicitud ha sido '
+                mensaje2 = 'Rechazada. '
+                mensaje3 = f'El motivo del rechazo estará en la plataforma en sus solicitudes.'
+            else:
+                mensaje1 = f'Su solicitud está actualmente en '
+                mensaje2 = 'Revisión. '
+                mensaje3 = f'Se le notificará cuando se tome una decisión. Si necesita más información, puede verificar el estado en el portal de empleados.'
+
+            context =  {
+                'type':status,
+                'ms':response_message,
+                'empleado':f" {data.idcontrato.idempleado.papellido} {data.idcontrato.idempleado.sapellido} {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.snombre}",
+                'hola': f"{data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.papellido}",
+                'fecha1': str(data.fechainicialvac) ,
+                'fecha2': str(data.fechafinalvac ),
+                'tipo': data.tipovac.nombrevacaus, 
+                'mensaje1': mensaje1,
+                'mensaje2': mensaje2,
+                'mensaje3': mensaje3,
+            }
+            
+            success = send_template_email(
+                        email_type='vacation_request',  # Ajusta el tipo de correo según corresponda
+                        context=context,
+                        subject=email_subject,
+                        recipient_list=recipient_list,
+                    )
+            if success : 
+                return JsonResponse({'success': True, 'message': 'Solicitud procesada correctamente.'})
+            else :
+                return JsonResponse({'success': False, 'message': 'Ocurrio Un error inesperado y el correo de notificacion no pudo ser enviados  '})
     
     except Exception as e:
         return JsonResponse({'success': False, 'message': 'Ocurrio Un error inesperado '})
