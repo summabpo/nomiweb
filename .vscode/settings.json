@@ -81,5 +81,6 @@
     ],
     "files.exclude": {
         "**/__pycache__": true
-    }
+    },
+    "editor.fontSize": 18
 }
