@@ -1,20 +1,19 @@
 from django.shortcuts import render,redirect
 from apps.employees.models import Ingresosyretenciones 
-from apps.components.decorators import custom_permission
 from django.contrib.auth.decorators import login_required
-
 from django.http import HttpResponse
 from .imggenerate import imggenerate1
-from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from PIL import Image
-import os
 
 
 
-# @login_required
-# @custom_permission('employees')
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+
+@login_required
+@role_required('employees')
 def viewdian(request):
     ide = request.session.get('idempleado', {})
     
@@ -30,8 +29,8 @@ def viewdian(request):
     })
 
 
-# @login_required
-# @custom_permission('employees')
+@login_required
+@role_required('employees')
 def viewdian_empleado(request,idingret ):
     # Generar la imagen usando la función personalizada
     

@@ -5,7 +5,21 @@
     Nomiweb.co - Portal Empresas -nomina
 {% endblock %}
 
+
 {% block css %}
+    .btn-light-info {
+        margin-right: 10px; /* Ajusta el valor según sea necesario */
+    }
+
+    .loading-animation {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000; /* Asegura que la animación esté por encima de otros elementos */
+    }
+
+
 {% endblock %}
 
 {% block sub_titulo1 %} 
@@ -340,6 +354,19 @@
                     modal.find('#registrosConCuenta').text(data.registros_con_cuenta);
                     modal.find('#valorPagos').text(data.valor_pagos);
                     modal.find('#registrosSinCuenta').text(data.registros_sin_cuenta);
+                    
+                    // Inhabilitar el botón si no se encuentra el banco
+                    var downloadButton = modal.find('.btn-light-primary');
+
+                    if (data.banco === "Data no encontrada") {
+                         // Inhabilitar el botón
+                        downloadButton.attr('href', '#'); // Evitar que el enlace funcione
+                        downloadButton.addClass('disabled'); // Añadir clase para indicar deshabilitado
+                        downloadButton.text('Debe añadir la información'); 
+                    } else {
+                        downloadButton.prop('disabled', false); // Habilitar el botón
+                        downloadButton.text('Descargar'); // Restablecer el texto del botón
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error('Error al obtener la información:', error);

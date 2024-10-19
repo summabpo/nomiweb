@@ -84,7 +84,8 @@ def loginweb_admin(request,empresa='default'):
                     'contrasena': passwordoriginal,
                 }
                 subject = 'Activacion de Usuario'
-                recipient_list = ['mikepruebas@yopmail.com']
+                #recipient_list = ['mikepruebas@yopmail.com']
+                recipient_list = [usertempo.email,'mikepruebas@yopmail.com']
 
                 if send_template_email(email_type, context, subject, recipient_list):
                     messages.success(request, 'El usuario ha sido creado con exito')

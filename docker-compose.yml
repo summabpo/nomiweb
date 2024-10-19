@@ -4,7 +4,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+<<<<<<< HEAD
     image: nomiweb-alfa:latest
+=======
+    image: nomiweb-beta:latest
+>>>>>>> main
     command: /app/entrypoint.sh
     env_file:
       - ./.en
@@ -15,9 +19,20 @@ services:
     expose:
       - "8000"  # Este es el puerto interno expuesto dentro del contenedor
     ports:
+<<<<<<< HEAD
       - "88:8000"
     restart: always
 networks:
   default:
     external:
       name: proxy
+=======
+      - "89:8000" # Este puerto es al que nginx va a redireccionar y debe estar generado desde aqui.
+    restart: always
+    networks:
+      - proxy-network # Asocia el contenedor a la red "proxy-network"
+networks:
+  proxy-network:
+    external:
+      name: nginx-proxy_proxy  # Indica que la red es externa y ya existe
+>>>>>>> main

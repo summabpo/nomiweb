@@ -3,14 +3,11 @@ from apps.companies.models import Contratosemp,Contratos, Costos ,Subcostos,Cent
 from apps.companies.forms.ContractForm import ContractForm 
 from django.contrib import messages
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-from apps.components.decorators import custom_login_required ,custom_permission
-
-
-
-
-# @custom_login_required
-# @custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.get(idempleado=int(idempleado)) 
     contrato = Contratos.objects.get(idempleado=idempleado, estadocontrato=1)
@@ -88,11 +85,11 @@ def EditContracVisual(request,idempleado):
                 contrato.idsubcosto =Subcostos.objects.get( idsubcosto =  form.cleaned_data['subCostCenter'] )
                 contrato.save()
                 messages.success(request, 'El Contrato ha sido Actualizado')
-                return  redirect('companies:editcontracsearch')
+                return  redirect('companies:startcompanies')
             except Exception as e:
                 messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)
                 messages.error(request, messages_error)
-                return redirect('companies:startcompanies',idempleado=empleado.idempleado)
+                return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
         else: 
             for field, errors in form.errors.items():
                 for error in errors:

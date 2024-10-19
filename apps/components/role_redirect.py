@@ -9,7 +9,7 @@ def redirect_by_role(user):
         'entrepreneur': 'companies:index_companies',
     }
     role = user
-    return redirect(role_views.get(role, 'error_page'))
+    return redirect(role_views.get(role, 'login:login'))
 
 def redirect_by_role2(user):
     role_views = {

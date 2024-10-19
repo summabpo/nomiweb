@@ -7,10 +7,13 @@ from datetime import datetime
 from django.http import HttpResponse
 from apps.components.payrollgenerate import generate_summary
 from apps.components.payrollgenerate import genera_comprobante 
-from django.template.loader import render_to_string
 from apps.components.mail import send_template_email2 ,send_template_email3
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+from PyPDF2 import PdfMerger
+from django.template.loader import render_to_string
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -23,6 +26,8 @@ def get_email_status(estado_email):
     return envio_email
 
 
+@login_required
+@role_required('entrepreneur')
 def payrollsheet(request):
     #nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
     nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
@@ -57,7 +62,7 @@ def payrollsheet(request):
         
         for data in compectos:
             
-            docidentidad = data.idempleado.docidentidad
+            docidentidad = data.idcontrato.idcontrato
             compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato )
             if docidentidad not in acumulados:
                 acumulados[docidentidad] = {
@@ -102,7 +107,8 @@ def payrollsheet(request):
 
 
 
-
+@login_required
+@role_required('entrepreneur')
 def generatepayrollsummary(request,idnomina):
     context = generate_summary(idnomina)
     
@@ -124,43 +130,51 @@ def generatepayrollsummary(request,idnomina):
     
     return response
 
-
-def generatepayrollsummary2(request,idnomina):
-    # idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).values_list('idcontrato', flat=True).distinct()
-    # idcontratoslist = list(idcontratos_unicos)
-    
+@login_required
+@role_required('entrepreneur')
+def generatepayrollsummary2(request, idnomina):
+    # Obtener los contratos únicos ordenados por apellido
     idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idempleado__papellido').values_list('idcontrato', flat=True).distinct()
-    idcontratoslist = list(idcontratos_unicos)
     
+    # Crear un objeto para combinar PDFs
+    merger = PdfMerger()
     
-    combined_html_string = ''
-    
-    
-    for idcontrato in idcontratoslist:
-        context = genera_comprobante(idnomina,idcontrato)
-        html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
+    for idcontrato in idcontratos_unicos:
+        # Generar el contexto para cada contrato
+        context = genera_comprobante(idnomina, idcontrato)
         
-        combined_html_string += f"{html_string}<div class='page-break'></div>"
-    # Combinar ambos HTMLs con un salto de página entre ellos
-    
-    # Generar el PDF
-    pdf = BytesIO()
-    pisa_status = pisa.CreatePDF(combined_html_string, dest=pdf)
-    pdf.seek(0)
+        # Renderizar el template a una cadena HTML
+        html_string = render_to_string('./html/payrollcertificate.html', context)
+        
+        # Crear el PDF para cada documento
+        pdf = BytesIO()
+        pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+        pdf.seek(0)
 
-    if pisa_status.err:
-        return HttpResponse('Error al generar el PDF', status=400)
+        if pisa_status.err:
+            return HttpResponse('Error al generar uno de los PDFs', status=400)
+        
+        # Agregar el PDF al merger
+        merger.append(pdf)
     
+    # Crear un archivo PDF final combinando todos los PDFs
+    combined_pdf = BytesIO()
+    merger.write(combined_pdf)
+    combined_pdf.seek(0)
+    
+    # Crear el nombre del archivo con la fecha actual
     fecha_actual = datetime.now().strftime('%Y-%m-%d')
     nombre_archivo = f'Certificado_{idnomina}_{fecha_actual}.pdf'
 
-    response = HttpResponse(pdf, content_type='application/pdf')
+    # Preparar la respuesta HTTP con el PDF final
+    response = HttpResponse(combined_pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
     
     return response
 
 
-
+@login_required
+@role_required('entrepreneur')
 def generatepayrollcertificate(request ,idnomina,idcontrato):
     context = genera_comprobante(idnomina,idcontrato)
 
@@ -195,7 +209,8 @@ icono 3 :  success, message - linea 177
 
 """
 
-
+@login_required
+@role_required('entrepreneur')
 def massive_mail(request):
     if request.method == 'POST':
         nomina = request.POST.get('nomina2', '')
@@ -289,7 +304,8 @@ def massive_mail(request):
 
 
 
-
+@login_required
+@role_required('entrepreneur')
 def unique_mail(request,idnomina,idcontrato):
     datacn = NominaComprobantes.objects.get(idnomina = idnomina ,idcontrato = idcontrato )
     context = genera_comprobante(idnomina, idcontrato)
@@ -309,7 +325,7 @@ def unique_mail(request,idnomina,idcontrato):
     email_subject = 'Tu Comprobante de Nòmina'
     
     #
-    recipient_list = ['mikepruebas@yopmail.com', context["mail"]]  # Lista de destinatarios
+    recipient_list = [context["mail"]]  # Lista de destinatarios
 
     attachment = {
         'filename': nombre_archivo,

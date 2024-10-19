@@ -35,6 +35,14 @@ DATABASES = {
         'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
         'HOST':  os.getenv('DB_HOST_PROD'),
         'PORT':  os.getenv('DB_PORT_PROD'),
+    },
+    'nwp_match': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nwp_match',
+        'USER':  os.getenv('DB_USER_PROD_2'),
+        'PASSWORD':  os.getenv('DB_PASSWORD_PROD_2'),
+        'HOST':  os.getenv('DB_HOST_PROD_2'),
+        'PORT':  os.getenv('DB_PORT_PROD'),
     }
 }
 
@@ -54,6 +62,10 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8081',
     'https://nomiweb.com.co',
     'https://app.nomiweb.com.co',
+    'https://dev.nomiweb.com.co',
+    'http://app.nomiweb.com.co',
+    'http://dev.nomiweb.com.co',
+    'http://nomiweb.com.co'
 ]
 
 

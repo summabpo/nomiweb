@@ -5,7 +5,12 @@ from apps.components.decorators import custom_login_required ,custom_permission
 from apps.companies.forms.workplaceForm import workplaceForm
 from django.contrib import messages
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
+
+@login_required
+@role_required('entrepreneur')
 def workplace(request): 
     if request.method == 'POST':
         form = workplaceForm(request.POST)

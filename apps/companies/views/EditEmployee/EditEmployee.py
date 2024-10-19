@@ -4,10 +4,11 @@ from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
 from apps.components.decorators import custom_login_required ,custom_permission
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-
-# @custom_login_required
-# @custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def EditEmployeeVisual(request,idempleado):
     empleado = Contratosemp.objects.get(idempleado=idempleado) 
     
@@ -31,8 +32,7 @@ def EditEmployeeVisual(request,idempleado):
         'id': empleado.idempleado
     }
     
-    
-    
+
     initial_data = {
         'identification_type':empleado.tipodocident,
         'identification_number':empleado.docidentidad,
@@ -43,9 +43,9 @@ def EditEmployeeVisual(request,idempleado):
         'first_last_name':empleado.papellido,
         'second_last_name':empleado.sapellido,
         'sex':empleado.sexo,
-        'height':str(empleado.estatura),
+        'height': str(empleado.estatura) if empleado.estatura not in [None,'None', ''] else "0",
         'marital_status':empleado.estadocivil,
-        'weight':empleado.peso,
+        'weight': empleado.peso if empleado.peso not in [None,'None', ''] else 0,
         'first_name':empleado.pnombre,
         'second_name':empleado.snombre,
         'birthdate':str(empleado.fechanac),
@@ -114,7 +114,7 @@ def EditEmployeeVisual(request,idempleado):
                 
                 empleado.save()
                 messages.success(request, 'El Empleado ha sido Actualizado')
-                return redirect('companies:editemployeevisual',idempleado=empleado.idempleado)
+                return  redirect('companies:startcompanies')
             except Exception as e:
                 messages_error = 'Se produjo un error al guardar el Empleado.' + str(e.args)
                 messages.error(request, messages_error)
@@ -139,8 +139,8 @@ def EditEmployeeVisual(request,idempleado):
 
 
 
-@custom_login_required
-@custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def EditEmployeeSearch(request):
     contratos_empleados = Contratos.objects \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \

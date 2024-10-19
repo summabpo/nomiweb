@@ -43,6 +43,9 @@
     border-width: 0.2em;
 }
 
+.asteriskField {
+    color: red !important;
+}
 {% endblock %}
 
 {% block sub_titulo1 %} 
@@ -80,21 +83,18 @@
                     <tr>
                         <th>Docidentidad</th>
                         <th>Empleado</th>
-                        <th>Contrato</th>
-                        <th>Total</th>
-                        <th>Conceptos</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for compect in compects %}
                         <tr>
                             <td>{{ compect.documento }}</td>
-                            <td>{{ compect.empleado }}</td>
-                            <td>{{ compect.contrato }}</td>
-                            <td>{{ compect.total }}</td>
+                            
                             <td>
-                                <!-- Mostrar conceptos en una lista -->
-                                <table class="table table-sm inner-table">
+                                
+                                {{ compect.empleado }}  Contrato {{ compect.contrato }}
+
+                                 <table class="table table-sm inner-table">
                                     <thead>
                                         <tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200" >
                                             <th>Concepto</th>
@@ -107,9 +107,9 @@
                                         {% for concepto in compect.data %}
                                             <tr>
                                                 <td>{{ concepto.idconcepto }}</td>
-                                                <td>{{ concepto.nombreconcepto }}</td>
-                                                <td>{{ concepto.cantidad }}</td>
-                                                <td>{{ concepto.valor }}</td>
+                                                <td class="text-start">{{ concepto.nombreconcepto }}</td>
+                                                <td class="text-end" >{{ concepto.cantidad }}</td>
+                                                <td class="text-end">{{ concepto.valor }}</td>
                                             </tr>
                                         {% empty %}
                                             <tr>
@@ -117,8 +117,11 @@
                                             </tr>
                                         {% endfor %}
                                     </tbody>
-                                </table>
+                                </table> 
+                            
                             </td>
+
+
                         </tr>
                     {% empty %}
                         <tr>
@@ -266,12 +269,8 @@
                     }
                 }
             ],
-            columnDefs: [
-                {
-                    targets: 4, // Índice de la columna de conceptos
-                    orderable: false // Desactivar la ordenación en esta columna
-                }
-            ],
+
+            
             order: [[0, 'asc']], // Cambia el índice de la columna por defecto para ordenar
             pageLength: 10
         });

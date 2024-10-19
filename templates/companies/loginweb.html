@@ -40,7 +40,7 @@
                     <th>Documento</th>
                     <th>Nombre</th>
                     <th>Cargo</th>
-                    <th>Contrato</th>
+                    <th>Correo</th>
                     <th>
                         <div class="container d-flex justify-content-center align-items-center">
                             <i class="ki-duotone ki-chart fs-3">
@@ -57,16 +57,16 @@
                     <td>{{ empleado.documento }}</td>
                     <td>{{ empleado.nombre }}</td>
                     <td>{{ empleado.cargo }}</td>
-                    <td>{{ empleado.tipocontrato }}</td>
+                    <td>{{ empleado.email }}</td>
                     <td>
-                        <div class="form-check form-check-custom form-check-warning form-check-solid">
+                        <div class="form-check form-check-custom form-check-success form-check-solid">
                             <input class="form-check-input" type="checkbox" name="selected_ids" value="{{ empleado.idempleado }}" />
                         </div>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
-            <button type="submit" class="btn btn-light-warning">Enviar</button>
+            <button type="submit" class="btn btn-light-info">Enviar</button>
         </table>
         
     </form>
@@ -106,7 +106,7 @@
                     }
                 },
                 dom: 'frtip',
-                order: [[0, 'des']],  
+                order: [[1, 'asc']],  
                 "pageLength": 10,                
             });
         });

@@ -56,6 +56,7 @@ def generate_employee_excel(diccionario_empleados,month1,year1,month2,year2):
         ws[f"C{row_start}"] = "Nombre Concepto"
         ws[f"D{row_start}"] = "Cantidad"
         ws[f"E{row_start}"] = "Valor"
+        ws[f"F{row_start}"] = "Contrato"
         
         ws[f"B{row_start}"].fill = azul_fill
         ws[f"C{row_start}"].fill = azul_fill
@@ -73,6 +74,7 @@ def generate_employee_excel(diccionario_empleados,month1,year1,month2,year2):
             ws[f"C{row_start}"] = concepto["nombreconcepto"]
             ws[f"D{row_start}"] = concepto["cantidad"]
             ws[f"E{row_start}"] = concepto["valor"]
+            ws[f"F{row_start}"] = info["id"]
             
         row_start += 1
         #Dejar una fila en blanco después de cada empleado

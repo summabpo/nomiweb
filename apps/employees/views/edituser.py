@@ -1,14 +1,16 @@
 from django.shortcuts import render ,redirect
-from apps.components.decorators import custom_permission
 from apps.employees.models import Contratosemp ,Ciudades
 from apps.components.dataemployees import datos_empleado2
 from apps.employees.forms.edit_employees_form import EditEmployeesForm 
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+
 
 
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def user_employees(request):
     ide = request.session.get('idempleado', {})
     data = Contratosemp.objects.only('direccionempleado', 'telefonoempleado', 'ciudadresidencia','fotografiaempleado','celular').get(idempleado=ide)
@@ -25,7 +27,7 @@ def user_employees(request):
                     )
     
 @login_required
-@custom_permission('employees')    
+@role_required('employees')   
 def edit_user_employees(request):
     usuario = request.session.get('usuario', {})
     ide = request.session.get('idempleado', {})

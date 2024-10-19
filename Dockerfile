@@ -34,10 +34,10 @@ COPY . /app/
 EXPOSE 8000
 
 # Copy el script de entrada
-COPY entrypoint.sh /app/entrypoint.sh
+COPY ./entrypoint.sh  /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-COPY .env /app/.env
+
 
 # Establecer el script de entrada como el punto de entrada del contenedor
 ENTRYPOINT ["/app/entrypoint.sh"]

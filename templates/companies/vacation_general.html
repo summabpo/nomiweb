@@ -1,0 +1,267 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Vacaciones Resumen General 
+{% endblock %}
+
+
+{% block css %}
+
+    .loan-status-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Novedades de Nomina
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Vacaciones 
+{% endblock %}
+
+{% block actions %}
+
+{% endblock %}
+
+{% block titulo2 %} 
+Resumen de vacaciones
+{% endblock %}
+
+
+{% block content %}
+    
+<div class="table-responsive">
+    <table id='tabla-lista-vacation' class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Documento</th>
+                <th>Nombre</th>
+                <th>Contrato</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in contratos_empleados %}
+                <tr>
+                    <td>{{ item.idempleado__docidentidad }}</td>
+                    <td>{{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }}</td>
+                    <td >{{ item.idcontrato }}</td>
+                    <td>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-icon btn-sm btn-light-facebook me-2 btn-novedad" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-tipo="vacaciones" data-contrato="{{ item.idcontrato }}">
+                                <i class="fa-solid fa-plane-departure fs-3"></i>
+                            </button>
+                            
+                            <button type="button" class="btn btn-icon btn-sm btn-light-instagram me-2 btn-novedad" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-tipo="ausencias" data-contrato="{{ item.idcontrato }}" >
+                                <i class="fa-solid fa-calendar-xmark fs-3"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Modal title</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                <table id='tabla-lista-novedad' class="table table-striped table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th>Novedad</th>
+                            <th>Fecha Inicial</th>
+                            <th>Ultimo Día</th>
+                            <th>Días Cal</th>
+                            <th>Días Vac</th>
+                            <th>Pago</th>
+                            <th>Periodo Ini</th>
+                            <th>Periodo Fin</th>
+                            <th>Id</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+{% block js %}
+
+
+<script>
+    function cargarContratos() {
+        var empleadoSelect = document.getElementById('empleado');
+        var empleadoId = empleadoSelect.value;
+        window.location.href = `?empleado=${empleadoId}`;
+    }
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-lista-vacation').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No se encontraron empleados para listar",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [[1, 'asc']], 
+            "pageLength": 20,                
+        });
+    });
+</script>
+
+
+    
+    
+
+<script>
+    $(document).ready(function() {
+        // Inicializar el DataTable
+        var table = $('#tabla-lista-novedad').DataTable({
+                        language: {
+                            "decimal":        "",
+                            "emptyTable":     "No se encontraron empleados para listar",
+                            "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                            "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                            "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                            "infoPostFix":    "",
+                            "thousands":      ",",
+                            "lengthMenu":     "Mostrar _MENU_ entradas",
+                            "loadingRecords": "Cargando...",
+                            "processing":     "Procesando...",
+                            "search":         "Buscar:",
+                            "zeroRecords":    "No se encontraron registros coincidentes",
+                            "paginate": {
+                                "first":      "Primero",
+                                "last":       "Último",
+                                "next":       "Siguiente",
+                                "previous":   "Anterior"
+                            },
+                            "aria": {
+                                "sortAscending":  ": activar para ordenar la columna ascendente",
+                                "sortDescending": ": activar para ordenar la columna descendente"
+                            }
+                        },
+                        dom: 'frtip',
+                        order: [[8, 'des']],
+                        "pageLength": 5
+                    });
+
+        // Manejar la apertura del modal y cargar datos mediante AJAX
+        $('#kt_modal_1').on('show.bs.modal', function(event) {
+            // Botón que disparó el modal
+            var button = $(event.relatedTarget); 
+            var tipo = button.data('tipo'); // Obtener el tipo de novedad (vacaciones, ausencias)
+            var contratoId = button.data('contrato'); // Obtener el ID del contrato
+            var modal = $(this);
+
+            // Limpiar la tabla antes de cargar los datos
+            table.clear(); // Limpiar datos actuales
+            table.draw(); // Redibujar la tabla después de limpiar
+
+            // Hacer la solicitud AJAX
+            $.ajax({
+                url: '{% url "companies:get_novedades" %}', // URL de la vista en Django
+                type: 'GET',
+                data: {
+                    tipo: tipo,
+                    idcontrato: contratoId
+                },
+                success: function(response) {
+                    // Actualizar el título del modal con el nombre del empleado y el tipo de novedad
+                    modal.find('.modal-title').text('Novedades de ' + response.nombre_empleado + ' - ' + tipo);
+
+                    if (response.novedades.length === 0) {
+                        table.row.add([
+                            'No se encontraron novedades.', '', '', '', '', '', '', '', ''
+                        ]).draw();
+                    } else {
+                        // Iterar sobre los datos recibidos y agregarlos a la tabla
+                        $.each(response.novedades, function(index, novedad) {
+                            var row = `
+                                <tr>
+                                    <td>${novedad.novedad || ''}</td>
+                                    <td>${novedad.fecha_inicial || ''}</td>
+                                    <td>${novedad.ultimo_dia || ''}</td>
+                                    <td>${novedad.dias_cal || ''}</td>
+                                    <td>${novedad.dias_vac || ''}</td>
+                                    <td>${novedad.pago || ''}</td>
+                                    <td>${novedad.periodo_ini || ''}</td>
+                                    <td>${novedad.periodo_fin || ''}</td>
+                                    <td>${novedad.id || ''}</td>
+                                </tr>
+                            `;
+                            table.row.add($(row)).draw(); // Agregar la fila a la tabla
+                        });
+                    }
+                },
+                error: function() {
+                    alert('Error al cargar las novedades.');
+                }
+            });
+        });
+    });
+</script>
+
+
+
+
+
+{% endblock %}
+

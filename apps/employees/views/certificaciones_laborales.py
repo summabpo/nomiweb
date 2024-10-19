@@ -4,15 +4,15 @@ from io import BytesIO
 from django.http import HttpResponse
 
 ## agregadas por manuel 
-from apps.employees.models import Contratos, Contratosemp
+from apps.employees.models import Contratos
 from io import BytesIO
 from xhtml2pdf import pisa
 from apps.components.workcertificategenerator import workcertificategenerator , workcertificatedownload
 from django.contrib import messages
 from apps.employees.models import  Certificaciones
-from apps.components.decorators import custom_permission
 from django.contrib.auth.decorators import login_required
-from apps.components.humani import format_value
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
 
 def get_empleado_name(empleado):
@@ -23,9 +23,8 @@ def get_empleado_name(empleado):
     return f"{papellido} {sapellido} {pnombre} {snombre}"
 
 
-
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def vista_certificaciones(request):
     select_data = {}
     ESTADOS_CONTRATO = {
@@ -125,7 +124,7 @@ def vista_certificaciones(request):
 
 
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def generateworkcertificate(request):
     
     try:
@@ -157,9 +156,8 @@ def generateworkcertificate(request):
         print(e)
         return redirect('companies:workcertificate')
 
-
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def certificatedownload(request,idcert):
 
     try:

@@ -41,6 +41,22 @@ DATABASES = {
         'PASSWORD':  os.getenv('DB_PASSWORD_DEV'),  
         'HOST':  os.getenv('DB_HOST_DEV'),
         'PORT':  os.getenv('DB_PORT_DEV'),
+    },
+    'nwp_match': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nwp_match',
+        'USER':  os.getenv('DB_USER_PROD'),
+        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
+        'HOST':  os.getenv('DB_HOST_PROD'),
+        'PORT':  os.getenv('DB_PORT_PROD'),
+    },
+    'nwp_csfs': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nwp_csfs',
+        'USER':  os.getenv('DB_USER_PROD'),
+        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
+        'HOST':  os.getenv('DB_HOST_PROD'),
+        'PORT':  os.getenv('DB_PORT_PROD'),
     }
 
 }

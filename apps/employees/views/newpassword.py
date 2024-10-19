@@ -1,16 +1,16 @@
 from django.shortcuts import render ,redirect
-from apps.components.decorators import custom_permission
 from apps.employees.forms.newpasswordform import CustomPasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from apps.components.decorators import  role_required
 
 
 
 
 
 @login_required
-@custom_permission('employees')
+@role_required('employees')
 def newpassword_employees(request):
     
     if request.method == 'POST':

@@ -45,8 +45,8 @@ Solicitudes
 <!--FIN CARDS-->
 <!---BOTON MODAL--->
 <div class="text-end">
-    <button type="button" class="btn btn-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_1">
-        +  Nueva Solicitud
+    <button type="button" class="btn btn-light-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+        <i class="fa-solid fa-plus"></i>  Nueva Solicitud
     </button>
 </div>
 
@@ -71,7 +71,7 @@ Solicitudes
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light-danger" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="vacation-form" class="btn btn-info hover-elevate-up">Enviar Solicitud</button>
+                <button type="submit" form="vacation-form" class="btn btn-light-info">Enviar Solicitud</button>
             </div>
         </div>
     </div>
@@ -121,15 +121,27 @@ Solicitudes
                                 <td>{{ e.diasvac }}</td>
                                 <td>{{ e.diascalendario }}</td>
                                 <td>
-                                    {% if e.estado == 1 %}
-                                    <a href="" class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary"><i class="bi bi-stopwatch-fill fs-4 me-2"></i></i>Pendiente
-                                    {% elif e.estado == 2 %}
-                                    <a href="" class="btn btn-outline btn-outline-dashed btn-outline-success btn-active-light-success"><i class="bi bi-check-circle-fill fs-4 me-2"></i></i>Aprobada
-                                    {% elif e.estado == 3 %}
-                                    <a href="" class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger"><i class="bi bi-exclamation-triangle-fill fs-4 me-2"></i></i>Rechazada
-                                    {% else %}
-                                        Desconocido
-                                    {% endif %}
+                                    <div class="d-flex">
+                                        <div class="flex-fill">
+                                            {% if e.estado == 1 %}
+                                                <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary w-100">
+                                                    <i class="bi bi-stopwatch-fill fs-4 me-2"></i>Pendiente
+                                                </button>
+                                            {% elif e.estado == 2 %}
+                                                <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-success btn-active-light-success w-100">
+                                                    <i class="bi bi-check-circle-fill fs-4 me-2"></i>Aprobada
+                                                </button>
+                                            {% elif e.estado == 3 %}
+                                                <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger w-100">
+                                                    <i class="bi bi-exclamation-triangle-fill fs-4 me-2"></i>Rechazada
+                                                </button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning w-100" onclick="handleUnknownState()">
+                                                    <i class="bi bi-question-circle-fill fs-4 me-2"></i>Desconocido
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-edits="{{ e.id_sol_vac }}" >

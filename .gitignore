@@ -123,4 +123,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 # .sqlite3
+<<<<<<< HEAD
 *.json
+=======
+.vscode/PythonImportHelper-v2-Completion.json
+>>>>>>> main

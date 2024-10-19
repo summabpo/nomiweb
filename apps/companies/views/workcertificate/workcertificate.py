@@ -8,7 +8,8 @@ from django.http import JsonResponse
 from apps.components.workcertificategenerator import workcertificategenerator , workcertificatedownload
 from django.contrib import messages
 from apps.employees.models import Certificaciones
-
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -26,6 +27,8 @@ def get_empleado_name(empleado):
 
 
 
+@login_required
+@role_required('entrepreneur')
 def workcertificate(request):
     ESTADOS_CONTRATO = {
         1: "ACTIVO",
@@ -107,7 +110,8 @@ def workcertificate(request):
     return render(request, 'companies/workcertificate.html', context)
 
 
-
+@login_required
+@role_required('entrepreneur')
 def generateworkcertificate(request):
     
     try:
@@ -140,6 +144,8 @@ def generateworkcertificate(request):
         return redirect('companies:workcertificate')
     
     
+@login_required
+@role_required('entrepreneur')  
 def certificatedownload(request,idcert):
 
     try:

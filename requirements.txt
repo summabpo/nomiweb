@@ -73,3 +73,4 @@ webencodings==0.5.1
 wkhtmltopdf==0.2
 xhtml2pdf==0.2.15
 zope.interface==6.4.post2
+PyPDF2==3.0.1
