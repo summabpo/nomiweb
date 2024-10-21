@@ -26,14 +26,16 @@ BASE_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'storages',
+    'apps.common',
 ]
 
 LOCAL_APPS = [
     # Generated applications
+    
     'apps.login', 
-    'apps.employees',     # Employees application
-    'apps.companies',     # Companies application
-    'apps.administrator',
+    #'apps.employees',     # Employees application
+    #'apps.companies',     # Companies application
+    #'apps.administrator',
     # 'apps.payroll',       # Payroll application
     # 'apps.api_database',  # API database applicatio#n
 ]
@@ -70,7 +72,7 @@ BASE_MIDDLEWARE = [
 ]
 
 LOCAL_MIDDLEWARE = [
-    'apps.login.middlewares.DatabaseRouterMiddleware',
+    
 ]
 
 THIRD_MIDDLEWARE = [
@@ -109,12 +111,9 @@ WSGI_APPLICATION = 'nomiweb.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
-DATABASE_ROUTERS = [
-    'nomiweb.db_routers.routers.DatabaseRouter'
-]
+
 
 AUTHENTICATION_BACKENDS = [
-    'apps.components.custom_auth_backend.CustomAuthBackend',
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
 ]
 
@@ -194,4 +193,4 @@ LOGIN_REDIRECT_URL = '/'
 
 
 
-#AUTH_USER_MODEL = 'login.CustomUser'
+AUTH_USER_MODEL = 'common.User'

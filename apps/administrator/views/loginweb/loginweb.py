@@ -2,8 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from apps.companies.models import Contratos, Contratosemp
 from apps.components.mail import send_template_email
-from apps.login.models import Usuario, Empresa
-from django.contrib.auth.models import User
+from apps.common.models import User
 from django.contrib.auth.hashers import make_password
 from apps.login.models import Empresa
 import random
