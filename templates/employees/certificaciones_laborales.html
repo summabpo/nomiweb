@@ -34,9 +34,22 @@ Certificaciones Laborales
                         {% if cont < 2 %}
                         <h5 class="card-title">Su Contrato ha sido seleccionado</h5>
                         <!-- Lógica para cuando contratos está vacío -->
-                        <div class="input-group input-group-sm mb-5"> 
-                            <div class="input-group input-group-sm mb-5" data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
-                                <select name="contrato" id="contrato" class="form-select"  disabled >
+                        <div class="input-group  mb-5" data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
+                            <select name="contrato" id="contrato" class="form-select"  disabled >
+                                {% for contrato in contratos %}
+                                    <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                        {{ contrato.cc }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% else %}
+                        <!-- Aquí puedes colocar tu formulario -->
+                        <h5 class="card-title">Seleccione un Contrato</h5>
+                        <form method="get">
+                            <div class="input-group mb-5"  onchange="cargarContratos()"  data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
+                                <select name="contrato" id="contrato" class="form-select" data-control="select2" data-hide-search="true" >
+                                    <option></option>
                                     {% for contrato in contratos %}
                                         <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
                                             {{ contrato.cc }}
@@ -44,46 +57,37 @@ Certificaciones Laborales
                                     {% endfor %}
                                 </select>
                             </div>
-                        </div>
-                    {% else %}
-                        <!-- Aquí puedes colocar tu formulario -->
-                        <h5 class="card-title">Seleccione un Contrato</h5>
-                        <form method="get">
-                            <div class="input-group input-group-sm mb-5"> 
-                        
-                                <div class="input-group input-group-sm mb-5"  onchange="cargarContratos()"  data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
-                                    <select name="contrato" id="contrato" class="form-select"  >
-                                        <option value="">----------------</option>
-                                        {% for contrato in contratos %}
-                                            <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
-                                                {{ contrato.cc }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            
-                            </div>
                         </form>
                     {% endif %}
 
 
                     {% if select %}
-                    <form method="post" action="{% url 'employees:generateworkcertificate'%}" target="_blank" >
+                    <form  id="generateForm" method="post" action="{% url 'employees:generateworkcertificate'%}" target="_blank" >
                         {% csrf_token %}
-                        <div class="input-group input-group-sm mb-5">
-                            <input type="text" name="data_input" id="data_input" class="form-control" aria-label="A quien va dirigida la certificación"   placeholder="A quien va dirigida la certificación"  >
-                            <input type="hidden" name="contrato" value="{{ selected_empleado }}">
-                        </div>
-                        <div class="input-group input-group-sm mb-5">
-                            <select class="form-select" aria-label="Select example" name="data_model" id="data_model" required>
-                                <option value="" disabled selected>Escoja el tipo de certificado</option>
-                                {% for key, value in select_data.items %}
-                                    <option value="{{ key }}">{{ value }}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="row mb-5">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" name="data_input" id="data_input" class="form-control" 
+                                           aria-label="A quien va dirigida la certificación" 
+                                           placeholder="A quien va dirigida la certificación" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <select class="form-select"  name="data_model" id="data_model" 
+                                            data-control="select2" data-hide-search="true" data-placeholder="Escoja el tipo de certificado"  required>
+                                            <option></option>
+                                            {% for key, value in select_data.items %}
+                                                <option value="{{ key }}">{{ value }}</option>
+                                            {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-light-info hover-elevate-up" >Generar</button>
+                        
+                        <input type="hidden" name="contrato" value="{{ selected_empleado }}">
+                        <button type="submit" class="btn btn-light-info hover-elevate-up" onclick="submitForm()" >Generar</button>
                     </form>
                     {% endif %}
 
@@ -153,6 +157,13 @@ Certificaciones Laborales
     }
 </script>
 
+<script>
+    function submitForm() {
+        // Aquí puedes agregar lógica para validar el formulario si es necesario
+        document.getElementById('generateForm').submit(); // Envía el formulario
+        location.reload(); // Recarga la página después de enviar
+    }
+</script>
 
 <script>
     $(document).ready(function() {

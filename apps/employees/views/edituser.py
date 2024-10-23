@@ -1,5 +1,5 @@
 from django.shortcuts import render ,redirect
-from apps.employees.models import Contratosemp ,Ciudades
+from apps.common.models import Contratosemp ,Ciudades
 from apps.components.dataemployees import datos_empleado2
 from apps.employees.forms.edit_employees_form import EditEmployeesForm 
 from django.contrib import messages
@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def user_employees(request):
     ide = request.session.get('idempleado', {})
     data = Contratosemp.objects.only('direccionempleado', 'telefonoempleado', 'ciudadresidencia','fotografiaempleado','celular').get(idempleado=ide)
@@ -27,7 +27,7 @@ def user_employees(request):
                     )
     
 @login_required
-@role_required('employees')   
+@role_required('employee')   
 def edit_user_employees(request):
     usuario = request.session.get('usuario', {})
     ide = request.session.get('idempleado', {})

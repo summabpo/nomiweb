@@ -1,9 +1,8 @@
-from apps.employees.models import  Empresa
+from apps.common.models import  Empresa
 
-from apps.employees.models import Empresa
 
-def datos_cliente():
-    empresa_data = Empresa.objects.filter(idempresa=1).values().first()
+def datos_cliente(idemp):
+    empresa_data = Empresa.objects.filter(idempresa=idemp).values().first()
 
     # Inicializar la información del cliente con valores por defecto
     info_cliente = {

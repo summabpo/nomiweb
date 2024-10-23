@@ -1,6 +1,5 @@
 from django.db.models import Sum, Q, Case, When, Value, IntegerField , Count
-from apps.employees.models import  Contratos, Nomina ,Crearnomina 
-from apps.companies.models import Nomina , NominaComprobantes
+from apps.common.models import  Contratos, Nomina ,Crearnomina , Nomina , NominaComprobantes
 from django.db.models import Sum
 from .datacompanies import datos_cliente
 from apps.components.humani import format_value ,format_value_float , format_value_void

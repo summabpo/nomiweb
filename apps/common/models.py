@@ -567,7 +567,7 @@ class Contratos(models.Model):
     1 - en proceso por retirar de ss
     """
     idcontrato = models.AutoField(primary_key=True) 
-    cargo = models.ForeignKey(Cargos, on_delete=models.DO_NOTHING,) 
+    cargo = models.ForeignKey(Cargos, on_delete=models.DO_NOTHING) 
     fechainiciocontrato = models.DateField(blank=True, null=True)
     fechafincontrato = models.DateField(blank=True, null=True)
     tipocontrato = models.ForeignKey(Tipocontrato, on_delete=models.DO_NOTHING)
@@ -657,10 +657,10 @@ class Certificaciones(models.Model):
     idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING) 
     fecha = models.DateField(blank=True, null=True)
     salario = models.IntegerField()# fija requerido  
-    cargo = models.CharField(max_length=100)# fija requerido 
+    cargo = models.ForeignKey(Cargos, on_delete=models.DO_NOTHING) # fija requerido 
     tipocontrato = models.CharField(max_length=30)# fija requerido 
     promediovariable = models.IntegerField(blank=True, null=True) # calculo  
-    codigoconfirmacion = models.CharField(max_length=8, blank=True, null=True) 
+    codigoconfirmacion = models.CharField(max_length=8, blank=False, null=False, unique=True)
     tipocertificacion = models.IntegerField(blank=True, null=True)
     
 
@@ -1600,30 +1600,29 @@ class SalariosImportador(models.Model):
 #         db_table = 'tiempos_totales'
 
 # validar 
-# class Vacaciones(models.Model):
-#     # 
-#     idvacaciones = models.IntegerField(primary_key=True)
-#     idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING, blank=True, null=True)
-#     fechainicialvac = models.DateField(blank=True, null=True)
-#     ultimodiavac = models.DateField(blank=True, null=True)
-#     diascalendario = models.SmallIntegerField(blank=True, null=True)
-#     diasvac = models.SmallIntegerField(blank=True, null=True)
-#     diaspendientes = models.SmallIntegerField(blank=True, null=True)
-#     pagovac = models.IntegerField(blank=True, null=True)
-#     totaldiastomados = models.SmallIntegerField(blank=True, null=True)
-#     basepago = models.IntegerField(blank=True, null=True)
-#     estadovac = models.SmallIntegerField(blank=True, null=True)
-#     idnomina = models.IntegerField(blank=True, null=True)
-#     cuentasabados = models.SmallIntegerField(blank=True, null=True)
-#     tipovac = models.ForeignKey(Tipoavacaus, models.DO_NOTHING )
-#     idvacmaster = models.IntegerField(blank=True, null=True)
-#     perinicio = models.DateField(blank=True, null=True)
-#     perfinal = models.DateField(blank=True, null=True)
-#     fechapago = models.DateField(blank=True, null=True)
+class Vacaciones(models.Model):
+    idvacaciones = models.IntegerField(primary_key=True)
+    idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING, blank=True, null=True)
+    fechainicialvac = models.DateField(blank=True, null=True)
+    ultimodiavac = models.DateField(blank=True, null=True)
+    diascalendario = models.SmallIntegerField(blank=True, null=True)
+    diasvac = models.SmallIntegerField(blank=True, null=True)
+    diaspendientes = models.SmallIntegerField(blank=True, null=True)
+    pagovac = models.IntegerField(blank=True, null=True)
+    totaldiastomados = models.SmallIntegerField(blank=True, null=True)
+    basepago = models.IntegerField(blank=True, null=True)
+    estadovac = models.SmallIntegerField(blank=True, null=True)
+    idnomina = models.ForeignKey(Crearnomina, models.DO_NOTHING ) 
+    cuentasabados = models.SmallIntegerField(blank=True, null=True)
+    tipovac = models.ForeignKey(Tipoavacaus, models.DO_NOTHING )
+    idvacmaster = models.IntegerField(blank=True, null=True)
+    perinicio = models.DateField(blank=True, null=True)
+    perfinal = models.DateField(blank=True, null=True)
+    fechapago = models.DateField(blank=True, null=True)
 
-#     class Meta :
-#      
-#         db_table = 'vacaciones'
+    class Meta :
+
+        db_table = 'vacaciones'
 
 
 # class VacacionesImportador(models.Model):

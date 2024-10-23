@@ -1,7 +1,7 @@
 from apps.components.datacompanies import datos_cliente
 from django.conf import settings
 from .diangenerate import last_business_day_of_march 
-from apps.employees.models import Ingresosyretenciones 
+from apps.common.models import Ingresosyretenciones 
 from PIL import Image, ImageDraw, ImageFont
 from django.conf import settings
 from io import BytesIO

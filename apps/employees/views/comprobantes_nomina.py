@@ -13,7 +13,7 @@ from xhtml2pdf import pisa
 from django.views.generic import  ListView
 
 #models
-from apps.employees.models import Crearnomina, Nomina, Contratos
+from apps.common.models import Crearnomina, Nomina, Contratos
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
 from apps.components.payrollgenerate import genera_comprobante 
@@ -23,7 +23,7 @@ from django.contrib.auth.decorators import login_required
 
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def listaNomina(request):
     ide = request.session.get('idempleado')
     ESTADOS_CONTRATO = {
@@ -68,7 +68,7 @@ def listaNomina(request):
     
     
 @login_required
-@role_required('employees')
+@role_required('employee')
 def generatepayrollcertificate(request ,idnomina,idcontrato,):
     context = genera_comprobante(idnomina,idcontrato)
 

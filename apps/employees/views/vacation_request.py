@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum, Q
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
-from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
+from apps.common.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
 from django.contrib.auth.decorators import login_required
@@ -38,9 +38,10 @@ def get_client_ip(request):
 
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def vacation_request_function(request):
-    ide = request.session.get('idempleado')
+    usuario = request.session.get('usuario', {})
+    ide = usuario['idempleado']
     nombre_empleado = Contratosemp.objects.get(idempleado=ide).pnombre
     contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
     idc = contrato.idcontrato if contrato else None

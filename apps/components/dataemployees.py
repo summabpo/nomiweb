@@ -1,7 +1,6 @@
-from apps.employees.models import Contratos, Contratosemp
 from django.db.models.functions import Concat
 from django.db.models import F, Value, CharField
-
+from apps.common.models import Contratos, Contratosemp
 
 def datos_empleado(id_contrato=15):
     

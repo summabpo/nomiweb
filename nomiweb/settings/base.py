@@ -33,7 +33,7 @@ LOCAL_APPS = [
     # Generated applications
     
     'apps.login', 
-    #'apps.employees',     # Employees application
+    'apps.employees',     # Employees application
     #'apps.companies',     # Companies application
     #'apps.administrator',
     # 'apps.payroll',       # Payroll application

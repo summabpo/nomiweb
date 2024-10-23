@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from apps.employees.models import Ingresosyretenciones 
+from apps.common.models import Ingresosyretenciones 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .imggenerate import imggenerate1

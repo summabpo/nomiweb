@@ -10,7 +10,7 @@ from apps.components.decorators import  role_required
 
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def newpassword_employees(request):
     
     if request.method == 'POST':
