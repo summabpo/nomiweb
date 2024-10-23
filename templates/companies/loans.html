@@ -1,0 +1,357 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Prestamos 
+{% endblock %}
+
+
+{% block css %}
+
+    .loan-status-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Novedades de Nomina
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Prestamos 
+{% endblock %}
+
+{% block actions %}
+
+<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+    <i class="fa-solid fa-plus"></i> Nuevo Prestamo
+</button>  
+
+{% endblock %}
+
+{% block titulo2 %} 
+Listado de  Prestamos 
+{% endblock %}
+
+
+{% block content %}
+    
+
+
+    
+    <div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Nuevo Prestamo</h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                {% crispy form1 %}
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_loans" >Crear Prestamo</button>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    
+    
+
+
+
+    
+<div class="container">
+
+    {% if prestamos %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered" id="table-prestamos" >
+                <thead>
+                    <tr class="fw-bold fs-6 text-gray-800"> 
+                        <th>Id Contrato</th>
+                        <th>Documento</th>
+                        <th>Apellidos y Nombre</th>
+                        <th>Fecha Préstamo</th>
+                        <th>Valor Préstamo</th>
+                        <th>Valor Cuota</th>
+                        <th>Saldo</th>
+                        <th>Estado</th>
+                        <th> </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in prestamos %}
+                        <tr>
+                            <td>{{ item.idcontrato__idcontrato }}</td>
+                            <td>{{ item.idempleado__docidentidad }}</td>
+                            <td>{{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }}</td>
+                            <td>{{ item.fechaprestamo | date:"d/m/Y"  }}</td>
+                            <td class="text-end" >{{ item.valorprestamo }}</td>
+                            <td class="text-end" >{{ item.valorcuota }}</td>
+                            <td class="text-end">{{ item.saldoprestamo }}</td>
+                            <td >
+                                {% if item.estadoprestamo %}
+                                    <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="La deuda ha sido pagada">
+                                        <i class="fa-solid fa-square-check fs-3"></i>
+                                        Pagada
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="La deuda está activa">
+                                        <i class="fa-solid fa-square-xmark fs-3"></i>
+                                        Activa
+                                    </button>
+                                {% endif %}
+                            </td>
+                            <td class="text-end"> 
+                                <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-loans_id="{{ item.idprestamo }}" >
+                                    <i class="fa-solid fa-pen-to-square fs-3"></i>
+                                </button>  
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <h4 class="alert-heading">¡Atención!</h4>
+            <p>Parece que no hay préstamos registrados en este momento. Por favor, agregue un préstamo para visualizar los datos correspondientes.</p>
+            <hr>
+            <p class="mb-0">Agradecemos su colaboración para mantener actualizada esta información.</p>
+        </div>
+    {% endif %}
+</div>
+
+
+<div class="modal fade" tabindex="-1" id="kt_modal_2">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Editar Prestamo</h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                <form id="form_edit_loans" method="post" action="{% url 'companies:edit_loans' %}">
+                    {% crispy form2 %}
+                </form>
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_edit_loans" >Actualizar Prestamo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block js %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if errors %}
+            var modal = new bootstrap.Modal(document.getElementById('kt_modal_stacked_1'));
+            modal.show();
+        {% endif %}
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('id_loan_status');
+        const loanStatusBtn = document.getElementById('loan_status_btn');
+
+        checkbox.addEventListener('change', function() {
+            if (checkbox.checked) {
+                // Cambia el texto y el color cuando el checkbox está seleccionado (cancelado)
+                loanStatusBtn.textContent = 'Cancelado';
+                loanStatusBtn.classList.remove('btn-bg-danger');
+                loanStatusBtn.classList.add('btn-bg-success');
+            } else {
+                // Cambia el texto y el color cuando el checkbox no está seleccionado (activo)
+                loanStatusBtn.textContent = 'Activo';
+                
+                loanStatusBtn.classList.remove('btn-bg-success');
+                loanStatusBtn.classList.add('btn-bg-danger');
+            }
+        });
+    });
+</script>
+
+<script>
+    $("#kt_daterangepicker_1").daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        minYear: 2000,
+        maxYear: parseInt(moment().format("YYYY"), 12),
+        endDate: moment(),
+        minDate: '01/01/2020',
+        maxDate: moment(),
+        autoApply: true,
+        locale: {
+            format: 'YYYY-MM-DD',
+            applyLabel: 'Aplicar',
+            cancelLabel: 'Cancelar',
+            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        },
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#kt_modal_2').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var recipient = button.data('loans_id');
+            var modal = $(this);
+        
+            $.ajax({ 
+                url: '/companies/payroll/new/loans/edit',
+                type: 'GET',
+                data: {
+                    'dato': recipient
+                },
+        
+                success: function(response) {
+                    
+                    modal.find('.modal-title').text('Editar Préstamo #' + response.data.id);
+                    modal.find('.modal-body #id_loan_amount').val(response.data.loan_amount);
+                    modal.find('.modal-body #id_installment_value').val(response.data.installment_value);
+                    
+                    // Asegúrate de que las fechas estén en el formato correcto para daterangepicker
+                    var initialDate = response.data.loan_date ? moment(response.data.loan_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
+                    modal.find('.modal-body #kt_daterangepicker_1').val(initialDate);
+                    
+                    // Referencia al botón de estado
+                    const loanStatusBtn = modal.find('.modal-body #loan_status_btn');
+                    const loanStatusCheckbox = modal.find('.modal-body #id_loan_status');
+                    
+                    // Verifica el estado del préstamo y ajusta el botón
+                    if (response.data.loan_status) {
+                        loanStatusCheckbox.prop('checked', true);
+                        loanStatusBtn.text('Pagado');
+                        loanStatusBtn.removeClass('btn-bg-danger').addClass('btn-bg-success ');
+                    } else {
+                        loanStatusCheckbox.prop('checked', false);
+                        loanStatusBtn.text('Activo');
+                        loanStatusBtn.removeClass('btn-bg-success').addClass('btn-bg-danger');
+                    }
+
+                    // Cambia el estado del botón al cambiar el checkbox
+                    loanStatusCheckbox.on('change', function() {
+                        if (loanStatusCheckbox.is(':checked')) {
+                            loanStatusBtn.text('Pagado');
+                            loanStatusBtn.removeClass('btn-bg-danger').addClass('btn-bg-success ');
+                        } else {
+                            loanStatusBtn.text('Activo');
+                            loanStatusBtn.removeClass('btn-bg-success').addClass('btn-bg-danger');
+                        }
+                    });
+
+                    var $select1 = modal.find('.modal-body #contract_kt_modal_2');
+                    $select1.val(response.data.contract).trigger('change').prop('disabled', true);;
+                    
+                    // Inicializa daterangepicker en los campos de fecha
+                    modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
+                        singleDatePicker: true,
+                        showDropdowns: true,
+                        minYear: 2000,
+                        maxYear: parseInt(moment().format("YYYY"), 12),
+                        maxDate: moment(),
+                        minDate: '01/01/2020',
+                        autoApply: true,
+                        locale: {
+                            format: 'YYYY-MM-DD',
+                            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                        },
+                    });
+                },
+                error: function(response) {
+                    console.log(response.error);
+                }
+            });
+        });
+    });
+</script>
+
+
+
+<script>
+    $(document).ready(function() {
+        // Función personalizada para la ordenación numérica
+        $.fn.dataTable.ext.type.order['formatted-num-pre'] = function (data) {
+            // Remueve puntos de miles y cambia comas a puntos para números decimales
+            return parseFloat(data.replace(/\./g, '').replace(',', '.')) || 0;
+        };
+
+        var table = $('#table-prestamos').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            columnDefs: [
+                {
+                    targets: [4,5,6], 
+                    type: 'formatted-num'
+                }
+            ],
+            dom: 'frtip',
+            order: [], // Si deseas ordenar por defecto en alguna columna, especifica el índice aquí
+            pageLength: 20,
+            // Otras configuraciones opcionales
+            ordering: true, // Asegúrate de que la ordenación esté habilitada
+            paging: true,   // Asegúrate de que la paginación esté habilitada
+            
+        });
+    });
+</script>
+
+
+
+
+{% endblock %}
+

@@ -1,8 +1,8 @@
 from django.shortcuts import render,redirect
 from apps.administrator.forms.createuserForm import UserCreationForm
 from django.contrib import messages
-from django.contrib.auth.models import User
-from apps.login.models import Usuario , Empresa
+from apps.common.models import User
+
 
 from django.shortcuts import get_object_or_404
 

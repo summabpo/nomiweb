@@ -1,6 +1,11 @@
 from .base import *
 from decouple import config
 
+
+
+#dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+#load_dotenv(dotenv_path)
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'En_dev_no_importa'
 
@@ -12,36 +17,17 @@ ALLOWED_HOSTS = ['*']
 SETTINGS_ENV = 'development'
 
 
-# Carga las variables de entorno desde el archivo .env
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'nomiweb.settings.development')
-
-
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'userlectaen',
-        'USER': config('DB_USER_DEV'),
-        'PASSWORD': config('DB_PASSWORD_DEV'),
-        'HOST': config('DB_HOST_DEV'),
-        'PORT': config('DB_PORT_DEV'),
+        'NAME': 'nomiweb2',
+        'USER':  os.getenv('DB_USER_DEV'),
+        'PASSWORD':  os.getenv('DB_PASSWORD_DEV'),  
+        'HOST':  os.getenv('DB_HOST_DEV'),
+        'PORT':  os.getenv('DB_PORT_DEV'),
     },
-    'lectaen': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lectaen',
-        'USER': config('DB_USER_DEV'),
-        'PASSWORD': config('DB_PASSWORD_DEV'),
-        'HOST': config('DB_HOST_DEV'),
-        'PORT': config('DB_PORT_DEV'),
-    },
-    'nwp_2': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nwp_lentes',
-        'USER': config('DB_USER_DEV'),
-        'PASSWORD': config('DB_PASSWORD_DEV'),
-        'HOST': config('DB_HOST_DEV'),
-        'PORT': config('DB_PORT_DEV'),
-    }
+    
 }
 
 

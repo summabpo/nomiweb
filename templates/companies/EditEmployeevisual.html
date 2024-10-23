@@ -22,10 +22,28 @@ Edicion de Hoja de vida Empleado  - {{DicContract.nombre}}
 {% endblock %}
 
 {% block content %}
+<div class="d-flex justify-content-end">
+    <a href="{% url 'companies:startcompanies' %}" class="btn btn-light-primary">
+        Regresar
+        <i class="ki-duotone ki-exit-left fs-2x">             
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+    </a>
+</div>
     {% crispy form %}
 {% endblock %}
 
-{% block js %} {% endblock %}
+{% block js %} 
+
+<script>
+    document.getElementById('backButton').addEventListener('click', function() {
+        window.history.back();
+    });
+</script>
+
+
+{% endblock %}
 
 
 

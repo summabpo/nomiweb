@@ -6,7 +6,11 @@ from apps.companies.forms.headquartersForm import headquartersForm
 from django.contrib import messages
 from django.db import transaction
 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
+@login_required
+@role_required('entrepreneur')
 def headquarters(request): 
     if request.method == 'POST':
         form = headquartersForm(request.POST)

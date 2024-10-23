@@ -1,0 +1,482 @@
+{% extends 'base/base_companies.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Incapacidades
+{% endblock %}
+
+
+{% block css %}
+
+    .loan-status-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Novedades de Nomina
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+Vacaciones
+{% endblock %}
+
+{% block actions %}
+
+{% endblock %}
+
+{% block titulo2 %} 
+Listado de Vacaciones
+{% endblock %}
+
+
+{% block content %}
+    
+
+
+<!--begin::Accordion-->
+<div class="accordion" id="kt_accordion_1">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="kt_accordion_1_header_2">
+            <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_2" aria-expanded="false" aria-controls="kt_accordion_1_body_2">
+                Historial por empleados 
+            </button>
+        </h2>
+        <div id="kt_accordion_1_body_2" class="accordion-collapse collapse" aria-labelledby="kt_accordion_1_header_2" data-bs-parent="#kt_accordion_1">
+            <div class="accordion-body">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Accordion-->
+<div class="separator my-10"></div>
+
+<ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#kt_tab_pane_4">Listado Vacaciones </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_5"> Listado Ausencias </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_6"> Saldo Vacaciones </a>
+    </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="kt_tab_pane_4" role="tabpanel">
+        
+        {% if vacation %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="table-vacation-list" >
+                    <thead>
+                        <tr class="fw-bold fs-6 text-gray-800"> 
+                            <th> </th>
+                            <th>Documento</th>
+                            <th>Nombre</th>
+                            <th>Fecha</th>
+                            <th>Imprimir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in vacaciones %}
+                            <tr>
+                                <td>
+                                    <i class="fa-solid fa-pen-to-square fs-3"></i> 
+                                </td>
+                                <td>{{ item.idcontrato__idcontrato }}</td>
+                                <td>{{ item.idempleado__docidentidad }}</td>
+                                <td> {{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }} </td>
+                                <td>
+                                    <a href="#" class="btn btn-icon btn-light-info">
+                                        <i class="fa-solid fa-file-image fs-3"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                <h4 class="alert-heading">¡Atención!</h4>
+                <p>Parece que no hay vacaciones registradas en este momento. Por favor, agregue una vacaciones para visualizar los datos correspondientes.</p>
+                <hr>
+                <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+            </div>
+        {% endif %} 
+
+    </div>
+    <div class="tab-pane fade" id="kt_tab_pane_5" role="tabpanel">
+        
+        {% if vacation %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="table-absences-list" >
+                    <thead>
+                        <tr class="fw-bold fs-6 text-gray-800"> 
+                            <th> </th>
+                            <th>Documento</th>
+                            <th>Nombre</th>
+                            <th>Fecha</th>
+                            <th>Procesar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in vacaciones %}
+                            <tr>
+                                <td>
+                                    <i class="fa-solid fa-pen-to-square fs-3"></i> 
+                                </td>
+                                <td>{{ item.idcontrato__idcontrato }}</td>
+                                <td>{{ item.idempleado__docidentidad }}</td>
+                                <td> {{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }} </td>
+                                <td>
+                                    <a href="#" class="btn btn-icon btn-light-info">
+                                        <i class="fa-solid fa-file-image fs-3"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                <h4 class="alert-heading">¡Atención!</h4>
+                <p>Parece que no hay vacaciones registradas en este momento. Por favor, agregue una vacaciones para visualizar los datos correspondientes.</p>
+                <hr>
+                <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+            </div>
+        {% endif %} 
+
+
+    </div>
+    <div class="tab-pane fade" id="kt_tab_pane_6" role="tabpanel">
+        {% if vacation %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="table-vacation-balance" >
+                    <thead>
+                        <tr class="fw-bold fs-6 text-gray-800"> 
+                            <th>Id Contrato</th>
+                            <th>Documento de Identidad</th>
+                            <th>Primer Apellido</th>
+                            <th>Segundo Apellido</th>
+                            <th>Primer Nombre</th>
+                            <th>Fecha de Contrato</th>
+                            <th>Total Vacaciones</th>
+                            <th>Días Tomados</th>
+                            <th>Saldo por Vacaciones</th>
+                            <th>Salario</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in vacaciones %}
+                            <tr>
+                                <td>
+                                    <i class="fa-solid fa-pen-to-square fs-3"></i> 
+                                </td>
+                                <td>{{ item.idcontrato__idcontrato }}</td>
+                                <td>{{ item.idempleado__docidentidad }}</td>
+                                <td> {{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }} </td>
+                                <td>{{ item.fecha_contrato }}</td>
+                                <td>{{ item.total_vacaciones }}</td>
+                                <td>{{ item.dias_tomados }}</td>
+                                <td>{{ item.saldo_x_vac }}</td>
+                                <td>{{ item.salario }}</td>
+                                <td>{{ item.valor }}</td>
+                                <td>
+                                    <a href="#" class="btn btn-icon btn-light-info">
+                                        <i class="fa-solid fa-file-image fs-3"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                <h4 class="alert-heading">¡Atención!</h4>
+                <p>Parece que no hay vacaciones registradas en este momento. Por favor, agregue una vacaciones para visualizar los datos correspondientes.</p>
+                <hr>
+                <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+            </div>
+        {% endif %} 
+    </div>
+</div>
+
+    <!-- {% if vacaciones %}
+    <div class="table-responsive">
+        <table class="table table-bordered" id="table-vacation" >
+            <thead>
+                <tr class="fw-bold fs-6 text-gray-800"> 
+                    <th>Id Contrato</th>
+                    <th>Documento</th>
+                    <th>Apellidos y Nombre</th>
+                    <th>Entidad</th>
+                    <th>Codigo Diagnostico</th>
+                    <th>Diagnostico</th>
+                    <th>Prorroga</th>
+                    <th>Fecha Inicial</th>
+                    <th>dias Incapacidad</th>
+                    <th ><i class="fa-regular fa-image fs-3"></i></th>
+                    <th> </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in vacaciones %}
+                    <tr>
+                        <td>{{ item.idcontrato__idcontrato }}</td>
+                        <td>{{ item.idempleado__docidentidad }}</td>
+                        <td> {{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }} </td>
+                        <td>{{ item.entidad }}</td>
+                        <td>{{ item.coddiagnostico__coddiagnostico }}</td>
+                        <td>{{ item.diagnostico }}</td>
+                        <td>{{ item.prorroga }}</td>
+                        <td>{{ item.fechainicial | date:"d/m/Y"  }}</td>
+                        <td>{{ item.dias }}</td>
+                        <td>
+                            <a href="#" class="btn btn-icon btn-light-info">
+                                <i class="fa-solid fa-file-image fs-3"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-whatever="@mdo" >
+                                <i class="fa-solid fa-pen-to-square fs-3"></i>
+                            </button>   
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+    <div class="alert alert-primary" role="alert">
+        <h4 class="alert-heading">¡Atención!</h4>
+        <p>Parece que no hay vacaciones registradas en este momento. Por favor, agregue una vacaciones para visualizar los datos correspondientes.</p>
+        <hr>
+        <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+    </div>
+{% endif %} -->
+
+
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Nueva Vacacion </h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                {% crispy form %}
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_loans" >Crear Vacacion </button>
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+<div class="modal fade" tabindex="-1" id="kt_modal_2">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Editar Vacacion</h3>
+    
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                {% crispy form %}
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="form_loans" >Actualizar Vacacion</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
+
+{% block js %}
+
+
+
+
+<script>
+    $(document).ready(function() {
+
+        var year = '{{ year }}';  // Obtener el año del contexto de Django
+        var mth = '{{ mth }}';  
+        // Inicializar DataTable
+        var table = $('#table-vacation-list').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            // buttons: [
+            //     {
+            //         text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+            //         className: 'btn btn-light-info',
+            //         action: function (e, dt, node, config) {
+            //             window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+            //         }
+            //     },
+            // ],
+            order: [],
+            pageLength: 6
+        });
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+
+        var year = '{{ year }}';  // Obtener el año del contexto de Django
+        var mth = '{{ mth }}';  
+        // Inicializar DataTable
+        var table = $('#table-absences-list').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            // buttons: [
+            //     {
+            //         text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+            //         className: 'btn btn-light-info',
+            //         action: function (e, dt, node, config) {
+            //             window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+            //         }
+            //     },
+            // ],
+            order: [],
+            pageLength: 6
+        });
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+
+        var year = '{{ year }}';  // Obtener el año del contexto de Django
+        var mth = '{{ mth }}';  
+        // Inicializar DataTable
+        var table = $('#table-vacation-balance').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            // buttons: [
+            //     {
+            //         text: ' <i class="fa-solid fa-receipt"></i> Descargar Excel  ',
+            //         className: 'btn btn-light-info',
+            //         action: function (e, dt, node, config) {
+            //             window.location.href = '{% url "companies:download_excel_report" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+            //         }
+            //     },
+            // ],
+            order: [],
+            pageLength: 6
+        });
+    });
+</script>
+
+{% endblock %}
+

@@ -7,7 +7,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Cargar las variables de entorno desde el archivo .env
-load_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(BASE_DIR), '.env'))
+
+
 
 SETTINGS_ENV = 'base'
 
@@ -24,14 +26,16 @@ BASE_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'storages',
+    'apps.common',
 ]
 
 LOCAL_APPS = [
     # Generated applications
+    
     'apps.login', 
     'apps.employees',     # Employees application
     'apps.companies',     # Companies application
-    'apps.administrator',
+    #'apps.administrator',
     # 'apps.payroll',       # Payroll application
     # 'apps.api_database',  # API database applicatio#n
 ]
@@ -64,13 +68,11 @@ BASE_MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'apps.login.middlewares.DatabaseRouterMiddleware',
-    #'allauth.account.middleware.AccountMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 LOCAL_MIDDLEWARE = [
-
+    
 ]
 
 THIRD_MIDDLEWARE = [
@@ -109,12 +111,9 @@ WSGI_APPLICATION = 'nomiweb.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
-DATABASE_ROUTERS = [
-    'nomiweb.db_routers.routers.DatabaseRouter'
-]
+
 
 AUTHENTICATION_BACKENDS = [
-    'apps.components.custom_auth_backend.CustomAuthBackend',
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
 ]
 
@@ -165,6 +164,9 @@ EMAIL_FILE_PATH = None
 EMAIL_FROM = None
 EMAIL_SUBJECT_PREFIX = '[Django] '
 
+# settings.py
+
+LOGIN_URL = '/'
 
 
 # Internationalization
@@ -191,4 +193,4 @@ LOGIN_REDIRECT_URL = '/'
 
 
 
-#AUTH_USER_MODEL = 'login.CustomUser'
+AUTH_USER_MODEL = 'common.User'

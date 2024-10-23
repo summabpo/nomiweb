@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from django.forms import ModelForm
-from apps.employees.models import EmpVacaciones, Contratos, Tipoavacaus
+from apps.common.models import EmpVacaciones, Contratos, Tipoavacaus
 
 class EmpVacacionesForm(forms.ModelForm):
     class Meta:
@@ -28,7 +28,7 @@ class EmpVacacionesForm(forms.ModelForm):
         empty_label="Seleccione --------->",
     )
     tipovac = forms.ModelChoiceField(
-        queryset=Tipoavacaus.objects.exclude(tipovac=5),
+        queryset=Tipoavacaus.objects.exclude(idvac=5),
         label="Tipo de Solicitud",
         widget=forms.Select(attrs={'class': 'form-control', 'id': 'tipovac-select'}),
         empty_label="Seleccione --------->",

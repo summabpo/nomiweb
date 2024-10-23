@@ -2,15 +2,18 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from apps.companies.models import Contratos, Contratosemp
 from apps.components.mail import send_template_email
-from apps.login.models import Usuario, Empresa
-from django.contrib.auth.models import User
+from apps.common.models import User
 from django.contrib.auth.hashers import make_password
 import random
 import string
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+
 
 def generate_random_password(length=12):
     characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(characters) for i in range(length))
+
 
 def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_empleado):
     try:
@@ -36,7 +39,8 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
     except Exception as e:
         return False, None, None
 
-
+@login_required
+@role_required('entrepreneur')
 def loginweb(request):
     db_name = request.session.get('usuario', {}).get('db')
 
@@ -79,9 +83,9 @@ def loginweb(request):
                     'contrasena': passwordoriginal,
                 }
                 subject = 'Activacion de Usuario'
-                recipient_list = ['mikepruebas@yopmail.com'] ## cambiar el correo por el del usuario 
-                #recipient_list = usertempo.email 
-
+                #recipient_list = ['mikepruebas@yopmail.com'] ## cambiar el correo por el del usuario 
+                recipient_list = [usertempo.email,'mikepruebas@yopmail.com']
+                
                 if send_template_email(email_type, context, subject, recipient_list):
                     pass
                 else:
@@ -94,8 +98,7 @@ def loginweb(request):
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-                'idempleado__snombre', 'cargo', 'idempleado__idempleado',
-                'tipocontrato__tipocontrato')
+                'idempleado__snombre', 'cargo', 'idempleado__idempleado','idempleado__email',)
 
     empleados = []
     for contrato in contratos_empleados:
@@ -104,7 +107,7 @@ def loginweb(request):
             'documento': contrato['idempleado__docidentidad'],
             'nombre': nombre_empleado,
             'cargo': contrato['cargo'],
-            'tipocontrato': contrato['tipocontrato__tipocontrato'],
+            'email': contrato['idempleado__email'],
             'idempleado': contrato['idempleado__idempleado']
         }
         empleados.append(contrato_data)

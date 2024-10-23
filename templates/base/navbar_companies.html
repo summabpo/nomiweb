@@ -2,7 +2,22 @@
     <!--begin::Main-->
     <div class="d-flex flex-column justify-content-between h-100 hover-scroll-overlay-y my-2 mx-5 d-flex flex-column" id="kt_app_sidebar_main" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_header" data-kt-scroll-wrappers="#kt_app_main" data-kt-scroll-offset="5px">
         <!--begin::Sidebar menu-->
-        <div id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false" class="flex-column-fluid menu menu-sub-indention menu-column menu-rounded menu-active-bg mb-7">
+        <div id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false" class="flex-column-fluid menu menu-sub-indention menu-column menu-rounded menu--bg mb-7">
+            
+            <!--begin:Menu item-->
+            <div class="menu-item here">
+                <!--begin:Menu link-->
+                <a class="menu-link" href="{% url 'companies:index_companies'  %}"><!-- {% url 'companies:index_companies'  %} -->
+                    <span class="menu-icon">
+                        <i class="fa-solid fa-house fs-1 text-gray-500 me-n1  "></i>
+                    </span>
+                    <span class="menu-title">Inicio</span>
+                </a>
+                <!--end:Menu link-->
+            </div>
+            <!--end:Menu item-->
+            
+            
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
@@ -17,48 +32,14 @@
                     <span class="menu-arrow"></span>
                 </span>
                 <!--end:Menu link-->
+
                 <!--begin:Menu sub-->
                 <div class="menu-sub menu-sub-accordion">
+                    
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link active" href="">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Empresa</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Bancos</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Estructura</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:charges'  %}">
+                        <a class="menu-link" href="{% url 'companies:charges'  %}"><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -67,23 +48,13 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Modelos de Contrato</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
+
+
 
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:costcenter'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -96,7 +67,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:workplace'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -105,11 +76,11 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
-
+                    {% comment "Esto es un comentario que no será renderizado en el HTML" %}
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:headquarters'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -118,28 +89,15 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
-
+                    {% endcomment %}
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:headquarters'  %}">
+                        <a class="menu-link" href=""><!-- -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
                             <span class="menu-title">Sedes (Caja)</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Festivos</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
@@ -168,7 +126,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link active" href="">
+                        <a class="menu-link " href="">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -180,11 +138,11 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="">
+                        <a class="menu-link" href=""><!-- -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Provisión de Nómina</span>
+                            <span class="menu-title">Provisión de Prestaciones sociales</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
@@ -192,7 +150,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -204,7 +162,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="">
+                        <a class="menu-link" href=""><!-- -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -216,7 +174,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="">
+                        <a class="menu-link" href=""><!-- --> 
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -251,7 +209,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:newemployee'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -263,7 +221,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:newcontractvisual'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -276,7 +234,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:startcompanies'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -288,7 +246,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:workcertificate'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -300,7 +258,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:birthdayview'  %}">
+                        <a class="menu-link" href=""><!-- -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -313,6 +271,7 @@
                 <!--end:Menu sub-->
             </div>
             <!--end:Menu item-->
+
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
@@ -340,7 +299,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -352,7 +311,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -373,18 +332,81 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
+
                     <!--begin:Menu item-->
-                    <div class="menu-item">
+                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
+                        <span class="menu-link">
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
                             <span class="menu-title">Vacaciones</span>
-                        </a>
+                            <span class="menu-arrow"></span>
+                        </span>
                         <!--end:Menu link-->
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item-->
+                            
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link" href=""><!--  -->
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title"> Historial por Empleado</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+        
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link" href=""><!--  -->
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title"> Resumen de Vacaciones </span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+        
+        
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link" href=""><!-- -->
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title"> Solicitudes de Vacaciones</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+        
+                            <!--begin:Menu item-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link" href=""><!--  -->
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title"> Saldo Vacaciones</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+
+                        </div>
+                        <!--end:Menu sub-->
                     </div>
                     <!--end:Menu item-->
+
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -437,6 +459,7 @@
                 <!--end:Menu sub-->
             </div>
             <!--end:Menu item-->
+
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
@@ -461,7 +484,7 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:payrollsheet'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -470,46 +493,24 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+                
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:nominatedcertificate'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Comprobantes de Nomina</span>
+                            <span class="menu-title">Acumulados de Nomina</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+                    
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:payrollsummary'  %}">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Resumen de Nomina</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Informes</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -521,23 +522,11 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Liquidaciones</span>
-                        </a>
-                        <!--end:Menu link-->
-                    </div>
-                    <!--end:Menu item-->
-                    <!--begin:Menu item-->
-                    <div class="menu-item">
-                        <!--begin:Menu link-->
-                        <a class="menu-link" href="#">
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Gestión Documental</span>
+                            <span class="menu-title">Listado de LIquidaciones</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
@@ -546,7 +535,8 @@
                 <!--end:Menu sub-->
             </div>
             <!--end:Menu item-->
-            <!--begin:Menu item-->
+
+            {% comment %} <!--begin:Menu item-->
             <div  data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
                 <span class="menu-link">
@@ -577,7 +567,8 @@
                 </div>
                 <!--end:Menu sub-->
             </div>
-            <!--end:Menu item-->
+            <!--end:Menu item--> {% endcomment %}
+
             <!--begin:Menu item-->
             <div data-kt-menu-trigger="click" class="menu-item here menu-accordion">
                 <!--begin:Menu link-->
@@ -593,12 +584,13 @@
                     <span class="menu-arrow"></span>
                 </span>
                 <!--end:Menu link-->
+
                 <!--begin:Menu sub-->
                 <div class="menu-sub menu-sub-accordion">
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'companies:loginweb'  %}">
+                        <a class="menu-link" href=""><!--  -->
                             <span class="menu-bullet">
                                 <span class="bullet bullet-dot"></span>
                             </span>
@@ -607,7 +599,8 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
-                    <!--begin:Menu item-->
+
+                    {% comment %} <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
                         <a class="menu-link" href="#">
@@ -619,6 +612,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -631,6 +625,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -643,6 +638,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -655,6 +651,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -667,6 +664,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -679,6 +677,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -691,6 +690,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -703,6 +703,7 @@
                         <!--end:Menu link-->
                     </div>
                     <!--end:Menu item-->
+
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
@@ -714,12 +715,12 @@
                         </a>
                         <!--end:Menu link-->
                     </div>
-                    <!--end:Menu item-->
+                    <!--end:Menu item--> {% endcomment %}
+
                 </div>
                 <!--end:Menu sub-->
             </div>
             <!--end:Menu item-->
-            
             
         </div>
         <!--end::Sidebar menu-->

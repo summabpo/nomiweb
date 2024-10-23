@@ -33,10 +33,16 @@ Vista Hoja de vida
 
 
 {% block content %}
+<div class="d-flex justify-content-end">
+    <a href="{% url 'companies:startcompanies' %}" class="btn btn-light-primary">
+        Regresar
+        <i class="ki-duotone ki-exit-left fs-2x">             
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+    </a>
+</div>
 
-<button class="btn btn-light-primary" id="backButton">
-    Regresar
-</button>
     <div class="separator  border-2 my-10"> Identificación</div>
     <div class="row">
         <div class="col-md-6">

@@ -6,14 +6,14 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.contrib import messages
 from .forms import LoginForm , MiFormulario ,PasswordResetForm , PasswordResetTokenForm
-from .models import Usuario,Token
+
 from django.utils import timezone
-from django.contrib.auth.models import User
 import secrets
 from apps.components.role_redirect  import redirect_by_role , redirect_by_role2
 from apps.components.decorators import TempSession,custom_login_required , default_login
 from apps.components.mail import send_template_email
 from django.urls import reverse
+from apps.common.models import User
 
 
 
@@ -21,40 +21,56 @@ from django.urls import reverse
 
 
 
+# class Login_View(View):
+#     def get(self, request):        
+#         form = LoginForm()
+#         return render(request, './users/login.html', {'form': form})
 
-class Login_View(View):
-    def get(self, request):        
-        form = LoginForm()
+#     def post(self, request):
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             email = form.cleaned_data['email']
+#             password = form.cleaned_data['password']
+#             user = authenticate(request, email=email, password=password)
+#             if user is not None:
+#                 login(request, user)
+#                 complements = {
+#                     'rol': user.role,
+#                     'name': f"{user.first_name} {user.last_name}",
+#                     'id': user.id_empleado
+#                 }
+#                 request.session['usuario'] = complements
+#                 return redirect_by_role(user.role)
+#             else:
+#                 messages.error(request, 'Usuario o contraseña incorrectos.')
+#         return render(request, './users/login.html', {'form': form})
+
+def Login_view(request):
+    if request.user.is_authenticated:
+        rol = request.session.get('usuario', {}).get('rol')
+        return redirect_by_role(rol)
+    else:
+        if request.method == 'POST':
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                email = form.cleaned_data['email']
+                password = form.cleaned_data['password']
+                user = authenticate(request, email=email, password=password)
+                if user is not None:
+                    login(request, user)
+                    complements = {
+                        'rol': user.tipo_user,
+                        'name': f"{user.first_name} {user.last_name}",
+                        'idempleado': user.id_empleado.idempleado if user.id_empleado else None ,
+                        'idempresa': user.id_empresa.idempresa if user.id_empresa else None
+                    }
+                    request.session['usuario'] = complements
+                    return redirect_by_role(user.tipo_user)
+                else:
+                    messages.error(request, 'Usuario o contraseña incorrectos.')
+        else:
+            form = LoginForm()
         return render(request, './users/login.html', {'form': form})
-
-    def post(self, request):
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                usuario = Usuario.filter_by_username(request.user.username)
-                complements = {
-                    'rol': usuario.role,
-                    'compania': usuario.company.name,
-                    'db': usuario.company.db_name,
-                    'name': f"{user.first_name} {user.last_name}",
-                    'id': usuario.id_empleado
-                }
-                
-                
-                request.session['usuario'] = complements
-                session = TempSession()
-                session.login()
-                session.set_user_type(usuario.role)
-                return redirect_by_role(usuario.role)
-            else:
-                messages.error(request, 'Usuario o contraseña incorrectos.')
-        return render(request, './users/login.html', {'form': form})
-
-
 
 
 @login_required
@@ -63,6 +79,7 @@ def logout_view(request):
     session = TempSession()
     session.logout()
     return redirect('login:login')
+
 
 
 
@@ -148,18 +165,10 @@ def password_reset_token(request,token):
 
 
 
-@custom_login_required
-def prueba(request):
-    if request.method == 'POST':
-        form = MiFormulario(request.POST)
-        if form.is_valid():
-            print(request.POST.get('opciones_1'))
-            print(request.POST.get('opciones_2'))
-            pass
-    else:
-        form = MiFormulario()
-    
-    return render(request, './users/prueba.html',{'form': form})
+
+def error_page(request):
+        
+    return render(request, './users/prueba.html')
 
 
 @custom_login_required

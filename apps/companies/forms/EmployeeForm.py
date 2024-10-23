@@ -7,12 +7,24 @@ from crispy_forms.layout import Layout, Div, Submit,HTML
 
 
 class EmployeeForm(forms.Form):
+    height = forms.CharField(
+        required=False,
+        initial='0.0',
+        label='Estatura (Mts)'
+    )
+    
+    weight = forms.CharField(
+        required=False,
+        initial='0.0',
+        label='Peso (Kg)'
+    )
+    
     def clean(self):
         cleaned_data = super().clean()
         first_name = cleaned_data.get('first_name')
-        second_name = cleaned_data.get('second_name', '')
+        second_name = cleaned_data.get('second_name')
         first_last_name = cleaned_data.get('first_last_name')
-        second_last_name = cleaned_data.get('second_last_name', '')
+        second_last_name = cleaned_data.get('second_last_name')
         height = cleaned_data.get('height')
         weight = cleaned_data.get('weight')
         identification_number = cleaned_data.get('identification_number')
@@ -20,7 +32,7 @@ class EmployeeForm(forms.Form):
         cell_phone = cleaned_data.get('cell_phone')
         employee_phone = cleaned_data.get('employee_phone')
 
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_name):
+        if first_name and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_name):
             self.add_error('first_name', "El nombre solo puede contener letras.")
         else:
             cleaned_data['first_name'] = first_name.upper()
@@ -30,7 +42,7 @@ class EmployeeForm(forms.Form):
         else:
             cleaned_data['second_name'] = second_name.upper()
 
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_last_name):
+        if first_last_name and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_last_name):
             self.add_error('first_last_name', "El primer apellido solo puede contener letras.")
         else:
             cleaned_data['first_last_name'] = first_last_name.upper()
@@ -40,21 +52,23 @@ class EmployeeForm(forms.Form):
         else:
             cleaned_data['second_last_name'] = second_last_name.upper()
 
+        
+        # Validación para height y weight si tienen contenido
         if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
             self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
         if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
             self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
 
+
+
         if identification_number and not re.match(r'^\d+$', str(identification_number)):
             self.add_error('identification_number', "Este campo debe contener solo números.")
         if military_id and not re.match(r'^\d+$', military_id):
             self.add_error('military_id', "Este campo debe contener solo números.")
-        if not re.match(r'^\d+$', cell_phone):
+        if cell_phone and not re.match(r'^\d+$', cell_phone):
             self.add_error('cell_phone', "Este campo debe contener solo números.")
         if employee_phone and not re.match(r'^\d+$', employee_phone):
             self.add_error('employee_phone', "Este campo debe contener solo números.")
-
-        return cleaned_data
                 
     def set_premium_fields(self, premium=False, fields_to_adjust=None):
         if fields_to_adjust is not None:
@@ -62,6 +76,12 @@ class EmployeeForm(forms.Form):
                 field = self.fields.get(field_name)
                 if field:
                     field.disabled = not premium
+                    
+    def set_all_fields_optional(self, optional=True):
+        # Iterar sobre todos los campos y establecer required en False
+        for field_name, field in self.fields.items():
+            field.required = not optional
+            
 
     def set_required(self, activate):
         for field_name, field in self.fields.items():
@@ -96,12 +116,13 @@ class EmployeeForm(forms.Form):
             choices=[('', '----------'), ('masculino', 'Masculino'), ('femenino', 'Femenino')],
             label='Sexo'
         )
-        self.fields['height'] = forms.CharField(label='Estatura (Mts)', required=False)
+        
+        
         self.fields['marital_status'] = forms.ChoiceField(
             choices=[('', '----------'), ('soltero', 'Soltero'), ('casado', 'Casado'), ('viudo', 'Viudo'), ('divorciado', 'Divorciado'), ('unionlibre', 'Unión Libre')],
             label='Estado Civil'
         )
-        self.fields['weight'] = forms.CharField(label='Peso (Kg)', required=False)
+        
         self.fields['birthdate'] = forms.DateField(
             label='Fecha de Nacimiento',
             widget=forms.DateInput(attrs={'type': 'date'})
