@@ -5,15 +5,18 @@ from django.contrib import messages
 from apps.components.decorators import custom_login_required ,custom_permission
 
 
-@custom_login_required
-@custom_permission('entrepreneur')
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+
+@login_required
+@role_required('entrepreneur')
 def newContractVisual(request):   
     empleados = Contratosemp.objects.filter(estadocontrato=4)
     return render(request, './companies/newContractVisual.html',{'empleados':empleados})
 
 
-@custom_login_required
-@custom_permission('entrepreneur')
+@login_required
+@role_required('entrepreneur')
 def newContractCreater(request,idempleado):
     
     empleado = get_object_or_404(Contratosemp, idempleado=idempleado)

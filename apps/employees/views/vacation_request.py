@@ -1,17 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum, Q
 from apps.employees.forms.vacation_request_form import EmpVacacionesForm
-from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
+from apps.common.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
 from datetime import timedelta, datetime, date
 from apps.components.utils import calcular_dias_360
-from apps.components.decorators import custom_permission
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.components.mail import send_template_email
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-
+from apps.components.decorators import  role_required
+from apps.components.humani import format_decimal
 
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
@@ -38,9 +38,10 @@ def get_client_ip(request):
 
 
 @login_required
-@custom_permission('employees')
+@role_required('employee')
 def vacation_request_function(request):
-    ide = request.session.get('idempleado')
+    usuario = request.session.get('usuario', {})
+    ide = usuario['idempleado']
     nombre_empleado = Contratosemp.objects.get(idempleado=ide).pnombre
     contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
     idc = contrato.idcontrato if contrato else None
@@ -115,6 +116,8 @@ def vacation_request_function(request):
     dias_trabajados = calcular_dias_360(inicio_contrato, fecha_hoy)
     periodos_completos = round(dias_trabajados/360)
     vacaciones_fecha = round(dias_trabajados * 15/360,2) - dias_vacaciones
+
+    
     vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
 
     context = {
@@ -124,37 +127,11 @@ def vacation_request_function(request):
         'vacation_list': vacation_list,
         'periodos_completos': periodos_completos,
         'idc': idc,
-        'vacaciones_fecha': vacaciones_fecha,
+        'vacaciones_fecha': format_decimal(vacaciones_fecha),
     }
 
     return render(request, 'employees/vacations_request.html', context)
 
-@login_required
-@custom_permission('employees')
-def vacation_detail_modal(request, pk):
-    vacation = get_object_or_404(EmpVacaciones, pk=pk)
-
-    nom_cuentasabados = 'No'
-
-    if vacation.cuentasabados == 1:
-        nom_cuentasabados = 'Si'
-    else:
-        nom_cuentasabados = 'No'
-
-    context = {
-        'tipovac': str(vacation.tipovac.tipovac),
-        'nombre_tipovac': vacation.tipovac.nombrevacaus,
-        'fecha': vacation.fecha_hora.strftime('%d-%m-%Y'),
-        'cuentasabados': nom_cuentasabados,
-        'dias_habiles': vacation.diasvac,
-        'dias_calendario': vacation.diascalendario,
-        'fecha_inicial': vacation.fechainicialvac.strftime('%d-%m-%Y') if vacation.fechainicialvac else '',
-        'fecha_final': vacation.fechafinalvac.strftime('%d-%m-%Y') if vacation.fechafinalvac else '',
-        'estado': vacation.estado,
-        'comentarios': vacation.comentarios,
-        'comentarios2': vacation.comentarios2,
-    }
-    return render(request, 'employees/vacation_detail_modal.html', context)
 
 global_dato = None 
 
@@ -166,24 +143,39 @@ def my_get_view(request):
         dato = request.GET.get('dato')
         solicitud =  get_object_or_404(EmpVacaciones, pk=dato)
         global_dato = dato
+        
+        if solicitud.cuentasabados == 1:
+            nom_cuentasabados = 'Si'
+        else:
+            nom_cuentasabados = 'No'
+        
         response_data = {
             'data': {
                 'idcontrato':solicitud.idcontrato.idcontrato,
                 'tipovac':solicitud.tipovac.tipovac,
+                'nombre_tipovac': solicitud.tipovac.nombrevacaus,
                 'fechainicialvac':solicitud.fechainicialvac,
                 'fechafinalvac':solicitud.fechafinalvac,
                 'diasvac':solicitud.diasvac,
                 'comentarios':solicitud.comentarios,
                 'si':solicitud.cuentasabados,
+                
+                'tipovac2': str(solicitud.tipovac.tipovac),
+                'fecha': solicitud.fecha_hora.strftime('%d-%m-%Y'),
+                'cuentasabados': nom_cuentasabados,
+                'dias_habiles': solicitud.diasvac,
+                'dias_calendario': solicitud.diascalendario,
+                'fecha_inicial': solicitud.fechainicialvac.strftime('%d-%m-%Y') if solicitud.fechainicialvac else '',
+                'fecha_final': solicitud.fechafinalvac.strftime('%d-%m-%Y') if solicitud.fechafinalvac else '',
+                'estado': solicitud.estado,
+                'comentarios2': solicitud.comentarios2,
+                
             }
         }
         
         return JsonResponse(response_data)
     
     if request.method == 'POST' :
-        
-        for key, value in request.POST.items():
-            print(f"{key}: {value}")
         
         tipovac_obj = request.POST.get('tipovac')
         tipovac = str(tipovac_obj) if tipovac_obj else None

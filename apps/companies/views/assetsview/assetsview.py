@@ -1,13 +1,17 @@
 from django.shortcuts import render
 from apps.companies.models import Contratos , Contratosemp ,Ciudades
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
+@role_required('entrepreneur') 
 def contractview(request,idcontrato): 
     contrato = Contratos.objects.get(idcontrato = idcontrato)
     
     return render(request, './companies/contractview.html',{'contrato': contrato })
 
-
+@login_required
+@role_required('entrepreneur')
 def resumeview(request, idempleado):
     empleado = Contratosemp.objects.get(idempleado=idempleado)
     ciudadnacimiento = Ciudades.objects.get(idciudad=empleado.ciudadnacimiento) if empleado.ciudadnacimiento else None
@@ -15,39 +19,39 @@ def resumeview(request, idempleado):
     ciudadresidencia = Ciudades.objects.get(idciudad=empleado.ciudadresidencia) if empleado.ciudadresidencia else None
 
     empleados = {
-        'docidentidad': empleado.docidentidad,
-        'tipodocident': empleado.tipodocident,
-        'pnombre': empleado.pnombre,
-        'snombre': empleado.snombre,
-        'papellido': empleado.papellido,
-        'sapellido': empleado.sapellido,
-        'fechanac': empleado.fechanac,
-        'ciudadnacimiento': ciudadnacimiento.ciudad if ciudadnacimiento else None,
-        'telefonoempleado': empleado.telefonoempleado,
-        'direccionempleado': empleado.direccionempleado,
-        'fotografiaempleado': empleado.fotografiaempleado,
-        'sexo': empleado.sexo,
-        'email': empleado.email,
-        'ciudadresidencia': ciudadresidencia.ciudad if ciudadresidencia else None,
-        'estadocivil': empleado.estadocivil,
-        'idempleado': empleado.idempleado,
-        'paisnacimiento': empleado.paisnacimiento,
-        'paisresidencia': empleado.paisresidencia,
-        'celular': empleado.celular,
-        'profesion': empleado.profesion,
-        'niveleducativo': empleado.niveleducativo,
-        'gruposanguineo': empleado.gruposanguineo,
-        'estatura': empleado.estatura,
-        'peso': empleado.peso,
-        'fechaexpedicion': empleado.fechaexpedicion,
-        'ciudadexpedicion': ciudadexpedicion.ciudad if ciudadexpedicion else None,
-        'dotpantalon': empleado.dotpantalon,
-        'dotcamisa': empleado.dotcamisa,
-        'dotzapatos': empleado.dotzapatos,
-        'estrato': empleado.estrato,
-        'numlibretamil': empleado.numlibretamil,
-        'estadocontrato': empleado.estadocontrato,
-        'formatohv': empleado.formatohv,
+        'docidentidad': empleado.docidentidad or '',
+    'tipodocident': empleado.tipodocident or '',
+    'pnombre': empleado.pnombre or '',
+    'snombre': empleado.snombre or '',
+    'papellido': empleado.papellido or '',
+    'sapellido': empleado.sapellido or '',
+    'fechanac': empleado.fechanac or '',
+    'ciudadnacimiento': (ciudadnacimiento.ciudad if ciudadnacimiento else '') or '',
+    'telefonoempleado': empleado.telefonoempleado or '',
+    'direccionempleado': empleado.direccionempleado or '',
+    'fotografiaempleado': empleado.fotografiaempleado or '',
+    'sexo': empleado.sexo or '',
+    'email': empleado.email or '',
+    'ciudadresidencia': (ciudadresidencia.ciudad if ciudadresidencia else '') or '',
+    'estadocivil': empleado.estadocivil or '',
+    'idempleado': empleado.idempleado or '',
+    'paisnacimiento': empleado.paisnacimiento or '',
+    'paisresidencia': empleado.paisresidencia or '',
+    'celular': empleado.celular or '',
+    'profesion': empleado.profesion or '',
+    'niveleducativo': empleado.niveleducativo or '',
+    'gruposanguineo': empleado.gruposanguineo or '',
+    'estatura': empleado.estatura or '',
+    'peso': empleado.peso or '',
+    'fechaexpedicion': empleado.fechaexpedicion or '',
+    'ciudadexpedicion': (ciudadexpedicion.ciudad if ciudadexpedicion else '') or '',
+    'dotpantalon': empleado.dotpantalon or '',
+    'dotcamisa': empleado.dotcamisa or '',
+    'dotzapatos': empleado.dotzapatos or '',
+    'estrato': empleado.estrato or '',
+    'numlibretamil': empleado.numlibretamil or '',
+    'estadocontrato': empleado.estadocontrato or '',
+    'formatohv': empleado.formatohv or ''
     }
 
     return render(request, './companies/resumeview.html', {'empleados': empleados })

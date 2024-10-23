@@ -27,6 +27,7 @@ License: For each use you must have a valid license purchased only from above li
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
     <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+    
 
     <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
 
@@ -296,10 +297,8 @@ License: For each use you must have a valid license purchased only from above li
                     <!--begin::Footer-->
                     <div id="kt_app_footer" class="app-footer align-items-center justify-content-center justify-content-md-between flex-column flex-md-row py-3">
                         <!--begin::Copyright-->
-                        <div class="text-gray-900 order-2 order-md-1">
-                            <span class="text-muted fw-semibold me-1">2023&copy;</span>
-                            <a href="" target="_blank" class="text-gray-800 text-hover-primary">Fotter prueba </a>
-                        </div>
+                        {% include './footer.html' %}
+                        
                         <!--end::Copyright-->
                         <!--begin::Menu-->
                         
@@ -329,7 +328,6 @@ License: For each use you must have a valid license purchased only from above li
         <!--begin::Global Javascript Bundle(mandatory for all pages)-->
         <script src="{% static 'plugins/global/plugins.bundle.js' %}"></script>
         <script src="{% static 'js/scripts.bundle.js' %}"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
 		<!--end::Global Javascript Bundle-->
 		<!--begin::Vendors Javascript(used for this page only)-->
         <script src="{% static 'plugins/custom/datatables/datatables.bundle.js' %}"></script>
@@ -342,6 +340,7 @@ License: For each use you must have a valid license purchased only from above li
         <script src="{% static 'js/custom/utilities/modals/create-account.js' %}"></script>
         <script src="{% static 'js/custom/utilities/modals/create-app.js' %}"></script>
         <script src="{% static 'js/custom/utilities/modals/users-search.js' %}"></script>
+        <script src="{% static 'plugins/custom/fslightbox/fslightbox.bundle.js' %} "></script>
 		<!--end::Custom Javascript-->
         
 		<!--end::Javascript-->

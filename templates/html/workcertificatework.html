@@ -149,7 +149,7 @@
             <div class="cert-info">
                 <h1>Certificación Laboral</h1>
                 <div class="cert-certi">
-                    <p>Certificado #: {{id_cliente}} - {{idcert}}</p>
+                    <p>Certificado #: {{idempresa}} - {{idcert}}</p>
                     <p>Código de validación: {{ codigo_confirmacion }}</p>
                 </div>
                 <br />
@@ -158,7 +158,7 @@
                 {% if tipo == '1' %}
                     <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
                     <p>Tiene un sueldo básico mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
-                    <p>La presente certificación se expide con destino a:{{destino}} </p>
+                    <p>La presente certificación se expide con destino a : {{destino}}  </p>
                     <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
                     <br />
                     <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
@@ -166,7 +166,7 @@
                 {% elif tipo == '2' %}
                     <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
                     <p>Tiene un sueldo promedio mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
-                    <p>La presente certificación se expide con destino a:{{destino}} </p>
+                    <p>La presente certificación se expide con destino a: {{destino}} </p>
                     <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
                     <br />
                     <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
@@ -174,7 +174,7 @@
                 {% elif tipo == '3' %}
                     <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
                     <p>El tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
-                    <p>La presente certificación se expide con destino a:{{destino}} </p>
+                    <p>La presente certificación se expide con destino a: {{destino}} </p>
                     <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
                     <br />
                     <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
@@ -183,7 +183,7 @@
                 {% elif tipo == '4' %}
                     <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabajó  en {{ empresa }}, desde el {{ fecha }} hasta el {{fechafincontrato}} , desempeñando el cargo de <strong>{{ cargo }}</strong></p>
                     <p>El tipo de contrato laboral fue: <strong>{{ tipoc }}</strong>.</p>
-                    <p>La presente certificación se expide con destino a:{{destino}} </p>
+                    <p>La presente certificación se expide con destino a: {{destino}} </p>
                     <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
                     <br />
                     <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>

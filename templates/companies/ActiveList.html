@@ -6,7 +6,7 @@
 
 
 {% block css %}
-    .btn-space {
+    .btn-light-info {
         margin-right: 10px; /* Ajusta el valor según sea necesario */
     }
 
@@ -45,7 +45,7 @@ Listado de Contratos Activos
 
     <div class="table-responsive">
         <table id='tabla-contrato-activos' class="table table-striped table-bordered">
-            <thead>
+            <thead class="fw-bold fs-6 text-gray-800">
                 <tr>
                 <th>Documento</th>
                 <th>Nombre</th>
@@ -145,28 +145,28 @@ Listado de Contratos Activos
                 {
                     extend: 'excelHtml5',
                     filename: 'informe_de_activos',
-                    text: 'Exportar a Excel',
-                    className: 'btn-space'
+                    text: ' <i class="fa-solid fa-table"></i> Exportar a Excel',
+                    className: 'btn btn-light-info'
                 },
                 {
-                    text: ' Excel Contratos Activos ',
+                    text: ' <i class="fa-solid fa-table"></i> Excel Contratos Activos ',
                     action: function (e, dt, node, config) {
                         showLoadingAnimation();
                         setTimeout(function(){
                             window.location.href = "{% url 'companies:exportar_excel1' %}";
                         }, 100);
                     },
-                    className: 'btn-space'
+                    className: 'btn btn-light-info'
                 },
                 {
-                    text: ' Excel Hojas de Vida ',
+                    text: '<i class="fa-solid fa-table"></i>  Excel Hojas de Vida ',
                     action: function (e, dt, node, config) {
                         showLoadingAnimation();
                         setTimeout(function(){
                             window.location.href = "{% url 'companies:exportar_excel2' %}";
                         }, 100);
                     },
-                    className: 'btn-space'
+                    className: 'btn btn-light-info'
                 },
                 
             ]

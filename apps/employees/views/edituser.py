@@ -1,18 +1,21 @@
 from django.shortcuts import render ,redirect
-from apps.components.decorators import custom_permission
-from apps.employees.models import Contratosemp ,Ciudades
+from apps.common.models import Contratosemp ,Ciudades
 from apps.components.dataemployees import datos_empleado2
 from apps.employees.forms.edit_employees_form import EditEmployeesForm 
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+
 
 
 @login_required
-@custom_permission('employees')
+@role_required('employee')
 def user_employees(request):
-    ide = request.session.get('idempleado', {})
+    usuario = request.session.get('usuario', {})
+    ide = usuario['idempleado']
     data = Contratosemp.objects.only('direccionempleado', 'telefonoempleado', 'ciudadresidencia','fotografiaempleado','celular').get(idempleado=ide)
-    ciudadresidencia = Ciudades.objects.get(idciudad=data.ciudadresidencia) if data.ciudadresidencia else None
+    
     # direccionempleado
     # telefono 
     # ciudadresidencia
@@ -20,15 +23,14 @@ def user_employees(request):
     return render(request, './employees/user.html',
                     {
                         'data':data,
-                        'ciudadresidencia':ciudadresidencia,
                     }
                     )
     
 @login_required
-@custom_permission('employees')    
+@role_required('employee')   
 def edit_user_employees(request):
     usuario = request.session.get('usuario', {})
-    ide = request.session.get('idempleado', {})
+    ide = usuario['idempleado']
     data = Contratosemp.objects.only('direccionempleado', 'telefonoempleado', 'ciudadresidencia','celular').get(idempleado=ide)
     
     
@@ -39,7 +41,6 @@ def edit_user_employees(request):
         if 'profile_picture' in request.FILES:
             data.fotografiaempleado = request.FILES['profile_picture']
             data.save()
-            print('rapido')
             request.session['empleado'] = datos_empleado2(usuario['id'])
             return redirect('employees:user')
         
@@ -48,21 +49,15 @@ def edit_user_employees(request):
         if form.is_valid():            
             # Verificar si se proporcionó una nueva imagen
             if 'profile_picture' in request.FILES:
-                print('rapido')
-                data.fotografiaempleado = request.FILES['profile_picture']
-            
-            # Actualizar otros campos del empleado si es necesario
-            if form.cleaned_data['phone'] is not None:
-                data.telefonoempleado = form.cleaned_data['phone']
-            if form.cleaned_data['cell'] is not None:
-                data.direccionempleado = form.cleaned_data['cell']
-            if form.cleaned_data['city'] is not None:
-                data.ciudadresidencia = form.cleaned_data['city']
-            if form.cleaned_data['address'] is not None:
-                data.direccionempleado = form.cleaned_data['address']
-            
+                data.fotografiaempleado = request.FILES['profile_picture']            
+            # Actualizar otros campos del empleado
+            data.telefonoempleado = form.cleaned_data['phone'] or data.telefonoempleado
+            data.celular = form.cleaned_data['cell'] or data.celular
+            data.ciudadresidencia = Ciudades.objects.get(idciudad=form.cleaned_data['city']) if form.cleaned_data['city'] else data.ciudadresidencia
+            data.direccionempleado = form.cleaned_data['address'] or data.direccionempleado
+
             data.save()
-            request.session['empleado'] = datos_empleado2(usuario['id'])
+            request.session['empleado'] = datos_empleado2(ide)
             messages.success(request, '¡Éxito! Tus datos han sido actualizados correctamente')
             return redirect('employees:user')
         else:
@@ -73,7 +68,7 @@ def edit_user_employees(request):
             'phone': data.telefonoempleado,
             'address': data.direccionempleado,
             'cell': data.celular,
-            'city': data.ciudadresidencia,
+            'city': data.ciudadresidencia.idciudad,
         }
         
         form = EditEmployeesForm(initial=initial_data)

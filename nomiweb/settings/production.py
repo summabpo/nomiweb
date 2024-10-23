@@ -7,7 +7,6 @@ SECRET_KEY =  os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-print("ALLOWED_HOSTS:", os.getenv('ALLOWED_HOSTS'))
 
 SETTINGS_ENV = 'production'
 
@@ -36,20 +35,37 @@ DATABASES = {
         'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
         'HOST':  os.getenv('DB_HOST_PROD'),
         'PORT':  os.getenv('DB_PORT_PROD'),
+    },
+    'nwp_match': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nwp_match',
+        'USER':  os.getenv('DB_USER_PROD_2'),
+        'PASSWORD':  os.getenv('DB_PASSWORD_PROD_2'),
+        'HOST':  os.getenv('DB_HOST_PROD_2'),
+        'PORT':  os.getenv('DB_PORT_PROD'),
     }
 }
+
+STATICFILES_DIRS = [
+     os.path.join(BASE_DIR, '..', 'static')
+]
 
 # Seguridad de cookies
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_HTTPONLY = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1',
-    'http://localhost',
+    'http://127.0.0.1:8081',
+    'http://127.0.0.1:8000',
+    'http://localhost:8081',
     'https://nomiweb.com.co',
     'https://app.nomiweb.com.co',
+    'https://dev.nomiweb.com.co',
+    'http://app.nomiweb.com.co',
+    'http://dev.nomiweb.com.co',
+    'http://nomiweb.com.co'
 ]
 
 
@@ -63,6 +79,11 @@ AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
 
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
 # Almacén estático y de medios
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -70,10 +91,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # URL estática y de medios
 STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Configuración de caché
 AWS_QUERYSTRING_AUTH = False
-AWS_S3_FILE_OVERWRITE = False
-
-STATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticfiles')
+AWS_S3_FILE_OVERWRITE = True

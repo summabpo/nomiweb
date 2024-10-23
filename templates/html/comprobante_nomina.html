@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="es">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Certificación Laboral - {{empresa}}</title>
-
-    <style type="text/css">
+    <meta charset="UTF-8">
+    <title>comp nomina {{idnomi}} - {{cc}} </title>
+    <style>
         @page {
             size: letter portrait;
             margin: 0.2cm;
@@ -12,8 +11,8 @@
             @frame header_frame {
                 -pdf-frame-content: header_content;
                 left: 50pt;
-                width: 250pt;
-                top: 50pt;
+                width: 512pt;
+                top: 10pt;
                 height: 80pt;
     
             }
@@ -21,18 +20,136 @@
             @frame content_frame {
                 left: 50pt;
                 width: 512pt;
-                top: 50pt;
-                height: 500pt;
-    
+                top: 40pt;
+                height: 700pt;
+                
             }
 
-            @frame footer_frame {
-                -pdf-frame-content: footer_content;
-                left: 50pt;
-                width: 512pt;
-                top: 600pt;
-                height: 20pt;    
-            }
+        }
+
+        body {
+            font-family: Courier, monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        .header2 {
+            font-family: Courier ;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 0; /* Eliminar padding */
+            margin: 0; /* Eliminar margen */
+        }
+
+        .header3 {
+            font-family: Courier ;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 0; /* Eliminar padding */
+            margin: 0; /* Eliminar margen */
+        }
+
+        .cabezote {
+            background-color: #b9c1c4;
+            margen: 0;
+            padding :0; 
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+
+        .total {
+            background-color: #81DAF5;
+            margen: 0;
+            padding :0; 
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .tablas{
+            margin-bottom: 0;
+            border-spacing: 0;
+            height: 30pt;
+            font-size: 52px;
+        }
+
+        .margen{
+            margin-bottom: 0;
+            border-spacing: 0;
+            font-size: 25px;
+            border: 2px solid red;
+        }
+
+        
+
+        .cuerpo {
+            font-family: 'Courier', monospace;
+            color: #212121;
+            border-collapse: collapse;
+            margen: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
+            font-size: 12px;
+            
+            
+
+        }
+
+        .nombre {
+            font-family: 'Courier', monospace;
+            color: #212121;
+            border-collapse: collapse;
+            margen: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
+            font-size: 12px;
+            
+            
+
+        }
+
+        .cuerpo2 {
+            font-family: 'Courier', monospace;
+            color: #212121;
+            text-align: left;
+            padding: 5px 2px 100px 5px; /* padding arriba, derecha, abajo, izquierda */
+            line-height: 1.2;
+            vertical-align: top;
+            font-size: 11px;
+        }
+
+        .cuerpo3{
+            font-family: 'Courier', monospace;
+            color: #212121;
+            border-collapse: collapse;
+            margen: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
+            font-size: 12px;
+        }
+
+        .cuerpo4{
+            font-family: 'Courier', monospace;
+            color: #212121;
+            text-align: right;
+            padding: 5px 4px 100px 5px;
+            line-height: 1.2;
+            vertical-align: top;
+            font-size: 11px;
         }
 
         .header {
@@ -44,86 +161,102 @@
             padding: 0;
             line-height: 1;
             text-align: center;
+            border: 2px solid blue;
         }
-        .header .image-container {
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
-        }
-        
+                
         .header div {
             text-align: center;
+            margin: 0; 
+            padding: 0; 
+            line-height: 1;
+            border: 2px solid red;
         }
         .header hr {
             border: none;
             border-top: 2px solid black;
             margin: 10px 0;
         }
-        .header a {
-            text-decoration: none;
+
+        .header h1 {
+            margin: 0; 
+            padding: 0; 
+            font-size: 24px;
         }
-        .cert-info {
-            text-align: center;
-            margin: 20px 0;
+
+        .header h2 {
+            color: #212121;
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
+            margin: 0; 
+            padding: 0; 
+            font-size: 18px;
         }
-        .cert-info p {
-            margin: 5px 0;
+
+        .header h3 {
+            color: #212121;
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
+            margin: 0; 
+            padding: 0; 
+            font-size: 18px;
         }
-        .cert-body {
-            margin: 20px 0;
-            
+
+        .body2 {
+            font-family: Courier, monospace; /* Usando Courier como la fuente principal */
         }
-        .cert-body p {
-            margin: 5px 0;
-            
+
+        .header .image-container {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
         }
-        .footer {
-            position: absolute;
-            bottom: 0;
+
+
+        .tabla-sin-estilos {
             width: 100%;
-            text-align: center;
-            font-size: 14px;
-            padding-top: 950px; /* Espacio superior */
-            padding-bottom: 20px; /* Espacio inferior */ /* Ajusta el relleno según sea necesario */
+            border-collapse: collapse;
+            width: 25px;
+            border: none; /* Bordes invisibles */
+        }
+        .tabla-sin-estilos th, .tabla-sin-estilos td {
+            margin: 0; /* Eliminar margen */
+            padding: 0;
+            border: none; /* Bordes invisibles */
+            white-space: nowrap; /* Evita el salto de línea y los espacios entre palabras */
+            font-size: 11px; /* Ajuste el tamaño de fuente según sea necesario */
+            text-align: left; /* Alineación izquierda por defecto */
             
         }
-        hr {
-            border: none;
-            border-top: 2px solid black;
-            margin: 20px 0;
-        }
-        .cert-certi {
+        
+
+        .tabla-sin-estilos .otros, .tabla-sin-estilos .valores {
             text-align: right;
-            padding: 0;
-            line-height: 1;
-            margin-top: 20px;
-        }
-        .firma {
-            padding: 0;
-            line-height: 1;
-        }
-        .data {
-            line-height: 1;
-            margin-top: 30px;
-
 
         }
-        .img-firma {
-            border: none;
-            margin: 20px 0;
-            width: 35%;
+
+        .tabla-sin-estilos .footertabla {
+            text-align: right;
+            width: 100px;
+            height: 60px;
         }
 
-        .general-content{
-            font-size: larger;
-            text-align: justify; /* Alineación justificada */
-            }
+        /* Alineación a la derecha para las columnas Id y Concepto */
+        
+        .tabla-sin-estilos .id {
+            padding: 0; /* Eliminar padding */
+            width: 25px;
+            /* Añadir separación de 10px a la derecha para el Id */
+            text-align: right;
 
+            
+        }
+        .tabla-sin-estilos .concepto {
+            width: 250px;
+            padding: 0px 5px 0px 10px; /* Añadir separación de 10px a la izquierda para el Concepto */
+        }
+        
+        
     </style>
-
-
 </head>
-<body >
+<body class='body2' >
     <!-- Content for Static Frame 'header_frame' -->
     <div id="header_content">
         <div class="header">
@@ -132,91 +265,70 @@
             </div>
         </div>
     </div>
-    
 
-    <!-- HTML Content -->
-    <!-- Content for Content Frame 'content_frame' -->
+
+    <!-- Contenido del cuerpo del HTML -->
+    
     <div id="content_content">
         <div class="header">
-            <p>{{empresa}}</p>
-            <p>{{nit}}</p>
-            <p href="http://{{web}}">{{web}}</p>
+            <h1>{{empresa}} 22</h1>
+            <h2>{{nit}}</h2>
+            <h3 href="http://{{web}}">{{web}}</h3>
         </div>
         <hr />
-        
-        <div class="general-content">
-            
-            
-            <div class="cert-info">
-                <h1>Certificación Laboral</h1>
-                <div class="cert-certi">
-                    <p>Certificado #: {{id_cliente}} - {{idcert}}</p>
-                    <p>Código de validación: {{ codigo_confirmacion }}</p>
-                </div>
-                <br />
-            </div>
-            <div class="cert-body">
-                {% if tipo == '1' %}
-                    <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
-                    <p>Tiene un sueldo básico mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
-                    <p>La presente certificación se expide con destino a:{{destino}} </p>
-                    <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
-                    <br />
-                    <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
-
-                {% elif tipo == '2' %}
-                    <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
-                    <p>Tiene un sueldo promedio mensual de <strong>${{ sueldo }}</strong> y el tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
-                    <p>La presente certificación se expide con destino a:{{destino}} </p>
-                    <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
-                    <br />
-                    <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
-
-                {% elif tipo == '3' %}
-                    <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabaja en {{ empresa }}, desde el {{ fecha }}, desempeñando el cargo de <strong>{{ cargo }}</strong></p>
-                    <p>El tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
-                    <p>La presente certificación se expide con destino a:{{destino}} </p>
-                    <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
-                    <br />
-                    <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
-
-                
-                {% elif tipo == '4' %}
-                    <p>Certificamos que, <strong>{{ nombre }}</strong>, identificado(a) con documento de identidad No. {{ identificacion }}, trabajo en {{ empresa }}, desde el {{ fecha }} hasta el {{fechafincontrato}} , desempeñando el cargo de <strong>{{ cargo }}</strong></p>
-                    <p>El tipo de contrato laboral es: <strong>{{ tipoc }}</strong>.</p>
-                    <p>La presente certificación se expide con destino a:{{destino}} </p>
-                    <p>Puede verificar la validez de esta certificación en el email, {{email}}, en los teléfonos que aparecen al pie de este certificado o en este enlace usando los códigos de esta certificación: <a href="https://empresas.nomiweb.co/validacion">https://empresas.nomiweb.co/validacion</a></p>
-                    <br />
-                    <p>Fecha de expedición de esta certificación:{{ fecha_certificacion }} </p>
-
-                {% else %}
-                    <!-- Este bloque se mostrará si ninguna de las condiciones anteriores es verdadera -->
-                    <p>Este es el contenido por defecto si ninguna de las condiciones anteriores es verdadera.</p>
-                {% endif %}
-
-                
-            </div>
-        </div>
-
-        <div class="firma">
-            <div class="img-firma">
-                <img src="static/img/FIRMA CARLOS GONZALEZ(1).png" alt="Logo empresa" />
-            </div>
-            <div class="data">
-                <p>{{rrhh}}</p>
-                <p>{{cargo_certificaciones}}</p>
-            </div>
-        </div>
+        <br>
+        <div class="header2">Resumen de Nómina</div>
+        <br>
+        <!-- Primer bloque de tabla -->
+        <div class="header3" > {{nombre_nomina}} </div>
     </div>
+    
+    <br>
+    <br>
 
-    <!-- Content for Static Frame 'footer_content' -->
-    <div id="footer_frame">
+    <table class="tabla-sin-estilos">
+        <thead>
+            <tr>
+                <th class="id">Id</th>
+                <th class="concepto">Concepto</th>
+                <th class="otros" >Cant.</th>
+                <th class="otros">Ingresos</th>
+                <th class="otros">Descuentos</th>
+                <th class="otros">Neto</th>
+            </tr>
+        </thead>
         
-        <div class="footer">
-            <p >N.I.T. {{nit}} - Dirección: Cra. {{direccion}},{{ciudad}}  - Teléfono: {{telefono}} - email: <a href="mailto:{{emailrrhh}}">{{emailrrhh}}</a></p>
-        </div>
-    </div>
+        <tbody>
 
+            {% for nomina in grouped_nominas %}
+                <tr>
+                    <td class="id"  >{{ nomina.idconcepto }}</td>
+                    <td class="concepto" >{{ nomina.nombreconcepto }}</td>
+                    <td class="valores">{{ nomina.cantidad_total }}</td>
+                    <td class="valores">{{ nomina.ingresos }}</td>
+                    <td class="valores">{{ nomina.descuentos }}</td>
+                    <td class="valores"> </td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+        <br>
+        <tfoot>
+            <tr>
+                <td> </td>
+                <td colspan="2" style=" font-weight: bold;">Total Empleados: {{cantidad_empleados}}</td>
+                <td class="footertabla" style=" font-weight: bold;" >{{total_ingresos}}</td>
+                <td class="footertabla" style=" font-weight: bold;" >{{total_descuentos}}</td>
+                <td class="footertabla" style=" font-weight: bold;" >{{neto}}</td>
+                <td class="footertabla" style=" font-weight: bold;" ></td>
+            </tr>
+        </tfoot>
+    </table>
+    
+
+    <br>
+
+    
 
 </body>
 </html>

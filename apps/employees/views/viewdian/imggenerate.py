@@ -1,44 +1,48 @@
 from apps.components.datacompanies import datos_cliente
 from django.conf import settings
 from .diangenerate import last_business_day_of_march 
-from apps.employees.models import Ingresosyretenciones 
+from apps.common.models import Ingresosyretenciones ,Contratos
 from PIL import Image, ImageDraw, ImageFont
 from django.conf import settings
 from io import BytesIO
 from apps.components.humani import format_value
 
 
-def imggenerate1(idingret):
+
+def imggenerate1(request,idingret):
+    # usuario = request.session.get('usuario', {})
+    # ide = usuario['idempleado']
+    # contrato = Contratos.objects.get(idcontrato = idc )
     
-    certificado = Ingresosyretenciones.objects.filter(idingret=idingret).first()
-    dataempresa = datos_cliente()
-    year, month, day = last_business_day_of_march(certificado.anoacumular)
+    certificado = Ingresosyretenciones.objects.get(idingret=idingret)
+    dataempresa = datos_cliente(certificado.id_empresa.idempresa)
+    year, month, day = last_business_day_of_march(certificado.anoacumular.ano)
     
     posision1 = {
         'año': {'x': 507, 'y': 68, 'data': str(certificado.anoacumular)},
         'nformulario': {'x': 522, 'y': 115, 'data': str(certificado.idingret)},
-        'nit': {'x': 63, 'y': 156, 'data': str(dataempresa['nit_empresa'])},
+        'nit': {'x': 63, 'y': 156, 'data': str(dataempresa['nit'])},
         'dv': {'x': 304, 'y': 156, 'data': str(dataempresa['dv'])},
-        'razon': {'x': 136, 'y': 175, 'data': str(dataempresa['nombre_empresa'])},
-        'tipodni': {'x': 64, 'y': 214, 'data':   str(certificado.tipodocumento)},
-        'dni': {'x': 134, 'y': 214, 'data': "{:,}".format(int(certificado.docidentidad)).replace(",", ".")},
-        'papellido': {'x': 375, 'y': 214, 'data': str(certificado.papellido)},
-        'sapellido': {'x': 523, 'y': 214, 'data': str(certificado.sapellido)},
-        'pnombre': {'x': 669, 'y': 214, 'data': str(certificado.pnombre)},
-        'snombre': {'x': 811, 'y': 214, 'data': str(certificado.snombre)},
-        'periodo-1': {'x': 95, 'y': 254, 'data': str(certificado.anoacumular)},
+        'razon': {'x': 136, 'y': 175, 'data': str(dataempresa['nombreempresa'])},
+        'tipodni': {'x': 64, 'y': 214, 'data':   str(certificado.idempleado.tipodocident.codigo)},
+        'dni': {'x': 134, 'y': 214, 'data': "{:,}".format(int(certificado.idempleado.docidentidad)).replace(",", ".")},
+        'papellido': {'x': 375, 'y': 214, 'data': str(certificado.idempleado.papellido)},
+        'sapellido': {'x': 523, 'y': 214, 'data': str(certificado.idempleado.sapellido)},
+        'pnombre': {'x': 669, 'y': 214, 'data': str(certificado.idempleado.pnombre)},
+        'snombre': {'x': 811, 'y': 214, 'data': str(certificado.idempleado.snombre)},
+        'periodo-1': {'x': 95, 'y': 254, 'data': str(certificado.anoacumular.ano)},
         'periodo-2': {'x': 147, 'y': 254, 'data': '01'},
         'periodo-3': {'x': 184, 'y': 254, 'data': '01'},
-        'periodo-4': {'x': 272, 'y': 254, 'data': str(certificado.anoacumular)},
+        'periodo-4': {'x': 272, 'y': 254, 'data': str(certificado.anoacumular.ano)},
         'periodo-5': {'x': 326, 'y': 254, 'data': '12'},
         'periodo-6': {'x': 360, 'y': 254, 'data': '31'},
         'fechaexp-1': {'x': 401, 'y': 254, 'data': str(year)},
         'fechaexp-2': {'x': 467, 'y': 254, 'data': str(month)},
         'fechaexp-3': {'x': 508, 'y': 254, 'data': str(day)},
-        'lugar': {'x': 552, 'y': 254, 'data': str(dataempresa['ciudad_empresa'])},
+        'lugar': {'x': 552, 'y': 254, 'data': str(dataempresa['ciudad'])},
         'codedespartamento': {'x': 841, 'y': 254, 'data': str(dataempresa['coddpto'])},
         'codemunicipio': {'x': 886, 'y': 254, 'data': str(dataempresa['codciudad'])},
-        'retenedor': {'x': 246, 'y': 795, 'data': str(dataempresa['nombre_empresa'])},
+        'retenedor': {'x': 246, 'y': 795, 'data': str(dataempresa['nombreempresa'])},
     }
     
     value1 = {

@@ -1,11 +1,10 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit, HTML, Field ,Row , Column 
-from apps.companies.models import * 
-from django.contrib.auth.models import User
+from apps.common.models import User
 
 class LoginForm(forms.Form):
-    username = forms.CharField(label='Nombre de usuario:',max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Ingrese su nombre de usuario'}))
+    email = forms.CharField(label='Correo electronico:',max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Ingrese su Correo electronico'}))
     password = forms.CharField(label='Contraseña:', max_length=30, widget=forms.PasswordInput(attrs={'placeholder': 'Ingrese su contraseña'}))
 
     def __init__(self, *args, **kwargs):
@@ -14,7 +13,7 @@ class LoginForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Row(
-                Column('username', css_class='form-group mb-3'),
+                Column('email', css_class='form-group mb-3'),
                 css_class='form-row'
             ),
             Row(
