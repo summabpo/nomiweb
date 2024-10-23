@@ -28,9 +28,6 @@ def datos_empleado(id_contrato=15):
 def datos_empleado2(id_empleado):
     try:
         empleado = Contratosemp.objects.only('pnombre', 'snombre', 'papellido', 'sapellido', 'email','fotografiaempleado').get(idempleado=id_empleado)
-        
-        
-        
         if empleado.fotografiaempleado and hasattr(empleado.fotografiaempleado, 'url'):
             url_foto = empleado.fotografiaempleado.url
         else:

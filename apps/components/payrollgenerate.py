@@ -11,9 +11,10 @@ def limitar_cadena(cadena, max_length=25):
 
 
 def genera_comprobante(idnomina, idcontrato):
+    
     contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
     crear = Crearnomina.objects.filter(idnomina=idnomina).first()
-    datac = datos_cliente()
+    datac = datos_cliente(contrato.id_empresa.idempresa)
     
     if contrato:
         nombre_completo = f"{contrato.idempleado.papellido} {contrato.idempleado.sapellido} {contrato.idempleado.pnombre} {contrato.idempleado.snombre}"
@@ -26,12 +27,12 @@ def genera_comprobante(idnomina, idcontrato):
         for item in dataDevengado:
             item.valor = format_value(item.valor) # Aplica formato de separador de mil
             item.cantidad = format_value_float(item.cantidad)
-            item.nombreconcepto = limitar_cadena(item.nombreconcepto)
+            item.nombreconcepto = limitar_cadena(item.idconcepto.nombreconcepto)
             
         for item in dataDescuento:
             item.valor = format_value(item.valor) # Aplica formato de separador de miles
             item.cantidad = format_value_float(item.cantidad)
-            item.nombreconcepto = limitar_cadena(item.nombreconcepto)
+            item.nombreconcepto = limitar_cadena(item.idconcepto.nombreconcepto)
 
         # Calcular la suma de todos los valores en dataDevengado
         sumadataDevengado = dataDevengado.aggregate(total=Sum('valor'))['total'] or 0
@@ -64,8 +65,8 @@ def genera_comprobante(idnomina, idcontrato):
             'cuenta': contrato.cuentanomina,
             'ccostos': centro,
             'periodos': periodo,
-            'eps': contrato.eps,#!
-            'pension': contrato.pension,#!
+            'eps': contrato.codeps,#!
+            'pension': contrato.codafp,#!
             'dataDevengado': dataDevengado,
             'dataDescuento': dataDescuento,
             'sumadataDevengado': format_value(sumadataDevengado), # Formatear la suma con separador de miles

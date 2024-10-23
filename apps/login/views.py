@@ -61,7 +61,8 @@ def Login_view(request):
                     complements = {
                         'rol': user.tipo_user,
                         'name': f"{user.first_name} {user.last_name}",
-                        'idempleado': user.id_empleado.idempleado
+                        'idempleado': user.id_empleado.idempleado if user.id_empleado else None ,
+                        'idempresa': user.id_empresa.idempresa if user.id_empresa else None
                     }
                     request.session['usuario'] = complements
                     return redirect_by_role(user.tipo_user)

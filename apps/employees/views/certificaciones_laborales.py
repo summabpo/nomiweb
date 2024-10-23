@@ -134,13 +134,6 @@ def generateworkcertificate(request):
             data_input = request.POST.get('data_input')
             data_model = request.POST.get('data_model')
             
-            print('----------------')
-            print(contrato_id)
-            print('----------------')
-            print(data_input)
-            print('----------------')
-            print(data_model)
-            print('----------------')
             context = workcertificategenerator( contrato_id , data_input ,data_model)
             
             

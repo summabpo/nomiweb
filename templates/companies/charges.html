@@ -51,6 +51,8 @@
                     <tr class="fw-bold fs-6 text-gray-800">
                         <th>Codigo</th>
                         <th>Nombre Cargo</th>
+                        <th>Nivel</th>
+                        <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,6 +60,18 @@
                         <tr>
                             <td>{{ cargo.idcargo }}</td>
                             <td>{{ cargo.nombrecargo }}</td>
+                            <td>{{ cargo.nombrenivel }}</td>
+                            
+                            <td>
+                                {% if cargo.estado %}
+                                    <span class="badge bg-success">Activos</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivos</span>
+                                {% endif %}
+                            </td>
+                            
+                                
+                            
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -100,7 +114,7 @@
             },
             dom: 'frtip',
             order: [],
-            pageLength: 20
+            pageLength: 10
         });
     });
 </script>

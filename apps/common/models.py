@@ -946,7 +946,7 @@ class Ingresosyretenciones(models.Model):
     aportesafc = models.IntegerField(blank=True, null=True)
     retefuente = models.IntegerField(blank=True, null=True)
     anoacumular = models.ForeignKey(Anos, models.DO_NOTHING)
-    models.ForeignKey('Contratosemp', models.DO_NOTHING) #enlace principal 
+    idempleado = models.ForeignKey('Contratosemp', models.DO_NOTHING) #enlace principal 
     otrospagos = models.IntegerField(blank=True, null=True)
     fondocesantias = models.IntegerField(blank=True, null=True)
     excesoalim = models.IntegerField(blank=True, null=True)

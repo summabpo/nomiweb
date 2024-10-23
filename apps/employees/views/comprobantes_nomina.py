@@ -25,7 +25,8 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('employee')
 def listaNomina(request):
-    ide = request.session.get('idempleado')
+    usuario = request.session.get('usuario', {})
+    ide = usuario['idempleado']
     ESTADOS_CONTRATO = {
         1: "ACTIVO",
         2: "TERMINADO"

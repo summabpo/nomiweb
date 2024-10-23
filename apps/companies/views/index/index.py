@@ -7,7 +7,7 @@ from apps.components.qrgenerate import generate_qr_code
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def index_companies(request):
         
     return render(request, './companies/index.html')

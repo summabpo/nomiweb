@@ -13,9 +13,10 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def viewdian(request):
-    ide = request.session.get('idempleado', {})
+    usuario = request.session.get('usuario', {})
+    ide = usuario['idempleado']
     
     # Realizar una única consulta y usar el resultado para ambas necesidades
     reten = Ingresosyretenciones.objects.filter(idempleado=ide)
@@ -30,13 +31,13 @@ def viewdian(request):
 
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def viewdian_empleado(request,idingret ):
     # Generar la imagen usando la función personalizada
     
     certificado = Ingresosyretenciones.objects.filter(idingret=idingret).values('anoacumular').first()
     
-    image = imggenerate1(idingret)
+    image = imggenerate1(request,idingret)
     
     # Guardar la imagen en un archivo temporal
     temp_image_path = "temp_image.png"
