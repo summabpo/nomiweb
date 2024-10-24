@@ -1,4 +1,5 @@
 from .base import *
+from decouple import config
 
 
 
@@ -28,6 +29,8 @@ DATABASES = {
     },
     
 }
+
+
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
