@@ -190,7 +190,7 @@ class EmployeeForm(forms.Form):
             required=False
         )
         self.fields['birth_country'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()],
+            choices=[('', '----------')] + [(country.idpais, country.pais) for country in Paises.objects.all()],
             label='País de Nacimiento',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
@@ -237,7 +237,7 @@ class EmployeeForm(forms.Form):
         )
         self.fields['cell_phone'] = forms.CharField(label='Celular')
         self.fields['residence_country'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()],
+            choices=[('', '----------')] + [(country.idpais, country.pais) for country in Paises.objects.all()],
             label='País de residencia',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
@@ -290,6 +290,9 @@ class EmployeeForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_class = 'container'
+        self.helper.form_id = 'form_Employee'
+        self.helper.enctype = 'multipart/form-data'
+        
         self.helper.layout = Layout(
             HTML('<h3>Datos de Identificación</h3>'),
             Row(

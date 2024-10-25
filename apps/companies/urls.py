@@ -1,7 +1,7 @@
 from django.urls import path
 
 # # Importing views
-# from .views.ContractsList import ContractsList
+from .views.ContractsList import ContractsList
 from .views.newEmployee import newEmployee
 from .views.EditEmployee import EditEmployee
 from .views.editContract import editContract
@@ -36,7 +36,7 @@ from .views.index import index
 
 urlpatterns = [
     # ## Employee Contract URLs
-    # path('employees/contract', ContractsList.startCompanies, name='startcompanies'),
+    path('employees/contract', ContractsList.startCompanies, name='startcompanies'),
     # path('employees/excel1', ContractsList.exportar_excel1, name='exportar_excel1'),
     # path('employees/excel2', ContractsList.exportar_excel2, name='exportar_excel2'),
 

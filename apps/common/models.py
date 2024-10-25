@@ -592,7 +592,7 @@ class Contratos(models.Model):
     estadoliquidacion = models.CharField(max_length=25,blank=True, null=True)#choice Estadoliquidacion  
     estadosegsocial = models.CharField(max_length=25,blank=True, null=True)#choice Estadosegsocial 
     motivoretiro = models.CharField(max_length=25, blank=True, null=True)#unificar con choice 
-    tiposalario = models.CharField(max_length=25,blank=True, null=True)#Posible choice
+    tiposalario = models.ForeignKey(Tiposalario, models.DO_NOTHING, blank=True, null=True)#Posible choice
     
     idcosto = models.ForeignKey(Costos, models.DO_NOTHING, blank=True, null=True)
     idsubcosto = models.ForeignKey(Subcostos, models.DO_NOTHING, blank=True, null=True)

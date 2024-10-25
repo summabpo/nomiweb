@@ -1,9 +1,30 @@
 import re
+
 # Django
 from django import forms
-from apps.common.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial,Sedes
+
+# Models
+from apps.common.models import (
+    Cargos,
+    Centrotrabajo,
+    Tipodenomina,
+    Ciudades,
+    Tipocontrato,
+    ModelosContratos,
+    Tiposalario,
+    Bancos,
+    Costos,
+    Subcostos,
+    Entidadessegsocial,
+    Sedes,
+    Tiposdecotizantes,
+    Subtipocotizantes
+)
+
+# Crispy Forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Submit,HTML
+from crispy_forms.layout import Layout, Div, Submit, HTML
+
 
 
 
@@ -78,7 +99,7 @@ class ContractForm(forms.Form):
         super(ContractForm, self).__init__(*args, **kwargs)        
         self.fields['endDate'] = forms.DateField(label='Fecha de Terminación', widget=forms.DateInput(attrs={'type': 'date'}), required=False)
         self.fields['payrollType'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(nomina.tipodenomina, nomina.tipodenomina) for nomina in Tipodenomina.objects.all().exclude(idtiponomina=13).order_by('idtiponomina') ], 
+            choices=[('', '----------')] + [(nomina.idtiponomina, nomina.tipodenomina) for nomina in Tipodenomina.objects.all().exclude(idtiponomina=13).order_by('idtiponomina') ], 
             label='Tipo de Nómina' ,
             widget=forms.Select(attrs={
                 'data-control': 'select2',
@@ -89,7 +110,7 @@ class ContractForm(forms.Form):
             }), 
             required=False )
         self.fields['position'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(cargo.nombrecargo, cargo.nombrecargo) for cargo in Cargos.objects.filter(id_empresa__idempresa =  idempresa ).exclude(idcargo=93).order_by('nombrecargo') ], 
+            choices=[('', '----------')] + [(cargo.idcargo, cargo.nombrecargo) for cargo in Cargos.objects.filter(id_empresa__idempresa =  idempresa ).exclude(idcargo=93).order_by('nombrecargo') ], 
             label='Cargo', required=True ,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
@@ -98,10 +119,38 @@ class ContractForm(forms.Form):
                     'data-dropdown-parent':"#kt_modal_2",
                 }), 
             )
+        
+        self.fields['contributor'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(cotizante.tipocotizante,f"{cotizante.tipocotizante} - {cotizante.descripcioncot}"   ) for cotizante in Tiposdecotizantes.objects.all().exclude(tipocotizante=52).order_by('tipocotizante')], 
+            label='Lugar de trabajo' , 
+            required=True ,
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            )
+        
+        self.fields['subContributor'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(subtipo.subtipocotizante, f"{subtipo.subtipocotizante} - {subtipo.descripcion}"   ) for subtipo in Subtipocotizantes.objects.all().order_by('descripcion')], 
+            label='Lugar de trabajo' , 
+            required=True ,
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            )
+        
+        
         self.fields['workLocation'] = forms.ChoiceField(
             choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().exclude(idciudad=1122).order_by('ciudad')], 
             label='Lugar de trabajo' , 
-            required=True ,
+            required = True ,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
                     'data-tags': 'true',
@@ -109,6 +158,7 @@ class ContractForm(forms.Form):
                     'data-dropdown-parent':"#kt_modal_2",
                 }),
             )
+        
         self.fields['contractStartDate'] = forms.DateField(label='Fecha de inicio de contrato', required=True, widget=forms.DateInput(attrs={'type': 'date'})) 
         
         self.fields['contractType'] = forms.ChoiceField(
@@ -169,7 +219,7 @@ class ContractForm(forms.Form):
                 }),
             required=False)
         self.fields['bankAccount'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(banco.nombanco, banco.nombanco) for banco in Bancos.objects.all().exclude(idbanco=27).order_by('nombanco')], 
+            choices=[('', '----------')] + [(banco.idbanco, banco.nombanco) for banco in Bancos.objects.all().exclude(idbanco=27).order_by('nombanco')], 
             label='Banco de la Cuenta', 
             required=False, 
             widget=forms.Select(attrs={
@@ -213,7 +263,7 @@ class ContractForm(forms.Form):
                 }),
             required=False)
         self.fields['eps'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='EPS').order_by('entidad')],
+            choices=[('', '----------')] + [(entidad.identidad, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='EPS').order_by('entidad')],
             label='Eps',
             required=True , 
             widget=forms.Select(attrs={
@@ -223,7 +273,7 @@ class ContractForm(forms.Form):
                     'data-dropdown-parent':"#kt_modal_2",
                 }),) 
         self.fields['pensionFund'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
+            choices=[('', '----------')] + [(entidad.identidad, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
             label='Pension', required=True , 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
@@ -232,7 +282,7 @@ class ContractForm(forms.Form):
                     'data-dropdown-parent':"#kt_modal_2",
                 }),) 
         self.fields['CesanFund'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
+            choices=[('', '----------')] + [(entidad.identidad, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
             label='Fondo Cesantias', 
             required=True , 
             widget=forms.Select(attrs={
@@ -269,11 +319,13 @@ class ContractForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_class = 'container'
+        self.helper.form_id = 'form_Contract'
+        self.helper.enctype = 'multipart/form-data'
         
         self.helper.layout = Layout(
             HTML('<h3>Contrato</h3>'),
             Div(
-                Div('endDate', css_class='col' ),
+                Div('contractType', css_class='col' ),
                 Div('payrollType', css_class='col'),
                 css_class='row'
             ),
@@ -284,7 +336,7 @@ class ContractForm(forms.Form):
             ),
             Div(
                 Div('contractStartDate', css_class='col'),
-                Div('contractType', css_class='col'),
+                Div('endDate', css_class='col'),
                 css_class='row'
             ),
             Div(
@@ -343,7 +395,17 @@ class ContractForm(forms.Form):
                 Div('workPlace', css_class='col'),
                 #Div('arlWorkCenter', css_class='col'),
                 css_class='row'
-            )
+            ),
+            Div(
+                Div('contributor', css_class='col'),
+                #Div('arlWorkCenter', css_class='col'),
+                css_class='row'
+            ),
+            Div(
+                Div('subContributor', css_class='col'),
+                #Div('arlWorkCenter', css_class='col'),
+                css_class='row'
+            ),
         )
         
         

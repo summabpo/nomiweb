@@ -49,7 +49,7 @@ Listado de Contratos Activos
                 <tr>
                 <th>Documento</th>
                 <th>Nombre</th>
-                <th>Inicio Contrato</th>
+                <th class="w-15" >Inicio Contrato</th>
                 <th>Cargo</th>
                 <th>Salario</th>
                 <th>C. Costo</th>
@@ -64,7 +64,7 @@ Listado de Contratos Activos
                     <tr>
                         <td>{{ empleado.documento }}</td>
                         <td>{{ empleado.nombre }}</td>
-                        <td>{{ empleado.fechainiciocontrato |date:'d-m-Y' }}</td>
+                        <td class="w-15" >{{ empleado.fechainiciocontrato |date:'d-m-Y' }}</td>
                         <td>{{ empleado.cargo }}</td>
                         <td>{{ empleado.salario }}</td>
                         <td>{{ empleado.centrocostos }}</td>
@@ -73,10 +73,10 @@ Listado de Contratos Activos
                         <td>
                             
                             <div class="d-inline-flex">
-                                <a href="{% url 'companies:editcontracvisual' idempleado=empleado.idempleado %}" class="btn btn-icon btn-sm btn-light-facebook me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Contrato">
+                                <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Contrato">
                                     <i class="fas fa-solid fa-pen-nib fs-3"></i>
                                 </a>
-                                <a href="{% url 'companies:contractview' idcontrato=empleado.idcontrato %}" class="btn btn-icon btn-sm btn-light-instagram me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver contrato">
+                                <a href="" class="btn btn-icon btn-sm btn-light-instagram me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver contrato">
                                     <i class="fas fa-solid fa-eye fs-3"></i>
                                 </a>
                             </div>
@@ -84,10 +84,10 @@ Listado de Contratos Activos
 
                         <td>
                             <div class="d-inline-flex">
-                                <a href="{% url 'companies:editemployeevisual' idempleado=empleado.idempleado %}" class="btn btn-icon btn-sm  me-2 btn-light-facebook" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Hoja de vida">
+                                <a href="" class="btn btn-icon btn-sm  me-2 btn-light-facebook" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Hoja de vida">
                                     <i class="fas fa-solid fa-file-pen fs-3  "></i>
                                 </a>
-                                <a href="{% url 'companies:resumeview' idempleado=empleado.idempleado %}" class="btn btn-icon btn-sm  me-2 btn-light-instagram" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Hoja de vida">
+                                <a href="" class="btn btn-icon btn-sm  me-2 btn-light-instagram" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Hoja de vida">
                                     <i class="fas fa-solid fa-eye fs-3 "></i>
                                 </a>
                             </div>
@@ -139,7 +139,7 @@ Listado de Contratos Activos
             columnDefs: [
                 { targets: [0, 2, 3], orderable: false }
             ],
-            order: [[1, 'asc']],
+            order: [],
             "pageLength": 10,     
             buttons: [
                 {
@@ -153,7 +153,7 @@ Listado de Contratos Activos
                     action: function (e, dt, node, config) {
                         showLoadingAnimation();
                         setTimeout(function(){
-                            window.location.href = "{% url 'companies:exportar_excel1' %}";
+                            window.location.href = "";
                         }, 100);
                     },
                     className: 'btn btn-light-info'
@@ -163,7 +163,7 @@ Listado de Contratos Activos
                     action: function (e, dt, node, config) {
                         showLoadingAnimation();
                         setTimeout(function(){
-                            window.location.href = "{% url 'companies:exportar_excel2' %}";
+                            window.location.href = "";
                         }, 100);
                     },
                     className: 'btn btn-light-info'
