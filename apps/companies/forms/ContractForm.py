@@ -1,7 +1,7 @@
 import re
 # Django
 from django import forms
-from apps.companies.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial,Sedes
+from apps.common.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial,Sedes
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit,HTML
 
@@ -73,29 +73,196 @@ class ContractForm(forms.Form):
                 
                 
     def __init__(self, *args, **kwargs):
+        idempresa = kwargs.pop('idempresa', None)
+        
         super(ContractForm, self).__init__(*args, **kwargs)        
         self.fields['endDate'] = forms.DateField(label='Fecha de Terminación', widget=forms.DateInput(attrs={'type': 'date'}), required=False)
-        self.fields['payrollType'] = forms.ChoiceField(choices=[('', '----------')] + [(nomina.tipodenomina, nomina.tipodenomina) for nomina in Tipodenomina.objects.all()], label='Tipo de Nómina' , required=False )
-        self.fields['position'] = forms.ChoiceField(choices=[('', '----------')] + [(cargo.nombrecargo, cargo.nombrecargo) for cargo in Cargos.objects.all().order_by('nombrecargo')], label='Cargo', required=True , widget=forms.Select(attrs={'data-control': 'select2'}))
-        self.fields['workLocation'] = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')], label='Lugar de trabajo' , required=True ,widget=forms.Select(attrs={'data-control': 'select2'}))
-        self.fields['contractStartDate'] = forms.DateField(label='Fecha de inicio de contrato', required=True, widget=forms.DateInput(attrs={'type': 'date'}))   
-        self.fields['contractType'] = forms.ChoiceField(choices=[('', '----------')] + [(contrato.idtipocontrato, contrato.tipocontrato) for contrato in Tipocontrato.objects.all()], label='Tipo de Contrato',required=True)
-        self.fields['contractModel'] = forms.ChoiceField(choices=[('', '----------')] + [(modelo.idmodelo, modelo.nombremodelo) for modelo in ModelosContratos.objects.all()], label='Modelo de Contrato',required=False)
+        self.fields['payrollType'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(nomina.tipodenomina, nomina.tipodenomina) for nomina in Tipodenomina.objects.all().exclude(idtiponomina=13).order_by('idtiponomina') ], 
+            label='Tipo de Nómina' ,
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_2",
+            }), 
+            required=False )
+        self.fields['position'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(cargo.nombrecargo, cargo.nombrecargo) for cargo in Cargos.objects.filter(id_empresa__idempresa =  idempresa ).exclude(idcargo=93).order_by('nombrecargo') ], 
+            label='Cargo', required=True ,
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }), 
+            )
+        self.fields['workLocation'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().exclude(idciudad=1122).order_by('ciudad')], 
+            label='Lugar de trabajo' , 
+            required=True ,
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            )
+        self.fields['contractStartDate'] = forms.DateField(label='Fecha de inicio de contrato', required=True, widget=forms.DateInput(attrs={'type': 'date'})) 
+        
+        self.fields['contractType'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(contrato.idtipocontrato, contrato.tipocontrato) for contrato in Tipocontrato.objects.all().exclude(idtipocontrato=7).order_by('tipocontrato')], 
+            label='Tipo de Contrato',
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=True)
+        self.fields['contractModel'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(modelo.idmodelo, modelo.nombremodelo) for modelo in ModelosContratos.objects.all().exclude(idmodelo = 3).order_by('nombremodelo')], 
+            label='Modelo de Contrato',
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=False)
         self.fields['salary'] = forms.CharField(label='Salario', max_length=100, required=True)   
-        self.fields['salaryType'] = forms.ChoiceField(choices=[('', '----------')] + [(salario.idtiposalario, salario.tiposalario) for salario in Tiposalario.objects.all()], label='Tipo Salario', required=True ) 
-        self.fields['salaryMode'] = forms.ChoiceField(label='Modalidad Salario', choices=ModalidadSalario, required=True)
+        self.fields['salaryType'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(salario.idtiposalario, salario.tiposalario) for salario in Tiposalario.objects.all().order_by('tiposalario')], 
+            label='Tipo Salario', 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=True ) 
+        self.fields['salaryMode'] = forms.ChoiceField(
+            label='Modalidad Salario', 
+            choices=ModalidadSalario, 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=True)
         self.fields['livingPlace'] = forms.BooleanField(label='Vive en el lugar de trabajo', required=False)
-        self.fields['paymentMethod'] = forms.ChoiceField(label='Forma de pago', choices=FormaPago, required=False)
-        self.fields['bankAccount'] = forms.ChoiceField(choices=[('', '----------')] + [(banco.nombanco, banco.nombanco) for banco in Bancos.objects.all().order_by('nombanco')], label='Banco de la Cuenta', required=False, widget=forms.Select(attrs={'data-control': 'select2'}) )
-        self.fields['accountType'] = forms.ChoiceField(label='Tipo de Cuenta', choices=TipoCcuenta, required=False)                                     
+        self.fields['paymentMethod'] = forms.ChoiceField(
+            label='Forma de pago', 
+            choices=FormaPago, 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=False)
+        self.fields['bankAccount'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(banco.nombanco, banco.nombanco) for banco in Bancos.objects.all().exclude(idbanco=27).order_by('nombanco')], 
+            label='Banco de la Cuenta', 
+            required=False, 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }), )
+        self.fields['accountType'] = forms.ChoiceField(
+            label='Tipo de Cuenta', 
+            choices=TipoCcuenta, 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=False)                                     
         self.fields['payrollAccount'] = forms.CharField(label='Cuenta de Nómina', max_length=100, required=False)    
-        self.fields['costCenter'] = forms.ChoiceField(choices=[('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.all()], label='Centro de Costos', required=True)
-        self.fields['subCostCenter'] = forms.ChoiceField(choices=[('', '----------')] + [(subcosto.idsubcosto, subcosto.nomsubcosto) for subcosto in Subcostos.objects.all()], label='Sub centro de Costos', required=False)
-        self.fields['eps'] = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='EPS').order_by('entidad')], label='Eps', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 
-        self.fields['pensionFund'] = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], label='Pension', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 
-        self.fields['CesanFund'] = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], label='Fondo Cesantias', required=True , widget=forms.Select(attrs={'data-control': 'select2'})) 
-        self.fields['workPlace'] = forms.ChoiceField(choices=[('', '----------')] + [(sede.idsede, sede.nombresede) for sede in Sedes.objects.all()], label='Sede de Trabajo', required=True)
-        self.fields['arlWorkCenter'] = forms.ChoiceField(choices=[('', '----------')] + [(centro.centrotrabajo, centro.nombrecentrotrabajo) for centro in Centrotrabajo.objects.all()], label='Centro de Trabajo ARL', required=True)
+        self.fields['costCenter'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.filter(id_empresa__idempresa =  idempresa ).exclude(grupocontable ='0').order_by('nomcosto')], 
+            label='Centro de Costos', 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=True)
+        self.fields['subCostCenter'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(subcosto.idsubcosto, subcosto.nomsubcosto) for subcosto in Subcostos.objects.filter(id_empresa__idempresa =  idempresa ).exclude(sufisubcosto='0').order_by('nomsubcosto')], 
+            label='Sub centro de Costos', 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=False)
+        self.fields['eps'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='EPS').order_by('entidad')],
+            label='Eps',
+            required=True , 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),) 
+        self.fields['pensionFund'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
+            label='Pension', required=True , 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),) 
+        self.fields['CesanFund'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
+            label='Fondo Cesantias', 
+            required=True , 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),) 
+        self.fields['workPlace'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(sede.idsede, sede.nombresede) for sede in Sedes.objects.filter(id_empresa__idempresa =  idempresa ).exclude(codccf='0').order_by('nombresede')], 
+            label='Sede de Trabajo',
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }), 
+            required=True)
+        self.fields['arlWorkCenter'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(centro.centrotrabajo, centro.nombrecentrotrabajo) for centro in Centrotrabajo.objects.filter(id_empresa__idempresa =  idempresa ).exclude(centrotrabajo=11 ).order_by('nombrecentrotrabajo')], 
+            label='Centro de Trabajo ARL', 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=True)
         
         
         
@@ -175,18 +342,6 @@ class ContractForm(forms.Form):
             Div(
                 Div('workPlace', css_class='col'),
                 #Div('arlWorkCenter', css_class='col'),
-                css_class='row'
-            ),Div(
-                HTML('''
-                <button type="submit" class="btn btn-primary me-10" id="kt_button_1">
-                    <span class="indicator-label">
-                        Actualizar Contrato
-                    </span>
-                    <span class="indicator-progress">
-                        Espere por favor... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-                    </span>
-                </button>
-            '''),
                 css_class='row'
             )
         )

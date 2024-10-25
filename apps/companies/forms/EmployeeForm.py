@@ -1,9 +1,9 @@
 import re
 # Django
 from django import forms
-from apps.companies.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Profesiones,Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
+from apps.common.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Profesiones,Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Submit,HTML
+from crispy_forms.layout import Layout, Div, Submit,HTML,Row,Column
 
 
 class EmployeeForm(forms.Form):
@@ -96,17 +96,31 @@ class EmployeeForm(forms.Form):
         
         self.fields['identification_type'] = forms.ChoiceField(
             choices=[('', '----------')] + [(documento.codigo, documento.documento) for documento in Tipodocumento.objects.all()],
-            label='Tipo de documento de identidad'
+            label='Tipo de documento de identidad',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
+
+        
         self.fields['identification_number'] = forms.IntegerField(label='Documento de Identidad')
         self.fields['expedition_date'] = forms.DateField(
             label='Fecha de expedición',
             widget=forms.DateInput(attrs={'type': 'date'})
         )
         self.fields['expedition_city'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')],
+            choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().exclude(idciudad=1122).order_by('ciudad')],
             label='Ciudad de expedición',
-            widget=forms.Select(attrs={'data-control': 'select2'})
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
         self.fields['first_name'] = forms.CharField(label='Primer Nombre')
         self.fields['second_name'] = forms.CharField(label='Segundo Nombre', required=False)
@@ -114,13 +128,27 @@ class EmployeeForm(forms.Form):
         self.fields['second_last_name'] = forms.CharField(label='Segundo Apellido', required=False)
         self.fields['sex'] = forms.ChoiceField(
             choices=[('', '----------'), ('masculino', 'Masculino'), ('femenino', 'Femenino')],
-            label='Sexo'
+            label='Sexo',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
         
         
         self.fields['marital_status'] = forms.ChoiceField(
             choices=[('', '----------'), ('soltero', 'Soltero'), ('casado', 'Casado'), ('viudo', 'Viudo'), ('divorciado', 'Divorciado'), ('unionlibre', 'Unión Libre')],
-            label='Estado Civil'
+            label='Estado Civil',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
         
         self.fields['birthdate'] = forms.DateField(
@@ -130,62 +158,129 @@ class EmployeeForm(forms.Form):
         self.fields['education_level'] = forms.ChoiceField(
             choices=[('', '----------'), ('primaria', 'Primaria'), ('Bachiller', 'Bachiller'), ('bachillerinc', 'Bachiller Incompleto'), ('tecnico', 'Técnico'), ('tecnologo', 'Tecnólogo'), ('universitario', 'Universitario'), ('universitarioinc', 'Universitario Incompleto'), ('postgrado', 'Postgrado'), ('magister', 'Magíster')],
             label='Nivel Educativo',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            }),
             required=False
         )
         self.fields['birth_city'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')],
+            choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().exclude(idciudad=1122).order_by('ciudad')],
             label='Ciudad de Nacimiento',
-            widget=forms.Select(attrs={'data-control': 'select2'})
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
         self.fields['stratum'] = forms.ChoiceField(
             choices=[('', '----------'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6')],
             label='Estrato',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            }),
             required=False
         )
         self.fields['birth_country'] = forms.ChoiceField(
             choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()],
             label='País de Nacimiento',
-            widget=forms.Select(attrs={'data-control': 'select2'})
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
         self.fields['military_id'] = forms.CharField(label='Libreta Militar', required=False)
         self.fields['blood_group'] = forms.ChoiceField(
             choices=[('', '-----'), ('OP', 'O +'), ('ON', 'O -'), ('AN', 'A -'), ('AP', 'A +'), ('BP', 'B +'), ('BN', 'B -'), ('ABP', 'AB +'), ('ABN', 'AB -')],
             label='Grupo Sanguíneo',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            }),
             required=False
         )
         self.fields['profession'] = forms.ChoiceField(
             choices=[('', '----------')] + [(profesion.idprofesion, profesion.profesion) for profesion in Profesiones.objects.all()],
             label='Profesión',
             required=False,
-            widget=forms.Select(attrs={'data-control': 'select2'})
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
         self.fields['residence_address'] = forms.CharField(label='Dirección de Residencia')
         self.fields['email'] = forms.EmailField(label='E-mail')
         self.fields['residence_city'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')],
+            choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().exclude(idciudad=1122).order_by('ciudad')],
             label='Ciudad de Residencia',
-            widget=forms.Select(attrs={'data-control': 'select2'})
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
         self.fields['cell_phone'] = forms.CharField(label='Celular')
         self.fields['residence_country'] = forms.ChoiceField(
             choices=[('', '----------')] + [(country.pais, country.pais) for country in Paises.objects.all()],
             label='País de residencia',
-            widget=forms.Select(attrs={'data-control': 'select2'})
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-dropdown-parent':"#kt_modal_1",
+            })
         )
         self.fields['employee_phone'] = forms.CharField(label='Teléfono del Empleado', required=False)
         self.fields['pants_size'] = forms.ChoiceField(
             choices=[('', '----------'), ('6', '6'), ('8', '8'), ('10', '10'), ('12', '12'), ('14', '14'), ('16', '16'), ('28', '28'), ('30', '30'), ('32', '32'), ('34', '34'), ('36', '36'), ('38', '38'), ('40', '40')],
             label='Talla Pantalón',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            }),
             required=False
         )
         self.fields['shirt_size'] = forms.ChoiceField(
             choices=[('', '----------'), ('38', '38'), ('40', '40'), ('42', '42'), ('44', '44'), ('XS', 'XS'), ('S', 'S'), ('M', 'M'), ('L', 'L'), ('XL', 'XL'), ('XXL', 'XXL')],
             label='Talla Camisa',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            }),
             required=False
         )
         self.fields['shoes_size'] = forms.ChoiceField(
             choices=[('', '----------'), ('34', '34'), ('35', '35'), ('36', '36'), ('37', '37'), ('38', '38'), ('39', '39'), ('40', '40'), ('41', '41'), ('42', '42'), ('43', '43'), ('44', '44')],
             label='Talla Zapatos',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            }),
             required=False
         )
         
@@ -196,92 +291,93 @@ class EmployeeForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.form_class = 'container'
         self.helper.layout = Layout(
-            Div(
-                HTML('<h3>Datos de Identificación</h3>'),
-                Div(
-                    Div('identification_type', css_class='col'),
-                    Div('identification_number', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('expedition_date', css_class='col'),
-                    Div('expedition_city', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('first_name', css_class='col'),
-                    Div('second_name', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('first_last_name', css_class='col'),
-                    Div('second_last_name', css_class='col'),
-                    css_class='row'
-                ),
-                css_class='container'
+            HTML('<h3>Datos de Identificación</h3>'),
+            Row(
+                Column('identification_type', css_class='form-group mb-0'),
+                Column('identification_number', css_class='form-group mb-0'),
+                css_class='row'
             ),
-            Div(
-                HTML('<h3>Datos Personales</h3>'),
-                Div(
-                    Div('sex', css_class='col'),
-                    Div('height', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('marital_status', css_class='col'),
-                    Div('weight', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('birthdate', css_class='col'),
-                    Div('education_level', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('birth_city', css_class='col'),
-                    Div('stratum', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('birth_country', css_class='col'),
-                    Div('military_id', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('blood_group', css_class='col'),
-                    Div('profession', css_class='col'),
-                    css_class='row'
-                ),
-                css_class='container'
+            Row(
+                Column('expedition_date', css_class='form-group mb-0'),
+                Column('expedition_city', css_class='form-group mb-0'),
+                css_class='row'
             ),
-            Div(
-                HTML('<h3>Datos de Contacto</h3>'),
-                Div(
-                    Div('residence_address', css_class='col'),
-                    Div('email', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('residence_city', css_class='col'),
-                    Div('cell_phone', css_class='col'),
-                    css_class='row'
-                ),
-                Div(
-                    Div('residence_country', css_class='col'),
-                    Div('employee_phone', css_class='col'),
-                    css_class='row'
-                ),
-                css_class='container'
+            Row(
+                Column('first_name', css_class='form-group mb-0'),
+                Column('second_name', css_class='form-group mb-0'),
+                css_class='row'
             ),
-            Div(
-                HTML('<h3>Dotación</h3>'),
-                Div(
-                    Div('pants_size', css_class='col'),
-                    Div('shirt_size', css_class='col'),
-                    Div('shoes_size', css_class='col'),
-                    css_class='row'
-                ),
-                css_class='container'
+            Row(
+                Column('first_last_name', css_class='form-group mb-0'),
+                Column('second_last_name', css_class='form-group mb-0'),
+                css_class='row'
             ),
-            Submit('submit', 'Guardar Empleado', css_class='btn btn-primary mt-3'),
+            
+            HTML('<div class="separator my-10"></div>'),
+            HTML('<h3>Datos Personales</h3>'),
+            
+            Row(
+                Column('sex', css_class='form-group mb-0'),
+                Column('height', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+            
+            Row(
+                Column('marital_status', css_class='form-group mb-0'),
+                Column('weight', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+            
+            Row(
+                Column('birthdate', css_class='form-group mb-0'),
+                Column('education_level', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+            
+            Row(
+                Column('birth_city', css_class='form-group mb-0'),
+                Column('stratum', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+            
+            Row(
+                Column('birth_country', css_class='form-group mb-0'),
+                Column('military_id', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+            
+            Row(
+                Column('blood_group', css_class='form-group mb-0'),
+                Column('profession', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+            
+            HTML('<div class="separator my-10"></div>'),
+            HTML('<h3>Datos de Contacto</h3>'),
+            Row(
+                Column('residence_address', css_class='form-group mb-0'),
+                Column('email', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+            
+            Row(
+                Column('residence_city', css_class='form-group mb-0'),
+                Column('cell_phone', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+            
+            Row(
+                Column('residence_country', css_class='form-group mb-0'),
+                Column('employee_phone', css_class='form-group mb-0'),
+                css_class='row'
+            ),
+                
+            HTML('<div class="separator my-10"></div>'),
+            HTML('<h3>Dotación</h3>'),
+            Row(
+                Column('pants_size', css_class='form-group mb-0'),
+                Column('shirt_size', css_class='form-group mb-0'),
+                Column('shoes_size', css_class='form-group mb-0'),
+                css_class='row'
+            ),
         )

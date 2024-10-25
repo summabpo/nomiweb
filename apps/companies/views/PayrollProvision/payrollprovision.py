@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Q, Sum, DecimalField, F
 from django.contrib import messages
 from apps.components.filterform import FilterForm  ,FiltercompleteForm
-from apps.companies.models import  Nomina, Contratos, Conceptosfijos , Salariominimoanual ,NominaComprobantes
+from apps.common.models  import  Nomina, Contratos, Conceptosfijos , Salariominimoanual ,NominaComprobantes
 from datetime import datetime
 from .provisionFuncion import calcular_descuento , mes_a_numero ,mes_a_numero2
 from apps.components.humani import format_value

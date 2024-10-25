@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.companies.models import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo
+from apps.common.models  import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo
 from apps.companies.forms.ContractForm import ContractForm 
 from django.contrib import messages
 
@@ -7,7 +7,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def EditContracVisual(request,idempleado):
     empleado = Contratosemp.objects.get(idempleado=int(idempleado)) 
     contrato = Contratos.objects.get(idempleado=idempleado, estadocontrato=1)

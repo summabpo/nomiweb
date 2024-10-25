@@ -2,14 +2,15 @@ from django.urls import path
 
 # # Importing views
 # from .views.ContractsList import ContractsList
-# from .views.newEmployee import newEmployee
-# from .views.EditEmployee import EditEmployee
-# from .views.editContract import editContract
-# from .views.newContract import newContract
+from .views.newEmployee import newEmployee
+from .views.EditEmployee import EditEmployee
+from .views.editContract import editContract
+from .views.newContract import newContract
 from .views.charges import charges
-# from .views.Costcenter import Costcenter
-# from .views.workplace import workplace
-# from .views.headquarters import headquarters
+from .views.Costcenter import Costcenter
+from .views.workplace import workplace
+from .views.headquarters import headquarters
+from .views.hiring import hiring
 # from .views.laborcertification import laborcertification
 # from .views.loginweb import loginweb
 # from .views.payrollsheet import payrollsheet
@@ -22,7 +23,7 @@ from .views.charges import charges
 # from .views.abstractconcept import abstractconcept
 
 # # Accounting views
-# from .views.PayrollProvision import payrollprovision
+from .views.PayrollProvision import payrollprovision
 # from .views.externalreport import externalreport
 # from .views.dian import dian
 
@@ -39,6 +40,9 @@ urlpatterns = [
     # path('employees/excel1', ContractsList.exportar_excel1, name='exportar_excel1'),
     # path('employees/excel2', ContractsList.exportar_excel2, name='exportar_excel2'),
 
+    #hiring new items 
+    path('employees/hiring', hiring.hiring, name='hiring'),
+    
     # ## Employee Management URLs
     # path('employees/new/employee', newEmployee.newEmployee, name='newemployee'),
     # path('employees/edit/employee', EditEmployee.EditEmployeeSearch, name='editemployeesearch'),
@@ -63,13 +67,13 @@ urlpatterns = [
 
     # ## Parameters URLs
     path('parameters/charges', charges.charges, name='charges'),
-    # path('parameters/Cost/center', Costcenter.Costcenter, name='costcenter'),
-    # path('parameters/workplace', workplace.workplace, name='workplace'),
-    # path('parameters/headquarters', headquarters.headquarters, name='headquarters'),
+    path('parameters/Cost/center', Costcenter.Costcenter, name='costcenter'),
+    path('parameters/workplace', workplace.workplace, name='workplace'),
+    path('parameters/headquarters', headquarters.headquarters, name='headquarters'),
 
     # ## Accounting URLs
-    # path('accounting/payroll/provision/', payrollprovision.payrollprovision, name='payrollprovision'),
-    # path('accounting/payroll/provision/download/', payrollprovision.payrollprovisiondownload_excel, name='payrollprovisiondownload_excel'),
+    path('accounting/payroll/provision/', payrollprovision.payrollprovision, name='payrollprovision'),
+    path('accounting/payroll/provision/download/', payrollprovision.payrollprovisiondownload_excel, name='payrollprovisiondownload_excel'),
     # path('accounting/contributions/provision/', payrollprovision.contributionsprovision, name='contributionsprovision'),
     # path('accounting/external/report/', externalreport.externalreport, name='externalreport'),
     # path('accounting/external/report/download/', externalreport.download_excel_report, name='download_excel_report'),

@@ -3,7 +3,7 @@ from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
 from apps.common.models  import Contratosemp
 from apps.companies.forms.EmployeeForm import EmployeeForm
-
+from apps.companies.forms.ContractForm  import ContractForm 
 from apps.common.models import User
 
 
@@ -20,6 +20,57 @@ def generate_random_password(length=12):
     characters = string.ascii_letters + string.digits + string.punctuation
     random_password = ''.join(random.choice(characters) for i in range(length))
     return random_password
+
+def hiring(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    empleados = [
+        {
+            'docidentidad': '123456789',
+            'papellido': 'González',
+            'sapellido': 'Martínez',
+            'pnombre': 'Juan',
+            'snombre': 'Carlos',
+            'idempleado': 1
+        },
+        {
+            'docidentidad': '987654321',
+            'papellido': 'Pérez',
+            'sapellido': 'Rodríguez',
+            'pnombre': 'Ana',
+            'snombre': 'María',
+            'idempleado': 2
+        },
+        {
+            'docidentidad': '456789123',
+            'papellido': 'López',
+            'sapellido': 'Fernández',
+            'pnombre': 'Pedro',
+            'snombre': 'José',
+            'idempleado': 3
+        },
+        {
+            'docidentidad': '321654987',
+            'papellido': 'Ramírez',
+            'sapellido': 'Torres',
+            'pnombre': 'Marta',
+            'snombre': 'Luisa',
+            'idempleado': 4
+        },
+        {
+            'docidentidad': '654987321',
+            'papellido': 'Hernández',
+            'sapellido': 'Gómez',
+            'pnombre': 'Luis',
+            'snombre': 'Alberto',
+            'idempleado': 5
+        }
+    ]
+
+    form_empleados = EmployeeForm() 
+    form_contratos = ContractForm(idempresa=idempresa)
+    return render(request, './companies/newContractVisual.html',{'empleados':empleados,'form_empleados':form_empleados , 'form_contratos':form_contratos})
 
 @login_required
 @role_required('company')
@@ -138,5 +189,5 @@ def newEmployee(request):
             messages.success(request, 'El Empleado ha sido creado')
             return  redirect('companies:newemployee')
     else:
-        form = EmployeeForm    
+        form = EmployeeForm()    
     return render(request, './companies/NewEmployee.html',{'form':form})
