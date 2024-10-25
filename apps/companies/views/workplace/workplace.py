@@ -1,6 +1,6 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.companies.models import Centrotrabajo
+from apps.common.models  import Centrotrabajo , Empresa 
 from apps.components.decorators import custom_login_required ,custom_permission
 from apps.companies.forms.workplaceForm import workplaceForm
 from django.contrib import messages
@@ -10,17 +10,20 @@ from django.contrib.auth.decorators import login_required
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def workplace(request): 
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
     if request.method == 'POST':
         form = workplaceForm(request.POST)
         if form.is_valid():
-            nombre_centrotrabajo = form.cleaned_data['nombrecentrotrabajo']
-            tarifa_arl = form.cleaned_data['tarifaarl']
-            
+            empresa = Empresa.objects.get(idempresa = idempresa)
+        
             centro_trabajo = Centrotrabajo.objects.create(
-                nombrecentrotrabajo=nombre_centrotrabajo,
-                tarifaarl=tarifa_arl
+                nombrecentrotrabajo= form.cleaned_data['nombrecentrotrabajo'] ,
+                tarifaarl= form.cleaned_data['tarifaarl'] ,
+                id_empresa = empresa 
             )
             centro_trabajo.save()
             

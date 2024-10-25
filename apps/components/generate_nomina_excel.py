@@ -1,7 +1,7 @@
 import openpyxl
 from openpyxl.styles import NamedStyle
 from io import BytesIO
-from apps.companies.models import Nomina, Contratos, Conceptosfijos
+from apps.common.models import Nomina, Contratos, Conceptosfijos
 from django.db.models import Q, Sum
 
 def generate_nomina_excel(year, mth):
