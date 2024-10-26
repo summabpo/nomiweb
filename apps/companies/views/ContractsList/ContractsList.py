@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.companies.models import Contratos , Contratosemp , Ciudades
+from apps.common.models  import Contratos , Contratosemp , Ciudades
 from apps.components.decorators import custom_login_required ,custom_permission
 from openpyxl import Workbook
 from django.http import HttpResponse
@@ -10,13 +10,14 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def startCompanies(request): 
     contratos_empleados = Contratos.objects\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
+        .order_by('idempleado__papellido') \
         .filter(estadocontrato=1) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-                'idempleado__snombre', 'fechainiciocontrato', 'cargo', 'salario', 'idcosto__nomcosto',
+                'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario', 'idcosto__nomcosto',
                 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl','idempleado__idempleado','idcontrato')
 
     empleados = []
@@ -28,7 +29,7 @@ def startCompanies(request):
             'documento': contrato['idempleado__docidentidad'],
             'nombre': nombre_empleado,
             'fechainiciocontrato': contrato['fechainiciocontrato'],
-            'cargo': contrato['cargo'],
+            'cargo': contrato['cargo__nombrecargo'],
             'salario': salario,
             'centrocostos': contrato['idcosto__nomcosto'],
             'tipocontrato': contrato['tipocontrato__tipocontrato'],
@@ -42,7 +43,7 @@ def startCompanies(request):
     return render(request, './companies/ActiveList.html', {'empleados': empleados})
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def exportar_excel1(request):
     
     citys = Ciudades.objects.all()
@@ -149,7 +150,7 @@ def exportar_excel1(request):
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def exportar_excel2(request):
     
     citys = Ciudades.objects.all()

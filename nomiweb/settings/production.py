@@ -13,7 +13,7 @@ SETTINGS_ENV = 'production'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'userlectaen',
+        'NAME': 'nomiweb2',
         'USER':  os.getenv('DB_USER_PROD'),
         'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
         'HOST':  os.getenv('DB_HOST_PROD'),

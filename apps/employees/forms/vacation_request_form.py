@@ -21,30 +21,62 @@ class EmpVacacionesForm(forms.ModelForm):
             'diasvac': forms.NumberInput(attrs={'class': 'form-control', 'id': 'diasvac-field'}),
         }
     
-    idcontrato = forms.ModelChoiceField(
-        queryset=Contratos.objects.filter(idempleado=580, estadocontrato=1),
-        label="Contrato",
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        empty_label="Seleccione --------->",
-    )
+    
     tipovac = forms.ModelChoiceField(
         queryset=Tipoavacaus.objects.exclude(idvac=5),
         label="Tipo de Solicitud",
         widget=forms.Select(attrs={'class': 'form-control', 'id': 'tipovac-select'}),
         empty_label="Seleccione --------->",
     )
-    cuentasabados = forms.ChoiceField(
-        label="Cuenta Sábados",
-        choices=[(1, 'Sí'), (0, 'No')],
-        required=False,
-        initial=0,
-        
-    )
-
+    
     def __init__(self, *args, **kwargs):
+        idempleado = kwargs.pop('idempleado', None)
         super(EmpVacacionesForm, self).__init__(*args, **kwargs)
         self.fields['idcontrato'].label_from_instance = self.label_from_contrato
         self.fields['tipovac'].label_from_instance = self.label_from_tipovac
+        
+        self.fields['idcontrato'] = forms.ChoiceField( 
+        choices=[('', '----------')] + [(nomina.idcontrato, nomina.idcontrato) for nomina in Contratos.objects.filter(idempleado=idempleado, estadocontrato=1).order_by('idcontrato') ], 
+        label="Contrato",                                            
+        widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_1",
+            })                                             
+        
+        )
+        
+        self.fields['tipovac'] = forms.ChoiceField( 
+            choices=[('', '----------')] + [(nomina.idvac, nomina.nombrevacaus) for nomina in Tipoavacaus.objects.exclude(idvac=5).order_by('idvac') ], 
+            label="Tipo de Solicitud",                                            
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'id': 'tipovac-select',
+                    'data-dropdown-parent':"#kt_modal_1",
+                })                                             
+            
+            )
+        
+        self.fields['cuentasabados'] = forms.ChoiceField( 
+            choices=[('', '----------')] + [(1, 'Sí'), (0, 'No')], 
+            label="Tipo de Solicitud",   
+            required=False,                                         
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_1",
+                })                                             
+            
+            )
+
+        
         self.helper = FormHelper(self)
         self.helper.form_method = 'post'
         self.helper.layout = Layout(

@@ -243,14 +243,21 @@ Solicitudes
                     success: function(response) {
                         //console.log(response.data);
                         modal.find('.modal-title').text('Editar solicitud #' + recipient)
-                        modal.find('.modal-body #tipovac-select').val(response.data.tipovac)
                         modal.find('.modal-body #fechainicialvac-field').val(response.data.fechainicialvac)
                         modal.find('.modal-body #fechafinalvac-field').val(response.data.fechafinalvac)
-                        modal.find('.modal-body #id_idcontrato').val(response.data.idcontrato)
+
+                        var $select1 = modal.find('.modal-body #id_idcontrato');
+                        $select1.val(response.data.idcontrato).trigger('change').prop('disabled', true); // Establece el valor y deshabilita el select
+
+                        var $select2 = modal.find('.modal-body #tipovac-select');
+                        $select2.val(response.data.tipovac).trigger('change'); // Establece el valor y deshabilita el select
+
                         modal.find('.modal-body #diasvac-field').val(response.data.diasvac)
                         modal.find('.modal-body #id_comentarios').val(response.data.comentarios)
-                        modal.find('.modal-body #id_cuentasabados').val(response.data.si)
-                        //modal.find('.modal-body #cuentasabados-field').val(response.data.no)
+
+                        var $select3 = modal.find('.modal-body #id_cuentasabados');
+                        $select3.val(response.data.si).trigger('change'); 
+                        
                     },
                     error: function(response) {
                         console.log(response.error);
