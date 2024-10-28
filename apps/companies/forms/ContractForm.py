@@ -1,9 +1,8 @@
-import re
-
 # Django
 from django import forms
+from django.urls import reverse
 
-# Models
+# Models 784512325698
 from apps.common.models import (
     Cargos,
     Centrotrabajo,
@@ -18,7 +17,8 @@ from apps.common.models import (
     Entidadessegsocial,
     Sedes,
     Tiposdecotizantes,
-    Subtipocotizantes
+    Subtipocotizantes,
+    Contratosemp
 )
 
 # Crispy Forms
@@ -40,8 +40,14 @@ FormaPago = (
     ('1', 'Abono a cuenta'),
     ('2', 'Cheque'),
     ('3', 'Efectivo'),
+    ('4', 'Transferencia electrónica'),
 )
 
+
+Cercania = (
+    (True, 'Si'),
+    (False, 'No'),
+)
 
 TipoCcuenta = [
     ('', '----------'),
@@ -53,6 +59,8 @@ TipoCcuenta = [
 
 
 class ContractForm(forms.Form):
+    
+    
     def clean(self):
         cleaned_data = super().clean()
         payrollAccount = cleaned_data.get('payrollAccount')
@@ -63,41 +71,30 @@ class ContractForm(forms.Form):
                 self.add_error('payrollAccount', 'El salario debe ser un número válido (entero o flotante).')
         return cleaned_data
     
-    def set_premium_fields(self, premium=False):
-        fields_to_adjust = [
-            'endDate', 'payrollType', 'position', 'workLocation', 'contractStartDate',
-            'contractType', 'contractModel', 'salary', 'salaryType', 'salaryMode',
-            'eps', 'pensionFund', 'CesanFund', 'arlWorkCenter', 'workPlace'
-        ]
-
-        for field_name in fields_to_adjust:
-            field = self.fields.get(field_name)
-            if field:
-                field.disabled = not premium
-                
-        
-
-    def set_premium_fields2(self, premium=False):
-        fields_to_adjust = [
-            'endDate', 'payrollType', 'position', 'workLocation', 'contractStartDate',
-            'contractType', 'contractModel', 'salary', 'salaryType', 'salaryMode',
-            'livingPlace', 'paymentMethod', 'bankAccount', 'accountType',
-            'payrollAccount', 'costCenter', 'subCostCenter', 'eps', 'pensionFund',
-            'CesanFund', 'workPlace', 'arlWorkCenter'
-        ]
-
-        for field_name in fields_to_adjust:
-            field = self.fields.get(field_name)
-            if field:
-                field.required = premium
-                
                 
                 
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
         
-        super(ContractForm, self).__init__(*args, **kwargs)        
+        super(ContractForm, self).__init__(*args, **kwargs)   
+        
+        
+        self.fields['name'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(employee.idempleado, f" {employee.pnombre} {employee.papellido} " ) for employee in Contratosemp.objects.filter(estadocontrato=4 , id_empresa__idempresa = idempresa )], 
+            label='Empleado' ,
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+                'data-dropdown-parent':"#kt_modal_2",
+            }), 
+            required=False )
+        
+        
+        self.fields['Employees'] = forms.CharField(label='Cuenta de Nómina', max_length=100, required=False)  
         self.fields['endDate'] = forms.DateField(label='Fecha de Terminación', widget=forms.DateInput(attrs={'type': 'date'}), required=False)
+        
         self.fields['payrollType'] = forms.ChoiceField(
             choices=[('', '----------')] + [(nomina.idtiponomina, nomina.tipodenomina) for nomina in Tipodenomina.objects.all().exclude(idtiponomina=13).order_by('idtiponomina') ], 
             label='Tipo de Nómina' ,
@@ -122,7 +119,7 @@ class ContractForm(forms.Form):
         
         self.fields['contributor'] = forms.ChoiceField(
             choices=[('', '----------')] + [(cotizante.tipocotizante,f"{cotizante.tipocotizante} - {cotizante.descripcioncot}"   ) for cotizante in Tiposdecotizantes.objects.all().exclude(tipocotizante=52).order_by('tipocotizante')], 
-            label='Lugar de trabajo' , 
+            label='Tipo de Cotizante' , 
             required=True ,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
@@ -135,7 +132,7 @@ class ContractForm(forms.Form):
         
         self.fields['subContributor'] = forms.ChoiceField(
             choices=[('', '----------')] + [(subtipo.subtipocotizante, f"{subtipo.subtipocotizante} - {subtipo.descripcion}"   ) for subtipo in Subtipocotizantes.objects.all().order_by('descripcion')], 
-            label='Lugar de trabajo' , 
+            label='Subtipo de Cotizante' , 
             required=True ,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
@@ -162,7 +159,7 @@ class ContractForm(forms.Form):
         self.fields['contractStartDate'] = forms.DateField(label='Fecha de inicio de contrato', required=True, widget=forms.DateInput(attrs={'type': 'date'})) 
         
         self.fields['contractType'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(contrato.idtipocontrato, contrato.tipocontrato) for contrato in Tipocontrato.objects.all().exclude(idtipocontrato=7).order_by('tipocontrato')], 
+            choices=[('', '----------')] + [(contrato.idtipocontrato, contrato.tipocontrato) for contrato in Tipocontrato.objects.all().exclude(idtipocontrato=7).order_by('-tipocontrato')], 
             label='Tipo de Contrato',
             widget=forms.Select(attrs={
                     'data-control': 'select2',
@@ -206,7 +203,18 @@ class ContractForm(forms.Form):
                     'data-dropdown-parent':"#kt_modal_2",
                 }),
             required=True)
-        self.fields['livingPlace'] = forms.BooleanField(label='Vive en el lugar de trabajo', required=False)
+        self.fields['livingPlace'] = forms.ChoiceField(
+            label='Vive en el lugar de trabajo', 
+            choices=Cercania, 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    'data-dropdown-parent':"#kt_modal_2",
+                }),
+            required=False)
+        
         self.fields['paymentMethod'] = forms.ChoiceField(
             label='Forma de pago', 
             choices=FormaPago, 
@@ -247,7 +255,6 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-hide-search': 'true',
                     'data-dropdown-parent':"#kt_modal_2",
                 }),
             required=True)
@@ -258,7 +265,6 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-hide-search': 'true',
                     'data-dropdown-parent':"#kt_modal_2",
                 }),
             required=False)
@@ -321,8 +327,17 @@ class ContractForm(forms.Form):
         self.helper.form_class = 'container'
         self.helper.form_id = 'form_Contract'
         self.helper.enctype = 'multipart/form-data'
+        self.helper.form_action = reverse('companies:process_forms_contract')
         
         self.helper.layout = Layout(
+            Div(
+                Div('name', css_class='col' ),
+                css_class='row'
+            ),
+            Div(
+                Div('Employees', css_class='col' ),
+                css_class='row'
+            ),
             HTML('<h3>Contrato</h3>'),
             Div(
                 Div('contractType', css_class='col' ),

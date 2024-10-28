@@ -577,7 +577,6 @@ class Contratos(models.Model):
     tipocuentanomina = models.CharField(max_length=15, blank=True, null=True) # choice agreagar deposito electronico 
     centrotrabajo = models.ForeignKey(Centrotrabajo, on_delete=models.DO_NOTHING)
     ciudadcontratacion =models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
-    fondocesantias =  models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING) 
     estadocontrato = models.SmallIntegerField(blank=True, null=True)# choice de estados 
     salario = models.IntegerField(blank=True, null=True) 
     idempleado = models.ForeignKey(Contratosemp, models.DO_NOTHING, blank=True, null=True) 

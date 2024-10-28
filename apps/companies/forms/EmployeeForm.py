@@ -32,34 +32,35 @@ class EmployeeForm(forms.Form):
         cell_phone = cleaned_data.get('cell_phone')
         employee_phone = cleaned_data.get('employee_phone')
 
-        if first_name and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_name):
-            self.add_error('first_name', "El nombre solo puede contener letras.")
-        else:
-            cleaned_data['first_name'] = first_name.upper()
+        if first_name:
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_name):
+                self.add_error('first_name', "El nombre solo puede contener letras.")
+            else:
+                cleaned_data['first_name'] = first_name.upper()
 
-        if second_name and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$', second_name):
-            self.add_error('second_name', "El segundo nombre solo puede contener letras.")
-        else:
-            cleaned_data['second_name'] = second_name.upper()
+        if second_name:
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$', second_name):
+                self.add_error('second_name', "El segundo nombre solo puede contener letras.")
+            else:
+                cleaned_data['second_name'] = second_name.upper()
 
-        if first_last_name and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_last_name):
-            self.add_error('first_last_name', "El primer apellido solo puede contener letras.")
-        else:
-            cleaned_data['first_last_name'] = first_last_name.upper()
+        if first_last_name:
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_last_name):
+                self.add_error('first_last_name', "El primer apellido solo puede contener letras.")
+            else:
+                cleaned_data['first_last_name'] = first_last_name.upper()
 
-        if second_last_name and not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$', second_last_name):
-            self.add_error('second_last_name', "El segundo apellido solo puede contener letras.")
-        else:
-            cleaned_data['second_last_name'] = second_last_name.upper()
+        if second_last_name:
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$', second_last_name):
+                self.add_error('second_last_name', "El segundo apellido solo puede contener letras.")
+            else:
+                cleaned_data['second_last_name'] = second_last_name.upper()
 
-        
         # Validación para height y weight si tienen contenido
         if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
             self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
         if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
             self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
-
-
 
         if identification_number and not re.match(r'^\d+$', str(identification_number)):
             self.add_error('identification_number', "Este campo debe contener solo números.")
@@ -69,28 +70,11 @@ class EmployeeForm(forms.Form):
             self.add_error('cell_phone', "Este campo debe contener solo números.")
         if employee_phone and not re.match(r'^\d+$', employee_phone):
             self.add_error('employee_phone', "Este campo debe contener solo números.")
-                
-    def set_premium_fields(self, premium=False, fields_to_adjust=None):
-        if fields_to_adjust is not None:
-            for field_name in fields_to_adjust:
-                field = self.fields.get(field_name)
-                if field:
-                    field.disabled = not premium
-                    
-    def set_all_fields_optional(self, optional=True):
-        # Iterar sobre todos los campos y establecer required en False
-        for field_name, field in self.fields.items():
-            field.required = not optional
-            
 
-    def set_required(self, activate):
-        for field_name, field in self.fields.items():
-            field.required = activate
-        
+        return cleaned_data
+                
     
-    
-    
-    
+                    
     def __init__(self, *args, **kwargs):
         super(EmployeeForm, self).__init__(*args, **kwargs)
         

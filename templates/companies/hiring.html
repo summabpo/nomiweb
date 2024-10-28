@@ -56,9 +56,9 @@
                 {% for empleado in empleados %}
                     <tr>
                         <td>{{ empleado.docidentidad }}</td>
-                        <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }} </td>
+                        <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }} {{empleado.idempleado}} </td>
                         <td class="text-end">
-                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-disabilites_id="{{ item.idincapacidad }}" >
+                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-employees_id="{{ empleado.idempleado }}" >
                                 <i class="fa-solid fa-pen-to-square fs-3"></i>
                             </button>
                         </td>
@@ -92,7 +92,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-light-info" form="form_Employee" >Guardar Empleado</button>
+                <button type="submit" id='submit_employee' class="btn btn-light-info" form="form_Employee" >Guardar Empleado</button>
             </div>
         </div>
     </div>
@@ -114,14 +114,12 @@
             </div>
     
             <div class="modal-body">
-                <form id="disabilities-form-edit" method="post" action="">
-                    {% crispy form_contratos %}
-                </form>
+                {% crispy form_contratos %}
             </div>
     
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="form_Contract"   class="btn btn-primary">Actualizar</button>
+                <button type="submit" form="form_Contract" id='submit_contract'  class="btn btn-primary" >Crear Contrato</button>
             </div>
         </div>
     </div>
@@ -133,38 +131,72 @@
 {% block js %}
 
 <script>
-    // On document ready
     $(document).ready(function() {
-        $('#tabla_usuarios').DataTable({
-            language: {
-                "decimal":        "",
-                "emptyTable":     "No hay datos disponibles en la tabla",
-                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
-                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix":    "",
-                "thousands":      ",",
-                "lengthMenu":     "Mostrar _MENU_ entradas",
-                "loadingRecords": "Cargando...",
-                "processing":     "Procesando...",
-                "search":         "Buscar:",
-                "zeroRecords":    "No se encontraron registros coincidentes",
-                "paginate": {
-                    "first":      "Primero",
-                    "last":       "Último",
-                    "next":       "Siguiente",
-                    "previous":   "Anterior"
-                },
-                "aria": {
-                    "sortAscending":  ": activar para ordenar la columna ascendente",
-                    "sortDescending": ": activar para ordenar la columna descendente"
-                }
-            },
-            dom: 'frtip',
-            
-        });
+        // Si hay errores en el formulario, aseguramos que el modal se mantenga abierto
+        {% if form_errors %}
+            $('#kt_modal_1').modal('show');
+        {% endif %}
+    })
+</script>
+<script>
+    document.getElementById('kt_modal_2').addEventListener('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var recipient = button.data('employees_id');
+        var modal1 = $(this);
+        console.log(recipient);
+
+        // Asigna el valor y deshabilita el select1 (empleados)
+        var $select1 = modal1.find('.modal-body #id_name');
+        $select1.val(recipient).trigger('change').prop('disabled', true);
+
+        // Intenta acceder al primer elemento con el ID #id_Employees
+        const data = document.querySelector('#id_Employees');  // Solo selecciona el primero, ya que un ID debería ser único
+        const container = document.querySelector('#div_id_Employees'); 
+        // Verifica si el elemento existe antes de acceder a su estilo
+        if (data) {
+            data.value = recipient;
+            container.style.display = 'none'; 
+        } else {
+            console.log('No se encontró el elemento con el ID #id_Employees');
+        }
     });
 </script>
+
+
+
+    <script>
+        // On document ready
+        $(document).ready(function() {
+            $('#tabla_usuarios').DataTable({
+                language: {
+                    "decimal":        "",
+                    "emptyTable":     "No hay datos disponibles en la tabla",
+                    "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                    "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                    "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                    "infoPostFix":    "",
+                    "thousands":      ",",
+                    "lengthMenu":     "Mostrar _MENU_ entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing":     "Procesando...",
+                    "search":         "Buscar:",
+                    "zeroRecords":    "No se encontraron registros coincidentes",
+                    "paginate": {
+                        "first":      "Primero",
+                        "last":       "Último",
+                        "next":       "Siguiente",
+                        "previous":   "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending":  ": activar para ordenar la columna ascendente",
+                        "sortDescending": ": activar para ordenar la columna descendente"
+                    }
+                },
+                dom: 'frtip',
+                
+            });
+        });
+    </script>
 
 
 

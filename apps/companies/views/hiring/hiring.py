@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect
 from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
-from apps.common.models  import Contratosemp,Tipodocumento,Subcostos,ModelosContratos,Sedes,Subtipocotizantes,Costos,Tiposalario,Ciudades,Paises,Empresa,Contratos,Tipocontrato,Cargos,Tipodenomina,Bancos,Centrotrabajo,Entidadessegsocial,Tiposdecotizantes
+from apps.common.models  import Contratosemp,Tipodocumento,Costos,Subcostos,ModelosContratos,Sedes,Subtipocotizantes,Costos,Tiposalario,Ciudades,Paises,Empresa,Contratos,Tipocontrato,Cargos,Tipodenomina,Bancos,Centrotrabajo,Entidadessegsocial,Tiposdecotizantes
 from apps.companies.forms.EmployeeForm import EmployeeForm
 from apps.companies.forms.ContractForm  import ContractForm 
-from apps.common.models import User
 
 
 from django.contrib.auth.hashers import make_password
@@ -24,14 +23,15 @@ def generate_random_password(length=12):
 @login_required
 @role_required('company')
 def hiring(request):
+    form_errors = False
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     empleados = {}
-    idempleado = 2
     
     if request.method == 'POST':
         # Procesar los datos del formulario 1
         form1 = EmployeeForm(request.POST, prefix='form1')
+        
         if form1.is_valid():
             tipodocumento = Tipodocumento.objects.get(codigo = form1.cleaned_data['identification_type'] )
             ciudad1 = Ciudades.objects.get(idciudad = form1.cleaned_data['birth_city'] )
@@ -109,33 +109,56 @@ def hiring(request):
             messages.success(request, 'El Empleado ha sido creado')
             return redirect('companies:hiring')
         else:
+            form_errors = True
             for field, errors in form1.errors.items():
                 for error in errors:
                     messages.error(request, f'{error}')
+    
+    
+    form_empleados = EmployeeForm() 
+    form_contratos = ContractForm(idempresa=idempresa)
+    empleados = Contratosemp.objects.filter(estadocontrato=4 , id_empresa__idempresa = idempresa )  
+    return render(request, './companies/hiring.html',{'empleados':empleados,'form_empleados':form_empleados , 'form_contratos':form_contratos ,'form_errors' :form_errors})
 
-        # Procesar los datos del formulario 2
-        form2 = ContractForm(request.POST , prefix='form2')
+
+def get_or_none(model, **kwargs):
+    """Obtiene un objeto de la base de datos o devuelve None si no se encuentra."""
+    if any(v is None or v == '' for v in kwargs.values()):
+        return None
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        return None  # Devuelve None si no existe
+
+
+@login_required
+@role_required('company')
+def process_forms_contract(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    # Procesar los datos del formulario 2
+    if request.method == 'POST':
+        print(request.POST)
+        form2 = ContractForm(request.POST,idempresa=idempresa)
         if form2.is_valid():
-            #* data aqui 
             empresa = Empresa.objects.get(idempresa = idempresa )
-            cargos = Cargos.objects.get( idcargo = form2.cleaned_data['position'] )
-            tipocontrato = Tipocontrato.objects.get(idtipocontrato=form2.cleaned_data['contractType'] )
-            tipodenomina =  Tipodenomina.objects.get( idtiponomina = form2.cleaned_data['payrollType'], )
-            bancos = Bancos.objects.get( idbanco = form2.cleaned_data['bankAccount'] )
-            centrotrabajo = Centrotrabajo.objects.get(centrotrabajo = form2.cleaned_data['arlWorkCenter'] )
-            ciudades = Ciudades.objects.get(idciudad =  form2.cleaned_data['workLocation'])
-            fondo = Entidadessegsocial.objects.get( identidad = form2.cleaned_data['CesanFund'] )
-            empleado = Contratosemp.objects.get( idempleado = idempleado) 
-            tiposdecotizantes = Tiposdecotizantes.objects.get( tipocotizante  = form2.cleaned_data['contributor']  )
-            subtipocotizantes = Subtipocotizantes.objects.get( subtipocotizante = form2.cleaned_data['subContributor'] )
-            tiposalario = Tiposalario.objects.get( idtiposalario =  form2.cleaned_data['salaryType'] ) 
-            costo = Costos.object.get(idcosto =  form2.cleaned_data['costCenter'] )
-            subcosto = Subcostos.objects.get( idsubcosto =  form2.cleaned_data['subCostCenter'] )   
-            sedes = Sedes.objects.get( idsede =   form2.cleaned_data['workPlace'] ) 
-            eps = Entidadessegsocial.objects.get( identidad = form2.cleaned_data['eps'] )
-            pen = Entidadessegsocial.objects.get( identidad = form2.cleaned_data['pensionFund'] )
-            cjc = Entidadessegsocial.objects.get( identidad = form2.cleaned_data['accountType'] )
-            modelo = ModelosContratos.objects.get( idmodelo = form2.cleaned_data['contractModel']) 
+            cargos = get_or_none(Cargos, idcargo=form2.cleaned_data['position'])
+            tipocontrato = get_or_none(Tipocontrato, idtipocontrato=form2.cleaned_data['contractType'])
+            tipodenomina = get_or_none(Tipodenomina, idtiponomina=form2.cleaned_data['payrollType'])
+            bancos = get_or_none(Bancos, idbanco=form2.cleaned_data['bankAccount'])
+            centrotrabajo = get_or_none(Centrotrabajo, centrotrabajo=form2.cleaned_data['arlWorkCenter'])
+            ciudades = get_or_none(Ciudades, idciudad=form2.cleaned_data['workLocation'])
+            empleado = Contratosemp.objects.get(idempleado=form2.cleaned_data['Employees'])
+            tiposdecotizantes = get_or_none(Tiposdecotizantes, tipocotizante=form2.cleaned_data['contributor'])
+            subtipocotizantes = get_or_none(Subtipocotizantes, subtipocotizante=form2.cleaned_data['subContributor'])
+            tiposalario = get_or_none(Tiposalario, idtiposalario=form2.cleaned_data['salaryType'])
+            costo = get_or_none(Costos, idcosto=form2.cleaned_data['costCenter'])
+            subcosto = get_or_none(Subcostos, idsubcosto=form2.cleaned_data['subCostCenter'])
+            sedes = get_or_none(Sedes, idsede=form2.cleaned_data['workPlace'])
+            eps = get_or_none(Entidadessegsocial, identidad=form2.cleaned_data['eps'])
+            pen = get_or_none(Entidadessegsocial, identidad=form2.cleaned_data['pensionFund'])
+            cjc = get_or_none(Entidadessegsocial, identidad=form2.cleaned_data['CesanFund'])
+            modelo = get_or_none(ModelosContratos, idmodelo=form2.cleaned_data['contractModel'])
             
             contratos_instance = Contratos(
                     #* desde aqui 
@@ -149,7 +172,6 @@ def hiring(request):
                     tipocuentanomina = form2.cleaned_data['accountType'], 
                     centrotrabajo = centrotrabajo , 
                     ciudadcontratacion = ciudades , 
-                    fondocesantias =  fondo , 
                     estadocontrato = 1 , 
                     salario = form2.cleaned_data['salary'], 
                     idempleado = empleado ,
@@ -161,21 +183,21 @@ def hiring(request):
                     valordeduciblevivienda = 0,## validar calculo 
                     saludretefuente = 0, ## validar calculo
                     pensionado = '2',
-                    estadoliquidacion = 1,#choice Estadoliquidacion  
-                    estadosegsocial = 0, #choice Estadosegsocial 
+                    estadoliquidacion = 3,#choice Estadoliquidacion  
+                    estadosegsocial = 3, #choice Estadosegsocial 
                     
                     tiposalario = tiposalario ,#Posible choice
-                    idcosto = idcosto , 
+                    idcosto = costo , 
                     idsubcosto = subcosto,
                     idsede = sedes, 
                     salariovariable = form2.cleaned_data['salaryMode'],
                     codeps = eps, 
                     codafp = pen ,
                     codccf = cjc ,
-                    auxiliotransporte = True,
+                    auxiliotransporte = form2.cleaned_data['livingPlace'],
                     dependientes = 0,
                     valordeduciblemedicina = 0,#manualmente 
-                    jornada = '',#choice
+                    jornada = '', #choice
                     idmodelo = modelo , #enlace modelos_contratos
                     riesgo_pension = False , 
                     id_empresa = empresa ,
@@ -189,10 +211,19 @@ def hiring(request):
         else:
             for field, errors in form2.errors.items():
                 for error in errors:
+                    print(f'{error} - {field} ' )
                     messages.error(request, f'{error}')
-    else: 
-        form_empleados = EmployeeForm(prefix='form1') 
-        form_contratos = ContractForm(idempresa=idempresa,prefix='form2')
-        empleados = Contratosemp.objects.filter(estadocontrato=4 , id_empresa__idempresa = idempresa )       
     
-    return render(request, './companies/hiring.html',{'empleados':empleados,'form_empleados':form_empleados , 'form_contratos':form_contratos})
+    return redirect('companies:hiring')
+
+
+
+@login_required
+@role_required('company')
+def process_forms_employee(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    return redirect('companies:hiring')
+
+
