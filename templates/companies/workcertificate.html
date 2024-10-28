@@ -57,6 +57,7 @@
                                                 </option>
                                             {% endfor %}
                                         </select>
+
                                     </div>
                                 </form>
 
@@ -65,11 +66,46 @@
                                     {% csrf_token %}
                     
                                     <div class="input-group input-group-sm mb-5">
-                                        <select name="contrato" id="contrato" class="form-select"  >
+                                        {% comment %} <select name="contrato" id="contrato" class="form-select"  >
                                             {% for contrato in contratos %}
                                                 <option value="{{ contrato.idcontrato }}">{{ contrato.cc }}</option>
                                             {% endfor %}
-                                        </select>
+                                        </select> {% endcomment %}
+
+                                        {% if cont < 2 %}
+                                            <h5 class="card-title">El Contrato ha sido seleccionado automaticamente</h5>
+                                            <!-- Lógica para cuando contratos está vacío -->
+                                            <select name="contrato" id="contrato" class="form-select" disabled >
+                                                {% for contrato in contratos %}
+                                                    <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                                        {{ contrato.cc }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                            
+
+                                        {% else %}
+                                        <h5 class="card-title">Seleccione un Contrato</h5>
+                                            <!-- Lógica para cuando contratos no está vacío -->
+                                            <form method="get">
+                                                
+                                                <div class="input-group input-group-sm mb-5"> 
+                                                    <div class="input-group input-group-sm mb-5"  onchange="cargarContratos()"  data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
+                                                        <select name="contrato" id="contrato" class="form-select"  >
+                                                            <option value="">----------------</option>
+                                                            {% for contrato in contratos %}
+                                                                <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                                                    {{ contrato.cc }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                
+                                                </div>
+                                            
+                                            </form>
+                                        {% endif %}
+
                                     </div>
                                     
                                     <div class="input-group input-group-sm mb-5">
@@ -132,7 +168,7 @@
         <tbody>
             {% for empleado in empleados %}
                 <tr>
-                    <td>{{ empleado.empleado }}</td>
+                    <td>{{ empleado.idcert }}</td>
                     <td>{{ empleado.destino }}</td>
                     <td>{{ empleado.fecha |date:'d-m-Y' }}</td>
                     <td>{{ empleado.Salario }}</td>

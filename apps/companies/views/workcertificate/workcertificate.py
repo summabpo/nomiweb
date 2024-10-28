@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from apps.companies.models import Contratos , Contratosemp
+from apps.common.models  import Contratos , Contratosemp , Certificaciones
 from apps.components.datacompanies import datos_cliente
 from django.http import HttpResponse, HttpResponseRedirect
 from io import BytesIO
@@ -7,7 +7,7 @@ from xhtml2pdf import pisa
 from django.http import JsonResponse
 from apps.components.workcertificategenerator import workcertificategenerator , workcertificatedownload
 from django.contrib import messages
-from apps.employees.models import Certificaciones
+from django.db.models.functions import Coalesce
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
@@ -28,8 +28,13 @@ def get_empleado_name(empleado):
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def workcertificate(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    empleados = []
+    contratos = {}
+    
     ESTADOS_CONTRATO = {
         1: "ACTIVO",
         2: "TERMINADO"
@@ -38,11 +43,11 @@ def workcertificate(request):
     selected_empleado = request.GET.get('empleado')
     
     if selected_empleado:
-        certi_all = Certificaciones.objects.filter(idempleado=selected_empleado).select_related('idempleado').values('idcert', 
-                                                                                                                        'idempleado__papellido',
-                                                                                                                        'idempleado__pnombre',
-                                                                                                                        'idempleado__snombre',
-                                                                                                                        'idempleado__sapellido',
+        certi_all = Certificaciones.objects.filter(idcontrato__idempleado=selected_empleado).select_related('idcontrato__idempleado').values('idcert', 
+                                                                                                                        'idcontrato__idempleado__papellido',
+                                                                                                                        'idcontrato__idempleado__pnombre',
+                                                                                                                        'idcontrato__idempleado__snombre',
+                                                                                                                        'idcontrato__idempleado__sapellido',
                                                                                                                         'destino',
                                                                                                                         'fecha',
                                                                                                                         'cargo',
@@ -52,9 +57,11 @@ def workcertificate(request):
                                                                                                                         
                                                                                                                         
                                                                                                                         )
+        
         contratos_sin = Contratos.objects.filter(idempleado=selected_empleado).values('cargo', 'fechainiciocontrato', 'fechafincontrato', 'estadocontrato', 'idcontrato')
         contratos = []
-
+        
+        
         for con in contratos_sin:
             estado_contrato = ESTADOS_CONTRATO.get(con['estadocontrato'], "")
             fechafincontrato = f"{con['fechafincontrato']}" if con['fechafincontrato'] is not None else ""
@@ -89,8 +96,9 @@ def workcertificate(request):
         }
 
         empleados.append(certi_data)
-
-    empleados_select = Contratosemp.objects.all().order_by('papellido').values('pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado')
+        
+    
+    empleados_select = Contratosemp.objects.filter( id_empresa__idempresa =  idempresa ).order_by('papellido').values('pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado')
     
     for emp in empleados_select:
         emp['pnombre'] = emp['pnombre'] if emp['pnombre'] is not None else ""
@@ -99,10 +107,11 @@ def workcertificate(request):
         emp['sapellido'] = emp['sapellido'] if emp['sapellido'] is not None else ""
 
 
-
+    cont = len(contratos)
     context = {
         'empleados_select': empleados_select,
         'contratos': contratos,
+        'cont':cont,
         'selected_empleado': selected_empleado,
         'empleados': empleados
     }
@@ -111,7 +120,7 @@ def workcertificate(request):
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def generateworkcertificate(request):
     
     try:
@@ -145,7 +154,7 @@ def generateworkcertificate(request):
     
     
 @login_required
-@role_required('entrepreneur')  
+@role_required('company')  
 def certificatedownload(request,idcert):
 
     try:

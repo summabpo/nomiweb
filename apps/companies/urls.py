@@ -16,7 +16,7 @@ from .views.hiring import hiring
 # from .views.payrollsheet import payrollsheet
 # from .views.assetsview import assetsview
 # from .views.birthday import birthday
-# from .views.workcertificate import workcertificate
+from .views.workcertificate import workcertificate
 # from .views.bank_list import bank_list
 # from .views.settlementlist import settlementlist
 # from .views.payrollaccumulations import payrollaccumulations
@@ -42,6 +42,8 @@ urlpatterns = [
 
     #hiring new items 
     path('employees/hiring', hiring.hiring, name='hiring'),
+    path('employees/hiring/contract', hiring.process_forms_contract, name='process_forms_contract'),
+    path('employees/hiring/employee', hiring.process_forms_employee, name='process_forms_employee'),
     
     # ## Employee Management URLs
     # path('employees/new/employee', newEmployee.newEmployee, name='newemployee'),
@@ -54,9 +56,9 @@ urlpatterns = [
     # path('employees/edit/contract/<str:idempleado>', editContract.EditContracVisual, name='editcontracvisual'),
 
     # ## Work Certificate URLs
-    # path('employees/workcertificate/', workcertificate.workcertificate, name='workcertificate'),
-    # path('employees/workcertificate/generar_pdf/', workcertificate.generateworkcertificate, name='generateworkcertificate'),
-    # path('employees/workcertificate/generar_pdf/<int:idcert>', workcertificate.certificatedownload, name='certificatedownload'),
+    path('employees/workcertificate/', workcertificate.workcertificate, name='workcertificate'),
+    path('employees/workcertificate/generar_pdf/', workcertificate.generateworkcertificate, name='generateworkcertificate'),
+    path('employees/workcertificate/generar_pdf/<int:idcert>', workcertificate.certificatedownload, name='certificatedownload'),
 
     # ## Birthday URL
     # path('employees/birthday', birthday.birthday_view, name='birthdayview'),
