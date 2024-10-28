@@ -38,108 +38,90 @@
 
         <!--begin::Body-->
         <div id="kt_accordion_3_item_1" class="fs-6 collapse show ps-10" data-bs-parent="#kt_accordion_3">
-            
-
             <div class="container mt-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <!-- Aquí puedes colocar tu formulario -->
-                                <form method="get">
-                                    <div class="input-group input-group-sm mb-5">
-                                
-                                        <select name="empleado" id="empleado" onchange="cargarContratos()" class="form-select" data-control="select2" data-placeholder="Seleccione una opción"  aria-label="Seleccione un empleado:" >
-                                            <option value="">Seleccione...</option>
-                                            {% for emp in empleados_select %}
-                                                <option value="{{ emp.idempleado }}" {% if emp.idempleado|stringformat:"s" == selected_empleado %}selected{% endif %}>
-                                                    {{ emp.pnombre }} {{ emp.snombre }} {{ emp.papellido }} {{ emp.sapellido }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
 
-                                    </div>
-                                </form>
+                <form method="get">
+                    <div class="input-group input-group-sm mb-5">
+                
+                        <select name="empleado" id="empleado" onchange="CargarEmpleado()" class="form-select" data-control="select2" data-placeholder="Seleccione un empleado" >
+                            <option></option>
+                            {% for emp in empleados_select %}
+                                <option value="{{ emp.idempleado }}" {% if emp.idempleado|stringformat:"s" == selected_empleado %}selected{% endif %}>
+                                    {{ emp.pnombre }} {{ emp.snombre }} {{ emp.papellido }} {{ emp.sapellido }}
+                                </option>
+                            {% endfor %}
+                        </select>
 
-                                {% if contratos %}
-                                <form method="post" action="{% url 'companies:generateworkcertificate'%}" target="_blank"  >
-                                    {% csrf_token %}
-                    
-                                    <div class="input-group input-group-sm mb-5">
-                                        {% comment %} <select name="contrato" id="contrato" class="form-select"  >
-                                            {% for contrato in contratos %}
-                                                <option value="{{ contrato.idcontrato }}">{{ contrato.cc }}</option>
-                                            {% endfor %}
-                                        </select> {% endcomment %}
-
-                                        {% if cont < 2 %}
-                                            <h5 class="card-title">El Contrato ha sido seleccionado automaticamente</h5>
-                                            <!-- Lógica para cuando contratos está vacío -->
-                                            <select name="contrato" id="contrato" class="form-select" disabled >
-                                                {% for contrato in contratos %}
-                                                    <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
-                                                        {{ contrato.cc }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
-                                            
-
-                                        {% else %}
-                                        <h5 class="card-title">Seleccione un Contrato</h5>
-                                            <!-- Lógica para cuando contratos no está vacío -->
-                                            <form method="get">
-                                                
-                                                <div class="input-group input-group-sm mb-5"> 
-                                                    <div class="input-group input-group-sm mb-5"  onchange="cargarContratos()"  data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
-                                                        <select name="contrato" id="contrato" class="form-select"  >
-                                                            <option value="">----------------</option>
-                                                            {% for contrato in contratos %}
-                                                                <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
-                                                                    {{ contrato.cc }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                
-                                                </div>
-                                            
-                                            </form>
-                                        {% endif %}
-
-                                    </div>
-                                    
-                                    <div class="input-group input-group-sm mb-5">
-                                        
-                                        <input type="text" name="data_input" id="data_input" class="form-control" aria-label="A quien va dirigida la certificación"   placeholder="A quien va dirigida la certificación"  >
-                                        <input type="hidden" name="empleado" value="{{ selected_empleado }}">
-                                    </div>
-                                    <div class="input-group input-group-sm mb-5">
-                                        <select class="form-select" aria-label="Select example" name="data_model" id="data_model">
-                                            <option value="" disabled selected>Escoja el tipo de certificado</option>
-                                        </select>
-                                    </div>
-
-
-                                    <button type="submit" class="btn btn-primary" >Generar</button>
-                                </form>
-                                <br>
-                                {% endif %}
-
-
-
-
-                            </div>
-                        </div>
                     </div>
-                </div>
+                </form>
+
+                
+                {% if selected_empleado %}
+                    {% if cont < 2 %}
+                    <h5 class="card-title">El Contrato ha sido seleccionado automaticamente</h5>
+                    <select name="contrato" id="contrato" class="form-select" disabled onchange="cargarContratos2()" >
+                        {% for contrato in contratos %}
+                            <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
+                                {{ contrato.cc }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% else %}
+                        <form method="get">
+                            <div class="input-group input-group-sm mb-5">
+                                <select name="contrato" id="contrato" onchange="cargarContratos()" class="form-select" data-control="select2" data-placeholder="Seleccione un Contrato" data-hide-search="true">
+                                    <option></option>
+                                    {% for contrato in contratos %}
+                                        <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_Contrato %}selected{% endif %} >
+                                            {{ contrato.cc }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </form>
+                    {% endif %}
+                {% endif %}
+                    
+
+                
+                    
+
+
+                <div class="separator my-5"></div>
+
+                
+                    
+                    {% if selected_Contrato and  selected_empleado %}
+                        <form method="post"  id="generateForm" action="{% url 'companies:generateworkcertificate'%}" target="_blank"  >
+                            {% csrf_token %}
+                            <div class="row mb-5">
+                                <!-- Columna para el input de texto -->
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input type="text" name="data_input" id="data_input" class="form-control" placeholder="A quien va dirigida la certificación" aria-label="A quien va dirigida la certificación">
+                                    </div>
+                                </div>
+                        
+                                <!-- Columna para el select -->
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <select name="data_model" id="data_model" class="form-select" data-control="select2" data-placeholder="Seleccione el tipo de certificado" data-hide-search="true" aria-label="Select example">
+                                            <option></option>
+                                            {% for value, label in salario_choices %}
+                                                <option value="{{ value }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="contrato" value="{{ selected_Contrato }}">
+                            <button type="submit" class="btn btn-primary" >Generar</button>
+                        </form>
+                    {% endif %}
+                        
+                
+
             </div>
-        
-
-            
-
-
-
-
         </div>
         <!--end::Body-->
     </div>
@@ -197,76 +179,57 @@
 {% block js %}
 
 <script>
-    function verificarUnicoContrato() {
-        var contratoSelect = document.getElementById('contrato');
-        
-        // Verificar si solo hay un contrato
-        if (contratoSelect.options.length === 1) {
-            var estadoContrato = contratoSelect.options[0].text.split(' ').slice(-1)[0];
-            console.log("Estado del contrato:", estadoContrato); 
-            
-            // Actualizar el tipo de certificado según el estado del contrato
-            var dataModelSelect = document.getElementById('data_model');
-            var opciones = {
-                'ACTIVO': [
-                    { value: '1', text: 'Con salario básico' },
-                    { value: '2', text: 'Con salario promedio' },
-                    { value: '3', text: 'Sin salario' },
-                    //{ value: '4', text: 'Contrato Liquidado' }
-                ],
-                'TERMINADO': [
-                    { value: '4', text: 'Contrato Liquidado' }
-                ]
-            };
-            
-            dataModelSelect.innerHTML = ''; 
-            opciones[estadoContrato].forEach(function(opcion) {
-                var option = document.createElement('option');
-                option.value = opcion.value;
-                option.text = opcion.text;
-                dataModelSelect.appendChild(option);
-            });
-        }
-    }
-
-    verificarUnicoContrato();  // Ejecutar la función al cargar la página
+    document.getElementById("generateForm").addEventListener("submit", function(event) {
+        // Permitir el envío del formulario en una nueva pestaña
+        setTimeout(function() {
+            // Recargar la página actual después de que se haya abierto la nueva pestaña
+            window.location.reload();
+        }, 1000); // Da un breve retardo para asegurar que la nueva pestaña se abra primero
+    });
 </script>
 
 <script>
-    function actualizarTipoCertificado() {
+    document.addEventListener("DOMContentLoaded", function() {
+        const contratoSelect = document.getElementById("contrato");
+
+        // Verificar si el select está deshabilitado y si tiene un valor seleccionado
+        if (contratoSelect.disabled && contratoSelect.value && !sessionStorage.getItem("contratoCargado")) {
+            cargarContratos();
+            // Marcar que la función ya fue ejecutada
+            sessionStorage.setItem("contratoCargado", "true");
+        }
+    });
+
+    function cargarContratos() {
         var contratoSelect = document.getElementById('contrato');
-        var estadoContrato = contratoSelect.options[contratoSelect.selectedIndex].text.split(' ').slice(-1)[0]; 
-        console.log("Estado del contrato:", estadoContrato); 
-        var dataModelSelect = document.getElementById('data_model');
-        var opciones = {
-            'ACTIVO': [
-                { value: '1', text: 'Con salario básico' },
-                { value: '2', text: 'Con salario promedio' },
-                { value: '3', text: 'Sin salario' },
-                //{ value: '4', text: 'Contrato Liquidado' }
-            ],
-            'TERMINADO': [
-                { value: '4', text: 'Contrato Liquidado' }
-            ]
-        };
-        dataModelSelect.innerHTML = ''; 
-        opciones[estadoContrato].forEach(function(opcion) {
-            var option = document.createElement('option');
-            option.value = opcion.value;
-            option.text = opcion.text;
-            dataModelSelect.appendChild(option);
-        });
+        var contratoId = contratoSelect.value;
+
+        // Obtener la URL actual
+        var currentUrl = new URL(window.location.href);
+        // Establecer el nuevo parámetro o actualizar el existente
+        currentUrl.searchParams.set('contrato', contratoId);
+        // Redirigir a la nueva URL
+        window.location.href = currentUrl.href;
     }
 
-    document.getElementById('contrato').addEventListener('change', actualizarTipoCertificado);
-    actualizarTipoCertificado()
-</script> 
-
-<script>
-    function cargarContratos() {
+    function CargarEmpleado() {
+        // Eliminar el ítem de sessionStorage
+        sessionStorage.removeItem("contratoCargado");
+        
+        // Obtener el ID del empleado seleccionado
         var empleadoSelect = document.getElementById('empleado');
         var empleadoId = empleadoSelect.value;
-        window.location.href = `?empleado=${empleadoId}`;
+        
+        // Construir la nueva URL sin parámetros
+        var newUrl = window.location.href.split('?')[0]; // Obtiene la parte base de la URL
+        
+        // Redirigir a la nueva URL
+        window.history.pushState({}, document.title, newUrl); // Actualiza la URL sin recargar la página
+        
+        // Redirigir a la nueva URL con el empleado si es necesario
+        if (empleadoId) {
+            window.location.href = `?empleado=${empleadoId}`; // Redirige con el empleado
+        }
     }
 </script>
 
@@ -305,6 +268,41 @@
     });
 </script>
 
+
+<script>
+    $(document).ready(function() {
+        $('#btnGenerarCertificado').on('click', function(event) {
+            event.preventDefault();
+    
+            // Obtener valores de los campos en el formulario
+            var data_input = $('#data_input').val();
+            var data_model = $('#data_model').val();
+    
+            // Obtener valores de los selects externos
+            var contrato = $('#select_contrato_externo').val();  // Cambia el ID si es necesario
+            var empleado = $('#select_empleado_externo').val();  // Cambia el ID si es necesario
+    
+            $.ajax({
+                type: 'POST',
+                url: '{% url "companies:generateworkcertificate" %}',
+                data: {
+                    'data_input': data_input,
+                    'data_model': data_model,
+                    'contrato': contrato,
+                    'empleado': empleado,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    // Abrir la URL del certificado generado en una nueva pestaña
+                    window.open(response.url, '_blank');
+                },
+                error: function(xhr, status, error) {
+                    alert('Hubo un error al generar el certificado');
+                }
+            });
+        });
+    });
+</script>
 
 
 

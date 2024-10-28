@@ -15,7 +15,7 @@ from .views.hiring import hiring
 # from .views.loginweb import loginweb
 # from .views.payrollsheet import payrollsheet
 # from .views.assetsview import assetsview
-# from .views.birthday import birthday
+from .views.birthday import birthday
 from .views.workcertificate import workcertificate
 # from .views.bank_list import bank_list
 # from .views.settlementlist import settlementlist
@@ -36,12 +36,12 @@ from .views.index import index
 
 urlpatterns = [
     # ## Employee Contract URLs
-    path('employees/contract', ContractsList.startCompanies, name='startcompanies'),
+    path('employees/contract/', ContractsList.startCompanies, name='startcompanies'),
     # path('employees/excel1', ContractsList.exportar_excel1, name='exportar_excel1'),
     # path('employees/excel2', ContractsList.exportar_excel2, name='exportar_excel2'),
 
     #hiring new items 
-    path('employees/hiring', hiring.hiring, name='hiring'),
+    path('employees/hiring/', hiring.hiring, name='hiring'),
     path('employees/hiring/contract', hiring.process_forms_contract, name='process_forms_contract'),
     path('employees/hiring/employee', hiring.process_forms_employee, name='process_forms_employee'),
     
@@ -61,7 +61,7 @@ urlpatterns = [
     path('employees/workcertificate/generar_pdf/<int:idcert>', workcertificate.certificatedownload, name='certificatedownload'),
 
     # ## Birthday URL
-    # path('employees/birthday', birthday.birthday_view, name='birthdayview'),
+    path('employees/birthday/', birthday.birthday_view, name='birthdayview'),
 
     # ## Asset Views URLs
     # path('employees/views/contract/<str:idcontrato>', assetsview.contractview, name='contractview'),

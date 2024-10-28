@@ -33,17 +33,44 @@ def workcertificate(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     empleados = []
+    SALARIO_CHOICES = []
     contratos = {}
-    
     ESTADOS_CONTRATO = {
         1: "ACTIVO",
         2: "TERMINADO"
     }
     
     selected_empleado = request.GET.get('empleado')
+    selected_Contrato = request.GET.get('contrato')
     
-    if selected_empleado:
-        certi_all = Certificaciones.objects.filter(idcontrato__idempleado=selected_empleado).select_related('idcontrato__idempleado').values('idcert', 
+    if selected_empleado : 
+        contratos_sin = Contratos.objects.filter(idempleado=selected_empleado).values('cargo__nombrecargo', 'fechainiciocontrato', 'fechafincontrato', 'estadocontrato', 'idcontrato')
+        contratos = []
+
+        for con in contratos_sin:
+            estado_contrato = ESTADOS_CONTRATO.get(con['estadocontrato'], "")
+            fechafincontrato = f"{con['fechafincontrato']}" if con['fechafincontrato'] is not None else ""
+            contrato = {
+                'cc': f"{con['cargo__nombrecargo']} - {con['fechainiciocontrato']} {estado_contrato}  {fechafincontrato} ",
+                'idcontrato': con['idcontrato']
+            }
+            contratos.append(contrato)
+    
+    
+    if selected_Contrato : 
+        if estado_contrato == 'ACTIVO' :
+            SALARIO_CHOICES = [
+                ('1', 'Con salario básico'),
+                ('2', 'Con salario promedio'),
+                ('3', 'Sin salario'),
+            ]
+        else:
+            SALARIO_CHOICES = [
+                ('4','Contrato Liquidado'),
+            ]
+        
+        
+        certi_all = Certificaciones.objects.filter(idcontrato__idcontrato=selected_Contrato).select_related('idcontrato__idempleado').values('idcert', 
                                                                                                                         'idcontrato__idempleado__papellido',
                                                                                                                         'idcontrato__idempleado__pnombre',
                                                                                                                         'idcontrato__idempleado__snombre',
@@ -57,46 +84,23 @@ def workcertificate(request):
                                                                                                                         
                                                                                                                         
                                                                                                                         )
-        
-        contratos_sin = Contratos.objects.filter(idempleado=selected_empleado).values('cargo', 'fechainiciocontrato', 'fechafincontrato', 'estadocontrato', 'idcontrato')
-        contratos = []
-        
-        
-        for con in contratos_sin:
-            estado_contrato = ESTADOS_CONTRATO.get(con['estadocontrato'], "")
-            fechafincontrato = f"{con['fechafincontrato']}" if con['fechafincontrato'] is not None else ""
-            contrato = {
-                'cc': f"{con['cargo']} - {con['fechainiciocontrato']} {estado_contrato}  {fechafincontrato} ",
-                'idcontrato': con['idcontrato']
-            }
-            contratos.append(contrato)
+                
+        for certi in certi_all:
+            nombre_empleado = get_empleado_name(certi)
+            salario = "{:,.0f}".format(certi['salario']).replace(',', '.')
             
+            certi_data = {
+                'idcert': certi['idcert'],
+                'empleado': nombre_empleado,
+                'destino': certi['destino'],
+                'Salario': salario,
+                'fecha': certi['fecha'],
+                'cargo': certi['cargo'],
+                'tipo': certi['tipocontrato'],
+                'promedio': certi['promediovariable'],
+            }
 
-        
-    else:
-        certi_all = []
-        contratos = None
-    
-    empleados = []
-    for certi in certi_all:
-        
-        
-        nombre_empleado = get_empleado_name(certi)
-        salario = "{:,.0f}".format(certi['salario']).replace(',', '.')
-        
-        certi_data = {
-            'idcert': certi['idcert'],
-            'empleado': nombre_empleado,
-            'destino': certi['destino'],
-            'Salario': salario,
-            'fecha': certi['fecha'],
-            'cargo': certi['cargo'],
-            'tipo': certi['tipocontrato'],
-            'promedio': certi['promediovariable'],
-        }
-
-        empleados.append(certi_data)
-        
+            empleados.append(certi_data)
     
     empleados_select = Contratosemp.objects.filter( id_empresa__idempresa =  idempresa ).order_by('papellido').values('pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado')
     
@@ -105,15 +109,17 @@ def workcertificate(request):
         emp['snombre'] = emp['snombre'] if emp['snombre'] is not None else ""
         emp['papellido'] = emp['papellido'] if emp['papellido'] is not None else ""
         emp['sapellido'] = emp['sapellido'] if emp['sapellido'] is not None else ""
-
-
+    
     cont = len(contratos)
+    
     context = {
         'empleados_select': empleados_select,
+        'selected_Contrato':selected_Contrato,
         'contratos': contratos,
         'cont':cont,
         'selected_empleado': selected_empleado,
-        'empleados': empleados
+        'empleados': empleados,
+        'salario_choices' : SALARIO_CHOICES,
     }
     
     return render(request, 'companies/workcertificate.html', context)
@@ -125,11 +131,10 @@ def generateworkcertificate(request):
     
     try:
         if request.method == 'POST':
-            empleado_id = request.POST.get('empleado')
             contrato_id = request.POST.get('contrato')
             data_input = request.POST.get('data_input')
             data_model = request.POST.get('data_model')
-            context = workcertificategenerator( contrato_id , data_input ,data_model)
+            context = workcertificategenerator(contrato_id , data_input ,data_model)
             
             
             
