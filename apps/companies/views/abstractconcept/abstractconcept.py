@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.forms.AbstractConceptForm import AbstractConceptForm
-from apps.companies.models import Nomina
+from apps.common.models import Nomina
 from apps.components.humani import format_value
 from django.contrib import messages
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def abstractconcept(request):
     
     if request.method == 'POST':

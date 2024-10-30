@@ -2,7 +2,7 @@ import openpyxl
 from openpyxl.styles import NamedStyle
 from io import BytesIO
 from django.http import HttpResponse
-from apps.companies.models import Nomina
+from apps.common.models import Nomina
 from django.db.models import Sum
 
 def generate_nomina_excel(year, month):
@@ -22,9 +22,9 @@ def generate_nomina_excel(year, month):
     decimal_style = NamedStyle(name='decimal_style', number_format='0.00')
 
     # Obtener datos optimizando la consulta
-    nominas = Nomina.objects.filter(mesacumular=month, anoacumular=year)\
-        .select_related('idempleado', 'idcontrato', 'idcosto', 'idconcepto')\
-        .only('idcontrato__idcontrato', 'idconcepto__cuentacontable', 'idempleado__docidentidad', 
+    nominas = Nomina.objects.filter(idnomina__mesacumular=month, idnomina__anoacumular__ano=year)\
+        .select_related('idcontrato', 'idcosto', 'idconcepto')\
+        .only('idcontrato__idcontrato', 'idconcepto__cuentacontable', 'idcontrato__idempleado__docidentidad', 
               'idconcepto__idconcepto', 'idconcepto__nombreconcepto', 'valor', 'idcosto__idcosto')
 
     # Añadir datos a la hoja de cálculo
@@ -32,7 +32,7 @@ def generate_nomina_excel(year, month):
         row = [
             data.idcontrato.idcontrato,
             data.idconcepto.cuentacontable,
-            data.idempleado.docidentidad,
+            data.idcontrato.idempleado.docidentidad,
             data.idconcepto.idconcepto,
             data.idconcepto.nombreconcepto,
             data.valor, 

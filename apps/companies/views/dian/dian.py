@@ -1,6 +1,5 @@
 from django.shortcuts import render 
-from apps.employees.models import Ingresosyretenciones 
-from apps.companies.models import Contratosemp 
+from apps.common.models import Ingresosyretenciones  , Contratosemp 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .imggenerate import imggenerate1
@@ -50,16 +49,19 @@ def viewdian(request):
 
 def viewdian_download(request,idingret ):
     # Generar la imagen usando la función personalizada
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     
-    image = imggenerate1(idingret)
+    
+    image = imggenerate1(idingret ,idempresa )
     certificado = Ingresosyretenciones.objects.filter(idingret=idingret).first()
-    year, month, day = last_business_day_of_march(certificado.anoacumular)
+    year, month, day = last_business_day_of_march(certificado.anoacumular.ano)
     # Guardar la imagen en un archivo temporal
     temp_image_path = "temp_image.png"
     image.save(temp_image_path, format='PNG')
     
     response = HttpResponse(content_type='application/pdf')
-    file_name = f"Certificado_220_{certificado.docidentidad}_{month}_{year}.pdf"
+    file_name = f"Certificado_220_{certificado.idempleado.docidentidad}_{month}_{year}.pdf"
     
     response['Content-Disposition'] = f'inline; filename="{file_name}"'  # Cambiar a 'inline' para abrir en el navegador
     

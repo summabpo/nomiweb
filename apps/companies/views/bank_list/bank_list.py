@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from apps.companies.models import Nomina , Bancos
+from apps.common.models  import Nomina , Bancos
 from apps.components.humani import format_value
 from apps.components.format import formttex , formtnun
 from django.http import JsonResponse
@@ -17,7 +17,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def bank_list_get(request):
     count_cuenta_1 = 0
     count_cuenta_2 = 0
@@ -67,7 +67,7 @@ def bank_list_get(request):
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def bank_file(request,idnomina):
     # Obtener la fecha actual
     fecha_actual = datetime.now()
