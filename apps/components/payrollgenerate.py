@@ -90,9 +90,9 @@ def genera_comprobante(idnomina, idcontrato):
     return context
 
 
-def generate_summary(idnomina):
+def generate_summary(idnomina,idempresa):
     # Obtener datos del cliente
-    datac = datos_cliente()
+    datac = datos_cliente(idempresa)
     
     # Obtener la nómina y la información de creación de la nómina
     try:
@@ -104,7 +104,7 @@ def generate_summary(idnomina):
         return None  # O manejar el error de otra manera
     
     # Agregar un campo calculado para ingresos, descuentos y neto
-    grouped_nominas = nominas.values('idconcepto', 'nombreconcepto').annotate(
+    grouped_nominas = nominas.values('idconcepto__nombreconcepto','idconcepto__idconcepto').annotate(
         cantidad_total=Sum('cantidad'),
         ingresos=Sum(Case(
             When(valor__gt=0, then='valor'),
@@ -116,20 +116,20 @@ def generate_summary(idnomina):
             default=Value(0),
             output_field=IntegerField()
         )),
-    ).order_by('idconcepto')
+    ).order_by('idconcepto__idconcepto')
     
     # Separar ingresos y descuentos, y ordenar por idconcepto
     ingresos = [compect for compect in grouped_nominas if compect['ingresos'] > 0]
     descuentos = [compect for compect in grouped_nominas if compect['descuentos'] < 0]
     
-    ingresos.sort(key=lambda x: x['idconcepto'])
-    descuentos.sort(key=lambda x: x['idconcepto'])
+    ingresos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
+    descuentos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
     
     # Combinar ingresos y descuentos
     grouped_nominas = ingresos + descuentos
     
     # Obtener la cantidad de empleados distintos
-    cantidad_empleados = nominas.values('idempleado').distinct().count()
+    cantidad_empleados = nominas.values('idcontrato__idempleado').distinct().count()
     
     # Calcular totales de ingresos, descuentos y neto
     total_ingresos = nominas.filter(valor__gt=0).aggregate(total=Sum('valor'))['total'] or 0

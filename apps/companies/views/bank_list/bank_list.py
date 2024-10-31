@@ -19,12 +19,14 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('company')
 def bank_list_get(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     count_cuenta_1 = 0
     count_cuenta_2 = 0
     suma_total_pagos = 0
     acumulados = {}
     id_nomina = request.GET.get('id_nomina')  
-    dataempresa = datos_cliente()
+    dataempresa = datos_cliente(idempresa)
     compectos = Nomina.objects.filter(idnomina=id_nomina)
 
     # Inicializar valores en caso de que no se encuentre el banco
@@ -40,7 +42,7 @@ def bank_list_get(request):
         pass
 
     for data in compectos:
-        docidentidad = data.idempleado.docidentidad
+        docidentidad = data.idcontrato.idempleado.docidentidad
 
         if docidentidad not in acumulados:
             acumulados[docidentidad] = {

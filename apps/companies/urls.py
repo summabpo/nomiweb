@@ -14,11 +14,11 @@ from .views.hiring import hiring
 # from .views.laborcertification import laborcertification
 # from .views.loginweb import loginweb
 from .views.payrollsheet import payrollsheet
-# from .views.assetsview import assetsview
+from .views.assetsview import assetsview
 from .views.birthday import birthday
 from .views.workcertificate import workcertificate
 from .views.bank_list import bank_list
-# from .views.settlementlist import settlementlist
+from .views.settlementlist import settlementlist
 from .views.payrollaccumulations import payrollaccumulations
 from .views.abstractconcept import abstractconcept
 
@@ -37,8 +37,9 @@ from .views.index import index
 urlpatterns = [
     # ## Employee Contract URLs
     path('employees/contract/', ContractsList.startCompanies, name='startcompanies'),
-    # path('employees/excel1', ContractsList.exportar_excel1, name='exportar_excel1'),
-    # path('employees/excel2', ContractsList.exportar_excel2, name='exportar_excel2'),
+    path('employees/excel0', ContractsList.exportar_excel0, name='exportar_excel0'),
+    path('employees/excel1', ContractsList.exportar_excel1, name='exportar_excel1'),
+    path('employees/excel2', ContractsList.exportar_excel2, name='exportar_excel2'),
 
     #hiring new items 
     path('employees/hiring/', hiring.hiring, name='hiring'),
@@ -64,8 +65,8 @@ urlpatterns = [
     path('employees/birthday/', birthday.birthday_view, name='birthdayview'),
 
     # ## Asset Views URLs
-    # path('employees/views/contract/<str:idcontrato>', assetsview.contractview, name='contractview'),
-    # path('employees/views/employee/<str:idempleado>', assetsview.resumeview, name='resumeview'),
+    path('employees/views/contract/', assetsview.contractview, name='contractview'),
+    path('employees/views/employee/', assetsview.resumeview, name='resumeview'),
 
     # ## Parameters URLs
     path('parameters/charges', charges.charges, name='charges'),
@@ -91,8 +92,8 @@ urlpatterns = [
     path('payroll/summary/download/<int:idnomina>/all/', payrollsheet.generatepayrollsummary2, name='generatepayrollsummary2'),
     path('payroll/bank/list/get/', bank_list.bank_list_get, name='bank_list_get'),
     path('payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
-    # path('payroll/settlement/list/', settlementlist.settlementlist, name='settlementlist'),
-    # path('payroll/settlement/download/<int:idliqui>/', settlementlist.settlementlistdownload, name='settlementlistdownload'),
+    path('payroll/settlement/list/', settlementlist.settlementlist, name='settlementlist'),
+    path('payroll/settlement/download/<int:idliqui>/', settlementlist.settlementlistdownload, name='settlementlistdownload'),
     path('payroll/payroll/accumulations/', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
     path('payroll/payroll/accumulations/download/', payrollaccumulations.descargar_excel_empleados, name='descargar_excel_empleados'),
     path('payroll/payroll/abstract/concept/', abstractconcept.abstractconcept, name='abstractconcept'),

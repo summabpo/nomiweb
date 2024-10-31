@@ -65,10 +65,7 @@ def payrollsheet(request):
         for data in compectos:
             
             docidentidad = data.idcontrato.idcontrato
-            print('--------------')
-            print(data.idcontrato.idcontrato)
-            print('--------------')
-            compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato )
+            compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato , idcosto__idcosto = data.idcontrato.idcosto.idcosto )
             if docidentidad not in acumulados:
                 acumulados[docidentidad] = {
                     'documento': docidentidad,
@@ -115,7 +112,9 @@ def payrollsheet(request):
 @login_required
 @role_required('company')
 def generatepayrollsummary(request,idnomina):
-    context = generate_summary(idnomina)
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    context = generate_summary(idnomina,idempresa)
     
     html_string = render(request, './html/payrollsummary.html', context).content.decode('utf-8')
     
@@ -139,7 +138,7 @@ def generatepayrollsummary(request,idnomina):
 @role_required('company')
 def generatepayrollsummary2(request, idnomina):
     # Obtener los contratos únicos ordenados por apellido
-    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idempleado__papellido').values_list('idcontrato', flat=True).distinct()
+    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idcontrato__idempleado__papellido').values_list('idcontrato', flat=True).distinct()
     
     # Crear un objeto para combinar PDFs
     merger = PdfMerger()

@@ -109,26 +109,17 @@
                             <td>
                                 {% if compect.estado == 'Enviado' %}
                                     
-                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
-                                            <i class="fa-solid fa-envelope-circle-check fs-1"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-secondary">Enviado</button>
-                                    </div>
+                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
+                                        <i class="fa-solid fa-envelope-circle-check fs-1"></i>
+                                    </button>
                                 {% elif compect.estado == 'Error' %}
-                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
-                                            <i class="fa-solid fa-circle-exclamation fs-1"></i>
-                                        </button> 
-                                        <button type="button" class="btn btn-secondary">Error</button>
-                                    </div>
+                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
+                                        <i class="fa-solid fa-circle-exclamation fs-1"></i>
+                                    </button> 
                                 {% else %}
-                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="button" class="btn btn-icon btn-light-success hover-scale " data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
-                                            <i class="fa-solid fa-envelope fs-1"></i>
-                                        </button> 
-                                        <button type="button" class="btn btn-secondary">No Enviado</button>
-                                    </div>
+                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
+                                        <i class="fa-solid fa-envelope fs-1"></i>
+                                    </button>
                                 {% endif %}
                             </td>
                         </tr>

@@ -45,7 +45,7 @@
                 {% for liquidacion in liquidaciones %}
                     <tr>
                         <td>{{ liquidacion.idcontrato.idcontrato }}</td>
-                        <td>{{ liquidacion.docidentidad }}</td>
+                        <td>{{ liquidacion.idcontrato.idempleado.docidentidad }}</td>
                         <td>{{ liquidacion.idcontrato.idempleado.papellido }} {{ liquidacion.idcontrato.idempleado.sapellido }} {{ liquidacion.idcontrato.idempleado.pnombre }} {{ liquidacion.idcontrato.idempleado.snombre }} </td>
                         <td>{{ liquidacion.diastrabajados }}</td>
                         <td>{{ liquidacion.fechainiciocontrato |date:'d-m-Y' }}</td>
@@ -106,7 +106,7 @@
                 }
             },
             dom: 'frtip',
-            order: [[0, 'des']], 
+            order: [], 
             "pageLength": 10,    
             columnDefs: [
                 { "orderable": false, "targets": [4, 5] }, // Desactiva el orden para las columnas 2 y 4
