@@ -73,23 +73,23 @@ Listado de Contratos Activos
                         <td>
                             
                             <div class="d-inline-flex">
-                                <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Contrato">
+                                <a href="" class="btn btn-icon btn-sm btn-light-facebook me-2" data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Editar Contrato">
                                     <i class="fas fa-solid fa-pen-nib fs-3"></i>
                                 </a>
-                                <a href="" class="btn btn-icon btn-sm btn-light-instagram me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver contrato">
-                                    <i class="fas fa-solid fa-eye fs-3"></i>
-                                </a>
+                                <button type="button" class="btn btn-icon btn-sm me-2 btn-light-instagram" data-bs-toggle="modal" data-bs-target="#kt_modal_1"  data-whatever="{{empleado.idempleado}}" >
+                                    <i class="fas fa-solid fa-eye fs-3 " data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse"  data-bs-placement="top" title="Ver contrato"  ></i>
+                                </button> 
                             </div>
                         </td>
 
                         <td>
                             <div class="d-inline-flex">
-                                <a href="" class="btn btn-icon btn-sm  me-2 btn-light-facebook" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Hoja de vida">
+                                <a href="" class="btn btn-icon btn-sm  me-2 btn-light-facebook" data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Editar Hoja de vida">
                                     <i class="fas fa-solid fa-file-pen fs-3  "></i>
                                 </a>
-                                <a href="" class="btn btn-icon btn-sm  me-2 btn-light-instagram" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Hoja de vida">
-                                    <i class="fas fa-solid fa-eye fs-3 "></i>
-                                </a>
+                                <button type="button" class="btn btn-icon btn-sm me-2 btn-light-instagram" data-bs-toggle="modal" data-bs-target="#kt_modal_2"  data-whatever="{{empleado.idempleado}}" >
+                                    <i class="fas fa-solid fa-eye fs-3 " data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse"  data-bs-placement="top" title="Ver Hoja de vida"  ></i>
+                                </button> 
                             </div>
                             
                         </td>
@@ -103,10 +103,540 @@ Listado de Contratos Activos
     </div>
     
     
-    
+<!--begin::Modal Employees-->
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Datos de Contrato #</h5>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="fechainiciocontrato">Fecha Inicial del Contrato</label>
+                        <input class="form-control" type="text" id="fechainiciocontrato"  disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="fechafincontrato">Fecha de Terminación</label>
+                        <input class="form-control" type="text" id="fechafincontrato"  disabled  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="cargo">Cargo</label>
+                        <input class="form-control" type="text" id="cargo" disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="lugartrabajo">Lugar de trabajo</label>
+                        <input class="form-control" type="text" id="lugartrabajo" disabled />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipocontrato">Tipo de Contrato</label>
+                        <input class="form-control" type="text" id="tipocontrato" disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="modelocontrato">Modelo de Contrato</label>
+                        <input class="form-control" type="text" id="modelocontrato" disabled />
+                    </div>
+                </div>
+                
+                <div class="separator border-2 my-10">Datos de Compensación</div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="salario">Salario</label>
+                        <input class="form-control" type="text" id="salario" disabled/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="tiposalario">Tipo Salario</label>
+                        <input class="form-control" type="text" id="tiposalario" disabled />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="modalidadsalario">Modalidad Salario</label>
+                        <input class="form-control" type="text" id="modalidadsalario" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="vivetrabajo">Vive en el lugar de trabajo</label>
+                        <input class="form-control" type="text" id="vivetrabajo" disabled  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="formapago">Forma de pago</label>
+                        <input class="form-control" type="text" id="formapago" disabled  />
+
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="bancocuenta">Banco de la Cuenta</label>
+                        <input class="form-control" type="text" id="bancocuenta" disabled  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipocuenta">Tipo de Cuenta</label>
+                        <input class="form-control" type="text" id="tipocuenta" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="cuentanomina">Cuenta de Nómina</label>
+                        <input class="form-control" type="text" id="cuentanomina" disabled  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="centrocosto">Centro de Costos</label>
+                        <input class="form-control" type="text" id="centrocosto" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="subcentrocosto">Sub centro de Costos</label>
+                        <input class="form-control" type="text" id="subcentrocosto"  disabled />
+                    </div>
+                </div>
+                
+                <div class="separator border-2 my-10">Seguridad Social</div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="eps">Eps</label>
+                        <input class="form-control" type="text" id="eps" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="fondocesantias">Fondo Cesantias</label>
+                        <input class="form-control" type="text" id="fondocesantias"  disabled />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="pension">Pensión</label>
+                        <input class="form-control" type="text" id="pension" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="centrotrabajo">Centro de Trabajo ARL</label>
+                        <input class="form-control" type="text" id="centrotrabajo" disabled />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="sede">Sede de Trabajo</label>
+                        <input class="form-control" type="text" id="sede" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="tarifaarl">Tarifa ARL</label>
+                        <input class="form-control" type="text" id="tarifaarl"  disabled />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="cajacompensacion">Caja de Compensación Familiar</label>
+                        <input class="form-control" type="text" id="cajacompensacion" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipocotizante">Tipo de cotizante</label>
+                        <input class="form-control" type="text" id="porcentajeriesgo" disabled  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipocotizante">Tipo de cotizante</label>
+                        <input class="form-control" type="text" id="tipocotizante" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="subtipocotizante">Subtipo de cotizante</label>
+                        <input class="form-control" type="text" id="subtipocotizante" disabled  />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipocotizante">Tipo de cotizante</label>
+                        <input class="form-control" type="text" id="tipocotizante" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="subtipocotizante">Subtipo de cotizante</label>
+                        <input class="form-control" type="text" id="subtipocotizante" disabled  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="subtipocotizante">Subtipo de cotizante</label>
+                        <input class="form-control" type="text" id="subtipocotizante" disabled  />
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Modal-->
+
+
+<!--begin::Modal Employees-->
+<div class="modal fade" tabindex="-1" id="kt_modal_2">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Datos de Contrato #</h5>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                
+                
+                <div class="separator border-2 my-10"> Identificación</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Tipo de documento de identidad </label>
+                        <input id="tipodocident" class="form-control" type="text" value='{{empleados.tipodocident}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Documento de identidad </label>
+                        <input id="docidentidad" class="form-control" type="text" value='{{empleados.docidentidad}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Fecha de expedición </label>
+                        <input id="fechaexpedicion" class="form-control" type="text" value='{{empleados.fechaexpedicion}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Ciudad de expedición </label>
+                        <input id="ciudadexpedicion" class="form-control" type="text" value='{{empleados.ciudadexpedicion}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Primer Nombre </label>
+                        <input id="pnombre" class="form-control" type="text" value='{{empleados.pnombre}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Segundo Nombre </label>
+                        <input id="snombre" class="form-control" type="text" value='{{empleados.snombre}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Primer Apellido </label>
+                        <input id="papellido" class="form-control" type="text" value='{{empleados.papellido}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Segundo Apellido </label>
+                        <input id="sapellido" class="form-control" type="text" value='{{empleados.sapellido}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-2 my-10"> Datos Personales </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Sexo </label>
+                        <input id="sexo" class="form-control" type="text" value='{{empleados.sexo}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Estatura (Mts) </label>
+                        <input id="estatura" class="form-control" type="text" value='{{empleados.estatura}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Estado Civil </label>
+                        <input id="estadocivil" class="form-control" type="text" value='{{empleados.estadocivil}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Peso (Kg) </label>
+                        <input id="peso" class="form-control" type="text" value='{{empleados.peso}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Fecha de Nacimiento </label>
+                        <input id="fechanac" class="form-control" type="text" value='{{empleados.fechanac}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Nivel Educativo </label>
+                        <input id="niveleducativo" class="form-control" type="text" value='{{empleados.niveleducativo}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Ciudad de Nacimiento </label>
+                        <input id="ciudadnacimiento" class="form-control" type="text" value='{{empleados.ciudadnacimiento}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Estrato </label>
+                        <input id="estrato" class="form-control" type="text" value='{{empleados.estrato}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Pais de nacimiento </label>
+                        <input id="paisnacimiento" class="form-control" type="text" value='{{empleados.paisnacimiento}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Libreta Militar </label>
+                        <input id="numlibretamil" class="form-control" type="text" value='{{empleados.numlibretamil}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Grupo Sanguineo </label>
+                        <input id="gruposanguineo" class="form-control" type="text" value='{{empleados.gruposanguineo}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Profesión </label>
+                        <input id="profesion" class="form-control" type="text" value='{{empleados.profesion}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="separator border-2 my-10"> Datos de Residencia </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Direccion de Residencia </label>
+                        <input id="direccionempleado" class="form-control" type="text" value='{{empleados.direccionempleado}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> E - mail </label>
+                        <input id="email" class="form-control" type="text" value='{{empleados.email}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Ciudad de Residencia </label>
+                        <input id="ciudadresidencia" class="form-control" type="text" value='{{empleados.ciudadresidencia}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Celular </label>
+                        <input id="celular" class="form-control" type="text" value='{{empleados.celular}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Pais de residencia </label>
+                        <input id="paisresidencia" class="form-control" type="text" value='{{empleados.paisresidencia}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Telefono del Empleado </label>
+                        <input id="telefonoempleado" class="form-control" type="text" value='{{empleados.telefonoempleado}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-2 my-10"> Dotación</div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label"> Talla Pantalón </label>
+                        <input id="dotpantalon" class="form-control" type="text" value='{{empleados.dotpantalon}}' disabled />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"> Talla Camisa </label>
+                        <input id="dotcamisa" class="form-control" type="text" value='{{empleados.dotcamisa}}' disabled />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label"> Talla Zapatos </label>
+                        <input id="dotzapatos" class="form-control" type="text" value='{{empleados.dotzapatos}}' disabled />
+                    </div>
+                </div>
+
+                
+                
+        
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Modal-->
 
 {% endblock %}
 {% block js %}
+
+<script>
+    $('#kt_modal_1').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var recipient = button.data('whatever')
+        var modal = $(this)
+
+        $.ajax({
+            url: '{% url "companies:contractview" %}',
+            type: 'GET',
+            data: {
+                'dato': recipient
+            },
+            success: function(response) {
+                modal.find('.modal-title').text('Datos de Contrato #'+ recipient)
+                document.querySelector('#fechainiciocontrato').value = response.data.dateinit;
+                document.querySelector('#fechafincontrato').value = response.data.dateend; // Cambiado aquí
+                
+                document.querySelector('#cargo').value = response.data.cargo;
+                document.querySelector('#lugartrabajo').value = response.data.lugartrabajo;
+                document.querySelector('#tipocontrato').value = response.data.tipocontrato;
+                document.querySelector('#modelocontrato').value = response.data.modelo;
+                document.querySelector('#salario').value = response.data.salario;
+                document.querySelector('#tiposalario').value = response.data.tiposalario;
+                document.querySelector('#modalidadsalario').value = response.data.modalidadsalario;
+                document.querySelector('#vivetrabajo').value = response.data.vivetrabajo;
+                document.querySelector('#formapago').value = response.data.formapago;
+                document.querySelector('#bancocuenta').value = response.data.bancocuenta;
+                document.querySelector('#tipocuenta').value = response.data.tipocuentanomina;
+                document.querySelector('#cuentanomina').value = response.data.cuentanomina;
+                document.querySelector('#centrocosto').value = response.data.nomcosto;
+                document.querySelector('#subcentrocosto').value = response.data.nomsubcosto;
+                document.querySelector('#eps').value = response.data.eps;
+                document.querySelector('#fondocesantias').value = response.data.fondocesantias;
+                document.querySelector('#pension').value = response.data.pension;
+                document.querySelector('#centrotrabajo').value = response.data.nombrecentrotrabajo;
+                document.querySelector('#sede').value = response.data.nombresede;
+                document.querySelector('#tarifaarl').value = response.data.tarifaarl;
+                document.querySelector('#cajacompensacion').value = response.data.cajacompensacion;
+                document.querySelector('#porcentajeriesgo').value = response.data.pensionado;
+                document.querySelector('#tipocotizante').value = response.data.tipocotizante;
+                document.querySelector('#subtipocotizante').value = response.data.subtipocotizante;
+                
+                
+                
+            },
+            error: function(response) {
+                console.log(response.error);
+                modalTitle.textContent = 'Error al cargar los datos';
+            }
+        });
+
+
+    });
+</script>
+
+<script>
+    $('#kt_modal_2').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var recipient = button.data('whatever')
+        var modal = $(this)
+
+        $.ajax({
+            url: '{% url "companies:resumeview" %}',
+            type: 'GET',
+            data: {
+                'dato': recipient
+            },
+            success: function(response) {
+                modal.find('.modal-title').text('Datos del Empleado #'+ recipient)
+                document.querySelector('#docidentidad').value = response.data.docidentidad;
+                document.querySelector('#tipodocident').value = response.data.tipodocident;
+                document.querySelector('#pnombre').value = response.data.pnombre;
+                document.querySelector('#snombre').value = response.data.snombre;
+                document.querySelector('#papellido').value = response.data.papellido;
+                document.querySelector('#sapellido').value = response.data.sapellido;
+                document.querySelector('#fechanac').value = response.data.fechanac;
+                document.querySelector('#ciudadnacimiento').value = response.data.ciudadnacimiento;
+                document.querySelector('#telefonoempleado').value = response.data.telefonoempleado;
+                document.querySelector('#direccionempleado').value = response.data.direccionempleado;
+                document.querySelector('#sexo').value = response.data.sexo;
+                document.querySelector('#email').value = response.data.email;
+                document.querySelector('#ciudadresidencia').value = response.data.ciudadresidencia;
+                document.querySelector('#estadocivil').value = response.data.estadocivil;
+                document.querySelector('#paisnacimiento').value = response.data.paisnacimiento;
+                document.querySelector('#paisresidencia').value = response.data.paisresidencia;
+                document.querySelector('#celular').value = response.data.celular;
+                document.querySelector('#profesion').value = response.data.profesion;
+                document.querySelector('#niveleducativo').value = response.data.niveleducativo;
+                document.querySelector('#gruposanguineo').value = response.data.gruposanguineo;
+                document.querySelector('#estatura').value = response.data.estatura;
+                document.querySelector('#peso').value = response.data.peso;
+                document.querySelector('#fechaexpedicion').value = response.data.fechaexpedicion;
+                document.querySelector('#ciudadexpedicion').value = response.data.ciudadexpedicion;
+                document.querySelector('#dotpantalon').value = response.data.dotpantalon;
+                document.querySelector('#dotcamisa').value = response.data.dotcamisa;
+                document.querySelector('#dotzapatos').value = response.data.dotzapatos;
+                document.querySelector('#estrato').value = response.data.estrato;
+                document.querySelector('#numlibretamil').value = response.data.numlibretamil;
+
+                
+                
+                
+            },
+            error: function(response) {
+                console.log(response.error);
+                modalTitle.textContent = 'Error al cargar los datos';
+            }
+        });
+
+
+    });
+</script>
+
+
 
 <script>
     $(document).ready(function() {
@@ -143,9 +673,14 @@ Listado de Contratos Activos
             "pageLength": 10,     
             buttons: [
                 {
-                    extend: 'excelHtml5',
-                    filename: 'informe_de_activos',
+                    
                     text: ' <i class="fa-solid fa-table"></i> Exportar a Excel',
+                    action: function (e, dt, node, config) {
+                        showLoadingAnimation();
+                        setTimeout(function(){
+                            window.location.href = "{% url 'companies:exportar_excel0' %}";
+                        }, 100);
+                    },
                     className: 'btn btn-light-info'
                 },
                 {
@@ -153,7 +688,7 @@ Listado de Contratos Activos
                     action: function (e, dt, node, config) {
                         showLoadingAnimation();
                         setTimeout(function(){
-                            window.location.href = "";
+                            window.location.href = "{% url 'companies:exportar_excel1' %}";
                         }, 100);
                     },
                     className: 'btn btn-light-info'
@@ -163,7 +698,7 @@ Listado de Contratos Activos
                     action: function (e, dt, node, config) {
                         showLoadingAnimation();
                         setTimeout(function(){
-                            window.location.href = "";
+                            window.location.href = "{% url 'companies:exportar_excel2' %}";
                         }, 100);
                     },
                     className: 'btn btn-light-info'

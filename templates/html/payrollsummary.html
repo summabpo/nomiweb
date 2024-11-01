@@ -259,8 +259,8 @@
 
             {% for nomina in grouped_nominas %}
                 <tr>
-                    <td class="id"  >{{ nomina.idconcepto }}</td>
-                    <td class="concepto" >{{ nomina.nombreconcepto }}</td>
+                    <td class="id"  >{{ nomina.idconcepto__idconcepto }}</td>
+                    <td class="concepto" >{{ nomina.idconcepto__nombreconcepto }}</td>
                     <td class="valores">{{ nomina.cantidad_total }}</td>
                     <td class="valores">{{ nomina.ingresos }}</td>
                     <td class="valores">{{ nomina.descuentos }}</td>

@@ -1,7 +1,7 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column,Button , HTML
-from apps.companies.models import Costos, Sedes, Contratosemp
+from apps.common.models import Costos,Sedes,Contratosemp,Anos
 
 # Definir los choices para los años (2015-2024)
 AÑO_CHOICES = [('', '--------------')] + [(str(year), str(year)) for year in range(2024, 2014, -1)]
@@ -62,12 +62,6 @@ class ReportFilterForm(forms.Form):
     
     
     # Cambiar los campos a ChoiceField
-    year_init = forms.ChoiceField(
-        choices=AÑO_CHOICES,
-        required=True,
-        label='Año Inicial',
-        widget=forms.Select(attrs={'class': 'form-control'}))
-    
     
     mst_init = forms.ChoiceField(
         choices=MES_CHOICES,
@@ -75,11 +69,6 @@ class ReportFilterForm(forms.Form):
         label='Mes Inicial',
         widget=forms.Select(attrs={'class': 'form-control'}))
     
-    year_end = forms.ChoiceField(
-        choices=AÑO_CHOICES,
-        required=True,
-        label='Año Final', 
-        widget=forms.Select(attrs={'class': 'form-control'}))
     
     
     mst_end = forms.ChoiceField(
@@ -108,23 +97,37 @@ class ReportFilterForm(forms.Form):
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # self.fields['start_date'].widget.attrs.update({'class': 'form-control'})
-        # self.fields['end_date'].widget.attrs.update({'class': 'form-control'})
-        
+        idempresa = kwargs.pop('idempresa', None)
+        super().__init__(*args, **kwargs)        
         # Actualizar choices dinámicamente
-        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').order_by('papellido')]
+        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.filter(id_empresa__idempresa = idempresa ).values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').order_by('papellido')]
         self.fields['cost_center'].choices = [('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.all()]
         self.fields['city'].choices = [('', '----------')] + [(ciudad.idsede, f"{ciudad.nombresede}") for ciudad in Sedes.objects.all().order_by('nombresede')]
 
+        self.fields['year_init'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(anos.idano,anos.ano   ) for anos in Anos.objects.all().order_by('ano')], 
+            label='Año Inicial' , 
+            required=True ,
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                }),
+            )
+        
+        self.fields['year_end'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(anos.idano,anos.ano   ) for anos in Anos.objects.all().order_by('ano')], 
+            label='Año Final' , 
+            required=True ,
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                }),
+            )
 
-        self.fields['year_init'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-hide-search': 'true' ,
-            'class': 'form-select',
-            
-        })
         
         self.fields['mst_init'].widget.attrs.update({
             'data-control': 'select2',
@@ -133,12 +136,6 @@ class ReportFilterForm(forms.Form):
             
         })
         
-        self.fields['year_end'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-hide-search': 'true' ,
-            'class': 'form-select',
-            
-        })
         
         self.fields['mst_end'].widget.attrs.update({
             'data-control': 'select2',

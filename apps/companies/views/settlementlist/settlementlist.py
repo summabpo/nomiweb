@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from apps.companies.models import Liquidacion
+from apps.common.models  import Liquidacion
 from io import BytesIO
 from xhtml2pdf import pisa
 from django.http import HttpResponse, HttpResponseRedirect
@@ -11,9 +11,12 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def settlementlist(request):
-    liquidaciones = Liquidacion.objects.all().order_by('-idliquidacion')
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('idliquidacion')
     
     
     for compect in liquidaciones:
@@ -29,10 +32,13 @@ def settlementlist(request):
     } )
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def settlementlistdownload(request,idliqui):
     
-    context = settlementgenerator(idliqui)
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    context = settlementgenerator(idliqui,idempresa)
 
     html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')
     

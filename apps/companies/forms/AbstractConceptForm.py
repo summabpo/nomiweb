@@ -1,8 +1,8 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column ,Button
-from apps.companies.models import Contabgrupos , Nomina
-from apps.companies.models import Contratosemp
+from apps.common.models import Contabgrupos , Nomina , Contratosemp
+
 
 
 CONCEPT_CHOICES = [

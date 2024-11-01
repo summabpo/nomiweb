@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from apps.companies.models import Nomina , NominaComprobantes
+from apps.common.models import Nomina , NominaComprobantes ,Crearnomina
 from apps.components.humani import format_value
 from io import BytesIO
 from xhtml2pdf import pisa
@@ -27,11 +27,13 @@ def get_email_status(estado_email):
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def payrollsheet(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     #nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
-    nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
-
+    #nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
+    nominas = Crearnomina.objects.filter(id_empresa = idempresa ).values_list('nombrenomina', 'idnomina').order_by('-idnomina').exclude(idnomina = 438 )
     compects = []
     acumulados = {}
 
@@ -63,11 +65,11 @@ def payrollsheet(request):
         for data in compectos:
             
             docidentidad = data.idcontrato.idcontrato
-            compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato )
+            compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato , idcosto__idcosto = data.idcontrato.idcosto.idcosto )
             if docidentidad not in acumulados:
                 acumulados[docidentidad] = {
                     'documento': docidentidad,
-                    'nombre': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
+                    'nombre': f"{data.idcontrato.idempleado.papellido} {data.idcontrato.idempleado.sapellido} {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.snombre}",
                     'neto': 0,
                     'ingresos': 0,
                     'basico': 0,
@@ -108,9 +110,11 @@ def payrollsheet(request):
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def generatepayrollsummary(request,idnomina):
-    context = generate_summary(idnomina)
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    context = generate_summary(idnomina,idempresa)
     
     html_string = render(request, './html/payrollsummary.html', context).content.decode('utf-8')
     
@@ -131,10 +135,10 @@ def generatepayrollsummary(request,idnomina):
     return response
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def generatepayrollsummary2(request, idnomina):
     # Obtener los contratos únicos ordenados por apellido
-    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idempleado__papellido').values_list('idcontrato', flat=True).distinct()
+    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idcontrato__idempleado__papellido').values_list('idcontrato', flat=True).distinct()
     
     # Crear un objeto para combinar PDFs
     merger = PdfMerger()
@@ -174,7 +178,7 @@ def generatepayrollsummary2(request, idnomina):
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def generatepayrollcertificate(request ,idnomina,idcontrato):
     context = genera_comprobante(idnomina,idcontrato)
 
@@ -210,7 +214,7 @@ icono 3 :  success, message - linea 177
 """
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def massive_mail(request):
     if request.method == 'POST':
         nomina = request.POST.get('nomina2', '')
@@ -305,7 +309,7 @@ def massive_mail(request):
 
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def unique_mail(request,idnomina,idcontrato):
     datacn = NominaComprobantes.objects.get(idnomina = idnomina ,idcontrato = idcontrato )
     context = genera_comprobante(idnomina, idcontrato)
