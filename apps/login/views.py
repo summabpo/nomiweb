@@ -76,7 +76,6 @@ def Login_view(request):
 def login_home(request, sociallogin=None, **kwargs):
     user_id = request.session.get('_auth_user_id')
     backend = request.session.get('_auth_user_backend')
-    print(user_id)
     if user_id and backend:
         User = get_user_model()
         user = User.objects.get(id=user_id)
@@ -92,8 +91,6 @@ def login_home(request, sociallogin=None, **kwargs):
                 'idempleado': user.id_empleado.idempleado if user.id_empleado else None,
                 'idempresa': user.id_empresa.idempresa if user.id_empresa else None
             }
-
-            # Redirigir según el rol
     return redirect_by_role(rol)
 
 @login_required

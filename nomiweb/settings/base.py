@@ -64,7 +64,7 @@ SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el navegador
 
 
-SITE_ID = 1
+SITE_ID = 4
 
 # Redirección del usuario cuando es autenticado (logueado)
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
