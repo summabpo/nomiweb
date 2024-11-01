@@ -1,172 +1,49 @@
+{% extends "baselogin.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% load i18n %}
-{% load allauth %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
-    
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-    <!--end::Fonts-->
-    <!--begin::Vendor Stylesheets(used for this page only)-->
-    <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css" />
-    <!--end::Vendor Stylesheets-->
-    <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
-    <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
-    
-    <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
-
-    <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
-
-    <style>
-        /* Estilo personalizado para el enlace */
-        .enlace-redondo {
-          position: fixed;
-          bottom: 20px; /* Ajusta según la distancia desde el borde inferior */
-          right: 20px; /* Ajusta según la distancia desde el borde derecho */
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background-color: #007bff; /* Color de fondo */
-          color: #fff; /* Color del texto */
-          text-align: center;
-          line-height: 50px;
-          font-weight: bold;
-          text-decoration: none; /* Elimina el subrayado del enlace */
-          transition: opacity 0.3s ease; /* Transición suave de la opacidad */
-          opacity: 0; /* Inicialmente transparente */
-        }
-
-        /* Cambiar la opacidad al pasar el ratón por encima */
-        .enlace-redondo:hover {
-          opacity: 1; /* Hacer visible */
-        }
-
-        .custom-label .asteriskField {
-            display: none;
-        }
-      </style>
+{% load account socialaccount %}
 
 
-</head>
-<body id="kt_body" class="app-default" >
-        
+{% block content %}
 
-
-    <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body btn-primary">
-                    <div class="d-flex flex-center h-150px"> <!-- Reduce la altura del contenedor del logo -->
-                        <img
-                            src="{% static 'img/logonomiweb.png' %}"
-                            data-src="{% static 'img/logonomiweb.png' %}"
-                            class="lozad rounded mw-100"
-                            alt="Logo Nomiweb"
-                        />
-                    </div>
-    
-                    <h2 class="card-title text-center btn-primary my-3">Iniciar sesión</h2> <!-- Ajusta el margen superior e inferior -->
-                    {% crispy form %}
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body btn-primary">
+                <div class="d-flex flex-center h-150px"> <!-- Reduce la altura del contenedor del logo -->
+                    <img
+                        src="{% static 'img/logonomiweb.png' %}"
+                        data-src="{% static 'img/logonomiweb.png' %}"
+                        class="lozad rounded mw-100"
+                        alt="Logo Nomiweb"
+                    />
                 </div>
-                <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="Le enviaremos un correo electrónico con instrucciones para restablecer su contraseña.">
-                    <a href="{% url 'login:reset' %}" class="d-flex justify-content-center align-items-center text-success">Restablecer la contraseña</a>
-                </div>
-    
-                <div class="separator separator-content border-success my-4"> <!-- Ajusta el margen -->
-                    <i class="ki-duotone ki-chart-pie-4 fs-2 text-success"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
-                </div>
-    
-                <div class="btn-group my-3 mx-2" role="group" aria-label="Basic example">
-                    <a href="#" class="btn btn-icon btn-light-google mx-2"><i class="fab fa-google fs-4"></i></a>
-                    <a href="#" class="btn btn-icon btn-light-linkedin mx-2"><i class="fa-brands fa-microsoft fs-4"></i></a>
-                </div>
+
+                <h2 class="card-title text-center btn-primary my-3">Iniciar sesión</h2> <!-- Ajusta el margen superior e inferior -->
+                {% crispy form %}
+            </div>
+            <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="Le enviaremos un correo electrónico con instrucciones para restablecer su contraseña.">
+                <a href="{% url 'login:reset' %}" class="d-flex justify-content-center align-items-center text-success">Restablecer la contraseña</a>
+            </div>
+
+            <div class="separator separator-content border-success my-4"> <!-- Ajusta el margen -->
+                <i class="ki-duotone ki-chart-pie-4 fs-2 text-success"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+            </div>
+
+            <div class="btn-group my-3 mx-2" role="group" aria-label="Basic example">
+                <a href="{% provider_login_url 'google' auth_params='prompt=select_account' process='login' %}" class="btn btn-icon btn-light-google mx-2">
+                    <i class="fab fa-google fs-4"></i>
+                </a>
+                <a href="" class="btn btn-icon btn-light-linkedin mx-2">
+                    <i class="fa-brands fa-microsoft fs-4"></i>
+                </a>
+                
+                
             </div>
         </div>
-    
-        <a href="#" class="enlace-redondo" id="enlace-oculto"></a>
     </div>
-    
-        
-        
-        
-    {% comment %} <div class="d-flex flex-column flex-root" id="kt_app_root">
-        
-        <div class="d-flex flex-column flex-lg-row flex-column-fluid">
-            <div class="d-flex flex-column flex-lg-row-auto bg-primary w-xl-600px positon-xl-relative">
 
-            </div>
-            <div class="d-flex flex-column  bg-primary flex-lg-row-fluid py-10">
-
-                <a href="#" class="enlace-redondo" id="enlace-oculto"></a>
-
-                <div class="d-flex flex-center flex-column flex-column-fluid">
-                    <div class="w-lg-1000px p-10 p-lg-15 mx-auto">
-                        {% crispy form %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> {% endcomment %}
-
-<!--begin::Global Javascript Bundle(mandatory for all pages)-->
-<script src="{% static 'plugins/global/plugins.bundle.js' %}"></script>
-<script src="{% static 'js/scripts.bundle.js' %}"></script>
-<!--end::Global Javascript Bundle-->
-<!--begin::Vendors Javascript(used for this page only)-->
-<script src="{% static 'plugins/custom/datatables/datatables.bundle.js' %}"></script>
-<!--end::Vendors Javascript-->
-<!--begin::Custom Javascript(used for this page only)-->
-<script src="{% static 'js/widgets.bundle.js' %}"></script>
-<script src="{% static 'js/custom/widgets.js' %}"></script>
-<script src="{% static 'js/custom/apps/chat/chat.js' %}"></script>
-<script src="{% static 'js/custom/utilities/modals/upgrade-plan.js' %}"></script>
-<script src="{% static 'js/custom/utilities/modals/create-account.js' %}"></script>
-<script src="{% static 'js/custom/utilities/modals/create-app.js' %}"></script>
-<script src="{% static 'js/custom/utilities/modals/users-search.js' %}"></script>
-<!--end::Custom Javascript-->
-
-<!--end::Javascript-->
-
-<script>
-{% if messages %}
-    {% for message in messages %}
-        Swal.fire({
-            text: "{{ message }}",
-            icon: "{{message.tags}}",
-            showConfirmButton: true,
-            confirmButtonText: "Ok",
-            customClass: {
-                confirmButton: "btn btn-primary"
-            },
-            willOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            }
-        });
-    {% endfor %}
-{% endif %}
-</script>
-
-<script>
-    function togglePasswordVisibility(element) {
-        var passwordInput = element.parentElement.querySelector('input');
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            element.classList.remove('fa-eye');
-            element.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = "password";
-            element.classList.remove('fa-eye-slash');
-            element.classList.add('fa-eye');
-        }
-    }
-</script>
-
-
-
-</body>
-</html>
+    <a href="" class="enlace-redondo" id="enlace-oculto"></a>
+</div>
+{% endblock %}
