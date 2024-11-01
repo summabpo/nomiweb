@@ -47,6 +47,9 @@ THIRD_APPS = [
     'import_export',
     ## Debug toolbar
     'debug_toolbar',
+    'allauth',
+    'allauth.account',
+    
 ]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
@@ -69,6 +72,8 @@ BASE_MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+        # Add the account middleware:
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 LOCAL_MIDDLEWARE = [
@@ -115,6 +120,9 @@ WSGI_APPLICATION = 'nomiweb.wsgi.application'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
+    
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
