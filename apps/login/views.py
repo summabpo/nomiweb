@@ -14,7 +14,7 @@ from apps.components.decorators import TempSession,custom_login_required , defau
 from apps.components.mail import send_template_email
 from django.urls import reverse
 from apps.common.models import User
-
+from django.contrib.auth import get_user_model
 
 
 
@@ -72,6 +72,29 @@ def Login_view(request):
             form = LoginForm()
         return render(request, './users/login.html', {'form': form})
 
+
+def login_home(request, sociallogin=None, **kwargs):
+    user_id = request.session.get('_auth_user_id')
+    backend = request.session.get('_auth_user_backend')
+    print(user_id)
+    if user_id and backend:
+        User = get_user_model()
+        user = User.objects.get(id=user_id)
+        
+        # Si el usuario está autenticado, puedes iniciar sesión
+        if user:
+            login(request, user, backend=backend)
+            
+            rol = user.tipo_user 
+            request.session['usuario'] = {
+                'rol': rol,
+                'name': f"{user.first_name} {user.last_name}",
+                'idempleado': user.id_empleado.idempleado if user.id_empleado else None,
+                'idempresa': user.id_empresa.idempresa if user.id_empresa else None
+            }
+
+            # Redirigir según el rol
+    return redirect_by_role(rol)
 
 @login_required
 def logout_view(request):

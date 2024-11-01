@@ -12,7 +12,7 @@ SECRET_KEY = 'En_dev_no_importa'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 SETTINGS_ENV = 'development'
 
