@@ -1,5 +1,8 @@
 import os
 from dotenv import load_dotenv
+
+
+
 # from django.urls import reverse_lazy
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -47,7 +50,53 @@ THIRD_APPS = [
     'import_export',
     ## Debug toolbar
     'debug_toolbar',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
+SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
+SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el navegador
+
+
+SITE_ID = 4
+
+# Redirección del usuario cuando es autenticado (logueado)
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_AUTHENTICATION_METHOD = "email"  # Esto permite usar el correo electrónico para autenticarse
+ACCOUNT_EMAIL_REQUIRED = True  #* Asegúrate de que el correo electrónico sea obligatorio
+ACCOUNT_USERNAME_REQUIRED = False  #* Desactiva la necesidad de un nombre de usuario
+SOCIALACCOUNT_ENABLED = True
+SOCIALACCOUNT_AUTO_SIGNUP = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_LOGOUT_ON_GET = True
+SOCIALACCOUNT_ADAPTER = 'apps.login.adapters.MySocialAccountAdapter'
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.environ.get('client_id_google'),
+            'secret': os.environ.get('client_secret_google'),
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+    }
+}
+
+LOGIN_REDIRECT_URL = '/home/'  
+LOGOUT_REDIRECT_URL = '/'
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
 
@@ -69,6 +118,8 @@ BASE_MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+        # Add the account middleware:
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 LOCAL_MIDDLEWARE = [
@@ -115,12 +166,10 @@ WSGI_APPLICATION = 'nomiweb.wsgi.application'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
+    
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
-
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
-SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
-SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador
 
 
 
@@ -187,10 +236,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-LOGIN_REDIRECT_URL = '/'
-
-
 
 
 AUTH_USER_MODEL = 'common.User'
