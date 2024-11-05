@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from apps.companies.models import Contratos, Contratosemp
+from apps.common.models import Contratos, Contratosemp
 from apps.components.mail import send_template_email
 from apps.common.models import User
 from django.contrib.auth.hashers import make_password
@@ -40,7 +40,7 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
         return False, None, None
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def loginweb(request):
     db_name = request.session.get('usuario', {}).get('db')
 

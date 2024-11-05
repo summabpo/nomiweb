@@ -27,7 +27,8 @@ def hiring(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     empleados = {}
-    
+    form_empleados = EmployeeForm() 
+    form_contratos = ContractForm(idempresa=idempresa)
     if request.method == 'POST':
         # Procesar los datos del formulario 1
         form1 = EmployeeForm(request.POST, prefix='form1')
@@ -109,14 +110,15 @@ def hiring(request):
             messages.success(request, 'El Empleado ha sido creado')
             return redirect('companies:hiring')
         else:
+            form1 = EmployeeForm(request.POST, prefix='form1')
             form_errors = True
             for field, errors in form1.errors.items():
                 for error in errors:
                     messages.error(request, f'{error}')
-    
-    
-    form_empleados = EmployeeForm() 
-    form_contratos = ContractForm(idempresa=idempresa)
+    else:
+        form_empleados = EmployeeForm() 
+        form_contratos = ContractForm(idempresa=idempresa)
+        
     empleados = Contratosemp.objects.filter(estadocontrato=4 , id_empresa__idempresa = idempresa )  
     return render(request, './companies/hiring.html',{'empleados':empleados,'form_empleados':form_empleados , 'form_contratos':form_contratos ,'form_errors' :form_errors})
 
