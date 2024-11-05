@@ -1,7 +1,7 @@
 import openpyxl
 from openpyxl.styles import NamedStyle
 from io import BytesIO
-from apps.companies.models import Contratos, Vacaciones, Conceptosfijos
+from apps.common.models  import Contratos, Vacaciones, Conceptosfijos
 from django.db.models import Q, Sum
 from django.utils import timezone
 from datetime import datetime

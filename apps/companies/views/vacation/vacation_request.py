@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
-from apps.companies.models import Contratosemp , Vacaciones ,Contratos 
-from apps.employees.models import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
+from apps.common.models  import Contratosemp , Vacaciones ,Contratos 
+from apps.common.models  import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
 from django.db.models.functions import Coalesce
 from django.db.models import Value
 from django.db.models import CharField, DateField
@@ -108,7 +108,7 @@ def get_vacation_details(request):
                 'empleado': empleado,
                 
                 ## data vacation 
-                'tipovac': str(data.tipovac.tipovac),
+                'tipovac': str(data.tipovac.idvac),
                 'nombre_tipovac': data.tipovac.nombrevacaus,
                 'fecha': data.fecha_hora.strftime('%d-%m-%Y'),
                 'cuentasabados': nom_cuentasabados,

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
-from apps.companies.models import Contratosemp , Vacaciones ,Contratos 
+from apps.common.models  import Contratosemp , Vacaciones ,Contratos 
 from django.http import JsonResponse
 
 
@@ -35,7 +35,7 @@ def get_novedades(request):
     }
 
     if tipo_novedad == 'vacaciones':
-        vacaciones = Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[1,2]) 
+        vacaciones = Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__idvac__in=[1,2]) 
         for vacacion in vacaciones:
             novedad = {
                 "novedad": vacacion.tipovac.nombrevacaus if vacacion.tipovac and vacacion.tipovac.nombrevacaus else '',
@@ -51,7 +51,7 @@ def get_novedades(request):
             data["novedades"].append(novedad)
             
     else:  # Asumimos 'ausencias' o 'licencias no remuneradas'
-        vacaciones = Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__tipovac__in=[3,4,5]) 
+        vacaciones = Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__idvac__in=[3,4,5]) 
         for vacacion in vacaciones:
             novedad = {
                 "novedad": vacacion.tipovac.nombrevacaus if vacacion.tipovac and vacacion.tipovac.nombrevacaus else '',

@@ -1511,7 +1511,8 @@ class Salariominimoanual(models.Model):
     salariominimo = models.IntegerField(blank=True, null=True)
     auxtransporte = models.IntegerField(blank=True, null=True)
     uvt = models.IntegerField(blank=True, null=True)
-
+    ano = models.IntegerField(blank=True, null=True)
+    
     class Meta:
         db_table = 'salariominimoanual'
 
