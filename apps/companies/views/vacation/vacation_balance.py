@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from apps.companies.models import Contratos, Vacaciones, Conceptosfijos
+from apps.common.models import Contratos, Vacaciones, Conceptosfijos
 from django.db.models import Q, Sum
 from django.utils import timezone
 from apps.components.utils import calcular_dias_360
@@ -77,7 +77,6 @@ def vacation_balance(request):
         'date': date,
         'visual':visual,
     }
-    print(date)
     return render(request, './companies/vacation_balance.html', context)
 
 

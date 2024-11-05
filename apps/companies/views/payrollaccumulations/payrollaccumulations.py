@@ -62,15 +62,16 @@ def payrollaccumulations(request):
                     
             # Acumular los datos
             for data in nominas:
-                docidentidad = data.idempleado.docidentidad
+                docidentidad = data.idcontrato.idempleado.docidentidad
+                print(docidentidad)
                 if docidentidad not in acumulados:
                     acumulados[docidentidad] = {
                         'documento': docidentidad,
-                        'empleado': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
+                        'empleado': f"{data.idcontrato.idempleado.papellido} {data.idcontrato.idempleado.sapellido} {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.snombre}",
                         'contrato': data.idcontrato.idcontrato,
                         'data': [
                             {"idconcepto": data.idconcepto.idconcepto,
-                                "nombreconcepto": data.nombreconcepto,
+                                "nombreconcepto": data.idconcepto.nombreconcepto,
                                 "cantidad": data.cantidad,
                                 "valor": data.valor,},
                         ]
@@ -86,7 +87,7 @@ def payrollaccumulations(request):
                         # Si no existe, añadir el nuevo concepto
                         nuevo_concepto = {
                             "idconcepto": data.idconcepto.idconcepto,
-                            "nombreconcepto": data.nombreconcepto,
+                            "nombreconcepto": data.idconcepto.nombreconcepto,
                             "cantidad": data.cantidad,
                             "valor": data.valor,
                         }
@@ -98,7 +99,7 @@ def payrollaccumulations(request):
             
             # Procesar los datos acumulados
             compects = list(acumulados.values())
-            print(compects)
+            
             form = ReportFilterForm(request.POST,idempresa=idempresa)
             # except Exception as e:
             #     print(f"Tipo de excepción: {type(e).__name__}") 
