@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import threading
+import time
 
 #* tablas comunes 
 class Anos(models.Model):
@@ -431,8 +435,8 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(unique=True)
-    tipo_user = models.CharField(max_length=10, choices=TIPO_USER_CHOICES, default='admin')
-    rol = models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True)
+    tipo_user = models.CharField(max_length = 10, choices = TIPO_USER_CHOICES, default='admin')
+    rol = models.ForeignKey(Role, on_delete = models.DO_NOTHING, null=True)
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING, blank=True, null=True)
     id_empleado = models.ForeignKey('Contratosemp', on_delete=models.DO_NOTHING, blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -445,7 +449,7 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return f"{self.email} - {self.tipo_user}"
+        return f"{self.email}"
 
     def is_admin(self):
         return self.role == 'admin'
@@ -458,6 +462,26 @@ class User(AbstractUser):
         verbose_name = "user"
         verbose_name_plural = "users"
         db_table = 'user'
+
+class Token(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE , blank=True, null=True)
+    token_temporal = models.CharField(max_length=100 , blank=True, null=True)
+    tiempo_creacion = models.DateTimeField(auto_now_add=True , blank=True, null=True)
+    estado = models.BooleanField(default=True , blank=True, null=True )
+    
+    class Meta:
+        db_table = 'token'
+        verbose_name = "token"
+        verbose_name_plural = "tokens"
+
+@receiver(post_save, sender=Token)
+def eliminar_objeto_despues_dos_horas(sender, instance, **kwargs):
+    def cambiar_estado():
+        time.sleep(120)
+        instance.estado = False
+        instance.save()
+
+    threading.Thread(target=cambiar_estado).start()
 
 class EditHistory(models.Model):
     modified_model = models.CharField(max_length=100)  # Nombre del modelo modificado

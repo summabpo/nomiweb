@@ -63,6 +63,7 @@ SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
 SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el navegador
 
+SOCIALACCOUNT_ADAPTER = 'apps.login.adapters.CustomSocialAccountAdapter'
 
 SITE_ID = 4
 
@@ -76,24 +77,27 @@ SOCIALACCOUNT_ENABLED = True
 SOCIALACCOUNT_AUTO_SIGNUP = False
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_LOGOUT_ON_GET = True
-SOCIALACCOUNT_ADAPTER = 'apps.login.adapters.MySocialAccountAdapter'
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = False 
+SOCIALACCOUNT_AUTO_SIGNUP = False 
+SOCIALACCOUNT_EMAIL_REQUIRED = True
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'APP': {
-#             'client_id': os.environ.get('client_id_google'),
-#             'secret': os.environ.get('client_secret_google'),
-#             'key': ''
-#         },
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         },
-#     }
-# }
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.environ.get('client_id_google'),
+            'secret': os.environ.get('client_secret_google'),
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
 
 LOGIN_REDIRECT_URL = '/home/'  
 LOGOUT_REDIRECT_URL = '/'
