@@ -23,7 +23,7 @@
                 <h2 class="card-title text-center btn-primary my-3">Iniciar sesión</h2> <!-- Ajusta el margen superior e inferior -->
                 {% crispy form %}
             </div>
-            <div data-bs-toggle="tooltip" data-bs-placement="bottom" title="Le enviaremos un correo electrónico con instrucciones para restablecer su contraseña.">
+            <div data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Le enviaremos un correo electrónico con instrucciones para restablecer su contraseña.">
                 <a href="{% url 'login:reset' %}" class="d-flex justify-content-center align-items-center text-success">Restablecer la contraseña</a>
             </div>
 
@@ -32,10 +32,10 @@
             </div>
 
             <div class="btn-group my-3 mx-2" role="group" aria-label="Basic example">
-                <a href="" class="btn btn-icon btn-light-google mx-2">
+                <a href="{% provider_login_url 'google' auth_params='prompt=select_account' process='login' %}" class="btn btn-icon btn-light-google mx-2" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Iniciar sesión con Google">
                     <i class="fab fa-google fs-4"></i>
                 </a>
-                <a href="" class="btn btn-icon btn-light-linkedin mx-2">
+                <a href="#" class="btn btn-icon btn-light-twitter mx-2" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Oops... microsoft  aún está tomando su café, funcionalidad no disponible por ahora.">
                     <i class="fa-brands fa-microsoft fs-4"></i>
                 </a>
                 

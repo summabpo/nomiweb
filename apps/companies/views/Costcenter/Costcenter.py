@@ -11,8 +11,11 @@ from django.contrib.auth.decorators import login_required
 @role_required('company')
 def Costcenter(request): 
     usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    usuario = request.session.get('usuario', {})
     if request.method == 'POST':
-        form = CostcenterForm(request.POST)
+        form = CostcenterForm(request.POST,idempresa = idempresa)
         if form.is_valid():
             empresa = Empresa.objects.get(idempresa=usuario['idempresa'])
             nuevo_costo = Costos(
@@ -30,7 +33,7 @@ def Costcenter(request):
                     messages.error(request, f"Error en el campo '{field}': {error}")
     else:
         costos = Costos.objects.filter(id_empresa__idempresa=usuario['idempresa'] ).exclude(grupocontable= 0 ,suficosto = 0 ).order_by('idcosto')
-        form = CostcenterForm()
+        form = CostcenterForm(idempresa = idempresa)
     
     return render(request, './companies/costcenter.html',
                     {

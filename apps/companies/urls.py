@@ -12,7 +12,7 @@ from .views.workplace import workplace
 from .views.headquarters import headquarters
 from .views.hiring import hiring
 # from .views.laborcertification import laborcertification
-# from .views.loginweb import loginweb
+from .views.loginweb import loginweb
 from .views.payrollsheet import payrollsheet
 from .views.assetsview import assetsview
 from .views.birthday import birthday
@@ -28,7 +28,7 @@ from .views.externalreport import externalreport
 from .views.dian import dian
 
 # # Payroll News views
-# from .views.loans import loans
+from .views.loans import loans
 # from .views.disabilities import disabilities
 from .views.vacation import vacation, vacation_general, vacation_balance, vacation_request
 
@@ -99,7 +99,7 @@ urlpatterns = [
     path('payroll/payroll/abstract/concept/', abstractconcept.abstractconcept, name='abstractconcept'),
 
     # ## Payroll News URLs
-    # path('payroll/new/loans/', loans.loans, name='loans'),
+    path('payroll/new/loans/', loans.loans, name='loans'),
     # path('payroll/new/loans/edit/', loans.edit_loans, name='edit_loans'),
     # path('payroll/new/disabilities/', disabilities.disabilities, name='disabilities'),
     # path('payroll/new/disabilities/edit/', disabilities.edit_disabilities, name='edit_disabilities'),
@@ -117,7 +117,7 @@ urlpatterns = [
     path('payroll/sheet/massive/mail/', payrollsheet.massive_mail, name='massivemail'),
 
     # ## Security URLs
-    # path('security/user/', loginweb.loginweb, name='loginweb'),
+    path('security/user/', loginweb.loginweb, name='loginweb'),
 
     ## Admin Login URL (commented out)
     # path('logout/', views.Logout, name='logout'),

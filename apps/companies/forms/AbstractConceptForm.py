@@ -79,16 +79,40 @@ class AbstractConceptForm(forms.Form):
         return cleaned_data
     
     def __init__(self, *args, **kwargs):
+        idempresa = kwargs.pop('idempresa', None)
         super().__init__(*args, **kwargs)
 
         # Actualizar choices dinámicamente
-        self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.values_list('nombreconcepto', flat=True).distinct().order_by('nombreconcepto')]
-        self.fields['payroll'].choices = [('', '----------')] + [(idnomina, nombrenomina) for nombrenomina, idnomina in Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')]
-        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').distinct().order_by('papellido')]
+        self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.filter(idnomina__id_empresa = idempresa ).values_list('idconcepto__nombreconcepto', flat=True).distinct().order_by('idconcepto__nombreconcepto') ]
+        self.fields['payroll'].choices = [('', '----------')] + [(idnomina, nombrenomina) for nombrenomina, idnomina in Nomina.objects.filter(idnomina__id_empresa = idempresa ).select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')]
+        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.filter(id_empresa = idempresa ).values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').distinct().order_by('papellido')]
         #self.fields['month'].choices = [('', '----------')] + [(mes, mes) for mes in range(1, 13)]
-        self.fields['year'].choices = [('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('anoacumular', flat=True).distinct().order_by('-anoacumular')]
+        #self.fields['year'].choices = [('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('idnomina__anoacumular__ano', flat=True).distinct().order_by('-idnomina__anoacumular__ano')]
         
+        self.fields['year'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('idnomina__anoacumular__ano', flat=True).distinct().order_by('-idnomina__anoacumular__ano')],
+            label='Año Acumular',
+            required=False,
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'data-hide-search': 'true',
+                'class': 'form-select',
+            })
+        )
         
+        self.fields['month'] = forms.ChoiceField(
+            choices= MONTH_CHOICES ,
+            required=False,
+            label='Mes Acumular',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-tags': 'true',
+                'data-hide-search': 'true',
+                'class': 'form-select',
+            })
+        )
+
         # self.fields['cost_center'] = forms.ChoiceField(choices=[('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.all()], label='Centro de Costos', required=False,)
         # self.fields['city'] = forms.ChoiceField(choices=[('', '----------')] + [(ciudad.idciudad,  f"{ciudad.ciudad} - {ciudad.departamento}" ) for ciudad in Ciudades.objects.all().order_by('ciudad')[:10]], label='Lugar de trabajo' , required=False, widget=forms.Select(attrs={'data-control': 'select2'}))
 

@@ -16,7 +16,7 @@ ALLOWED_HOSTS = []
 
 SETTINGS_ENV = 'development'
 
-
+HOSTNAME = "http://127.0.0.1:8000/"
 
 DATABASES = {
     'default': {

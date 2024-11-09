@@ -8,9 +8,10 @@ class CostcenterForm(forms.Form):
     suficosto = forms.CharField(label='Sufijo costo' , required=False ,widget=forms.TextInput(attrs={'placeholder': 'Sufijo costo'}))
     
     def __init__(self, *args, **kwargs):
+        idempresa = kwargs.pop('idempresa', None)
         super().__init__(*args, **kwargs)
         
-        self.fields['grupocontable'] = forms.ChoiceField(choices=[('', '----------')] + [(nomina.idgrupo, nomina.grupocontable) for nomina in Contabgrupos.objects.all()], label='Grupo Contable' , required=True)
+        self.fields['grupocontable'] = forms.ChoiceField(choices=[('', '----------')] + [(nomina.idgrupo, nomina.grupocontable) for nomina in Contabgrupos.objects.filter(id_empresa = idempresa)], label='Grupo Contable' , required=True)
         self.helper = FormHelper()
         
         self.fields['grupocontable'].widget.attrs.update({

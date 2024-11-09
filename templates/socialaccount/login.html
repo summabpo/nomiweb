@@ -1,4 +1,5 @@
 {% extends "baselogin.html" %}
+{% load static %}
 {% load i18n %}
 {% load allauth %}
 {% block head_title %}
@@ -10,29 +11,55 @@
     <div class="col-md-4">  <!-- Aumentar el ancho del card para mayor espacio -->
         <div class="card shadow-sm" style="border-radius: 15px;"> <!-- Sombra y bordes redondeados -->
             <div class="card-body"> <!-- Añadir card-body para mayor separación -->
-                {% if process == "connect" %}
-                    <h1 class="text-center mb-4"> <!-- Centramos el texto y damos margen inferior -->
-                        {% blocktrans with provider.name as provider %}Connect {{ provider }}{% endblocktrans %}
-                    </h1>
-                    <p class="text-center mb-4"> <!-- Centramos el texto y damos margen inferior -->
-                        {% blocktrans with provider.name as provider %}You are about to connect a new third-party account from {{ provider }}.{% endblocktrans %}
-                    </p>
-                {% else %}
-                    <h1 class="text-center mb-4"> <!-- Centramos el texto y damos margen inferior -->
-                        {% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}
-                    </h1>
-                    <p class="text-center mb-4"> <!-- Centramos el texto y damos margen inferior -->
-                        {% blocktrans with provider.name as provider %}You are about to sign in using a third-party account from {{ provider }}.{% endblocktrans %}
-                    </p>
-                {% endif %}
+                <div class="d-flex flex-center h-150px"> <!-- Reduce la altura del contenedor del logo -->
+                    <img
+                        src="{% static 'img/logonomiweb.png' %}"
+                        data-src="{% static 'img/logonomiweb.png' %}"
+                        class="lozad rounded mw-100"
+                        alt="Logo Nomiweb"
+                    />
+                </div>
+
+                <h1 class="text-center mb-4"> <!-- Centramos el texto y damos margen inferior -->
+                    {% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}
+                </h1>
+                <p class="text-center mb-4"> <!-- Centramos el texto y damos margen inferior -->
+                    {% blocktrans with provider.name as provider %}You are about to sign in using a third-party account from {{ provider }}.{% endblocktrans %}
+                </p>
                 {% element form method="post" no_visible_fields=True %}
                     {% slot actions %}
                         {% csrf_token %}
-                        <button class="btn btn-primary w-100" type="submit"> <!-- Botón estilizado -->
-                            {% trans "Continue" %}
-                        </button>
+                        
+                        <div class="btn-group w-100" role="group" aria-label="Basic example">
+                           
+                            
+                            <a href="{% url 'login:login' %}" class="btn btn-light-danger w-100 py-3"> <!-- Botón de Cancelar -->
+                                {% trans "Cancel" %}
+                            </a>
+                            <div style="width: 10px;"></div> 
+                            <button class="btn btn-light-success w-100 py-3" type="submit"> <!-- Botón estilizado -->
+                                {% trans "Continue" %}
+                            </button>
+                        </div>
+                        
                     {% endslot %}
                 {% endelement %}
+
+                <!-- Términos y condiciones y política de privacidad -->
+                <div class="text-center mt-4">
+                    <p class="small">
+                        Al iniciar sesión, aceptas nuestros 
+                        <a href="{% url 'login:terms_and_conditions' %}" target="_blank">
+                            Términos y Condiciones
+                        </a>
+                        y
+                        <a href="{% url 'login:privacy_policy' %}" target="_blank">
+                            Política de Privacidad
+                        </a>.
+                    </p>
+                </div>
+                <!-- Botón de Cancelar -->
+                
             </div>
         </div>
     </div>
