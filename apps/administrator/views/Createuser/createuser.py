@@ -16,7 +16,7 @@ def toggle_user_active_status(request, user_id, activate=True):
 
 
 def user_admin(request):
-    users = User.objects.all()
+    users = User.objects.all().order_by('-id')
     
     return render(request, './admin/users.html' , {'users':users}) 
 
