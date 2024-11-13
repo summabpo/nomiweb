@@ -7,6 +7,7 @@ class ChargesForm(forms.Form):
     nombrecargo = forms.CharField(label='Nombre Cargo' , widget=forms.TextInput(attrs={'placeholder': 'Nombre cargo'}))
     
     def __init__(self, *args, **kwargs):
+        idempresa = kwargs.pop('idempresa', None)
         super().__init__(*args, **kwargs)
         
         # Filtrar Nivelesestructura por idempresa si está disponible

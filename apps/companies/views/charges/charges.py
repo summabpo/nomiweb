@@ -12,10 +12,10 @@ def charges(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':
-        form = form = ChargesForm(request.POST)
+        form = form = ChargesForm(request.POST ,idempresa = idempresa)
         if form.is_valid():
             empresa = Empresa.objects.get(idempresa = idempresa)
-            nivel = Nivelesestructura.get( idnivel = form.cleaned_data['nombrecargo'] )
+            nivel = Nivelesestructura.objects.get( idnivel = form.cleaned_data['nivelcargo'] )
             nuevo_cargo = Cargos(
                 nombrecargo=form.cleaned_data['nombrecargo'] ,
                 nombrenivel = nivel,
@@ -31,7 +31,7 @@ def charges(request):
     else:
         cargos = Cargos.objects.filter(id_empresa__idempresa=usuario['idempresa']).exclude(idcargo=93).order_by('idcargo')
 
-        form = ChargesForm()
+        form = ChargesForm(idempresa = idempresa)
     
     return render(request, './companies/charges.html',
                     {

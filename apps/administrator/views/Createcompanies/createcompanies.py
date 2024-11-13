@@ -3,7 +3,7 @@ from apps.administrator.forms.companiesForm import CompaniesForm
 
 from django.contrib import messages
 from django.contrib.auth.models import User
-from apps.login.models import  Empresa
+from apps.common.models import  Empresa
 
 
 

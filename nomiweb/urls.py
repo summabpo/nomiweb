@@ -15,7 +15,7 @@ urlpatterns = [
     path('', include('allauth.socialaccount.urls')),
     path('employees/', include(('apps.employees.urls', 'employees'))),
     path('companies/', include(('apps.companies.urls', 'companies'))),
-    # path('admin/', include(('apps.administrator.urls', 'admin'))),
+    path('admin/', include(('apps.administrator.urls', 'admin'))),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Si DEBUG está activado, agrega las URLs de Django Debug Toolbar

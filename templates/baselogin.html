@@ -23,10 +23,15 @@
     <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
 
     <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
-
-
-
-
+    <style>
+        .asteriskField {
+            display: none !important;
+        }
+        
+        {% block css %}
+        {% endblock %}
+    </style>
+    
 </head>
 <body id="kt_body" class="app-default" >
         
