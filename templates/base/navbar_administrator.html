@@ -1,4 +1,4 @@
-<div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="150px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
+<div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="250px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
     <!--begin::Main-->
     <div class="d-flex flex-column justify-content-between h-100 hover-scroll-overlay-y my-2 mx-5 d-flex flex-column" id="kt_app_sidebar_main" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_header" data-kt-scroll-wrappers="#kt_app_main" data-kt-scroll-offset="5px">
         <!--begin::Sidebar menu-->
@@ -21,7 +21,7 @@
                         <!--begin:Menu link-->
                         <a class="menu-link" href="{% url 'admin:user'  %}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-setting-4 fs-1"></i>
+                                <i class="fa-solid fa-users fs-1"></i>
                             </span>
                             <span class="menu-title">Usuarios</span>
                         </a>
@@ -34,10 +34,7 @@
                         <!--begin:Menu link-->
                         <a class="menu-link" href="">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-security-user fs-1">                                                  
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                </i>
+                                <i class="fa-solid fa-building-lock fs-1"></i>
                             </span>
                             <span class="menu-title">Seguridad</span>
                         </a>
@@ -50,7 +47,7 @@
                         <!--begin:Menu link-->
                         <a class="menu-link" href="{% url 'admin:companies'  %}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-setting-4 fs-1"></i>
+                                <i class="fa-solid fa-building fs-1"></i>
                             </span>
                             <span class="menu-title">Empresa</span>
                         </a>
@@ -63,7 +60,7 @@
                         <!--begin:Menu link-->
                         <a class="menu-link" href="{% url 'admin:role'  %}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-setting-4 fs-1"></i>
+                                <i class="fa-solid fa-user-tag fs-1"></i>
                             </span>
                             <span class="menu-title">Roles</span>
                         </a>
@@ -74,9 +71,9 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="{% url 'admin:logiwebselect'  %}">
+                        <a class="menu-link" href="{% url 'admin:loginweb'  %}">
                             <span class="menu-icon">
-                                <i class="ki-duotone ki-setting-4 fs-1"></i>
+                                <i class="fa-solid fa-user-shield fs-1"></i>
                             </span>
                             <span class="menu-title">Loginweb</span>
                         </a>

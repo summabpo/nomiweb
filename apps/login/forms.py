@@ -4,7 +4,7 @@ from crispy_forms.layout import Layout, Div, Submit, HTML, Field ,Row , Column
 from apps.common.models import User
 
 class LoginForm(forms.Form):
-    email = forms.CharField(label='Correo electronico:',max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Ingrese su Correo electronico'}))
+    email = forms.CharField(label='Correo electronico:', widget=forms.TextInput(attrs={'placeholder': 'Ingrese su Correo electronico'}))
     password = forms.CharField(label='Contraseña:', max_length=30, widget=forms.PasswordInput(attrs={'placeholder': 'Ingrese su contraseña'}))
 
     def __init__(self, *args, **kwargs):

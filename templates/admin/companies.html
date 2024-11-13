@@ -17,7 +17,7 @@
 
 
 {% block sub_titulo2 %} 
-    compañias
+    Compañias
 {% endblock %}
 
 
@@ -49,17 +49,15 @@
                 <tr class="fw-semibold fs-2 text-muted">
                     <th>Codigo</th>
                     <th>Nombre</th>
-                    <th>description</th>
-                    <th>Nombre Base de datos </th>
+                    <th>email</th>
                 </tr>
             </thead>
             <tbody>
                 {% for empresa in empresas %}
                     <tr>
-                        <td>{{ empresa.id }}</td>
-                        <td>{{ empresa.name }}</td>
-                        <td>{{ empresa.description }}</td>
-                        <td>{{ empresa.db_name }}</td>
+                        <td>{{ empresa.idempresa }}</td>
+                        <td>{{ empresa.nombreempresa }}</td>
+                        <td>{{ empresa.email }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
