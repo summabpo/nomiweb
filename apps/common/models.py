@@ -452,11 +452,17 @@ class User(AbstractUser):
         return f"{self.email}"
 
     def is_admin(self):
-        return self.role == 'admin'
+        return self.tipo_user == 'admin'
 
-    def is_normal(self):
-        return self.role == 'normal'
+    def is_employee(self):
+        return self.tipo_user == 'employee'
     
+    def is_company(self):
+        return self.tipo_user == 'company'
+    
+    
+    def is_accountant(self):
+        return self.tipo_user == 'accountant'
     
     class Meta:
         verbose_name = "user"
