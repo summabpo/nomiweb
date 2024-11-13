@@ -17,8 +17,7 @@ urlpatterns = [
 
     path('companies/', createcompanies.createcompanies_admin, name='companies'),
     path('role/', role.role_admin, name='role'),
-    path('loginweb/select/<str:empresa>/', loginweb.loginweb_admin, name='loginweb2'),
-    path('loginweb/select/',loginweb.select_loginweb_admin , name='loginweb'),
+    path('loginweb/select/',loginweb.loginweb_admin , name='loginweb'),
     path('loginweb/edit/',loginweb.edit_main , name='editmain'),
     
     

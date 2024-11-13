@@ -6,6 +6,17 @@ from django.contrib import messages
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
+
+from django.shortcuts import get_object_or_404
+
+def toggle_charge_active_status(request, id, activate=True):
+    cargo = get_object_or_404(Cargos, idcargo = id)
+    cargo.estado = activate
+    cargo.save()
+    status_message = 'activado' if activate else 'desactivado'
+    messages.success(request, f'El Cargo ha sido {status_message} con éxito.')
+    return redirect('companies:charges')
+
 @login_required
 @role_required('company')
 def charges(request): 
@@ -38,3 +49,6 @@ def charges(request):
                         'cargos':cargos,
                         'form':form,
                     })
+    
+    
+    

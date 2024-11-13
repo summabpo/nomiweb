@@ -1,4 +1,7 @@
-{% extends 'base/base_administrator.html' %}
+{% extends 'base/base.html' %}
+{% block navbar %}
+    {% include 'base/navbar_administrator.html' %}                
+{% endblock %}
 {% load crispy_forms_tags %}
 
 {% block title %}
