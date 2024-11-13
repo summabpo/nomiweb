@@ -1,7 +1,11 @@
-{% extends 'base/base_employees.html' %}
+{% extends 'base/base.html' %}
+{% block navbar %}
+    {% include 'base/navbar_employees.html' %}               
+{% endblock %}
 
-{% block title %} Nomiweb.co - Portal Empleados -
-Certificaciones Laborales 
+
+{% block title %} Nomiweb.co - Portal Empleados - Desprendibles de nomina
+
 {% endblock %} 
 
 {% block css %} 
@@ -9,11 +13,11 @@ Certificaciones Laborales
 
 
 {% block sub_titulo1 %} 
-Nomina
+    Nomina
 {% endblock %}
 
 {% block sub_titulo2 %} 
-Desprendibles 
+    Desprendibles 
 {% endblock %}
 
 {% block titulo2 %} 

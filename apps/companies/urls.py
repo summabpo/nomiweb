@@ -70,6 +70,9 @@ urlpatterns = [
 
     # ## Parameters URLs
     path('parameters/charges', charges.charges, name='charges'),
+    path('parameters/charges/activate/<int:id>/', charges.toggle_charge_active_status, {'activate': True}, name='chargeactivate'),
+    path('parameters/charges/deactivate/<int:id>/', charges.toggle_charge_active_status, {'activate': False}, name='chargedeactivate'),
+
     path('parameters/Cost/center', Costcenter.Costcenter, name='costcenter'),
     path('parameters/workplace', workplace.workplace, name='workplace'),
     path('parameters/headquarters', headquarters.headquarters, name='headquarters'),
@@ -120,8 +123,7 @@ urlpatterns = [
     path('security/user/', loginweb.loginweb, name='loginweb'),
 
     ## Admin Login URL (commented out)
-    # path('logout/', views.Logout, name='logout'),
-
+    
     ## Index URL
     path('', index.index_companies, name='index_companies'),
 ]
