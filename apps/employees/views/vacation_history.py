@@ -14,11 +14,7 @@ def vacationHistori(request):
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
     contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
-    print(contrato)
     vacation_history = Vacaciones.objects.filter(Q(idcontrato_id=contrato.idcontrato) & (Q(tipovac__idvac=1) | Q(tipovac__idvac=2))).select_related('tipovac')
-    print('-----------------------')
-    print(vacation_history)
-    print('-----------------------')
 
     context = {
             'vacation_history': vacation_history 

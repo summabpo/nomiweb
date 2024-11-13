@@ -37,7 +37,7 @@
 
 {% block content %}
 <div>
-    <a href="{% url 'admin:usercreate'  %}" class="btn btn-primary hover-scale">Nuevo Usuario</a>
+    <a href="{% url 'admin:usercreate'  %}" class="btn btn-primary hover-scale"><i class="fa-solid fa-user-plus"></i> Nuevo Usuario</a>
 </div>
 
 <div class="table-responsive">
@@ -45,10 +45,9 @@
         <thead>
             <tr class="fw-semibold fs-3 text-muted">
                 <th class="text-center" >Empresa</th>
-                <th class="text-center" >Username</th>
+                <th class="text-center" >Email</th>
                 <th class="text-center" >Nombre</th>
                 <th class="text-center" >Apellido</th>
-                <th class="text-center" >Email</th>
                 <th class="text-center" >Admin</th>
                 <th class="text-center" >Activo</th>
                 <th class="text-center" >rol</th>
@@ -58,28 +57,27 @@
         <tbody>
             {% for user in users %}
                 <tr>
-                    <td class="text-center" >{{ user.company.name }}</td>
-                    <td class="text-center" >{{ user.user.username }}</td>
-                    <td class="text-center" >{{ user.user.first_name }}</td>
-                    <td class="text-center" >{{ user.user.last_name }}</td>
-                    <td class="text-center" >{{ user.user.email }}</td>
+                    <td class="text-center" >{{ user.id_empresa.nombreempresa }}</td>
+                    <td class="text-center" >{{ user.email }}</td>
+                    <td class="text-center" >{{ user.first_name }}</td>
+                    <td class="text-center" >{{ user.last_name }}</td>
                     <td class="text-center" >
-                        {% if user.user.is_superuser %}
+                        {% if user.is_superuser %}
                             <i class="fa-solid fa-user-secret text-success fs-1"></i>
                         {% else %}
                             <i class="fa-solid fa-user-xmark fs-1 text-danger "></i>
                         {% endif %}
                     </td>
                     <td class="text-center" >
-                        {% if user.user.is_active %}
+                        {% if user.is_active %}
                             <i class="fa-solid fa-check  text-success fs-1"></i>
                         {% else %}
                             <i class="fa-solid fa-x text-danger fs-1" ></i>
                         {% endif %}
                     </td>
-                    <td class="text-center" >{{ user.role }}</td>
+                    <td class="text-center" >{{ user.rol }}</td>
                     <td class="text-center" >
-                        {% if user.user.is_active %}
+                        {% if user.is_active %}
                             <button  type="button" class="btn btn-danger hover-scale btn-sm w-80 text-center"  data-bs-toggle="modal" data-bs-target="#kt_modal_1{{ user.id }}" > 
                                 Desactivar 
                             </button>
@@ -98,7 +96,7 @@
                                         </div>
                             
                                         <div class="modal-body">
-                                            <p>Esta seguro que desea Desactivar el usuario {{ user.user.username }} ?</p>
+                                            <p>Esta seguro que desea Desactivar el usuario {{ user.username }} ?</p>
                                         </div>
                             
                                         <div class="modal-footer">
@@ -128,7 +126,7 @@
                                         </div>
                             
                                         <div class="modal-body">
-                                            <p>Esta seguro que desea activar el usuario : {{ user.user.username }} ?</p>
+                                            <p>Esta seguro que desea activar el usuario : {{ user.username }} ?</p>
                                         </div>
                             
                                         <div class="modal-footer">
