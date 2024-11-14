@@ -8,8 +8,8 @@ from django.shortcuts import get_object_or_404
 
 def toggle_user_active_status(request, user_id, activate=True):
     usuario = get_object_or_404(User, id=user_id)
-    usuario.user.is_active = activate
-    usuario.user.save()
+    usuario.is_active = activate
+    usuario.save()
     status_message = 'activado' if activate else 'desactivado'
     messages.success(request, f'El usuario ha sido {status_message} con éxito.')
     return redirect('admin:user')

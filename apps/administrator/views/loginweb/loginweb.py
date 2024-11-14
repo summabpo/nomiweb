@@ -37,91 +37,8 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
         return False, None 
 
 
-def loginweb_admin(request,empresa='default'):
-    
-    if request.method == 'POST':
-        
-        selected_ids = request.POST.getlist('selected_ids')
-        
-        if selected_ids:
-            for selected in selected_ids:
-                print(selected)
-                try:
-                    usertempo = Contratosemp.objects.using(empresa).get(idempleado = int(selected))
-                    usuario = Usuario.objects.get(id_empleado = int(selected))
-                except Contratosemp.DoesNotExist:
-                    messages.error(request, "No se encontró el empleado con ID seleccionado.")
-                    return redirect('admin:loginweb',empresa=empresa)
-                except Usuario.DoesNotExist:
-                    usuario = None
 
-                passwordoriginal = generate_random_password()
-                password = make_password(passwordoriginal)
-                
-                if usuario:
-                    usuario.user.password = password
-                    usuario.user.save()
-                else:
-                    try:
-                        empresa = Empresa.objects.get(db_name=empresa)
-                        success, user = create_user_and_usuario(usertempo.email, usertempo.pnombre, usertempo.papellido, password, empresa, usertempo.idempleado)
-                        if not success:
-                            messages.error("Error al crear el usuario.")
-                    except Empresa.DoesNotExist:
-                        messages.error(request, "No se encontró la empresa.")
-                        return redirect('companies:loginweb')
-                    except Exception as e:
-                        messages.error(request, f"Error al crear el usuario: {e}")
-                        pass
-
-                email_type = 'loginweb'
-                context = {
-                    'nombre_usuario': usertempo.pnombre,
-                    'usuario': usertempo.email,
-                    'contrasena': passwordoriginal,
-                }
-                subject = 'Activacion de Usuario'
-                #recipient_list = ['mikepruebas@yopmail.com']
-                recipient_list = [usertempo.email,'mikepruebas@yopmail.com']
-
-                if send_template_email(email_type, context, subject, recipient_list):
-                    messages.success(request, 'El usuario ha sido creado con exito')
-                    return redirect('admin:loginweb',empresa=empresa)
-                else:
-                    messages.error(request, 'Todo lo que podria salir mal, salio mal')
-
-                messages.success(request, 'Los usuarios han sido enviados correctamente.')
-                return redirect('companies:loginweb')
-
-
-
-
-
-    contratos_empleados = Contratos.objects\
-        .using(empresa)\
-        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
-        .filter(estadocontrato=1) \
-        .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-                'idempleado__snombre', 'cargo', 'idempleado__idempleado',
-                'tipocontrato__tipocontrato','idempleado__email')
-
-    empleados = []
-    for contrato in contratos_empleados:
-        nombre_empleado = f"{contrato['idempleado__papellido']} {contrato['idempleado__pnombre']} {contrato['idempleado__snombre']}"
-        contrato_data = {
-            'documento': contrato['idempleado__docidentidad'],
-            'nombre': nombre_empleado,
-            'cargo': contrato['cargo'],
-            'tipocontrato': contrato['tipocontrato__tipocontrato'],
-            'idempleado': contrato['idempleado__idempleado'],
-            'email' : contrato['idempleado__email'],
-        }
-        empleados.append(contrato_data)
-
-    return render(request, './admin/loginweb.html', {'empleados': empleados , 'empresa': empresa})
-
-
-def select_loginweb_admin(request):
+def loginweb_admin(request):
     
     if request.method == 'POST':
         
@@ -153,7 +70,7 @@ def select_loginweb_admin(request):
                             messages.error(request,"Error al crear el usuario.")
                     except Empresa.DoesNotExist:
                         messages.error(request, "No se encontró la empresa.")
-                        return redirect('companies:loginweb')
+                        return redirect('admin:loginweb')
                     except Exception as e:
                         messages.error(request, f"Error al crear el usuario: {e}")
                         return redirect('admin:loginweb')
@@ -166,7 +83,7 @@ def select_loginweb_admin(request):
                 }
                 subject = '¡Bienvenido a Nomiweb! Tu nueva plataforma de nóminas... ¡y tu mejor amigo!'
                 recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
-                #recipient_list = [usertempo.email,'mikepruebas@yopmail.com']
+                #recipient_list = [usertempo.email]
 
                 if send_template_email(email_type, context, subject, recipient_list):
                     messages.success(request, 'Los usuarios han sido enviados correctamente.')

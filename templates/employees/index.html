@@ -1,5 +1,14 @@
-{% extends 'base/base_employees.html'%} 
+{% extends 'base/base.html' %}
+{% block navbar %}
+    {% include 'base/navbar_employees.html' %}               
+{% endblock %}
+
 {% load static %} 
+
+
+{% block title %}
+    Nomiweb.co - Portal Empleado - Home
+{% endblock %}
 
 {% block titulo %}
 Pagina de inicio sistema empleados 

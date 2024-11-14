@@ -1,6 +1,7 @@
-{% extends 'base/base_administrator.html' %}
-
-
+{% extends 'base/base.html' %}
+{% block navbar %}
+    {% include 'base/navbar_administrator.html' %}                
+{% endblock %}
 {% block title %}
     Nomiweb.co - Administrador 
 {% endblock %}
@@ -37,13 +38,15 @@
 
 {% block content %}
 <div>
-    <a href="{% url 'admin:usercreate'  %}" class="btn btn-primary hover-scale"><i class="fa-solid fa-user-plus"></i> Nuevo Usuario</a>
+    <a href="{% url 'admin:usercreate'  %}" class="btn btn-light-primary"> <i class="fa-solid fa-user-plus"></i> Nuevo Usuario</a>
 </div>
 
+<div class="separator my-10"></div>
+
 <div class="table-responsive">
-    <table class="table table-row-bordered gy-5" id="tablauser" >
+    <table class="table table-striped table-bordered" id="tablauser" >
         <thead>
-            <tr class="fw-semibold fs-3 text-muted">
+            <tr class="fw-bold fs-6 text-gray-800">
                 <th class="text-center" >Empresa</th>
                 <th class="text-center" >Email</th>
                 <th class="text-center" >Nombre</th>
@@ -78,11 +81,11 @@
                     <td class="text-center" >{{ user.rol }}</td>
                     <td class="text-center" >
                         {% if user.is_active %}
-                            <button  type="button" class="btn btn-danger hover-scale btn-sm w-80 text-center"  data-bs-toggle="modal" data-bs-target="#kt_modal_1"  data-iduser="{{ user.id }}" data-name="{{ user.email }}"> 
+                            <button  type="button" class="btn btn-light-danger hover-scale btn-sm w-80 text-center"  data-bs-toggle="modal" data-bs-target="#kt_modal_1"  data-iduser="{{ user.id }}" data-name="{{ user.email }}"> 
                                 Desactivar 
                             </button>
                         {% else %}
-                            <button type="button" class="btn btn-success hover-scale btn-sm w-80 text-center" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-iduser="{{ user.id }}" data-name="{{ user.email }}" > 
+                            <button type="button" class="btn btn-light-success hover-scale btn-sm w-80 text-center" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-iduser="{{ user.id }}" data-name="{{ user.email }}" > 
                                 Activar
                             </button>
                         {% endif %}
@@ -114,7 +117,8 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <a href="{% url 'admin:userdeactivate' user_id=user.id %}" class="btn btn-primary" >Desactivar</a>
+                <a id="deactivate-user-link" href="#" class="btn btn-primary">Desactivar</a>
+
             </div>
         </div>
     </div>
@@ -134,12 +138,12 @@
             </div>
 
             <div class="modal-body">
-                <p>Esta seguro que desea activar el usuario 2 : {{ user.username }} ?</p>
+                <p id='data' > </p>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <a href="{% url 'admin:useractivate' user_id=user.id  %}" class="btn btn-primary" >Activar</a>
+                <a id="activate-user-link"  href="#" class="btn btn-primary" >Activar</a>
             </div>
         </div>
     </div>
@@ -155,23 +159,33 @@
 
 <script>
     $('#kt_modal_1').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget) 
-        var id = button.data('iduser') 
-        var name = button.data('name') 
-        var modal = $(this)
-        modal.find('#data').text('Esta seguro que desea Desactivar el usuario: ' + name)
-    })
+        var button = $(event.relatedTarget); 
+        var userId = button.data('iduser');
+        var userName = button.data('name'); 
+        var modal = $(this);
+        
+        // Update the modal text
+        modal.find('#data').text('¿Está seguro que desea desactivar el usuario: ' + userName + '?');
+        
+        // Construct the URL with the user ID
+        var deactivateUrl = "/admin/users/deactivate/" + userId + "/";
+        modal.find('#deactivate-user-link').attr('href', deactivateUrl);
+    });
 </script>
+
 
 <script>
     $('#kt_modal_2').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget) // Button that triggered the modal
-        var recipient = button.data('iduser') // Extract info from data-* attributes
-        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var button = $(event.relatedTarget)  
+        var userId = button.data('iduser') 
+        var name = button.data('name') 
         var modal = $(this)
-        modal.find('.modal-title').text('New message to ' + recipient)
-        modal.find('.modal-body input').val(recipient)
+        modal.find('#data').text('Esta seguro que desea activar el usuario : ' + name)
+
+        // Construct the URL with the user ID
+        var deactivateUrl = "/admin/users/activate/" + userId + "/";
+        modal.find('#activate-user-link').attr('href', deactivateUrl);
+
     })
 </script>
 
@@ -202,8 +216,8 @@
                     "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            order: [[0, 'des']],  
-            "pageLength": 5,              
+            order: [],  
+            "pageLength": 10,              
         });
     });
 </script>
