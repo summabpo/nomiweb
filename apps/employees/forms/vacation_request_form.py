@@ -62,6 +62,9 @@ class EmpVacacionesForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         idempleado = kwargs.pop('idempleado', None)
+        dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_1')
+        select2_ids = kwargs.pop('select2_ids', {})
+        
         super(EmpVacacionesForm, self).__init__(*args, **kwargs)
         
         # Actualizar las opciones de 'idcontrato' dinámicamente
@@ -70,9 +73,22 @@ class EmpVacacionesForm(forms.Form):
             for contrato in Contratos.objects.filter(idempleado=idempleado, estadocontrato=1).order_by('idcontrato')
         ]
 
+        for field_name in ['idcontrato', 'cuentasabados', 'tipovac','idcontrato']:
+            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs.update({
+                    'data-control': 'select2',
+                    'data-dropdown-parent': dropdown_parent,
+                    'class': 'form-select',
+                    'id': field_id,
+                })
+        
         # Configuración de Crispy Forms
         self.helper = FormHelper(self)
         self.helper.form_method = 'post'
+        self.helper.form_id = 'form_loans'
+        self.helper.enctype = 'multipart/form-data'
+        
         self.helper.layout = Layout(
             Row(
                 Column('idcontrato', css_class='col-md-6 mb-3'),

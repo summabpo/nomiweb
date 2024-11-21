@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from apps.components.decorators import  role_required
 from apps.components.humani import format_decimal
-
+from django.utils.timezone import now
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
     """
@@ -43,13 +43,17 @@ def vacation_request_function(request):
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
     nombre_empleado = Contratosemp.objects.get(idempleado=ide).pnombre
-    contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
+    contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1 , fechainiciocontrato__lte=now().date() ).order_by('-fechainiciocontrato').first()
     idc = contrato.idcontrato if contrato else None
 
-    contratof = Contratos.objects.get(idcontrato=idc)
-    inicio_contrato = contratof.fechainiciocontrato.strftime('%Y-%m-%d')
+    inicio_contrato = Contratos.objects.filter(idcontrato=idc).values_list('fechainiciocontrato', flat=True).first()
+
+    if inicio_contrato:
+        inicio_contrato = inicio_contrato.strftime('%Y-%m-%d')
+
 
     form = EmpVacacionesForm(idempleado=ide)
+    form2 = EmpVacacionesForm(idempleado=ide,dropdown_parent='#kt_modal_3')
 
     if request.method == 'POST' :
         form = EmpVacacionesForm(request.POST,idempleado=ide)
@@ -130,6 +134,7 @@ def vacation_request_function(request):
 
     context = {
         'form': form,
+        'form2':form2,
         'dias_vacaciones': dias_vacaciones,
         'dias_licencia': dias_licencia,
         'vacation_list': vacation_list,
