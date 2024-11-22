@@ -29,7 +29,7 @@ def datos_cliente(idemp):
         'metodoextras': empresa_data.metodoextras if empresa_data.metodoextras else 'No encontrado',
         'dv': empresa_data.dv if empresa_data.dv else 'No encontrado',
         'coddpto': empresa_data.codciudad.coddepartamento if empresa_data.codciudad.coddepartamento else 'No encontrado',
-        'codciudad': empresa_data.codciudad.idciudad if empresa_data.codciudad.idciudad else 'No encontrado',
+        'codciudad': empresa_data.codciudad.codciudad if empresa_data.codciudad.codciudad else 'No encontrado',
         'nomciudad': empresa_data.codciudad.ciudad if empresa_data.codciudad.ciudad else 'No encontrado',
         'ajustarnovedad': empresa_data.ajustarnovedad if empresa_data.ajustarnovedad else 'No encontrado',
         'realizarparafiscales': empresa_data.realizarparafiscales if empresa_data.realizarparafiscales else 'No encontrado',
