@@ -21,7 +21,7 @@ HOSTNAME = "http://127.0.0.1:8000/"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nomiweb2',
+        'NAME': 'nomiweb3',
         'USER':  os.getenv('DB_USER_DEV'),
         'PASSWORD':  os.getenv('DB_PASSWORD_DEV'),  
         'HOST':  os.getenv('DB_HOST_DEV'),
