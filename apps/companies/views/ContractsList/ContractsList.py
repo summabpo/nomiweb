@@ -35,7 +35,7 @@ def startCompanies(request):
             'nombre': f"{contrato['idempleado__papellido']} {contrato['idempleado__pnombre']} {contrato['idempleado__snombre']}",
             'fechainiciocontrato': contrato['fechainiciocontrato'],
             'cargo': contrato['cargo__nombrecargo'],
-            'salario': f"{contrato['salario']:,.0f}".replace(',', '.'),  # Formato de salario
+            'salario': f"{contrato['salario'] if contrato['salario'] is not None else 0:,.0f}".replace(',', '.'),  # Formato de salario
             'centrocostos': contrato['idcosto__nomcosto'],
             'tipocontrato': contrato['tipocontrato__tipocontrato'],
             'tarifaARL': contrato['centrotrabajo__tarifaarl'],
