@@ -1,4 +1,4 @@
-{% extends 'base/base_companies.html' %}
+{% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
 
 
@@ -102,12 +102,12 @@ Certificados de Ingreso y Retenciones
                                         <td>{{ rete.idingret }}</td>
                                         <td>{{ rete.anoacumular }}</td>
                                         <td>
-                                            {% if  rete.anoacumular == '2023' %}
+                                            {% if  rete.anoacumular.ano == 2023 %}
                                                 <a href="{% url 'companies:viewdian_download' rete.idingret  %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
                                                     <i class="fa-solid fa-file-arrow-down fs-3"></i>
                                                 </a>
                                             {% else %}
-                                                <button type="button" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Tooltip on top">
+                                                <button type="button" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Actualmente, la descarga no está disponible.">
                                                     <i class="fa-solid fa-file-arrow-down fs-3"></i>
                                                 </button>
                                             {% endif %}

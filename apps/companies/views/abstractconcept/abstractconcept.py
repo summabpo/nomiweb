@@ -1,17 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.companies.forms.AbstractConceptForm import AbstractConceptForm
-from apps.companies.models import Nomina
+from apps.common.models import Nomina
 from apps.components.humani import format_value
 from django.contrib import messages
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def abstractconcept(request):
-    
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     if request.method == 'POST':
-        form = AbstractConceptForm(request.POST)
+        form = AbstractConceptForm(request.POST,idempresa=idempresa)
         if form.is_valid():
             # Obtener los datos del formulario
             sconcept = form.cleaned_data.get('sconcept')
@@ -24,9 +25,9 @@ def abstractconcept(request):
             filters = {
                 'nombreconcepto': sconcept,
                 'idnomina__idnomina': int(payroll) if payroll else None,
-                'idempleado__idempleado': employee,
-                'mesacumular': month,
-                'anoacumular': year,
+                'idcontrato__idempleado__idempleado': employee,
+                'idnomina__mesacumular': month,
+                'idnomina__anoacumular__ano': year,
             }
             
             
@@ -55,7 +56,7 @@ def abstractconcept(request):
     #Crear una instancia del formulario de filtro para enviar al template
     
     
-    form = AbstractConceptForm()
+    form = AbstractConceptForm(idempresa=idempresa)
 
     # Renderizar el template con los resultados filtrados y el formulario
     return render(request, 'companies/abstractconcept.html', {

@@ -1,4 +1,4 @@
-{% extends 'base/base_companies.html' %}
+{% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
 
 
@@ -8,6 +8,11 @@
 
 
 {% block css %}
+    
+    .w-80 {
+        width: 75%;
+    }
+
 {% endblock %}
 
 {% block sub_titulo1 %} 
@@ -49,15 +54,44 @@
             <table class="table table-striped table-bordered" id="tablacargos" >
                 <thead>
                     <tr class="fw-bold fs-6 text-gray-800">
-                        <th>Codigo</th>
+                        <th class="text-center" >Codigo</th>
                         <th>Nombre Cargo</th>
+                        <th class="text-center" >Nivel</th>
+                        <th>Estado</th>
+                        <th>
+                            <div class="container d-flex justify-content-center align-items-center">
+                                <i class="ki-duotone ki-chart fs-1">
+                                    <i class="path1"></i>
+                                    <i class="path2"></i>
+                                </i>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for cargo in cargos %}
                         <tr>
-                            <td>{{ cargo.idcargo }}</td>
+                            <td class="text-center" >{{ cargo.idcargo }}</td>
                             <td>{{ cargo.nombrecargo }}</td>
+                            <td class="text-center" >{{ cargo.nombrenivel }}</td>
+                            <td>
+                                {% if cargo.estado %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center" >
+                                {% if cargo.estado %}
+                                    <button  type="button" class="btn btn-light-danger hover-scale btn-sm w-80 text-center"  data-bs-toggle="modal" data-bs-target="#kt_modal_1"  data-idcargo="{{ cargo.idcargo }}" data-name="{{ cargo.nombrecargo }}"> 
+                                        Desactivar
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-light-success hover-scale btn-sm w-80 text-center" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-idcargo="{{ cargo.idcargo }}" data-name="{{ cargo.nombrecargo }}" > 
+                                        Activar
+                                    </button>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -66,9 +100,85 @@
     </main>
     
 
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Desactivar Cargo</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                <p id='data' > </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <a id="deactivate-cargo-link" href="#" class="btn btn-primary">Desactivar</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+    
+<div class="modal fade" tabindex="-1" id="kt_modal_2">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Activar Cargo</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                <p id='data' > </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <a id="activate-cargo-link"  href="#" class="btn btn-primary" >Activar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 {% block js %}
 
+<script>
+    $('#kt_modal_1').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); 
+        var cargoId = button.data('idcargo');
+        var cargo = button.data('name'); 
+        var modal = $(this);
+        modal.find('#data').text('¿Está seguro que desea desactivar el Cargo: ' + cargo + '?');
+        var deactivateUrl = "/companies/parameters/charges/deactivate/" + cargoId + "/";
+        modal.find('#deactivate-cargo-link').attr('href', deactivateUrl);
+    });
+</script>
+
+
+<script>
+    $('#kt_modal_2').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)  
+        var cargoId = button.data('idcargo') 
+        var cargo = button.data('name') 
+        var modal = $(this)
+        modal.find('#data').text('Esta seguro que desea activar el Cargo : ' + cargo)
+        var deactivateUrl = "/companies/parameters/charges/activate/" + cargoId + "/";
+        modal.find('#activate-cargo-link').attr('href', deactivateUrl);
+
+    })
+</script>
 
 <script>
     $(document).ready(function() {
@@ -100,7 +210,7 @@
             },
             dom: 'frtip',
             order: [],
-            pageLength: 20
+            pageLength: 10
         });
     });
 </script>

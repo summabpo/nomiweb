@@ -1,7 +1,7 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column ,HTML
-from apps.companies.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
+from apps.common.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
 
 class LoansForm(forms.Form):
     

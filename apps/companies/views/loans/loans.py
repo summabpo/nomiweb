@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
-from apps.companies.models import Prestamos,Contratosemp,Contratos 
+from apps.common.models import Prestamos,Contratosemp,Contratos 
 from apps.companies.forms.loansForm import LoansForm
 from datetime import datetime
 from django.http import JsonResponse

@@ -1,11 +1,10 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit, HTML, Field ,Row , Column 
-from apps.companies.models import * 
-from django.contrib.auth.models import User
+from apps.common.models import User
 
 class LoginForm(forms.Form):
-    username = forms.CharField(label='Nombre de usuario:',max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Ingrese su nombre de usuario'}))
+    email = forms.CharField(label='Correo electronico:', widget=forms.TextInput(attrs={'placeholder': 'Ingrese su Correo electronico'}))
     password = forms.CharField(label='Contraseña:', max_length=30, widget=forms.PasswordInput(attrs={'placeholder': 'Ingrese su contraseña'}))
 
     def __init__(self, *args, **kwargs):
@@ -14,7 +13,7 @@ class LoginForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Row(
-                Column('username', css_class='form-group mb-3'),
+                Column('email', css_class='form-group mb-3'),
                 css_class='form-row'
             ),
             Row(
@@ -44,20 +43,17 @@ class PasswordResetForm(forms.Form):
     
     
 class PasswordResetTokenForm(forms.Form):
-    username = forms.CharField(label='Username', max_length=150, help_text='Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ únicamente.')
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput, help_text='Su contraseña no puede ser demasiado similar a su otra información personal.')
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, help_text='Ingrese la misma contraseña que antes, para verificación.')
     
     
     def clean(self):
         cleaned_data = super().clean()
-        username = cleaned_data.get('username')
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
 
         # Verificar si el nombre de usuario existe
-        if not User.objects.filter(username=username).exists():
-            self.add_error('username', 'El nombre de usuario no existe.')
+    
 
         # Verificar si las contraseñas coinciden
         if password1 and password2 and password1 != password2:
@@ -70,10 +66,6 @@ class PasswordResetTokenForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Row(
-                Column('username', css_class='form-group mb-2'),
-                css_class='form-row'
-            ),
             Row(
                 Column('password1', css_class='form-group mb-2'),
                 css_class='form-row'

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.components.filterform import FilterForm
 from apps.components.decorators import role_required
-from apps.companies.models import Contratosemp, Vacaciones, Contratos
+from apps.common.models  import Contratosemp, Vacaciones, Contratos
 
 
 def vacation(request):
@@ -22,7 +22,7 @@ def vacation(request):
         # Obtener las vacaciones relacionadas con el contrato
         vacaciones = Vacaciones.objects.filter(
             idcontrato=contrato,
-            tipovac__tipovac__in=[1,2]
+            tipovac__idvac__in=[1,2]
         ).values(
             'idcontrato__idempleado__docidentidad',
             'idcontrato__idcontrato',

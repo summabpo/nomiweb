@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.companies.models import Contratos , Contratosemp , Ciudades
+from apps.common.models  import Contratos , Contratosemp , Ciudades
 from apps.components.decorators import custom_login_required ,custom_permission
 from openpyxl import Workbook
 from django.http import HttpResponse
@@ -8,148 +8,81 @@ from datetime import datetime
 
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
+from .generate_docu import generate_contract_excel,generate_contract_start_excel
+
+
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def startCompanies(request): 
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
     contratos_empleados = Contratos.objects\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
-        .filter(estadocontrato=1) \
-        .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-                'idempleado__snombre', 'fechainiciocontrato', 'cargo', 'salario', 'idcosto__nomcosto',
-                'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl','idempleado__idempleado','idcontrato')
-
-    empleados = []
-    for contrato in contratos_empleados:
-        nombre_empleado = f"{contrato['idempleado__papellido']} {contrato['idempleado__pnombre']} {contrato['idempleado__snombre']}"
-        salario = "{:,.0f}".format(contrato['salario']).replace(',', '.')
-
-        contrato_data = {
+        .order_by('idempleado__papellido') \
+        .filter(estadocontrato=1, id_empresa=idempresa) \
+        .values(
+            'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
+            'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario', 
+            'idcosto__nomcosto', 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl',
+            'idempleado__idempleado', 'idcontrato'
+        )
+    
+    empleados = [
+        {
             'documento': contrato['idempleado__docidentidad'],
-            'nombre': nombre_empleado,
+            'nombre': f"{contrato['idempleado__papellido']} {contrato['idempleado__pnombre']} {contrato['idempleado__snombre']}",
             'fechainiciocontrato': contrato['fechainiciocontrato'],
-            'cargo': contrato['cargo'],
-            'salario': salario,
+            'cargo': contrato['cargo__nombrecargo'],
+            'salario': f"{contrato['salario'] if contrato['salario'] is not None else 0:,.0f}".replace(',', '.'),  # Formato de salario
             'centrocostos': contrato['idcosto__nomcosto'],
             'tipocontrato': contrato['tipocontrato__tipocontrato'],
             'tarifaARL': contrato['centrotrabajo__tarifaarl'],
-            'idempleado' : contrato['idempleado__idempleado'],
-            'idcontrato' : contrato['idcontrato'],
+            'idempleado': contrato['idempleado__idempleado'],
+            'idcontrato': contrato['idcontrato'],
         }
-
-        empleados.append(contrato_data)
+        for contrato in contratos_empleados
+    ]
     
     return render(request, './companies/ActiveList.html', {'empleados': empleados})
 
+
+
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
+def exportar_excel0(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    excel_data = generate_contract_start_excel(idempresa)
+    file_name = f"contratos_activos.xlsx"
+    
+    # Crear la respuesta con el archivo Excel
+    response = HttpResponse(excel_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+    return response
+
+@login_required
+@role_required('company')
 def exportar_excel1(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    excel_data = generate_contract_excel(idempresa)
+    file_name = f"contratos_activos.xlsx"
     
-    citys = Ciudades.objects.all()
-    
-    contratos_empleados = Contratos.objects\
-        .select_related(
-            'idempleado', 
-            'idcosto', 
-            'tipocontrato', 
-            'idsede', 
-            'centrotrabajo', 
-            'ciudadcontratacion', 
-            'tiposalario',
-            
-            
-        )\
-        .filter(estadocontrato=1)\
-        .values_list(
-            'idempleado__docidentidad', 
-            'idempleado__papellido', 
-            'idempleado__pnombre',
-            'idempleado__snombre', 
-            'fechainiciocontrato', 
-            'cargo', 
-            'salario', 
-            'idcosto__nomcosto',
-            'tipocontrato__tipocontrato', 
-            'centrotrabajo__tarifaarl', 
-            'fechafincontrato', 
-            'tiponomina', 
-            'bancocuenta', 
-            'cuentanomina', 
-            'tipocuentanomina', 
-            'eps',
-            'pension', 
-            'cajacompensacion', 
-            'ciudadcontratacion__ciudad',
-            'fondocesantias', 
-            'formapago', 
-            'tiposalario__tiposalario', 
-            'jornada', 
-            'idmodelo__tipocontrato',
-            'coddepartamento', 
-            'codciudad'
-        )
+    # Crear la respuesta con el archivo Excel
+    response = HttpResponse(excel_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
 
-    workbook = Workbook()
-    hoja = workbook.active
-    hoja.title = "Contratos Activos"
-
-    # Escribir los encabezados
-    hoja.append([
-        'Documento', 'Nombre', 'Fecha Inicio Contrato', 'Cargo', 'Salario',
-        'Centro de Costos', 'Tipo de Contrato', 'Tarifa ARL', 'Fecha Fin Contrato',
-        'Tipo Nomina', 'Banco Cuenta', 'Cuenta Nomina', 'Tipo Cuenta Nomina', 'EPS', 'Pension',
-        'Caja Compensacion', 'Ciudad Contratacion ', 'Fondo Cesantias',
-        'Forma Pago', 'Tipo Salario', 'Modelo', 'Departamento',
-        'Ciudad'
-    ])
-
-    # Escribir los datos
-    for contrato in contratos_empleados:
-        try:
-            if contrato[24] and contrato[25]:  # Verifica si ambos campos no están vacíos
-                ciudad = next((ciudad for ciudad in citys if ciudad.codciudad == contrato[24] and ciudad.idciudad == contrato[25]), None)
-                if ciudad:
-                    departamento = ciudad.departamento
-                    ciudad = ciudad.ciudad
-        except ValueError as e:
-            departamento = ""
-            ciudad = ""
-        except IndexError:
-            departamento = ""
-            ciudad = ""
-
-
-        
-        
-        nombre_empleado = f"{contrato[1]} {contrato[2]} {contrato[3]}"
-        salario = "{:,.0f}".format(contrato[6]).replace(',', '.')
-        hoja.append([
-            contrato[0], nombre_empleado, contrato[4],
-            contrato[5], salario, contrato[7], contrato[8],
-            contrato[9], contrato[10], contrato[11],
-            contrato[12], contrato[13], contrato[14], contrato[15], contrato[16], contrato[17],
-            contrato[18], contrato[19], contrato[21], contrato[22], contrato[23],
-            departamento , ciudad 
-        ])
-
-    # Guardar el libro de trabajo en memoria
-    output = BytesIO()
-    workbook.save(output)
-    output.seek(0)
-
-    # Crear la respuesta HTTP
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = 'attachment; filename=contratos_activos.xlsx'
-    response.write(output.getvalue())
     return response
 
 
 
 
+
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def exportar_excel2(request):
     
     citys = Ciudades.objects.all()

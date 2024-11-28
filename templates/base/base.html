@@ -1,4 +1,5 @@
 {% load static %}
+<!DOCTYPE html>
 <!--
 Author: Keenthemes
 Product Name: Saul 
@@ -11,27 +12,29 @@ Dribbble: www.dribbble.com/keenthemes
 Like: www.facebook.com/keenthemes
 License: For each use you must have a valid license purchased only from above link in order to legally use the theme for your project.
 -->
-
-<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Portal Empleados{% endblock %}</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-  <!--end::Fonts-->
-  <!--begin::Vendor Stylesheets(used for this page only)-->
-  <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css" />
-  <!--end::Vendor Stylesheets-->
-  <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
-  <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
-  <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
-  <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Website{% endblock %}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+    <!--end::Fonts-->
+    <!--begin::Vendor Stylesheets(used for this page only)-->
+    <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet" type="text/css" />
 
-  <style>
-    {% block css %}
+    <!--end::Vendor Stylesheets-->
+    <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
+    <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet" type="text/css" />
+
+    <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
+
+    {% block cssarch %}
     {% endblock %}
-  </style>
+
+    <style>
+        {% block css %}
+        {% endblock %}
+    </style>
 </head>
 <body id="kt_app_body" data-kt-app-header-fixed="true" data-kt-app-header-fixed-mobile="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" data-kt-app-sidebar-hoverable="true" data-kt-app-sidebar-push-toolbar="true" data-kt-app-sidebar-push-footer="true" data-kt-app-toolbar-enabled="true" data-kt-app-aside-enabled="true" data-kt-app-aside-fixed="true" data-kt-app-aside-push-toolbar="true" data-kt-app-aside-push-footer="true" class="app-default" >
 
@@ -74,7 +77,7 @@ License: For each use you must have a valid license purchased only from above li
                                 {% if request.session.empleado.fotografiaempleado  %}
                                     <img src="{{ request.session.empleado.fotografiaempleado }}" class="card-img-top" alt="Profile Picture">
                                 {% else %}
-                                    <img src="{% static 'media/avatars/300-3.jpg' %}" class="card-img-top" alt="Default Profile Picture">
+                                    <img src="{% static 'media/avatars/blank.png' %}" class="card-img-top" alt="Default Profile Picture">
                                 {% endif %}
 
                             </div>
@@ -88,7 +91,7 @@ License: For each use you must have a valid license purchased only from above li
                                             {% if request.session.empleado.fotografiaempleado  %}
                                                 <img src="{{ request.session.empleado.fotografiaempleado }}" class="card-img-top" alt="Profile Picture">
                                             {% else %}
-                                                <img src="{% static 'media/avatars/300-3.jpg' %}" class="card-img-top" alt="Default Profile Picture">
+                                                <img src="{% static 'media/avatars/blank.png' %}" class="card-img-top" alt="Default Profile Picture">
                                             {% endif %}
                                         </div>
                                         <!--end::Avatar-->
@@ -105,9 +108,12 @@ License: For each use you must have a valid license purchased only from above li
                                 <div class="separator my-2"></div>
                                 <!--end::Menu separator-->
                                 <!--begin::Menu item-->
-                                <div class="menu-item px-5">
-                                    <a href="{% url 'employees:user'  %}" class="menu-link px-5">Mi Perfil</a>
-                                </div>
+                                {% if request.session.usuario.idempleado  %}
+                                    <div class="menu-item px-5">
+                                        <a href="{% url 'employees:user'  %}" class="menu-link px-5">Mi Perfil</a>
+                                    </div>
+                                {% endif %}
+                                
                                 <!--end::Menu item-->
                                 
                                 <!--begin::Menu separator-->
@@ -116,7 +122,7 @@ License: For each use you must have a valid license purchased only from above li
                                 <!--begin::Menu item-->
                                 <div class="menu-item px-5" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="left-start" data-kt-menu-offset="-15px, 0">
                                     <a href="#" class="menu-link px-5">
-                                        <span class="menu-title position-relative">Mode 
+                                        <span class="menu-title position-relative">Modo 
                                         <span class="ms-5 position-absolute translate-middle-y top-50 end-0">
                                             <i class="ki-duotone ki-night-day theme-light-show fs-2">
                                                 <span class="path1"></span>
@@ -195,7 +201,7 @@ License: For each use you must have a valid license purchased only from above li
                                 <!--end::Menu item-->
                                 <!--begin::Menu item-->
                                 <div class="menu-item px-5 ">
-                                    <a href="{% url 'login:logout'  %}" class="menu-link px-5">Sign Out</a>
+                                    <a href="{% url 'login:logout'  %}" class="menu-link px-5">Cerrar Sesion</a>
                                 </div>
                                 <!--end::Menu item-->
                             </div>
@@ -219,7 +225,11 @@ License: For each use you must have a valid license purchased only from above li
             <!--begin::Wrapper-->
             <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
                 <!--begin::Sidebar-->
-                {% include './navbar_employees.html' %}
+                {% block navbar %}
+                    {% include './navbar_companies.html' %}                 
+                {% endblock %}
+
+                
                 <!--end::Sidebar-->
                 <!--begin::Main-->
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
@@ -237,8 +247,8 @@ License: For each use you must have a valid license purchased only from above li
                                         <ul class="breadcrumb breadcrumb-separatorless fw-semibold mb-6">
                                             <!--begin::Item-->
                                             <li class="breadcrumb-item text-gray-700 fw-bold lh-1">
-                                                <a href="" class="text-gray-500 text-hover-primary">
-                                                    <i class="ki-duotone ki-home fs-3 text-gray-500 me-n1"></i>
+                                                <a href="{% url 'companies:index_companies'  %}" class="text-gray-500 text-hover-primary">
+                                                    <i class="fa-solid fa-house fs-3 text-gray-500 me-n1"></i>
                                                 </a>
                                             </li>
                                             <!--end::Item-->
@@ -265,9 +275,14 @@ License: For each use you must have a valid license purchased only from above li
                                         <!--end::Title-->
                                     </div>
                                     <!--end::Page title-->
-                                    <!--begin::Actions
-                                    <a href="#" class="btn btn-sm btn-success ms-3 px-4 py-3" data-bs-toggle="modal" data-bs-target="#kt_modal_create_app">Create Project</a>
-                                    end::Actions-->
+                                    <!--begin::Actions  -->
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        {% block actions %}
+                                        
+                                        {% endblock %}
+                                        
+                                    </div>
+                                    <!-- end::Actions-->
                                 </div>
                                 <!--end::Toolbar wrapper-->
                             </div>
@@ -290,10 +305,7 @@ License: For each use you must have a valid license purchased only from above li
                     <!--begin::Footer-->
                     <div id="kt_app_footer" class="app-footer align-items-center justify-content-center justify-content-md-between flex-column flex-md-row py-3">
                         <!--begin::Copyright-->
-                        <div class="text-gray-900 order-2 order-md-1">
-                            <span class="text-muted fw-semibold me-1">2023&copy;</span>
-                            <a href="" target="_blank" class="text-gray-800 text-hover-primary">Fotter prueba </a>
-                        </div>
+                            {% include './footer.html' %}
                         <!--end::Copyright-->
                         <!--begin::Menu-->
                         
@@ -323,7 +335,7 @@ License: For each use you must have a valid license purchased only from above li
         <!--begin::Global Javascript Bundle(mandatory for all pages)-->
         <script src="{% static 'plugins/global/plugins.bundle.js' %}"></script>
         <script src="{% static 'js/scripts.bundle.js' %}"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        
 		<!--end::Global Javascript Bundle-->
 		<!--begin::Vendors Javascript(used for this page only)-->
         <script src="{% static 'plugins/custom/datatables/datatables.bundle.js' %}"></script>
@@ -336,9 +348,18 @@ License: For each use you must have a valid license purchased only from above li
         <script src="{% static 'js/custom/utilities/modals/create-account.js' %}"></script>
         <script src="{% static 'js/custom/utilities/modals/create-app.js' %}"></script>
         <script src="{% static 'js/custom/utilities/modals/users-search.js' %}"></script>
+        <script src="{% static 'plugins/custom/fslightbox/fslightbox.bundle.js' %} "></script>
 		<!--end::Custom Javascript-->
         
 		<!--end::Javascript-->
+        
+        
+		<!--end::Global Javascript Bundle-->
+
+		<!--end::Vendors Javascript-->
+		<!--begin::Custom Javascript(used for this page only)-->
+
+        
 
 
     {% block js %}{% endblock %}

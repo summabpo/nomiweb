@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Q, Sum, DecimalField, F
 from django.contrib import messages
 from apps.components.filterform import FilterForm  ,FiltercompleteForm
-from apps.companies.models import  Nomina, Contratos, Conceptosfijos , Salariominimoanual ,NominaComprobantes
+from apps.common.models  import  Nomina, Contratos, Conceptosfijos , Salariominimoanual ,NominaComprobantes
 from datetime import datetime
 from .provisionFuncion import calcular_descuento , mes_a_numero ,mes_a_numero2
 from apps.components.humani import format_value
@@ -49,7 +49,7 @@ def payrollprovision(request):
             mth = mes
             
             # Obtener las nóminas filtradas con `select_related` para optimizar la carga de datos relacionados
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).select_related('idempleado', 'idcontrato', 'idcosto').order_by('idempleado__papellido')
+            nominas = Nomina.objects.filter(idnomina__mesacumular=mes, idnomina__anoacumular__ano=año).select_related('idcontrato', 'idcosto').order_by('idcontrato__idempleado__papellido')
 
             # Obtener los conceptos fijos y almacenarlos en un diccionario fuera del bucle
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
@@ -75,8 +75,8 @@ def payrollprovision(request):
                         
                         base = Nomina.objects.filter(
                             (base_prestacion_social | sueldo_basico | aux_transporte ),
-                            mesacumular=mes,
-                            anoacumular=año,
+                            idnomina__mesacumular=mes,
+                            idnomina__anoacumular__ano=año,
                             idcontrato=docidentidad
                         ).aggregate(total=Sum('valor'))['total'] or 0
                         
@@ -124,8 +124,8 @@ def payrollprovision(request):
 
                     # Agregar los cálculos al diccionario
                     acumulados[docidentidad] = {
-                        'documento': data.idempleado.docidentidad,
-                        'nombre': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
+                        'documento': data.idcontrato.idempleado.docidentidad,
+                        'nombre': f"{data.idcontrato.idempleado.papellido} {data.idcontrato.idempleado.sapellido} {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.snombre}",
                         'contrato': data.idcontrato.idcontrato,
                         'idcosto': data.idcosto.idcosto,
                         'base': format_value(int(base)),
@@ -184,7 +184,7 @@ def contributionsprovision(request):
             mes = form.cleaned_data['mes']
             
             # Obtener las nóminas filtradas y limitadas
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año).order_by('idempleado__papellido')
+            nominas = Nomina.objects.filter(idnomina__mesacumular=mes, idnomina__anoacumular__ano=año).order_by('idcontrato__idempleado__papellido')
             
             # Obtener los conceptos fijos y almacenarlos en un diccionario
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
@@ -242,8 +242,8 @@ def contributionsprovision(request):
                     for key, filter_criteria in filters.items():
                         result = Nomina.objects.filter(
                             filter_criteria,
-                            mesacumular=mes,
-                            anoacumular=año,
+                            idnomina__mesacumular=mes,
+                            idnomina__anoacumular__ano=año,
                             idcontrato=docidentidad
                         ).aggregate(total=Sum('valor'))
                         results[key] = result['total'] or 0
@@ -262,7 +262,7 @@ def contributionsprovision(request):
                     
                     # Determinar porcentaje de ARL y tipo de salario por empleado
                     contrato = Contratos.objects.filter(idcontrato=docidentidad).values(
-                        'tarifaarl', 'tiposalario', 'eps', 'pension', 'cajacompensacion', 'tipocontrato'
+                        'centrotrabajo__tarifaarl', 'tiposalario', 'codeps__entidad', 'codafp__entidad', 'codccf__entidad', 'tipocontrato__tipocontrato'
                     ).first()
                     
                     
@@ -273,12 +273,12 @@ def contributionsprovision(request):
                         ).values_list('salario', flat=True).order_by('-idhistorico').first() or 0
 
                     if contrato:
-                        tararl = contrato['tarifaarl']
+                        tararl = contrato['centrotrabajo__tarifaarl']
                         tiposal = contrato['tiposalario']
-                        afp = contrato['pension']
-                        eps = contrato['eps']
-                        caja = contrato['cajacompensacion']
-                        tipocontrato = contrato['tipocontrato']
+                        afp = contrato['codafp__entidad']
+                        eps = contrato['codeps__entidad']
+                        caja = contrato['codccf__entidad']
+                        tipocontrato = contrato['tipocontrato__tipocontrato']
                     else:
                         tararl = tiposal = afp = eps = caja = tipocontrato = 0
 
@@ -299,15 +299,15 @@ def contributionsprovision(request):
                     
                     
                     try:
-                        salmin = Salariominimoanual.objects.get(idano=año).salariominimo
+                        salmin = Salariominimoanual.objects.get(ano=año).salariominimo
                     except Salariominimoanual.DoesNotExist:
-                        salmin = None  
+                        salmin = 0 
 
                     if tiposal == 2:
                         base_ss *= facint / 100
                         base_caja = base_ss
                         base_arl = base_ss
-
+                    
                     if base_ss > (salmin * maxibc):
                         base_ss = salmin * maxibc
                         base_caja = base_ss
@@ -366,8 +366,8 @@ def contributionsprovision(request):
                     fsp = calcular_descuento(int(base_ss),salmin)
                 
                     acumulados[docidentidad] = {
-                        'documento': data.idempleado.docidentidad,
-                        'nombre': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
+                        'documento': data.idcontrato.idempleado.docidentidad,
+                        'nombre': f"{data.idcontrato.idempleado.papellido} {data.idcontrato.idempleado.sapellido} {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.snombre}",
                         'contrato': data.idcontrato.idcontrato,
                         'idcosto': data.idcosto.idcosto,
                         'salario': format_value(int(salario)),

@@ -1,6 +1,5 @@
 from django.db.models import Sum, Q, Case, When, Value, IntegerField , Count
-from apps.employees.models import  Contratos, Nomina ,Crearnomina 
-from apps.companies.models import Nomina , NominaComprobantes
+from apps.common.models import  Contratos, Nomina ,Crearnomina , Nomina , NominaComprobantes
 from django.db.models import Sum
 from .datacompanies import datos_cliente
 from apps.components.humani import format_value ,format_value_float , format_value_void
@@ -12,9 +11,10 @@ def limitar_cadena(cadena, max_length=25):
 
 
 def genera_comprobante(idnomina, idcontrato):
+    
     contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
     crear = Crearnomina.objects.filter(idnomina=idnomina).first()
-    datac = datos_cliente()
+    datac = datos_cliente(contrato.id_empresa.idempresa)
     
     if contrato:
         nombre_completo = f"{contrato.idempleado.papellido} {contrato.idempleado.sapellido} {contrato.idempleado.pnombre} {contrato.idempleado.snombre}"
@@ -27,12 +27,12 @@ def genera_comprobante(idnomina, idcontrato):
         for item in dataDevengado:
             item.valor = format_value(item.valor) # Aplica formato de separador de mil
             item.cantidad = format_value_float(item.cantidad)
-            item.nombreconcepto = limitar_cadena(item.nombreconcepto)
+            item.nombreconcepto = limitar_cadena(item.idconcepto.nombreconcepto)
             
         for item in dataDescuento:
             item.valor = format_value(item.valor) # Aplica formato de separador de miles
             item.cantidad = format_value_float(item.cantidad)
-            item.nombreconcepto = limitar_cadena(item.nombreconcepto)
+            item.nombreconcepto = limitar_cadena(item.idconcepto.nombreconcepto)
 
         # Calcular la suma de todos los valores en dataDevengado
         sumadataDevengado = dataDevengado.aggregate(total=Sum('valor'))['total'] or 0
@@ -65,8 +65,8 @@ def genera_comprobante(idnomina, idcontrato):
             'cuenta': contrato.cuentanomina,
             'ccostos': centro,
             'periodos': periodo,
-            'eps': contrato.eps,#!
-            'pension': contrato.pension,#!
+            'eps': contrato.codeps,#!
+            'pension': contrato.codafp,#!
             'dataDevengado': dataDevengado,
             'dataDescuento': dataDescuento,
             'sumadataDevengado': format_value(sumadataDevengado), # Formatear la suma con separador de miles
@@ -90,9 +90,9 @@ def genera_comprobante(idnomina, idcontrato):
     return context
 
 
-def generate_summary(idnomina):
+def generate_summary(idnomina,idempresa):
     # Obtener datos del cliente
-    datac = datos_cliente()
+    datac = datos_cliente(idempresa)
     
     # Obtener la nómina y la información de creación de la nómina
     try:
@@ -104,7 +104,7 @@ def generate_summary(idnomina):
         return None  # O manejar el error de otra manera
     
     # Agregar un campo calculado para ingresos, descuentos y neto
-    grouped_nominas = nominas.values('idconcepto', 'nombreconcepto').annotate(
+    grouped_nominas = nominas.values('idconcepto__nombreconcepto','idconcepto__idconcepto').annotate(
         cantidad_total=Sum('cantidad'),
         ingresos=Sum(Case(
             When(valor__gt=0, then='valor'),
@@ -116,20 +116,20 @@ def generate_summary(idnomina):
             default=Value(0),
             output_field=IntegerField()
         )),
-    ).order_by('idconcepto')
+    ).order_by('idconcepto__idconcepto')
     
     # Separar ingresos y descuentos, y ordenar por idconcepto
     ingresos = [compect for compect in grouped_nominas if compect['ingresos'] > 0]
     descuentos = [compect for compect in grouped_nominas if compect['descuentos'] < 0]
     
-    ingresos.sort(key=lambda x: x['idconcepto'])
-    descuentos.sort(key=lambda x: x['idconcepto'])
+    ingresos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
+    descuentos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
     
     # Combinar ingresos y descuentos
     grouped_nominas = ingresos + descuentos
     
     # Obtener la cantidad de empleados distintos
-    cantidad_empleados = nominas.values('idempleado').distinct().count()
+    cantidad_empleados = nominas.values('idcontrato__idempleado').distinct().count()
     
     # Calcular totales de ingresos, descuentos y neto
     total_ingresos = nominas.filter(valor__gt=0).aggregate(total=Sum('valor'))['total'] or 0

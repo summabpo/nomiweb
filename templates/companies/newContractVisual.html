@@ -1,7 +1,7 @@
-{% extends 'base/base_companies.html' %} 
+{% extends 'base/base.html' %} 
+{% load crispy_forms_tags %}
 
-
-{% block title %} Nomiweb.co - Portal Empresas -Nuevo Empleado {% endblock %} 
+{% block title %} Nomiweb.co - Portal Empresas - Sistema de Contratacion unicada {% endblock %} 
 
 
 
@@ -10,18 +10,25 @@
 
 
 {% block sub_titulo1 %} 
-    empleados
+    Empleados
 {% endblock %}
 
 
 {% block  sub_titulo2%} 
-    Nuevo Contrato
+    Contrataciones 
 {% endblock %}
 
 {% block titulo2 %} 
-    lista de empleados a espera de contrato Nuevo Contrato
+    Sistema de Contratacion unicada 
 {% endblock %}
 
+{% block actions %}
+
+<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+    <i class="fa-solid fa-plus"></i> Nuevo Empleado
+</button>  
+
+{% endblock %}
 
 {% block cssarch %}
 {% endblock %}
@@ -31,33 +38,95 @@
 {% block content %}
 
 <div class="table-responsive">
-    <table  id="tabla_usuarios" class="table table-striped table-bordered" >
-        <thead>
-            <tr class="fw-semibold fs-6 text-gray-800" >
-            <th>Documento</th>
-            <th>Nombre</th>
-            <th> </th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for empleado in empleados %}
-                <tr>
-                    <td>{{ empleado.docidentidad }}</td>
-                    <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }} </td>
-                    <td>
-                        <a href="{% url 'companies:newcontractcreater' idempleado=empleado.idempleado %}">
-                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAAXNSR0IArs4c6QAAAatJREFUWEft1sFKwzAYB/AmRYoHwasvIMhEFHEIPoX3wVra3T1pNy9erNMn2KGl69gr+A4yKchwePEuePW6pNJBpZS2+RLTsqK7jWT7fvnna1KkrNkHrZlH+Vugga4fxjvgjMcv0J2oLKGrbreFMW7HEITxs+N5rxBUJaA0JkFAUdJBF7q+vYnQeV4aSFVDx3XnZUlJB8XFLi1rTyXkNK+wpmmPN6PRZxFKGmjQ6ew40+lHUigPFVE6HwZBWHlC16bZppS2iKo+PbjuW1Kw3+vtKsvlWfwdY7y49bwZq7F/nZCt6ycIof2kEKV0dh8Ei3RSG1G0BcGsnkiWuGw8SSY7J5sUTw1hUBEmKS6KEgKxMDEqu3XQlLhBVWK4e8i2rGNEyEHZakWT+TnRoVHWgQEnVBcGBKoTwwRBMIiQ0JlMSi9MaFuUgmzTPEKUrl6wCi9CyZhSUN8wjLoxwiDZ25ReeOHBWJRQlRjuhKrGMJs600NfQ89753liROZy32UiRXh+8w9ipdWchFgHI2ulrPE73/fz5nCfQ6xC0PHmg6ArlT2vOU0te+XQ//sGoIXVJY8Oc7wAAAAASUVORK5CYII="/>
-                        </a>
-                    </td>
+    <h3>Empleados en espera de nuevo contrato </h3 >
+    <div class="table-responsive" > 
+        <table  id="tabla_usuarios" class="table table-striped table-bordered" >
+            <thead>
+                <tr class="fw-semibold fs-6 text-gray-800" >
+                    <th>Documento</th>
+                    <th>Nombre</th>
+                    <th>
+                        <div class="btn btn-icon btn-sm btn-light-facebook me-5 container d-flex justify-content-center align-items-center  ">
+                            <i class="fa-solid fa-certificate fs-3"></i>
+                        </div>
+                    </th>
                 </tr>
+            </thead>
+            <tbody>
+                {% for empleado in empleados %}
+                    <tr>
+                        <td>{{ empleado.docidentidad }}</td>
+                        <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }} </td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-disabilites_id="{{ item.idincapacidad }}" >
+                                <i class="fa-solid fa-pen-to-square fs-3"></i>
+                            </button>
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
-            
-
-    </table>
+                
+    
+        </table>
+    </div>
 </div>
     
+
+<!--begin::Modal Employees-->
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Nuevo Empleado</h5>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                {% crispy form_empleados %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-light-info" form="form_loans" >Guardar Empleado</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Modal-->
+
+<!--begin::Modal Contracts-->
+<div class="modal fade" tabindex="-1" id="kt_modal_2">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"> Editar Incapacidad</h3>
     
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+    
+            <div class="modal-body">
+                <form id="disabilities-form-edit" method="post" action="">
+                    {% crispy form_contratos %}
+                </form>
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="disabilities-form-edit"  class="btn btn-primary">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Modal-->
 
 {% endblock %}
 

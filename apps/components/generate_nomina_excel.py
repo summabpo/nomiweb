@@ -1,7 +1,7 @@
 import openpyxl
 from openpyxl.styles import NamedStyle
 from io import BytesIO
-from apps.companies.models import Nomina, Contratos, Conceptosfijos
+from apps.common.models import Nomina, Contratos, Conceptosfijos
 from django.db.models import Q, Sum
 
 def generate_nomina_excel(year, mth):
@@ -21,7 +21,7 @@ def generate_nomina_excel(year, mth):
     decimal_style = NamedStyle(name='decimal_style', number_format='0.00')
 
     # Obtener datos
-    nominas = Nomina.objects.filter(mesacumular=mth, anoacumular=year).select_related('idempleado', 'idcontrato', 'idcosto').order_by('idempleado__papellido')
+    nominas = Nomina.objects.filter(idnomina__mesacumular=mth, idnomina__anoacumular__ano=year).select_related( 'idcontrato', 'idcosto').order_by('idcontrato__idempleado__papellido')
     conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
     conceptos_dict = {cf['idfijo']: cf['valorfijo'] for cf in conceptos_fijos}
     contratos = Contratos.objects.filter(idcontrato__in=nominas.values_list('idcontrato', flat=True)).select_related('tiposalario')
@@ -47,8 +47,8 @@ def generate_nomina_excel(year, mth):
 
         base = Nomina.objects.filter(
             (base_prestacion_social | sueldo_basico),
-            mesacumular=mth,
-            anoacumular=year,
+            idnomina__mesacumular = mth,
+            idnomina__anoacumular__ano = year,
             idcontrato=docidentidad
         ).aggregate(total=Sum('valor'))['total'] or 0
 
@@ -63,12 +63,12 @@ def generate_nomina_excel(year, mth):
 
         total_ps = cesantias + intcesa + prima + vacaciones
 
-        empleado_id = data_nomina.idempleado.docidentidad
+        empleado_id = data_nomina.idcontrato.idempleado.docidentidad
 
         if empleado_id not in empleados_datos:
             empleados_datos[empleado_id] = {
                 'contrato': data_nomina.idcontrato.idcontrato,
-                'nombre': f"{data_nomina.idempleado.papellido} {data_nomina.idempleado.sapellido} {data_nomina.idempleado.pnombre} {data_nomina.idempleado.snombre}",
+                'nombre': f"{data_nomina.idcontrato.idempleado.papellido} {data_nomina.idcontrato.idempleado.sapellido} {data_nomina.idcontrato.idempleado.pnombre} {data_nomina.idcontrato.idempleado.snombre}",
                 'costo': data_nomina.idcosto.idcosto,
                 'base_ps': float(base),
                 'cesantias': float(cesantias),

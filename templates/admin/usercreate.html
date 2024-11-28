@@ -1,4 +1,7 @@
-{% extends 'base/base_administrator.html' %}
+{% extends 'base/base.html' %}
+{% block navbar %}
+    {% include 'base/navbar_administrator.html' %}                
+{% endblock %}
 {% load crispy_forms_tags %}
 
 {% block title %}
@@ -23,7 +26,7 @@
 
 
 {% block titulo2 %} 
-    posible dash 
+    Creacion de Usuario
 {% endblock %}
 
 

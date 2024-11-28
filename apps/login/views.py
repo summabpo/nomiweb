@@ -6,51 +6,95 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.contrib import messages
 from .forms import LoginForm , MiFormulario ,PasswordResetForm , PasswordResetTokenForm
-from .models import Usuario,Token
+from django.conf import settings
+
 from django.utils import timezone
-from django.contrib.auth.models import User
 import secrets
 from apps.components.role_redirect  import redirect_by_role , redirect_by_role2
 from apps.components.decorators import TempSession,custom_login_required , default_login
 from apps.components.mail import send_template_email
 from django.urls import reverse
+from apps.common.models import User , Token
+from django.contrib.auth import get_user_model
 
 
 
 
 
 
+# class Login_View(View):
+#     def get(self, request):        
+#         form = LoginForm()
+#         return render(request, './users/login.html', {'form': form})
 
+#     def post(self, request):
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             email = form.cleaned_data['email']
+#             password = form.cleaned_data['password']
+#             user = authenticate(request, email=email, password=password)
+#             if user is not None:
+#                 login(request, user)
+#                 complements = {
+#                     'rol': user.role,
+#                     'name': f"{user.first_name} {user.last_name}",
+#                     'id': user.id_empleado
+#                 }
+#                 request.session['usuario'] = complements
+#                 return redirect_by_role(user.role)
+#             else:
+#                 messages.error(request, 'Usuario o contraseña incorrectos.')
+#         return render(request, './users/login.html', {'form': form})
 
-class Login_View(View):
-    def get(self, request):        
-        form = LoginForm()
+def Login_view(request):
+    if request.user.is_authenticated:
+        rol = request.session.get('usuario', {}).get('rol')
+        return redirect_by_role(rol)
+    else:
+        if request.method == 'POST':
+            form = LoginForm(request.POST)
+            if form.is_valid():
+                email = form.cleaned_data['email']
+                password = form.cleaned_data['password']
+                user = authenticate(request, email=email, password=password)
+                if user is not None:
+                    login(request, user)
+                    complements = {
+                        'rol': user.tipo_user,
+                        'name': f"{user.first_name} {user.last_name}",
+                        'idempleado': user.id_empleado.idempleado if user.id_empleado else None ,
+                        'idempresa': user.id_empresa.idempresa if user.id_empresa else None
+                    }
+                    request.session['usuario'] = complements
+                    return redirect_by_role(user.tipo_user)
+                else:
+                    messages.error(request, 'Usuario o contraseña incorrectos.')
+        else:
+            form = LoginForm()
         return render(request, './users/login.html', {'form': form})
 
-    def post(self, request):
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                usuario = Usuario.filter_by_username(request.user.username)
-                complements = {
-                    'rol': usuario.role,
-                    'compania': usuario.company.name,
-                    'db': usuario.company.db_name,
-                    'name': f"{user.first_name} {user.last_name}",
-                    'id': usuario.id_empleado
-                }
-                request.session['usuario'] = complements
-                return redirect_by_role(usuario.role)
-            else:
-                messages.error(request, 'Usuario o contraseña incorrectos.')
-        return render(request, './users/login.html', {'form': form})
 
 
 
+def login_home(request, sociallogin=None, **kwargs):
+    user_id = request.session.get('_auth_user_id')
+    backend = request.session.get('_auth_user_backend')
+    if user_id and backend:
+        User = get_user_model()
+        user = User.objects.get(id=user_id)
+        
+        # Si el usuario está autenticado, puedes iniciar sesión
+        if user:
+            login(request, user, backend=backend)
+            
+            rol = user.tipo_user 
+            request.session['usuario'] = {
+                'rol': rol,
+                'name': f"{user.first_name} {user.last_name}",
+                'idempleado': user.id_empleado.idempleado if user.id_empleado else None,
+                'idempresa': user.id_empresa.idempresa if user.id_empresa else None
+            }
+    return redirect_by_role(rol)
 
 @login_required
 def logout_view(request):
@@ -61,7 +105,10 @@ def logout_view(request):
 
 
 
+
 def password_reset_view(request):
+    url1 = settings.HOSTNAME 
+    
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
         if form.is_valid():
@@ -74,18 +121,18 @@ def password_reset_view(request):
                     token_temporal=token_temporal,
                     tiempo_creacion=timezone.now()
                 )
-                messages.success(request, 'El Correo ha sido Enviado Con EXITO')   
-                email_type = 'welcome' 
-                name = 'nada'  
-                context = {'name': name}  
-                subject = 'Asunto del correo'  
-                recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
+                
+                email_type = 'token' 
+                url =  url1 + 'password/reset/' + str(token_temporal) 
+                context = {'url': url}  
+                subject = 'Solicitud de restablecimiento de contraseña'  
+                recipient_list = [ email ]
                 
                 
                 if send_template_email(email_type, context, subject, recipient_list):
-                    print('Correo enviado correctamente')
+                    messages.success(request, 'El Correo ha sido Enviado Con éxito.')
                 else:
-                    print('Error al enviar el correo')
+                    messages.error(request, 'Hubo un error al enviar el correo. Por favor, intenta nuevamente más tarde.')
                     
                 return redirect('login:login')             
             else:
@@ -101,60 +148,47 @@ def password_reset_view(request):
     return render(request, 'users/password_reset_form.html', {'form': form})
 
 
-def password_reset_token(request,token):
+def password_reset_token(request, token):
+    # Verifica si el token existe
     if Token.objects.filter(token_temporal=token).exists():
         token = Token.objects.get(token_temporal=token)
+        
+        # Verifica si el token está en estado False
+        if not token.estado:
+            return render(request, 'users/errortoken.html')
+        
         if request.method == 'POST':
             form = PasswordResetTokenForm(request.POST)
             if form.is_valid():
                 username = form.cleaned_data.get('username')
                 password = form.cleaned_data.get('password1')
                 
-                user = User.objects.get(username=username)
+                user = User.objects.get(email=token.user.email)
+                user.password = make_password(password)
+                user.save()
+                token.estado = False
+                token.save()
                 
-                if user:
-                    user.password = make_password(password)
-                    user.save()
-                    token.estado=False
-                    token.save()
-                    
-                    messages.success(request, 'La Contraseña ha sido actualizada con exito')
-                    return redirect('login:login')
-                    
-                else:
-                    messages.error(request,'Parece que el correo ingresado no coincide con ningún usuario.')
+                messages.success(request, 'La contraseña ha sido actualizada con éxito')
+                return redirect('login:login')
             else:
                 for field, errors in form.errors.items():
                     for error in errors:
-                        messages.error(request, f"Error en el campo : {error}")
-                
+                        messages.error(request, f"Error en el campo: {error}")
         else:
-            form = PasswordResetTokenForm
+            form = PasswordResetTokenForm()
             
         return render(request, 'users/password_reset_token.html', {'form': form})
     else:
         return render(request, 'users/errortoken.html')
-    
-    
-    
-    
+
     
     
 
 
 
-@custom_login_required
-def prueba(request):
-    if request.method == 'POST':
-        form = MiFormulario(request.POST)
-        if form.is_valid():
-            print(request.POST.get('opciones_1'))
-            print(request.POST.get('opciones_2'))
-            pass
-    else:
-        form = MiFormulario()
-    
-    return render(request, './users/prueba.html',{'form': form})
+
+
 
 
 @custom_login_required
@@ -165,13 +199,19 @@ def require_permission(request):
     return render(request, './users/permission.html')
 
 
+def terms_and_conditions(request):
+    return render(request, './users/terms_and_conditions.html')
 
-
-
-
-
+def privacy_policy(request):
+    return render(request, './users/privacy_policy.html')
 
 #! errores 
+
+def error_page(request):
+    return render(request, './users/prueba.html')
+
+
+
 def custom_400(request, exception):
     """
     Vista para manejar el error 400 (Bad Request).

@@ -4,12 +4,11 @@ from io import BytesIO
 from django.http import HttpResponse
 
 ## agregadas por manuel 
-from apps.employees.models import Contratos
 from io import BytesIO
 from xhtml2pdf import pisa
 from apps.components.workcertificategenerator import workcertificategenerator , workcertificatedownload
 from django.contrib import messages
-from apps.employees.models import  Certificaciones
+from apps.common.models import  Certificaciones , Contratos
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
@@ -24,15 +23,16 @@ def get_empleado_name(empleado):
 
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def vista_certificaciones(request):
+    usuario = request.session.get('usuario', {})
     select_data = {}
     ESTADOS_CONTRATO = {
         1: "ACTIVO",
         2: "TERMINADO"
     }
     
-    ide = request.session.get('idempleado', {})
+    ide = usuario['idempleado']
     selected_empleado = request.GET.get('contrato')
     lista_certificaciones = []
     select = None
@@ -77,12 +77,12 @@ def vista_certificaciones(request):
         
         
             select = True
-            certi_all = Certificaciones.objects.filter(idcontrato=selected_empleado).values(
+            certi_all = Certificaciones.objects.filter(idcontrato_id=selected_empleado).values(
                 'idcert', 
-                'idempleado__papellido',
-                'idempleado__pnombre',
-                'idempleado__snombre',
-                'idempleado__sapellido',
+                'idcontrato__idempleado__papellido',
+                'idcontrato__idempleado__pnombre',
+                'idcontrato__idempleado__snombre',
+                'idcontrato__idempleado__sapellido',
                 'destino',
                 'fecha',
                 'cargo',
@@ -124,7 +124,7 @@ def vista_certificaciones(request):
 
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def generateworkcertificate(request):
     
     try:
@@ -133,6 +133,7 @@ def generateworkcertificate(request):
             contrato_id = request.POST.get('contrato')
             data_input = request.POST.get('data_input')
             data_model = request.POST.get('data_model')
+            
             context = workcertificategenerator( contrato_id , data_input ,data_model)
             
             
@@ -154,12 +155,12 @@ def generateworkcertificate(request):
     except Exception as e:
         messages.error(request, 'Ocurrio un error inesperado')
         print(e)
-        return redirect('companies:workcertificate')
+        return redirect('employees:certificaciones')
 
 @login_required
-@role_required('employees')
+@role_required('employee')
 def certificatedownload(request,idcert):
-
+    
     try:
         context = workcertificatedownload(idcert)
         html_string = render(request, './html/workcertificatework.html', context).content.decode('utf-8')
@@ -179,7 +180,7 @@ def certificatedownload(request,idcert):
     except Exception as e:
         messages.error(request, 'Ocurrio un error inesperado')
         print(e)
-        return redirect('companies:workcertificate')
+        return redirect('employees:workcertificate')
     
 
 

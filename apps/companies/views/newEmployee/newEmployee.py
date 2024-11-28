@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect
 from apps.companies.forms.EmployeeForm import EmployeeForm
 from django.contrib import messages
-from apps.companies.models import Contratosemp
+from apps.common.models  import Contratosemp
 from apps.companies.forms.EmployeeForm import EmployeeForm
-from apps.login.models import Usuario , Empresa
-from django.contrib.auth.models import User
+
+from apps.common.models import User
+
 
 from django.contrib.auth.hashers import make_password
-from apps.login.middlewares import NombreDBSingleton
 from apps.components.mail import send_template_email
 
 import random
@@ -22,7 +22,7 @@ def generate_random_password(length=12):
     return random_password
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def newEmployee(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST)

@@ -1,5 +1,8 @@
 import os
 from dotenv import load_dotenv
+
+
+
 # from django.urls import reverse_lazy
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -26,10 +29,12 @@ BASE_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'storages',
+    'apps.common',
 ]
 
 LOCAL_APPS = [
     # Generated applications
+    
     'apps.login', 
     'apps.employees',     # Employees application
     'apps.companies',     # Companies application
@@ -45,7 +50,57 @@ THIRD_APPS = [
     'import_export',
     ## Debug toolbar
     'debug_toolbar',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
+SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
+SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el navegador
+
+SOCIALACCOUNT_ADAPTER = 'apps.login.adapters.CustomSocialAccountAdapter'
+
+SITE_ID = 1
+
+# Redirección del usuario cuando es autenticado (logueado)
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_AUTHENTICATION_METHOD = "email"  # Esto permite usar el correo electrónico para autenticarse
+ACCOUNT_EMAIL_REQUIRED = True  #* Asegúrate de que el correo electrónico sea obligatorio
+ACCOUNT_USERNAME_REQUIRED = False  #* Desactiva la necesidad de un nombre de usuario
+SOCIALACCOUNT_ENABLED = True
+SOCIALACCOUNT_AUTO_SIGNUP = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_LOGOUT_ON_GET = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = False 
+SOCIALACCOUNT_AUTO_SIGNUP = False 
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.environ.get('client_id_google'),
+            'secret': os.environ.get('client_secret_google'),
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
+
+LOGIN_REDIRECT_URL = '/home/'  
+LOGOUT_REDIRECT_URL = '/'
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
 
@@ -67,10 +122,12 @@ BASE_MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+        # Add the account middleware:
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 LOCAL_MIDDLEWARE = [
-    'apps.login.middlewares.DatabaseRouterMiddleware',
+    
 ]
 
 THIRD_MIDDLEWARE = [
@@ -109,19 +166,14 @@ WSGI_APPLICATION = 'nomiweb.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
-DATABASE_ROUTERS = [
-    'nomiweb.db_routers.routers.DatabaseRouter'
-]
+
 
 AUTHENTICATION_BACKENDS = [
-    'apps.components.custom_auth_backend.CustomAuthBackend',
     'django.contrib.auth.backends.ModelBackend',  # Esto es opcional, pero es una buena práctica
+    
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
-
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # O el backend que estés usando
-SESSION_COOKIE_AGE = 1209600  # Duración de la sesión en segundos (2 semanas)
-SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # No expirar la sesión al cerrar el navegador
 
 
 
@@ -189,9 +241,5 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/'
 
-
-
-
-#AUTH_USER_MODEL = 'login.CustomUser'
+AUTH_USER_MODEL = 'common.User'

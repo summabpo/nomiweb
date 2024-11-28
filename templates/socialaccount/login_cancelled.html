@@ -1,0 +1,55 @@
+{% extends "baselogin.html" %}
+{% load static %}
+{% load i18n %}
+{% load allauth %}
+{% block head_title %}
+    Cancelación de inicio de sesión
+{% endblock head_title %}
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="col-md-4">  <!-- Aumentar el ancho del card para mayor espacio -->
+        <div class="card shadow-sm" style="border-radius: 15px;"> <!-- Sombra y bordes redondeados -->
+            <div class="card-body"> <!-- Añadir card-body para mayor separación -->
+                <div class="d-flex flex-center h-150px"> <!-- Reduce la altura del contenedor del logo -->
+                    <img
+                        src="{% static 'img/logonomiweb.png' %}"
+                        data-src="{% static 'img/logonomiweb.png' %}"
+                        class="lozad rounded mw-100"
+                        alt="Logo Nomiweb"
+                    />
+                </div>
+
+                <h1 class="text-center mb-4">
+                    Cancelación de inicio de sesión
+                </h1>
+                {% url 'account_login' as login_url %}
+
+                {% with current_time_now=request.current_time %}
+                    {% if current_time_now.hour < 12 %}
+                        <p class="text-center">
+                            Parece que decidiste darle un descanso al inicio de sesión esta mañana... ¡Quizás un café primero? Si fue solo un error, puedes <a href="{% url 'login:login' %}">iniciar sesión</a> ahora.
+                        </p>
+                    {% elif current_time_now.hour < 18 %}
+                        <p class="text-center">
+                            Ups, parece que cambiaste de opinión. ¡No te preocupes, todo el mundo lo hace! Si fue un error, puedes <a href="{% url 'login:login' %}">iniciar sesión</a> de nuevo y todo volverá a la normalidad (sin dragones ni maldiciones).
+                        </p>
+                    {% else %}
+                        <p class="text-center">
+                            ¡Vaya! Parece que hiciste una pausa en el inicio de sesión... ¿Quizás estabas distraído viendo un video de gatos? Si fue solo un descuido, puedes <a href="{% url 'login:login' %}">iniciar sesión</a> otra vez, ¡y todo estará como antes, sin interrupciones!
+                        </p>
+                    {% endif %}
+                {% endwith %}
+
+                {% if current_time_now.hour >= 18 %}
+                    <p class="text-center">
+                        Parece que decidiste darle un descanso al inicio de sesión... No hay problema, ¡todos necesitamos un poco de espacio! Si esto fue solo un "accidente" de dedo, puedes <a href="{% url 'login:login' %}">iniciar sesión</a> otra vez, y todo volverá a la normalidad. ¡Como si nada hubiera pasado!
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

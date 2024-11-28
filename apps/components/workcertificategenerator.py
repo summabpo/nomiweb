@@ -3,7 +3,7 @@ import string
 import datetime
 from .datacompanies import datos_cliente
 from .dataemployees import datos_empleado
-from apps.employees.models import  Certificaciones, Nomina ,Contratosemp ,Contratos
+from apps.common.models import  Certificaciones, Nomina ,Contratosemp ,Contratos,Cargos
 from django.db.models import Q,Sum
 from django.utils import timezone
 import pytz
@@ -13,9 +13,11 @@ from apps.components.humani import format_value
 
 # Generador de codigo de  certificado 
 def generar_codigo():
-    caracteres = string.ascii_letters + string.digits  # Letras mayúsculas, minúsculas y dígitos
-    codigo = ''.join(random.choice(caracteres) for _ in range(5))
-    return codigo
+    caracteres = string.ascii_letters + string.digits 
+    while True:
+        codigo = ''.join(random.choice(caracteres) for _ in range(5))
+        if not Certificaciones.objects.filter(codigoconfirmacion=codigo).exists():
+            return codigo  
 
 
 # Generador de meses anteriores 
@@ -52,23 +54,23 @@ def calculo_salario_promedio():
 
 
 
-def workcertificategenerator(ide,destino ,modelo):
+def workcertificategenerator(idc,destino ,modelo):
     zona_horaria = pytz.timezone('America/Bogota')
     nombre_mes_1, nombre_mes_2, nombre_mes_3, ano_1, ano_2, ano_3 = calculo_salario_promedio()
-    datae = datos_empleado(ide)
-    datac = datos_cliente()
-    idc = datae['idc']
-    idemp = datae['ide']
-    empleado = Contratosemp.objects.get(idempleado=idemp)
+    contrato = Contratos.objects.get(idcontrato = idc )
+    datae = datos_empleado(idc)
+    
+    datac = datos_cliente(contrato.id_empresa.idempresa)
     
     fecha_actual = timezone.now().astimezone(zona_horaria)
-    salario = datae['salario']
+    salario = int(contrato.salario) 
     
+    cargo = Cargos.objects.get(idcargo = contrato.cargo.idcargo)
     queryset = Nomina.objects.filter(
                 (Q(idconcepto__baseprestacionsocial = 1)),
-                (Q(mesacumular=nombre_mes_1) & Q(anoacumular=ano_1) |
-                Q(mesacumular=nombre_mes_2) & Q(anoacumular=ano_2) |
-                Q(mesacumular=nombre_mes_3) & Q(anoacumular=ano_3)),
+                (Q(idnomina__mesacumular=nombre_mes_1) & Q(idnomina__anoacumular=ano_1) |
+                Q(idnomina__mesacumular=nombre_mes_2) & Q(idnomina__anoacumular=ano_2) |
+                Q(idnomina__mesacumular=nombre_mes_3) & Q(idnomina__anoacumular=ano_3)),
                 idcontrato = idc,
                 valor__gt=0
                 )
@@ -79,20 +81,17 @@ def workcertificategenerator(ide,destino ,modelo):
         salario_promedio = 0
 
     if modelo == '2':
-        salario_certificado=salario_promedio + salario
+        salario_certificado = salario_promedio + salario
     else:
         salario_certificado=salario
 
     codigo_confirmacion = generar_codigo()
     tipo_certificado = modelo
-    cargo = datae['cargo']
-    ide = datae['ide']
-    nombre_contrato = datae['nombre_contrato']
+    nombre_contrato = contrato.tipocontrato.tipocontrato 
     certificacion = Certificaciones(destino=destino,
-                                    idcontrato=idc, 
-                                    idempleado=empleado, 
+                                    idcontrato=contrato, 
                                     salario= salario_certificado, 
-                                    cargo=cargo, 
+                                    cargo = cargo , 
                                     tipocontrato=nombre_contrato, 
                                     codigoconfirmacion = codigo_confirmacion, 
                                     tipocertificacion = tipo_certificado,
@@ -159,9 +158,11 @@ def workcertificategenerator(ide,destino ,modelo):
 """
 
 def workcertificatedownload(idcert):
-    datac = datos_cliente()
+    
     certificado = Certificaciones.objects.get(idcert = idcert)
-    datae = datos_empleado(certificado.idcontrato)
+    datae = datos_empleado(certificado.idcontrato.idcontrato)
+    datac = datos_cliente(certificado.idcontrato.id_empresa.idempresa)
+    
     context = {
             ## empresa 
             'empresa':datac['nombreempresa'],

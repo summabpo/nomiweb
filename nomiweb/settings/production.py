@@ -13,37 +13,12 @@ SETTINGS_ENV = 'production'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'userlectaen',
+        'NAME': 'nomiweb3',
         'USER':  os.getenv('DB_USER_PROD'),
         'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
         'HOST':  os.getenv('DB_HOST_PROD'),
         'PORT':  os.getenv('DB_PORT_PROD'),
     },
-
-    'lectaen': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lectaen',
-        'USER':  os.getenv('DB_USER_PROD'),
-        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
-        'HOST':  os.getenv('DB_HOST_PROD'),
-        'PORT':  os.getenv('DB_PORT_PROD'),
-    } ,
-    'nwp_2': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nwp_lentes',
-        'USER':  os.getenv('DB_USER_PROD'),
-        'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
-        'HOST':  os.getenv('DB_HOST_PROD'),
-        'PORT':  os.getenv('DB_PORT_PROD'),
-    },
-    'nwp_match': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nwp_match',
-        'USER':  os.getenv('DB_USER_PROD_2'),
-        'PASSWORD':  os.getenv('DB_PASSWORD_PROD_2'),
-        'HOST':  os.getenv('DB_HOST_PROD_2'),
-        'PORT':  os.getenv('DB_PORT_PROD'),
-    }
 }
 
 STATICFILES_DIRS = [
@@ -53,6 +28,8 @@ STATICFILES_DIRS = [
 # Seguridad de cookies
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+
+HOSTNAME = "https://dev.nomiweb.com.co/"
 
 CSRF_COOKIE_HTTPONLY = True
 

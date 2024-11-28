@@ -4,13 +4,13 @@ from django.contrib import messages
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
-from apps.companies.models import  Nomina, Contratos, Conceptosfijos , Salariominimoanual
+from apps.common.models import  Nomina, Contratos, Conceptosfijos , Salariominimoanual
 from apps.components.humani import format_value
 from django.http import HttpResponse 
 from .generate_docu import generate_nomina_excel
 
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def externalreport(request):
     nominas ={}
     form = FilterForm()
@@ -22,12 +22,12 @@ def externalreport(request):
             mes = form.cleaned_data['mes']
             year = año
             mth = mes
-            nominas = Nomina.objects.filter(mesacumular=mes, anoacumular=año)\
-                .select_related('idcontrato', 'idconcepto', 'idempleado', 'idcosto')\
+            nominas = Nomina.objects.filter(idnomina__mesacumular=mes, idnomina__anoacumular__ano=año)\
+                .select_related('idcontrato', 'idconcepto', 'idcosto')\
                 .values(
                     'idcontrato__idcontrato',
                     'idconcepto__cuentacontable',
-                    'idempleado__docidentidad',
+                    'idcontrato__idempleado__docidentidad',
                     'idconcepto__idconcepto',
                     'idconcepto__nombreconcepto',
                     'valor',
@@ -54,7 +54,7 @@ def externalreport(request):
     
     
 @login_required
-@role_required('entrepreneur')
+@role_required('company')
 def download_excel_report(request):
     year = request.GET.get('year')
     month = request.GET.get('mth')

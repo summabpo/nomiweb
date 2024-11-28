@@ -1,7 +1,11 @@
-{% extends 'base/base_employees.html' %}
+{% extends 'base/base.html' %}
+{% block navbar %}
+    {% include 'base/navbar_employees.html' %}               
+{% endblock %}
 
-{% block title %} Nomiweb.co - Portal Empleados -
-Certificaciones Laborales 
+
+{% block title %} Nomiweb.co - Portal Empleados - Desprendibles de nomina
+
 {% endblock %} 
 
 {% block css %} 
@@ -9,11 +13,11 @@ Certificaciones Laborales
 
 
 {% block sub_titulo1 %} 
-Nomina
+    Nomina
 {% endblock %}
 
 {% block sub_titulo2 %} 
-Desprendibles 
+    Desprendibles 
 {% endblock %}
 
 {% block titulo2 %} 
@@ -94,9 +98,9 @@ Desprendibles
                     <tr>
                         <td class="text-center" >{{ e.idnomina.idnomina }}</td>
                         <td class="text-center" >{{ e.idnomina.nombrenomina }}</td>
-                        <td class="text-center" >{{ e.idnomina.fechapago }}</td>
+                        <td class="text-center" >{{ e.idnomina.fechapago |date:'d-m-Y' }}</td>
                         <td class="text-center" >
-                            <a href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
+                            <a href="{% url 'employees:generatepayrollcertificate' e.idnomina.idnomina e.idcontrato.idcontrato %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
                                 <i class="fa-solid fa-file-arrow-down fs-3"></i>
                             </a>
                         </td>

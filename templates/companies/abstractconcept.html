@@ -1,4 +1,4 @@
-{% extends 'base/base_companies.html' %}
+{% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
 
 {% block title %}
@@ -52,12 +52,12 @@
                 {% for liquidacion in liquidaciones %}
                     <tr>
                         <td>{{ liquidacion.idconcepto.idconcepto }}</td>
-                        <td>{{ liquidacion.nombreconcepto }}</td>
+                        <td>{{ liquidacion.idconcepto.nombreconcepto }}</td>
                         <td>{{ liquidacion.cantidad }}</td>
                         <td>{{ liquidacion.valor }}</td>
                         <td>{{ liquidacion.idnomina.nombrenomina }}</td>
                         <td>{{ liquidacion.idcontrato.idcontrato }}</td>
-                        <td>{{ liquidacion.idempleado.papellido }} {{ liquidacion.idempleado.sapellido }} {{ liquidacion.idempleado.pnombre }} {{ liquidacion.idempleado.snombre }} </td>
+                        <td>{{ liquidacion.idcontrato.idempleado.papellido }} {{ liquidacion.idcontrato.idempleado.sapellido }} {{ liquidacion.idcontrato.idempleado.pnombre }} {{ liquidacion.idcontrato.idempleado.snombre }} </td>
                         
                     </tr>
                     {% endfor %}

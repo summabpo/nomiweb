@@ -1,11 +1,11 @@
 
 from .datacompanies import datos_cliente
-from apps.companies.models import Liquidacion
+from apps.common.models  import Liquidacion
 from .humani import format_value , format_value_float
 
 
-def settlementgenerator(idliqui):
-    datac = datos_cliente()
+def settlementgenerator(idliqui, idempresa):
+    datac = datos_cliente(idempresa)
     liquidacion = Liquidacion.objects.filter(idliquidacion = idliqui ).first()
     nombre_completo = f"{liquidacion.idcontrato.idempleado.papellido} {liquidacion.idcontrato.idempleado.sapellido} {liquidacion.idcontrato.idempleado.pnombre} {liquidacion.idcontrato.idempleado.snombre}"
     
@@ -19,7 +19,7 @@ def settlementgenerator(idliqui):
 
             # empleado
             'nombre_completo': str(nombre_completo), 
-            'cc': str(liquidacion.docidentidad),
+            'cc': str(liquidacion.idcontrato.idempleado.docidentidad),
             'cargo': str(liquidacion.idcontrato.cargo),
             'ingreso': liquidacion.idcontrato.fechainiciocontrato,
             'terminación': liquidacion.idcontrato.fechafincontrato,

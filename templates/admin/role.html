@@ -1,4 +1,7 @@
-{% extends 'base/base_administrator.html' %}
+{% extends 'base/base.html' %}
+{% block navbar %}
+    {% include 'base/navbar_administrator.html' %}                
+{% endblock %}
 {% load crispy_forms_tags %}
 
 {% block title %}
@@ -47,15 +50,15 @@
         <table class="table table-row-bordered gy-5" id="tabla_compañias" >
             <thead>
                 <tr class="fw-semibold fs-2 text-muted">
-                    <th>tipo rol</th> 
-                    <th>Nombre</th>
+                    <th>Nombre</th> 
+                    <th>Descripcion</th>
                 </tr>
             </thead>
             <tbody>
                 {% for role in roles %}
                     <tr>
-                        <td>{{ role.role_key }}</td>
-                        <td>{{ role.role_label }}</td>
+                        <td>{{ role.name }}</td>
+                        <td>{{ role.description }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
