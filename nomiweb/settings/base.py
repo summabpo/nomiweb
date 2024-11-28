@@ -65,7 +65,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # No expirar la sesión al cerrar el na
 
 SOCIALACCOUNT_ADAPTER = 'apps.login.adapters.CustomSocialAccountAdapter'
 
-SITE_ID = 4
+SITE_ID = 1
 
 # Redirección del usuario cuando es autenticado (logueado)
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
