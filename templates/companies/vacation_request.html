@@ -46,7 +46,7 @@ Listado de Solicitudes
                 <tr>
                     <td>{{ vacacion.idcontrato__idcontrato }}</td>
                     <td> {{ vacacion.idcontrato__idempleado__papellido }} {{ vacacion.idcontrato__idempleado__sapellido }} {{ vacacion.idcontrato__idempleado__pnombre }} {{ vacacion.idcontrato__idempleado__snombre }} </td>
-                    <td>{{ vacacion.tipovac__nombrevacaus }} {{vacacion.estado}}</td>
+                    <td>{{ vacacion.tipovac__nombrevacaus }}</td>
                     <td>{{ vacacion.fechainicialvac|default_if_none:"" | date:"d-m-Y "  }}</td>
                     <td>{{ vacacion.fechafinalvac|default_if_none:"" | date:"d-m-Y "  }}</td>
                     <td>

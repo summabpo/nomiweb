@@ -131,7 +131,7 @@ def vacation_request_function(request):
 
     
     vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
-
+    
     context = {
         'form': form,
         'form2':form2,

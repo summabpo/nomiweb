@@ -50,10 +50,10 @@ def vacation(request):
 
     # Manejar valores nulos en empleados_select
     for emp in empleados_select:
-        emp['idempleado__pnombre'] = emp.get('idempleado__pnombre', "")
-        emp['idempleado__snombre'] = emp.get('idempleado__snombre', "")
-        emp['idempleado__papellido'] = emp.get('idempleado__papellido', "")
-        emp['idempleado__sapellido'] = emp.get('idempleado__sapellido', "")
+        emp['idempleado__pnombre'] = '' if emp['idempleado__pnombre'] is None else emp['idempleado__pnombre']  
+        emp['idempleado__snombre'] = '' if emp['idempleado__snombre'] is None else emp['idempleado__snombre']  
+        emp['idempleado__papellido'] = '' if emp['idempleado__papellido'] is None else emp['idempleado__papellido']  
+        emp['idempleado__sapellido'] = '' if emp['idempleado__sapellido'] is None else emp['idempleado__sapellido']  
 
     context = {
         'empleados_select': empleados_select,

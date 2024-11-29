@@ -14,6 +14,13 @@ def vacation_general(request):
         .values('idempleado__docidentidad','idempleado__sapellido', 'idempleado__papellido', 'idempleado__pnombre',
                 'idempleado__snombre','idempleado__idempleado','idcontrato') 
     
+    for emp in contratos_empleados:
+        emp['idempleado__pnombre'] = '' if emp['idempleado__pnombre'] is None else emp['idempleado__pnombre']  
+        emp['idempleado__snombre'] = '' if emp['idempleado__snombre'] is None else emp['idempleado__snombre']  
+        emp['idempleado__papellido'] = '' if emp['idempleado__papellido'] is None else emp['idempleado__papellido']  
+        emp['idempleado__sapellido'] = '' if emp['idempleado__sapellido'] is None else emp['idempleado__sapellido']  
+
+    
     context = {
         'contratos_empleados': contratos_empleados,
     }
