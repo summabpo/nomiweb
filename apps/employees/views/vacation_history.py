@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 def vacationHistori(request):
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
-    contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1).first()
+    contrato = Contratos.objects.filter(idempleado=ide).first()
     vacation_history = Vacaciones.objects.filter(Q(idcontrato_id=contrato.idcontrato) & (Q(tipovac__idvac=1) | Q(tipovac__idvac=2))).select_related('tipovac')
 
     context = {

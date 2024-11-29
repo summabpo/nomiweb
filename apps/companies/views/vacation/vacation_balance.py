@@ -29,6 +29,8 @@ def calcular_vacaciones(contrato, concepto,fecha_actual):
 
 
 def vacation_balance(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     acumulados= {} 
     
     concepto = Conceptosfijos.objects.filter(idfijo=9).values_list('valorfijo', flat=True).first()
@@ -42,12 +44,23 @@ def vacation_balance(request):
     else:
         date = timezone.now().date() 
         visual = False
-        
+    
+    
+    def construir_nombre_completo(data):
+        nombre_completo = [
+            data.get('idempleado__papellido', '').strip() if data.get('idempleado__papellido') else '',
+            data.get('idempleado__sapellido', '').strip() if data.get('idempleado__sapellido') else '',
+            data.get('idempleado__pnombre', '').strip() if data.get('idempleado__pnombre') else '',
+            data.get('idempleado__snombre', '').strip() if data.get('idempleado__snombre') else ''
+        ]
+        # Filtrar elementos vacíos y unir con espacio
+        return " ".join(filter(None, nombre_completo))
+    
     fecha_actual = timezone.now().date() if fecha_param is None else datetime.strptime(fecha_param, "%Y-%m-%d").date()
 
     if fecha_param :
         contratos_empleados = Contratos.objects.prefetch_related('idempleado') \
-            .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ) \
+            .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ,id_empresa__idempresa = idempresa ) \
             .values('idempleado__docidentidad', 'idempleado__sapellido', 'idempleado__papellido',
                     'idempleado__pnombre', 'idempleado__snombre', 'idempleado__idempleado',
                     'idcontrato', 'fechainiciocontrato','salario').order_by('idempleado__papellido')
@@ -56,7 +69,7 @@ def vacation_balance(request):
             data['idcontrato']: {
                 'contrato': data['idcontrato'],
                 'documento': data['idempleado__docidentidad'],
-                'empleado': f"{data['idempleado__papellido']} {data['idempleado__sapellido']} {data['idempleado__pnombre']} {data['idempleado__snombre']}",
+                'empleado':construir_nombre_completo(data),
                 'fechacontrato': data['fechainiciocontrato'],
                 'salario': data['salario'],
                 'parcial': round(float(data['salario']) / 30, 2),

@@ -46,16 +46,35 @@ def calcular_dias_360(fechainicial, fechafinal):
     return dias_totales_360
 
 def vacation_request(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
     # Obtener la lista de empleados
-    vacaciones = EmpVacaciones.objects.all().order_by('-id_sol_vac').values('idcontrato__idempleado__docidentidad', 'idcontrato__idempleado__sapellido', 'idcontrato__idempleado__papellido', 
-                'idcontrato__idempleado__pnombre', 'idcontrato__idempleado__snombre', 'idcontrato__idempleado__idempleado', 
-                'tipovac__nombrevacaus','fechainicialvac', 'fechafinalvac','estado','idcontrato__idcontrato','id_sol_vac')
+    vacaciones = EmpVacaciones.objects.filter(
+        idcontrato__id_empresa__idempresa=idempresa
+    ).order_by('-id_sol_vac').values(
+        'idcontrato__idempleado__docidentidad',
+        'idcontrato__idempleado__sapellido',
+        'idcontrato__idempleado__papellido',
+        'idcontrato__idempleado__pnombre',
+        'idcontrato__idempleado__snombre',
+        'idcontrato__idempleado__idempleado',
+        'tipovac__nombrevacaus',
+        'fechainicialvac',
+        'fechafinalvac',
+        'estado',
+        'idcontrato__idcontrato',
+        'id_sol_vac'
+    )
 
     context ={ 
             'vacaciones' : vacaciones,
         }
     
     return render(request, './companies/vacation_request.html', context)
+
+
+
 
 
 @csrf_exempt

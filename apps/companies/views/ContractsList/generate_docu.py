@@ -151,6 +151,7 @@ def generate_contract_start_excel(idempresa):
     )
     # Añadir datos a la hoja de cálculo
     for data in contratos_empleados:
+        
         row = [
             data.idempleado.docidentidad, 
             f'{data.idempleado.papellido} {data.idempleado.pnombre} {data.idempleado.snombre }', 

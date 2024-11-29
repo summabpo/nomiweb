@@ -630,6 +630,7 @@ class Contratos(models.Model):
     codeps = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_eps'  ) 
     codafp = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_afp'  ) 
     codccf = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_ccf'  ) 
+    fondocesantias = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_fondocesantias' ,blank=True, null=True ) 
     auxiliotransporte = models.BooleanField(default=False)
     dependientes = models.SmallIntegerField(blank=True, null=True)#manualmente 
     valordeduciblemedicina = models.IntegerField(blank=True, null=True)#manualmente 
