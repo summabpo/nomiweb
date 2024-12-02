@@ -125,7 +125,10 @@
 
 <script>
     $(document).ready(function() {
+        var year = '{{ year }}';
+        var mth = '{{ mth }}';
 
+        
         var table = $('#tabla-aportes-nomina').DataTable({
             language: {
                 "decimal":        "",
@@ -153,6 +156,16 @@
             },
             dom: 'Bfrtip',
             
+            buttons: [
+                {
+                    text: '<i class="fa-solid fa-receipt"></i> Descargar Excel',
+                    className: 'btn btn-light-info',
+                    action: function (e, dt, node, config) {
+                        window.location.href = '{% url "companies:contributionsprovisiondownload_excel" %}?year=' + encodeURIComponent(year) + '&mth=' + encodeURIComponent(mth);
+                    }
+                },
+            ],
+
             order: [[2, 'asc']],  
             "pageLength": 20,
             // Scroll options

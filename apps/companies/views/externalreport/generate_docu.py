@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from apps.common.models import Nomina
 from django.db.models import Sum
 
-def generate_nomina_excel(year, month):
+def generate_nomina_excel(year, month,idempresa):
     # Crear un archivo en memoria
     output = BytesIO()
     
@@ -22,7 +22,7 @@ def generate_nomina_excel(year, month):
     decimal_style = NamedStyle(name='decimal_style', number_format='0.00')
 
     # Obtener datos optimizando la consulta
-    nominas = Nomina.objects.filter(idnomina__mesacumular=month, idnomina__anoacumular__ano=year)\
+    nominas = Nomina.objects.filter(idnomina__mesacumular=month, idnomina__anoacumular__ano=year,idnomina__id_empresa__idempresa = idempresa)\
         .select_related('idcontrato', 'idcosto', 'idconcepto')\
         .only('idcontrato__idcontrato', 'idconcepto__cuentacontable', 'idcontrato__idempleado__docidentidad', 
               'idconcepto__idconcepto', 'idconcepto__nombreconcepto', 'valor', 'idcosto__idcosto')

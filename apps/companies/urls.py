@@ -49,12 +49,12 @@ urlpatterns = [
     # ## Employee Management URLs
     # path('employees/new/employee', newEmployee.newEmployee, name='newemployee'),
     # path('employees/edit/employee', EditEmployee.EditEmployeeSearch, name='editemployeesearch'),
-    # path('employees/edit/employee/<str:idempleado>', EditEmployee.EditEmployeeVisual, name='editemployeevisual'),
+    path('employees/edit/employee/<str:idempleado>', EditEmployee.EditEmployeeVisual, name='editemployeevisual'),
 
     # ## Contract Management URLs
     # path('employees/new/contract', newContract.newContractVisual, name='newcontractvisual'),
     # path('employees/new/contract/<str:idempleado>', newContract.newContractCreater, name='newcontractcreater'),
-    # path('employees/edit/contract/<str:idempleado>', editContract.EditContracVisual, name='editcontracvisual'),
+    path('employees/edit/contract/<str:idempleado>', editContract.EditContracVisual, name='editcontracvisual'),
 
     # ## Work Certificate URLs
     path('employees/workcertificate/', workcertificate.workcertificate, name='workcertificate'),
@@ -81,6 +81,7 @@ urlpatterns = [
     path('accounting/payroll/provision/', payrollprovision.payrollprovision, name='payrollprovision'),
     path('accounting/payroll/provision/download/', payrollprovision.payrollprovisiondownload_excel, name='payrollprovisiondownload_excel'),
     path('accounting/contributions/provision/', payrollprovision.contributionsprovision, name='contributionsprovision'),
+    path('accounting/contributions/provision/download/', payrollprovision.contributionsprovisiondownload_excel, name='contributionsprovisiondownload_excel'),
     path('accounting/external/report/', externalreport.externalreport, name='externalreport'),
     path('accounting/external/report/download/', externalreport.download_excel_report, name='download_excel_report'),
     path('accounting/dian/certificate/', dian.viewdian, name='viewdian'),

@@ -40,7 +40,7 @@ def charges(request):
                 for error in errors:
                     messages.error(request, f"Error en el campo '{field}': {error}")
     else:
-        cargos = Cargos.objects.filter(id_empresa__idempresa=usuario['idempresa']).exclude(idcargo=93).order_by('idcargo')
+        cargos = Cargos.objects.filter(id_empresa__idempresa=usuario['idempresa']).exclude(idcargo=241).order_by('idcargo')
 
         form = ChargesForm(idempresa = idempresa)
     
