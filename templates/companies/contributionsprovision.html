@@ -47,74 +47,90 @@
         {% crispy form %}
     </div>
     <div class="separator my-10"></div>
-    <div class="table-responsive">
-        <table id='tabla-aportes-nomina' class="table table-striped table-bordered">
-            <thead>
-                <tr class="fw-bold fs-6 text-gray-800">
-                    <th>contrato</th>
-                    <th>Identificación</th>
-                    <th class="w-25 text-nowrap text-truncate" >Nombre</th> 
-                    <th>Salario</th>
-                    <th>Base SS</th>
-                    <th>Base ARL</th>
-                    <th>Base Caja</th>
-                    <th>Variable</th>
-                    <th>Susp. Contrato</th>
-                    <th>Días</th>
-                    <th>SALUD</th>
-                    <th>PENSIÓN</th>
-                    <th>Ajuste</th>
-                    <th>ARL</th>
-                    <th>CCF</th>
-                    <th>SENA</th>
-                    <th>ICBF</th>
-                    <th>SALUD TR</th>
-                    <th>PENSIÓN TR</th>
-                    <th>FSP</th>
-                    <th>Total AP</th>
-                    <th>Provision</th>
-                    <th>AFP</th>
-                    <th class="w-25 text-nowrap text-truncate" >EPS</th>
-                    <th class="w-25 text-nowrap text-truncate" >CAJA</th>
-                    <th>Idcosto</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for empleado in compects %}
-                <tr>
-                    <td>{{ empleado.contrato }}</td>
-                    <td>{{ empleado.documento }}</td>
-                    <td class="text-nowrap text-truncate">{{ empleado.nombre }}</td> <!-- Clase personalizada -->
-                    <td class="text-end">{{ empleado.salario }}</td>
-                    <td class="text-end">{{ empleado.base_ss }}</td>
-                    <td class="text-end">{{ empleado.base_arl }}</td>
-                    <td class="text-end">{{ empleado.base_caja }}</td>
-                    <td class="text-end">{{ empleado.variable }}</td>
-                    <td class="text-end">{{ empleado.suspension }}</td>
-                    <td class="text-end">{{ empleado.diasaportes }}</td>
-                    <td class="text-end">{{ empleado.salud }}</td>
-                    <td class="text-end">{{ empleado.pension }}</td>
-                    <td class="text-end">{{ empleado.ajuste }}</td>
-                    <td class="text-end">{{ empleado.arl }}</td>
-                    <td class="text-end">{{ empleado.ccf }}</td>
-                    <td class="text-end">{{ empleado.sena }}</td>
-                    <td class="text-end">{{ empleado.icbf }}</td>
-                    <td class="text-end">{{ empleado.salud_t }}</td>
-                    <td class="text-end">{{ empleado.pension_t }}</td>
-                    <td class="text-end">{{ empleado.fsp }}</td>
-                    <td class="text-end">{{ empleado.totalap }}</td>
-                    <td class="text-end">{{ empleado.provision }}</td>
-                    <td class="text-end">{{ empleado.afp }}</td>
-                    <td  class="text-nowrap text-truncate">{{ empleado.eps }}</td>
-                    <td class="text-nowrap text-truncate">{{ empleado.caja }}</td>
-                    <td class="text-end">{{ empleado.idcosto }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+    
+    {% if compects %}
+    
+        <div class="table-responsive">
+            <table id='tabla-aportes-nomina' class="table table-striped table-bordered">
+                <thead>
+                    <tr class="fw-bold fs-6 text-gray-800">
+                        <th>contrato</th>
+                        <th>Identificación</th>
+                        <th class="w-25 text-nowrap text-truncate" >Nombre</th> 
+                        <th>Salario</th>
+                        <th>Base SS</th>
+                        <th>Base ARL</th>
+                        <th>Base Caja</th>
+                        <th>Variable</th>
+                        <th>Susp. Contrato</th>
+                        <th>Días</th>
+                        <th>SALUD</th>
+                        <th>PENSIÓN</th>
+                        <th>Ajuste</th>
+                        <th>ARL</th>
+                        <th>CCF</th>
+                        <th>SENA</th>
+                        <th>ICBF</th>
+                        <th>SALUD TR</th>
+                        <th>PENSIÓN TR</th>
+                        <th>FSP</th>
+                        <th>Total AP</th>
+                        <th>Provision</th>
+                        <th>AFP</th>
+                        <th class="w-25 text-nowrap text-truncate" >EPS</th>
+                        <th class="w-25 text-nowrap text-truncate" >CAJA</th>
+                        <th>Idcosto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empleado in compects %}
+                    <tr>
+                        <td>{{ empleado.contrato }}</td>
+                        <td>{{ empleado.documento }}</td>
+                        <td class="text-nowrap text-truncate">{{ empleado.nombre }}</td> <!-- Clase personalizada -->
+                        <td class="text-end">{{ empleado.salario }}</td>
+                        <td class="text-end">{{ empleado.base_ss }}</td>
+                        <td class="text-end">{{ empleado.base_arl }}</td>
+                        <td class="text-end">{{ empleado.base_caja }}</td>
+                        <td class="text-end">{{ empleado.variable }}</td>
+                        <td class="text-end">{{ empleado.suspension }}</td>
+                        <td class="text-end">{{ empleado.diasaportes }}</td>
+                        <td class="text-end">{{ empleado.salud }}</td>
+                        <td class="text-end">{{ empleado.pension }}</td>
+                        <td class="text-end">{{ empleado.ajuste }}</td>
+                        <td class="text-end">{{ empleado.arl }}</td>
+                        <td class="text-end">{{ empleado.ccf }}</td>
+                        <td class="text-end">{{ empleado.sena }}</td>
+                        <td class="text-end">{{ empleado.icbf }}</td>
+                        <td class="text-end">{{ empleado.salud_t }}</td>
+                        <td class="text-end">{{ empleado.pension_t }}</td>
+                        <td class="text-end">{{ empleado.fsp }}</td>
+                        <td class="text-end">{{ empleado.totalap }}</td>
+                        <td class="text-end">{{ empleado.provision }}</td>
+                        <td class="text-end">{{ empleado.afp }}</td>
+                        <td  class="text-nowrap text-truncate">{{ empleado.eps }}</td>
+                        <td class="text-nowrap text-truncate">{{ empleado.caja }}</td>
+                        <td class="text-end">{{ empleado.idcosto }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            
+        </div>
+
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            <h4 class="alert-heading">¡Atención!</h4>
+            <p>Parece que la lista está vacía en este momento. Por favor, seleccione una nómina para visualizar los datos correspondientes.</p>
+            <hr>
+            <p class="mb-0">Agradecemos su colaboración para completar esta información.</p>
+        </div>
+    {% endif %}
         
-        
-    </div>
+    
+    
     
     
     

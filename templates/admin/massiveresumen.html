@@ -1,0 +1,269 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block navbar %}
+    {% include 'base/navbar_administrator.html' %}                
+{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    Nomiweb.co - Administrador - masivos - hoja de vida
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block sub_titulo1 %} 
+    Masivos
+{% endblock %}
+
+{% block sub_titulo2 %} 
+    Hojas de Vida
+{% endblock %}
+
+{% block titulo2 %} 
+{% endblock %}
+
+{% block actions %}
+<a href="{% static 'docs/base_hojas_vida.xlsx' %}" download class="btn btn-light-success">
+    <i class="fa-solid fa-file-arrow-down"></i> Documento base
+</a>  
+<div style="width: 15px;"></div>
+<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+    <i class="fa-solid fa-file-arrow-up"></i> Cargar Documento
+</button> 
+{% endblock %}
+
+{% block content %}
+    {% if visual %}
+    <h1 class="mb-4">Resultados de la Data</h1>
+    <div class="alert alert-info h-300px px-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Resumen:</strong><br>
+                <span class="badge badge-danger">Errores : {{ error_count }}</span><br>
+                <span class="badge badge-primary">Total Data : {{ total }}</span><br>
+            </div>
+            <div class="ms-3">
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#kt_modal_2">Migrar Data</button>
+            </div>
+        </div>
+        <div class="accordion" id="kt_accordion_1">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="kt_accordion_1_header_1">
+                    <button class="accordion-button fs-4 fw-semibold btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
+                        Reporte
+                    </button>
+                </h2>
+                <div id="kt_accordion_1_body_1" class="accordion-collapse collapse" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
+                    <div class="accordion-body">
+                        {% if reporte %}
+                        <div class="scroll h-400px px-5">
+                            <ul class="list-group">
+                                {% for status in reporte %}
+                                    <li class="list-group-item list-group-item-danger">
+                                        {{ status }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% else %}
+                            <ul class="list-group">
+                                <li class="list-group-item list-group-item-success">
+                                    Todo Esta Correcto
+                                </li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if visual2 %}
+    <h1 class="mb-4">Resultados de la Data</h1>
+    <div class="alert alert-info">
+        <strong>Resumen:</strong><br>
+        <span class="badge bg-success">Éxitos: {{ success_count }}</span><br>
+        <span class="badge bg-danger">Errores: {{ error_count }}</span>
+        <span class="badge bg-success">Total: {{ total }}</span><br>
+        <div class="separator my-10"></div>
+        <div class="accordion" id="kt_accordion_1">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="kt_accordion_1_header_1">
+                    <button class="accordion-button fs-4 fw-semibold btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
+                        Errores
+                    </button>
+                </h2>
+                <div id="kt_accordion_1_body_1" class="accordion-collapse collapse" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
+                    <div class="accordion-body">
+                        <ul class="list-group">
+                            {% for status in migration_status %}
+                                {% if "Error" in status %}
+                                    <li class="list-group-item list-group-item-danger">
+                                        {{ status }}
+                                    </li>
+                                {% else %}
+                                    <li class="list-group-item list-group-item-success">
+                                        {{ status }}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!--begin::Modal Documento-->
+    <div class="modal fade" tabindex="-1" id="kt_modal_1">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Carga de Documento</h5>
+                    <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form id="form_Data" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="excel_file" class="form-label">Seleccione el archivo Excel</label>
+                            <input type="file" class="form-control" id="excel_file" name="excel_file" accept=".xlsx, .xls" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="submit_data" class="btn btn-light-info" form="form_Data">Cargar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end::Modal-->
+
+    <!--begin::Modal Documento Confirmacion-->
+    <div class="modal fade" tabindex="-1" id="kt_modal_2">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmacion de Migracion </h5>
+                    <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form id="form_Confi" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <h4 >Recuerde que el analizador valida únicamente ciertas condiciones. Si ocurre algún otro error con los datos, se le informará oportunamente.</h4>
+                        </div>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="excel_file2" class="form-label">Seleccione el archivo Excel</label>
+                            <input type="file" class="form-control" id="excel_file2" name="excel_file" accept=".xlsx, .xls" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="submit_confi" class="btn btn-light-info" form="form_Confi" onclick="sendFile()">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end::Modal-->
+{% endblock %}
+
+{% block js %}
+<script>
+    function sendFile() {
+        const fileInput = document.getElementById('excel_file2');
+        const formData = new FormData();
+        
+        // Verifica si el archivo ha sido seleccionado
+        if (fileInput.files.length === 0) {
+            alert("Por favor, selecciona un archivo antes de enviar.");
+            console.log("No se seleccionó ningún archivo.");
+            return;
+        }
+        
+        formData.append('excel_file', fileInput.files[0]);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        // Imprime que se ha iniciado el proceso de envío de archivo
+        console.log("Iniciando envío de archivo...");
+        
+        const fetchOptions = {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Connection': 'keep-alive'  // Indica al servidor que debe mantener la conexión
+            }
+        };
+
+        // Agrega un intervalo de ping en intervalos regulares si la carga toma mucho tiempo
+        const pingInterval = setInterval(() => {
+            console.log("Enviando ping para mantener la conexión viva...");
+            fetch('/admin/massive/resumen/migrate', { method: 'GET' }) // Un ping sin cuerpo solo para mantener la conexión viva
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al mantener la conexión');
+                    }
+                })
+                .catch(error => console.log("Error en ping:", error));
+        }, 5000); // Cada 5 segundos envía un ping
+
+        // Realiza la solicitud principal
+        fetch('/admin/massive/resumen/migrate', fetchOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud');
+                }
+                console.log("Solicitud enviada exitosamente.");
+                clearInterval(pingInterval);  // Detiene el ping una vez que la solicitud se haya completado
+                return response.json();
+            })
+            .then(data => {
+                console.log("Respuesta del servidor:", data);  // Imprime la respuesta del servidor
+                if (data.success) {
+                    alert(data.message);
+                    if (data.reporte) {
+                        mostrarReporte(data.reporte); // Función para manejar el reporte
+                    }
+                } else {
+                    console.log(`Error en la respuesta: ${data.message}`);
+                    alert(`Error: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.log('Error al enviar el archivo:', error);
+                //alert("Ocurrió un error inesperado al enviar el archivo.");
+            });
+    }
+    
+    function mostrarReporte(reporte) {
+        console.log("Mostrando reporte de errores...");
+        const reporteContainer = document.createElement('div');
+        reporteContainer.classList.add('alert', 'alert-warning');
+        reporteContainer.innerHTML = `  
+            <h5>Reporte de Errores:</h5>
+            <ul>
+                ${reporte.map(error => `<li>${error}</li>`).join('')}
+            </ul>
+        `;
+        
+        // Asegúrate de que el modal exista
+        const modalBody = document.querySelector('#kt_modal_2 .modal-body');
+        if (modalBody) {
+            modalBody.appendChild(reporteContainer);
+        } else {
+            console.log("No se encontró el modal para mostrar el reporte.");
+        }
+    }
+</script>
+
+
+{% endblock %}

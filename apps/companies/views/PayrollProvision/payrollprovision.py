@@ -202,11 +202,7 @@ def contributionsprovision(request):
             
             # Obtener las nóminas filtradas y limitadas
             nominas = Nomina.objects.filter(idnomina__mesacumular=mes, idnomina__anoacumular__ano=año,idnomina__id_empresa__idempresa = idempresa).order_by('idcontrato__idempleado__papellido')
-            
-            print('--------------------')
-            print(f'Número de registros: {nominas.count()}')
-            print('--------------------')
-            
+                        
             # Obtener los conceptos fijos y almacenarlos en un diccionario
             conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
             conceptos_dict = {cf['idfijo']: cf['valorfijo'] for cf in conceptos_fijos}
