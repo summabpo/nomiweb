@@ -4,7 +4,7 @@ from .views.Createuser import createuser
 from .views.Createcompanies import createcompanies
 from .views.role import role
 from .views.loginweb import loginweb 
-
+from .views.massive import massiveresumen
 
 
 urlpatterns = [
@@ -20,7 +20,8 @@ urlpatterns = [
     path('loginweb/select/',loginweb.loginweb_admin , name='loginweb'),
     path('loginweb/edit/',loginweb.edit_main , name='editmain'),
     
-    
-    
+    # massive
+    path('massive/resumen/',massiveresumen.massiveresumen , name='massiveresumen'),
+    path('massive/resumen/migrate',massiveresumen.massiveresumenmigrate , name='massiveresumen_migrate'),
     
 ]

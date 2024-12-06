@@ -4,7 +4,7 @@ from io import BytesIO
 from apps.common.models import Nomina, Contratos, Conceptosfijos
 from django.db.models import Q, Sum
 
-def generate_nomina_excel(year, mth):
+def generate_nomina_excel(year, mth,idempresa):
     # Crear un archivo en memoria
     output = BytesIO()
 
@@ -21,7 +21,7 @@ def generate_nomina_excel(year, mth):
     decimal_style = NamedStyle(name='decimal_style', number_format='0.00')
 
     # Obtener datos
-    nominas = Nomina.objects.filter(idnomina__mesacumular=mth, idnomina__anoacumular__ano=year).select_related( 'idcontrato', 'idcosto').order_by('idcontrato__idempleado__papellido')
+    nominas = Nomina.objects.filter(idnomina__mesacumular=mth, idnomina__anoacumular__ano=year,idnomina__id_empresa__idempresa = idempresa).select_related( 'idcontrato', 'idcosto').order_by('idcontrato__idempleado__papellido')
     conceptos_fijos = Conceptosfijos.objects.values('idfijo', 'valorfijo')
     conceptos_dict = {cf['idfijo']: cf['valorfijo'] for cf in conceptos_fijos}
     contratos = Contratos.objects.filter(idcontrato__in=nominas.values_list('idcontrato', flat=True)).select_related('tiposalario')

@@ -36,14 +36,12 @@ def payrollaccumulations(request):
     
             # Aplicar filtros a la consulta de Nomina
             nominas = Nomina.objects.all().order_by('idconcepto__idconcepto')
-            print("Cantidad de registros:", nominas.count())
             if employee:
                 nominas = nominas.filter(idcontrato__idempleado__idempleado=employee)
             if cost_center:
                 nominas = nominas.filter(idcontrato__idcosto=cost_center)
             if city:
                 nominas = nominas.filter(idcontrato__idsede=city)
-            print("Cantidad de registros:", nominas.count())
             
             if year_init and mst_init and year_end and mst_end:
                 # Filtrar por mes y año iniciales
@@ -56,14 +54,12 @@ def payrollaccumulations(request):
                 nominas = nominas.filter(
                     #idnomina__anoacumular__ano__lte=year_end, 
                     idnomina__mesacumular__lte=mst_end
-                )
-            print("Cantidad de registros:", nominas.count())       
+                )    
             
                     
             # Acumular los datos
             for data in nominas:
                 docidentidad = data.idcontrato.idempleado.docidentidad
-                print(docidentidad)
                 if docidentidad not in acumulados:
                     acumulados[docidentidad] = {
                         'documento': docidentidad,

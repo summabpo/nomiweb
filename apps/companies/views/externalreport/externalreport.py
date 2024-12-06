@@ -13,6 +13,8 @@ from .generate_docu import generate_nomina_excel
 @role_required('company')
 def externalreport(request):
     nominas ={}
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     form = FilterForm()
     if request.method == 'POST':
         visual = True
@@ -22,7 +24,7 @@ def externalreport(request):
             mes = form.cleaned_data['mes']
             year = año
             mth = mes
-            nominas = Nomina.objects.filter(idnomina__mesacumular=mes, idnomina__anoacumular__ano=año)\
+            nominas = Nomina.objects.filter(idnomina__mesacumular=mes, idnomina__anoacumular__ano=año ,idnomina__id_empresa__idempresa = idempresa)\
                 .select_related('idcontrato', 'idconcepto', 'idcosto')\
                 .values(
                     'idcontrato__idcontrato',
@@ -56,6 +58,8 @@ def externalreport(request):
 @login_required
 @role_required('company')
 def download_excel_report(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     year = request.GET.get('year')
     month = request.GET.get('mth')
 
@@ -64,7 +68,7 @@ def download_excel_report(request):
         return HttpResponse("Faltan parámetros.", status=400)
 
     # Generar el archivo Excel
-    excel_data = generate_nomina_excel(year, month)
+    excel_data = generate_nomina_excel(year, month,idempresa)
     file_name = f"informe_tercero_{month}_{year}.xlsx"
     
     # Crear la respuesta con el archivo Excel
