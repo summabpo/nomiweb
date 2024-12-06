@@ -109,7 +109,12 @@ def loginweb(request):
                 'idempleado__snombre', 'cargo__nombrecargo', 'idempleado__idempleado','idempleado__email',)
 
     for contrato in contratos_empleados:
-        nombre_empleado = f"{contrato['idempleado__papellido']} {contrato['idempleado__pnombre']} {contrato['idempleado__snombre']}"
+        nombre_empleado = ' '.join(filter(None, [
+            contrato['idempleado__papellido'],
+            contrato['idempleado__sapellido'],
+            contrato['idempleado__pnombre'],
+            contrato['idempleado__snombre']
+        ]))
         contrato_data = {
             'documento': contrato['idempleado__docidentidad'],
             'nombre': nombre_empleado,

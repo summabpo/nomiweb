@@ -16,32 +16,28 @@ Nomiweb.co - Portal Empresas - Edit Empleado {{DicContract.id}}
 ID Empleado {{DicContract.id}}
 {% endblock %}
 
+{% block actions %}
+
+<a href="{% url 'companies:startcompanies' %}" class="btn btn-light-primary">
+    Regresar
+    <i class="ki-duotone ki-exit-left fs-2x">             
+        <span class="path1"></span>
+        <span class="path2"></span>
+    </i>
+</a>
+
+{% endblock %}
 
 {% block titulo2 %} 
 Edicion de Hoja de vida Empleado  - {{DicContract.nombre}} 
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-end">
-    <a href="{% url 'companies:startcompanies' %}" class="btn btn-light-primary">
-        Regresar
-        <i class="ki-duotone ki-exit-left fs-2x">             
-            <span class="path1"></span>
-            <span class="path2"></span>
-        </i>
-    </a>
-</div>
     {% crispy form %}
+    <button type="submit" form="form_Employee_Edit" id='submit_contract'  class="btn btn-primary" >Actualizar</button>
 {% endblock %}
 
 {% block js %} 
-
-<script>
-    document.getElementById('backButton').addEventListener('click', function() {
-        window.history.back();
-    });
-</script>
-
 
 {% endblock %}
 

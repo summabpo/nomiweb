@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.common.models  import Tipodocumento , Paises , Ciudades , Contratosemp , Contratos
-from apps.companies.forms.EmployeeForm import EmployeeForm
+from .EditForm import EmployeeForm
 from django.contrib import messages
 from apps.components.decorators import custom_login_required ,custom_permission
 
@@ -11,33 +11,16 @@ from django.contrib.auth.decorators import login_required
 @role_required('company')
 def EditEmployeeVisual(request,idempleado):
     empleado = Contratosemp.objects.get(idempleado=idempleado) 
-    
-    tipo_documento = Tipodocumento.objects.get(codigo=empleado.tipodocident) 
-    
-    
-    
-    ciudadex = Ciudades.objects.get(idciudad=empleado.ciudadexpedicion) 
-    ciudadna = Ciudades.objects.get(idciudad=empleado.ciudadnacimiento) 
-    
-    
-    campos_a_ajustar = [
-    'identification_type', 'identification_number', 'expedition_date', 'expedition_city', 'first_name',
-    'second_name', 'first_last_name', 'second_last_name', 'sex', 'birthdate', 'birth_city','birth_country','blood_group'
-    ]
-    
     DicContract = {
-        'ciudadexpedicion':ciudadex.ciudad + ' - ' + ciudadex.departamento,
-        'ciudadnaci': ciudadna.ciudad + ' - ' + ciudadna.departamento,
-        'nombre': empleado.papellido + ' ' + empleado.sapellido + ' ' + empleado.pnombre + ' ' + empleado.snombre,
+        'nombre': (empleado.papellido or '') + ' ' + (empleado.sapellido or '') + ' ' + (empleado.pnombre or '') + ' ' + (empleado.snombre or ''),
         'id': empleado.idempleado
     }
-    
 
     initial_data = {
-        'identification_type':empleado.tipodocident,
+        'identification_type':empleado.tipodocident.codigo,
         'identification_number':empleado.docidentidad,
         'expedition_date':str(empleado.fechaexpedicion),
-        'expedition_city':empleado.ciudadexpedicion,
+        'expedition_city':empleado.ciudadexpedicion.idciudad,
         'first_name':empleado.pnombre,
         'second_name':empleado.snombre,
         'first_last_name':empleado.papellido,
@@ -50,17 +33,17 @@ def EditEmployeeVisual(request,idempleado):
         'second_name':empleado.snombre,
         'birthdate':str(empleado.fechanac),
         'education_level':empleado.niveleducativo,
-        'birth_city':empleado.ciudadexpedicion,
-        'stratum':str(empleado.estrato),
-        'birth_country':empleado.paisnacimiento,
+        'birth_city':empleado.ciudadexpedicion.idciudad,
+        'stratum':empleado.estrato,
+        'birth_country':empleado.paisnacimiento.idpais,
         'military_id':empleado.numlibretamil,
         'blood_group':empleado.gruposanguineo,
         'profession':empleado.estrato,
         'residence_address':empleado.direccionempleado,
         'email':empleado.email,
-        'residence_city':empleado.ciudadresidencia,
+        'residence_city':empleado.ciudadresidencia.idciudad,
         'cell_phone':empleado.celular,
-        'residence_country':empleado.paisresidencia,
+        'residence_country':empleado.paisresidencia.idpais,
         'employee_phone':empleado.telefonoempleado,
         'pants_size':empleado.dotpantalon,
         'shirt_size':empleado.dotcamisa,
@@ -70,7 +53,7 @@ def EditEmployeeVisual(request,idempleado):
     
     if request.method == 'POST':
         form = EmployeeForm(request.POST)     
-        form.set_all_fields_optional()       
+        
         if form.is_valid():
             
             # Campos del formulario y su relación con el modelo Contratosemp
@@ -94,24 +77,59 @@ def EditEmployeeVisual(request,idempleado):
             # shoes_size               -> dotzapatos
             
             try:
-                empleado.estatura =form.cleaned_data['height']
-                empleado.estadocivil =form.cleaned_data['marital_status']
-                empleado.peso =form.cleaned_data['weight']
-                empleado.niveleducativo =form.cleaned_data['education_level']
-                empleado.estrato =form.cleaned_data['stratum']
-                empleado.numlibretamil =form.cleaned_data['military_id']
-                empleado.profesion =form.cleaned_data['profession']
-                empleado.direccionempleado =form.cleaned_data['residence_address']
-                empleado.email =form.cleaned_data['email']
-                empleado.ciudadresidencia =form.cleaned_data['residence_city']
-                empleado.celular =form.cleaned_data['cell_phone']
-                empleado.paisresidencia =form.cleaned_data['residence_country']
-                empleado.telefonoempleado =form.cleaned_data['employee_phone']
-                empleado.dotpantalon =form.cleaned_data['pants_size']
-                empleado.dotcamisa =form.cleaned_data['shirt_size']
-                empleado.dotzapatos =form.cleaned_data['shoes_size']
-                
-                
+                if form.cleaned_data['height'] != empleado.estatura:
+                    empleado.estatura = form.cleaned_data['height']
+
+                if form.cleaned_data['marital_status'] != empleado.estadocivil:
+                    empleado.estadocivil = form.cleaned_data['marital_status']
+
+                if form.cleaned_data['weight'] != empleado.peso:
+                    empleado.peso = form.cleaned_data['weight']
+
+                if form.cleaned_data['education_level'] != empleado.niveleducativo:
+                    empleado.niveleducativo = form.cleaned_data['education_level']
+
+                if form.cleaned_data['stratum'] != empleado.estrato:
+                    empleado.estrato = form.cleaned_data['stratum']
+
+                if form.cleaned_data['military_id'] != empleado.numlibretamil:
+                    empleado.numlibretamil = form.cleaned_data['military_id']
+
+                if form.cleaned_data['profession'] != empleado.profesion:
+                    empleado.profesion = form.cleaned_data['profession']
+
+                if form.cleaned_data['residence_address'] != empleado.direccionempleado:
+                    empleado.direccionempleado = form.cleaned_data['residence_address']
+
+                if form.cleaned_data['email'] != empleado.email:
+                    empleado.email = form.cleaned_data['email']
+
+                if form.cleaned_data['residence_city'] is not None:
+                    ciudad_residencia = Ciudades.objects.get(idciudad=form.cleaned_data['residence_city'])
+                    if ciudad_residencia != empleado.ciudadresidencia:
+                        empleado.ciudadresidencia = ciudad_residencia
+
+                if form.cleaned_data['cell_phone'] != empleado.celular:
+                    empleado.celular = form.cleaned_data['cell_phone']
+
+                if form.cleaned_data['residence_country'] is not None:
+                    pais_residencia = Paises.objects.get(idpais=form.cleaned_data['residence_country'])
+                    if pais_residencia != empleado.paisresidencia:
+                        empleado.paisresidencia = pais_residencia
+
+                if form.cleaned_data['employee_phone'] != empleado.telefonoempleado:
+                    empleado.telefonoempleado = form.cleaned_data['employee_phone']
+
+                if form.cleaned_data['pants_size'] != empleado.dotpantalon:
+                    empleado.dotpantalon = form.cleaned_data['pants_size']
+
+                if form.cleaned_data['shirt_size'] != empleado.dotcamisa:
+                    empleado.dotcamisa = form.cleaned_data['shirt_size']
+
+                if form.cleaned_data['shoes_size'] != empleado.dotzapatos:
+                    empleado.dotzapatos = form.cleaned_data['shoes_size']
+
+                # Guardar los cambios
                 empleado.save()
                 messages.success(request, 'El Empleado ha sido Actualizado')
                 return  redirect('companies:startcompanies')
@@ -127,12 +145,8 @@ def EditEmployeeVisual(request,idempleado):
                     messages.error(request, f"Error en el campo '{field}': {error}")
             return redirect('companies:editemployeevisual',idempleado=empleado.idempleado)
     else:
-        
-        
-        activate = request.GET.get('premium', False)
         form = EmployeeForm(initial=initial_data) 
-        form.set_premium_fields(premium=activate, fields_to_adjust=campos_a_ajustar) 
-        form.set_all_fields_optional()   
+          
         
     
     return render(request, './companies/EditEmployeevisual.html',{'DicContract':DicContract , 'form':form})
