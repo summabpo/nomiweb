@@ -63,7 +63,7 @@ def payrollaccumulations(request):
                 if docidentidad not in acumulados:
                     acumulados[docidentidad] = {
                         'documento': docidentidad,
-                        'empleado': f"{data.idcontrato.idempleado.papellido} {data.idcontrato.idempleado.sapellido} {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.snombre}",
+                        'empleado': f"{(data.idcontrato.idempleado.papellido or '')} {(data.idcontrato.idempleado.sapellido or '')} {(data.idcontrato.idempleado.pnombre or '')} {(data.idcontrato.idempleado.snombre or '')}",
                         'contrato': data.idcontrato.idcontrato,
                         'data': [
                             {"idconcepto": data.idconcepto.idconcepto,

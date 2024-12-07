@@ -26,24 +26,29 @@ def startCompanies(request):
             'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
             'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario', 
             'idcosto__nomcosto', 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl',
-            'idempleado__idempleado', 'idcontrato'
+            'idempleado__idempleado','idempleado__sapellido', 'idcontrato'
         )
     
     empleados = [
-        {
-            'documento': contrato['idempleado__docidentidad'],
-            'nombre': f"{contrato['idempleado__papellido']} {contrato['idempleado__pnombre']} {contrato['idempleado__snombre']}",
-            'fechainiciocontrato': contrato['fechainiciocontrato'],
-            'cargo': contrato['cargo__nombrecargo'],
-            'salario': f"{contrato['salario'] if contrato['salario'] is not None else 0:,.0f}".replace(',', '.'),  # Formato de salario
-            'centrocostos': contrato['idcosto__nomcosto'],
-            'tipocontrato': contrato['tipocontrato__tipocontrato'],
-            'tarifaARL': contrato['centrotrabajo__tarifaarl'],
-            'idempleado': contrato['idempleado__idempleado'],
-            'idcontrato': contrato['idcontrato'],
-        }
-        for contrato in contratos_empleados
-    ]
+    {
+        'documento': contrato['idempleado__docidentidad'],
+        'nombre': ' '.join(filter(None, [
+            contrato['idempleado__papellido'],
+            contrato['idempleado__sapellido'],
+            contrato['idempleado__pnombre'],
+            contrato['idempleado__snombre']
+        ])),
+        'fechainiciocontrato': contrato['fechainiciocontrato'],
+        'cargo': contrato['cargo__nombrecargo'],
+        'salario': f"{contrato['salario'] if contrato['salario'] is not None else 0:,.0f}".replace(',', '.'),  # Formato de salario
+        'centrocostos': contrato['idcosto__nomcosto'],
+        'tipocontrato': contrato['tipocontrato__tipocontrato'],
+        'tarifaARL': contrato['centrotrabajo__tarifaarl'],
+        'idempleado': contrato['idempleado__idempleado'],
+        'idcontrato': contrato['idcontrato'],
+    }
+    for contrato in contratos_empleados
+]
     
     return render(request, './companies/ActiveList.html', {'empleados': empleados})
 
