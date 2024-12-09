@@ -208,7 +208,7 @@ def privacy_policy(request):
 #! errores 
 
 def error_page(request):
-    return render(request, './users/prueba.html')
+    return render(request, './users/error_page.html')
 
 
 
