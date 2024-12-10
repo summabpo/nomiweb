@@ -65,7 +65,12 @@ def payrollsheet(request):
         for data in compectos:
             
             docidentidad = data.idcontrato.idcontrato
-            compribanten = NominaComprobantes.objects.get(idnomina = selected_nomina ,idcontrato = data.idcontrato.idcontrato , idcosto__idcosto = data.idcontrato.idcosto.idcosto )
+            try:
+                compribanten = NominaComprobantes.objects.get(idnomina=selected_nomina, idcontrato=data.idcontrato.idcontrato, idcosto__idcosto=data.idcontrato.idcosto.idcosto)
+            except NominaComprobantes.DoesNotExist:
+                compribanten = None
+                
+                
             if docidentidad not in acumulados:
                 acumulados[docidentidad] = {
                     'documento': docidentidad,
@@ -77,7 +82,7 @@ def payrollsheet(request):
                     'extras': 0,
                     'aportess': 0,
                     'prestamos': 0,
-                    'estado': get_email_status(compribanten.envio_email) ,
+                    'estado': get_email_status(compribanten.envio_email) if compribanten else None,
                     'nominaid': data.idnomina.idnomina,
                     'contratoid' :data.idcontrato.idcontrato,   
                 }
