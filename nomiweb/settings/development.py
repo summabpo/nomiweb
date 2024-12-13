@@ -18,10 +18,6 @@ SETTINGS_ENV = 'development'
 
 HOSTNAME = "http://127.0.0.1:8000/"
 
-print('---------------------------')
-print(os.getenv('DB_HOST_DEV'))
-print('---------------------------')
-
 
 DATABASES = {
     'default': {
