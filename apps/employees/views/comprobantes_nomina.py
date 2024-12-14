@@ -14,7 +14,13 @@ from django.views.generic import  ListView
 
 #models
 from apps.common.models import Crearnomina, Nomina, Contratos
-locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+try:
+    # Intenta usar el locale en español
+    locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+except locale.Error:
+    # Si no está disponible, usa una configuración neutral
+    locale.setlocale(locale.LC_ALL, 'C')
+    print("Advertencia: No se pudo configurar 'es_ES.UTF-8'. Usando 'C'.")
 
 from apps.components.payrollgenerate import genera_comprobante 
 from apps.components.decorators import  role_required

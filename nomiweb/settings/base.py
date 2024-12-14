@@ -1,6 +1,10 @@
 import os
 from dotenv import load_dotenv
 
+import locale
+
+# Configuración neutral que evita errores
+locale.setlocale(locale.LC_ALL, 'C')
 
 
 # from django.urls import reverse_lazy
