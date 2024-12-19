@@ -43,7 +43,7 @@ LOCAL_APPS = [
     'apps.employees',     # Employees application
     'apps.companies',     # Companies application
     'apps.administrator',
-    # 'apps.payroll',       # Payroll application
+    'apps.payroll',       # Payroll application
     # 'apps.api_database',  # API database applicatio#n
 ]
 THIRD_APPS = [

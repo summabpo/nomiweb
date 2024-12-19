@@ -1,66 +1,84 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
-from apps.common.models import Nivelesestructura
+from apps.common.models import Empresa
 
-TIPE_CHOSE = (
+TIPE_CHOICES = (
     ('', '-------------'),
-    ('MG', 'Mensual'),
-    ('SP', 'Quincenal'),
-    ('SP', 'Por Horas'),
-    ('SP', 'Primas'),
-    ('SP', 'Cesantias'),
-    ('SP', 'Adicional'),
-    ('SP', 'Vacaciones'),
-    ('SP', 'Liquidación'),
-    ('SP', 'Catorcenal'),
-    ('SP', 'Int. de Cesantias'),
-    ('SP', 'Semanal'),
+    ('1', 'Mensual'),
+    ('2', 'Quincenal'),
+    ('3', 'Por Horas'),
+    ('4', 'Primas'),
+    ('5', 'Cesantías'),
+    ('6', 'Adicional'),
+    ('7', 'Vacaciones'),
+    ('8', 'Liquidación'),
+    ('9', 'Catorcenal'),
+    ('10', 'Int. de Cesantías'),
+    ('11', 'Semanal'),
 )
 
-TIPE_CHOSE = (
-    ('', 'Choose...'),
-    ('MG', 'Minas Gerais'),
-    ('SP', 'Sao Paulo'),
-    ('RJ', 'Rio de Janeiro')
-)
+class PayrollForm(forms.Form):
+    fechainicial = forms.DateField(
+        label='Fecha Inicial',
+        widget=forms.TextInput(attrs={'type': 'date', 'placeholder': 'Seleccione la fecha inicial'})
+    )
+    fechafinal = forms.DateField(
+        label='Fecha Final',
+        widget=forms.TextInput(attrs={'type': 'date', 'placeholder': 'Seleccione la fecha final'})
+    )
+    fechapago = forms.DateField(
+        label='Fecha de Pago',
+        widget=forms.TextInput(attrs={'type': 'date', 'placeholder': 'Seleccione la fecha de pago'})
+    )
+    tiponomina = forms.ChoiceField(
+        label='Tipo de Nómina',
+        choices=TIPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    diasnomina = forms.IntegerField(
+        label='Días de Nómina',
+        widget=forms.NumberInput(attrs={'placeholder': ''})
+    )
 
+    nombrenomina = forms.CharField(
+        label='Nombre Nomina',
+        widget=forms.TextInput(attrs={'placeholder': ''})
+    )
+ 
 
-class PayrollForm (forms.Form):
-    nombrecargo = forms.CharField(label='Nombre Cargo' , widget=forms.TextInput(attrs={'placeholder': 'Nombre cargo'}))
-    
     def __init__(self, *args, **kwargs):
-        idempresa = kwargs.pop('idempresa', None)
         super().__init__(*args, **kwargs)
-        
-        # Filtrar Nivelesestructura por idempresa si está disponible
-        niveles = Nivelesestructura.objects.all().exclude(idnivel=10).order_by('idnivel')
-        
-        # Crear el campo nivelcargo con las opciones filtradas
-        self.fields['nivelcargo'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(n.idnivel, n.nombrenivel) for n in niveles],
-            label='Nivel de Cargo',
-            required=True
-        )
-        
-        # Configurar la apariencia del campo nivelcargo
-        self.fields['nivelcargo'].widget.attrs.update({
+
+        self.fields['tiponomina'].widget.attrs.update({
             'data-control': 'select2',
             'data-tags': 'true',
             'class': 'form-select',
             'data-hide-search': "true",
+            'data-dropdown-parent':"#kt_modal_maintenance",
         })
-        
+
         self.helper = FormHelper()
-        
-        
-        
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'form_payroll'
+        self.helper.enctype = 'multipart/form-data'
+
         self.helper.layout = Layout(
             Row(
-                Column('nombrecargo', css_class='form-group mb-0'),
-                Column('nivelcargo', css_class='form-group mb-0'),
+                Column('nombrenomina', css_class='form-group  col-md-10 mb-0'),
+                Column('diasnomina', css_class='form-group  col-md-2 mb-0'),
                 css_class='row'
             ),
-            Submit('submit', 'Guardar')
+            
+            Row(
+                Column('fechainicial', css_class='form-group  col-md-6 mb-0'),
+                Column('fechafinal', css_class='form-group  col-md-6 mb-0'),
+                
+                css_class='row'
+            ),
+            Row(
+                Column('tiponomina', css_class='form-group  col-md-6 mb-0'),
+                Column('fechapago', css_class='form-group  col-md-6 mb-0'),
+                css_class='row'
+            ),
         )
-    
