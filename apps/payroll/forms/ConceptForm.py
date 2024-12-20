@@ -45,6 +45,7 @@ class ConceptForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
+        form_id = kwargs.pop('form_id', 'form_payroll_concept')
         # Obtener la variable externa pasada al formulario
         dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_concept')
         select2_ids = kwargs.pop('select2_ids', {})
@@ -53,12 +54,12 @@ class ConceptForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields['idconcepto'].choices = [('', '----------')] + [(concepto.idconcepto, f"{concepto.nombreconcepto}") for concepto in Conceptosdenomina.objects.all()]
-        self.fields['idcontrato'].choices = [('', '----------')] + [(contra.idcontrato, f"{contra.idempleado.papellido } {contra.idempleado.sapellido } {contra.idempleado.pnombre }") for contra in Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa) .order_by('idcontrato')]
+        self.fields['idcontrato'].choices = [('', '----------')] + [(contra.idcontrato, f"{contra.idempleado.papellido } {contra.idempleado.sapellido } {contra.idempleado.pnombre }") for contra in Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa) .order_by('idempleado__papellido')]
         
 
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.form_id = 'form_payroll_concept'
+        self.helper.form_id = form_id 
         self.helper.enctype = 'multipart/form-data'
 
 
