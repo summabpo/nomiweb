@@ -38,11 +38,13 @@ class PayrollForm(forms.Form):
     )
     diasnomina = forms.IntegerField(
         label='Días de Nómina',
+        required=False,
         widget=forms.NumberInput(attrs={'placeholder': ''})
     )
 
     nombrenomina = forms.CharField(
         label='Nombre Nomina',
+        required=False,
         widget=forms.TextInput(attrs={'placeholder': ''})
     )
  

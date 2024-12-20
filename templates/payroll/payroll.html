@@ -66,6 +66,7 @@ Plantilla de Nominas
             </div>
 
             <div class="modal-body">
+                {% csrf_token %}
                 {% crispy form %}
             </div>
 
@@ -127,6 +128,83 @@ Plantilla de Nominas
 
 
 {% block js %}
+
+<script>
+    // Bloquear los campos con estilos Bootstrap
+    document.addEventListener("DOMContentLoaded", function () {
+        // Seleccionar los campos por ID
+        const nombreNomina = document.getElementById("id_nombrenomina");
+        const diasNomina = document.getElementById("id_diasnomina");
+
+        // Agregar atributo disabled y clase Bootstrap
+        nombreNomina.setAttribute("disabled", true);
+        diasNomina.setAttribute("disabled", true);
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const nombreNomina = document.getElementById("id_nombrenomina");
+        const diasNomina = document.getElementById("id_diasnomina");
+        const fechaInicial = document.getElementById("id_fechainicial");
+        const fechaFinal = document.getElementById("id_fechafinal");
+        const fechaPago = document.getElementById("id_fechapago");
+        const tipoNomina = document.getElementById("id_tiponomina");
+
+        // Mapeo de IDs de nóminas con sus nombres
+        const tipoNominaMap = {
+            1: "Mensual",
+            2: "Quincenal",
+            3: "Por Horas",
+            4: "Primas",
+            5: "Cesantías",
+            6: "Adicional",
+            7: "Vacaciones",
+            8: "Liquidación",
+            9: "Catorcenal",
+            10: "Int. de Cesantías",
+            11: "Semanal"
+        };
+
+        // Función para calcular días entre fechas
+        const calcularDias = () => {
+            const fechaInicio = new Date(fechaInicial.value);
+            const fechaFin = new Date(fechaFinal.value);
+
+            if (!isNaN(fechaInicio) && !isNaN(fechaFin)) {
+                const diferenciaMilisegundos = fechaFin - fechaInicio;
+                const dias = Math.ceil(diferenciaMilisegundos / (1000 * 60 * 60 * 24)) + 1;
+                diasNomina.value = dias >= 0 ? dias : 0;
+            }
+        };
+
+        // Función para actualizar el Nombre Nómina
+        const actualizarNombreNomina = () => {
+            const fecha = new Date(fechaPago.value);
+            const tipoId = tipoNomina.value;
+
+            if (!isNaN(fecha) && tipoId) {
+                const meses = [
+                    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+                ];
+                const mes = meses[fecha.getMonth()];
+                const año = fecha.getFullYear();
+                const tipoTexto = tipoNominaMap[tipoId];
+
+                if (tipoTexto) {
+                    nombreNomina.value = `Nomina ${tipoTexto} ${mes} ${año}`;
+                }
+            }
+        };
+
+        // Eventos para calcular días y actualizar el nombre
+        fechaInicial.addEventListener("change", calcularDias);
+        fechaFinal.addEventListener("change", calcularDias);
+        fechaPago.addEventListener("change", actualizarNombreNomina);
+        tipoNomina.addEventListener("change", actualizarNombreNomina);
+    });
+</script>
 
 <script>
     $(document).ready(function() {

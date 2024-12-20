@@ -16,11 +16,11 @@ Nóminas
 {% endblock %}
 
 {% block sub_titulo2 %} 
-Plantilla de Nóminas - Nomina #
+Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock %}
 
 {% block titulo2 %} 
-
+  {{ nombre.nombrenomina }}
 {% endblock %}
 
 {% block actions %}
@@ -74,11 +74,11 @@ Plantilla de Nóminas - Nomina #
                     <td class="text-center">{{ empleado.idcontrato }}</td>
                     <td class="text-center">
                         <div class="d-inline-flex">
-                            <button type="button" class="btn btn-icon btn-sm me-2 btn-light-instagram" data-bs-toggle="modal" data-bs-target="#kt_modal_views"  data-whatever="{{empleado.idcontrato}}" >
+                            <button type="button" class="btn btn-icon btn-sm me-2 btn-light-instagram" data-bs-toggle="modal" data-bs-target="#kt_modal_views"  data-empleado="{{empleado.idcontrato}}" >
                                 <i class="fas fa-solid fa-eye fs-3 " data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse"  data-bs-placement="top" title="Ver Conceptos"  ></i>
                             </button>
 
-                            <button class="btn btn-icon btn-sm btn-light-info me-2" data-bs-toggle="modal" data-bs-target="#kt_modal_concept_used"  data-whatever="{{empleado.idcontrato}}">
+                            <button class="btn btn-icon btn-sm btn-light-info me-2" data-bs-toggle="modal" data-bs-target="#kt_modal_concept_used"  data-empleado="{{empleado.idcontrato}}" >
                                 <i class="fa-solid fa-file-circle-plus fs-3" data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Agregar Concepto"></i>
                             </button>
                              
@@ -106,12 +106,13 @@ Plantilla de Nóminas - Nomina #
             </div>
 
             <div class="modal-body">
+                {% csrf_token %}
                 {% crispy form1 %}
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_payroll_concept" class="btn btn-primary">Agregar</button>
+                <button type="submit" form="form_payroll_concept" name="submit_full" class="btn btn-primary">Agregar</button>
             </div>
         </div>
     </div>
@@ -138,7 +139,8 @@ Plantilla de Nóminas - Nomina #
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_payroll_concept" class="btn btn-primary">Agregar</button>
+                <button type="submit" form="form_custom_payroll_concept" name="submit_direct" class="btn btn-primary">Agregar</button>
+                
             </div>
         </div>
     </div>
@@ -167,7 +169,6 @@ Plantilla de Nóminas - Nomina #
                                 <th>Nombre Concepto</th>
                                 <th class="text-center">Valor</th>
                                 <th class="text-center">Cantidad</th>
-                                <th class="text-center">Centro de Costos</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -175,9 +176,8 @@ Plantilla de Nóminas - Nomina #
                                 <tr>
                                     <td class="text-center align-middle">{{ concepto.idregistronom }}</td>
                                     <td class="align-middle">{{ concepto.idconcepto.nombreconcepto }}</td>
-                                    <td class="text-center align-middle">{{ concepto.valor }}</td>
-                                    <td class="text-center align-middle">{{ concepto.cantidad }}</td>
-                                    <td class="text-center align-middle">{{ concepto.idcosto }}</td>
+                                    <td class="text-center align-middle">{{ concepto.valor|format_currency  }}</td>
+                                    <td class="text-center align-middle">{{ concepto.cantidad|format_currency  }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -187,7 +187,6 @@ Plantilla de Nóminas - Nomina #
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_payroll" class="btn btn-primary">Crear</button>
             </div>
         </div>
     </div>
@@ -196,6 +195,28 @@ Plantilla de Nóminas - Nomina #
 {% endblock content %}
 
 {% block js %}
+<script>
+    $('#kt_modal_concept_used').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget) // Button that triggered the modal
+    var recipient = button.data('empleado') // Extract info from data-* attributes
+    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+    var modal = $(this)
+    var select = modal.find('#idcontrato_kt_modal_concept_used');
+
+     
+    if (recipient) {
+        select.val(recipient).trigger('change');  
+    }
+
+
+    var $select1 = modal.find('.modal-body #idcontrato_kt_modal_concept_used');
+    $select1.val(recipient).trigger('change').prop('disabled', true); // Establece el valor y deshabilita el select
+
+    })
+</script>
+
+
 <script>
     $(document).ready(function() {
         $('#tabla-contrato-activos').DataTable({
