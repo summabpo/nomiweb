@@ -66,27 +66,28 @@ Plantilla de Nominas
             </div>
 
             <div class="modal-body">
+                {% csrf_token %}
                 {% crispy form %}
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_report"  class="btn btn-primary">Crear</button>
+                <button type="submit" form="form_payroll"  class="btn btn-primary">Crear</button>
             </div>
         </div>
     </div>
 </div>
 
 <div class="table-responsive">
-    <table class="table table-striped table-bordered" id="tablacargos" >
+    <table class="table table-striped table-bordered" id="tabla-nomina">
         <thead>
             <tr class="fw-bold fs-6 text-gray-800">
-                <th class="text-center" >Codigo</th>
-                <th> Nombre de Nomina</th>
-                <th class="text-center" >Fecha Inicial</th>
-                <th class="text-center" >Fecha Final</th>
-                <th class="text-center" >Empresa</th>
-                <th>
+                <th class="text-center">Codigo</th>
+                <th>Nombre de Nomina</th>
+                <th class="text-center">Fecha Inicial</th>
+                <th class="text-center">Fecha Final</th>
+                <th class="text-center">Fecha Pago</th>
+                <th class="text-center">
                     <div class="container d-flex justify-content-center align-items-center">
                         <i class="ki-duotone ki-chart fs-1">
                             <i class="path1"></i>
@@ -99,22 +100,160 @@ Plantilla de Nominas
         <tbody>
             {% for nomina in nominas %}
                 <tr>
-                    <td class="text-center" > {{ nomina.idnomina }} </td>
-                    <td>{{ nomina.nombrenomina }}</td>
-                    <td class="text-center" > {{ nomina.fechainicial }}</td>
-                    <td> {{ nomina.fechafinal }} </td>
-                    <td> {{ nomina.id_empresa }} </td>
-                    <td>
-                        <a href="#" class="btn btn-icon btn-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Nomina">
-                            <i class="fa-regular fa-eye fs-1"></i>
+                    <td class="text-center align-middle">{{ nomina.idnomina }}</td>
+                    <td class="align-middle">{{ nomina.nombrenomina }}</td>
+                    <td class="text-center align-middle">{{ nomina.fechainicial|date:'d-m-Y' }}</td>
+                    <td class="text-center align-middle">{{ nomina.fechafinal|date:'d-m-Y' }}</td>
+                    <td class="text-center align-middle">{{ nomina.fechapago|date:'d-m-Y' }}</td>
+                    <td class="text-center align-middle">
+                        <a href="{% url 'payroll:payrollview' nomina.idnomina %}" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Nomina">
+                            <i class="fa-regular fa-eye fs-2"></i>
                         </a>
-                        
                     </td>
-                
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 
+
 {% endblock content %}
+
+
+
+
+
+
+
+
+
+{% block js %}
+
+<script>
+    // Bloquear los campos con estilos Bootstrap
+    document.addEventListener("DOMContentLoaded", function () {
+        // Seleccionar los campos por ID
+        const nombreNomina = document.getElementById("id_nombrenomina");
+        const diasNomina = document.getElementById("id_diasnomina");
+
+        // Agregar atributo disabled y clase Bootstrap
+        nombreNomina.setAttribute("disabled", true);
+        diasNomina.setAttribute("disabled", true);
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const nombreNomina = document.getElementById("id_nombrenomina");
+        const diasNomina = document.getElementById("id_diasnomina");
+        const fechaInicial = document.getElementById("id_fechainicial");
+        const fechaFinal = document.getElementById("id_fechafinal");
+        const fechaPago = document.getElementById("id_fechapago");
+        const tipoNomina = document.getElementById("id_tiponomina");
+
+        // Mapeo de IDs de nóminas con sus nombres
+        const tipoNominaMap = {
+            1: "Mensual",
+            2: "Quincenal",
+            3: "Por Horas",
+            4: "Primas",
+            5: "Cesantías",
+            6: "Adicional",
+            7: "Vacaciones",
+            8: "Liquidación",
+            9: "Catorcenal",
+            10: "Int. de Cesantías",
+            11: "Semanal"
+        };
+
+        // Función para calcular días entre fechas
+        const calcularDias = () => {
+            const fechaInicio = new Date(fechaInicial.value);
+            const fechaFin = new Date(fechaFinal.value);
+
+            if (!isNaN(fechaInicio) && !isNaN(fechaFin)) {
+                const diferenciaMilisegundos = fechaFin - fechaInicio;
+                const dias = Math.ceil(diferenciaMilisegundos / (1000 * 60 * 60 * 24)) + 1;
+                diasNomina.value = dias >= 0 ? dias : 0;
+            }
+        };
+
+        // Función para actualizar el Nombre Nómina
+        const actualizarNombreNomina = () => {
+            const fecha = new Date(fechaPago.value);
+            const tipoId = tipoNomina.value;
+
+            if (!isNaN(fecha) && tipoId) {
+                const meses = [
+                    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+                ];
+                const mes = meses[fecha.getMonth()];
+                const año = fecha.getFullYear();
+                const tipoTexto = tipoNominaMap[tipoId];
+
+                if (tipoTexto) {
+                    nombreNomina.value = `Nomina ${tipoTexto} ${mes} ${año}`;
+                }
+            }
+        };
+
+        // Eventos para calcular días y actualizar el nombre
+        fechaInicial.addEventListener("change", calcularDias);
+        fechaFinal.addEventListener("change", calcularDias);
+        fechaPago.addEventListener("change", actualizarNombreNomina);
+        tipoNomina.addEventListener("change", actualizarNombreNomina);
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-nomina').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'Bfrtip',
+            columnDefs: [
+                { targets: [0, 2, 3], orderable: false }
+            ],
+            order: [],
+            "pageLength": 10,     
+            buttons: [
+            ]
+        });
+    });
+    
+    // Función para mostrar la animación de carga
+    function showLoadingAnimation() {
+        $('#loading-animation').show();
+    }
+    
+    // Función para ocultar la animación de carga
+    function hideLoadingAnimation() {
+        $('#loading-animation').hide();
+    }
+</script>
+
+
+{% endblock %}

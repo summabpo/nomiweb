@@ -717,48 +717,53 @@ class Cesantias(models.Model):
         db_table = 'cesantias'
 
 
+class TiposConcepto(models.IntegerChoices):
+    INGRESO = 1, "Ingreso"
+    DEDUCCION = 2, "Deducción"
+    APORTE = 3, "Aporte"
+    OTRO = 4, "Otro"
 
+class Indicador(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'indicadores'
+        verbose_name_plural = 'Indicadores'
+
+    def __str__(self):
+        return self.nombre
+
+
+class Familia(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+    indicadores = models.ManyToManyField(Indicador, related_name="familias", blank=True)
+
+    class Meta:
+        db_table = 'familias'
+        verbose_name_plural = 'Familias'
+
+    def __str__(self):
+        return self.nombre
 
 
 class Conceptosdenomina(models.Model):
     idconcepto = models.AutoField(primary_key=True)
     nombreconcepto = models.CharField(max_length=30)
     multiplicadorconcepto = models.DecimalField(max_digits=4, decimal_places=2)
-    tipoconcepto = models.IntegerField()
-    sueldobasico =  models.BooleanField(default=False)
-    auxtransporte =  models.BooleanField(default=False)
-    baseprestacionsocial =  models.BooleanField(default=False)
-    ingresotributario =  models.BooleanField(default=False)
-    prestacionsocial =  models.BooleanField(default=False)
-    extras =  models.BooleanField(default=False)
-    basesegsocial =  models.BooleanField(default=False)
-    cuentacontable = models.CharField(max_length=25, blank=True, null=True) #*
-    ausencia =  models.BooleanField(default=False)
-    salintegral =  models.BooleanField(default=False)
-    basevacaciones =  models.BooleanField(default=False)
-    formula = models.CharField(max_length=1, blank=True, null=True) #*
-    basetransporte =  models.BooleanField(default=False)
-    aportess =  models.BooleanField(default=False)
-    incapacidad =  models.BooleanField(default=False)
-    base1393 =  models.BooleanField(default=False)
-    norenta =  models.BooleanField(default=False)
-    pension =  models.BooleanField(default=False)
-    exentos =  models.BooleanField(default=False)
-    baserarl =  models.BooleanField(default=False)
-    basecaja =  models.BooleanField(default=False)
-    viaticos =  models.BooleanField(default=False)
-    comisiones =  models.BooleanField(default=False)
-    gastosderep =  models.BooleanField(default=False)
-    suspcontrato =  models.BooleanField(default=False)
-    grupo_dian = models.CharField(max_length=255, blank=True, null=True) #*
-    id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
-    
-    
+    tipoconcepto = models.IntegerField(choices=TiposConcepto.choices)
+    familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name="conceptos")
+
     class Meta:
         db_table = 'conceptosdenomina'
-    
+        verbose_name_plural = 'Conceptos de Nómina'
+
     def __str__(self):
-        return f"{self.nombreconcepto}"
+        return self.nombreconcepto
+
+
+
 
 
 
