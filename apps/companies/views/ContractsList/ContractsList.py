@@ -13,7 +13,7 @@ from .generate_docu import generate_contract_excel,generate_contract_start_excel
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def startCompanies(request): 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -50,12 +50,12 @@ def startCompanies(request):
     for contrato in contratos_empleados
 ]
     
-    return render(request, './companies/ActiveList.html', {'empleados': empleados})
+    return render(request, './companies/ActiveList.html', {'empleados': empleados,'user': request.user})
 
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def exportar_excel0(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -69,7 +69,7 @@ def exportar_excel0(request):
     return response
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def exportar_excel1(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -87,7 +87,7 @@ def exportar_excel1(request):
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def exportar_excel2(request):
     
     citys = Ciudades.objects.all()

@@ -21,7 +21,7 @@ def generate_random_password(length=12):
     return random_password
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def hiring(request):
     form_errors = False
     usuario = request.session.get('usuario', {})
@@ -120,7 +120,12 @@ def hiring(request):
         form_contratos = ContractForm(idempresa=idempresa)
         
     empleados = Contratosemp.objects.filter(estadocontrato=4 , id_empresa__idempresa = idempresa )  
-    return render(request, './companies/hiring.html',{'empleados':empleados,'form_empleados':form_empleados , 'form_contratos':form_contratos ,'form_errors' :form_errors})
+    return render(request, './companies/hiring.html',{
+        'empleados':empleados,
+        'form_empleados':form_empleados ,
+          'form_contratos':form_contratos ,
+          'user': request.user,
+          'form_errors' :form_errors})
 
 
 def get_or_none(model, **kwargs):
@@ -134,7 +139,7 @@ def get_or_none(model, **kwargs):
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def process_forms_contract(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
