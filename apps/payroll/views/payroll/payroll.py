@@ -155,6 +155,8 @@ def payrollview(request, id):
         'empleados': empleados,
     })
 
+    
+
 
 
 

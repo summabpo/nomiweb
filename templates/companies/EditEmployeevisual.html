@@ -12,6 +12,21 @@ Nomiweb.co - Portal Empresas - Edit Empleado {{DicContract.id}}
     empleados
 {% endblock %}
 
+
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}    
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}
+               
+{% endblock %}
+
+
 {% block sub_titulo2 %} 
 ID Empleado {{DicContract.id}}
 {% endblock %}
