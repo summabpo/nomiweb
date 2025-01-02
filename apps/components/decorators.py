@@ -3,9 +3,9 @@ from django.shortcuts import redirect
 from apps.components.role_redirect  import redirect_by_role
 from django.core.exceptions import PermissionDenied
 
-def role_required(allowed_role):
+def role_required(*allowed_roles):
     """
-    Decorador para verificar si el usuario tiene el rol permitido y redirigir en consecuencia.
+    Decorador para verificar si el usuario tiene alguno de los roles permitidos y redirigir en consecuencia.
     """
     def decorator(view_func):
         @wraps(view_func)
@@ -13,7 +13,7 @@ def role_required(allowed_role):
             # Obtener el rol del usuario desde la sesión
             user_role = request.session.get('usuario', {}).get('rol')
             
-            if user_role == allowed_role:
+            if user_role in allowed_roles:
                 return view_func(request, *args, **kwargs)
             else:
                 return redirect_by_role(user_role)

@@ -7,7 +7,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def EditContracVisual(request,idempleado):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -95,4 +95,4 @@ def EditContracVisual(request,idempleado):
         form = ContractForm(idempresa=idempresa ,initial=initial_data)
 
         
-    return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato , 'DicContract':DicContract})
+    return render(request, './companies/EditContractVisual.html',{'form':form,'contrato':contrato ,'user': request.user, 'DicContract':DicContract})

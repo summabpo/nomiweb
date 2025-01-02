@@ -8,7 +8,7 @@ from django.http import JsonResponse
 
 
 @login_required
-@role_required('company') 
+@role_required('company','accountant')
 def contractview(request): 
     
     resultados = {
@@ -66,7 +66,7 @@ def contractview(request):
     #return render(request, './companies/contractview.html',{'contrato': contrato })
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def resumeview(request):
     dato = request.GET.get('dato')
     try:
