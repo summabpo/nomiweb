@@ -1120,6 +1120,7 @@ class NeDatosMensual(models.Model):
     ciudaddepartamento = models.CharField(max_length=3, blank=True, null=True)
     mesacumular = models.CharField(max_length=40, blank=True, null=True)
     anoacumular = models.CharField(max_length=4, blank=True, null=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         db_table = 'ne_datos_mensual'
