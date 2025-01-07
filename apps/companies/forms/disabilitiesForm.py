@@ -3,7 +3,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from django.core.exceptions import ValidationError
 from datetime import timedelta
-from apps.companies.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
+from apps.common.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
 
 class DisabilitiesForm(forms.Form):
     origin = forms.ChoiceField(choices=[('', '----------'),('EPS1', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS2', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))

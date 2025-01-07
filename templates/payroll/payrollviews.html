@@ -89,7 +89,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="kt_accordion_1_header_1">
                             <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
-                                Data de Empleados
+                                Datos de la Nómina
                             </button>
                         </h2>
                         <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
@@ -243,7 +243,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                     tableBody.append(`<tr><td colspan="3">${data.error}</td></tr>`);
                 } else {
                     modal.find('.modal-title').text('Conceptos de : ' + data.nombre);
-                    modal.find('#salary').html('<strong>Salario:</strong> <span class="badge badge-primary">' + data.salario + '</span>');
+                    modal.find('#salary').html('<strong>Salario:</strong>' + data.salario );
     
                     data.conceptos.forEach(concepto => {
                         if (concepto.monto > 0) {
@@ -260,11 +260,11 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                         ]).draw(false);
                     });
     
-                    modal.find('#income').html('<strong>Ingresos:</strong> <span class="badge badge-success">' + totalIncome.toFixed(2) + '</span>');
-                    modal.find('#discounts').html('<strong>Descuentos:</strong> <span class="badge badge-danger">' + totalDiscounts.toFixed(2) + '</span>');
+                    modal.find('#income').html('<strong>Ingresos:</strong> '+ '<div class="text-success" >' + totalIncome.toFixed(2) + ' $' + '</div>');
+                    modal.find('#discounts').html('<strong>Descuentos:</strong> '+ '<div class="text-danger" >' + totalDiscounts.toFixed(2) + ' $' + '</div>');
     
                     let total = totalIncome + totalDiscounts;
-                    modal.find('#summation').html('<strong>Total:</strong> <span class="badge badge-primary">' + total.toFixed(2) + '</span>');
+                    modal.find('#summation').html('<strong>Total:</strong> '+ '<strong>' + total.toFixed(2) + ' $' + '</strong>');
                 }
             })
             .catch(error => {

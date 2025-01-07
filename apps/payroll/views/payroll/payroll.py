@@ -149,7 +149,7 @@ class PayrollAPI(View):
             # Respuesta estructurada
             data = {
                 "nombre": nombre_completo,
-                "salario": f"${format_value(contrato.salario)}",
+                "salario": f"{format_value(contrato.salario)} $",
                 "conceptos": conceptos_data,
             }
 
