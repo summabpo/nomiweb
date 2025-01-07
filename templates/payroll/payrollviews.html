@@ -134,7 +134,34 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
             </div>
 
             <div class="modal-body">
-                {% crispy form2 %}
+                <div class="pb-10">
+                    <button class="btn btn-primary" id="kt_datatable_example_addrow">Add New Row</button>
+                    <button class="btn btn-success" id="kt_datatable_example_submit">Submit Form</button>
+                </div>
+                <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5">
+                    <thead>
+                        <tr class="fw-semibold fs-6 text-gray-800">
+                            <th>Nombre Concepto</th>
+                            <th>Valor</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" class="form-control form-control-solid" id="row-1-age" name="row-1-age" value="61"/></td>
+                            <td><input type="text" class="form-control form-control-solid" id="row-1-position" name="row-1-position" value="System Architect"/></td>
+                            <td>
+                                <select class="form-select form-select-solid" id="row-1-office" name="row-1-office">
+                                    <option value="Edinburgh" selected>Edinburgh</option>
+                                    <option value="London">London</option>
+                                    <option value="New York">New York</option>
+                                    <option value="San Francisco">San Francisco</option>
+                                    <option value="Tokyo">Tokyo</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <div class="modal-footer">
@@ -195,6 +222,52 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock content %}
 
 {% block js %}
+
+
+<script>
+    var table = $("#kt_datatable_example").DataTable({
+        columns: [
+            { title: "Nombre Concepto" },
+            { title: "Valor" },
+            { title: "Cantidad" }
+        ],
+        columnDefs: [{
+            orderable: false,
+            targets: [1, 2]
+        }]
+    });
+    
+    var counter = 2;
+
+    // Add new row with inputs
+    $("#kt_datatable_example_addrow").on("click", function() {
+        table.row.add([
+            `<input type="text" class="form-control form-control-solid" id="row-${counter}-age" name="row-${counter}-age" value=""/>`,
+            `<input type="text" class="form-control form-control-solid" id="row-${counter}-position" name="row-${counter}-position" value=""/>`,
+            `<select class="form-select form-select-solid" id="row-${counter}-office" name="row-${counter}-office">
+                <option value="Edinburgh">Edinburgh</option>
+                <option value="London">London</option>
+                <option value="New York">New York</option>
+                <option value="San Francisco">San Francisco</option>
+                <option value="Tokyo">Tokyo</option>
+            </select>`
+        ]).draw(false);
+
+        counter++;
+    });
+
+    // Submit form data
+    $("#kt_datatable_example_submit").on("click", function() {
+        var data = table.$("input, select").serialize();
+        alert(
+            "The following data would have been submitted to the server: \n\n" +
+            data.substr(0, 120) + "..."
+        );
+        return false;
+    });
+</script>
+
+
 <script>
     $('#kt_modal_concept_used').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget) // Button that triggered the modal

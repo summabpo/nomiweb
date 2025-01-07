@@ -27,7 +27,7 @@ Plantilla de Nominas
 
 {% block actions %}
 <!-- Button trigger modal -->
-    <button type="button"  class="btn btn-light-primary"  data-bs-toggle="modal" data-bs-target="#kt_modal_maintenance" >
+    <button type="button"  class="btn btn-light-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_maintenance" >
         <i class="fa-solid fa-square-plus fs-2"></i>Crear Nomina
     </button>  
 {% endblock %}
@@ -136,9 +136,6 @@ Plantilla de Nominas
         const nombreNomina = document.getElementById("id_nombrenomina");
         const diasNomina = document.getElementById("id_diasnomina");
 
-        // Agregar atributo disabled y clase Bootstrap
-        nombreNomina.setAttribute("disabled", true);
-        diasNomina.setAttribute("disabled", true);
     });
 </script>
 
