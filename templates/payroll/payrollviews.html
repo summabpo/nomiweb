@@ -32,26 +32,10 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
             <span class="path2"></span>
         </i>
     </a>  
-    <!-- Separación entre grupos -->
-    <div style="width: 10px;"></div> <!-- Puedes ajustar el tamaño según sea necesario -->
 
-    <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_concept">
-        <i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto
-    </button>  
 {% endblock %}
 
 {% block content %}
-
-<!-- Bloque de bienvenida -->
-<div class="grid-x align-center">
-    <h1 class="cell large-8" style="font-size: 25px; text-align: center;"></h1>
-    <div class="cell large-7">
-        <div class="callout success">
-            
-        </div>
-    </div>
-</div>
-<!-- Fin del bloque de bienvenida -->
 
 
 <div class="table-responsive">
@@ -61,7 +45,6 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                 <th class="text-center" >Documento</th>
                 <th>Nombre</th>
                 <th class="text-center" >Salario</th>
-                <th class="text-center" >Contrato</th>
                 <th class="text-center" >Gestión</th>
             </tr>
         </thead>
@@ -71,17 +54,12 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                     <td class="text-center">{{ empleado.idempleado__docidentidad }}</td>
                     <td>{{ empleado.idempleado__papellido }} {{ empleado.idempleado__sapellido }} {{ empleado.idempleado__pnombre }}</td>
                     <td class="text-center">{{ empleado.salario|format_currency }}</td>
-                    <td class="text-center">{{ empleado.idcontrato }}</td>
                     <td class="text-center">
                         <div class="d-inline-flex">
-                            <button type="button" class="btn btn-icon btn-sm me-2 btn-light-instagram" data-bs-toggle="modal" data-bs-target="#kt_modal_views"  data-empleado="{{empleado.idcontrato}}" >
-                                <i class="fas fa-solid fa-eye fs-3 " data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse"  data-bs-placement="top" title="Ver Conceptos"  ></i>
-                            </button>
-
-                            <button class="btn btn-icon btn-sm btn-light-info me-2" data-bs-toggle="modal" data-bs-target="#kt_modal_concept_used"  data-empleado="{{empleado.idcontrato}}" >
+                            <button class="btn btn-icon btn-sm btn-light-info me-2" data-bs-toggle="modal" data-bs-target="#kt_modal_concept"  data-empleado="{{empleado.idcontrato}}" >
                                 <i class="fa-solid fa-file-circle-plus fs-3" data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Agregar Concepto"></i>
                             </button>
-                             
+                            
                         </div>
                     </td>
                 </tr>
@@ -91,12 +69,12 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 </div>
 
 
-<!-- Modal para Nuevo concepto - con empleado  -->
+<!-- Modal para Nuevo concepto - directo de  empleado  -->
 <div class="modal fade" tabindex="-1" id="kt_modal_concept">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Nuevo Concepto</h3>
+                <h3 class="modal-title">Concepto</h3>
 
                 <!-- Botón para cerrar -->
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Cerrar">
@@ -105,119 +83,69 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                 <!-- Fin del botón para cerrar -->
             </div>
 
-            <div class="modal-body">
-                {% csrf_token %}
-                {% crispy form1 %}
-            </div>
+            <div class="modal-body" id="modal-content-body" >
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_payroll_concept" name="submit_full" class="btn btn-primary">Agregar</button>
-            </div>
-        </div>
-    </div>
-</div>
+                <div class="accordion" id="kt_accordion_1">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="kt_accordion_1_header_1">
+                            <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
+                                Data de Empleados
+                            </button>
+                        </h2>
+                        <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
+                            <div class="accordion-body">
 
+                                <p id="salary" class="d-flex justify-content-between" >
+                                    <strong>Salario: </strong><span id="salary-value" class="ms-4 ">Valor</span>
+                                </p>
+                                
+                                <p id="income" class="d-flex justify-content-between">
+                                    <strong>Ingresos:</strong><span id="income-value" class="ms-4 text-end">Valor</span>
+                                </p>
+                                
+                                <p id="discounts" class="d-flex justify-content-between">
+                                    <strong>Descuentos:</strong><span id="discounts-value" class="ms-4 text-end">Valor</span>
+                                </p>
 
-<!-- Modal para Nuevo concepto - directo de  empleado  -->
-<div class="modal fade" tabindex="-1" id="kt_modal_concept_used">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Nuevo Concepto</h3>
+                                <p id="summation" class="d-flex justify-content-between">
+                                    <strong>Total:</strong><span id="summation-value" class="ms-4 text-end">Valor</span>
+                                </p>
+                                
 
-                <!-- Botón para cerrar -->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Cerrar">
-                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                            </div>
+                        </div>
+                    </div>
+                
+                    
+                
+                
                 </div>
-                <!-- Fin del botón para cerrar -->
-            </div>
-
-            <div class="modal-body">
-                <div class="pb-10">
-                    <button class="btn btn-primary" id="kt_datatable_example_addrow">Add New Row</button>
-                    <button class="btn btn-success" id="kt_datatable_example_submit">Submit Form</button>
-                </div>
+                <br>
+                
                 <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5">
                     <thead>
                         <tr class="fw-semibold fs-6 text-gray-800">
                             <th>Nombre Concepto</th>
-                            <th>Valor</th>
                             <th>Cantidad</th>
+                            <th>Valor</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><input type="text" class="form-control form-control-solid" id="row-1-age" name="row-1-age" value="61"/></td>
-                            <td><input type="text" class="form-control form-control-solid" id="row-1-position" name="row-1-position" value="System Architect"/></td>
-                            <td>
-                                <select class="form-select form-select-solid" id="row-1-office" name="row-1-office">
-                                    <option value="Edinburgh" selected>Edinburgh</option>
-                                    <option value="London">London</option>
-                                    <option value="New York">New York</option>
-                                    <option value="San Francisco">San Francisco</option>
-                                    <option value="Tokyo">Tokyo</option>
-                                </select>
-                            </td>
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_custom_payroll_concept" name="submit_direct" class="btn btn-primary">Agregar</button>
+                <button type="submit" form="form_custom_payroll_concept" id="kt_payroll_concept_submit" name="submit_direct" class="btn btn-primary">Agregar</button>
                 
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para visualización -->
-<div class="modal fade" tabindex="-1" id="kt_modal_views">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Nueva Nómina</h3>
 
-                <!-- Botón para cerrar -->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Cerrar">
-                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                </div>
-                <!-- Fin del botón para cerrar -->
-            </div>
-
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered" id="tabla-nomina">
-                        <thead>
-                            <tr class="fw-bold fs-6 text-gray-800">
-                                <th class="text-center">Código</th>
-                                <th>Nombre Concepto</th>
-                                <th class="text-center">Valor</th>
-                                <th class="text-center">Cantidad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for concepto in nomina %}
-                                <tr>
-                                    <td class="text-center align-middle">{{ concepto.idregistronom }}</td>
-                                    <td class="align-middle">{{ concepto.idconcepto.nombreconcepto }}</td>
-                                    <td class="text-center align-middle">{{ concepto.valor|format_currency  }}</td>
-                                    <td class="text-center align-middle">{{ concepto.cantidad|format_currency  }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 {% endblock content %}
 
@@ -225,7 +153,57 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
 
 <script>
+    var counter = 2;
     var table = $("#kt_datatable_example").DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+            "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron registros coincidentes",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+            "aria": {
+                "sortAscending": ": activar para ordenar la columna ascendente",
+                "sortDescending": ": activar para ordenar la columna descendente"
+            }
+        },
+        order: [],
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                text: '<i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto',
+                className: 'btn btn-light-info',
+                id: 'kt_datatable_example_addrow',
+                action: function (e, dt, node, config) {
+                    // No reiniciar la tabla, solo agregar una fila nueva
+                    table.row.add([
+                        `<select class="form-select form-select-solid" id="row-${counter}-office" name="row-${counter}-office">
+                            <option value="Edinburgh">Edinburgh</option>
+                            <option value="London">London</option>
+                            <option value="New York">New York</option>
+                            <option value="San Francisco">San Francisco</option>
+                            <option value="Tokyo">Tokyo</option>
+                        </select>`,
+                        `<input type="text" class="form-control form-control-solid" id="row-${counter}-age" name="row-${counter}-age" value=""/>`,
+                        `<input type="text" class="form-control form-control-solid" id="row-${counter}-position" name="row-${counter}-position" value=""/>`
+                    ]).draw(false);
+                    counter++;  // Incrementar el contador para nuevas filas
+                }
+            },
+        ],
+        "pageLength": 5,  
         columns: [
             { title: "Nombre Concepto" },
             { title: "Valor" },
@@ -236,58 +214,70 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
             targets: [1, 2]
         }]
     });
+
+    // Agregar datos de la API cuando se abre el modal
+    $('#kt_modal_concept').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // El botón que activó el modal
+        var nominaId = "{{ nombre.idnomina }}"; 
+        var empleadoId = button.data('empleado'); // id de empleado
     
-    var counter = 2;
+        var modal = $(this);
+    
+        const url = `/contable/payrollapi/?nomina_id=${nominaId}&empleado_id=${empleadoId}`;
+    
+        // Limpiar la tabla antes de cargar nuevos datos
+        table.clear(); // Limpiar la tabla
 
-    // Add new row with inputs
-    $("#kt_datatable_example_addrow").on("click", function() {
-        table.row.add([
-            `<input type="text" class="form-control form-control-solid" id="row-${counter}-age" name="row-${counter}-age" value=""/>`,
-            `<input type="text" class="form-control form-control-solid" id="row-${counter}-position" name="row-${counter}-position" value=""/>`,
-            `<select class="form-select form-select-solid" id="row-${counter}-office" name="row-${counter}-office">
-                <option value="Edinburgh">Edinburgh</option>
-                <option value="London">London</option>
-                <option value="New York">New York</option>
-                <option value="San Francisco">San Francisco</option>
-                <option value="Tokyo">Tokyo</option>
-            </select>`
-        ]).draw(false);
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = modal.find('#kt_datatable_example tbody');
+                
+                // Limpiar la tabla antes de cargar los nuevos datos de la API
+                tableBody.empty(); 
+    
+                let totalIncome = 0;
+                let totalDiscounts = 0;
+    
+                if (data.error) {
+                    tableBody.append(`<tr><td colspan="3">${data.error}</td></tr>`);
+                } else {
+                    modal.find('.modal-title').text('Conceptos de : ' + data.nombre);
+                    modal.find('#salary').html('<strong>Salario:</strong> <span class="badge badge-primary">' + data.salario + '</span>');
+    
+                    data.conceptos.forEach(concepto => {
+                        if (concepto.monto > 0) {
+                            totalIncome += concepto.monto;
+                        } else {
+                            totalDiscounts += concepto.monto;
+                        }
 
-        counter++;
-    });
-
-    // Submit form data
-    $("#kt_datatable_example_submit").on("click", function() {
-        var data = table.$("input, select").serialize();
-        alert(
-            "The following data would have been submitted to the server: \n\n" +
-            data.substr(0, 120) + "..."
-        );
-        return false;
+                        // Añadir los datos de la API a la tabla
+                        table.row.add([
+                            `<input type="text" class="form-control form-control-solid" id="row-${concepto.id}-age" name="row-${concepto.id}-age" value="${concepto.id}"/>`,
+                            `<input type="text" class="form-control form-control-solid" id="row-${concepto.id}-position" name="row-${concepto.id}-position" value="${concepto.empleado}"/>`,
+                            `<input type="text" class="form-control form-control-solid" id="row-${concepto.id}-monto" name="row-${concepto.id}-monto" value="${concepto.monto}"/>`
+                        ]).draw(false);
+                    });
+    
+                    modal.find('#income').html('<strong>Ingresos:</strong> <span class="badge badge-success">' + totalIncome.toFixed(2) + '</span>');
+                    modal.find('#discounts').html('<strong>Descuentos:</strong> <span class="badge badge-danger">' + totalDiscounts.toFixed(2) + '</span>');
+    
+                    let total = totalIncome + totalDiscounts;
+                    modal.find('#summation').html('<strong>Total:</strong> <span class="badge badge-primary">' + total.toFixed(2) + '</span>');
+                }
+            })
+            .catch(error => {
+                console.error("Error al obtener los datos:", error);
+                modal.find('#kt_datatable_example tbody').html("<tr><td colspan='3'>Error al cargar la información.</td></tr>");
+            });
     });
 </script>
 
 
-<script>
-    $('#kt_modal_concept_used').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget) // Button that triggered the modal
-    var recipient = button.data('empleado') // Extract info from data-* attributes
-    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-    var modal = $(this)
-    var select = modal.find('#idcontrato_kt_modal_concept_used');
-
-     
-    if (recipient) {
-        select.val(recipient).trigger('change');  
-    }
 
 
-    var $select1 = modal.find('.modal-body #idcontrato_kt_modal_concept_used');
-    $select1.val(recipient).trigger('change').prop('disabled', true); // Establece el valor y deshabilita el select
 
-    })
-</script>
 
 
 <script>
