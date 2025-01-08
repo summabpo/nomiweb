@@ -7,6 +7,9 @@ from django.contrib import messages
 from .common import generar_nombre_nomina , MES_CHOICES
 from apps.payroll.forms.ConceptForm import ConceptForm
 from datetime import timedelta
+from django.http import JsonResponse
+from django.views import View
+from apps.components.humani import format_value
 
 
 # @login_required
@@ -95,68 +98,70 @@ def payrollview(request, id):
     nombre = Crearnomina.objects.get(idnomina=id)
     # Inicializamos 'nomina' para cuando no se filtra
     nomina = Nomina.objects.filter(idnomina_id=id).order_by('idregistronom')
-    form1 = ConceptForm(idempresa=idempresa)
-    form2 = ConceptForm(idempresa=idempresa, form_id='form_custom_payroll_concept', dropdown_parent='#kt_modal_concept_used')
-    error = False
-
-    if request.method == 'GET':
-        # Filtrar por user_id si se proporciona
-        user_id = request.GET.get('user_id')  # O usar request.user.id si es el usuario logueado
-        if user_id:
-            nomina = Nomina.objects.filter(usuario_id=user_id,idnomina_id=id).order_by('idregistronom')  # Suponiendo que 'usuario_id' es el campo correcto
-        else:
-            # Si no se proporciona user_id, no filtrar
-            nomina = Nomina.objects.filter(idnomina_id=id).order_by('idregistronom')
-
-    if request.method == 'POST':
-        # Procesar formulario 1 con submit_1
-        if 'submit_full' in request.POST:
-            form1 = ConceptForm(request.POST, idempresa=idempresa)
-            if form1.is_valid():
-                concepto = Conceptosdenomina.objects.get(idconcepto=form1.cleaned_data['idconcepto'])
-                crear = Crearnomina.objects.get(idnomina=id)
-                contratos = Contratos.objects.get(idcontrato=form1.cleaned_data['idcontrato'])
-                costos = Costos.objects.get(idcosto=contratos.idcosto.idcosto)
-                sub = Subcostos.objects.get(idsubcosto=contratos.idsubcosto.idsubcosto) if contratos.idsubcosto else None
-
-                Nomina.objects.create(
-                    valor=form1.cleaned_data['valor'],
-                    cantidad=form1.cleaned_data['cantidad'],
-                    idconcepto=concepto,
-                    idnomina=crear,
-                    estadonomina=crear.estadonomina,
-                    idcontrato=contratos,
-                    idcosto=costos,
-                    idsubcosto=sub,
-                    control=0,  # vacaciones o incapacidades o prestamos automatico
-                )
-                
-                messages.success(request, "Concepto agregado exitosamente.")
-                return redirect('payroll:payrollview')
-            else:
-                form1 = ConceptForm(idempresa=idempresa)
-
-        # Procesar formulario 1 con submit_2
-        elif 'submit_direct' in request.POST:
-            form2 = ConceptForm(request.POST, idempresa=idempresa)
-            print(request.POST)
-            if form2.is_valid():
-                
-                pass
-            else:
-                form2 = ConceptForm(idempresa=idempresa)
+    
 
     return render(request, './payroll/payrollviews.html', {
         'nomina': nomina,
         'nombre':nombre,
-        'form1': form1,
-        'form2': form2,
-        'error': error,
         'empleados': empleados,
     })
 
     
 
 
+class PayrollAPI(View):
+    def get(self, request, *args, **kwargs):
+        # Obtener los parámetros de la URL
+        nomina_id = request.GET.get('nomina_id')
+        empleado_id = request.GET.get('empleado_id')
 
+        if not nomina_id or not empleado_id:
+            return JsonResponse({"error": "Faltan parámetros: nomina_id o empleado_id"}, status=400)
 
+        try:
+            # Optimizar consultas con select_related
+            conceptos = Nomina.objects.filter(
+                idnomina__idnomina=nomina_id,
+                idcontrato__idcontrato=empleado_id
+            ).select_related('idcontrato')
+
+            # Verificar si hay conceptos encontrados
+            if not conceptos.exists():
+                return JsonResponse({"error": "No se encontraron conceptos para este empleado y nómina"}, status=404)
+
+            # Optimizar consulta del contrato
+            contrato = Contratos.objects.select_related('idempleado').get(idcontrato=empleado_id)
+
+            # Estructurar los datos para la respuesta
+            conceptos_data = [
+                {
+                    "id": concepto.idregistronom,
+                    "empleado": concepto.cantidad,
+                    "monto": concepto.valor
+                }
+                for concepto in conceptos
+            ]
+
+            # Construir el nombre completo
+            empleado = contrato.idempleado
+            nombre_completo = " ".join(filter(None, [empleado.papellido, empleado.sapellido, empleado.pnombre, empleado.snombre]))
+
+            # Respuesta estructurada
+            data = {
+                "nombre": nombre_completo,
+                "salario": f"{format_value(contrato.salario)} $",
+                "conceptos": conceptos_data,
+            }
+
+            return JsonResponse(data)
+
+        except Contratos.DoesNotExist:
+            return JsonResponse({"error": "El contrato no existe"}, status=404)
+        except Nomina.DoesNotExist:
+            return JsonResponse({"error": "No se encontraron datos de nómina"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": f"Error interno: {str(e)}"}, status=500)
+    
+        
+        
+        
