@@ -754,7 +754,8 @@ class Conceptosdenomina(models.Model):
     multiplicadorconcepto = models.DecimalField(max_digits=4, decimal_places=2)
     tipoconcepto = models.IntegerField(choices=TiposConcepto.choices)
     familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name="conceptos")
-
+    grupo_dian = models.CharField(max_length=255, blank=True, null=True)
+    id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING , blank=True, null=True , related_name="conceptos",)
     class Meta:
         db_table = 'conceptosdenomina'
         verbose_name_plural = 'Conceptos de Nómina'
@@ -1120,6 +1121,7 @@ class NeDatosMensual(models.Model):
     ciudaddepartamento = models.CharField(max_length=3, blank=True, null=True)
     mesacumular = models.CharField(max_length=40, blank=True, null=True)
     anoacumular = models.CharField(max_length=4, blank=True, null=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         db_table = 'ne_datos_mensual'

@@ -12,5 +12,7 @@ urlpatterns = [
     path('payroll/pruebas/2', pruebas.vista_con_dos_formularios, name='vista_con_dos_formularios'),
 
 
-    path('payroll/electronic_payroll/', electronic_payroll.electronic_payroll, name='nomina_electronica'),
+    path('payroll/electronic_payroll/', electronic_payroll.electronic_payroll_container, name='nomina_electronica'),
+    path('payroll/generate_detail_electronic_payroll/<int:pk>', electronic_payroll.electronic_payroll_generate, name='generar_detalle_electronica'),
+
 ]
