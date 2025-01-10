@@ -133,6 +133,7 @@ class PayrollAPI2(View):
 class PayrollAPI(View):
     def get(self, request, *args, **kwargs):
         # Obtener los parámetros de la URL
+        print('llege aqui')
         nomina_id = request.GET.get('nomina_id')
         empleado_id = request.GET.get('empleado_id')
 
@@ -173,7 +174,7 @@ class PayrollAPI(View):
                 "salario": f"{format_value(contrato.salario)} $",
                 "conceptos": conceptos_data,
             }
-
+            print(empleado_id)
             return JsonResponse(data)
 
         except Contratos.DoesNotExist:
