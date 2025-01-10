@@ -10,7 +10,9 @@ from datetime import timedelta
 from django.http import JsonResponse
 from django.views import View
 from apps.components.humani import format_value
-
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import json
 
 # @login_required
 # @role_required('employee')
@@ -107,7 +109,26 @@ def payrollview(request, id):
     })
 
     
+class PayrollAPI2(View):
+    def get(self, request, *args, **kwargs):
+        ## el get es para obtener datos de 
+        try:
+            empresa_id = request.GET.get('empresa_id')
+            
+            conceptos_data = Conceptosdenomina.objects.filter(id_empresa_id = empresa_id ) 
+            data = {
+                    "empresa_id": empresa_id,
+                    "conceptos": conceptos_data,
+                }
+            
+            return JsonResponse(data)
 
+        except Contratos.DoesNotExist:
+            return JsonResponse({"error": "El contrato no existe"}, status=404)
+        except Nomina.DoesNotExist:
+            return JsonResponse({"error": "No se encontraron datos de nómina"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": f"Error interno: {str(e)}"}, status=500)
 
 class PayrollAPI(View):
     def get(self, request, *args, **kwargs):
@@ -163,5 +184,31 @@ class PayrollAPI(View):
             return JsonResponse({"error": f"Error interno: {str(e)}"}, status=500)
     
         
-        
-        
+    @method_decorator(csrf_exempt)
+    def post(self, request, *args, **kwargs):
+        print('llege' )
+        try:
+            print('veamos si el body llega')
+            print('-------------------')
+            print(request.body)
+            print('-------------------')
+            print('veamos si el json llega')
+
+            # Aquí, en lugar de json.loads, puedes usar request.POST para obtener los datos del formulario
+            data = request.POST
+            print('-------------------')
+            print(data)
+            print('-------------------')
+
+            # Aquí puedes realizar acciones con los datos recibidos
+            # Ejemplo:
+            # empleado_id = data.get('empleado_id')
+            # nomina_id = data.get('nomina_id')
+            # # Validar y procesar los datos...
+
+            return JsonResponse({"success": True, "message": "Datos procesados exitosamente,","data":data}, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Cuerpo de solicitud inválido"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)

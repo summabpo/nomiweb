@@ -121,19 +121,21 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                 
                 </div>
                 <br>
-                
-                <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5">
-                    <thead>
-                        <tr class="fw-semibold fs-6 text-gray-800">
-                            <th>Nombre Concepto</th>
-                            <th>Cantidad</th>
-                            <th>Valor</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                    </tbody>
-                </table>
+                <form id="form_custom_payroll_concept" method="post" action="{% url 'payroll:payrollviewapi' %}">
+                {% csrf_token %}
+                    <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5">
+                        <thead>
+                            <tr class="fw-semibold fs-6 text-gray-800">
+                                <th>Nombre Concepto</th>
+                                <th>Cantidad</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </form>
             </div>
 
             <div class="modal-footer">
@@ -150,6 +152,36 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock content %}
 
 {% block js %}
+
+<script>
+    var formData = new FormData($('#form_custom_payroll_concept')[0]);
+    var jsonData = {};
+    
+    // Convertir FormData en objeto JSON
+    formData.forEach(function(value, key) {
+        jsonData[key] = value;
+    });
+    
+    $.ajax({
+        url: '/contable/payrollapi/', // URL de destino para el POST
+        type: 'POST',
+        data: JSON.stringify(jsonData),  // Convertir el objeto en una cadena JSON
+        contentType: 'application/json', // Especificar el tipo de contenido como JSON
+        success: function(response) {
+            if (response.success) {
+                alert('Concepto agregado exitosamente');
+                $('#kt_modal_concept').modal('hide');
+                location.reload(); // Recargar la página para mostrar los nuevos datos
+            } else {
+                alert('Error al agregar el concepto: ' + response.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            alert('Ocurrió un error al procesar la solicitud.');
+        }
+    });
+</script>
 
 
 <script>
