@@ -124,6 +124,7 @@ class PayrollContainerForm(forms.Form):
             'data-dropdown-parent': '#kt_modal_container',
         })
     )
+
     fechapago = forms.DateField(
         label="Fecha Pago",
         required=False,
@@ -133,6 +134,7 @@ class PayrollContainerForm(forms.Form):
             'type': 'date'
         })
     )
+
     ciudaddepartamento = forms.ChoiceField(
         label='Ciudad Departamento',
         choices=[('', '-----')] + [(ciudad.idciudad, ciudad.ciudad) for ciudad in Ciudades.objects.all().order_by('ciudad')],
@@ -156,6 +158,7 @@ class PayrollContainerForm(forms.Form):
             'data-dropdown-parent': '#kt_modal_container',
         })
     )
+    
     anoacumular = forms.ChoiceField(
         label='Año Acumular',
         choices=[('', '-----')] + [(ano.ano, ano.ano) for ano in Anos.objects.all().order_by('-ano')],

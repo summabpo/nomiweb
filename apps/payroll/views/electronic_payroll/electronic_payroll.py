@@ -161,6 +161,41 @@ def electronic_payroll_generate(request, pk):
         print(f"Year: {detail['year']}")
         print(f"Employee Identification: {detail['employee_identification']}")
 
+        query_payroll = Nomina.objects.select_related(
+            'idcontrato',
+            'idconcepto__grupo_dian'
+        ).filter(
+            idcontrato=detail['id'],
+            idnomina__mesacumular=month,
+            idnomina__anoacumular=ano_id
+        ).values(
+            concepto = F('idconcepto__nombreconcepto'),
+            concepto_dian = F('idconcepto__grupo_dian__campo'),
+            valor_anotado = F('valor'),
+            anotado = F('cantidad'),
+            control_id = F('control'),
+            tipo_concepto = F('idconcepto__tipoconcepto'),
+        )
+
+        for payroll in query_payroll:
+            # print(f"Concepto: {payroll['concepto']}")
+            # print(f"Concepto DIAN: {payroll['concepto_dian']}")
+            # print(f"Valor Anotado: {payroll['valor_anotado']}")
+            # print(f"Cantidad Anotada: {payroll['anotado']}")
+            # print(f"Control ID: {payroll['control_id']}")
+
+            # validation of the concepts
+            if payroll['concepto_dian'] == 'SueldoTrabajado':   
+                print(f"Concepto: {payroll['concepto']}")
+                print(f"Concepto DIAN: {payroll['concepto_dian']}")
+                print(f"Valor Anotado: {payroll['valor_anotado']}")
+                print(f"Cantidad Anotada: {payroll['anotado']}")
+                print(f"Control ID: {payroll['control_id']}")
+                print(f"Tipo de Concepto: {payroll['tipo_concepto']}")
+        
+
+
+
 
 
 
