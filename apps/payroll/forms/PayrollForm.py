@@ -71,16 +71,19 @@ class PayrollForm(forms.Form):
                 Column('diasnomina', css_class='form-group  col-md-2 mb-0'),
                 css_class='row'
             ),
-            
+            Row(
+                Column('tiponomina', css_class='form-group  col-md-6 mb-0'),
+                Column('fechapago', css_class='form-group  col-md-6 mb-0'),
+                css_class='row'
+            ),
             Row(
                 Column('fechainicial', css_class='form-group  col-md-6 mb-0'),
                 Column('fechafinal', css_class='form-group  col-md-6 mb-0'),
                 
                 css_class='row'
             ),
-            Row(
-                Column('tiponomina', css_class='form-group  col-md-6 mb-0'),
-                Column('fechapago', css_class='form-group  col-md-6 mb-0'),
-                css_class='row'
-            ),
+           
         )
+
+
+

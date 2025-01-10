@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.db.models import Q, Sum, DecimalField, F
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
-from apps.companies.models import Incapacidades , Contratosemp ,Contratos,Entidadessegsocial ,Diagnosticosenfermedades,Nomina
+from apps.common.models  import Incapacidades , Contratosemp ,Contratos,Entidadessegsocial ,Diagnosticosenfermedades,Nomina
 from apps.companies.forms.disabilitiesForm  import DisabilitiesForm
 from datetime import datetime, timedelta
 from django.http import JsonResponse
@@ -58,14 +58,13 @@ def disabilities(request):
   errors = False
   incapacidades = Incapacidades.objects.values(
       'idcontrato__idcontrato',
-      'idempleado__docidentidad',
-      'idempleado__pnombre',
-      'idempleado__snombre',
-      'idempleado__papellido',
-      'idempleado__sapellido',
+      'idcontrato__idempleado__docidentidad',
+      'idcontrato__idempleado__pnombre',
+      'idcontrato__idempleado__snombre',
+      'idcontrato__idempleado__papellido',
+      'idcontrato__idempleado__sapellido',
       'entidad',
       'coddiagnostico__coddiagnostico',
-      'diagnostico',
       'prorroga',
       'fechainicial',
       'dias',
