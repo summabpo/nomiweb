@@ -227,7 +227,6 @@ class PayrollAPI(View):
                 value = fields.get('value-new')
                 # Crear el nuevo registro solo una vez por fila
                 if concepto and amount and value:
-                    cont += 1
                     registro = Nomina(
                         idconcepto_id=concepto,
                         cantidad=amount,
@@ -235,20 +234,12 @@ class PayrollAPI(View):
                         idcontrato_id=idcontrato,
                         idnomina_id=nomina,
                     )
-                    # registro = Registro(
-                    #     concepto=concepto,
-                    #     amount=amount,
-                    #     value=value
-                    # )
                     registro.save()
-                    registros_creados.append(cont)
                     
                     
             return JsonResponse({
                 "success": True,
                 "message": "Registros creados exitosamente",
-                "created_records": registros_creados,
-                "data":data,
             }, status=201)
 
         except Exception as e:

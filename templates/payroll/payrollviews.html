@@ -95,21 +95,25 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                         <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
                             <div class="accordion-body">
 
-                                <p id="salary" class="d-flex justify-content-between" >
-                                    <strong>Salario: </strong><span id="salary-value" class="ms-4 ">Valor</span>
-                                </p>
+                                <div class="text-center mb-4">
+                                    <p id="salary" class="d-flex justify-content-center">
+                                        <strong>Salario:</strong><span id="salary-value" class="ms-2">Valor</span>
+                                    </p>
+                                </div>
                                 
-                                <p id="income" class="d-flex justify-content-between">
-                                    <strong>Ingresos:</strong><span id="income-value" class="ms-4 text-end">Valor</span>
-                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <p id="income" class="flex-fill text-center">
+                                        <strong>Ingresos:</strong><span id="income-value" class="ms-2">Valor</span>
+                                    </p>
                                 
-                                <p id="discounts" class="d-flex justify-content-between">
-                                    <strong>Descuentos:</strong><span id="discounts-value" class="ms-4 text-end">Valor</span>
-                                </p>
-
-                                <p id="summation" class="d-flex justify-content-between">
-                                    <strong>Total:</strong><span id="summation-value" class="ms-4 text-end">Valor</span>
-                                </p>
+                                    <p id="discounts" class="flex-fill text-center">
+                                        <strong>Descuentos:</strong><span id="discounts-value" class="ms-2">Valor</span>
+                                    </p>
+                                
+                                    <p id="summation" class="flex-fill text-center">
+                                        <strong>Total:</strong><span id="summation-value" class="ms-2">Valor</span>
+                                    </p>
+                                </div>
                                 
 
                             </div>
@@ -153,7 +157,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 <script>
     // Función asíncrona para generar el HTML de un select dinámico
     async function generarSelectConceptos(apiUrl, name, id, defaultValue = null) {
-        let selectHTML = `<select class="form-select" data-control="select2" data-placeholder="Selecciona un concepto" name="${name}" id="${id}">`;
+        let selectHTML = `<select class="form-select" data-control="select2" data-dropdown-parent="#kt_modal_concept" data-allow-clear="true" data-placeholder="Selecciona un concepto" name="${name}" id="${id}">`;
         selectHTML += '<option value="">Selecciona un concepto</option>';
     
         try {
@@ -242,6 +246,63 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
 
 <script>
+    // Función para humanizar las cifras al formato colombiano
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+    }
+
+    // Función para actualizar los totales de Ingresos y Descuentos
+    function updateTotals() {
+        let totalIncome = 0;
+        let totalDiscounts = 0;
+
+        // Iteramos sobre todas las filas de la tabla para obtener los valores
+        $('#kt_datatable_example tbody tr').each(function() {
+            // Obtenemos el valor del campo 'Valor' en la fila actual
+            let value = parseFloat($(this).find('input[name$="-value-new"], input[name$="-value-old"]').val()) || 0;
+
+            // Si el valor es positivo, es un ingreso, si es negativo, es un descuento
+            if (value > 0) {
+                totalIncome += value;
+            } else if (value < 0) {
+                totalDiscounts += value;
+            }
+        });
+
+        // Formateamos los totales
+        let formattedIncome = formatCurrency(totalIncome);
+        let formattedDiscounts = formatCurrency(totalDiscounts);
+        let total = totalIncome + totalDiscounts;
+        let formattedTotal = formatCurrency(total);
+
+        // Actualizamos los totales en el modal
+        $('#kt_modal_concept #income').html('<strong>Ingresos:</strong> <div class="text-success">' + formattedIncome + '</div>');
+        $('#kt_modal_concept #discounts').html('<strong>Descuentos:</strong> <div class="text-danger">' + formattedDiscounts + '</div>');
+        $('#kt_modal_concept #summation').html('<strong>Total:</strong> <strong>' + formattedTotal + '</strong>');
+    }
+
+    // Función para manejar el cambio de valor en las celdas de la tabla
+    $(document).on('input', 'input[name$="-value-new"], input[name$="-value-old"]', function() {
+        updateTotals();  // Llamar a la función que actualiza los totales
+    });
+
+    // Función para inicializar la tabla y calcular los totales cuando el modal se muestra
+    $('#kt_modal_concept').on('show.bs.modal', function (event) {
+        updateTotals();  // Calcular totales al abrir el modal
+    });
+
+    // Llamada cuando se agregan nuevas filas para asegurarse que los totales se actualicen
+    $('#kt_datatable_example').on('draw.dt', function() {
+        updateTotals();  // Actualizar totales cada vez que la tabla se redibuje
+    });
+</script>
+
+<script>
     var empleadoId;
     var counter = 2;
     var table = $("#kt_datatable_example").DataTable({
@@ -270,7 +331,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
             }
         },
         order: [],
-        dom: 'Bfrtip',
+        dom: 'Brt',
         buttons: [
             {
                 text: '<i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto',
@@ -297,7 +358,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                 }
             },
         ],
-        "pageLength": 5,  
+        paging: false ,
         columns: [
             { title: "Codigo" },
             { title: "Nombre Concepto" },
@@ -311,69 +372,66 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
     });
 
     // Agregar datos de la API cuando se abre el modal
-$('#kt_modal_concept').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget); // El botón que activó el modal
-    var nominaId = "{{ nombre.idnomina }}"; 
-    empleadoId = button.data('empleado'); // id de empleado
-    var modal = $(this);
+    $('#kt_modal_concept').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // El botón que activó el modal
+        var nominaId = "{{ nombre.idnomina }}"; 
+        empleadoId = button.data('empleado'); // id de empleado
+        var modal = $(this);
 
-    const url = `/payroll/payrollapi/?nomina_id=${nominaId}&empleado_id=${empleadoId}`;
+        const url = `/payroll/payrollapi/?nomina_id=${nominaId}&empleado_id=${empleadoId}`;
 
-    // Limpiar la tabla antes de cargar nuevos datos
-    table.clear(); // Limpiar la tabla
+        // Limpiar la tabla antes de cargar nuevos datos
+        table.clear(); // Limpiar la tabla
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = modal.find('#kt_datatable_example tbody');
-            
-            // Limpiar la tabla antes de cargar los nuevos datos de la API
-            tableBody.empty(); 
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = modal.find('#kt_datatable_example tbody');
+                
+                // Limpiar la tabla antes de cargar los nuevos datos de la API
+                tableBody.empty(); 
 
-            let totalIncome = 0;
-            let totalDiscounts = 0;
+                let totalIncome = 0;
+                let totalDiscounts = 0;
 
-            if (data.error) {
-                tableBody.append(`<tr><td colspan="3">${data.error}</td></tr>`);
-            } else {
-                modal.find('.modal-title').text('Conceptos de : ' + data.nombre);
-                modal.find('#salary').html('<strong>Salario:</strong>' + data.salario );
+                if (data.error) {
+                    tableBody.append(`<tr><td colspan="3">${data.error}</td></tr>`);
+                } else {
+                    modal.find('.modal-title').text('Conceptos de : ' + data.nombre);
+                    modal.find('#salary').html('<strong>Salario:</strong>' + data.salario );
+                    
 
-                data.conceptos.forEach(concepto => {
-                    if (concepto.monto > 0) {
-                        totalIncome += concepto.monto;
-                    } else {
-                        totalDiscounts += concepto.monto;
-                    }
 
-                    // Genera el select para el concepto
-                    generarSelectConceptos('/payroll/payrollapi2/',`row-${concepto.id}-concept-old`, `row-${concepto.id}-concept-old`, concepto.id)
-                        .then(selectHTML => {
-                            // Añadir los datos de la API a la tabla
-                            table.row.add([
-                                `<input type="text" class="form-control form-control-solid" id="row-${concepto.codigo}-amount-old" name="row-${concepto.codigo}-amount-old" value="${concepto.codigo}" disabled />`,
-                                selectHTML, // Aquí agregas el select generado
-                                `<input type="text" class="form-control" id="row-${concepto.id}-amount-old" name="row-${concepto.id}-amount-old" value="${concepto.amount}"/>`,
-                                `<input type="text" class="form-control" id="row-${concepto.id}-value-old" name="row-${concepto.id}-value-old" value="${concepto.value}"/>`
-                            ]).draw(false);
-                        })
-                        .catch(error => {
-                            console.error('Error al generar el select:', error);
-                        });
-                });
+                    data.conceptos.forEach(concepto => {
+                        
+                        // Genera el select para el concepto
+                        generarSelectConceptos('/payroll/payrollapi2/',`row-${concepto.id}-concept-old`, `row-${concepto.id}-concept-old`, concepto.id)
+                            .then(selectHTML => {
+                                // Añadir los datos de la API a la tabla
+                                table.row.add([
+                                    `<input type="text" class="form-control form-control-solid" id="row-${concepto.codigo}-amount-old" name="row-${concepto.codigo}-amount-old" value="${concepto.codigo}" disabled />`,
+                                    selectHTML, // Aquí agregas el select generado
+                                    `<input type="text" class="form-control" id="row-${concepto.id}-amount-old" name="row-${concepto.id}-amount-old" value="${concepto.amount}"/>`,
+                                    `<input type="text" class="form-control" id="row-${concepto.id}-value-old" name="row-${concepto.id}-value-old" value="${concepto.value}"/>`
+                                ]).draw(false);
+                            })
+                            .catch(error => {
+                                console.error('Error al generar el select:', error);
+                            });
+                    });
 
-                modal.find('#income').html('<strong>Ingresos:</strong> '+ '<div class="text-success" >' + totalIncome.toFixed(2) + ' $' + '</div>');
-                modal.find('#discounts').html('<strong>Descuentos:</strong> '+ '<div class="text-danger" >' + totalDiscounts.toFixed(2) + ' $' + '</div>');
+                    modal.find('#income').html('<strong>Ingresos:</strong> '+ '<div class="text-success" >' + totalIncome.toFixed(2) + ' $' + '</div>');
+                    modal.find('#discounts').html('<strong>Descuentos:</strong> '+ '<div class="text-danger" >' + totalDiscounts.toFixed(2) + ' $' + '</div>');
 
-                let total = totalIncome + totalDiscounts;
-                modal.find('#summation').html('<strong>Total:</strong> '+ '<strong>' + total.toFixed(2) + ' $' + '</strong>');
-            }
-        })
-        .catch(error => {
-            console.error("Error al obtener los datos:", error);
-            modal.find('#kt_datatable_example tbody').html("<tr><td colspan='3'>Error al cargar la información.</td></tr>");
-        });
-});
+                    let total = totalIncome + totalDiscounts;
+                    modal.find('#summation').html('<strong>Total:</strong> '+ '<strong>' + total.toFixed(2) + ' $' + '</strong>');
+                }
+            })
+            .catch(error => {
+                console.error("Error al obtener los datos:", error);
+                modal.find('#kt_datatable_example tbody').html("<tr><td colspan='3'>Error al cargar la información.</td></tr>");
+            });
+    });
 </script>
 
 
