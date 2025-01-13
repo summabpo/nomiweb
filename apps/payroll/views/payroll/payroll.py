@@ -14,8 +14,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
 
-# @login_required
-# @role_required('employee')
+@login_required
+@role_required('accountant')
 def payroll(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -81,7 +81,8 @@ def payroll(request):
     return render(request, './payroll/payroll.html', {'nominas': nominas, 'form': form, 'error': error})
    
 
-
+@login_required
+@role_required('accountant')
 def payrollview(request, id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -108,7 +109,8 @@ def payrollview(request, id):
         'empleados': empleados,
     })
 
-    
+@login_required
+@role_required('accountant')
 class PayrollAPI2(View):
     def get(self, request, *args, **kwargs):
         ## el get es para obtener datos de 
@@ -129,6 +131,7 @@ class PayrollAPI2(View):
             return JsonResponse({"error": "No se encontraron datos de nómina"}, status=404)
         except Exception as e:
             return JsonResponse({"error": f"Error interno: {str(e)}"}, status=500)
+
 
 class PayrollAPI(View):
     def get(self, request, *args, **kwargs):

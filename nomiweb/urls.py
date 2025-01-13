@@ -13,7 +13,7 @@ urlpatterns = [
     path('', include(('apps.login.urls', 'login'))),
     path('accounts/', include('allauth.urls')),
     path('', include('allauth.socialaccount.urls')),
-    path('contable/', include(('apps.payroll.urls', 'payroll'))),
+    #path('contable/', include(('apps.payroll.urls', 'payroll'))),
     path('employees/', include(('apps.employees.urls', 'employees'))),
     path('companies/', include(('apps.companies.urls', 'companies'))),
     path('admin/', include(('apps.administrator.urls', 'admin'))),
