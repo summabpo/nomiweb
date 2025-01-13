@@ -21,6 +21,7 @@
                 </div>
 
                 <h2 class="card-title text-center btn-primary my-3">Iniciar sesión</h2> <!-- Ajusta el margen superior e inferior -->
+                {% csrf_token %}
                 {% crispy form %}
             </div>
             <div data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Le enviaremos un correo electrónico con instrucciones para restablecer su contraseña.">

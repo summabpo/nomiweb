@@ -143,6 +143,7 @@ BASE_MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
         # Add the account middleware:
     "allauth.account.middleware.AccountMiddleware",
+    
 ]
 
 LOCAL_MIDDLEWARE = [
