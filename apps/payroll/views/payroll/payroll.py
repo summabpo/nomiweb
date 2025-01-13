@@ -109,26 +109,24 @@ def payrollview(request, id):
         'empleados': empleados,
     })
 
-@login_required
-@role_required('accountant')
+
 class PayrollAPI2(View):
     def get(self, request, *args, **kwargs):
-        ## el get es para obtener datos de 
+        usuario = request.session.get('usuario', {})
+        idempresa = usuario['idempresa']
         try:
-            empresa_id = request.GET.get('empresa_id')
+            # Obtener los datos de la base de datos
+            conceptos_data = Conceptosdenomina.objects.filter(id_empresa_id = idempresa).values('idconcepto','nombreconcepto','multiplicadorconcepto').order_by('nombreconcepto') # Convertir el QuerySet a un formato serializable
+            conceptos_list = list(conceptos_data)  # Convertir el QuerySet a una lista de diccionarios
             
-            conceptos_data = Conceptosdenomina.objects.filter(id_empresa_id = empresa_id ) 
+            # Construir la respuesta JSON
             data = {
-                    "empresa_id": empresa_id,
-                    "conceptos": conceptos_data,
-                }
-            
-            return JsonResponse(data)
+                "conceptos": conceptos_list,
+            }
+            return JsonResponse(data, safe=False)
 
-        except Contratos.DoesNotExist:
-            return JsonResponse({"error": "El contrato no existe"}, status=404)
-        except Nomina.DoesNotExist:
-            return JsonResponse({"error": "No se encontraron datos de nómina"}, status=404)
+        except Conceptosdenomina.DoesNotExist:
+            return JsonResponse({"error": "No se encontraron conceptos de nómina"}, status=404)
         except Exception as e:
             return JsonResponse({"error": f"Error interno: {str(e)}"}, status=500)
 
@@ -136,7 +134,6 @@ class PayrollAPI2(View):
 class PayrollAPI(View):
     def get(self, request, *args, **kwargs):
         # Obtener los parámetros de la URL
-        print('llege aqui')
         nomina_id = request.GET.get('nomina_id')
         empleado_id = request.GET.get('empleado_id')
 
@@ -159,10 +156,11 @@ class PayrollAPI(View):
 
             # Estructurar los datos para la respuesta
             conceptos_data = [
-                {
-                    "id": concepto.idregistronom,
-                    "empleado": concepto.cantidad,
-                    "monto": concepto.valor
+                {   
+                    "codigo": concepto.idregistronom ,
+                    "id": concepto.idconcepto.idconcepto,
+                    "amount": concepto.cantidad,
+                    "value": concepto.valor
                 }
                 for concepto in conceptos
             ]
@@ -173,11 +171,11 @@ class PayrollAPI(View):
 
             # Respuesta estructurada
             data = {
+                
                 "nombre": nombre_completo,
                 "salario": f"{format_value(contrato.salario)} $",
                 "conceptos": conceptos_data,
             }
-            print(empleado_id)
             return JsonResponse(data)
 
         except Contratos.DoesNotExist:
@@ -190,29 +188,68 @@ class PayrollAPI(View):
         
     @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
-        print('llege' )
         try:
-            print('veamos si el body llega')
-            print('-------------------')
-            print(request.body)
-            print('-------------------')
-            print('veamos si el json llega')
-
-            # Aquí, en lugar de json.loads, puedes usar request.POST para obtener los datos del formulario
+            # Filtrar solo las claves que contienen 'new' y agruparlas por fila
+            registros_creados = []
+            rows_to_create = {}
+            cont = 0
+            
             data = request.POST
-            print('-------------------')
-            print(data)
-            print('-------------------')
+            submit_direct = data.get('submit_direct')
+            # Usamos el método split para dividir la cadena en dos partes
+            partes = submit_direct.split('-')
 
-            # Aquí puedes realizar acciones con los datos recibidos
-            # Ejemplo:
-            # empleado_id = data.get('empleado_id')
-            # nomina_id = data.get('nomina_id')
-            # # Validar y procesar los datos...
+            # La lista partes ahora contiene dos elementos
+            nomina = partes[0]  # "900"
+            idcontrato = partes[1]  # "16"
 
-            return JsonResponse({"success": True, "message": "Datos procesados exitosamente,","data":data}, status=201)
 
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Cuerpo de solicitud inválido"}, status=400)
+
+            for key, value in data.items():
+                if 'new' in key:
+                    # Obtener el row_id de la clave
+                    parts = key.split('-')
+                    row_id = parts[1]  # 'row-2-concept-new' -> '2'
+
+                    # Agrupar datos por fila
+                    if row_id not in rows_to_create:
+                        rows_to_create[row_id] = {}
+
+                    field_name = '-'.join(parts[2:])  # 'concept-new', 'amount-new', etc.
+                    rows_to_create[row_id][field_name] = value
+                    
+                    
+            # Crear los registros
+            for row_id, fields in rows_to_create.items():
+                # Asegurarse de que tengamos todos los datos necesarios para esa fila
+                concepto = fields.get('concept-new')
+                amount = fields.get('amount-new')
+                value = fields.get('value-new')
+                # Crear el nuevo registro solo una vez por fila
+                if concepto and amount and value:
+                    cont += 1
+                    registro = Nomina(
+                        idconcepto_id=concepto,
+                        cantidad=amount,
+                        valor=value,
+                        idcontrato_id=idcontrato,
+                        idnomina_id=nomina,
+                    )
+                    # registro = Registro(
+                    #     concepto=concepto,
+                    #     amount=amount,
+                    #     value=value
+                    # )
+                    registro.save()
+                    registros_creados.append(cont)
+                    
+                    
+            return JsonResponse({
+                "success": True,
+                "message": "Registros creados exitosamente",
+                "created_records": registros_creados,
+                "data":data,
+            }, status=201)
+
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
