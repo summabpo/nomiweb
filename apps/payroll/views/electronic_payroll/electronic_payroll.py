@@ -11,7 +11,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 # models
-from apps.common.models import Anos, Nomina, Contratos, Contratosemp, NeDatosMensual, NeDetalleNominaElectronica, NeRespuestaDian, Ciudades, Paises, Empresa, Conceptosfijos
+from apps.common.models import Anos, Nomina, Contratos, Contratosemp, NeDatosMensual, NeDetalleNominaElectronica, NeRespuestaDian, Ciudades, Paises, Empresa, Conceptosfijos, Vacaciones
 
 # forms
 from apps.payroll.forms.PayrollContainerForm import PayrollContainerForm
@@ -321,6 +321,8 @@ def electronic_payroll_generate(request, pk):
             print(f"Concepto: {item['concepto_dian']}")
             
             #validation of the concepts
+
+            #DEVENGADOS
             # CODSueldoTrabajado
             if item['concepto_dian'] == 'SueldoTrabajado':
                 if "Basico" not in data["Devengados"]:
@@ -380,7 +382,47 @@ def electronic_payroll_generate(request, pk):
                 data["Devengados"][item['concepto_dian']]["Cantidad"] += item['cantidad_anotado']
                 data["Devengados"][item['concepto_dian']]["Pago"] += item['valor_anotado']
                 data["Devengados"][item['concepto_dian']]["Detalles"].append(array_sub)
-            
+
+            # VacacionesComunes
+            if item['concepto_dian'] == 'VacacionesComunes':
+
+                vacation_detail = Vacaciones.objects.filter(idvacaciones=item['control_id']).values('fechainicialvac', 'ultimodiavac', 'diascalendario', 'pagovac')
+
+                if "Vacaciones" not in data["Devengados"]:
+                    data["Devengados"]["Vacaciones"] = {
+                        "VacacionesComunes": []
+                    }
+                data["Devengados"]["Vacaciones"]["VacacionesComunes"].append({
+                    "FechaInicio": format_date(vacation_detail[0]['fechainicialvac']),
+                    "FechaFin": format_date(vacation_detail[0]['ultimodiavac']),
+                    "Cantidad": item['cantidad_anotado'],
+                    "Pago": item['valor_anotado']
+                })
+
+            # VacacionesCompensadas
+            if item['concepto_dian'] == 'VacacionesCompensadas':
+                if "Vacaciones" not in data["Devengados"]:
+                    data["Devengados"]["Vacaciones"] = {
+                        "VacacionesCompensadas": []
+                    }
+                data["Devengados"]["Vacaciones"]["VacacionesCompensadas"].append({
+                    "Cantidad": item['cantidad_anotado'],
+                    "Pago": item['valor_anotado']
+                })
+
+            # Primas
+            if item['concepto_dian'] == 'Primas':
+                if "Primas" not in data["Devengados"]:
+                    data["Devengados"]["Primas"] = {
+                        "Cantidad": 0,
+                        "Pago": 0,
+                        "PagoNS": 0
+                    }
+                data["Devengados"]["Primas"]["Cantidad"] += item['cantidad_anotado']
+                data["Devengados"]["Primas"]["Pago"] += item['valor_anotado']
+                data["Devengados"]["Primas"]["PagoNS"] += item['valor_anotado'] if item['tipo_concepto'] == 'NS' else 0
+
+            #DEDUCCIONES
             # CODSalud
             if item['concepto_dian'] == 'Salud':
                 if "Salud" not in data["Deducciones"]:
