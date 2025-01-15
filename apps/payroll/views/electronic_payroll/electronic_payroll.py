@@ -11,7 +11,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 # models
-from apps.common.models import Anos, Nomina, Contratos, Contratosemp, NeDatosMensual, NeDetalleNominaElectronica, NeRespuestaDian, Ciudades, Paises, Empresa, Conceptosfijos, Vacaciones
+from apps.common.models import Anos, Nomina, Contratos, Contratosemp, NeDatosMensual, NeDetalleNominaElectronica, NeRespuestaDian, Ciudades, Paises, Empresa, Conceptosfijos, Vacaciones, Incapacidades
 
 # forms
 from apps.payroll.forms.PayrollContainerForm import PayrollContainerForm
@@ -129,10 +129,10 @@ def electronic_payroll_generate(request, pk):
     company = Empresa.objects.get(idempresa=container.empresa.idempresa)
 
     #concepts static payroll
-    ces_percentage = Conceptosfijos.objects.filter(idfijo=8)
-    eps_percentage = Conceptosfijos.objects.filter(idfijo=10)
-    pension_percentage = Conceptosfijos.objects.filter(idfijo=12)
-    fsp_percentage = Conceptosfijos.objects.filter(idfijo=14)
+    ces_percentage = Conceptosfijos.objects.get(idfijo=8).valorfijo
+    eps_percentage = Conceptosfijos.objects.get(idfijo=10).valorfijo
+    pension_percentage = Conceptosfijos.objects.get(idfijo=12).valorfijo
+    fsp_percentage = Conceptosfijos.objects.get(idfijo=14).valorfijo
     
     # Validate the year and get the id from the Anos model
     try:
@@ -217,6 +217,8 @@ def electronic_payroll_generate(request, pk):
 
     # Iterate over each field in query_detail
     for detail in query_detail:
+
+
 
         #generate register detalle_nomina_electronica
         #TODO
@@ -318,6 +320,10 @@ def electronic_payroll_generate(request, pk):
 
         # iterate over contract details for each concept
         for item in detail_contract:
+            #validate the concepts is deduccion
+            if item['tipo_concepto'] == 2:
+                item['valor_anotado'] = abs(item['valor_anotado'])
+            
             print(f"Concepto: {item['concepto_dian']}")
             
             #validation of the concepts
@@ -422,12 +428,194 @@ def electronic_payroll_generate(request, pk):
                 data["Devengados"]["Primas"]["Pago"] += item['valor_anotado']
                 data["Devengados"]["Primas"]["PagoNS"] += item['valor_anotado'] if item['tipo_concepto'] == 'NS' else 0
 
+            # Cesantias
+            if item['concepto_dian'] == 'Cesantias':
+                if "Cesantias" not in data["Devengados"]:
+                    data["Devengados"]["Cesantias"] = {
+                        "Pago": 0,
+                        "Porcentaje": ces_percentage,
+                        "PagoInter  eses": 0
+                    }
+                data["Devengados"]["Cesantias"]["Pago"] += item['valor_anotado']
+
+            # Intereses sobre Cesantias
+            if item['concepto_dian'] == 'Intereses':
+                if "Cesantias" not in data["Devengados"]:
+                    data["Devengados"]["Cesantias"] = {
+                        "Pago": 0,
+                        "Porcentaje": ces_percentage,
+                        "PagoIntereses": 0
+                    }
+                data["Devengados"]["Cesantias"]["PagoIntereses"] += item['valor_anotado']
+
+            # Incapacidad
+            if item['concepto_dian'] == 'Incapacidad':
+
+                disability_detail = Incapacidades.objects.filter(idincapacidad=item['control_id']).values('fechainicial', 'dias', 'origenincap')
+
+                if not disability_detail.exists():
+                    origenincap = ''
+                    fechainicial = ''
+                    dias = ''
+                    fechafinal = ''
+                else:
+                    # Calculate the end date based on the start date and the number of days
+                    origenincap = disability_detail[0]['origenincap']
+                    fechainicial = disability_detail[0]['fechainicial']
+                    dias = disability_detail[0]['dias']
+                    fechafinal = fechainicial + datetime.timedelta(days=dias)
+
+                if "Incapacidad" not in data["Devengados"]:
+                    data["Devengados"]["Incapacidad"] = []
+                data["Devengados"]["Incapacidad"].append({
+                    "FechaInicio": format_date(fechainicial),
+                    "FechaFin": format_date(fechafinal),
+                    "Cantidad": dias,
+                    "Tipo": origenincap,
+                    "Pago": item['valor_anotado']
+                })
+
+            # LicenciaMP
+            if item['concepto_dian'] == 'LicenciaMP':
+                if "LicenciaMP" not in data["Devengados"]:
+                    data["Devengados"]["LicenciaMP"] = []
+                data["Devengados"]["LicenciaMP"].append({
+                    "FechaInicio": '',
+                    "FechaFin": '',
+                    "Cantidad": item['cantidad_anotado'],
+                    "Pago": item['valor_anotado']
+                })
+
+            # LicenciaR
+            if item['concepto_dian'] == 'LicenciaR':
+                if "LicenciaR" not in data["Devengados"]:
+                    data["Devengados"]["LicenciaR"] = []
+                data["Devengados"]["LicenciaR"].append({
+                    "FechaInicio": '',
+                    "FechaFin": '',
+                    "Cantidad": item['cantidad_anotado'],
+                    "Pago": item['valor_anotado']
+                })
+
+            # LicenciaNR
+            if item['concepto_dian'] == 'LicenciaNR':
+                if "LicenciaNR" not in data["Devengados"]:
+                    data["Devengados"]["LicenciaNR"] = []
+                data["Devengados"]["LicenciaNR"].append({
+                    "FechaInicio": format_date(item['fechainicial']),
+                    "FechaFin": format_date(item['fechafinal']),
+                    "Cantidad": item['cantidad_anotado'],
+                    "Pago": item['valor_anotado']
+                })
+
+            # BonificacionS
+            if item['concepto_dian'] == 'BonificacionS':
+                if "Bonificacion" not in data["Devengados"]:
+                    data["Devengados"]["Bonificacion"] = {
+                        "BonificacionS": 0,
+                        "BonificacionNS": 0
+                    }
+                data["Devengados"]["Bonificacion"]["BonificacionS"] += item['valor_anotado']
+
+            # BonificacionNS
+            if item['concepto_dian'] == 'BonificacionNS':
+                if "Bonificacion" not in data["Devengados"]:
+                    data["Devengados"]["Bonificacion"] = {
+                        "BonificacionS": 0,
+                        "BonificacionNS": 0
+                    }
+                data["Devengados"]["Bonificacion"]["BonificacionNS"] += item['valor_anotado']
+
+            # AuxilioS
+            if item['concepto_dian'] == 'AuxilioS':
+                if "Auxilio" not in data["Devengados"]:
+                    data["Devengados"]["Auxilio"] = {
+                        "AuxilioS": 0,
+                        "AuxilioNS": 0
+                    }
+                data["Devengados"]["Auxilio"]["AuxilioS"] += item['valor_anotado']
+
+            # AuxilioNS
+            if item['concepto_dian'] == 'AuxilioNS':
+                if "Auxilio" not in data["Devengados"]:
+                    data["Devengados"]["Auxilio"] = {   
+                        "AuxilioS": 0,
+                        "AuxilioNS": 0
+                    }
+                data["Devengados"]["Auxilio"]["AuxilioNS"] += item['valor_anotado']
+
+            # HuelgaLegal
+            if item['concepto_dian'] == 'HuelgaLegal':
+                if "HuelgaLegal" not in data["Devengados"]:
+                    data["Devengados"]["HuelgaLegal"] = []
+                data["Devengados"]["HuelgaLegal"].append({
+                    "FechaInicio": format_date(item['fechainicial']),
+                    "FechaFin": format_date(item['fechafinal']),
+                    "Cantidad": item['cantidad_anotado']
+                })
+
+            # OtroConcepto
+            if item['concepto_dian'] == 'OtroConcepto':
+                if "OtroConcepto" not in data["Devengados"]:
+                    data["Devengados"]["OtroConcepto"] = []
+                data["Devengados"]["OtroConcepto"].append({
+                    "DescripcionConcepto": item['concepto'],
+                    "ConceptoS": item['valor_anotado'] if item['tipo_concepto'] == 'S' else 0,
+                    "ConceptoNS": item['valor_anotado'] if item['tipo_concepto'] == 'NS' else 0
+                })
+
+            # Compensacion
+            if item['concepto_dian'] == 'Compensacion':
+                if "Compensacion" not in data["Devengados"]:
+                    data["Devengados"]["Compensacion"] = []
+                data["Devengados"]["Compensacion"].append({
+                    "CompensacionO": item['valor_anotado'] if item['tipo_concepto'] == 'O' else 0,
+                    "CompensacionE": item['valor_anotado'] if item['tipo_concepto'] == 'E' else 0
+                })
+
+            # BonoEPCTV
+            if item['concepto_dian'] == 'BonoEPCTV':
+                if "BonoEPCTV" not in data["Devengados"]:
+                    data["Devengados"]["BonoEPCTV"] = []
+                data["Devengados"]["BonoEPCTV"].append({
+                    "PagoS": item['valor_anotado'] if item['tipo_concepto'] == 'S' else 0,
+                    "PagoNS": item['valor_anotado'] if item['tipo_concepto'] == 'NS' else 0,
+                    "PagoAlimentacionS": item['valor_anotado'] if item['tipo_concepto'] == 'AlimentacionS' else 0,
+                    "PagoAlimentacionNS": item['valor_anotado'] if item['tipo_concepto'] == 'AlimentacionNS' else 0
+                })
+
+            # Comisiones
+            if item['concepto_dian'] == 'Comisiones':
+                if "Comisiones" not in data["Devengados"]:
+                    data["Devengados"]["Comisiones"] = []
+                data["Devengados"]["Comisiones"].append({
+                    "Comision": item['valor_anotado']
+                })
+
+            # PagosTerceros
+            if item['concepto_dian'] == 'PagosTerceros':
+                if "PagosTerceros" not in data["Devengados"]:
+                    data["Devengados"]["PagosTerceros"] = []
+                data["Devengados"]["PagosTerceros"].append({
+                    "PagosTercero": item['valor_anotado']
+                })
+
+            # Anticipos
+            if item['concepto_dian'] == 'Anticipos':
+                if "Anticipos" not in data["Devengados"]:
+                    data["Devengados"]["Anticipos"] = []
+                data["Devengados"]["Anticipos"].append({
+                    "Anticipo": item['valor_anotado']
+                })
+
+
+
             #DEDUCCIONES
             # CODSalud
             if item['concepto_dian'] == 'Salud':
                 if "Salud" not in data["Deducciones"]:
                     data["Deducciones"]["Salud"] = {
-                        "Porcentaje": "4",
+                        "Porcentaje": eps_percentage,
                         "Deduccion": 0
                     }
                 data["Deducciones"]["Salud"]["Deduccion"] += item['valor_anotado']
@@ -436,61 +624,214 @@ def electronic_payroll_generate(request, pk):
             if item['concepto_dian'] == 'FondoPension':
                 if "FondoPension" not in data["Deducciones"]:
                     data["Deducciones"]["FondoPension"] = {
-                        "Porcentaje": "4",
+                        "Porcentaje": pension_percentage,
                         "Deduccion": 0
                     }
                 data["Deducciones"]["FondoPension"]["Deduccion"] += item['valor_anotado']
             
-            # CODICBF
-            if item['concepto_dian'] == 'ICBF':
-                data["Deducciones"]["ICBF"] = {
-                    "Porcentaje": "3",
-                    "Deduccion": item['valor_anotado']
-                }
-            
-            # CODSENA
-            if item['concepto_dian'] == 'SENA':
-                data["Deducciones"]["SENA"] = {
-                    "Porcentaje": "2",
-                    "Deduccion": item['valor_anotado']
-                }
-            
-            # CODCajaCompensacion
-            if item['concepto_dian'] == 'CajaCompensacion':
-                data["Deducciones"]["CajaCompensacion"] = {
-                    "Porcentaje": "4",
-                    "Deduccion": item['valor_anotado']
-                }
-            
-            # CODPension
-            if item['concepto_dian'] == 'Pension':
-                data["Deducciones"]["Pension"] = {
-                    "Porcentaje": "4",
-                    "Deduccion": item['valor_anotado']
-                }
-            
-            # CODAportesVoluntarios
-            if item['concepto_dian'] == 'AportesVoluntarios':
-                data["Deducciones"]["AportesVoluntarios"] = {
-                    "Porcentaje": "4",
-                    "Deduccion": item['valor_anotado']
-                }
-            
+            # CODFondoSP
+            if item['concepto_dian'] == 'FondoSP':
+                if "FondoSP" not in data["Deducciones"]:
+                    data["Deducciones"]["FondoSP"] = {
+                        "Porcentaje": fsp_percentage,
+                        "DeduccionSP": 0,
+                        "PorcentajeSub": 0,
+                        "DeduccionSub": 0
+                    }
+                data["Deducciones"]["FondoSP"]["DeduccionSP"] += item['valor_anotado']
+
+            # CODSindicatos
+            if item['concepto_dian'] == 'Sindicatos':
+                if "Sindicatos" not in data["Deducciones"]:
+                    data["Deducciones"]["Sindicatos"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Sindicatos"]["Deduccion"] += item['valor_anotado']
+
+            # CODSanciones
+            if item['concepto_dian'] == 'Sanciones':
+                if "Sanciones" not in data["Deducciones"]:
+                    data["Deducciones"]["Sanciones"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Sanciones"]["Deduccion"] += item['valor_anotado']
+
+            # CODLibranzas
+            if item['concepto_dian'] == 'Libranzas':
+                if "Libranzas" not in data["Deducciones"]:
+                    data["Deducciones"]["Libranzas"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Libranzas"]["Deduccion"] += item['valor_anotado']
+
+            # CODOtrasDeducciones
+            if item['concepto_dian'] == 'OtrasDeducciones':
+                if "OtrasDeducciones" not in data["Deducciones"]:
+                    data["Deducciones"]["OtrasDeducciones"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["OtrasDeducciones"]["Deduccion"] += item['valor_anotado']
+
+            # CODAnticipos
+            if item['concepto_dian'] == 'Anticipos':
+                if "Anticipos" not in data["Deducciones"]:
+                    data["Deducciones"]["Anticipos"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Anticipos"]["Deduccion"] += item['valor_anotado']
+
+            # CODPensionVoluntaria
+            if item['concepto_dian'] == 'PensionVoluntaria':
+                if "PensionVoluntaria" not in data["Deducciones"]:
+                    data["Deducciones"]["PensionVoluntaria"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["PensionVoluntaria"]["Deduccion"] += item['valor_anotado']
+
             # CODRetencionFuente
             if item['concepto_dian'] == 'RetencionFuente':
-                data["Deducciones"]["RetencionFuente"] = {
-                    "Porcentaje": "4",
-                    "Deduccion": item['valor_anotado']
-                }
+                if "RetencionFuente" not in data["Deducciones"]:
+                    data["Deducciones"]["RetencionFuente"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["RetencionFuente"]["Deduccion"] += item['valor_anotado']
+
+            # CODAFC
+            if item['concepto_dian'] == 'AFC':
+                if "AFC" not in data["Deducciones"]:
+                    data["Deducciones"]["AFC"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["AFC"]["Deduccion"] += item['valor_anotado']
+
+            # CODCooperativa
+            if item['concepto_dian'] == 'Cooperativa':
+                if "Cooperativa" not in data["Deducciones"]:
+                    data["Deducciones"]["Cooperativa"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Cooperativa"]["Deduccion"] += item['valor_anotado']
+
+            # CODEmbargoFiscal
+            if item['concepto_dian'] == 'EmbargoFiscal':
+                if "EmbargoFiscal" not in data["Deducciones"]:
+                    data["Deducciones"]["EmbargoFiscal"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["EmbargoFiscal"]["Deduccion"] += item['valor_anotado']
+
+            # CODPlanComplementarios
+            if item['concepto_dian'] == 'PlanComplementarios':
+                if "PlanComplementarios" not in data["Deducciones"]:
+                    data["Deducciones"]["PlanComplementarios"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["PlanComplementarios"]["Deduccion"] += item['valor_anotado']
+
+            # CODEducacion
+            if item['concepto_dian'] == 'Educacion':
+                if "Educacion" not in data["Deducciones"]:
+                    data["Deducciones"]["Educacion"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Educacion"]["Deduccion"] += item['valor_anotado']
+
+            # CODReintegro
+            if item['concepto_dian'] == 'Reintegro':
+                if "Reintegro" not in data["Deducciones"]:
+                    data["Deducciones"]["Reintegro"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Reintegro"]["Deduccion"] += item['valor_anotado']
+
+            # CODDeuda
+            if item['concepto_dian'] == 'Deuda':
+                if "Deuda" not in data["Deducciones"]:
+                    data["Deducciones"]["Deuda"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Deuda"]["Deduccion"] += item['valor_anotado']
+
+            if item['concepto_dian'] == 'PensionVoluntaria':
+                if "PensionVoluntaria" not in data["Deducciones"]:
+                    data["Deducciones"]["PensionVoluntaria"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["PensionVoluntaria"]["Deduccion"] += item['valor_anotado']
+
             
+            # CODPensionVoluntaria
+            if item['concepto_dian'] == 'PensionVoluntaria':
+                if "PensionVoluntaria" not in data["Deducciones"]:
+                    data["Deducciones"]["PensionVoluntaria"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["PensionVoluntaria"]["Deduccion"] += item['valor_anotado']
+
             # CODRetencionFuente
             if item['concepto_dian'] == 'RetencionFuente':
-                data["Deducciones"]["RetencionFuente"] = {
-                    "Porcentaje": "4",
-                    "Deduccion": item['valor_anotado']
-                }          
+                if "RetencionFuente" not in data["Deducciones"]:
+                    data["Deducciones"]["RetencionFuente"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["RetencionFuente"]["Deduccion"] += item['valor_anotado']
 
+            # CODAFC
+            if item['concepto_dian'] == 'AFC':
+                if "AFC" not in data["Deducciones"]:
+                    data["Deducciones"]["AFC"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["AFC"]["Deduccion"] += item['valor_anotado']
 
+            # CODCooperativa
+            if item['concepto_dian'] == 'Cooperativa':
+                if "Cooperativa" not in data["Deducciones"]:
+                    data["Deducciones"]["Cooperativa"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Cooperativa"]["Deduccion"] += item['valor_anotado']
+
+            # CODEmbargoFiscal
+            if item['concepto_dian'] == 'EmbargoFiscal':
+                if "EmbargoFiscal" not in data["Deducciones"]:
+                    data["Deducciones"]["EmbargoFiscal"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["EmbargoFiscal"]["Deduccion"] += item['valor_anotado']
+
+            # CODPlanComplementarios
+            if item['concepto_dian'] == 'PlanComplementarios':
+                if "PlanComplementarios" not in data["Deducciones"]:
+                    data["Deducciones"]["PlanComplementarios"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["PlanComplementarios"]["Deduccion"] += item['valor_anotado']
+
+            # CODEducacion
+            if item['concepto_dian'] == 'Educacion':
+                if "Educacion" not in data["Deducciones"]:
+                    data["Deducciones"]["Educacion"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Educacion"]["Deduccion"] += item['valor_anotado']
+
+            # CODReintegro
+            if item['concepto_dian'] == 'Reintegro':
+                if "Reintegro" not in data["Deducciones"]:
+                    data["Deducciones"]["Reintegro"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Reintegro"]["Deduccion"] += item['valor_anotado']
+
+            # CODDeuda
+            if item['concepto_dian'] == 'Deuda':
+                if "Deuda" not in data["Deducciones"]:
+                    data["Deducciones"]["Deuda"] = {
+                        "Deduccion": 0
+                    }
+                data["Deducciones"]["Deuda"]["Deduccion"] += item['valor_anotado']
+            
 
 
         print(f"ID: {detail['id']}")
