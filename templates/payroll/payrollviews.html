@@ -190,48 +190,75 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 <script>
     $(document).ready(function() { 
         $('#kt_payroll_concept_submit').on('click', function(e) { 
-            var formData = new FormData($('#form_custom_payroll_concept')[0]);
+            e.preventDefault(); // Para prevenir la acción predeterminada del botón
+            
             var jsonData = {};
             var contratoId = "{{ nombre.idnomina }}-"+empleadoId;
-            $('#kt_payroll_concept_submit').val(contratoId); 
-            
-            // Convertir FormData en objeto JSON
-            formData.forEach(function(value, key) {
-                jsonData[key] = value;
+
+            // Agregar el valor del botón 'submit_direct' al JSON
+            jsonData['submit_direct'] = contratoId;
+
+            // Obtener los valores del formulario y agregar al JSON
+            $('#form_custom_payroll_concept').serializeArray().forEach(function(item) {
+                jsonData[item.name] = item.value;
             });
+
+            console.log(jsonData);  // Verificar el JSON antes de enviarlo
 
             // Obtener el token CSRF desde el DOM
             var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();  // Asegúrate de que este selector apunta al campo csrf_token correcto
             
-            // Agregar el valor del botón al JSON
-            jsonData['submit_direct'] = $('#kt_payroll_concept_submit').val();  
-
-            console.log(jsonData['submit_direct']);
             $.ajax({
                 url: '/payroll/payrollapi/', // URL de destino para el POST
                 type: 'POST',
                 data: JSON.stringify(jsonData),  // Convertir el objeto en una cadena JSON
                 contentType: 'application/json', // Especificar el tipo de contenido como JSON
                 headers: {
-                    'X-CSRFToken': csrfToken  // Añadir el token CSRF a las cabeceras
+                    'X-CSRFToken': csrfToken,  // Añadir el token CSRF a las cabeceras
+                    'Accept': 'application/json'  // Asegúrate de que el servidor devuelva JSON
                 },
                 success: function(response) {
+                    console.log(response);
                     if (response.success) {
-                        alert('Concepto agregado exitosamente');
+                        Swal.fire({
+                            text: 'Concepto agregado exitosamente',
+                            icon: 'success',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Ok',
+                            customClass: {
+                                confirmButton: 'btn btn-primary'
+                            }
+                        });
                         $('#kt_modal_concept').modal('hide');
-                        //location.reload(); // Recargar la página para mostrar los nuevos datos
                     } else {
-                        alert('Error al agregar el concepto: ' + response.error);
+                        Swal.fire({
+                            text: 'Error al agregar el concepto: ' + response.error,
+                            icon: 'error',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Ok',
+                            customClass: {
+                                confirmButton: 'btn btn-danger'
+                            }
+                        });
                     }
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
-                    alert('Ocurrió un error al procesar la solicitud.');
+                    Swal.fire({
+                        text: 'Ocurrió un error al procesar la solicitud.',
+                        icon: 'error',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Ok',
+                        customClass: {
+                            confirmButton: 'btn btn-danger'
+                        }
+                    });
                 }
             });
         });
     });
 </script>
+
 
 
 <script>

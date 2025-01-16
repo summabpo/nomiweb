@@ -194,24 +194,31 @@ class PayrollAPI(View):
             rows_to_create = {}
             cont = 0
             data = json.loads(request.body.decode('utf-8'))  # Decodifica el JSON
-            print(f"Datos recibidos: {data}")
-            
-            
-            #data = request.POST
             submit_direct = data.get('submit_direct')
+            
+            # Verificar si 'submit_direct' está presente
+            if not submit_direct:
+                raise ValueError("Falta el campo 'submit_direct'.")
+            
             # Usamos el método split para dividir la cadena en dos partes
             partes = submit_direct.split('-')
 
-            # La lista partes ahora contiene dos elementos
+            # Verificar si 'submit_direct' tiene el formato esperado
+            if len(partes) != 2:
+                raise ValueError("El formato de 'submit_direct' no es válido. Se espera 'nomina-idcontrato'.")
+
             nomina = partes[0]  # "900"
             idcontrato = partes[1]  # "16"
-
-
 
             for key, value in data.items():
                 if 'new' in key:
                     # Obtener el row_id de la clave
                     parts = key.split('-')
+                    
+                    # Verificar si la clave tiene el formato esperado
+                    if len(parts) < 3:
+                        raise ValueError(f"Clave con formato inesperado: {key}. No tiene suficientes partes.")
+                    
                     row_id = parts[1]  # 'row-2-concept-new' -> '2'
 
                     # Agrupar datos por fila
@@ -220,27 +227,32 @@ class PayrollAPI(View):
 
                     field_name = '-'.join(parts[2:])  # 'concept-new', 'amount-new', etc.
                     rows_to_create[row_id][field_name] = value
-                    
-                    
+            
             # Crear los registros
             for row_id, fields in rows_to_create.items():
                 # Asegurarse de que tengamos todos los datos necesarios para esa fila
                 concepto = fields.get('concept-new')
                 amount = fields.get('amount-new')
                 value = fields.get('value-new')
+
+                if not concepto or not amount or not value:
+                    raise ValueError(f"Faltan datos requeridos en la fila {row_id}: concepto, cantidad o valor.")
+
                 # Crear el nuevo registro solo una vez por fila
-                if concepto and amount and value:
-                    registro = Nomina(
-                        idconcepto_id=concepto,
-                        cantidad=amount,
-                        valor=value,
-                        idcontrato_id=idcontrato,
-                        idnomina_id=nomina,
-                    )
-                    registro.save()
-                    
-                    
+                registro = Nomina(
+                    idconcepto_id=concepto,
+                    cantidad=amount,
+                    valor=value,
+                    idcontrato_id=idcontrato,
+                    idnomina_id=nomina,
+                )
+                registro.save()
+            
             return JsonResponse({'success': True, 'message': 'Concepto agregado exitosamente.'})
 
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Error al decodificar el JSON. Verifique el formato."}, status=400)
+        except ValueError as ve:
+            return JsonResponse({"error": str(ve)}, status=400)
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=500)
