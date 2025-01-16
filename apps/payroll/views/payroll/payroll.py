@@ -193,8 +193,11 @@ class PayrollAPI(View):
             registros_creados = []
             rows_to_create = {}
             cont = 0
+            data = json.loads(request.body.decode('utf-8'))  # Decodifica el JSON
+            print(f"Datos recibidos: {data}")
             
-            data = request.POST
+            
+            #data = request.POST
             submit_direct = data.get('submit_direct')
             # Usamos el método split para dividir la cadena en dos partes
             partes = submit_direct.split('-')
@@ -237,10 +240,7 @@ class PayrollAPI(View):
                     registro.save()
                     
                     
-            return JsonResponse({
-                "success": True,
-                "message": "Registros creados exitosamente",
-            }, status=201)
+            return JsonResponse({'success': True, 'message': 'Concepto agregado exitosamente.'})
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
