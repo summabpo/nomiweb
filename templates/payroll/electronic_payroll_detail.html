@@ -30,8 +30,18 @@ Nómina Electrónica
 {% endblock %}
 
 {% block actions %}
+<!-- Botón para activar modal -->
+<a href="{% url 'payroll:nomina_electronica' %}"  class="btn btn-light-primary"   >
+    Atras
+    <i class="ki-duotone ki-exit-left fs-2 ">             
+        <span class="path1"></span>
+        <span class="path2"></span>
+    </i>
+</a>  
 <!-- Button trigger modal -->
-<a href="{% url 'payroll:detalle_nomina_electronica' pk=container_id %}" class="btn btn-light-info">Generar Registros</a>
+<a href="{% url 'payroll:generar_detalle_electronica_ref' pk=container_id %}" class="btn btn-light-info">
+    <i class="fa-solid fa-square-plus fs-2"></i>Generar Registros
+</a>
 {% endblock %}
 
 {%block content%} 
@@ -41,8 +51,10 @@ Nómina Electrónica
         <thead>
             <tr class="fw-bold fs-6 text-gray-800">
             <th class="text-center">ID</th>
-            <th class="text-center">Datos Mensual</th>
-            <th class="text-center">Contrato</th>
+            <th class="text-center">Contrato #</th>
+            <th class="text-left">Documento</th>
+            <th class="text-left">Nombre</th>
+            <th class="text-center">Cargo</th>
             <th class="text-center">Fecha Creación</th>
             <th class="text-center">Fecha Modificación</th>
             <th class="text-center">Estado</th>
@@ -62,12 +74,40 @@ Nómina Electrónica
             {% for record in detail_payroll %}
             <tr>
                 <td class="text-center align-middle">{{ record.id_detalle_nomina_electronica }}</td>
-                <td class="text-center align-middle">{{ record.id_ne_datos_mensual }}</td>
-                <td class="text-center align-middle">{{ record.id_contrato }}</td>
-                <td class="text-center align-middle">{{ record.fecha_creacion }}</td>
-                <td class="text-center align-middle">{{ record.fecha_modificacion }}</td>
-                <td class="text-center align-middle">{{ record.estado }}</td>
-                <td class="text-center align-middle">{{ record.tipo_registro }}</td>
+                <td class="text-center align-middle">{{ record.contract_id }} </td>
+                <td class="text-left">{{ record.employee_document }} </td>
+                <td class="text-left">{{ record.employee_name }} </td>
+                <td class="text-center align-middle">{{ record.employee_position }} </td>
+                <td class="text-center align-middle">{{ record.fecha_creacion|date:"d/m/Y" }}</td>
+                <td class="text-center align-middle">{{ record.fecha_modificacion|date:"d/m/Y"|default:"" }}</td>
+                <td class="text-center align-middle">
+                    {% if record.estado == 1 %}
+                        <span class="badge badge-light-primary">Generado</span>
+                    {% elif record.estado == 2 %}
+                        <span class="badge badge-light-success">Exitoso</span>
+                    {% elif record.estado == 3 %}
+                        <span class="badge badge-light-danger">Error</span>
+                    {% elif record.estado == 4 %}
+                        <span class="badge badge-light-danger">Eliminado</span>
+                    {% elif record.estado == 5 %}
+                        <span class="badge badge-light-warning">Reemplazado</span>
+                    {% elif record.estado == 6 %}
+                        <span class="badge badge-light-dark">Anulado</span>
+                    {% else %}
+                        <span class="badge badge-light-secondary">Desconocido</span>
+                    {% endif %}
+                </td>
+                <td class="text-center align-middle">
+                    {% if record.tipo_registro == 1 %}
+                        <span class="badge badge-light-info">Nómina Electrónica</span>
+                    {% elif record.tipo_registro == 2 %}
+                        Nota Ajuste
+                    {% elif record.tipo_registro == 3 %}
+                        Nota Eliminación
+                    {% else %}
+                        Desconocido
+                    {% endif %}
+                </td>
                 <td class="text-center align-middle">{{ record.observaciones }}</td>
                 <td class="text-center align-middle">
                 <a href="" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Nomina">
@@ -80,4 +120,45 @@ Nómina Electrónica
     </table>
 </div>    
 
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $('#tabla-nomina').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'Bfrtip',
+            columnDefs: [
+                { targets: [0, 2, 3], orderable: false }
+            ],
+            order: [],
+            "pageLength": 100,     
+            buttons: [
+            ]
+        });
+    });
+</script>
 {% endblock %}

@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 import json
 from django.http import JsonResponse
 from django.contrib import messages
-from django.db.models import F, Q, Case, When, Value, CharField, Sum
+from django.db.models import F, Q, Case, When, Value, CharField, Sum, Count
 from django.db.models.functions import Concat
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
@@ -30,8 +30,19 @@ def electronic_payroll_container(request):
     form_errors = False
 
     # container payroll
-    container = NeDatosMensual.objects.filter(empresa=idempresa).order_by('-idnominaelectronica')
-
+    container = (
+        NeDatosMensual.objects.filter(empresa=idempresa)
+        .annotate(
+            generado=Count('nedetallenominaelectronica', filter=Q(nedetallenominaelectronica__estado=1)),
+            exitoso=Count('nedetallenominaelectronica', filter=Q(nedetallenominaelectronica__estado=2)),
+            error=Count('nedetallenominaelectronica', filter=Q(nedetallenominaelectronica__estado=3)),
+            eliminado=Count('nedetallenominaelectronica', filter=Q(nedetallenominaelectronica__estado=4)),
+            reemplazado=Count('nedetallenominaelectronica', filter=Q(nedetallenominaelectronica__estado=5)),
+            anulado=Count('nedetallenominaelectronica', filter=Q(nedetallenominaelectronica__estado=6)),
+            total=Count('nedetallenominaelectronica'),
+        )
+        .order_by('-idnominaelectronica')
+    )
     # Formulario Vacantes
     if request.method == 'POST': 
         form = PayrollContainerForm(request.POST)
@@ -97,7 +108,22 @@ def electronic_payroll_container(request):
 @login_required
 @role_required('accountant')
 def electronic_payroll_detail(request, pk=None):
-    detail_payroll = NeDetalleNominaElectronica.objects.filter(id_ne_datos_mensual=pk)
+    detail_payroll = NeDetalleNominaElectronica.objects.select_related(
+        'id_contrato__idempleado',
+        'id_contrato__cargo',
+    ).filter(id_ne_datos_mensual=pk).annotate(
+        contract_id = F('id_contrato'),
+        employee_name=Concat(
+            F('id_contrato__idempleado__pnombre'), Value(' '),
+            F('id_contrato__idempleado__snombre'), Value(' '),
+            F('id_contrato__idempleado__papellido'), Value(' '),
+            F('id_contrato__idempleado__sapellido')
+        ),
+        employee_document=F('id_contrato__idempleado__docidentidad'), 
+        employee_position = F('id_contrato__cargo__nombrecargo'),
+    )
+
+    
 
 
 
@@ -1158,13 +1184,19 @@ def classify_concepts(concept_details):
         # VacacionesCompensadas
         if concept['concepto_dian'] == 'VacacionesCompensadas':
             if "Vacaciones" not in devengados:
-                devengados["Vacaciones"] = {
-                    "VacacionesCompensadas": []
-                }
+                devengados["Vacaciones"] = {}  # Inicializar "Vacaciones" como un diccionario
+
+            # Asegurarse de que "VacacionesCompensadas" existe dentro de "Vacaciones"
+            if "VacacionesCompensadas" not in devengados["Vacaciones"]:
+                devengados["Vacaciones"]["VacacionesCompensadas"] = []  # Inicializar como lista
+
+            # Agregar los datos al array "VacacionesCompensadas"
             devengados["Vacaciones"]["VacacionesCompensadas"].append({
                 "Cantidad": concept['cantidad_anotado'],
                 "Pago": concept['valor_anotado']
             })
+
+            # Sumar el valor al total de devengados
             devengadosSum += concept['valor_anotado']
 
         # Primas
@@ -1201,7 +1233,7 @@ def classify_concepts(concept_details):
                 }
             devengados["Cesantias"]["PagoIntereses"] += concept['valor_anotado']
             devengadosSum += concept['valor_anotado']
-
+ 
         # Incapacidad
         if concept['concepto_dian'] == 'Incapacidad':
             disability_detail = Incapacidades.objects.filter(idincapacidad=concept['control_id']).values('fechainicial', 'dias', 'origenincap')
@@ -1648,27 +1680,28 @@ def electronic_payroll_generate_refactor(request, pk=None):
     json_results = []
     for detail in employee_details:
 
+        contrato_instance = Contratos.objects.get(idcontrato=detail['id'])
+
         # Create NeDetalleNominaElectronica object
         datail_payroll = NeDetalleNominaElectronica.objects.create(
             id_ne_datos_mensual=container,
-            id_contrato=detail['id'],
-            fecha_creacion=datetime.datetime.now(),
-            fecha_modificacion=datetime.datetime.now(),
-            json_nomina=json.dumps(employee_json, cls=DjangoJSONEncoder),
+            id_contrato=contrato_instance,
+            fecha_creacion = datetime.datetime.now(),
             estado=1,  # Assuming 1 is the default state
             tipo_registro=1,  # Assuming 1 is the default type
             observaciones=""
         )
 
         # Get the generated ID
-        generated_id = datail_payroll.id
+        generated_id = datail_payroll.id_detalle_nomina_electronica
         print(f"Generated ID: {generated_id}")
 
         employee_concepts = [concept for concept in concept_details if concept['contrato_id'] == detail['id']]
         employee_json = generate_employee_json(detail, container, company_data, employee_concepts, generated_id)
 
         # Update the JSON field in the NeDetalleNominaElectronica object
-        datail_payroll.json_nomina = json.dumps(employee_json, cls=DjangoJSONEncoder)
+        formatted_json = json.dumps(employee_json, cls=DjangoJSONEncoder, indent=4, ensure_ascii=False)
+        datail_payroll.json_nomina = formatted_json
         datail_payroll.save()
 
         json_results.append(employee_json)

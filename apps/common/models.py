@@ -1132,7 +1132,7 @@ class NeDatosMensual(models.Model):
 class NeDetalleNominaElectronica(models.Model):
     id_detalle_nomina_electronica = models.AutoField(primary_key=True)
     id_ne_datos_mensual = models.ForeignKey(NeDatosMensual, models.DO_NOTHING, blank=True, null=True)
-    id_contrato = models.IntegerField(blank=True, null=True)
+    id_contrato = models.ForeignKey(Contratos, models.DO_NOTHING , blank=True, null=True)
     fecha_creacion = models.DateTimeField(blank=True, null=True)
     fecha_modificacion = models.DateTimeField(blank=True, null=True)
     json_nomina = models.TextField(blank=True, null=True)
