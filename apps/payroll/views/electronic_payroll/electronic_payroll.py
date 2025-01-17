@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.db.models import F, Q, Case, When, Value, CharField, Sum
 from django.db.models.functions import Concat
 from django.core.serializers.json import DjangoJSONEncoder
+from django.http import JsonResponse
+
 
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
@@ -91,24 +93,29 @@ def electronic_payroll_container(request):
     }
     return render(request, './payroll/electronic_payroll_container.html', context)
 
-#create and view detail electronic payroll
+# view detail electronic payroll container
 @login_required
 @role_required('accountant')
-def electronic_payroll_detail(request, id):
-    container = NeDatosMensual.objects.get(idnominaelectronica=id)
-    #data view the detail of the electronic payroll
-    detail = NeDetalleNominaElectronica.objects.filter(id_ne_datos_mensual=container.idnominaelectronica)
+def electronic_payroll_detail(request, pk=None):
+    detail_payroll = NeDetalleNominaElectronica.objects.filter(id_ne_datos_mensual=pk)
 
-    context = {
-        detail: detail,
+
+
+    context =  {
+
+        'container_id' : pk,
+        'detail_payroll': detail_payroll
     }
 
     return render(request, './payroll/electronic_payroll_detail.html', context)
+
+
 
 #create and view detail electronic payroll
 @login_required
 @role_required('accountant')
 def electronic_payroll_generate(request, pk):
+
     container = NeDatosMensual.objects.get(idnominaelectronica=pk)
     month = container.mesacumular
     year = container.anoacumular
@@ -203,7 +210,8 @@ def electronic_payroll_generate(request, pk):
                             'idconcepto__grupo_dian'
                         ).filter(
                             idnomina__mesacumular=month,
-                            idnomina__anoacumular=ano_id
+                            idnomina__anoacumular=ano_id,
+                            idcontrato__id_empresa=empresa_id,
                         ).values(
                             contrato_id = F('idcontrato__idcontrato'),
                             concepto = F('idconcepto__nombreconcepto'),
@@ -914,7 +922,6 @@ def electronic_payroll_generate(request, pk):
     
     return render(request, './payroll/electronic_payroll_generate.html', context)
 
-
 #json data
 def electronic_payroll_generate_json(data):
 
@@ -927,214 +934,6 @@ def electronic_payroll_generate_detail(query_detail_all, contrato_id):
     print(filtered_data)
     return filtered_data
 
-def electronic_payroll(request):
-
-    data = {}
-    
-    canal = 2
-    redondeo = 2
-    DevengadosTotal = 2
-    DeduccionesTotal = 2
-    ComprobanteTotal = 2
-
-    # Información del canal
-    data["canal"] = canal
-
-    # Información del periodo
-    data["Periodo"] = {
-        "FechaIngreso": "2024-10-02",
-        "FechaRetiro": "", 
-        "FechaLiquidacionInicio": "2024-11-01",
-        "FechaLiquidacionFin": "2024-11-30",
-        "TiempoLaborado": "59",
-        "FechaGeneracion": "2024-12-09"
-    }
-
-    # Agregar la secuencia XML
-    data["NumeroSecuenciaXML"] = {
-        "CodigoTrabajador": "4138",
-        "Prefijo": "BOG",
-        "Consecutivo": "13428"
-    }
-
-    # Agregar el lugar de generación XML
-    data["LugarGeneracionXML"] = {
-        "Pais": "CO",
-        "DepartamentoEstado": "11",
-        "MunicipioCiudad": "11001",
-        "Idioma": "es"
-    }
-
-    # Agregar información general
-    data["InformacionGeneral"] = {
-        "FechaGeneracion": "2024-12-09",
-        "HoraGeneracion": "16:25:00",
-        "PeriodoNomina": "5",
-        "TipoMoneda": "COP"
-    }
-
-    # Agregar la información del empleador
-    data["Empleador"] = {
-        "RazonSocial": "LECTA LTDA",
-        "NIT": "806003042",
-        "DigitoVerificacion": "7",
-        "Pais": "CO",
-        "DepartamentoEstado": "11",
-        "MunicipioCiudad": "11001",
-        "Direccion": "Cra. 23 no 69-32"
-    }
-
-    # Agregar la información del trabajador
-    data["Trabajador"] = {
-        "TipoTrabajador": "01",
-        "SubTipoTrabajador": "00",
-        "AltoRiesgoPension": False,
-        "TipoDocumento": "13",
-        "NumeroDocumento": "1020787737",
-        "CorreoElectronico": "alejoaponte13@hotmail.com",
-        "NumeroMovil": "3239219378",
-        "PrimerApellido": "APONTE",
-        "SegundoApellido": "GONZALEZ",
-        "PrimerNombre": "JAIRO",
-        "OtrosNombres": "ALEJANDRO",
-        "LugarTrabajoPais": "CO",
-        "LugarTrabajoDepartamentoEstado": "11",
-        "LugarTrabajoMunicipioCiudad": "11001",
-        "LugarTrabajoDireccion": "CL 60 B SUR # 74 - 21\r\n",
-        "SalarioIntegral": False,
-        "TipoContrato": "3",
-        "Sueldo": "1300000",
-        "CodigoTrabajador": "4138"
-    }
-
-    #Devengados
-    data["Devengados"] = {}
-
-    # Salario Básico
-    data["Devengados"]["Basico"] = {
-        "DiasTrabajados": "3.375",
-        "SueldoTrabajado": "1266773"
-    }
-
-#     {
-#     "canal": 2,
-#     "Periodo": {
-#         "FechaIngreso": "2024-08-01",
-#         "FechaRetiro": "",
-#         "FechaLiquidacionInicio": "2024-11-01",
-#         "FechaLiquidacionFin": "2024-11-30",
-#         "TiempoLaborado": "120",
-#         "FechaGeneracion": "2024-12-09"
-#     },
-#     "NumeroSecuenciaXML": {
-#         "CodigoTrabajador": "2535",
-#         "Prefijo": "CAR",
-#         "Consecutivo": "2819"
-#     },
-#     "LugarGeneracionXML": {
-#         "Pais": "CO",
-#         "DepartamentoEstado": "13",
-#         "MunicipioCiudad": "13001",
-#         "Idioma": "es"
-#     },
-#     "InformacionGeneral": {
-#         "TipoXML": "",
-#         "FechaGeneracion": "2024-12-09",
-#         "HoraGeneracion": "15:45:00",
-#         "PeriodoNomina": "5",
-#         "TipoMoneda": "COP"
-#     },
-#     "Empleador": {
-#         "RazonSocial": "CARIBBEAN SUPPORT AND FLIGHT SERVICES SAS",
-#         "NIT": "806013964",
-#         "DigitoVerificacion": "5",
-#         "Pais": "CO",
-#         "DepartamentoEstado": "13",
-#         "MunicipioCiudad": "13001",
-#         "Direccion": "CRA 2 #67-143 OF 101"
-#     },
-#     "Trabajador": {
-#         "TipoTrabajador": "01",
-#         "SubTipoTrabajador": "00",
-#         "AltoRiesgoPension": "false",
-#         "TipoDocumento": "13",
-#         "NumeroDocumento": "1041771148",
-#         "CorreoElectronico": "edgarjunior1041@gmail.com",
-#         "NumeroMovil": "300 3081264",
-#         "PrimerApellido": "FRANCO",
-#         "SegundoApellido": "PERTUZ",
-#         "PrimerNombre": "EDGARDO",
-#         "OtrosNombres": "ANTONIO",
-#         "LugarTrabajoPais": "CO",
-#         "LugarTrabajoDepartamentoEstado": "08",
-#         "LugarTrabajoMunicipioCiudad": "08001",
-#         "LugarTrabajoDireccion": "KRA 17B #21 C26. BARANOA, ATL\u00c1NTICO",
-#         "SalarioIntegral": "false",
-#         "TipoContrato": "2",
-#         "Sueldo": "1300000",
-#         "CodigoTrabajador": "2535"
-#     },
-#     "Pago": {
-#         "Forma": "1",
-#         "Metodo": "30",
-#         "Banco": "",
-#         "TipoCuenta": "ahorros",
-#         "NumeroCuenta": ""
-#     },
-#     "FechasPagos": [
-#         {
-#             "FechaPago": "2024-11-30"
-#         }
-#     ],
-#     "Devengados": {
-#         "Basico": {
-#             "DiasTrabajados": "3.75",
-#             "SueldoTrabajado": "1300000"
-#         },
-#         "Transporte": [
-#             {
-#                 "AuxilioTransporte": "162000"
-#             }
-#         ],
-#         "HoraRecargoDiurnoDominicalFestivo": [
-#             {
-#                 "HoraInicio": "",
-#                 "HoraFin": "",
-#                 "Cantidad": "24.0",
-#                 "Porcentaje": "1.75",
-#                 "Pago": "232340"
-#             }
-#         ]
-#     },
-#     "Deducciones": {
-#         "Salud": {
-#             "Porcentaje": "4",
-#             "Deduccion": "61294"
-#         },
-#         "FondoPension": {
-#             "Porcentaje": "4",
-#             "Deduccion": "61294"
-#         }
-#     },
-#     "Redondeo": "",
-#     "DevengadosTotal": "1694340",
-#     "DeduccionesTotal": "122588",
-#     "ComprobanteTotal": "1571752"
-# }
-
-
-
-
-    data["redondeo"] = redondeo
-    data["DevengadosTotal"] = DevengadosTotal
-    data["DeduccionesTotal"] = DeduccionesTotal
-    data["ComprobanteTotal"] = ComprobanteTotal
-
-    context = {
-        'data': json.dumps(data)
-    }
-
-    return render(request, './payroll/electronic_payroll.html', context)
 
 # method format date
 def format_date(value):
@@ -1176,3 +975,704 @@ def calculate_worked_days(start_date, end_date=None, liquidation_end_date=None):
     # Calculate the difference in days
     worked_days = (final_date - start_date).days
     return worked_days
+
+
+#method to get the company data
+def get_company_data(container):
+    """Retrieve and format company data."""
+    company = Empresa.objects.filter(idempresa=container.empresa.idempresa).values_list(
+        'nombreempresa', 'nit', 'dv', 'direccionempresa'
+    ).first()
+    
+    return {
+        "RazonSocial": company[0],
+        "NIT": company[1],
+        "DigitoVerificacion": company[2],
+        "Pais": container.paisgeneracion,
+        "DepartamentoEstado": container.ciudadgeneracion,
+        "MunicipioCiudad": f"{container.ciudadgeneracion}{container.departamentogeneracion}",
+        "Direccion": company[3]
+    }
+
+
+#method to get the employee data
+def get_employee_details(container, month, ano_id):
+    """Query and retrieve employee details for payroll."""
+    return Nomina.objects.select_related('idcontrato__idempleado').filter(
+        idcontrato__id_empresa=container.empresa.idempresa,
+        idnomina__mesacumular=month,
+        idnomina__anoacumular=ano_id
+    ).values(
+        id=F('idcontrato'),
+        employee_name=Concat(
+            F('idcontrato__idempleado__papellido'), Value(' '), F('idcontrato__idempleado__sapellido'),
+            Value(' '), F('idcontrato__idempleado__pnombre'), Value(' '), F('idcontrato__idempleado__snombre')
+        ),
+        first_name=F('idcontrato__idempleado__pnombre'),
+        second_name=F('idcontrato__idempleado__snombre'),
+        first_lastname=F('idcontrato__idempleado__papellido'),
+        second_lastname=F('idcontrato__idempleado__sapellido'),
+        entry_date=F('idcontrato__fechainiciocontrato'),
+        exit_date=F('idcontrato__fechafincontrato'),
+        contributing_type=F('idcontrato__tipocotizante__tipocotizante'),
+        subcontributing_type=F('idcontrato__subtipocotizante__subtipocotizante'),
+        pension_risk=F('idcontrato__riesgo_pension'),
+        month=F('idnomina__mesacumular'),
+        year=F('idnomina__anoacumular__ano'),
+        employee_identification=F('idcontrato__idempleado__docidentidad'),
+        document_type=F('idcontrato__idempleado__tipodocident__cod_dian'),
+        employee_email=F('idcontrato__idempleado__email'),
+        employee_phone=F('idcontrato__idempleado__telefonoempleado'),
+        employee_address=F('idcontrato__idempleado__direccionempleado'),
+        salary_type=Case(
+            When(idcontrato__tiposalario__idtiposalario=2, then=Value(True)),
+            default=Value(False),
+            output_field=CharField()
+        ),
+        salary=F('idcontrato__salario'),
+        type_of_contract=F('idcontrato__tipocontrato__cod_dian'),
+        employee_bank=F('idcontrato__bancocuenta__nombanco'),
+        employee_type_bank=F('idcontrato__tipocuentanomina'),
+        employee_account=F('idcontrato__cuentanomina')
+    ).distinct('idcontrato').order_by('idcontrato')
+
+
+#method to get the payroll data
+def get_concept_details(month, ano_id):
+    """Query and retrieve concept details for payroll."""
+    return Nomina.objects.select_related('idcontrato', 'idconcepto__grupo_dian').filter(
+        idnomina__mesacumular=month,
+        idnomina__anoacumular=ano_id
+    ).values(
+        contrato_id=F('idcontrato__idcontrato'),
+        concepto=F('idconcepto__nombreconcepto'),
+        concepto_dian=F('idconcepto__grupo_dian__campo'),
+        valor_anotado=F('valor'),
+        cantidad_anotado=F('cantidad'),
+        control_id=F('control'),
+        tipo_concepto=F('idconcepto__tipoconcepto'),
+        mulitplicador_concepto=F('idconcepto__multiplicadorconcepto')
+    )
+
+
+def classify_concepts(concept_details):
+
+    #concepts static payroll
+    ces_percentage = Conceptosfijos.objects.get(idfijo=8).valorfijo
+    eps_percentage = Conceptosfijos.objects.get(idfijo=10).valorfijo
+    pension_percentage = Conceptosfijos.objects.get(idfijo=12).valorfijo
+    fsp_percentage = Conceptosfijos.objects.get(idfijo=14).valorfijo
+
+    """Classify concepts into earnings (Devengados) and deductions (Deducciones)."""
+    devengados = {}
+    deducciones = {}
+
+    devengadosSum = 0
+    deduccionesSum = 0
+
+    for concept in concept_details:
+
+        #validate concept type is 2 and the value is negative
+        if concept['tipo_concepto'] == 2 and concept['valor_anotado'] < 0:
+            concept['valor_anotado'] = abs(concept['valor_anotado'])
+        
+        if concept['concepto_dian'] == 'SueldoTrabajado':
+            if "Basico" not in devengados:
+                devengados["Basico"] = {
+                    "DiasTrabajados": 0,
+                    "SueldoTrabajado": 0
+                }
+            devengados["Basico"]["DiasTrabajados"] += concept['cantidad_anotado']
+            devengados["Basico"]["SueldoTrabajado"] += concept['valor_anotado']
+
+            devengadosSum += concept['valor_anotado']
+
+        # CODAuxilioTransporte
+        if concept['concepto_dian'] == 'AuxilioTransporte':
+            if "Transporte" not in devengados:
+                devengados["Transporte"] = {
+                    "AuxilioTransporte": 0
+                }
+            devengados["Transporte"]["AuxilioTransporte"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # CODViaticoManuAlojNS
+        if concept['concepto_dian'] == 'ViaticoManuAlojNS':
+            if "Transporte" not in devengados:
+                devengados["Transporte"] = {
+                    "ViaticoManuAlojNS": 0
+                }
+            devengados["Transporte"]["ViaticoManuAlojNS"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # CODViaticoManuAlojS
+        if concept['concepto_dian'] == 'ViaticoManuAlojS':
+            if "Transporte" not in devengados:
+                devengados["Transporte"] = {
+                    "ViaticoManuAlojS": 0
+                }
+            devengados["Transporte"]["ViaticoManuAlojS"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # HoraExtraDiurna, HoraExtraDiurnaDominicalFestivo HoraExtraNocturna, RecargoNocturno, HoraExtraDiurnaDominicalFestiva, HoraRecargoDiurnoDominicalFestivo, HoraExtraNocturnaDominicalFestiva, HoraRecargoNocturnoDominicalFestivo
+        if concept['concepto_dian'] in [
+            'HoraExtraDiurna', 'HoraExtraDiurnaDominicalFestivo', 'HoraExtraNocturna', 'RecargoNocturno',
+            'HoraExtraDiurnaDominicalFestiva', 'HoraRecargoDiurnoDominicalFestivo', 'HoraExtraNocturnaDominicalFestiva',
+            'HoraRecargoNocturnoDominicalFestivo'
+        ]:
+            array_sub = {
+                "HoraInicio": "",  # YYYY-MM-DD HH:MM:SS
+                "HoraFin": "",
+                "Cantidad": concept['cantidad_anotado'],
+                "Porcentaje": concept['mulitplicador_concepto'],
+                "Pago": concept['valor_anotado']
+            }
+
+            if concept['concepto_dian'] not in devengados:
+                devengados[concept['concepto_dian']] = {
+                    "Cantidad": 0,
+                    "Pago": 0,
+                    "Detalles": []
+                }
+
+            devengados[concept['concepto_dian']]["Cantidad"] += concept['cantidad_anotado']
+            devengados[concept['concepto_dian']]["Pago"] += concept['valor_anotado']
+            devengados[concept['concepto_dian']]["Detalles"].append(array_sub)
+            devengadosSum += concept['valor_anotado']
+
+        # VacacionesComunes
+        if concept['concepto_dian'] == 'VacacionesComunes':
+            vacation_detail = Vacaciones.objects.filter(idvacaciones=concept['control_id']).values('fechainicialvac', 'ultimodiavac', 'diascalendario', 'pagovac')
+            if "Vacaciones" not in devengados:
+                devengados["Vacaciones"] = {
+                    "VacacionesComunes": []
+                }
+            devengados["Vacaciones"]["VacacionesComunes"].append({
+                "FechaInicio": format_date(vacation_detail[0]['fechainicialvac']),
+                "FechaFin": format_date(vacation_detail[0]['ultimodiavac']),
+                "Cantidad": concept['cantidad_anotado'],
+                "Pago": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # VacacionesCompensadas
+        if concept['concepto_dian'] == 'VacacionesCompensadas':
+            if "Vacaciones" not in devengados:
+                devengados["Vacaciones"] = {
+                    "VacacionesCompensadas": []
+                }
+            devengados["Vacaciones"]["VacacionesCompensadas"].append({
+                "Cantidad": concept['cantidad_anotado'],
+                "Pago": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # Primas
+        if concept['concepto_dian'] == 'Primas':
+            if "Primas" not in devengados:
+                devengados["Primas"] = {
+                    "Cantidad": 0,
+                    "Pago": 0,
+                    "PagoNS": 0
+                }
+            devengados["Primas"]["Cantidad"] += concept['cantidad_anotado']
+            devengados["Primas"]["Pago"] += concept['valor_anotado']
+            devengados["Primas"]["PagoNS"] += concept['valor_anotado'] if concept['tipo_concepto'] == 'NS' else 0
+            devengadosSum += concept['valor_anotado']
+
+        # Cesantias
+        if concept['concepto_dian'] == 'Cesantias':
+            if "Cesantias" not in devengados:
+                devengados["Cesantias"] = {
+                    "Pago": 0,
+                    "Porcentaje": ces_percentage,
+                    "PagoIntereses": 0
+                }
+            devengados["Cesantias"]["Pago"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # Intereses sobre Cesantias
+        if concept['concepto_dian'] == 'Intereses':
+            if "Cesantias" not in devengados:
+                devengados["Cesantias"] = {
+                    "Pago": 0,
+                    "Porcentaje": ces_percentage,
+                    "PagoIntereses": 0
+                }
+            devengados["Cesantias"]["PagoIntereses"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # Incapacidad
+        if concept['concepto_dian'] == 'Incapacidad':
+            disability_detail = Incapacidades.objects.filter(idincapacidad=concept['control_id']).values('fechainicial', 'dias', 'origenincap')
+            if not disability_detail.exists():
+                origenincap = ''
+                fechainicial = ''
+                dias = ''
+                fechafinal = ''
+            else:
+                origenincap = disability_detail[0]['origenincap']
+                fechainicial = disability_detail[0]['fechainicial']
+                dias = disability_detail[0]['dias']
+                fechafinal = fechainicial + datetime.timedelta(days=dias)
+            if "Incapacidad" not in devengados:
+                devengados["Incapacidad"] = []
+            devengados["Incapacidad"].append({
+                "FechaInicio": format_date(fechainicial),
+                "FechaFin": format_date(fechafinal),
+                "Cantidad": dias,
+                "Tipo": origenincap,
+                "Pago": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # LicenciaMP
+        if concept['concepto_dian'] == 'LicenciaMP':
+            if "LicenciaMP" not in devengados:
+                devengados["LicenciaMP"] = []
+            devengados["LicenciaMP"].append({
+                "FechaInicio": '',
+                "FechaFin": '',
+                "Cantidad": concept['cantidad_anotado'],
+                "Pago": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # LicenciaR
+        if concept['concepto_dian'] == 'LicenciaR':
+            if "LicenciaR" not in devengados:
+                devengados["LicenciaR"] = []
+            devengados["LicenciaR"].append({
+                "FechaInicio": '',
+                "FechaFin": '',
+                "Cantidad": concept['cantidad_anotado'],
+                "Pago": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # LicenciaNR
+        if concept['concepto_dian'] == 'LicenciaNR':
+            if "LicenciaNR" not in devengados:
+                devengados["LicenciaNR"] = []
+            devengados["LicenciaNR"].append({
+                "FechaInicio": format_date(concept['fechainicial']),
+                "FechaFin": format_date(concept['fechafinal']),
+                "Cantidad": concept['cantidad_anotado'],
+                "Pago": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # BonificacionS
+        if concept['concepto_dian'] == 'BonificacionS':
+            if "Bonificacion" not in devengados:
+                devengados["Bonificacion"] = {
+                    "BonificacionS": 0,
+                    "BonificacionNS": 0
+                }
+            devengados["Bonificacion"]["BonificacionS"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # BonificacionNS
+        if concept['concepto_dian'] == 'BonificacionNS':
+            if "Bonificacion" not in devengados:
+                devengados["Bonificacion"] = {
+                    "BonificacionS": 0,
+                    "BonificacionNS": 0
+                }
+            devengados["Bonificacion"]["BonificacionNS"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # AuxilioS
+        if concept['concepto_dian'] == 'AuxilioS':
+            if "Auxilio" not in devengados:
+                devengados["Auxilio"] = {
+                    "AuxilioS": 0,
+                    "AuxilioNS": 0
+                }
+            devengados["Auxilio"]["AuxilioS"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # AuxilioNS
+        if concept['concepto_dian'] == 'AuxilioNS':
+            if "Auxilio" not in devengados:
+                devengados["Auxilio"] = {
+                    "AuxilioS": 0,
+                    "AuxilioNS": 0
+                }
+            devengados["Auxilio"]["AuxilioNS"] += concept['valor_anotado']
+            devengadosSum += concept['valor_anotado']
+
+        # HuelgaLegal
+        if concept['concepto_dian'] == 'HuelgaLegal':
+            if "HuelgaLegal" not in devengados:
+                devengados["HuelgaLegal"] = []
+            devengados["HuelgaLegal"].append({
+                "FechaInicio": format_date(concept['fechainicial']),
+                "FechaFin": format_date(concept['fechafinal']),
+                "Cantidad": concept['cantidad_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # OtroConcepto
+        if concept['concepto_dian'] == 'OtroConcepto':
+            if "OtroConcepto" not in devengados:
+                devengados["OtroConcepto"] = []
+            devengados["OtroConcepto"].append({
+                "DescripcionConcepto": concept['concepto'],
+                "ConceptoS": concept['valor_anotado'] if concept['tipo_concepto'] == 'S' else 0,
+                "ConceptoNS": concept['valor_anotado'] if concept['tipo_concepto'] == 'NS' else 0
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # Compensacion
+        if concept['concepto_dian'] == 'Compensacion':
+            if "Compensacion" not in devengados:
+                devengados["Compensacion"] = []
+            devengados["Compensacion"].append({
+                "CompensacionO": concept['valor_anotado'] if concept['tipo_concepto'] == 'O' else 0,
+                "CompensacionE": concept['valor_anotado'] if concept['tipo_concepto'] == 'E' else 0
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # BonoEPCTV
+        if concept['concepto_dian'] == 'BonoEPCTV':
+            if "BonoEPCTV" not in devengados:
+                devengados["BonoEPCTV"] = []
+            devengados["BonoEPCTV"].append({
+                "PagoS": concept['valor_anotado'] if concept['tipo_concepto'] == 'S' else 0,
+                "PagoNS": concept['valor_anotado'] if concept['tipo_concepto'] == 'NS' else 0,
+                "PagoAlimentacionS": concept['valor_anotado'] if concept['tipo_concepto'] == 'AlimentacionS' else 0,
+                "PagoAlimentacionNS": concept['valor_anotado'] if concept['tipo_concepto'] == 'AlimentacionNS' else 0
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # Comisiones
+        if concept['concepto_dian'] == 'Comisiones':
+            if "Comisiones" not in devengados:
+                devengados["Comisiones"] = []
+            devengados["Comisiones"].append({
+                "Comision": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # PagosTerceros
+        if concept['concepto_dian'] == 'PagosTerceros':
+            if "PagosTerceros" not in devengados:
+                devengados["PagosTerceros"] = []
+            devengados["PagosTerceros"].append({
+                "PagosTercero": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # Anticipos
+        if concept['concepto_dian'] == 'Anticipos':
+            if "Anticipos" not in devengados:
+                devengados["Anticipos"] = []
+            devengados["Anticipos"].append({
+                "Anticipo": concept['valor_anotado']
+            })
+            devengadosSum += concept['valor_anotado']
+
+        # Deductions
+        # CODSalud
+        if concept['concepto_dian'] == 'Salud':
+            if "Salud" not in deducciones:
+                deducciones["Salud"] = {
+                    "Porcentaje": eps_percentage,
+                    "Deduccion": 0
+                }
+            deducciones["Salud"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODFondoPension
+        if concept['concepto_dian'] == 'FondoPension':
+            if "FondoPension" not in deducciones:
+                deducciones["FondoPension"] = {
+                    "Porcentaje": pension_percentage,
+                    "Deduccion": 0
+                }
+            deducciones["FondoPension"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODFondoSP
+        if concept['concepto_dian'] == 'FondoSP':
+            if "FondoSP" not in deducciones:
+                deducciones["FondoSP"] = {
+                    "Porcentaje": fsp_percentage,
+                    "DeduccionSP": 0,
+                    "PorcentajeSub": 0,
+                    "DeduccionSub": 0
+                }
+            deducciones["FondoSP"]["DeduccionSP"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODSindicatos
+        if concept['concepto_dian'] == 'Sindicatos':
+            if "Sindicatos" not in deducciones:
+                deducciones["Sindicatos"] = {
+                    "Deduccion": 0
+                }
+            deducciones["Sindicatos"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODSanciones
+        if concept['concepto_dian'] == 'Sanciones':
+            if "Sanciones" not in deducciones:
+                deducciones["Sanciones"] = {
+                    "Deduccion": 0
+                }
+            deducciones["Sanciones"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODLibranzas
+        if concept['concepto_dian'] == 'Libranzas':
+            if "Libranzas" not in deducciones:
+                deducciones["Libranzas"] = {
+                    "Deduccion": 0
+                }
+            deducciones["Libranzas"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODOtrasDeducciones
+        if concept['concepto_dian'] == 'OtrasDeducciones':
+            if "OtrasDeducciones" not in deducciones:
+                deducciones["OtrasDeducciones"] = {
+                    "Deduccion": 0
+                }
+            deducciones["OtrasDeducciones"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODAnticipos
+        if concept['concepto_dian'] == 'Anticipos':
+            if "Anticipos" not in deducciones:
+                deducciones["Anticipos"] = {
+                    "Deduccion": 0
+                }
+            deducciones["Anticipos"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODPensionVoluntaria
+        if concept['concepto_dian'] == 'PensionVoluntaria':
+            if "PensionVoluntaria" not in deducciones:
+                deducciones["PensionVoluntaria"] = {
+                    "Deduccion": 0
+                }
+            deducciones["PensionVoluntaria"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODRetencionFuente
+        if concept['concepto_dian'] == 'RetencionFuente':
+            if "RetencionFuente" not in deducciones:
+                deducciones["RetencionFuente"] = {
+                    "Deduccion": 0
+                }
+            deducciones["RetencionFuente"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODAFC
+        if concept['concepto_dian'] == 'AFC':
+            if "AFC" not in deducciones:
+                deducciones["AFC"] = {
+                    "Deduccion": 0
+                }
+            deducciones["AFC"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODCooperativa
+        if concept['concepto_dian'] == 'Cooperativa':
+            if "Cooperativa" not in deducciones:
+                deducciones["Cooperativa"] = {
+                    "Deduccion": 0
+                }
+            deducciones["Cooperativa"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODEmbargoFiscal
+        if concept['concepto_dian'] == 'EmbargoFiscal':
+            if "EmbargoFiscal" not in deducciones:
+                deducciones["EmbargoFiscal"] = {
+                    "Deduccion": 0
+                }
+            deducciones["EmbargoFiscal"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODPlanComplementarios
+        if concept['concepto_dian'] == 'PlanComplementarios':
+            if "PlanComplementarios" not in deducciones:
+                deducciones["PlanComplementarios"] = {
+                    "Deduccion": 0
+                }
+            deducciones["PlanComplementarios"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODEducacion
+        if concept['concepto_dian'] == 'Educacion':
+            if "Educacion" not in deducciones:
+                deducciones["Educacion"] = {
+                    "Deduccion": 0
+                }
+            deducciones["Educacion"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODReintegro
+        if concept['concepto_dian'] == 'Reintegro':
+            if "Reintegro" not in deducciones:
+                deducciones["Reintegro"] = {
+                    "Deduccion": 0
+                }
+            deducciones["Reintegro"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+
+        # CODDeuda
+        if concept['concepto_dian'] == 'Deuda':
+            if "Deuda" not in deducciones:
+                deducciones["Deuda"] = {
+                    "Deduccion": 0
+                }
+            deducciones["Deuda"]["Deduccion"] += concept['valor_anotado']
+            deduccionesSum += concept['valor_anotado']
+        # if concept['tipo_concepto'] == 1:  # Earnings
+        #     if concept['concepto_dian'] not in devengados:
+        #         devengados[concept['concepto_dian']] = {
+        #             "Cantidad": 0,
+        #             "Valor": 0
+        #         }
+        #     devengados[concept['concepto_dian']]["Cantidad"] += concept['cantidad_anotado']
+        #     devengados[concept['concepto_dian']]["Valor"] += concept['valor_anotado']
+        # elif concept['tipo_concepto'] == 2:  # Deductions
+        #     if concept['concepto_dian'] not in deducciones:
+        #         deducciones[concept['concepto_dian']] = {
+        #             "Cantidad": 0,
+        #             "Valor": 0
+        #         }
+        #     deducciones[concept['concepto_dian']]["Cantidad"] += concept['cantidad_anotado']
+        #     deducciones[concept['concepto_dian']]["Valor"] += abs(concept['valor_anotado'])
+
+    return devengados, deducciones, devengadosSum, deduccionesSum
+
+
+#method to generate json body principal
+def generate_employee_json(detail, container, company_data, concept_details, generated_id):
+    """Generate JSON data for an individual employee."""
+    devengados, deducciones, devengadosSum, deduccionesSum = classify_concepts(concept_details)
+    ComprobanteTotal = devengadosSum - deduccionesSum
+    data = {
+        "canal": 2,
+        "Periodo": {
+            "FechaIngreso": format_date(detail['entry_date']),
+            "FechaRetiro": format_date(detail['exit_date']),
+            "FechaLiquidacionInicio": format_date(container.fechaliquidacioninicio),
+            "FechaLiquidacionFin": format_date(container.fechaliquidacionfin),
+            "TiempoLaborado": calculate_worked_days(detail['entry_date'], detail['exit_date'], container.fechaliquidacionfin),
+            "FechaGeneracion": format_date(container.fechageneracion)
+        },
+        "NumeroSecuenciaXML": {
+            "CodigoTrabajador": detail['id'],
+            "Prefijo": container.prefijo,
+            "Consecutivo": generated_id
+        },
+        "LugarGeneracionXML": {
+            "Pais": container.paisgeneracion,
+            "DepartamentoEstado": container.ciudadgeneracion,
+            "MunicipioCiudad": f"{container.ciudadgeneracion}{container.departamentogeneracion}",
+            "Idioma": container.idioma
+        },
+        "InformacionGeneral": {
+            "TipoXML": "",
+            "FechaGeneracion": container.fechageneracion,
+            "HoraGeneracion": container.horageneracion,
+            "PeriodoNomina": container.periodonomina,
+            "TipoMoneda": container.tipomoneda
+        },
+        "Empleador": company_data,
+        "Trabajador": {
+            "TipoTrabajador": detail['contributing_type'],
+            "SubTipoTrabajador": detail['subcontributing_type'],
+            "AltoRiesgoPension": detail['pension_risk'],
+            "TipoDocumento": detail['document_type'],
+            "NumeroDocumento": detail['employee_identification'],
+            "CorreoElectronico": detail['employee_email'],
+            "NumeroMovil": detail['employee_phone'],
+            "PrimerApellido": detail['first_lastname'],
+            "SegundoApellido": detail['second_lastname'],
+            "PrimerNombre": detail['first_name'],
+            "OtrosNombres": detail['second_name'],
+            "LugarTrabajoPais": container.paisgeneracion,
+            "LugarTrabajoDepartamentoEstado": container.ciudadgeneracion,
+            "LugarTrabajoMunicipioCiudad": f"{container.ciudadgeneracion}{container.departamentogeneracion}",
+            "LugarTrabajoDireccion": detail['employee_address'],
+            "SalarioIntegral": detail['salary_type'],
+            "TipoContrato": detail['type_of_contract'],
+            "Sueldo": detail['salary'],
+            "CodigoTrabajador": detail['id']
+        },
+        "Pago": {
+            "Forma": "1",
+            "Metodo": "30",
+            "Banco": detail['employee_bank'],
+            "TipoCuenta": detail['employee_type_bank'],
+            "NumeroCuenta": detail['employee_account']
+        },
+        "FechasPagos": [
+            {"FechaPago": format_date(container.fechapago)}
+        ],
+        "Devengados": devengados,
+        "Deducciones": deducciones,
+
+        "Redondeo": "",
+        "DevengadosTotal": devengadosSum,
+        "DeduccionesTotal": deduccionesSum,
+        "ComprobanteTotal": ComprobanteTotal
+    }
+    return data
+
+
+@login_required
+@role_required('accountant')
+#method to generate the employee json
+def electronic_payroll_generate_refactor(request, pk=None):
+    """Main function to generate payroll JSON for one or all employees."""
+    container = NeDatosMensual.objects.get(idnominaelectronica=pk)
+    month, year = container.mesacumular, container.anoacumular
+
+    try:
+        ano_id = Anos.objects.get(ano=year).idano
+    except Anos.DoesNotExist:
+        messages.error(request, 'El año especificado no existe en el sistema.')
+        return redirect('payroll:nomina_electronica')
+
+    company_data = get_company_data(container)
+    employee_details = get_employee_details(container, month, ano_id)
+    concept_details = get_concept_details(month, ano_id)
+
+    json_results = []
+    for detail in employee_details:
+
+        # Create NeDetalleNominaElectronica object
+        datail_payroll = NeDetalleNominaElectronica.objects.create(
+            id_ne_datos_mensual=container,
+            id_contrato=detail['id'],
+            fecha_creacion=datetime.datetime.now(),
+            fecha_modificacion=datetime.datetime.now(),
+            json_nomina=json.dumps(employee_json, cls=DjangoJSONEncoder),
+            estado=1,  # Assuming 1 is the default state
+            tipo_registro=1,  # Assuming 1 is the default type
+            observaciones=""
+        )
+
+        # Get the generated ID
+        generated_id = datail_payroll.id
+        print(f"Generated ID: {generated_id}")
+
+        employee_concepts = [concept for concept in concept_details if concept['contrato_id'] == detail['id']]
+        employee_json = generate_employee_json(detail, container, company_data, employee_concepts, generated_id)
+
+        # Update the JSON field in the NeDetalleNominaElectronica object
+        datail_payroll.json_nomina = json.dumps(employee_json, cls=DjangoJSONEncoder)
+        datail_payroll.save()
+
+        json_results.append(employee_json)
+
+    messages.success(request, 'Nómina Generada Exitosamente.')
+    return redirect('payroll:detalle_nomina_electronica',  pk=pk)  # Cambia a la vista deseada después de guardar
+    
