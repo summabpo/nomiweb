@@ -82,17 +82,17 @@ Listado de Bancos
     <table class="table table-striped table-bordered" id="tabla-bank">
         <thead>
             <tr class="fw-bold fs-6 text-gray-800">
-                <th>Nombre de Banco</th>
-                <th class="text-center">codbanco</th>
-                <th class="text-center">nitbanco</th>
+                <th class="text-center">Nombre de Banco</th>
+                <th class="text-center">Código del Banco</th>
+                <th class="text-center">NIT del Banco</th>
             </tr>
         </thead>
         <tbody>
             {% for banco in bancos %}
                 <tr>
-                    <td >{{ banco.nombanco }}</td>
-                    <td class="align-middle">{{ banco.codbanco }}</td>
-                    <td class="text-center align-middle">{{ banco.nitbanco }}</td>
+                    <td class="text-center align-middle" >{{ banco.nombanco }}</td>
+                    <td class="text-center align-middle" >{{ banco.codbanco }}</td>
+                    <td class="text-center align-middle" >{{ banco.nitbanco }}</td>
                 </tr>
             {% endfor %}
         </tbody>
