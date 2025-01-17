@@ -4,18 +4,12 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 from apps.common.models import Empresa , Contratos , Conceptosdenomina
 
 TIPE_CHOICES = (
-    ('', '-------------'),
-    ('1', 'Mensual'),
-    ('2', 'Quincenal'),
-    ('3', 'Por Horas'),
-    ('4', 'Primas'),
-    ('5', 'Cesantías'),
-    ('6', 'Adicional'),
-    ('7', 'Vacaciones'),
-    ('8', 'Liquidación'),
-    ('9', 'Catorcenal'),
-    ('10', 'Int. de Cesantías'),
-    ('11', 'Semanal'),
+    ('', ''),
+    ('EPS', 'EPS'),
+    ('ARL', 'ARL'),
+    ('CCF', 'CCF'),
+    ('AFP', 'AFP'),
+    ('PARAFISCALES', 'Parafiscales'),
 )
 
 class BanksForm(forms.Form):
@@ -101,15 +95,24 @@ class EntitiesForm(forms.Form):
     )
     codsgp = forms.CharField(
         label='Código SGP',
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'SGP'})
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        
+        self.fields['tipoentidad'].widget.attrs.update({
+            'data-control': 'select2',
+            'data-hide-search': 'true' ,
+            'class': 'form-select',
+            'data-hide-search': 'true',
+            'data-placeholder':'seleccione un tipo de entidad',
+        })
         # Configuración de Crispy Forms
         self.helper = FormHelper()
         self.helper.form_method = 'post'
+        self.helper.form_id = 'form_entitis'
         self.helper.enctype = 'multipart/form-data'
 
         # Diseño del formulario con Crispy Forms

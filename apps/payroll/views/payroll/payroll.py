@@ -79,7 +79,9 @@ def payroll(request):
             messages.error(request, error_message)
     
     return render(request, './payroll/payroll.html', {'nominas': nominas, 'form': form, 'error': error})
-   
+    
+    
+    
 
 @login_required
 @role_required('accountant')
@@ -195,7 +197,6 @@ class PayrollAPI(View):
             cont = 0
             data = json.loads(request.body.decode('utf-8'))  # Decodifica el JSON
             submit_direct = data.get('submit_direct')
-            
             # Verificar si 'submit_direct' está presente
             if not submit_direct:
                 raise ValueError("Falta el campo 'submit_direct'.")
@@ -210,6 +211,49 @@ class PayrollAPI(View):
             nomina = partes[0]  # "900"
             idcontrato = partes[1]  # "16"
 
+            ## Actualizar
+            for key, value in data.items():
+                if 'old' in key:
+                    # Obtener el row_id de la clave
+                    parts = key.split('-')
+                    
+                    # Verificar si la clave tiene el formato esperado
+                    if len(parts) < 3:
+                        raise ValueError(f"Clave con formato inesperado: {key}. No tiene suficientes partes.")
+                    
+                    row_id = parts[1]  # '148574' -> '148574'
+
+                    # Agrupar datos por fila
+                    if row_id not in rows_to_create:
+                        rows_to_create[row_id] = {}
+
+                    field_name = '-'.join(parts[2:])  # 'concept-old', 'amount-old', etc.
+                    rows_to_create[row_id][field_name] = value
+                    
+            # Actualizar los registros
+            for row_id, fields in rows_to_create.items():
+                # Asegurarse de que tengamos todos los datos necesarios para esa fila
+                concepto = fields.get('concept-old')
+                amount = fields.get('amount-old')
+                value = fields.get('value-old')
+                
+                if not concepto or not amount or not value:
+                    raise ValueError(f"Faltan datos requeridos en la fila {row_id}: concepto, cantidad o valor.")
+                
+                try:
+                    # Obtener el concepto por ID
+                    concepto_obj = Nomina.objects.get(idregistronom=row_id)
+                    concepto_obj.idconcepto_id = concepto  # Asigna el ID del concepto (no el objeto completo)
+                    concepto_obj.cantidad = amount
+                    concepto_obj.valor = value
+                    
+                    concepto_obj.save()
+                except Nomina.DoesNotExist:
+                    raise ValueError(f"No se encontró el concepto con ID {row_id}.")
+            
+            rows_to_create = {}
+
+            ## Crear Nuevos Registros
             for key, value in data.items():
                 if 'new' in key:
                     # Obtener el row_id de la clave
@@ -248,11 +292,11 @@ class PayrollAPI(View):
                 )
                 registro.save()
             
-            return JsonResponse({'success': True, 'message': 'Concepto agregado exitosamente.'})
+            return JsonResponse({'success': True, 'message': 'Los conceptos fueron agregados o actualizados exitosamente.'})
 
         except json.JSONDecodeError:
             return JsonResponse({"error": "Error al decodificar el JSON. Verifique el formato."}, status=400)
-        except ValueError as ve:
-            return JsonResponse({"error": str(ve)}, status=400)
         except Exception as e:
+            print(f"Error inesperado: {str(e)}")
             return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=500)
+

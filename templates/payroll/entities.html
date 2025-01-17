@@ -72,7 +72,7 @@ Listado de Entidades
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_payroll"  class="btn btn-primary">Crear</button>
+                <button type="submit" form="form_entitis"  class="btn btn-primary">Crear</button>
             </div>
         </div>
     </div>
@@ -83,10 +83,10 @@ Listado de Entidades
         <thead>
             <tr class="fw-bold fs-6 text-gray-800">
                 <th class="text-center">codigo</th>
-                <th>nit</th>
-                <th>entidad</th>
-                <th>tipo de entidad</th>
-                <th>codsgp</th>
+                <th class="text-center">nit</th>
+                <th class="text-center" >entidad</th>
+                <th class="text-center">tipo de entidad</th>
+                <th class="text-center" >codsgp</th>
             </tr>
         </thead>
         <tbody>
@@ -144,8 +144,17 @@ Listado de Entidades
             },
             dom: 'frtip',
             order: [],
-            pageLength: 10
+            pageLength: 10,
+            autoWidth: false,
+            columnDefs: [
+            { width: '10%', targets: 0 },
+            { width: '15%', targets: 1 },
+            { width: '40%', targets: 2 },
+            { width: '15%', targets: 3 },
+            { width: '10%', targets: 4 },
+        ],
         });
+
     });
 </script>
 {% endblock %}
