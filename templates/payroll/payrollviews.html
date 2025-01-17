@@ -436,13 +436,13 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                     data.conceptos.forEach(concepto => {
                         
                         // Genera el select para el concepto
-                        generarSelectConceptos('/payroll/payrollapi2/',`row-${concepto.id}-concept-old`, `row-${concepto.id}-concept-old`, concepto.id)
+                        generarSelectConceptos('/payroll/payrollapi2/',`row-${concepto.codigo}-concept-old`, `row-${concepto.codigo}-concept-old`, concepto.id)
                             .then(selectHTML => {
                                 // Añadir los datos de la API a la tabla
                                 table.row.add([
                                     selectHTML, // Aquí agregas el select generado
-                                    `<input type="text" class="form-control" id="row-${concepto.id}-amount-old" name="row-${concepto.id}-amount-old" value="${concepto.amount}"/>`,
-                                    `<input type="text" class="form-control" id="row-${concepto.id}-value-old" name="row-${concepto.id}-value-old" value="${concepto.value}"/>`
+                                    `<input type="text" class="form-control" id="row-${concepto.codigo}-amount-old" name="row-${concepto.codigo}-amount-old" value="${concepto.amount}"/>`,
+                                    `<input type="text" class="form-control" id="row-${concepto.codigo}-value-old" name="row-${concepto.codigo}-value-old" value="${concepto.value}"/>`
                                 ]).draw(false);
 
                                 // Inicializamos select2 para la fila recién añadida
