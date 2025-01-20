@@ -7,6 +7,7 @@ from django.db.models import F, Q, Case, When, Value, CharField, Sum, Count
 from django.db.models.functions import Concat
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
+import requests
 
 
 from apps.components.decorators import  role_required
@@ -104,6 +105,7 @@ def electronic_payroll_container(request):
     }
     return render(request, './payroll/electronic_payroll_container.html', context)
 
+
 # view detail electronic payroll container
 @login_required
 @role_required('accountant')
@@ -123,19 +125,12 @@ def electronic_payroll_detail(request, pk=None):
         employee_position = F('id_contrato__cargo__nombrecargo'),
     )
 
-    
-
-
-
     context =  {
-
         'container_id' : pk,
         'detail_payroll': detail_payroll
     }
 
     return render(request, './payroll/electronic_payroll_detail.html', context)
-
-
 
 #create and view detail electronic payroll
 @login_required
@@ -1233,7 +1228,7 @@ def classify_concepts(concept_details):
                 }
             devengados["Cesantias"]["PagoIntereses"] += concept['valor_anotado']
             devengadosSum += concept['valor_anotado']
- 
+
         # Incapacidad
         if concept['concepto_dian'] == 'Incapacidad':
             disability_detail = Incapacidades.objects.filter(idincapacidad=concept['control_id']).values('fechainicial', 'dias', 'origenincap')
@@ -1582,7 +1577,6 @@ def classify_concepts(concept_details):
 
     return devengados, deducciones, devengadosSum, deduccionesSum
 
-
 #method to generate json body principal
 def generate_employee_json(detail, container, company_data, concept_details, generated_id):
     """Generate JSON data for an individual employee."""
@@ -1658,7 +1652,6 @@ def generate_employee_json(detail, container, company_data, concept_details, gen
     }
     return data
 
-
 @login_required
 @role_required('accountant')
 #method to generate the employee json
@@ -1708,4 +1701,71 @@ def electronic_payroll_generate_refactor(request, pk=None):
 
     messages.success(request, 'Nómina Generada Exitosamente.')
     return redirect('payroll:detalle_nomina_electronica',  pk=pk)  # Cambia a la vista deseada después de guardar
+
+
+#method to generate token
+def electronic_payroll_token(empresa):
+    url = f"https://alfauat.dominadigital.com.co/api/GenerarTokenJWT/{empresa.nit}-{empresa.dv}"
+    payload = ""
+    headers = {}
+    response = requests.request("POST", url, headers=headers, data=payload)
     
+    response_data = response.json()
+    code_response = response_data.get("codigo")
+    token = response_data.get("token")
+    print(response.text)
+    return code_response, token
+
+#method to send json a provider
+def electronic_payroll_send(pk=None, json_data=None):
+    try:
+        empresa = Empresa.objects.get(idempresa=pk)
+        code_response, token = electronic_payroll_token(empresa)
+
+        payload = json.dumps(json_data) if not isinstance(json_data, str) else json_data
+        url = f"https://alfauat.dominadigital.com.co/api/ReceptorNominaJson/{empresa.nit}-{empresa.dv}"
+        headers = {
+            'Authorization': token,
+            'Version-Document': '2',
+            'Content-Type': 'application/json',
+        }
+
+        response = requests.post(url, headers=headers, data=payload)
+        response.raise_for_status()  # Lanza una excepción si el status code no es 200
+        return response.text  # Devuelve el cuerpo de la respuesta como texto
+    except Empresa.DoesNotExist:
+        raise ValueError("Empresa no encontrada.")
+    except Exception as e:
+        raise ValueError(f"Error al enviar nómina electrónica: {str(e)}")
+
+
+#method to send the payroll and register detail electronic payroll
+def electronic_payroll_validate_send(request, pk=None):
+    details = NeDetalleNominaElectronica.objects.get(id_detalle_nomina_electronica=pk)
+    JsonResponse = electronic_payroll_send(details.id_ne_datos_mensual.empresa.idempresa, details.json_nomina)
+    JsonResponse = json.loads(JsonResponse)
+    estado_codigo = JsonResponse.get("estado", {}).get("codigo")
+    # Pretty print the JSON response
+    json_end = json.dumps(JsonResponse, indent=4, ensure_ascii=False)
+    if estado_codigo == 'EXITOSO':
+        NeRespuestaDian.objects.create(
+            id_ne_detalle_nomina_electronica=details,
+            fecha_transaccion = datetime.datetime.now(),
+            json_respuesta = json_end,
+            codigo_respuesta= estado_codigo,
+        )
+        details.estado = 2
+        messages.success(request, 'Registro Enviado Exitosamente.')
+    elif estado_codigo == 'ERROR':
+        NeRespuestaDian.objects.create(
+            id_ne_detalle_nomina_electronica=details,
+            fecha_transaccion = datetime.datetime.now(),
+            json_respuesta = json_end,
+            codigo_respuesta= estado_codigo,
+        )
+        details.estado = 3
+        messages.error(request, 'Registro con Error, por favor validar.')
+    
+    details.save()
+
+    return redirect('payroll:detalle_nomina_electronica',  pk=details.id_ne_datos_mensual.idnominaelectronica)  # Cambia a la vista deseada después de guardar 
