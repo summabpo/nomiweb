@@ -15,15 +15,14 @@ def loans(request):
   # Obtener los datos de la tabla Prestamos
   prestamos = Prestamos.objects.values(
       'idcontrato__idcontrato',
-      'idempleado__docidentidad',
-      'idempleado__pnombre',
-      'idempleado__snombre',
-      'idempleado__papellido',
-      'idempleado__sapellido',
+      'idcontrato__idempleado__docidentidad',
+      'idcontrato__idempleado__pnombre',
+      'idcontrato__idempleado__snombre',
+      'idcontrato__idempleado__papellido',
+      'idcontrato__idempleado__sapellido',
       'fechaprestamo',
       'valorprestamo',
       'valorcuota',
-      'saldoprestamo',
       'estadoprestamo',
       'idprestamo',
   ).order_by('-idprestamo')
@@ -33,7 +32,6 @@ def loans(request):
   for prestamo in prestamos:
     prestamo['valorprestamo'] = format_value(prestamo['valorprestamo'])
     prestamo['valorcuota'] = format_value(prestamo['valorcuota'])
-    prestamo['saldoprestamo'] = format_value(prestamo['saldoprestamo'])
     prestamos_formateados.append(prestamo)
 
 # Ahora `prestamos_formateados` contiene los datos con los valores formateados

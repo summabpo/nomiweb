@@ -59,7 +59,6 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                             <button class="btn btn-icon btn-sm btn-light-info me-2" data-bs-toggle="modal" data-bs-target="#kt_modal_concept"  data-empleado="{{empleado.idcontrato}}" >
                                 <i class="fa-solid fa-file-circle-plus fs-3" data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Agregar Concepto"></i>
                             </button>
-                            
                         </div>
                     </td>
                 </tr>
@@ -70,8 +69,8 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
 
 <!-- Modal para Nuevo concepto - directo de  empleado  -->
-<div class="modal fade" tabindex="-1" id="kt_modal_concept">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+<div class="modal fade " tabindex="-1" id="kt_modal_concept">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Concepto</h3>
@@ -84,64 +83,80 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
             </div>
 
             <div class="modal-body" id="modal-content-body" >
+                
+                <div class="container">
+                    <div class="row align-items-start">
+                        <!-- Columna del acordeón más pequeña -->
+                        <div class="col-md-4">
+                            <div class="accordion" id="kt_accordion_1">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="kt_accordion_1_header_1">
+                                        <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
+                                            Datos de la Nómina
+                                        </button>
+                                    </h2>
+                                    <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
+                                        <div class="accordion-body">
+                                            <div class="text-center mb-4">
+                                                <p id="salary" class="d-flex justify-content-center">
+                                                    <strong>Salario:</strong><span id="salary-value" class="ms-2">Valor</span>
+                                                </p>
+                                            </div>
+                
+                                            <div class="text-center mb-4">
+                                                <p id="income" class="flex-fill text-center">
+                                                    <strong>Ingresos:</strong><span id="income-value" class="ms-2">Valor</span>
+                                                </p>
+                                            </div>
+                
+                                            <div class="text-center mb-4">
+                                                <p id="discounts" class="flex-fill text-center">
+                                                    <strong>Descuentos:</strong><span id="discounts-value" class="ms-2">Valor</span>
+                                                </p>
+                                            </div>
+                
+                                            <div class="text-center mb-4">
+                                                <p id="summation" class="flex-fill text-center">
+                                                    <strong>Total:</strong><span id="summation-value" class="ms-2">Valor</span>
+                                                </p>
+                                            </div>
 
-                <div class="accordion" id="kt_accordion_1">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="kt_accordion_1_header_1">
-                            <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
-                                Datos de la Nómina
-                            </button>
-                        </h2>
-                        <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
-                            <div class="accordion-body">
+                                            <div class="text-center mb-4">
+                                                <button type="submit" id="add-row-btn" name="submit_direct" class="btn btn-light-info" value="" > <i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto </button>
+                                            </div>
 
-                                <div class="text-center mb-4">
-                                    <p id="salary" class="d-flex justify-content-center">
-                                        <strong>Salario:</strong><span id="salary-value" class="ms-2">Valor</span>
-                                    </p>
+                                        </div>
+                                    </div>
+                                    
                                 </div>
-                                
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <p id="income" class="flex-fill text-center">
-                                        <strong>Ingresos:</strong><span id="income-value" class="ms-2">Valor</span>
-                                    </p>
-                                
-                                    <p id="discounts" class="flex-fill text-center">
-                                        <strong>Descuentos:</strong><span id="discounts-value" class="ms-2">Valor</span>
-                                    </p>
-                                
-                                    <p id="summation" class="flex-fill text-center">
-                                        <strong>Total:</strong><span id="summation-value" class="ms-2">Valor</span>
-                                    </p>
-                                </div>
-                                
-
                             </div>
                         </div>
-                    </div>
                 
-                    
+                        <br>
                 
-                
+                        <!-- Columna de la tabla más grande -->
+                        <div class="scroll h-400px px-5 col-md-8">
+                            <form id="form_custom_payroll_concept" method="post" action="{% url 'payroll:payrollviewapi' %}">
+                                {% csrf_token %}
+                                <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5 ">
+                                    <thead>
+
+                                    </thead>
+                                    <tbody>
+                                        
+                                    </tbody>
+                                </table>
+                            </form>
+                        </div>
+                    </div>   
                 </div>
-                <br>
-                <form id="form_custom_payroll_concept" method="post" action="{% url 'payroll:payrollviewapi' %}">
-                {% csrf_token %}
-                    <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5">
-                        <thead>
-                            
-                        </thead>
-                        <tbody>
-                            
-                        </tbody>
-                    </table>
-                </form>
+                
+                
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_custom_payroll_concept" id="kt_payroll_concept_submit" name="submit_direct" class="btn btn-primary" value="" >Agregar</button>
-                
+                <button type="submit" form="form_custom_payroll_concept" id="kt_payroll_concept_submit" name="submit_direct" class="btn btn-light-info" value="" >Actualizar</button>
             </div>
         </div>
     </div>
@@ -157,9 +172,9 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 <script>
     // Función asíncrona para generar el HTML de un select dinámico
     async function generarSelectConceptos(apiUrl, name, id, defaultValue = null) {
-        let selectHTML = `<select class="form-select" data-control="select2" data-dropdown-parent="#kt_modal_concept" data-allow-clear="true" data-placeholder="Selecciona un concepto" name="${name}" id="${id}">`;
+        let selectHTML = `<select class="form-select select2-dynamic form-select-sm" data-control="select2" data-dropdown-parent="#kt_modal_concept" data-placeholder="Selecciona un concepto" name="${name}" id="${id}">`;
         selectHTML += '<option value="">Selecciona un concepto</option>';
-    
+        
         try {
             // Hacer una solicitud GET a la API para obtener los datos de los conceptos
             const response = await fetch(apiUrl);
@@ -170,13 +185,13 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
     
             // Agregar las opciones de los conceptos al select
             conceptos.forEach(concepto => {
-                selectHTML += `<option value="${concepto.idconcepto}" ${concepto.idconcepto == defaultValue ? 'selected' : ''}>${concepto.nombreconcepto}</option>`;
+                selectHTML += `<option value="${concepto.idconcepto}" ${concepto.idconcepto == defaultValue ? 'selected' : ''}>${concepto.idconcepto} - ${concepto.nombreconcepto}</option>`;
             });
     
             selectHTML += '</select>'; // Cerrar el select
         } catch (error) {
             console.error('Error al cargar los datos de conceptos:', error);
-            selectHTML = '<select class="form-select" data-control="select2" data-placeholder="Error al cargar conceptos"><option value="">Error al cargar conceptos</option></select>';
+            selectHTML = '<select class="form-select form-select-sm select2-dynamic " data-control="select2" data-placeholder="Error al cargar conceptos"><option value="">Error al cargar conceptos</option></select>';
         }
     
         // Retornar el HTML del select generado
@@ -189,48 +204,75 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 <script>
     $(document).ready(function() { 
         $('#kt_payroll_concept_submit').on('click', function(e) { 
-            var formData = new FormData($('#form_custom_payroll_concept')[0]);
+            e.preventDefault(); // Para prevenir la acción predeterminada del botón
+            
             var jsonData = {};
             var contratoId = "{{ nombre.idnomina }}-"+empleadoId;
-            $('#kt_payroll_concept_submit').val(contratoId); 
-            
-            // Convertir FormData en objeto JSON
-            formData.forEach(function(value, key) {
-                jsonData[key] = value;
+
+            // Agregar el valor del botón 'submit_direct' al JSON
+            jsonData['submit_direct'] = contratoId;
+
+            // Obtener los valores del formulario y agregar al JSON
+            $('#form_custom_payroll_concept').serializeArray().forEach(function(item) {
+                jsonData[item.name] = item.value;
             });
+
+            console.log(jsonData);  // Verificar el JSON antes de enviarlo
 
             // Obtener el token CSRF desde el DOM
             var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();  // Asegúrate de que este selector apunta al campo csrf_token correcto
             
-            // Agregar el valor del botón al JSON
-            jsonData['submit_direct'] = $('#kt_payroll_concept_submit').val();  
-
-            console.log(jsonData['submit_direct']);
             $.ajax({
                 url: '/payroll/payrollapi/', // URL de destino para el POST
                 type: 'POST',
                 data: JSON.stringify(jsonData),  // Convertir el objeto en una cadena JSON
                 contentType: 'application/json', // Especificar el tipo de contenido como JSON
                 headers: {
-                    'X-CSRFToken': csrfToken  // Añadir el token CSRF a las cabeceras
+                    'X-CSRFToken': csrfToken,  // Añadir el token CSRF a las cabeceras
+                    'Accept': 'application/json'  // Asegúrate de que el servidor devuelva JSON
                 },
                 success: function(response) {
+                    console.log(response);
                     if (response.success) {
-                        alert('Concepto agregado exitosamente');
-                        $('#kt_modal_concept').modal('hide');
-                        //location.reload(); // Recargar la página para mostrar los nuevos datos
+                        Swal.fire({
+                            text: 'Concepto agregado exitosamente',
+                            icon: 'success',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Ok',
+                            customClass: {
+                                confirmButton: 'btn btn-primary'
+                            }
+                        });
+                        //$('#kt_modal_concept').modal('hide');
                     } else {
-                        alert('Error al agregar el concepto: ' + response.error);
+                        Swal.fire({
+                            text: 'Error al agregar el concepto: ' + response.error,
+                            icon: 'error',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Ok',
+                            customClass: {
+                                confirmButton: 'btn btn-danger'
+                            }
+                        });
                     }
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
-                    alert('Ocurrió un error al procesar la solicitud.');
+                    Swal.fire({
+                        text: 'Ocurrió un error al procesar la solicitud.',
+                        icon: 'error',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Ok',
+                        customClass: {
+                            confirmButton: 'btn btn-danger'
+                        }
+                    });
                 }
             });
         });
     });
 </script>
+
 
 
 <script>
@@ -331,44 +373,25 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
             }
         },
         order: [],
+        autoWidth: false,
         dom: 'Brt',
         buttons: [
-            {
-                text: '<i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto',
-                className: 'btn btn-light-info',
-                id: 'kt_datatable_example_addrow',
-                action: function (e, dt, node, config) {
-                        // Llamada a la función asincrónica dentro de la acción
-                    generarSelectConceptos('/payroll/payrollapi2/',`row-${counter}-concept-new`, `row-${counter}-concept-new`).then(selectHTML => {
-                        // Una vez que el select está generado, agregamos la fila
-                        table.row.add([
-                            `<input type="text" class="form-control form-control-solid" id="row-${counter}-0-new" name="row-0-amount-new" value="0" disabled />`,
-                            selectHTML,
-                            `<input type="text" class="form-control" id="row-${counter}-amount-new" name="row-${counter}-amount-new" value=""/>`,
-                            `<input type="text" class="form-control" id="row-${counter}-value-new" name="row-${counter}-value-new" value=""/>`
-                        ]).draw(false);
-                        // Inicializar select2 después de añadir la fila
-                        
-                        
-
-                        counter++;  // Incrementar el contador para nuevas filas
-                    }).catch(error => {
-                        console.error('Error al generar el select:', error);
-                    });
-                }
-            },
+            
         ],
         paging: false ,
         columns: [
-            { title: "Codigo" },
             { title: "Nombre Concepto" },
             { title: "Cantidad" },
-            { title: "Valor" }
+            { title: "Valor" },
+            { title: "Gestionar" }
         ],
-        columnDefs: [{
-            orderable: false,
-            targets: [1, 2]
-        }]
+        columnDefs: [
+            { width: '50%', targets: 0 },
+            { width: '15%', targets: 1 },
+            { width: '30%', targets: 2 },
+            { width: '5%', targets: 3 }
+        ],
+        
     });
 
     // Agregar datos de la API cuando se abre el modal
@@ -405,15 +428,21 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                     data.conceptos.forEach(concepto => {
                         
                         // Genera el select para el concepto
-                        generarSelectConceptos('/payroll/payrollapi2/',`row-${concepto.id}-concept-old`, `row-${concepto.id}-concept-old`, concepto.id)
+                        generarSelectConceptos('/payroll/payrollapi2/',`row-${concepto.codigo}-concept-old`, `row-${concepto.codigo}-concept-old`, concepto.id)
                             .then(selectHTML => {
                                 // Añadir los datos de la API a la tabla
                                 table.row.add([
-                                    `<input type="text" class="form-control form-control-solid" id="row-${concepto.codigo}-amount-old" name="row-${concepto.codigo}-amount-old" value="${concepto.codigo}" disabled />`,
                                     selectHTML, // Aquí agregas el select generado
-                                    `<input type="text" class="form-control" id="row-${concepto.id}-amount-old" name="row-${concepto.id}-amount-old" value="${concepto.amount}"/>`,
-                                    `<input type="text" class="form-control" id="row-${concepto.id}-value-old" name="row-${concepto.id}-value-old" value="${concepto.value}"/>`
-                                ]).draw(false);
+                                    `<input type="text" class="form-control form-control-sm" id="row-${concepto.codigo}-amount-old" name="row-${concepto.codigo}-amount-old" value="${concepto.amount}"/>`,
+                                    `<input type="text" class="form-control form-control-sm" id="row-${concepto.codigo}-value-old" name="row-${concepto.codigo}-value-old" value="${concepto.value}"/>`,
+                                    `<a href="" class="btn btn-icon btn-light-google"><i class="fa-regular fa-trash-can fs-4"></i></a>` 
+                                    ]).draw(false);
+
+                                // Inicializamos select2 para la fila recién añadida
+                                $('.select2-dynamic').select2({
+                                    dropdownParent: $('#kt_modal_concept'),
+                                });
+
                             })
                             .catch(error => {
                                 console.error('Error al generar el select:', error);
@@ -436,7 +465,30 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
 
 
-
+<script>
+    document.getElementById('add-row-btn').addEventListener('click', function () {
+        generarSelectConceptos('/payroll/payrollapi2/', `row-${counter}-concept-new`, `row-${counter}-concept-new`)
+            .then(selectHTML => {
+                table.row.add([
+                    selectHTML,  // Aquí agregamos el select generado dinámicamente
+                    `<input type="text" class="form-control col-md-2 mb-0 form-control-sm" id="row-${counter}-amount-new" name="row-${counter}-amount-new" value=""/>`,
+                    `<input type="text" class="form-control col-md-2 mb-0 form-control-sm" id="row-${counter}-value-new" name="row-${counter}-value-new" value=""/>`,
+                    `<a href="" class="btn btn-icon btn-light-google"><i class="fa-regular fa-trash-can fs-4"></i></a>`
+                ]).draw(false);
+    
+                // Inicializamos select2 para la fila recién añadida
+                $('.select2-dynamic').select2({
+                    dropdownParent: $('#kt_modal_concept'),
+                });
+    
+                counter++; // Incrementar el contador para nuevas filas
+            })
+            .catch(error => {
+                console.error('Error al generar el select:', error);
+            });
+    });
+    
+</script>
 
 
 
