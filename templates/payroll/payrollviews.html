@@ -56,11 +56,9 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                     <td class="text-center">{{ empleado.salario|format_currency }}</td>
                     <td class="text-center">
                         <div class="d-inline-flex">
-
                             <button class="btn btn-icon btn-sm btn-light-info me-2" data-bs-toggle="modal" data-bs-target="#kt_modal_concept"  data-empleado="{{empleado.idcontrato}}" >
                                 <i class="fa-solid fa-file-circle-plus fs-3" data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Agregar Concepto"></i>
                             </button>
-                            
                         </div>
                     </td>
                 </tr>
@@ -122,8 +120,14 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                                                     <strong>Total:</strong><span id="summation-value" class="ms-2">Valor</span>
                                                 </p>
                                             </div>
+
+                                            <div class="text-center mb-4">
+                                                <button type="submit" id="add-row-btn" name="submit_direct" class="btn btn-light-info" value="" > <i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto </button>
+                                            </div>
+
                                         </div>
                                     </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -152,8 +156,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_custom_payroll_concept" id="kt_payroll_concept_submit" name="submit_direct" class="btn btn-primary" value="" >Actualizar</button>
-                
+                <button type="submit" form="form_custom_payroll_concept" id="kt_payroll_concept_submit" name="submit_direct" class="btn btn-light-info" value="" >Actualizar</button>
             </div>
         </div>
     </div>
@@ -373,33 +376,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
         autoWidth: false,
         dom: 'Brt',
         buttons: [
-            {
-                text: '<i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto',
-                className: 'btn btn-light-info',
-                id: 'kt_datatable_example_addrow',
-                action: function (e, dt, node, config) {
-                        // Llamada a la función asincrónica dentro de la acción
-                    generarSelectConceptos('/payroll/payrollapi2/',`row-${counter}-concept-new`, `row-${counter}-concept-new`).then(selectHTML => {
-                        // Una vez que el select está generado, agregamos la fila
-                        table.row.add([
-                            selectHTML,  // Aquí agregamos el select generado dinámicamente
-                            `<input type="text" class="form-control col-md-2 mb-0 form-control-sm" id="row-${counter}-amount-new" name="row-${counter}-amount-new" value=""/>`,
-                            `<input type="text" class="form-control col-md-2 mb-0 form-control-sm" id="row-${counter}-value-new" name="row-${counter}-value-new" value=""/>`,
-                            `<a href="" class="btn btn-icon btn-light-google"><i class="fa-regular fa-trash-can fs-4"></i></a>` 
-
-                        ]).draw(false);
-                        
-                        // Inicializamos select2 para la fila recién añadida
-                        $('.select2-dynamic').select2({
-                            dropdownParent: $('#kt_modal_concept'),
-                        });
-
-                        counter++;  // Incrementar el contador para nuevas filas
-                    }).catch(error => {
-                        console.error('Error al generar el select:', error);
-                    });
-                }
-            },
+            
         ],
         paging: false ,
         columns: [
@@ -488,7 +465,30 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
 
 
-
+<script>
+    document.getElementById('add-row-btn').addEventListener('click', function () {
+        generarSelectConceptos('/payroll/payrollapi2/', `row-${counter}-concept-new`, `row-${counter}-concept-new`)
+            .then(selectHTML => {
+                table.row.add([
+                    selectHTML,  // Aquí agregamos el select generado dinámicamente
+                    `<input type="text" class="form-control col-md-2 mb-0 form-control-sm" id="row-${counter}-amount-new" name="row-${counter}-amount-new" value=""/>`,
+                    `<input type="text" class="form-control col-md-2 mb-0 form-control-sm" id="row-${counter}-value-new" name="row-${counter}-value-new" value=""/>`,
+                    `<a href="" class="btn btn-icon btn-light-google"><i class="fa-regular fa-trash-can fs-4"></i></a>`
+                ]).draw(false);
+    
+                // Inicializamos select2 para la fila recién añadida
+                $('.select2-dynamic').select2({
+                    dropdownParent: $('#kt_modal_concept'),
+                });
+    
+                counter++; // Incrementar el contador para nuevas filas
+            })
+            .catch(error => {
+                console.error('Error al generar el select:', error);
+            });
+    });
+    
+</script>
 
 
 

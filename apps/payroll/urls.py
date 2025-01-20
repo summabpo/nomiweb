@@ -21,6 +21,8 @@ urlpatterns = [
     path('parameters/bancks', parameters.banks, name='banks'),
     path('parameters/holidays', parameters.holidays, name='holidays'),
     path('parameters/entities', parameters.entities, name='entities'),
-    path('payroll/generate_detail_electronic_payroll_ref/<int:pk>', electronic_payroll.electronic_payroll_generate_refactor, name='generar_detalle_electronica_ref'),
+    path('parameters/fixed', parameters.fixed, name='fixed'),
+    path('parameters/annual', parameters.annual, name='annual'),
+
 
 ]
