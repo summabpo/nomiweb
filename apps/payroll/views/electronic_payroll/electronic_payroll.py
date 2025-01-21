@@ -1079,10 +1079,10 @@ def get_concept_details(month, ano_id):
 def classify_concepts(concept_details):
 
     #concepts static payroll
-    ces_percentage = Conceptosfijos.objects.get(idfijo=8).valorfijo
-    eps_percentage = Conceptosfijos.objects.get(idfijo=10).valorfijo
-    pension_percentage = Conceptosfijos.objects.get(idfijo=12).valorfijo
-    fsp_percentage = Conceptosfijos.objects.get(idfijo=14).valorfijo
+    ces_percentage = int(Conceptosfijos.objects.get(idfijo=8).valorfijo)
+    eps_percentage = int(Conceptosfijos.objects.get(idfijo=10).valorfijo)
+    pension_percentage = int(Conceptosfijos.objects.get(idfijo=12).valorfijo)
+    fsp_percentage = int(Conceptosfijos.objects.get(idfijo=14).valorfijo)
 
     """Classify concepts into earnings (Devengados) and deductions (Deducciones)."""
     devengados = {}
@@ -1464,7 +1464,7 @@ def classify_concepts(concept_details):
         if concept['concepto_dian'] == 'OtrasDeducciones':
             if "OtrasDeducciones" not in deducciones:
                 deducciones["OtrasDeducciones"] = {
-                    "Deduccion": 0
+                    "OtraDeduccion": 0
                 }
             deducciones["OtrasDeducciones"]["Deduccion"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
@@ -1473,7 +1473,7 @@ def classify_concepts(concept_details):
         if concept['concepto_dian'] == 'Anticipos':
             if "Anticipos" not in deducciones:
                 deducciones["Anticipos"] = {
-                    "Deduccion": 0
+                    "Anticipo": 0
                 }
             deducciones["Anticipos"]["Deduccion"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
@@ -1481,82 +1481,68 @@ def classify_concepts(concept_details):
         # CODPensionVoluntaria
         if concept['concepto_dian'] == 'PensionVoluntaria':
             if "PensionVoluntaria" not in deducciones:
-                deducciones["PensionVoluntaria"] = {
-                    "Deduccion": 0
-                }
-            deducciones["PensionVoluntaria"]["Deduccion"] += concept['valor_anotado']
+                deducciones["PensionVoluntaria"] = 0
+            deducciones["PensionVoluntaria"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
         # CODRetencionFuente
         if concept['concepto_dian'] == 'RetencionFuente':
             if "RetencionFuente" not in deducciones:
-                deducciones["RetencionFuente"] = {
-                    "Deduccion": 0
-                }
-            deducciones["RetencionFuente"]["Deduccion"] += concept['valor_anotado']
+                deducciones["RetencionFuente"] = 0
+            
+            deducciones["RetencionFuente"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
         # CODAFC
         if concept['concepto_dian'] == 'AFC':
             if "AFC" not in deducciones:
-                deducciones["AFC"] = {
-                    "Deduccion": 0
-                }
-            deducciones["AFC"]["Deduccion"] += concept['valor_anotado']
+                deducciones["AFC"] = 0
+
+            deducciones["AFC"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
         # CODCooperativa
         if concept['concepto_dian'] == 'Cooperativa':
             if "Cooperativa" not in deducciones:
-                deducciones["Cooperativa"] = {
-                    "Deduccion": 0
-                }
-            deducciones["Cooperativa"]["Deduccion"] += concept['valor_anotado']
+                deducciones["Cooperativa"] = 0
+            deducciones["Cooperativa"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
         # CODEmbargoFiscal
         if concept['concepto_dian'] == 'EmbargoFiscal':
             if "EmbargoFiscal" not in deducciones:
-                deducciones["EmbargoFiscal"] = {
-                    "Deduccion": 0
-                }
-            deducciones["EmbargoFiscal"]["Deduccion"] += concept['valor_anotado']
+                deducciones["EmbargoFiscal"] = 0
+            deducciones["EmbargoFiscal"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
         # CODPlanComplementarios
         if concept['concepto_dian'] == 'PlanComplementarios':
             if "PlanComplementarios" not in deducciones:
-                deducciones["PlanComplementarios"] = {
-                    "Deduccion": 0
-                }
-            deducciones["PlanComplementarios"]["Deduccion"] += concept['valor_anotado']
+                deducciones["PlanComplementarios"] = 0
+
+            deducciones["PlanComplementarios"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
         # CODEducacion
         if concept['concepto_dian'] == 'Educacion':
             if "Educacion" not in deducciones:
-                deducciones["Educacion"] = {
-                    "Deduccion": 0
-                }
-            deducciones["Educacion"]["Deduccion"] += concept['valor_anotado']
+                deducciones["Educacion"] = 0
+
+            deducciones["Educacion"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
         # CODReintegro
         if concept['concepto_dian'] == 'Reintegro':
             if "Reintegro" not in deducciones:
-                deducciones["Reintegro"] = {
-                    "Deduccion": 0
-                }
-            deducciones["Reintegro"]["Deduccion"] += concept['valor_anotado']
+                deducciones["Reintegro"] = 0
+            deducciones["Reintegro"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
         # CODDeuda
         if concept['concepto_dian'] == 'Deuda':
             if "Deuda" not in deducciones:
-                deducciones["Deuda"] = {
-                    "Deduccion": 0
-                }
-            deducciones["Deuda"]["Deduccion"] += concept['valor_anotado']
+                deducciones["Deuda"] = 0
+            deducciones["Deuda"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
         # if concept['tipo_concepto'] == 1:  # Earnings
         #     if concept['concepto_dian'] not in devengados:
@@ -1589,11 +1575,11 @@ def generate_employee_json(detail, container, company_data, concept_details, gen
             "FechaRetiro": format_date(detail['exit_date']),
             "FechaLiquidacionInicio": format_date(container.fechaliquidacioninicio),
             "FechaLiquidacionFin": format_date(container.fechaliquidacionfin),
-            "TiempoLaborado": calculate_worked_days(detail['entry_date'], detail['exit_date'], container.fechaliquidacionfin),
+            "TiempoLaborado": str(calculate_worked_days(detail['entry_date'], detail['exit_date'], container.fechaliquidacionfin)),
             "FechaGeneracion": format_date(container.fechageneracion)
         },
         "NumeroSecuenciaXML": {
-            "CodigoTrabajador": detail['id'],
+            "CodigoTrabajador": str(detail['id']),
             "Prefijo": container.prefijo,
             "Consecutivo": generated_id
         },
@@ -1613,9 +1599,9 @@ def generate_employee_json(detail, container, company_data, concept_details, gen
         "Empleador": company_data,
         "Trabajador": {
             "TipoTrabajador": detail['contributing_type'],
-            "SubTipoTrabajador": detail['subcontributing_type'],
-            "AltoRiesgoPension": detail['pension_risk'],
-            "TipoDocumento": detail['document_type'],
+            "SubTipoTrabajador": str('00'),
+            "AltoRiesgoPension": str(detail['pension_risk']),
+            "TipoDocumento": str(detail['document_type']),
             "NumeroDocumento": detail['employee_identification'],
             "CorreoElectronico": detail['employee_email'],
             "NumeroMovil": detail['employee_phone'],
@@ -1627,10 +1613,10 @@ def generate_employee_json(detail, container, company_data, concept_details, gen
             "LugarTrabajoDepartamentoEstado": container.ciudadgeneracion,
             "LugarTrabajoMunicipioCiudad": f"{container.ciudadgeneracion}{container.departamentogeneracion}",
             "LugarTrabajoDireccion": detail['employee_address'],
-            "SalarioIntegral": detail['salary_type'],
-            "TipoContrato": detail['type_of_contract'],
+            "SalarioIntegral": "true" if detail['salary_type'] else "false",
+            "TipoContrato": str(detail['type_of_contract']),
             "Sueldo": detail['salary'],
-            "CodigoTrabajador": detail['id']
+            "CodigoTrabajador": str(detail['id'])
         },
         "Pago": {
             "Forma": "1",
@@ -1723,6 +1709,7 @@ def electronic_payroll_send(pk=None, json_data=None):
         code_response, token = electronic_payroll_token(empresa)
 
         payload = json.dumps(json_data) if not isinstance(json_data, str) else json_data
+        
         url = f"https://alfauat.dominadigital.com.co/api/ReceptorNominaJson/{empresa.nit}-{empresa.dv}"
         headers = {
             'Authorization': token,
@@ -1744,9 +1731,12 @@ def electronic_payroll_validate_send(request, pk=None):
     details = NeDetalleNominaElectronica.objects.get(id_detalle_nomina_electronica=pk)
     JsonResponse = electronic_payroll_send(details.id_ne_datos_mensual.empresa.idempresa, details.json_nomina)
     JsonResponse = json.loads(JsonResponse)
+    print(JsonResponse)
     estado_codigo = JsonResponse.get("estado", {}).get("codigo")
+    
     # Pretty print the JSON response
     json_end = json.dumps(JsonResponse, indent=4, ensure_ascii=False)
+    
     if estado_codigo == 'EXITOSO':
         NeRespuestaDian.objects.create(
             id_ne_detalle_nomina_electronica=details,
@@ -1756,7 +1746,7 @@ def electronic_payroll_validate_send(request, pk=None):
         )
         details.estado = 2
         messages.success(request, 'Registro Enviado Exitosamente.')
-    elif estado_codigo == 'ERROR':
+    elif estado_codigo == 'ERROR' or estado_codigo == 'ERRORDIAN':
         NeRespuestaDian.objects.create(
             id_ne_detalle_nomina_electronica=details,
             fecha_transaccion = datetime.datetime.now(),
@@ -1769,3 +1759,65 @@ def electronic_payroll_validate_send(request, pk=None):
     details.save()
 
     return redirect('payroll:detalle_nomina_electronica',  pk=details.id_ne_datos_mensual.idnominaelectronica)  # Cambia a la vista deseada después de guardar 
+
+def electronic_payroll_validate_masive_send(request, pk=None):
+    details_payroll = NeDetalleNominaElectronica.objects.filter(id_ne_datos_mensual=pk, estado=1)
+    for detail in details_payroll:
+        JsonResponse = electronic_payroll_send(detail.id_ne_datos_mensual.empresa.idempresa, detail.json_nomina)
+        JsonResponse = json.loads(JsonResponse)
+        print(JsonResponse)
+        estado_codigo = JsonResponse.get("estado", {}).get("codigo")
+        
+        # Pretty print the JSON response
+        json_end = json.dumps(JsonResponse, indent=4, ensure_ascii=False)
+        
+        if estado_codigo == 'EXITOSO':
+            NeRespuestaDian.objects.create(
+                id_ne_detalle_nomina_electronica=detail,
+                fecha_transaccion = datetime.datetime.now(),
+                json_respuesta = json_end,
+                codigo_respuesta= estado_codigo,
+            )
+            detail.estado = 2
+            
+        elif estado_codigo == 'ERROR' or estado_codigo == 'ERRORDIAN':
+            NeRespuestaDian.objects.create(
+                id_ne_detalle_nomina_electronica=detail,
+                fecha_transaccion = datetime.datetime.now(),
+                json_respuesta = json_end,
+                codigo_respuesta= estado_codigo,
+            )
+            detail.estado = 3
+            
+        
+        detail.save()
+
+    return redirect('payroll:detalle_nomina_electronica',  pk=pk)  # Cambia a la vista deseada después de guardar 
+
+def electronic_payroll_detail_view(request, pk=None):
+    detail_payroll = NeDetalleNominaElectronica.objects.select_related(
+        'id_contrato__idempleado',
+        'id_contrato__cargo',
+    ).annotate(
+        contract_id = F('id_contrato'),
+        container_id = F('id_ne_datos_mensual'),
+        employee_name=Concat(
+            F('id_contrato__idempleado__pnombre'), Value(' '),
+            F('id_contrato__idempleado__snombre'), Value(' '),
+            F('id_contrato__idempleado__papellido'), Value(' '),
+            F('id_contrato__idempleado__sapellido')
+        ),
+        employee_document=F('id_contrato__idempleado__docidentidad'), 
+        employee_position = F('id_contrato__cargo__nombrecargo'),
+        employee_salary = F('id_contrato__salario'),
+        employee_entry_date = F('id_contrato__fechainiciocontrato'),
+    ).get(id_detalle_nomina_electronica=pk)
+    print(detail_payroll.container_id)
+    detail_payroll_response = NeRespuestaDian.objects.filter(id_ne_detalle_nomina_electronica=pk)
+
+    context = {
+        'detail_payroll': detail_payroll,
+        'detail_payroll_response': detail_payroll_response
+    }
+
+    return render(request, 'payroll/electronic_payroll_detail_view.html', context)

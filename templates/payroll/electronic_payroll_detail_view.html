@@ -1,0 +1,114 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+{% block navbar %}
+    {% include 'base/navbar_payroll.html' %}               
+{% endblock %}
+
+{% load static %} 
+
+
+{% block title %}
+    Nomiweb.co - Aplicacion Contable - Nómina Electrónica
+{% endblock %}
+
+
+
+{% block sub_titulo1 %} 
+<a href="{% url 'payroll:detalle_nomina_electronica' pk=detail_payroll.container_id %}" class="text-gray-500 text-hover-primary">
+    Detalle Nómina Electrónica
+</a>
+{% endblock %}
+
+{% block sub_titulo2 %} 
+Detalle Colaborador: {{ detail_payroll.employee_name }}
+{% endblock %}
+
+{% block sub_titulo3 %} 
+
+{% endblock %}
+
+{% block titulo2 %} 
+
+{% endblock %}
+
+{% block actions %}
+<!-- Botón para volver página anterior -->
+<a href="{% url 'payroll:detalle_nomina_electronica' pk=detail_payroll.container_id %}"  class="btn btn-light-primary"   >
+    Atras
+    <i class="ki-duotone ki-exit-left fs-2 ">             
+        <span class="path1"></span>
+        <span class="path2"></span>
+    </i>
+</a>  
+
+
+{% endblock %}
+
+{%block content%} 
+
+
+<!-- Cabecera -->
+<div class="card">
+    <div class="card-body bg-light">
+        <h4 class="mb-3">Información del Candidato</h4>
+        <div class="row">
+            <div class="col-md-3">
+                <p><strong>Nombre:</strong> Oscar Mauricio Campos</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>Documento:</strong> 73575747</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>Salario:</strong> $16,900,252</p>
+            </div>
+            <div class="col-md-3">
+                <p><strong>Fecha de Ingreso:</strong> 10/06/2012</p>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<!-- Tabla con detalle del envío -->
+<div class="card">
+    <div class="card-body">
+        <h4 class="mb-3">Detalle del Envío</h4>
+        <table id="detalleEnvio" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Clave</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Ejemplo de JSON renderizado -->
+                <tr>
+                    <td>1</td>
+                    <td>Estado</td>
+                    <td>Enviado</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Código de Respuesta</td>
+                    <td>200</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Mensaje</td>
+                    <td>Proceso exitoso</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+    
+</script>
+{% endblock %}
