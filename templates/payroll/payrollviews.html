@@ -24,18 +24,80 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock %}
 
 {% block actions %}
+    
+    <!-- Separación entre grupos -->
     <!-- Botón para activar modal -->
     <a href="{% url 'payroll:payroll' %}"  class="btn btn-light-primary"   >
-        Atras
         <i class="ki-duotone ki-exit-left fs-2 ">             
             <span class="path1"></span>
             <span class="path2"></span>
         </i>
+        Atras
+        
     </a>  
+    <div style="width: 10px;"></div>
+    <!-- Botón adicional -->
+    <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+        <i class="fa-solid fa-upload fs-2"></i>
+        Cargar Archivo Plano
+    </button>
+    <!-- Separación entre grupos -->
+    <div style="width: 10px;"></div>
+
+    <!-- Botón adicional -->
+    <a href="{% static 'docs/nominas_masivas.xlsx' %}" 
+    download class="btn btn-light-primary text-dark" 
+    data-bs-toggle="tooltip" 
+    data-bs-custom-class="tooltip-inverse" 
+    data-bs-placement="bottom" 
+    title="Descargar plantilla de Documento Plano" >
+        <i class="fa-solid fa-download fs-2"></i>
+    </a> 
 
 {% endblock %}
 
 {% block content %}
+
+
+
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Carga de Documento</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+
+                <form id="upload-form" name="upload-form" method="POST" action="{% url 'payroll:plane' id=id %}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        {% csrf_token %}
+                        {% comment %} <label for="file-upload" class="form-label">
+                            <i class="fa-solid fa-upload fs-2"></i>
+                            Cargar Archivo Plano
+                        </label> {% endcomment %}
+                        <input  class="form-control form-control-sm" id="file-upload" name="file" type="file" />
+                        <small id="fileHelp" class="form-text text-muted">
+                            Solo se aceptan archivos de tipo Excel (.xlsx). <a href="{% static 'docs/nominas_masivas.xlsx' %}" download>Descarga la plantilla aquí</a> si aún no la tienes.
+                        </small>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" form="upload-form" class="btn btn-primary">Cargar Archivo</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <div class="table-responsive">
@@ -167,6 +229,64 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock content %}
 
 {% block js %}
+
+{% comment %} <script>
+    // función de post de archivo plano 
+    // Seleccionar el input de archivo
+    const fileInput = document.getElementById('file-upload');
+
+    // Agregar el evento 'change' para detectar cuando se carga un archivo
+    fileInput.addEventListener('change', function () {
+        // Verificar si se ha seleccionado un archivo
+        if (fileInput.files.length > 0) {
+            // Obtener el formulario
+            const form = document.getElementById('upload-form');
+            
+            // Crear un objeto FormData
+            const formData = new FormData(form);
+            
+            // Enviar el formulario usando Fetch API
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Manejar la respuesta
+                if (data.message) {
+                        window.location.href = "{% url 'payroll:plane' id=id %}";
+                } else if (data.error) {
+                    // Mostrar mensaje de error con Swal.fire
+                    Swal.fire({
+                        text: data.error,
+                        icon: 'error',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar',
+                        customClass: {
+                            confirmButton: 'btn btn-danger'
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    text: 'Ocurrió un error al subir el archivo.',
+                    icon: 'error',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar',
+                    customClass: {
+                        confirmButton: 'btn btn-danger'
+                    }
+                });
+            });
+        }
+    });
+</script> {% endcomment %}
+
 
 
 <script>

@@ -13,6 +13,8 @@ from apps.components.humani import format_value
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
+from django.http import JsonResponse
+from django.core.files.storage import default_storage
 
 @login_required
 @role_required('accountant')
@@ -82,6 +84,8 @@ def payroll(request):
     
     
     
+    
+
 
 @login_required
 @role_required('accountant')
@@ -109,6 +113,7 @@ def payrollview(request, id):
         'nomina': nomina,
         'nombre':nombre,
         'empleados': empleados,
+        'id': id
     })
 
 
