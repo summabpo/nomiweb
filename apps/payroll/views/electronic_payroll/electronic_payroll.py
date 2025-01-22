@@ -1801,6 +1801,8 @@ def electronic_payroll_detail_view(request, pk=None):
     ).annotate(
         contract_id = F('id_contrato'),
         container_id = F('id_ne_datos_mensual'),
+        detail_id = F('id_detalle_nomina_electronica'),
+        state_send = F('estado'),
         employee_name=Concat(
             F('id_contrato__idempleado__pnombre'), Value(' '),
             F('id_contrato__idempleado__snombre'), Value(' '),
@@ -1815,9 +1817,22 @@ def electronic_payroll_detail_view(request, pk=None):
     print(detail_payroll.container_id)
     detail_payroll_response = NeRespuestaDian.objects.filter(id_ne_detalle_nomina_electronica=pk)
 
+    cune = None
+    for response in detail_payroll_response:
+        response_data = json.loads(response.json_respuesta)
+        if response.codigo_respuesta == 'EXITOSO':
+            cune = response_data.get("cune")
+            break
+            
+
+    # Aquí asumimos que el campo con el JSON se llama `json_data`
+    json_data = json.loads(detail_payroll.json_nomina)  # Convertir el JSON en diccionario
+
     context = {
         'detail_payroll': detail_payroll,
-        'detail_payroll_response': detail_payroll_response
+        'detail_payroll_response': detail_payroll_response,
+        'json_data': json_data,
+        'cune': cune
     }
 
     return render(request, 'payroll/electronic_payroll_detail_view.html', context)
