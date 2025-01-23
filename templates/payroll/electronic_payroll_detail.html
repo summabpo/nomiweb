@@ -127,6 +127,11 @@ Detalle Nómina Electrónica | {{ container_id }}
                         <i class="fa-solid fa-paper-plane"></i>
                     </a>
                     {% endif %}
+                    {% if record.estado == 3 %}
+                    <a href="{% url 'payroll:generar_detalle_individual' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-info" title="Enviar Nomina Electrónica">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

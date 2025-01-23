@@ -246,12 +246,6 @@ def electronic_payroll_generate(request, pk):
 
     # Iterate over each field in query_detail
     for detail in query_detail:
-
-
-
-        #generate register detalle_nomina_electronica
-        #TODO
-
         #building the json data payroll
         data = {}
         data["canal"] = 2
@@ -402,21 +396,15 @@ def electronic_payroll_generate(request, pk):
                 array_sub = {
                     "HoraInicio": "",  # YYYY-MM-DD HH:MM:SS
                     "HoraFin": "",
-                    "Cantidad": item['cantidad_anotado'],
-                    "Porcentaje": item['mulitplicador_concepto'],  # Example percentage, replace with actual value if needed
-                    "Pago": item['valor_anotado']
+                    "Cantidad": str(item['cantidad_anotado']),
+                    "Porcentaje": str(item['mulitplicador_concepto']),  # Example percentage, replace with actual value if needed
+                    "Pago": str(item['valor_anotado'])
                 }
 
                 if item['concepto_dian'] not in data["Devengados"]:
-                    data["Devengados"][item['concepto_dian']] = {
-                        "Cantidad": 0,
-                        "Pago": 0,
-                        "Detalles": []
-                    }
+                    data["Devengados"][item['concepto_dian']] = []
 
-                data["Devengados"][item['concepto_dian']]["Cantidad"] += item['cantidad_anotado']
-                data["Devengados"][item['concepto_dian']]["Pago"] += item['valor_anotado']
-                data["Devengados"][item['concepto_dian']]["Detalles"].append(array_sub)
+                data["Devengados"][item['concepto_dian']].append(array_sub)
 
             # VacacionesComunes
             if item['concepto_dian'] == 'VacacionesComunes':
@@ -1689,6 +1677,94 @@ def electronic_payroll_generate_refactor(request, pk=None):
     return redirect('payroll:detalle_nomina_electronica',  pk=pk)  # Cambia a la vista deseada después de guardar
 
 
+#method to get the employee data individual
+def get_employee_details_individual(contract_id):
+    """Query and retrieve employee details for payroll."""
+    return Nomina.objects.select_related('idcontrato__idempleado').filter(
+        idcontrato=contract_id
+    ).values(
+        id=F('idcontrato'),
+        employee_name=Concat(
+            F('idcontrato__idempleado__papellido'), Value(' '), F('idcontrato__idempleado__sapellido'),
+            Value(' '), F('idcontrato__idempleado__pnombre'), Value(' '), F('idcontrato__idempleado__snombre')
+        ),
+        first_name=F('idcontrato__idempleado__pnombre'),
+        second_name=F('idcontrato__idempleado__snombre'),
+        first_lastname=F('idcontrato__idempleado__papellido'),
+        second_lastname=F('idcontrato__idempleado__sapellido'),
+        entry_date=F('idcontrato__fechainiciocontrato'),
+        exit_date=F('idcontrato__fechafincontrato'),
+        contributing_type=F('idcontrato__tipocotizante__tipocotizante'),
+        subcontributing_type=F('idcontrato__subtipocotizante__subtipocotizante'),
+        pension_risk=F('idcontrato__riesgo_pension'),
+        employee_identification=F('idcontrato__idempleado__docidentidad'),
+        document_type=F('idcontrato__idempleado__tipodocident__cod_dian'),
+        employee_email=F('idcontrato__idempleado__email'),
+        employee_phone=F('idcontrato__idempleado__telefonoempleado'),
+        employee_address=F('idcontrato__idempleado__direccionempleado'),
+        salary_type=Case(
+            When(idcontrato__tiposalario__idtiposalario=2, then=Value(True)),
+            default=Value(False),
+            output_field=CharField()
+        ),
+        salary=F('idcontrato__salario'),
+        type_of_contract=F('idcontrato__tipocontrato__cod_dian'),
+        employee_bank=F('idcontrato__bancocuenta__nombanco'),
+        employee_type_bank=F('idcontrato__tipocuentanomina'),
+        employee_account=F('idcontrato__cuentanomina')
+    )
+
+#method to get the payroll data for the employee contract
+def get_concept_details_individual(month, ano_id, idcontrato):
+    """Query and retrieve concept details for payroll."""
+    return Nomina.objects.select_related('idcontrato', 'idconcepto__grupo_dian').filter(
+        idnomina__mesacumular=month,
+        idnomina__anoacumular=ano_id,
+        idnomina__idcontrato=idcontrato
+    ).values(
+        contrato_id=F('idcontrato__idcontrato'),
+        concepto=F('idconcepto__nombreconcepto'),
+        concepto_dian=F('idconcepto__grupo_dian__campo'),
+        valor_anotado=F('valor'),
+        cantidad_anotado=F('cantidad'),
+        control_id=F('control'),
+        tipo_concepto=F('idconcepto__tipoconcepto'),
+        mulitplicador_concepto=F('idconcepto__multiplicadorconcepto')
+    )
+
+def electronic_payroll_regenerate(request, pk=None):
+    detail_payroll = NeDetalleNominaElectronica.objects.get(id_detalle_nomina_electronica=pk)
+    container = detail_payroll.id_ne_datos_mensual
+    month, year = container.mesacumular, container.anoacumular
+
+    try:
+        ano_id = Anos.objects.get(ano=year).idano
+    except Anos.DoesNotExist:
+        messages.error(request, 'El año especificado no existe en el sistema.')
+        return redirect('payroll:nomina_electronica')
+
+    company_data = get_company_data(container)
+    employee_details = get_employee_details_individual(detail_payroll.id_contrato)
+    concept_details = get_concept_details_individual(month, ano_id, detail_payroll.id_contrato)
+
+    # Generate JSON for the individual employee
+    for detail in employee_details:
+        employee_concepts = [concept for concept in concept_details if concept['contrato_id'] == detail['id']]
+        employee_json = generate_employee_json(detail, container, company_data, employee_concepts, detail_payroll.id_detalle_nomina_electronica)
+
+        # Update the JSON field in the NeDetalleNominaElectronica object
+        formatted_json = json.dumps(employee_json, cls=DjangoJSONEncoder, indent=4, ensure_ascii=False)
+        detail_payroll.fecha_modificacion = datetime.datetime.now()
+        detail_payroll.json_nomina = formatted_json
+        detail_payroll.estado = 1
+        detail_payroll.save()
+
+        # Optionally, you can print or log the generated JSON
+        print(formatted_json)
+
+    messages.success(request, 'Nómina Generada Exitosamente.')
+    return redirect('payroll:detalle_nomina_electronica', pk=container.idnominaelectronica)
+
 #method to generate token
 def electronic_payroll_token(empresa):
     url = f"https://alfauat.dominadigital.com.co/api/GenerarTokenJWT/{empresa.nit}-{empresa.dv}"
@@ -1725,7 +1801,6 @@ def electronic_payroll_send(pk=None, json_data=None):
     except Exception as e:
         raise ValueError(f"Error al enviar nómina electrónica: {str(e)}")
 
-
 #method to send the payroll and register detail electronic payroll
 def electronic_payroll_validate_send(request, pk=None):
     details = NeDetalleNominaElectronica.objects.get(id_detalle_nomina_electronica=pk)
@@ -1759,6 +1834,7 @@ def electronic_payroll_validate_send(request, pk=None):
     details.save()
 
     return redirect('payroll:detalle_nomina_electronica',  pk=details.id_ne_datos_mensual.idnominaelectronica)  # Cambia a la vista deseada después de guardar 
+
 
 def electronic_payroll_validate_masive_send(request, pk=None):
     details_payroll = NeDetalleNominaElectronica.objects.filter(id_ne_datos_mensual=pk, estado=1)
@@ -1794,6 +1870,7 @@ def electronic_payroll_validate_masive_send(request, pk=None):
 
     return redirect('payroll:detalle_nomina_electronica',  pk=pk)  # Cambia a la vista deseada después de guardar 
 
+
 def electronic_payroll_detail_view(request, pk=None):
     detail_payroll = NeDetalleNominaElectronica.objects.select_related(
         'id_contrato__idempleado',
@@ -1819,15 +1896,15 @@ def electronic_payroll_detail_view(request, pk=None):
 
     cune = None
     for response in detail_payroll_response:
-        response_data = json.loads(response.json_respuesta)
         if response.codigo_respuesta == 'EXITOSO':
+            response_data = json.loads(response.json_respuesta)
             cune = response_data.get("cune")
             break
             
 
     # Aquí asumimos que el campo con el JSON se llama `json_data`
     json_data = json.loads(detail_payroll.json_nomina)  # Convertir el JSON en diccionario
-
+    print(json_data)
     context = {
         'detail_payroll': detail_payroll,
         'detail_payroll_response': detail_payroll_response,
