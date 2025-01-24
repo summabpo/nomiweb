@@ -753,16 +753,18 @@ class Conceptosdenomina(models.Model):
     nombreconcepto = models.CharField(max_length=30)
     multiplicadorconcepto = models.DecimalField(max_digits=4, decimal_places=2)
     tipoconcepto = models.IntegerField(choices=TiposConcepto.choices)
-    familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name="conceptos", blank=True,null=True)
+    formula = models.CharField(max_length=1, blank=True, null=True)
+    #familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name="conceptos", blank=True,null=True)
     grupo_dian = models.ForeignKey('NeSumatorias', on_delete=models.DO_NOTHING , blank=True, null=True , related_name="conceptos_NeSumatorias",)
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING , blank=True, null=True , related_name="conceptos_Empresa",)
     codigo = models.CharField(max_length=255, blank=True, null=True)
+    indicador = models.ManyToManyField(Indicador, related_name="indicador", blank=True)
     
     class Meta:
         db_table = 'conceptosdenomina'
         verbose_name_plural = 'Conceptos de Nómina'
 
-    def str(self):
+    def __str__(self):
         return self.nombreconcepto
 
 

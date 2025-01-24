@@ -305,7 +305,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
     
             // Agregar las opciones de los conceptos al select
             conceptos.forEach(concepto => {
-                selectHTML += `<option value="${concepto.idconcepto}" ${concepto.idconcepto == defaultValue ? 'selected' : ''}>${concepto.idconcepto} - ${concepto.nombreconcepto}</option>`;
+                selectHTML += `<option value="${concepto.idconcepto}" ${concepto.idconcepto == defaultValue ? 'selected' : ''}>${concepto.codigo} - ${concepto.nombreconcepto}</option>`;
             });
     
             selectHTML += '</select>'; // Cerrar el select
@@ -546,23 +546,25 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
 
                     data.conceptos.forEach(concepto => {
-                        
                         // Genera el select para el concepto
-                        generarSelectConceptos('/payroll/payrollapi2/',`row-${concepto.codigo}-concept-old`, `row-${concepto.codigo}-concept-old`, concepto.id)
+                        generarSelectConceptos('/payroll/payrollapi2/', `row-${concepto.codigo}-concept-old`, `row-${concepto.codigo}-concept-old`, concepto.id)
                             .then(selectHTML => {
+                                // Determina si amount o value deben estar bloqueados
+                                const isAmountDisabled = concepto.bloquearAmount === "true";
+                                const isValueDisabled = concepto.bloquearValue === "true";  // Ajusta esta propiedad según los datos de tu API
+                    
                                 // Añadir los datos de la API a la tabla
                                 table.row.add([
                                     selectHTML, // Aquí agregas el select generado
-                                    `<input type="text" class="form-control form-control-sm" id="row-${concepto.codigo}-amount-old" name="row-${concepto.codigo}-amount-old" value="${concepto.amount}"/>`,
-                                    `<input type="text" class="form-control form-control-sm" id="row-${concepto.codigo}-value-old" name="row-${concepto.codigo}-value-old" value="${concepto.value}"/>`,
-                                    `<a href="" class="btn btn-icon btn-light-google"><i class="fa-regular fa-trash-can fs-4"></i></a>` 
-                                    ]).draw(false);
-
+                                    `<input type="text" class="form-control form-control-sm" id="row-${concepto.codigo}-amount-old" name="row-${concepto.codigo}-amount-old" value="${concepto.amount}" ${isAmountDisabled ? 'disabled' : ''}/>`,
+                                    `<input type="text" class="form-control form-control-sm" id="row-${concepto.codigo}-value-old" name="row-${concepto.codigo}-value-old" value="${concepto.value}" ${isValueDisabled ? 'disabled' : ''}/>`,
+                                    `<a href="" class="btn btn-icon btn-light-google"><i class="fa-regular fa-trash-can fs-4"></i></a>`
+                                ]).draw(false);
+                    
                                 // Inicializamos select2 para la fila recién añadida
                                 $('.select2-dynamic').select2({
                                     dropdownParent: $('#kt_modal_concept'),
                                 });
-
                             })
                             .catch(error => {
                                 console.error('Error al generar el select:', error);
