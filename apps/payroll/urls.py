@@ -4,6 +4,7 @@ from .views.payroll import payroll
 from .views.plane import plane
 from .views.electronic_payroll import electronic_payroll
 from .views.parameters import parameters
+from .views.pruebas import pruebas
 
 urlpatterns = [
     path('home/', index.index_payroll, name='index_payroll'),
@@ -26,5 +27,8 @@ urlpatterns = [
     path('parameters/fixed', parameters.fixed, name='fixed'),
     path('parameters/annual', parameters.annual, name='annual'),
 
+
+    ## pruebas
+    path('pruebas/<int:id>/<int:idnomina>/', pruebas.pruebas, name='pruebas'),
 
 ]

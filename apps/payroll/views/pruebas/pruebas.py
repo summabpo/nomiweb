@@ -1,52 +1,65 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from apps.components.decorators import role_required
+from apps.common.models import Crearnomina , Tipodenomina ,Subcostos,Costos,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
+from apps.components.humani import format_value
 from django import forms
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column
 
-# Formulario 1 (y único, en este caso)
-class FormularioUno(forms.Form):
-    nombre = forms.CharField(max_length=100)
-    edad = forms.IntegerField()
+class ConceptoForm(forms.Form):
+    cantidad = forms.IntegerField()
+    valor = forms.IntegerField()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.form_id = 'formulario_1'
-        self.helper.layout = Layout(
-            Row(
-                Column('nombre', css_class='form-group col-md-6'),
-                Column('edad', css_class='form-group col-md-6'),
-                css_class='row'
-            )
-        )
+@login_required
+@role_required('accountant')
+def pruebas(request,id,idnomina):
+    # Optimizar consulta del contrato
+    forms = []
 
-# Vista que maneja ambos envíos de formulario 1
-def vista_con_dos_formularios(request):
-    form1 = FormularioUno()
-    form2 = FormularioUno()
+    try:
+        contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
+        empleado = contrato.idempleado
+        nombre_completo = " ".join(filter(None, [empleado.papellido, empleado.sapellido, empleado.pnombre, empleado.snombre]))
+                # Optimizar consultas con select_related
+        conceptos = Nomina.objects.filter(
+            idnomina__idnomina=idnomina,
+            idcontrato__idcontrato=id
+        ).select_related('idcontrato')
 
+        # Verificar si hay conceptos encontrados
+        if not conceptos.exists():
+            return JsonResponse({"error": "No se encontraron conceptos para este empleado y nómina"}, status=404)
 
-    if request.method == 'POST':
-        # Procesar formulario 1 con submit_1
-        if 'submit_1' in request.POST:
-            form1 = FormularioUno(request.POST)
-            if form1.is_valid():
-                nombre = form1.cleaned_data['nombre']
-                edad = form1.cleaned_data['edad']
-                print(f"Formulario 1 procesado: {nombre}, {edad} años")
-                
-            else:
-                form1 = FormularioUno()
-        # Procesar formulario 1 con submit_2
-        elif 'submit_2' in request.POST:
-            form2 = FormularioUno(request.POST)
-            if form2.is_valid():
-                nombre = form2.cleaned_data['nombre']
-                edad = form2.cleaned_data['edad']
-                print(f"Formulario 1 procesado desde submit_2: {nombre}, {edad} años")
-                
-            else:
-                form2 = FormularioUno()
+        forms = [ConceptoForm(), ConceptoForm(), ConceptoForm()]
+        # Optimizar consulta del contrato
+        contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
 
-    return render(request, 'mi_template.html', {'form1': form1,'form2': form2})
+        # Estructurar los datos para la respuesta
+        conceptos_data = [
+            {   
+                "codigo": concepto.idregistronom ,
+                "id": concepto.idconcepto.idconcepto,
+                "amount": concepto.cantidad,
+                "value": concepto.valor ,
+            }
+            
+            # Crear un formulario para cada concept
+            for concepto in conceptos
+        ]
+
+        
+        # Construir el nombre completo
+        empleado = contrato.idempleado
+        nombre_completo = " ".join(filter(None, [empleado.papellido, empleado.sapellido, empleado.pnombre, empleado.snombre]))
+
+        # Respuesta estructurada
+        data = {
+            
+            "nombre": nombre_completo,
+            "salario": f"${format_value(contrato.salario)}",
+            "conceptos": conceptos_data,
+        }
+        return render(request, 'payroll/partials/payrollmodal.html', {'data': data,'forms': forms})
+
+    except Exception as e:
+        return render(request, 'payroll/partials/payrollmodal.html', {'data': data})
