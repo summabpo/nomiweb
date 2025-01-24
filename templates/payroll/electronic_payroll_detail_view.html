@@ -50,14 +50,14 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
 <div class="row">
     <div class="col-md-3">
         <div class="card shadow-sm">
-            <div class="card-header">
+            {% comment %} <div class="card-header">
                 <div class="card-title">
                     <h2></h2>
                 </div>
                 <div class="card-toolbar">
                     
                 </div>
-            </div>
+            </div> {% endcomment %}
             <div class="card-body">
                 <div class="mb-7">
                     <div class="d-flex align-items-center">
@@ -76,6 +76,34 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                         {% elif detail_payroll.state_send == 2 %}
                             <span class="badge badge-light-success me-2 mb-2">Exitoso</span>
                             <p>Cune: {{ cune }}</p>
+                            <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_2">
+                                VER DIAN
+                            </button>
+                            
+                            <div class="modal bg-body fade" tabindex="-1" id="kt_modal_2">
+                                <div class="modal-dialog modal-fullscreen">
+                                    <div class="modal-content shadow-none">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Ver DIAN</h5>
+                            
+                                            <!--begin::Close-->
+                                            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                                                <i class="ki-duotone ki-cross fs-2x"><span class="path1"></span><span class="path2"></span></i>
+                                            </div>
+                                            <!--end::Close-->
+                                        </div>
+                            
+                                        <div class="modal-body">
+                                            <iframe src="https://catalogo-vpfe-hab.dian.gov.co/Document/ShowDocumentToPublic/{{cune}}" style="width: 100%; height: 100%; border: none;"></iframe>
+                                        </div>
+                            
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary">Save changes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         {% elif detail_payroll.state_send == 3 %}
                             <span class="badge badge-light-danger me-2">Error</span>
                         {% endif %}
@@ -106,14 +134,14 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
     </div>
     <div class="col-md-9">
         <div class="card shadow-sm">
-            <div class="card-header">
+            {% comment %} <div class="card-header">
                 <h3 class="card-title">Información Nómina </h3>
                 <div class="card-toolbar">
                     <button type="button" class="btn btn-sm btn-light">
                         Ver DIAN
                     </button>
                 </div>
-            </div>
+            </div> {% endcomment %}
             <div class="card-body">
                 <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
                     <li class="nav-item">
@@ -253,22 +281,83 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                                                 {% endfor %}
                                             {% endif %}
 
-                                            
+                                            {% if json_data.Devengados.Vacaciones %}
+
+                                                {% if json_data.Devengados.Vacaciones.VacacionesComunes %}
+                                                    {% for vacacion in json_data.Devengados.Vacaciones.VacacionesComunes %}
+                                                    <tr>
+                                                        <td>Vacaciones Comunes</td>
+                                                        <td class="text-center">{{ vacacion.Cantidad }}</td>
+                                                        <td class="text-end">{{ vacacion.Pago|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+
+                                                {% if json_data.Devengados.Vacaciones.VacacionesCompensadas %}
+                                                    {% for vacacion in json_data.Devengados.Vacaciones.VacacionesCompensadas %}
+                                                    <tr>
+                                                        <td>Vacaciones Compensadas</td>
+                                                        <td class="text-center">{{ vacacion.Cantidad }}</td>
+                                                        <td class="text-end">{{ vacacion.Pago|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+
+                                            {% endif %}
 
                                             {% if json_data.Devengados.Cesantias %}
-                                            <tr>
-                                                <td>Cesantías</td>
-                                                <td class="text-center"></td>
-                                                <td class="text-end">{{ json_data.Devengados.Cesantias.PagoIntereses|floatformat:2|intcomma }}</td>
-                                            </tr>
+                                            
+                                                {% if json_data.Devengados.Cesantias.PagoIntereses %}
+                                                    <tr>
+                                                        <td>Pago Intereses</td>
+                                                        <td class="text-center"></td>
+                                                        <td class="text-end">{{ json_data.Devengados.Cesantias.PagoIntereses|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                {% else %}
+                                                <tr>
+                                                    <td>Cesantías</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ json_data.Devengados.Cesantias.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endif %}
                                             {% endif %}
                                             
-                                            {% if json_data.Devengados.HorasExtrasDiariasDominicalesyFestivas %}
-                                                {% for hora_extra in json_data.Devengados.HorasExtrasDiariasDominicalesyFestivas %}
+                                            {% if json_data.Devengados.Primas %}
+
+                                                {% if json_data.Devengados.Primas.Cantidad %}
                                                 <tr>
-                                                    <td>Horas Extras Diarias Dominicales y Festivas</td>
-                                                    <td class="text-center">{{ hora_extra.Cantidad }}</td>
-                                                    <td class="text-end">{{ hora_extra.Pago|floatformat:2|intcomma }}</td>
+                                                    <td>Primas</td>
+                                                    <td class="text-center">{{ json_data.Devengados.Primas.Cantidad }}</td>
+                                                    <td class="text-end">{{ json_data.Devengados.Primas.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endif %}
+
+                                                {% if json_data.Devengados.Primas.PagoNS %}
+                                                <tr>
+                                                    <td>Primas No Salariales</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ json_data.Devengados.Primas.PagoNS|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endif %}
+
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Incapacidad %}
+                                                {% for incapacidad in json_data.Devengados.Incapacidad %}
+                                                <tr>
+                                                    <td>Incapacidad ({{ incapacidad.Tipo }})</td>
+                                                    <td class="text-center">{{ incapacidad.Cantidad }}</td>
+                                                    <td class="text-end">{{ incapacidad.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.LicenciaMP %}
+                                                {% for licencia in json_data.Devengados.LicenciaMP %}
+                                                <tr>
+                                                    <td>Licencia de Maternidad/Paternidad</td>
+                                                    <td class="text-center">{{ licencia.Cantidad }}</td>
+                                                    <td class="text-end">{{ licencia.Pago|floatformat:2|intcomma }}</td>
                                                 </tr>
                                                 {% endfor %}
                                             {% endif %}
