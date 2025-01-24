@@ -13,6 +13,8 @@ from apps.components.humani import format_value
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
+from django.http import JsonResponse
+from django.core.files.storage import default_storage
 
 @login_required
 @role_required('accountant')
@@ -82,6 +84,8 @@ def payroll(request):
     
     
     
+    
+
 
 @login_required
 @role_required('accountant')
@@ -109,6 +113,7 @@ def payrollview(request, id):
         'nomina': nomina,
         'nombre':nombre,
         'empleados': empleados,
+        'id': id
     })
 
 
@@ -118,7 +123,7 @@ class PayrollAPI2(View):
         idempresa = usuario['idempresa']
         try:
             # Obtener los datos de la base de datos
-            conceptos_data = Conceptosdenomina.objects.filter(id_empresa_id = idempresa).values('idconcepto','nombreconcepto','multiplicadorconcepto').order_by('nombreconcepto') # Convertir el QuerySet a un formato serializable
+            conceptos_data = Conceptosdenomina.objects.filter(id_empresa_id = idempresa).values('idconcepto','nombreconcepto','multiplicadorconcepto','formula','codigo').order_by('nombreconcepto') # Convertir el QuerySet a un formato serializable
             conceptos_list = list(conceptos_data)  # Convertir el QuerySet a una lista de diccionarios
             
             # Construir la respuesta JSON
@@ -162,7 +167,9 @@ class PayrollAPI(View):
                     "codigo": concepto.idregistronom ,
                     "id": concepto.idconcepto.idconcepto,
                     "amount": concepto.cantidad,
-                    "value": concepto.valor
+                    "value": concepto.valor ,
+                    "bloquearAmount": "true" if concepto.idconcepto.formula == '2' else "false" if not concepto.idconcepto.formula else "undefined",
+                    "bloquearValue": "true" if concepto.idconcepto.formula == '1' else "false" if not concepto.idconcepto.formula else "undefined",
                 }
                 for concepto in conceptos
             ]

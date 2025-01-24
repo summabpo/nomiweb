@@ -6,6 +6,18 @@
     Nomiweb.co - Portal Empresas - Cargos 
 {% endblock %}
 
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}    
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}
+               
+{% endblock %}
 
 {% block css %}
     

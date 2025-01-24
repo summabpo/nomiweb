@@ -1,8 +1,15 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
 {% load custom_filters %}
+
+
+
 {% block navbar %}
     {% include 'base/navbar_payroll.html' %}               
+{% endblock %}
+
+{% block cssarch %}
+<script src="https://unpkg.com/htmx.org"></script>
 {% endblock %}
 
 {% load static %}
@@ -24,18 +31,80 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock %}
 
 {% block actions %}
+    
+    <!-- Separación entre grupos -->
     <!-- Botón para activar modal -->
     <a href="{% url 'payroll:payroll' %}"  class="btn btn-light-primary"   >
-        Atras
         <i class="ki-duotone ki-exit-left fs-2 ">             
             <span class="path1"></span>
             <span class="path2"></span>
         </i>
+        Atras
+        
     </a>  
+    <div style="width: 10px;"></div>
+    <!-- Botón adicional -->
+    <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+        <i class="fa-solid fa-upload fs-2"></i>
+        Cargar Archivo Plano
+    </button>
+    <!-- Separación entre grupos -->
+    <div style="width: 10px;"></div>
+
+    <!-- Botón adicional -->
+    <a href="{% static 'docs/nominas_masivas.xlsx' %}" 
+        download class="btn btn-light-primary text-dark" 
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="bottom" 
+        title="Descargar plantilla de Documento Plano" >
+            <i class="fa-solid fa-download fs-2"></i>
+    </a> 
 
 {% endblock %}
 
 {% block content %}
+
+
+
+<div class="modal fade" tabindex="-1" id="kt_modal_1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Carga de Documento</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+
+                <form id="upload-form" name="upload-form" method="POST" action="{% url 'payroll:plane' id=id %}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        {% csrf_token %}
+                        {% comment %} <label for="file-upload" class="form-label">
+                            <i class="fa-solid fa-upload fs-2"></i>
+                            Cargar Archivo Plano
+                        </label> {% endcomment %}
+                        <input  class="form-control form-control-sm" id="file-upload" name="file" type="file" />
+                        <small id="fileHelp" class="form-text text-muted">
+                            Solo se aceptan archivos de tipo Excel (.xlsx). <a href="{% static 'docs/nominas_masivas.xlsx' %}" download>Descarga la plantilla aquí</a> si aún no la tienes.
+                        </small>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" form="upload-form" class="btn btn-primary">Cargar Archivo</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <div class="table-responsive">
@@ -53,14 +122,17 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                 <tr >
                     <td class="text-center">{{ empleado.idempleado__docidentidad }}</td>
                     <td>{{ empleado.idempleado__papellido }} {{ empleado.idempleado__sapellido }} {{ empleado.idempleado__pnombre }}</td>
-                    <td class="text-center">{{ empleado.salario|format_currency }}</td>
+                    <td class="text-center">{{ empleado.salario|format_currency }} </td>
                     <td class="text-center">
                         <div class="d-inline-flex">
-
-                            <button class="btn btn-icon btn-sm btn-light-info me-2" data-bs-toggle="modal" data-bs-target="#kt_modal_concept"  data-empleado="{{empleado.idcontrato}}" >
-                                <i class="fa-solid fa-file-circle-plus fs-3" data-bs-toggle="tooltip"  data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Agregar Concepto"></i>
-                            </button>
-                            
+                            <button class="btn btn-icon btn-sm btn-light-info" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#kt_modal_concept" 
+                            data-empleado="{{ empleado.idcontrato }}" 
+                            hx-get="{% url 'payroll:pruebas' empleado.idcontrato nombre.idnomina %}" 
+                            hx-target="#modal-content-body" 
+                            hx-swap="beforeend">
+                                <i class="fa-solid fa-file-circle-plus fs-3"></i>
                         </div>
                     </td>
                 </tr>
@@ -68,6 +140,9 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
         </tbody>
     </table>
 </div>
+
+
+
 
 
 <!-- Modal para Nuevo concepto - directo de  empleado  -->
@@ -84,76 +159,13 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                 <!-- Fin del botón para cerrar -->
             </div>
 
-            <div class="modal-body" id="modal-content-body" >
-                
-                <div class="container">
-                    <div class="row align-items-start">
-                        <!-- Columna del acordeón más pequeña -->
-                        <div class="col-md-4">
-                            <div class="accordion" id="kt_accordion_1">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="kt_accordion_1_header_1">
-                                        <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
-                                            Datos de la Nómina
-                                        </button>
-                                    </h2>
-                                    <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
-                                        <div class="accordion-body">
-                                            <div class="text-center mb-4">
-                                                <p id="salary" class="d-flex justify-content-center">
-                                                    <strong>Salario:</strong><span id="salary-value" class="ms-2">Valor</span>
-                                                </p>
-                                            </div>
-                
-                                            <div class="text-center mb-4">
-                                                <p id="income" class="flex-fill text-center">
-                                                    <strong>Ingresos:</strong><span id="income-value" class="ms-2">Valor</span>
-                                                </p>
-                                            </div>
-                
-                                            <div class="text-center mb-4">
-                                                <p id="discounts" class="flex-fill text-center">
-                                                    <strong>Descuentos:</strong><span id="discounts-value" class="ms-2">Valor</span>
-                                                </p>
-                                            </div>
-                
-                                            <div class="text-center mb-4">
-                                                <p id="summation" class="flex-fill text-center">
-                                                    <strong>Total:</strong><span id="summation-value" class="ms-2">Valor</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                
-                        <br>
-                
-                        <!-- Columna de la tabla más grande -->
-                        <div class="scroll h-400px px-5 col-md-8">
-                            <form id="form_custom_payroll_concept" method="post" action="{% url 'payroll:payrollviewapi' %}">
-                                {% csrf_token %}
-                                <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5 ">
-                                    <thead>
-
-                                    </thead>
-                                    <tbody>
-                                        
-                                    </tbody>
-                                </table>
-                            </form>
-                        </div>
-                    </div>   
-                </div>
-                
+            <div class="modal-body" id="modal-content-body" >   
                 
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_custom_payroll_concept" id="kt_payroll_concept_submit" name="submit_direct" class="btn btn-primary" value="" >Actualizar</button>
-                
+                <button type="submit" form="form_custom_payroll_concept" id="kt_payroll_concept_submit" name="submit_direct" class="btn btn-light-info" value="" >Actualizar</button>
             </div>
         </div>
     </div>
@@ -164,332 +176,6 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock content %}
 
 {% block js %}
-
-
-<script>
-    // Función asíncrona para generar el HTML de un select dinámico
-    async function generarSelectConceptos(apiUrl, name, id, defaultValue = null) {
-        let selectHTML = `<select class="form-select select2-dynamic form-select-sm" data-control="select2" data-dropdown-parent="#kt_modal_concept" data-placeholder="Selecciona un concepto" name="${name}" id="${id}">`;
-        selectHTML += '<option value="">Selecciona un concepto</option>';
-        
-        try {
-            // Hacer una solicitud GET a la API para obtener los datos de los conceptos
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-    
-            // Obtener el array de conceptos de la respuesta
-            const conceptos = data.conceptos;
-    
-            // Agregar las opciones de los conceptos al select
-            conceptos.forEach(concepto => {
-                selectHTML += `<option value="${concepto.idconcepto}" ${concepto.idconcepto == defaultValue ? 'selected' : ''}>${concepto.idconcepto} - ${concepto.nombreconcepto}</option>`;
-            });
-    
-            selectHTML += '</select>'; // Cerrar el select
-        } catch (error) {
-            console.error('Error al cargar los datos de conceptos:', error);
-            selectHTML = '<select class="form-select form-select-sm select2-dynamic " data-control="select2" data-placeholder="Error al cargar conceptos"><option value="">Error al cargar conceptos</option></select>';
-        }
-    
-        // Retornar el HTML del select generado
-        return selectHTML;
-    }
-</script>
-
-
-
-<script>
-    $(document).ready(function() { 
-        $('#kt_payroll_concept_submit').on('click', function(e) { 
-            e.preventDefault(); // Para prevenir la acción predeterminada del botón
-            
-            var jsonData = {};
-            var contratoId = "{{ nombre.idnomina }}-"+empleadoId;
-
-            // Agregar el valor del botón 'submit_direct' al JSON
-            jsonData['submit_direct'] = contratoId;
-
-            // Obtener los valores del formulario y agregar al JSON
-            $('#form_custom_payroll_concept').serializeArray().forEach(function(item) {
-                jsonData[item.name] = item.value;
-            });
-
-            console.log(jsonData);  // Verificar el JSON antes de enviarlo
-
-            // Obtener el token CSRF desde el DOM
-            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();  // Asegúrate de que este selector apunta al campo csrf_token correcto
-            
-            $.ajax({
-                url: '/payroll/payrollapi/', // URL de destino para el POST
-                type: 'POST',
-                data: JSON.stringify(jsonData),  // Convertir el objeto en una cadena JSON
-                contentType: 'application/json', // Especificar el tipo de contenido como JSON
-                headers: {
-                    'X-CSRFToken': csrfToken,  // Añadir el token CSRF a las cabeceras
-                    'Accept': 'application/json'  // Asegúrate de que el servidor devuelva JSON
-                },
-                success: function(response) {
-                    console.log(response);
-                    if (response.success) {
-                        Swal.fire({
-                            text: 'Concepto agregado exitosamente',
-                            icon: 'success',
-                            showConfirmButton: true,
-                            confirmButtonText: 'Ok',
-                            customClass: {
-                                confirmButton: 'btn btn-primary'
-                            }
-                        });
-                        //$('#kt_modal_concept').modal('hide');
-                    } else {
-                        Swal.fire({
-                            text: 'Error al agregar el concepto: ' + response.error,
-                            icon: 'error',
-                            showConfirmButton: true,
-                            confirmButtonText: 'Ok',
-                            customClass: {
-                                confirmButton: 'btn btn-danger'
-                            }
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        text: 'Ocurrió un error al procesar la solicitud.',
-                        icon: 'error',
-                        showConfirmButton: true,
-                        confirmButtonText: 'Ok',
-                        customClass: {
-                            confirmButton: 'btn btn-danger'
-                        }
-                    });
-                }
-            });
-        });
-    });
-</script>
-
-
-
-<script>
-    $('#kt_modal_concept').on('show.bs.modal', function () {
-        $(this).removeAttr('aria-hidden'); // Elimina aria-hidden al mostrar el modal
-    });
-    
-    $('#kt_modal_concept').on('hide.bs.modal', function () {
-        $(this).attr('aria-hidden', 'true'); // Vuelve a agregar aria-hidden al ocultar el modal
-    });
-
-</script>
-
-
-<script>
-    // Función para humanizar las cifras al formato colombiano
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(value);
-    }
-
-    // Función para actualizar los totales de Ingresos y Descuentos
-    function updateTotals() {
-        let totalIncome = 0;
-        let totalDiscounts = 0;
-
-        // Iteramos sobre todas las filas de la tabla para obtener los valores
-        $('#kt_datatable_example tbody tr').each(function() {
-            // Obtenemos el valor del campo 'Valor' en la fila actual
-            let value = parseFloat($(this).find('input[name$="-value-new"], input[name$="-value-old"]').val()) || 0;
-
-            // Si el valor es positivo, es un ingreso, si es negativo, es un descuento
-            if (value > 0) {
-                totalIncome += value;
-            } else if (value < 0) {
-                totalDiscounts += value;
-            }
-        });
-
-        // Formateamos los totales
-        let formattedIncome = formatCurrency(totalIncome);
-        let formattedDiscounts = formatCurrency(totalDiscounts);
-        let total = totalIncome + totalDiscounts;
-        let formattedTotal = formatCurrency(total);
-
-        // Actualizamos los totales en el modal
-        $('#kt_modal_concept #income').html('<strong>Ingresos:</strong> <div class="text-success">' + formattedIncome + '</div>');
-        $('#kt_modal_concept #discounts').html('<strong>Descuentos:</strong> <div class="text-danger">' + formattedDiscounts + '</div>');
-        $('#kt_modal_concept #summation').html('<strong>Total:</strong> <strong>' + formattedTotal + '</strong>');
-    }
-
-    // Función para manejar el cambio de valor en las celdas de la tabla
-    $(document).on('input', 'input[name$="-value-new"], input[name$="-value-old"]', function() {
-        updateTotals();  // Llamar a la función que actualiza los totales
-    });
-
-    // Función para inicializar la tabla y calcular los totales cuando el modal se muestra
-    $('#kt_modal_concept').on('show.bs.modal', function (event) {
-        updateTotals();  // Calcular totales al abrir el modal
-    });
-
-    // Llamada cuando se agregan nuevas filas para asegurarse que los totales se actualicen
-    $('#kt_datatable_example').on('draw.dt', function() {
-        updateTotals();  // Actualizar totales cada vez que la tabla se redibuje
-    });
-</script>
-
-<script>
-    var empleadoId;
-    var counter = 2;
-    var table = $("#kt_datatable_example").DataTable({
-        language: {
-            "decimal": "",
-            "emptyTable": "No hay datos disponibles en la tabla",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
-            "infoFiltered": "(filtrado de _MAX_ entradas totales)",
-            "infoPostFix": "",
-            "thousands": ",",
-            "lengthMenu": "Mostrar _MENU_ entradas",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "Buscar:",
-            "zeroRecords": "No se encontraron registros coincidentes",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            },
-            "aria": {
-                "sortAscending": ": activar para ordenar la columna ascendente",
-                "sortDescending": ": activar para ordenar la columna descendente"
-            }
-        },
-        order: [],
-        autoWidth: false,
-        dom: 'Brt',
-        buttons: [
-            {
-                text: '<i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto',
-                className: 'btn btn-light-info',
-                id: 'kt_datatable_example_addrow',
-                action: function (e, dt, node, config) {
-                        // Llamada a la función asincrónica dentro de la acción
-                    generarSelectConceptos('/payroll/payrollapi2/',`row-${counter}-concept-new`, `row-${counter}-concept-new`).then(selectHTML => {
-                        // Una vez que el select está generado, agregamos la fila
-                        table.row.add([
-                            selectHTML,  // Aquí agregamos el select generado dinámicamente
-                            `<input type="text" class="form-control col-md-2 mb-0 form-control-sm" id="row-${counter}-amount-new" name="row-${counter}-amount-new" value=""/>`,
-                            `<input type="text" class="form-control col-md-2 mb-0 form-control-sm" id="row-${counter}-value-new" name="row-${counter}-value-new" value=""/>`,
-                            `<a href="" class="btn btn-icon btn-light-google"><i class="fa-regular fa-trash-can fs-4"></i></a>` 
-
-                        ]).draw(false);
-                        
-                        // Inicializamos select2 para la fila recién añadida
-                        $('.select2-dynamic').select2({
-                            dropdownParent: $('#kt_modal_concept'),
-                        });
-
-                        counter++;  // Incrementar el contador para nuevas filas
-                    }).catch(error => {
-                        console.error('Error al generar el select:', error);
-                    });
-                }
-            },
-        ],
-        paging: false ,
-        columns: [
-            { title: "Nombre Concepto" },
-            { title: "Cantidad" },
-            { title: "Valor" },
-            { title: "Gestionar" }
-        ],
-        columnDefs: [
-            { width: '50%', targets: 0 },
-            { width: '15%', targets: 1 },
-            { width: '30%', targets: 2 },
-            { width: '5%', targets: 3 }
-        ],
-        
-    });
-
-    // Agregar datos de la API cuando se abre el modal
-    $('#kt_modal_concept').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // El botón que activó el modal
-        var nominaId = "{{ nombre.idnomina }}"; 
-        empleadoId = button.data('empleado'); // id de empleado
-        var modal = $(this);
-
-        const url = `/payroll/payrollapi/?nomina_id=${nominaId}&empleado_id=${empleadoId}`;
-
-        // Limpiar la tabla antes de cargar nuevos datos
-        table.clear(); // Limpiar la tabla
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = modal.find('#kt_datatable_example tbody');
-                
-                // Limpiar la tabla antes de cargar los nuevos datos de la API
-                tableBody.empty(); 
-
-                let totalIncome = 0;
-                let totalDiscounts = 0;
-
-                if (data.error) {
-                    tableBody.append(`<tr><td colspan="3">${data.error}</td></tr>`);
-                } else {
-                    modal.find('.modal-title').text('Conceptos de : ' + data.nombre);
-                    modal.find('#salary').html('<strong>Salario:</strong>' + data.salario );
-                    
-
-
-                    data.conceptos.forEach(concepto => {
-                        
-                        // Genera el select para el concepto
-                        generarSelectConceptos('/payroll/payrollapi2/',`row-${concepto.codigo}-concept-old`, `row-${concepto.codigo}-concept-old`, concepto.id)
-                            .then(selectHTML => {
-                                // Añadir los datos de la API a la tabla
-                                table.row.add([
-                                    selectHTML, // Aquí agregas el select generado
-                                    `<input type="text" class="form-control form-control-sm" id="row-${concepto.codigo}-amount-old" name="row-${concepto.codigo}-amount-old" value="${concepto.amount}"/>`,
-                                    `<input type="text" class="form-control form-control-sm" id="row-${concepto.codigo}-value-old" name="row-${concepto.codigo}-value-old" value="${concepto.value}"/>`,
-                                    `<a href="" class="btn btn-icon btn-light-google"><i class="fa-regular fa-trash-can fs-4"></i></a>` 
-                                    ]).draw(false);
-
-                                // Inicializamos select2 para la fila recién añadida
-                                $('.select2-dynamic').select2({
-                                    dropdownParent: $('#kt_modal_concept'),
-                                });
-
-                            })
-                            .catch(error => {
-                                console.error('Error al generar el select:', error);
-                            });
-                    });
-
-                    modal.find('#income').html('<strong>Ingresos:</strong> '+ '<div class="text-success" >' + totalIncome.toFixed(2) + ' $' + '</div>');
-                    modal.find('#discounts').html('<strong>Descuentos:</strong> '+ '<div class="text-danger" >' + totalDiscounts.toFixed(2) + ' $' + '</div>');
-
-                    let total = totalIncome + totalDiscounts;
-                    modal.find('#summation').html('<strong>Total:</strong> '+ '<strong>' + total.toFixed(2) + ' $' + '</strong>');
-                }
-            })
-            .catch(error => {
-                console.error("Error al obtener los datos:", error);
-                modal.find('#kt_datatable_example tbody').html("<tr><td colspan='3'>Error al cargar la información.</td></tr>");
-            });
-    });
-</script>
-
-
-
-
-
 
 
 <script>
