@@ -24,8 +24,7 @@ urlpatterns = [
     path('payroll/electronic_payroll_detail_view/<int:pk>', electronic_payroll.electronic_payroll_detail_view, name='ver_nomina_electronica_detalle'),
     
     #loans
-    path('payroll/loans', loans.employee_loans, name='loans_list'),
-
+    path('loans', loans.employee_loans, name='loans_list'),
 
     #parametros
     path('parameters/bancks', parameters.banks, name='banks'),
