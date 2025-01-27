@@ -757,7 +757,7 @@ class Conceptosdenomina(models.Model):
     #familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name="conceptos", blank=True,null=True)
     grupo_dian = models.ForeignKey('NeSumatorias', on_delete=models.DO_NOTHING , blank=True, null=True , related_name="conceptos_NeSumatorias",)
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING , blank=True, null=True , related_name="conceptos_Empresa",)
-    codigo = models.CharField(max_length=255, blank=True, null=True)
+    codigo = models.IntegerField()
     indicador = models.ManyToManyField(Indicador, related_name="indicador", blank=True)
     
     class Meta:
