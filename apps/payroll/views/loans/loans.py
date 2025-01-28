@@ -8,17 +8,16 @@ from django.db.models import F, Q, Case, When, Value, CharField, Sum, Count
 
 
 #models
-from apps.common.models import Prestamos, Contratos
+from apps.common.models import Prestamos, Contratos, Nomina
 
 #forms
-# from apps.companies.forms.loansForm import LoansForm
 from apps.payroll.forms.LoansForm import LoansForm
 
 #
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
-# view detail electronic payroll container
+# view employee loans
 @login_required
 @role_required('accountant', 'company')
 def employee_loans(request):
@@ -79,3 +78,42 @@ def employee_loans(request):
     }
 
     return render(request, 'payroll/employee_loans.html', context)
+
+# view detail electronic payroll container
+@login_required
+@role_required('accountant', 'company')
+def detail_employee_loans(request, pk=None):
+    employee_info = Contratos.objects.select_related('idempleado').get(idcontrato=pk)
+    full_name = f"{employee_info.idempleado.pnombre} {employee_info.idempleado.snombre} {employee_info.idempleado.papellido} {employee_info.idempleado.sapellido}"
+    document_id = employee_info.idempleado.docidentidad
+    # position = employee_info.idempleado.cargo
+    loans_detail = Prestamos.objects.filter(idcontrato=pk).order_by('-idprestamo')
+    context = {
+        'employee_info': {
+            'full_name': full_name,
+            'document_id': document_id,
+            # 'position': position,
+        },
+        'loans_detail': loans_detail
+    }
+    return render(request, 'payroll/detail_employee_loans.html', context)
+
+def api_detail_payroll_loan(request, pk=None):
+
+    payroll_loans = Nomina.objects.select_related(
+        'idnomina'
+    ).values(
+        'idnomina__idnomina',
+        'idnomina__fechapago',
+        'valor',
+    ).filter(
+        idconcepto = 35, control=pk
+    ).order_by('idnomina__fechapago')
+    
+    loans_data = payroll_loans.values(
+        'idnomina__idnomina',
+        'idnomina__fechapago',
+        'valor',
+    )
+
+    return JsonResponse(list(loans_data), safe=False)

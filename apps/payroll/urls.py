@@ -25,6 +25,8 @@ urlpatterns = [
     
     #loans
     path('loans', loans.employee_loans, name='loans_list'),
+    path('loans_detail/<int:pk>', loans.detail_employee_loans, name='loans_detail'),
+    path('api_detail_payroll_loan/<int:pk>', loans.api_detail_payroll_loan, name='api_loans_detail'),
 
     #parametros
     path('parameters/bancks', parameters.banks, name='banks'),

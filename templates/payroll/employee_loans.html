@@ -87,7 +87,7 @@ Prestamos Empleados
             <td  class="text-center align-middle">{{ loan.loan_count }}</td>
             <td  class="text-center align-middle">
                 <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                    <a href="" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
+                    <a href="{% url 'payroll:loans_detail' loan.contract_id   %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
                         <i class="fa-regular fa-eye fs-2"></i>
                     </a>
                 </div>
