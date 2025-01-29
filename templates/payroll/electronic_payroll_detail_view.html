@@ -1,0 +1,492 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% block navbar %}
+    {% include 'base/navbar_payroll.html' %}               
+{% endblock %}
+
+{% load static %} 
+
+
+{% block title %}
+    Nomiweb.co - Aplicacion Contable - Nómina Electrónica
+{% endblock %}
+
+
+
+{% block sub_titulo1 %} 
+<a href="{% url 'payroll:detalle_nomina_electronica' pk=detail_payroll.container_id %}" class="text-gray-500 text-hover-primary">
+    Detalle Nómina Electrónica
+</a>
+{% endblock %}
+
+{% block sub_titulo2 %} 
+Detalle Envio Nómina: {{ detail_payroll.employee_name }}
+{% endblock %}
+
+{% block sub_titulo3 %} 
+
+{% endblock %}
+
+{% block titulo2 %} 
+
+{% endblock %}
+
+{% block actions %}
+<!-- Botón para volver página anterior -->
+<a href="{% url 'payroll:detalle_nomina_electronica' pk=detail_payroll.container_id %}"  class="btn btn-light-primary"   >
+    Atras
+    <i class="ki-duotone ki-exit-left fs-2 ">             
+        <span class="path1"></span>
+        <span class="path2"></span>
+    </i>
+</a>  
+
+
+{% endblock %}
+
+{%block content%} 
+<!-- Contenido de la página -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            {% comment %} <div class="card-header">
+                <div class="card-title">
+                    <h2></h2>
+                </div>
+                <div class="card-toolbar">
+                    
+                </div>
+            </div> {% endcomment %}
+            <div class="card-body">
+                <div class="mb-7">
+                    <div class="d-flex align-items-center">
+                        <div class="d-flex flex-column">
+                            <p class="fs-4 fw-bold text-gray-900 text-hover-primary me-2">{{ detail_payroll.employee_name }}</p>
+                            <p class="fw-semibold text-gray-600 text-hover-primary">{{ detail_payroll.employee_position }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator separator-dashed mb-7"></div>
+                <div class="mb-7">
+                    <h5 class="mb-4">Estado Envio</h5>
+                    <div class="mb-0">
+                        {% if detail_payroll.state_send == 1 %}
+                            <span class="badge badge-light-primary me-2">Generado</span>
+                        {% elif detail_payroll.state_send == 2 %}
+                            <span class="badge badge-light-success me-2 mb-2">Exitoso</span>
+                            <p>Cune: {{ cune }}</p>
+                            <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_2">
+                                VER DIAN
+                            </button>
+                            
+                            <div class="modal bg-body fade" tabindex="-1" id="kt_modal_2">
+                                <div class="modal-dialog modal-fullscreen">
+                                    <div class="modal-content shadow-none">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Ver DIAN</h5>
+                            
+                                            <!--begin::Close-->
+                                            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                                                <i class="ki-duotone ki-cross fs-2x"><span class="path1"></span><span class="path2"></span></i>
+                                            </div>
+                                            <!--end::Close-->
+                                        </div>
+                            
+                                        <div class="modal-body">
+                                            <iframe src="https://catalogo-vpfe-hab.dian.gov.co/Document/ShowDocumentToPublic/{{cune}}" style="width: 100%; height: 100%; border: none;"></iframe>
+                                        </div>
+                            
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary">Save changes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% elif detail_payroll.state_send == 3 %}
+                            <span class="badge badge-light-danger me-2">Error</span>
+                        {% endif %}
+                    </div>
+                </div>   
+                <div class="separator separator-dashed mb-7"></div>
+                <div class="mb-10">
+                    <h5 class="mb-4">Información</h5>
+                    <table class="table fs-6 fw-semibold gs-0 gy-2 gx-2">
+                        <tbody>
+                            <tr class="">
+                                <td class="text-gray-500"># Documento:</td>
+                                <td class="text-gray-800">{{ detail_payroll.employee_document }}</td>
+                            </tr>
+                            <tr class="">
+                                <td class="text-gray-500">Fecha de Ingreso:</td>
+                                <td class="text-gray-800">{{ detail_payroll.employee_entry_date }}</td>
+                            </tr>
+                            <tr class="">
+                                <td class="text-gray-500">Salario:</td>
+                                <td class="text-gray-800">{{ detail_payroll.employee_salary }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="card shadow-sm">
+            {% comment %} <div class="card-header">
+                <h3 class="card-title">Información Nómina </h3>
+                <div class="card-toolbar">
+                    <button type="button" class="btn btn-sm btn-light">
+                        Ver DIAN
+                    </button>
+                </div>
+            </div> {% endcomment %}
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#kt_tab_pane_1">Detalle Envio Json</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#kt_tab_pane_2">Registros Envios</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="kt_tab_pane_1" role="tabpanel">
+                        <div class="container my-5">
+                            <h1 class="text-center mb-4">Comprobante de Nómina</h1>
+
+                            <div class="row">
+                                <!-- Devengados (Izquierda) -->
+                                <div class="col-md-6">
+                                    <h3 class="text-center">Devengados</h3>
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center">Concepto</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-center">Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if json_data.Devengados.Basico.SueldoTrabajado %}
+                                            <tr>
+                                                <td>Básico</td>
+                                                <td class="text-center">{{ json_data.Devengados.Basico.DiasTrabajados }}</td>
+                                                <td class="text-end">{{ json_data.Devengados.Basico.SueldoTrabajado|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+
+                                            {% if json_data.Devengados.Transporte.AuxilioTransporte %}
+                                            <tr>
+                                                <td>Auxilio Transporte</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-end">{{ json_data.Devengados.Transporte.AuxilioTransporte|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if json_data.Devengados.Transporte.ViaticoManuAlojS %}
+                                            <tr>
+                                                <td>Viático Manutención y Alojamiento (S)</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-end">{{ json_data.Devengados.Transporte.ViaticoManuAlojS|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if json_data.Devengados.Transporte.ViaticoManuAlojNS %}
+                                            <tr>
+                                                <td>Viático Manutención y Alojamiento (NS)</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-end">{{ json_data.Devengados.Transporte.ViaticoManuAlojNS|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            
+                                            {% if json_data.Devengados.HoraExtraDiurna %}
+                                                {% for hora_extra in json_data.Devengados.HoraExtraDiurna %}
+                                                <tr>
+                                                    <td>Hora Extra Diurna</td>
+                                                    <td class="text-center">{{ hora_extra.Cantidad }}</td>
+                                                    <td class="text-end">{{ hora_extra.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.HoraExtraDiurnaDominicalFestivo %}
+                                                {% for hora_extra in json_data.Devengados.HoraExtraDiurnaDominicalFestivo %}
+                                                <tr>
+                                                    <td>Hora Extra Diurna Dominical y Festiva</td>
+                                                    <td class="text-center">{{ hora_extra.Cantidad }}</td>
+                                                    <td class="text-end">{{ hora_extra.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.HoraExtraNocturna %}
+                                                {% for hora_extra in json_data.Devengados.HoraExtraNocturna %}
+                                                <tr>
+                                                    <td>Hora Extra Nocturna</td>
+                                                    <td class="text-center">{{ hora_extra.Cantidad }}</td>
+                                                    <td class="text-end">{{ hora_extra.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.RecargoNocturno %}
+                                                {% for hora_extra_RecargoNocturno in json_data.Devengados.RecargoNocturno %}
+                                                <tr>
+                                                    <td>Horas Extras Nocturnas</td>
+                                                    <td class="text-center">{{ hora_extra_RecargoNocturno.Cantidad }}</td>
+                                                    <td class="text-end">{{ hora_extra_RecargoNocturno.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                            
+                                            {% if json_data.Devengados.HoraExtraDiurnaDominicalFestiva %}
+                                                {% for hora_extra in json_data.Devengados.HoraExtraDiurnaDominicalFestiva %}
+                                                <tr>
+                                                    <td>Hora Extra Diurna Dominical y Festiva</td>
+                                                    <td class="text-center">{{ hora_extra.Cantidad }}</td>
+                                                    <td class="text-end">{{ hora_extra.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.HoraRecargoDiurnoDominicalFestivo %}
+                                                {% for hora_extra in json_data.Devengados.HoraRecargoDiurnoDominicalFestivo %}
+                                                <tr>
+                                                    <td>Hora Recargo Diurno Dominical y Festivo</td>
+                                                    <td class="text-center">{{ hora_extra.Cantidad }}</td>
+                                                    <td class="text-end">{{ hora_extra.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.HoraExtraNocturnaDominicalFestiva %}
+                                                {% for hora_extra in json_data.Devengados.HoraExtraNocturnaDominicalFestiva %}
+                                                <tr>
+                                                    <td>Hora Extra Nocturna Dominical y Festiva</td>
+                                                    <td class="text-center">{{ hora_extra.Cantidad }}</td>
+                                                    <td class="text-end">{{ hora_extra.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.HoraRecargoNocturnoDominicalFestivo %}
+                                                {% for hora_extra in json_data.Devengados.HoraRecargoNocturnoDominicalFestivo %}
+                                                <tr>
+                                                    <td>Hora Recargo Nocturno Dominical y Festivo</td>
+                                                    <td class="text-center">{{ hora_extra.Cantidad }}</td>
+                                                    <td class="text-end">{{ hora_extra.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Vacaciones %}
+
+                                                {% if json_data.Devengados.Vacaciones.VacacionesComunes %}
+                                                    {% for vacacion in json_data.Devengados.Vacaciones.VacacionesComunes %}
+                                                    <tr>
+                                                        <td>Vacaciones Comunes</td>
+                                                        <td class="text-center">{{ vacacion.Cantidad }}</td>
+                                                        <td class="text-end">{{ vacacion.Pago|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+
+                                                {% if json_data.Devengados.Vacaciones.VacacionesCompensadas %}
+                                                    {% for vacacion in json_data.Devengados.Vacaciones.VacacionesCompensadas %}
+                                                    <tr>
+                                                        <td>Vacaciones Compensadas</td>
+                                                        <td class="text-center">{{ vacacion.Cantidad }}</td>
+                                                        <td class="text-end">{{ vacacion.Pago|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Cesantias %}
+                                            
+                                                {% if json_data.Devengados.Cesantias.PagoIntereses %}
+                                                    <tr>
+                                                        <td>Pago Intereses</td>
+                                                        <td class="text-center"></td>
+                                                        <td class="text-end">{{ json_data.Devengados.Cesantias.PagoIntereses|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                {% else %}
+                                                <tr>
+                                                    <td>Cesantías</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ json_data.Devengados.Cesantias.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endif %}
+                                            {% endif %}
+                                            
+                                            {% if json_data.Devengados.Primas %}
+
+                                                {% if json_data.Devengados.Primas.Cantidad %}
+                                                <tr>
+                                                    <td>Primas</td>
+                                                    <td class="text-center">{{ json_data.Devengados.Primas.Cantidad }}</td>
+                                                    <td class="text-end">{{ json_data.Devengados.Primas.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endif %}
+
+                                                {% if json_data.Devengados.Primas.PagoNS %}
+                                                <tr>
+                                                    <td>Primas No Salariales</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ json_data.Devengados.Primas.PagoNS|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endif %}
+
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Incapacidad %}
+                                                {% for incapacidad in json_data.Devengados.Incapacidad %}
+                                                <tr>
+                                                    <td>Incapacidad ({{ incapacidad.Tipo }})</td>
+                                                    <td class="text-center">{{ incapacidad.Cantidad }}</td>
+                                                    <td class="text-end">{{ incapacidad.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.LicenciaMP %}
+                                                {% for licencia in json_data.Devengados.LicenciaMP %}
+                                                <tr>
+                                                    <td>Licencia de Maternidad/Paternidad</td>
+                                                    <td class="text-center">{{ licencia.Cantidad }}</td>
+                                                    <td class="text-end">{{ licencia.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th class="text-end" colspan="2">Total Devengados</th>
+                                                <th class="text-end">{{ json_data.DevengadosTotal|floatformat:2|intcomma }}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
+                                <!-- Deducciones (Derecha) -->
+                                <div class="col-md-6">
+                                    <h3 class="text-center">Deducciones</h3>
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center">Concepto</th>
+                                                <th class="text-center">Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if json_data.Deducciones.Salud.Deduccion %}
+                                            <tr>
+                                                <td>Salud</td>
+                                                <td class="text-end">{{ json_data.Deducciones.Salud.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.FondoPension.Deduccion %}
+                                            <tr>
+                                                <td>Fondo de Pensión</td>
+                                                <td class="text-end">{{ json_data.Deducciones.FondoPension.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% for sindicato in json_data.Deducciones.Sindicato %}
+                                            {% if sindicato.Deduccion %}
+                                            <tr>
+                                                <td>Sindicato</td>
+                                                <td class="text-end">{{ sindicato.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% endfor %}
+                                            <!-- Agrega validaciones para más conceptos según el JSON -->
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>Total Deducciones</th>
+                                                <th class="text-end">{{ json_data.DeduccionesTotal|floatformat:2|intcomma }}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Total Comprobante -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h3 class="text-center">Total Comprobante</h3>
+                                    <div class="alert alert-success text-center fs-4">
+                                        {{ json_data.ComprobanteTotal|floatformat:2|intcomma }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane fade" id="kt_tab_pane_2" role="tabpanel">
+                        <table id="kt_datatable_dom_positioning" class="table table-striped table-row-bordered gy-5 gs-7 border rounded">
+                            <thead>
+                                <tr class="fw-bold fs-6 text-gray-800 px-7">
+                                    <th>ID</th>
+                                    <th>Fecha y hora</th>
+                                    <th>Respuesta</th>
+                                    <th>Codigo Respuesta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for response in detail_payroll_response %}
+                                <tr>
+                                    <td>{{ response.id_ne_respuesta_dian }}</td>
+                                    <td>{{ response.fecha_transaccion|date:"d/m/Y H:i:s" }}</td>
+                                    <td>{{ response.json_respuesta }}</td>
+                                    <td>{{ response.codigo_respuesta }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $("#kt_datatable_dom_positioning").DataTable({
+        "language": {
+            "lengthMenu": "Mostrar _MENU_",
+            "zeroRecords": "No se encontraron resultados",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+            "first": "Primero",
+            "last": "Último",
+            "next": "Siguiente",
+            "previous": "Anterior"
+            },
+        },
+        "dom":
+            "<'row mb-2'" +
+            "<'col-sm-6 d-flex align-items-center justify-conten-start dt-toolbar'l>" +
+            "<'col-sm-6 d-flex align-items-center justify-content-end dt-toolbar'f>" +
+            ">" +
+        
+            "<'table-responsive'tr>" +
+        
+            "<'row'" +
+            "<'col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start'i>" +
+            "<'col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+            ">",
+        "order": []
+    });
+</script>
+{% endblock %}
