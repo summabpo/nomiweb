@@ -1,41 +1,27 @@
-{% extends 'base/base.html' %}
-{% block navbar %}
-    {% include 'base/navbar_administrator.html' %}                
-{% endblock %}
 {% load crispy_forms_tags %}
-
-{% block title %}
-    Nomiweb.co - Administrador 
-{% endblock %}
+<!-- admin/usercreate.html -->
 
 
-{% block css %}
-{% endblock %}
-
-
-
-{% block sub_titulo1 %} 
-    Admin
-{% endblock %}
-
-
-{% block sub_titulo2 %} 
-    inicio
-{% endblock %}
-
-
-
-{% block titulo2 %} 
-    Creacion de Usuario
-{% endblock %}
-
-
-
-{% block content %}
-    {% crispy form %}
-{% endblock %}
-
-
-{% block js %}
-{% endblock %}
-
+<div class="modal fade" tabindex="-1" id="kt_modal_maintenance" hx-target="this">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Usuario</h3>
+                <!-- Botón para cerrar el modal -->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <div class="modal-body" id="modal-content-body">
+                <form id="form_user" method="post" hx-post="{% url 'admin:usercreate' %}" hx-target="#modal-content-body">
+                    {% csrf_token %}
+                    {% crispy form %}  <!-- Usar crispy para mantener los estilos personalizados -->
+                </form> <!-- Incluye el formulario con crispy -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" form="form_user" class="btn btn-primary">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
