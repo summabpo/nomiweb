@@ -13,7 +13,7 @@ urlpatterns = [
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),
     path('payrollapi/', payroll.PayrollAPI.as_view(), name='payrollviewapi'),
     path('payrollapi2/', payroll.PayrollAPI2.as_view(), name='payrollviewapi2'),
-    path('payroll/pruebas/2', pruebas.vista_con_dos_formularios, name='vista_con_dos_formularios'),
+    #path('payroll/pruebas/2', pruebas.vista_con_dos_formularios, name='vista_con_dos_formularios'),
 
     #electronic_payroll
     path('payroll/electronic_payroll/', electronic_payroll.electronic_payroll_container, name='nomina_electronica'),
