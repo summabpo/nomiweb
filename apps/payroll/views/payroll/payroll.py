@@ -16,6 +16,7 @@ import json
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 
+
 @login_required
 @role_required('accountant')
 def payroll(request):
@@ -117,13 +118,14 @@ def payrollview(request, id):
     })
 
 
+
 class PayrollAPI2(View):
     def get(self, request, *args, **kwargs):
         usuario = request.session.get('usuario', {})
         idempresa = usuario['idempresa']
         try:
             # Obtener los datos de la base de datos
-            conceptos_data = Conceptosdenomina.objects.filter(id_empresa_id = idempresa).values('idconcepto','nombreconcepto','multiplicadorconcepto','formula','codigo').order_by('nombreconcepto') # Convertir el QuerySet a un formato serializable
+            conceptos_data = Conceptosdenomina.objects.filter(id_empresa_id = idempresa).values('idconcepto','nombreconcepto','multiplicadorconcepto','formula','codigo').order_by('codigo') # Convertir el QuerySet a un formato serializable
             conceptos_list = list(conceptos_data)  # Convertir el QuerySet a una lista de diccionarios
             
             # Construir la respuesta JSON
@@ -306,4 +308,7 @@ class PayrollAPI(View):
         except Exception as e:
             print(f"Error inesperado: {str(e)}")
             return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=500)
+
+
+
 

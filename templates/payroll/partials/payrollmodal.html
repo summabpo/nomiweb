@@ -1,3 +1,5 @@
+{% load crispy_forms_tags %}
+
 <div class="container">
     <div class="row align-items-start">
         <!-- Columna del acordeón más pequeña -->
@@ -52,7 +54,7 @@
         <div class="scroll h-400px px-5 col-md-8">
             <form id="form_custom_payroll_concept" method="post" action="{% url 'payroll:payrollviewapi' %}">
                 {% csrf_token %}
-                <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5 ">
+                {% comment %} <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5 ">
                     <thead>
                         <tr class="fw-bold fs-6 text-gray-800">
                             <th class="text-center" >Nombre Concepto</th>
@@ -79,15 +81,13 @@
                         {% endfor %}
                             
                     </tbody>
-                </table>
+                </table> {% endcomment %}
                 {% for form in forms %}
                     <form method="post">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        {% crispy form %}
                     </form>
                 {% endfor %}
             </form> 
-        </div>
+        </div> 
     </div>   
 </div>

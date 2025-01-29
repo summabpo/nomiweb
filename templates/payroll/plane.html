@@ -95,9 +95,6 @@ Archivo Plano
                     <th>ID Contrato</th>
                     <th class="text-center">Identificación</th>
                     <th class="text-center">Nombre</th>
-                    <th class="text-center">Concepto</th>
-                    <th class="text-center">Cantidad</th>
-                    <th class="text-center">Valor</th>
                     <th class="text-center">Error</th>
                 </tr>                
             </thead>
@@ -108,12 +105,15 @@ Archivo Plano
                         <td>{{ error.contract_id|default:"-" }}</td>
                         <td class="text-center">{{ error.identification }}</td>
                         <td class="text-center">{{ error.name }}</td>
-                        <td class="text-center">{{ error.concept|default:"-" }}</td>
-                        <td class="text-center">{{ error.value }}</td>
-                        <td class="text-center">{{ error.quantity }}</td>
                         <td class="text-center text-danger">
-                            <ul class="mb-0 list-unstyled" style="padding-left: 0;">
-                                {{ error.error|safe }}  <!-- Se usa el filtro 'safe' para interpretar el HTML en la plantilla -->
+                            <ul class="mb-0 list-unstyled" style="padding-left: 0; display: flex; align-items: center;">
+                                <li>{{ error.error|safe }}</li>  <!-- Se usa el filtro 'safe' para interpretar el HTML en la plantilla -->
+                                
+                                {% if error.details %}
+                                    <i class="fa-solid fa-question" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="{{error.details}}" style="margin-left: 5px;"></i>
+                                {% endif %}
+                                    
+                                
                             </ul>
                         </td>
                     </tr>

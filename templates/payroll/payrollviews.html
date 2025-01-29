@@ -52,7 +52,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
     <div style="width: 10px;"></div>
 
     <!-- Botón adicional -->
-    <a href="{% static 'docs/nominas_masivas.xlsx' %}" 
+    <a href="{% url 'payroll:document_plane' %}" 
         download class="btn btn-light-primary text-dark" 
         data-bs-toggle="tooltip" 
         data-bs-custom-class="tooltip-inverse" 
@@ -91,7 +91,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                         </label> {% endcomment %}
                         <input  class="form-control form-control-sm" id="file-upload" name="file" type="file" />
                         <small id="fileHelp" class="form-text text-muted">
-                            Solo se aceptan archivos de tipo Excel (.xlsx). <a href="{% static 'docs/nominas_masivas.xlsx' %}" download>Descarga la plantilla aquí</a> si aún no la tienes.
+                            Solo se aceptan archivos de tipo Excel (.xlsx). <a href="{% url 'payroll:document_plane' %}" download>Descarga la plantilla aquí</a> si aún no la tienes.
                         </small>
                     </div>
                 </form>
