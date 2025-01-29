@@ -1,7 +1,7 @@
 from django.urls import path
 from .views.index import index
 from .views.payroll import payroll
-from .views.plane import plane
+from .views.flat  import flat 
 from .views.electronic_payroll import electronic_payroll
 from .views.parameters import parameters
 from .views.pruebas import pruebas
@@ -18,8 +18,8 @@ urlpatterns = [
     path('payroll/generate_detail_electronic_payroll_ref/<int:pk>', electronic_payroll.electronic_payroll_generate_refactor, name='generar_detalle_electronica_ref'),
     
     ## plano 
-    path('plane/<int:id>', plane.plane, name='plane'),
-    path('document/', plane.document, name='document_plane'),
+    path('flat/<int:id>', flat.flat , name='flat'),
+    path('document/', flat.document, name='document_flat'),
     
     #parametros
     path('parameters/bancks', parameters.banks, name='banks'),

@@ -27,19 +27,110 @@ Archivo Plano
 
 {% block actions %}
     <!-- Botón para Volver Atras -->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_stacked_1">
+    <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_stacked_1">
         <i class="ki-duotone ki-exit-left fs-2 ">             
             <span class="path1"></span>
             <span class="path2"></span>
         </i>
         Atras
     </button>
+    <div style="width: 10px;"></div>
+    <!-- Botón adicional -->
+    <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_loaddata">
+        <i class="fa-solid fa-upload fs-2"></i>
+        Cargar Archivo Plano
+    </button>
+
 {% endblock %}
 
 
 
 {%block content%} 
 
+
+{% if general_error %}
+    
+        <!--begin::Alert-->
+        <div class="alert alert-dismissible bg-light-danger d-flex flex-column flex-sm-row p-5 mb-10">
+            <!--begin::Icon-->
+            <i class="ki-duotone ki-search-list fs-2hx text-danger me-4 mb-5 mb-sm-0"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+            <!--end::Icon-->
+
+            <!--begin::Wrapper-->
+            <div class="d-flex flex-column pe-0 pe-sm-10">
+                <!--begin::Title-->
+                <h4 class="mb-2 light">
+                    {% if general_error|length == 1 %}
+                        ¡Oh no! Algo salió mal...
+                    {% else %}
+                        ¡Ups! Algo no va bien, parece que hay más de un problema...
+                    {% endif %}
+                </h4>
+                <!--end::Title-->
+                <ul>
+                    {% for error in general_error %}
+                        <!--begin::Content-->
+                        <li><span>{{ error }}</span></li>
+                        <!--end::Content-->
+                    {% endfor %}
+                </ul>
+                    
+                    
+                    
+                
+            </div>
+            <!--end::Wrapper-->
+
+            <!--begin::Close-->
+            <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                <i class="ki-duotone ki-cross fs-1 text-light"><span class="path1"></span><span class="path2"></span></i>
+            </button>
+            <!--end::Close-->
+        </div>
+        <!--end::Alert-->
+    
+{% endif %}
+    
+
+
+<div class="modal fade" tabindex="-1" id="kt_modal_loaddata">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Carga de Documento</h3>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+
+                <form id="upload-form" name="upload-form" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        {% csrf_token %}
+                        {% comment %} <label for="file-upload" class="form-label">
+                            <i class="fa-solid fa-upload fs-2"></i>
+                            Cargar Archivo Plano
+                        </label> {% endcomment %}
+                        <input  class="form-control form-control-sm" id="file-upload" name="file" type="file" />
+                        <small id="fileHelp" class="form-text text-muted">
+                            Solo se aceptan archivos de tipo Excel (.xlsx). <a href="{% url 'payroll:document_flat' %}" download>Descarga la plantilla aquí</a> si aún no la tienes.
+                        </small>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" form="upload-form" class="btn btn-primary">Cargar Archivo</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" tabindex="-1" id="kt_modal_stacked_1">
     <div class="modal-dialog modal-dialog-centered">
