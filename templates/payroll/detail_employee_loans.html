@@ -26,10 +26,13 @@ Detalle nomina
 {% endblock %}
 
 {% block titulo2 %} 
+{% if request.session.usuario.rol != 'employee' %}
 Información Empleado: {{ employee_info.full_name }}
+{% endif %}
 {% endblock %}
 
 {% block actions %}
+{% if request.session.usuario.rol != 'employee' %}
 <a href="{% url 'payroll:loans_list' %}"  class="btn btn-light-primary"   >
     Atras
     <i class="ki-duotone ki-exit-left fs-2 ">             
@@ -37,7 +40,9 @@ Información Empleado: {{ employee_info.full_name }}
         <span class="path2"></span>
     </i>
 </a>  
+{% endif %}
 {% endblock %}
+
 
 
 {%block content%}
@@ -59,7 +64,14 @@ Información Empleado: {{ employee_info.full_name }}
             <td class="text-center align-middle">{{ loan.fechaprestamo|date:"d-M-Y" }}</td>
             <td class="text-center align-middle">{{ loan.valorprestamo }}</td>
             <td class="text-center align-middle ">{{ loan.cuotasprestamo }}</td>
-            <td class="text-center align-middle">{{ loan.estadoprestamo }}</td>
+            <td class="text-center align-middle">
+                {% if loan.estadoprestamo %}
+                    <span class="badge badge-light-info">Activo</span>
+                {% else %}
+                    <span class="badge badge-light-success">Finalizado</span>
+                {% endif %}
+            </td>
+            
             <td class="text-center align-middle">
                 <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                     <button type="button" 
@@ -115,52 +127,55 @@ Información Empleado: {{ employee_info.full_name }}
             const button = $(event.relatedTarget);
             const loanId = button.data('loan-id');
             const modal = $(this);
-            
             // Limpiar contenido anterior
             modal.find('#loanDetailContent').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i> Cargando...</div>');
             modal.find('#loanIdHeader').text(loanId);
     
             // Hacer petición AJAX
             $.ajax({
-                url: `/payroll/api/loan-details/${loanId}/`,
+                url: `/payroll/api_detail_payroll_loan/${loanId}`,
                 method: 'GET',
                 success: function(data) {
-                    const tableContent = `
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Nómina ID</th>
-                                    <th>Fecha Pago</th>
-                                    <th>Valor Deducción</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.details.map(detail => `
+                    console.log(data); // Para depuración
+                    
+                    if (data.detalles && data.detalles.length > 0) {
+                        const tableContent = `
+                            <table class="table table-bordered table-striped table-hover">
+                                <thead class="thead-dark">
                                     <tr>
-                                        <td>${detail.nomina_id}</td>
-                                        <td>${new Date(detail.fecha_pago).toLocaleDateString()}</td>
-                                        <td>$${detail.valor_deduccion.toLocaleString()}</td>
-                                        <td>${detail.estado}</td>
+                                        <th colspan="4" class="text-center bg-light-info p-2">
+                                            Saldo Inicial: ${data.saldo_inicial}
+                                        </th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <p><strong>Total Pagado:</strong> $${data.total_pagado.toLocaleString()}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Saldo Pendiente:</strong> $${data.saldo_pendiente.toLocaleString()}</p>
-                            </div>
-                        </div>
-                    `;
-                    modal.find('#loanDetailContent').html(tableContent);
+                                    <tr class="text-center">
+                                        <th class="align-middle">Nómina ID</th>
+                                        <th class="align-middle">Fecha Pago</th>
+                                        <th class="align-middle">Valor Deducción</th>
+                                        <th class="align-middle">Saldo Restante</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.detalles.map(detail => `
+                                        <tr>
+                                            <td class="text-center align-middle">${detail.nomina_id}</td>
+                                            <td class="text-center align-middle">${detail.fecha_pago}</td>
+                                            <td class="text-end align-middle">${detail.valor_deduccion}</td>
+                                            <td class="text-end align-middle">${detail.saldo_restante}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                        $('#loanDetailContent').html(tableContent);
+                    } else {
+                        $('#loanDetailContent').html('<div class="alert alert-info">No hay registros de deducciones</div>');
+                    }
                 },
                 error: function() {
-                    modal.find('#loanDetailContent').html('<div class="alert alert-danger">Error al cargar los datos</div>');
+                    $('#loanDetailContent').html('<div class="alert alert-danger">Error al cargar los datos</div>');
                 }
             });
+            
         });
     });
     </script>
