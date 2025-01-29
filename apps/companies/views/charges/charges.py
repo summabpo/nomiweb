@@ -18,7 +18,7 @@ def toggle_charge_active_status(request, id, activate=True):
     return redirect('companies:charges')
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def charges(request): 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']

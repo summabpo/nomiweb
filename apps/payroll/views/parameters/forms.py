@@ -158,3 +158,82 @@ class HolidaysForm(forms.Form):
                 css_class='row'
             )
         )
+
+
+
+
+class FixedForm(forms.Form):
+    conceptofijo = forms.CharField(
+        label='Concepto fijo',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el concepto fijo'})
+    )
+    valorfijo = forms.DecimalField(
+        label='Valor fijo',
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el valor fijo'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Configuración de Crispy Forms
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.enctype = 'multipart/form-data'
+
+        # Diseño del formulario con Crispy Forms
+        self.helper.layout = Layout(
+            Row(
+                Column('conceptofijo', css_class='form-group col-md-6 mb-0'),
+                Column('valorfijo', css_class='form-group col-md-6 mb-0'),
+                css_class='row'
+            )
+        )
+        
+        
+class AnnualForm(forms.Form):
+    salariominimo = forms.DecimalField(
+        label='Salario mínimo',
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el salario mínimo'})
+    )
+    auxtransporte = forms.DecimalField(
+        label='Auxilio de transporte',
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el auxilio de transporte'})
+    )
+    uvt = forms.DecimalField(
+        label='UVT',
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el valor de la UVT'})
+    )
+    ano = forms.IntegerField(
+        label='Año',
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el año'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Configuración de Crispy Forms
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.enctype = 'multipart/form-data'
+
+        # Diseño del formulario con Crispy Forms
+        self.helper.layout = Layout(
+            Row(
+                Column('salariominimo', css_class='form-group col-md-6 mb-0'),
+                Column('auxtransporte', css_class='form-group col-md-6 mb-0'),
+                css_class='row'
+            ),
+            Row(
+                Column('uvt', css_class='form-group col-md-6 mb-0'),
+                Column('ano', css_class='form-group col-md-6 mb-0'),
+                css_class='row'
+            )
+        )

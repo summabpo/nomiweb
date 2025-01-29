@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Bancos ,Festivos , Entidadessegsocial
+from apps.common.models import Bancos ,Festivos , Entidadessegsocial,Conceptosfijos , Salariominimoanual
 
 from apps.payroll.forms.PayrollForm import PayrollForm
 from django.contrib import messages
-from .forms import BanksForm ,HolidaysForm , EntitiesForm
+from .forms import BanksForm ,HolidaysForm , EntitiesForm ,FixedForm , AnnualForm
 
 
 
@@ -139,4 +139,75 @@ def holidays(request):
     
     return render(request, './payroll/holidays.html', {'festivos': festivos, 'form': form, 'error': error})
 
+
+@login_required
+@role_required('accountant')
+def fixed(request):
+    fixeds = Conceptosfijos.objects.all().order_by('idfijo')
+    form = FixedForm()
+    error = False
+    
+    if request.method == 'POST':
+        form = FixedForm(request.POST)
+        if form.is_valid():
+            try:
+                # Crear instancia de Crearnomina
+                Conceptosfijos.objects.create(
+                    conceptofijo=form.cleaned_data['conceptofijo'],
+                    valorfijo  = form.cleaned_data['valorfijo']
+                )
+
+                messages.success(request, "Dato creada exitosamente.")
+                return redirect('payroll:fixed')  # Redirigir a una vista de lista, por ejemplo
+            except:
+                messages.error(request, "Hubo un problema al procesar la información.")
+
+        else:
+            error = True
+            # Si el formulario no es válido, recopilamos todos los errores y los mostramos en un solo mensaje
+            error_message = "Por favor, corrija los siguientes errores:"
+            for field in form:
+                for error in field.errors:
+                    error_message += f"\n- {error}"
+
+            messages.error(request, error_message)
+    
+    
+    return render(request, './payroll/fixed.html',{'fixeds': fixeds, 'form': form, 'error': error})
+
+
+@login_required
+@role_required('accountant')
+def annual(request):
+    wages = Salariominimoanual.objects.all().order_by('idano')
+    form = AnnualForm()
+    error = False
+    
+    if request.method == 'POST':
+        form = AnnualForm(request.POST)
+        if form.is_valid():
+            try:
+                # Crear instancia de Crearnomina
+                Salariominimoanual.objects.create(
+                    auxtransporte = form.cleaned_data['auxtransporte'],
+                    uvt = form.cleaned_data['uvt'],
+                    ano=form.cleaned_data['ano'],
+                    salario  = form.cleaned_data['salario']
+                )
+
+                messages.success(request, "Dato creada exitosamente.")
+                return redirect('payroll:annual')  # Redirigir a una vista de lista, por ejemplo
+            except:
+                messages.error(request, "Hubo un problema al procesar la información.")
+
+        else:
+            error = True
+            # Si el formulario no es válido, recopilamos todos los errores y los mostramos en un solo mensaje
+            error_message = "Por favor, corrija los siguientes errores:"
+            for field in form:
+                for error in field.errors:
+                    error_message += f"\n- {error}"
+
+            messages.error(request, error_message)
+    return render(request, './payroll/annual.html',{'wages': wages, 'form': form, 'error': error})
 

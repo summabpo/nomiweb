@@ -29,3 +29,8 @@ def format_currency(value):
         return f"{formatted_value}"
     except (ValueError, TypeError):
         return value
+
+
+@register.filter
+def zip_lists(value, arg):
+    return zip(value, arg)
