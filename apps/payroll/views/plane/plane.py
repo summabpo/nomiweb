@@ -29,7 +29,54 @@ error_messages = {
     '13': "Error code 1014: El valor no puede ser negativo",
     '15': "Error code 1015: El contrato y concepto ya existen",
     'general': "Error general: Ocurrió un error procesando el archivo",
+    "16": "Los siguientes conceptos no están reconocidos: {concepts}",
+    "17": "No se proporcionaron conceptos para evaluar.",
+    "18": "Tipo de entrada no válido. Se esperaba una lista de conceptos.",
 }
+
+def validate_concepts(df, available_concepts):
+    errors = []  # Lista para acumular errores
+
+    # Intentar convertir los índices de las columnas a enteros, excepto 'Contrato' y 'Nombre'
+    for col in df.columns:
+        if col not in ['Contrato', 'Nombre']:
+            try:
+                # Verificar si todos los valores de la columna son numéricos
+                df[col] = pd.to_numeric(df[col], errors='raise')  # Forzar conversión a números
+            except ValueError as e:
+                # Si no se puede convertir, agregamos el error a la lista
+                errors.append(f"Error: La columna '{col}' no se puede convertir a entero. Detalles: {e}")
+
+    # Validar que available_concepts sea una lista de enteros
+    if not isinstance(available_concepts, list) or not all(isinstance(c, int) for c in available_concepts):
+        errors.append(error_messages["18"])
+
+    if not available_concepts:
+        errors.append(error_messages["17"])
+
+    # Convertir nombres de columnas a enteros si es posible
+    columns_df = []
+    for col in df.columns:
+        if col not in ['Contrato', 'Nombre']:
+            try:
+                columns_df.append(int(col))  # Intentar convertir cada nombre de columna a entero
+            except ValueError:
+                # Si no se puede convertir, agregamos el error a la lista
+                errors.append(f"¡Ay, no! El concepto '{col}' se escapó del camino y tiene algo raro. ¡Dale un poco de rumbo numérico!")
+
+    # Encontrar conceptos faltantes
+    missing = [col for col in columns_df if col not in available_concepts]
+
+    if missing:
+        errors.append(error_messages["16"].format(concepts=", ".join(map(str, missing))))
+
+    # Si hubo errores, retornamos todos
+    if errors:
+        return "\n".join(errors)
+    
+    return "Todos los conceptos son válidos."
+
+
 
 @login_required
 @role_required('accountant')
@@ -39,6 +86,7 @@ def plane(request, id):
     
     # Diccionario para almacenar los errores por fila
     errors = [] 
+    general_error = []
     
     if request.method == 'POST' and request.FILES.get('file'):
         file = request.FILES['file']
@@ -48,17 +96,15 @@ def plane(request, id):
             return render(request, './payroll/plane.html', {'id': id, 'errors': errors})
         
         try:
-            file_name = default_storage.save(file.name, file)
-            file_path = default_storage.path(file_name)
-            df = pd.read_excel(file_path)
-            df.columns = df.columns.str.strip()            
+            # Leer el archivo directamente sin guardarlo
+            df = pd.read_excel(file)
+
             # Definir las columnas fijas
             fixed_columns = ['Contrato', 'Nombre']
 
             # Identificar las columnas dinámicas
-            dynamic_columns = [col for col in df.columns if pd.notna(col) and col not in fixed_columns]
-
-            print(dynamic_columns)
+            dynamic_columns = [col for col in df.columns if col not in fixed_columns]
+    
             # Validar que las columnas fijas existan
             missing_columns = [col for col in fixed_columns if col not in df.columns]
             
@@ -66,6 +112,11 @@ def plane(request, id):
                 errors.append({'general': f'Faltan las siguientes columnas obligatorias: {", ".join(missing_columns)}.'})
                 return render(request, './payroll/plane.html', {'id': id, 'errors': errors})
 
+            conceptos = Conceptosdenomina.objects.filter(id_empresa_id=idempresa).values_list('codigo', flat=True)
+
+            general_error.append(validate_concepts(df,list(conceptos)))
+            
+            
             # Validar filas y generar errores
             for index, row in df.iterrows():
                 row_errors = [] 
@@ -87,11 +138,21 @@ def plane(request, id):
                     if contrato.id_empresa_id != idempresa:
                         row_errors.append('6')
 
-                for col in dynamic_columns:
+                
+
+                
+                # for col in dynamic_columns:
                     
-                    concepto = Conceptosdenomina.objects.filter(codigo=col, id_empresa_id=idempresa).first()
-                    if concepto is None:
-                        row_errors.append('5')
+                #     concepto = Conceptosdenomina.objects.filter(codigo=col, id_empresa_id=idempresa).values('codigo').first()
+
+                #     # Acceder al valor de 'codigo' directamente
+                #     if concepto:
+                #         codigo = concepto.get('codigo')
+                #         print(codigo)
+                        
+                        
+                #     if concepto is None:
+                #         row_errors.append('5')
                 
                 # Agregar errores por fila si existen
                 if row_errors:
@@ -103,17 +164,24 @@ def plane(request, id):
                         'error': "".join([f"<li>{error_messages[err]}</li>" for err in row_errors]) , 
                         'details' : 'detalles' 
                     })
-                    
-                    
-            # Borrar el archivo una vez procesado
-            default_storage.delete(file_name)
+                
 
         except Exception as e:
             errors.append({'general': f'Ocurrió un error procesando el archivo: {str(e)}'})
-    print(errors)
+        
+    formatted_errors = []
+    for error in general_error:
+        if isinstance(error, str):
+            # Dividir por saltos de línea si el error es un string con saltos de línea
+            formatted_errors.extend(error.split("\n"))
+        else:
+            formatted_errors.append(error)
+            
+            
     return render(request, './payroll/plane.html', {
         'id': id,
         'errors': errors,
+        'general_error': formatted_errors , 
     })
 
 
@@ -123,7 +191,7 @@ def plane(request, id):
 def document(request):
     # Crear el libro de Excel
     wb = Workbook()
-    
+
     # Hoja principal: Datos
     ws = wb.active
     ws.title = "Datos"
@@ -139,6 +207,9 @@ def document(request):
 
     # Escribir las columnas dinámicas
     for col_num, col_name in enumerate(column_names, len(fixed_columns) + 1):
+        # Convertir el valor a entero si no es una columna fija
+        if col_name not in fixed_columns:
+            col_name = int(col_name)  # Asegúrate de que se convierte en entero
         ws.cell(row=1, column=col_num, value=col_name)
 
     # Aplicar estilo para que los encabezados estén centrados
@@ -174,6 +245,7 @@ def document(request):
     # Escribir los conceptos en la hoja
     for row_num, concepto in enumerate(conceptos_data, start=2):
         ws_conceptos.cell(row=row_num, column=1, value=concepto['nombreconcepto'])
+        # Convertir el código a entero
         ws_conceptos.cell(row=row_num, column=2, value=int(concepto['codigo']))
 
     # Ajustar ancho de columnas automáticamente en la hoja de conceptos
@@ -188,3 +260,8 @@ def document(request):
     response['Content-Disposition'] = 'attachment; filename=plane_nomina.xlsx'
     wb.save(response)
     return response
+
+
+
+
+
