@@ -80,7 +80,7 @@ def validate_concepts(df, available_concepts):
 
 @login_required
 @role_required('accountant')
-def plane(request, id):
+def flat(request, id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
@@ -257,7 +257,7 @@ def document(request):
 
     # Guardar el archivo Excel en un HttpResponse
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=plane_nomina.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=payroll_file.xlsx'
     wb.save(response)
     return response
 
