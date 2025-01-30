@@ -14,19 +14,21 @@
 
 
 {% block sub_titulo1 %} 
-Nominas
+<a href="{% url 'payroll:nomina_electronica' %}" class="text-gray-500 text-hover-primary">
+    Contenedor
+</a>
 {% endblock %}
 
 {% block sub_titulo2 %} 
-Nómina Electrónica
+Nómina Electrónica 
 {% endblock %}
 
 {% block sub_titulo3 %} 
-Nómina Electrónica
+
 {% endblock %}
 
 {% block titulo2 %} 
-
+Detalle Nómina Electrónica | {{ container_id }}
 {% endblock %}
 
 {% block actions %}
@@ -38,10 +40,17 @@ Nómina Electrónica
         <span class="path2"></span>
     </i>
 </a>  
+{% if not detail_payroll %}
 <!-- Button trigger modal -->
 <a href="{% url 'payroll:generar_detalle_electronica_ref' pk=container_id %}" class="btn btn-light-info">
     <i class="fa-solid fa-square-plus fs-2"></i>Generar Registros
 </a>
+{% endif %}
+{% if detail_payroll %}
+<a href="{% url 'payroll:enviar_nomina_electronica_masiva' pk=container_id %}" class="btn btn-light-info">
+    <i class="fa-solid fa-paper-plane fs-2"></i>Enviar Nómina DIAN
+</a>
+{% endif %}
 {% endblock %}
 
 {%block content%} 
@@ -75,8 +84,8 @@ Nómina Electrónica
             <tr>
                 <td class="text-center align-middle">{{ record.id_detalle_nomina_electronica }}</td>
                 <td class="text-center align-middle">{{ record.contract_id }} </td>
-                <td class="text-left">{{ record.employee_document }} </td>
-                <td class="text-left">{{ record.employee_name }} </td>
+                <td class="text-left align-middle">{{ record.employee_document }} </td>
+                <td class="text-left align-middle">{{ record.employee_name }} </td>
                 <td class="text-center align-middle">{{ record.employee_position }} </td>
                 <td class="text-center align-middle">{{ record.fecha_creacion|date:"d/m/Y" }}</td>
                 <td class="text-center align-middle">{{ record.fecha_modificacion|date:"d/m/Y"|default:"" }}</td>
@@ -110,9 +119,42 @@ Nómina Electrónica
                 </td>
                 <td class="text-center align-middle">{{ record.observaciones }}</td>
                 <td class="text-center align-middle">
-                <a href="" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Nomina">
-                    <i class="fa-regular fa-eye fs-2"></i>
-                </a>
+                    {% comment %} <a href="{% url 'payroll:ver_nomina_electronica_detalle' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
+                        <i class="fa-regular fa-eye fs-2"></i>
+                    </a>
+                    {% if record.estado == 1 %}
+                    <a href="{% url 'payroll:enviar_nomina_electronica' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-success" title="Enviar Nomina Electrónica">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </a>
+                    {% endif %}
+                    {% if record.estado == 3 %}
+                    <a href="{% url 'payroll:generar_detalle_individual' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-info" title="Enviar Nomina Electrónica">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </a>
+                    {% endif %} {% endcomment %}
+
+                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                        <a href="{% url 'payroll:ver_nomina_electronica_detalle' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
+                            <i class="fa-regular fa-eye fs-2"></i>
+                        </a>
+                        {% if record.estado == 1 %}
+                        <div style="width: 5px;"></div>
+                        <a href="{% url 'payroll:enviar_nomina_electronica' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top"  title="Enviar Nomina Electrónica">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </a>
+                        <div style="width: 5px;"></div>
+                        <a href="{% url 'payroll:generar_detalle_individual' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Enviar Nomina Electrónica">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% if record.estado == 3 %}
+                        <div style="width: 5px;"></div>
+                        <a href="{% url 'payroll:generar_detalle_individual' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Generar Nuevamente">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% endfor %}

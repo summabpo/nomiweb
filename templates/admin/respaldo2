@@ -33,9 +33,12 @@
 {% block actions %}
     <!-- Button trigger modal -->
 
-    <button type="button" class="btn btn-light-info"
+    <button type="button"  class="btn btn-light-info"
         data-bs-toggle="modal" 
-        data-bs-target="#kt_modal_maintenance" >
+        data-bs-target="#kt_modal_maintenance" 
+        hx-get="{% url 'admin:usercreate' %}" 
+        hx-target="#modal-content-body" 
+        hx-swap="beforeend">
         <i class="fa-solid fa-user-plus"></i> Nuevo Usuario
     </button>  
 
@@ -54,12 +57,32 @@
     <a href="{% url 'admin:usercreate'  %}" class="btn btn-light-primary"> <i class="fa-solid fa-user-plus"></i> Nuevo Usuario</a>
 </div> {% endcomment %}
 
-<div >
-    {% include 'admin/usercreate.html' %}
-</div>
 
 <!-- Modal -->
+<div class="modal fade" tabindex="-1" id="kt_modal_maintenance" hx-target="this" >
+    <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Usuario</h3>
 
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body" id="modal-content-body" >
+                
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" form="form_user"  class="btn btn-primary">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <div class="table-responsive">
@@ -173,16 +196,6 @@
 
 
 {% block js %}
-
-<script>
-    document.body.addEventListener('htmx:afterRequest', function(evt) {
-        if (evt.detail.successful) {
-            // Cerrar el modal si el formulario se envió correctamente
-            var modal = bootstrap.Modal.getInstance(document.getElementById('kt_modal_maintenance'));
-            modal.hide();
-        }
-    });
-</script>
 
 <script>
 

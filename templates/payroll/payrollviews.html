@@ -44,7 +44,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
     </a>  
     <div style="width: 10px;"></div>
     <!-- Botón adicional -->
-    <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+    <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_loaddata">
         <i class="fa-solid fa-upload fs-2"></i>
         Cargar Archivo Plano
     </button>
@@ -52,7 +52,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
     <div style="width: 10px;"></div>
 
     <!-- Botón adicional -->
-    <a href="{% url 'payroll:document_plane' %}" 
+    <a href="{% url 'payroll:document_flat' %}" 
         download class="btn btn-light-primary text-dark" 
         data-bs-toggle="tooltip" 
         data-bs-custom-class="tooltip-inverse" 
@@ -67,7 +67,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
 
 
-<div class="modal fade" tabindex="-1" id="kt_modal_1">
+<div class="modal fade" tabindex="-1" id="kt_modal_loaddata">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -82,7 +82,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
             <div class="modal-body">
 
-                <form id="upload-form" name="upload-form" method="POST" action="{% url 'payroll:plane' id=id %}" enctype="multipart/form-data">
+                <form id="upload-form" name="upload-form" method="POST" action="{% url 'payroll:flat' id=id %}" enctype="multipart/form-data">
                     <div class="mb-3">
                         {% csrf_token %}
                         {% comment %} <label for="file-upload" class="form-label">
@@ -91,7 +91,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                         </label> {% endcomment %}
                         <input  class="form-control form-control-sm" id="file-upload" name="file" type="file" />
                         <small id="fileHelp" class="form-text text-muted">
-                            Solo se aceptan archivos de tipo Excel (.xlsx). <a href="{% url 'payroll:document_plane' %}" download>Descarga la plantilla aquí</a> si aún no la tienes.
+                            Solo se aceptan archivos de tipo Excel (.xlsx). <a href="{% url 'payroll:document_flat' %}" download>Descarga la plantilla aquí</a> si aún no la tienes.
                         </small>
                     </div>
                 </form>
