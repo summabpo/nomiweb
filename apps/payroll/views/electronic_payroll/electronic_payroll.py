@@ -1081,7 +1081,6 @@ def electronic_payroll_detail_view(request, pk=None):
         employee_salary = F('id_contrato__salario'),
         employee_entry_date = F('id_contrato__fechainiciocontrato'),
     ).get(id_detalle_nomina_electronica=pk)
-    print(detail_payroll.container_id)
     detail_payroll_response = NeRespuestaDian.objects.filter(id_ne_detalle_nomina_electronica=pk)
 
     cune = None
