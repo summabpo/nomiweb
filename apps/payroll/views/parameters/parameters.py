@@ -177,7 +177,7 @@ def fixed(request):
 @login_required
 @role_required('accountant')
 def annual(request):
-    wages = Salariominimoanual.objects.all().order_by('idano')
+    wages = Salariominimoanual.objects.all().order_by('-ano')
     form = AnnualForm()
     error = False
     
@@ -218,6 +218,11 @@ def concepts(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     concepts   = Conceptosdenomina.objects.filter(id_empresa_id = idempresa ).order_by('codigo')
+    concepto = Conceptosdenomina.objects.get(idconcepto = 310)
+    indicadores = concepto.indicador.all()
+    
+    print(indicadores)
+    
     form = PayrollConceptsForm()
     if request.method == 'POST':
         form = PayrollConceptsForm(request.POST)
