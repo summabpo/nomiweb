@@ -40,11 +40,13 @@ Detalle Nómina Electrónica | {{ container_id }}
         <span class="path2"></span>
     </i>
 </a>  
+<div style="width: 10px;"></div>
 {% if not detail_payroll %}
 <!-- Button trigger modal -->
 <a href="{% url 'payroll:generar_detalle_electronica_ref' pk=container_id %}" class="btn btn-light-info">
     <i class="fa-solid fa-square-plus fs-2"></i>Generar Registros
 </a>
+<div style="width: 5px;"></div>
 {% endif %}
 {% if detail_payroll %}
 <a href="{% url 'payroll:enviar_nomina_electronica_masiva' pk=container_id %}" class="btn btn-light-info">
@@ -143,7 +145,7 @@ Detalle Nómina Electrónica | {{ container_id }}
                             <i class="fa-solid fa-paper-plane"></i>
                         </a>
                         <div style="width: 5px;"></div>
-                        <a href="{% url 'payroll:generar_detalle_individual' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Enviar Nomina Electrónica">
+                        <a href="{% url 'payroll:generar_detalle_individual' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Generar Nuevamente">
                             <i class="fa-solid fa-rotate-right"></i>
                         </a>
                         {% endif %}
