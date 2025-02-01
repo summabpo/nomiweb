@@ -1,11 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Bancos ,Festivos , Entidadessegsocial,Conceptosfijos , Salariominimoanual
-
-from apps.payroll.forms.PayrollForm import PayrollForm
+from apps.common.models import Bancos ,Festivos , Entidadessegsocial,Conceptosfijos , Salariominimoanual , Conceptosdenomina , NeSumatorias , Empresa , Indicador
 from django.contrib import messages
-from .forms import BanksForm ,HolidaysForm , EntitiesForm ,FixedForm , AnnualForm
+from .forms import BanksForm ,HolidaysForm , EntitiesForm ,FixedForm , AnnualForm , PayrollConceptsForm
 
 
 
@@ -179,7 +177,7 @@ def fixed(request):
 @login_required
 @role_required('accountant')
 def annual(request):
-    wages = Salariominimoanual.objects.all().order_by('idano')
+    wages = Salariominimoanual.objects.all().order_by('-ano')
     form = AnnualForm()
     error = False
     
@@ -211,3 +209,79 @@ def annual(request):
             messages.error(request, error_message)
     return render(request, './payroll/annual.html',{'wages': wages, 'form': form, 'error': error})
 
+
+
+
+@login_required
+@role_required('accountant')
+def concepts(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    concepts   = Conceptosdenomina.objects.filter(id_empresa_id = idempresa ).order_by('codigo')
+    concepto = Conceptosdenomina.objects.get(idconcepto = 310)
+    indicadores = concepto.indicador.all()
+    
+    print(indicadores)
+    
+    form = PayrollConceptsForm()
+    if request.method == 'POST':
+        form = PayrollConceptsForm(request.POST)
+        if form.is_valid():
+            print(request.POST)
+            #try:
+                # Obtener valores del formulario
+            nombreconcepto = form.cleaned_data['nombreconcepto']
+            multiplicadorconcepto = form.cleaned_data['multiplicadorconcepto']
+            tipoconcepto = form.cleaned_data['tipoconcepto']
+            formula = form.cleaned_data['formula']
+            codigo = form.cleaned_data['codigo']
+            
+            # Obtener el objeto grupo_dian
+            grupo_dian_id = form.cleaned_data['grupo_dian']
+            grupo_dian = NeSumatorias.objects.filter(ne_id=grupo_dian_id).first()  # O get() si estás seguro de que existe
+            
+            # Obtener el objeto empresa (Asegúrate de tener el ID de la empresa disponible)
+            empresa = Empresa.objects.get(idempresa=idempresa)
+
+            # Crear la instancia del modelo
+            concepto = Conceptosdenomina.objects.create(
+                nombreconcepto=nombreconcepto,
+                multiplicadorconcepto=multiplicadorconcepto,
+                tipoconcepto=tipoconcepto,
+                formula=formula,
+                grupo_dian= grupo_dian if grupo_dian else None,
+                id_empresa=empresa,
+                codigo=codigo
+            )
+
+            # Guardar los indicadores (ManyToMany)
+            # Ahora que el objeto existe en la BD, asignar los indicadores
+            indicador_ids = request.POST.getlist('indicador')  # Captura múltiples valores
+            indicadores = Indicador.objects.filter(id__in=indicador_ids)
+            concepto.indicador.add(*indicadores)  # Usamos .add() en lugar de .set()
+            
+            messages.success(request, "Concepto creado exitosamente.")
+            return redirect('payroll:concepts')  # Redirigir a una vista de lista, por ejemplo
+            
+            # except Exception as e:
+            #     print(e)
+            #     messages.error(request, "Hubo un problema al procesar la información.")
+                    
+        
+    return render(request, './payroll/concepts.html',{'concepts': concepts,'form': form})
+
+
+@login_required
+@role_required('accountant')
+def concepts_add(request):
+    form = PayrollConceptsForm()
+    if request.method == 'POST':
+        form = PayrollConceptsForm(request.POST)
+        print(request.POST)
+        
+            
+        return redirect('payroll:concepts')
+    else:
+        form = PayrollConceptsForm()
+    # Renderizar el modal con el formulario
+    return render(request, './payroll/partials/conceptsmodal.html', {'form': form})
