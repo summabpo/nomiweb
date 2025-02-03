@@ -220,14 +220,11 @@ def concepts(request):
     concepts   = Conceptosdenomina.objects.filter(id_empresa_id = idempresa ).order_by('codigo')
     concepto = Conceptosdenomina.objects.get(idconcepto = 310)
     indicadores = concepto.indicador.all()
-    
-    print(indicadores)
-    
+
     form = PayrollConceptsForm()
     if request.method == 'POST':
         form = PayrollConceptsForm(request.POST)
         if form.is_valid():
-            print(request.POST)
             #try:
                 # Obtener valores del formulario
             nombreconcepto = form.cleaned_data['nombreconcepto']
@@ -274,13 +271,12 @@ def concepts(request):
 @login_required
 @role_required('accountant')
 def concepts_add(request):
-    form = PayrollConceptsForm()
     if request.method == 'POST':
         form = PayrollConceptsForm(request.POST)
-        print(request.POST)
-        
-            
-        return redirect('payroll:concepts')
+        if form.is_valid():
+            # Aquí puedes guardar los datos del formulario en la base de datos
+            print("Formulario válido:", form.cleaned_data)
+        #return redirect('payroll:concepts')
     else:
         form = PayrollConceptsForm()
     # Renderizar el modal con el formulario

@@ -2,6 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from apps.common.models import Empresa , Contratos , Conceptosdenomina , NeSumatorias , Indicador
+from django.urls import reverse
 
 TIPE_CHOICES = (
     ('', ''),
@@ -16,7 +17,6 @@ TIPE_CONCEPTS = (
     ('', ''),
     ('1', 'Ingreso'),
     ('2', 'Deducción'),
-    ('3', 'Prestación'),   
 )
 
 class BanksForm(forms.Form):
@@ -253,7 +253,7 @@ class PayrollConceptsForm(forms.Form):
     )
     multiplicadorconcepto = forms.DecimalField(
         label='Multiplicador',
-        max_digits=4,
+        max_digits=5,
         decimal_places=2,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el multiplicador'})
     )
@@ -294,7 +294,6 @@ class PayrollConceptsForm(forms.Form):
             label='Grupo DIAN' ,
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-hide-search': 'true' ,
                 'class': 'form-select',
                 'data-allow-clear' : "true"  , 
                 'data-dropdown-parent': '#kt_modal_maintenance',
@@ -323,23 +322,25 @@ class PayrollConceptsForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_concepts'
         self.helper.enctype = 'multipart/form-data'
+        self.helper.form_action = reverse('payroll:concepts_add')
 
         # Diseño del formulario con Crispy Forms
         self.helper.layout = Layout(
             Row(
                 Column('nombreconcepto', css_class='form-group col-md-4 mb-0'),
                 Column('multiplicadorconcepto', css_class='form-group col-md-4 mb-0'),
-                Column('formula', css_class='form-group col-md-4 mb-0'),
-                css_class='row'
-            ),
-            Row(
-                Column('tipoconcepto', css_class='form-group col-md-6 mb-0'),
-                Column('grupo_dian', css_class='form-group col-md-6 mb-0'),
-                css_class='row'
-            ),
-            Row(
-                Column('indicador', css_class='form-group col-md-8 mb-0'),
                 Column('codigo', css_class='form-group col-md-4 mb-0'),
+                
+                css_class='row'
+            ),
+            Row(
+                Column('formula', css_class='form-group col-md-6 mb-0'),
+                Column('tipoconcepto', css_class='form-group col-md-6 mb-0'),
+                css_class='row'
+            ),
+            Row(
+                Column('indicador', css_class='form-group col-md-6 mb-0'),
+                Column('grupo_dian', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
         )

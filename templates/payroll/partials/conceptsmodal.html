@@ -1,0 +1,51 @@
+{% load crispy_forms_tags %}
+<!-- Modal -->
+<div class="modal fade" id="conceptsModal" name="conceptsModal" tabindex="-1" aria-labelledby="conceptsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
+        <div class="modal-content" id="modal-container">
+            <div class="modal-header">
+                <h5 class="modal-title" id="conceptsModalLabel">Nuevo Concepto</h5>
+                <button type="button" class="btn-close" onclick="closeModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form hx-post="{% url 'payroll:concepts_add' %}" hx-target="#modal-container" hx-swap="innerHTML" id="form_tack">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" onclick="closeModal()">Cerrar</button>
+                <button type="submit" form="form_tack" class="btn btn-primary">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para cerrar el modal
+    function closeModal() {
+        var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+        if (modal) {
+            modal.hide();
+        }
+        // Limpiar el contenido del modal después de cerrarlo
+        document.getElementById('modal-container').innerHTML = '';
+    }
+
+    // Escucha el evento 'htmx:afterRequest' para manejar la respuesta del servidor
+    document.body.addEventListener('htmx:afterRequest', function(evt) {
+        if (evt.detail.successful) {
+            // Verifica si la respuesta incluye un indicador de éxito
+            var response = evt.detail.xhr.responseText;
+            if (response.includes('success')) {
+                // Si la solicitud fue exitosa, cierra el modal
+                var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                // Recarga la página o actualiza la lista de tareas
+                window.location.reload();  // O usa HTMX para actualizar la lista
+            }
+        }
+    });
+</script>

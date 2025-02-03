@@ -40,6 +40,7 @@ urlpatterns = [
     path('parameters/fixed', parameters.fixed, name='fixed'),
     path('parameters/annual', parameters.annual, name='annual'),
     path('parameters/concepts', parameters.concepts, name='concepts'),
+    path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
 
 
     ## pruebas
