@@ -4,8 +4,8 @@ from apps.components.decorators import  role_required
 from apps.common.models import Bancos ,Festivos , Entidadessegsocial,Conceptosfijos , Salariominimoanual , Conceptosdenomina , NeSumatorias , Empresa , Indicador
 from django.contrib import messages
 from .forms import BanksForm ,HolidaysForm , EntitiesForm ,FixedForm , AnnualForm , PayrollConceptsForm
-
-
+from django.http import HttpResponse
+from django.http import JsonResponse
 
 @login_required
 @role_required('accountant')
@@ -218,15 +218,21 @@ def concepts(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     concepts   = Conceptosdenomina.objects.filter(id_empresa_id = idempresa ).order_by('codigo')
-    concepto = Conceptosdenomina.objects.get(idconcepto = 310)
-    indicadores = concepto.indicador.all()
-
     form = PayrollConceptsForm()
+    
+        
+    return render(request, './payroll/concepts.html',{'concepts': concepts,'form': form})
+
+
+@login_required
+@role_required('accountant')
+def concepts_add(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     if request.method == 'POST':
-        form = PayrollConceptsForm(request.POST)
+        form = PayrollConceptsForm(request.POST,id_empresa=idempresa)
         if form.is_valid():
-            #try:
-                # Obtener valores del formulario
+            # Aquí puedes guardar los datos del formulario en la base de datos
             nombreconcepto = form.cleaned_data['nombreconcepto']
             multiplicadorconcepto = form.cleaned_data['multiplicadorconcepto']
             tipoconcepto = form.cleaned_data['tipoconcepto']
@@ -257,27 +263,35 @@ def concepts(request):
             indicadores = Indicador.objects.filter(id__in=indicador_ids)
             concepto.indicador.add(*indicadores)  # Usamos .add() en lugar de .set()
             
-            messages.success(request, "Concepto creado exitosamente.")
-            return redirect('payroll:concepts')  # Redirigir a una vista de lista, por ejemplo
-            
-            # except Exception as e:
-            #     print(e)
-            #     messages.error(request, "Hubo un problema al procesar la información.")
-                    
-        
-    return render(request, './payroll/concepts.html',{'concepts': concepts,'form': form})
+            return JsonResponse({'status': 'success', 'message': 'Formulario guardado exitosamente'})
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")
+    else:
+        form = PayrollConceptsForm(id_empresa=idempresa)
+    # Renderizar el modal con el formulario
+    return render(request, './payroll/partials/conceptsmodal.html', {'form': form})
+
+
+
 
 
 @login_required
 @role_required('accountant')
-def concepts_add(request):
-    if request.method == 'POST':
-        form = PayrollConceptsForm(request.POST)
-        if form.is_valid():
-            # Aquí puedes guardar los datos del formulario en la base de datos
-            print("Formulario válido:", form.cleaned_data)
-        #return redirect('payroll:concepts')
-    else:
-        form = PayrollConceptsForm()
-    # Renderizar el modal con el formulario
-    return render(request, './payroll/partials/conceptsmodal.html', {'form': form})
+def check_code(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario.get('idempresa')  # Usar get() en lugar de acceder directamente.
+    codigo = request.GET.get('codigo', '').strip()
+    print('codigo recibido:', codigo)  # Agregar un print para verificar el valor recibido
+    
+    
+    data = Conceptosdenomina.objects.filter(codigo=codigo, id_empresa=idempresa).exists()
+    print('data:',data)
+    if data:
+        print('Código ya en uso:',data)
+        return JsonResponse({"valid": False, "message": "Código ya en uso"})
+
+    print('Código disponible:', codigo)
+    return JsonResponse({"valid": True, "message": "Código disponible"})

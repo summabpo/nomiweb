@@ -1,0 +1,43 @@
+{% load crispy_forms_tags %}
+
+
+<tr class="p-0">
+    <td class = "col-md-6">
+        {{ form.payroll_concept|as_crispy_field }}
+    </td>
+    <td class="text-center col-md-2">
+        {{ form.concept_quantity|as_crispy_field }}
+    </td>
+    <td class="text-center col-md-4">
+        {{ form.concept_value|as_crispy_field }}
+    </td>
+    <td class="text-center">
+        <a href="#" class="btn btn-icon btn-light-youtube me-5 ">
+            <i class="fa-solid fa-trash fs-4"></i>
+        </a>
+       
+    </td>
+</tr>
+
+
+
+
+<script>
+  $(document).ready(function () {
+    function initSelect2() {
+      $("select[data-control='select2']").each(function () {
+        if (!$(this).hasClass("select2-hidden-accessible")) { // Evita inicializarlo dos veces
+          $(this).select2();
+        }
+      });
+    }
+
+    // Inicializar en carga normal
+    initSelect2();
+
+    // Si el modal se abre dinámicamente, aseguramos que Select2 se active en nuevos elementos
+    $(document).on("shown.bs.modal", function () {
+      initSelect2();
+    });
+  });
+</script>

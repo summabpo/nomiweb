@@ -1,9 +1,10 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column
-from apps.common.models import Empresa , Contratos , Conceptosdenomina , NeSumatorias , Indicador
+from crispy_forms.layout import Layout, Submit, Row, Column , HTML
+from apps.common.models import Empresa , Contratos , Conceptosdenomina , NeSumatorias , Indicador  
 from django.urls import reverse
-
+from django.core.exceptions import ValidationError
+from django.urls import reverse_lazy
 TIPE_CHOICES = (
     ('', ''),
     ('EPS', 'EPS'),
@@ -17,6 +18,12 @@ TIPE_CONCEPTS = (
     ('', ''),
     ('1', 'Ingreso'),
     ('2', 'Deducción'),
+)
+
+TIPE_Formula = (
+    ('', ''),
+    (1, 'Si'),
+    (0, 'No'),
 )
 
 class BanksForm(forms.Form):
@@ -246,6 +253,11 @@ class AnnualForm(forms.Form):
         )
         
 
+def validate_codigo_unique(value , id_empresa):
+    if Conceptosdenomina.objects.filter(codigo = value ,id_empresa =  id_empresa ).exists():  # Aquí 'TuModelo' es el modelo donde se guardan los conceptos
+        raise ValidationError(f"El código {value} ya está en uso. Por favor, ingrese un código único.")
+    
+
 class PayrollConceptsForm(forms.Form):
     nombreconcepto = forms.CharField(
         label='Nombre del Concepto',
@@ -253,7 +265,7 @@ class PayrollConceptsForm(forms.Form):
     )
     multiplicadorconcepto = forms.DecimalField(
         label='Multiplicador',
-        max_digits=5,
+        max_digits=4,
         decimal_places=2,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el multiplicador'})
     )
@@ -264,27 +276,42 @@ class PayrollConceptsForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control', 'placeholder': 'Ingrese el tipo de concepto'})
     )
     
-    formula = forms.CharField(
-        label='Fórmula',
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la fórmula'})
+    formula = forms.ChoiceField(
+        label='¿El concepto tiene fórmula?',
+        choices=TIPE_Formula,
+        widget=forms.Select(attrs={'class': 'form-control', 'placeholder': 'Seleccione una opción'})
     )
-    
+        
+    # TIPE_Formula
     codigo = forms.IntegerField(
         label='Código',
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el código'})
+        widget=forms.NumberInput(attrs={'class': 'form-control', 
+                                        'placeholder': 'Ingrese el código',
+                                        'hx-get': reverse_lazy('payroll:check_code'),  # URL donde se hará la validación
+                                        'hx-trigger': 'keyup changed delay:500ms',  # Activa la petición cuando cambia el campo
+                                        'hx-target': '#codigo-validation',  # Dónde mostrar el mensaje de validación
+                                        'hx-params':"codigo",
+                                        'hx-swap': 'innerHTML',  # Reemplazar contenido del objetivo
+    # <input type="text" id="id_codigo" name="codigo" hx-get="/payroll/parameters/concepts/check/code" hx-trigger="change" hx-target="#codigo-validation">
+                                  
+                                        })
+
     )
     
     
 
     def __init__(self, *args, **kwargs):
+        self.id_empresa = kwargs.pop('id_empresa', None)
+        
         super().__init__(*args, **kwargs)
+        
+        #self.fields['codigo'].validators.append(lambda value: validate_codigo_unique(value, self.id_empresa))
 
         self.fields['tipoconcepto'].widget.attrs.update({
             'data-control': 'select2',
             'data-hide-search': 'true' ,
             'class': 'form-select',
-            'data-dropdown-parent': '#kt_modal_maintenance',
+            'data-dropdown-parent': '#conceptsModal',
             'data-placeholder':'seleccione un tipo de concepto',
         })
         
@@ -296,23 +323,25 @@ class PayrollConceptsForm(forms.Form):
                 'data-control': 'select2',
                 'class': 'form-select',
                 'data-allow-clear' : "true"  , 
-                'data-dropdown-parent': '#kt_modal_maintenance',
+                'data-dropdown-parent': '#conceptsModal',
                 'data-placeholder':'seleccione un grupo DIAN',
             }), 
             required=False )
         
         
-        self.fields['indicador'] = forms.ChoiceField(
-            choices= [(concepto.id, f"{concepto.nombre}") for concepto in Indicador.objects.all()], 
-            label='Indicador' ,
-            widget=forms.Select(attrs={
+        self.fields['indicador'] = forms.MultipleChoiceField(
+            choices=[(concepto.id, f"{concepto.nombre}") for concepto in Indicador.objects.all().order_by('nombre')],
+            label='Indicador',
+            widget=forms.SelectMultiple(attrs={
                 'data-control': 'select2',
-                'data-close-on-select':"false",
-                'data-placeholder':'seleccione un Indicador',
-                'data-allow-clear' : "true"  , 
-                'multiple':"multiple" , 
-                'data-dropdown-parent': '#kt_modal_maintenance',
-            }))
+                'data-close-on-select': "false",
+                'data-placeholder': 'Seleccione un Indicador',
+                'data-allow-clear': "true",
+                'multiple': "multiple",
+                'data-dropdown-parent': '#conceptsModal',
+            })
+        )
+
         
         
         
@@ -322,25 +351,32 @@ class PayrollConceptsForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_concepts'
         self.helper.enctype = 'multipart/form-data'
-        self.helper.form_action = reverse('payroll:concepts_add')
+        #self.helper.form_action = reverse('payroll:concepts_add')
 
+        self.helper.attrs.update({
+            'hx-post': reverse('payroll:concepts_add'),  # Usa el nombre de la vista en urls.py
+            'hx-target': '#modal-container',  # El elemento donde se actualizará el contenido
+            'hx-swap': 'innerHTML',  # Cómo se actualizará el contenido del objetivo
+        })
+        
         # Diseño del formulario con Crispy Forms
         self.helper.layout = Layout(
             Row(
+                Column('codigo', css_class='form-group col-md-4 mb-0'),
                 Column('nombreconcepto', css_class='form-group col-md-4 mb-0'),
                 Column('multiplicadorconcepto', css_class='form-group col-md-4 mb-0'),
-                Column('codigo', css_class='form-group col-md-4 mb-0'),
+                HTML('<div id="codigo-validation"></div>'),
+                css_class='row'
+            ),
+            Row(
+                Column('formula', css_class='form-group col-md-4 mb-0'),
+                Column('tipoconcepto', css_class='form-group col-md-4 mb-0'),
+                Column('grupo_dian', css_class='form-group col-md-4 mb-0'),
+                css_class='row'
+            ),
+            Row(
+                Column('indicador', css_class='form-group col-md-12 mb-0'),
                 
-                css_class='row'
-            ),
-            Row(
-                Column('formula', css_class='form-group col-md-6 mb-0'),
-                Column('tipoconcepto', css_class='form-group col-md-6 mb-0'),
-                css_class='row'
-            ),
-            Row(
-                Column('indicador', css_class='form-group col-md-6 mb-0'),
-                Column('grupo_dian', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
         )

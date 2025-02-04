@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from apps.common.models import Crearnomina , Tipodenomina ,Subcostos,Costos,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
 from apps.payroll.forms.PayrollForm import PayrollForm
+from apps.payroll.forms.updateForm import UpdateForm
 from django.contrib import messages
 from .common import generar_nombre_nomina , MES_CHOICES
 from apps.payroll.forms.ConceptForm import ConceptForm
@@ -116,6 +117,86 @@ def payrollview(request, id):
         'empleados': empleados,
         'id': id
     })
+
+
+
+@login_required
+@role_required('accountant')
+def payroll_data(request,id,idnomina):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    ingreso = 0  # Inicializamos la variable ingreso
+    egreso = 0   # Inicializamos la variable egreso
+    conceptos_data = []
+    
+    contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
+
+
+    conceptos = Nomina.objects.filter(
+        idnomina__idnomina=idnomina,
+        idcontrato__idcontrato=id
+    ).select_related('idcontrato')
+    
+    
+    # Verificar si hay conceptos encontrados
+    if not conceptos.exists():
+        return JsonResponse({"error": "No se encontraron conceptos para este empleado y nómina"}, status=404)
+
+    
+    # Optimizar consulta del contrato
+    contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
+
+    # Estructurar los datos para la respuesta
+    for concepto in conceptos:
+        # Crear el diccionario con los datos del concepto
+        concepto_info = {
+            "codigo": concepto.idregistronom,
+            "id": concepto.idconcepto.idconcepto,
+            "amount": concepto.cantidad,
+            "value": concepto.valor,
+        }
+        
+        # Agregar el concepto al arreglo
+        conceptos_data.append(concepto_info)
+        
+        # Revisar si el valor es mayor que 0 (ingreso) o negativo (egreso)
+        if concepto.valor > 0:
+            ingreso += concepto.valor  # Agregar a ingreso si es positivo
+        elif concepto.valor < 0:
+            egreso += concepto.valor 
+
+    
+    # Construir el nombre completo
+    empleado = contrato.idempleado
+    nombre_completo = " ".join(filter(None, [empleado.papellido, empleado.sapellido, empleado.pnombre, empleado.snombre]))
+
+    total = ingreso + egreso
+    
+    data = {
+        
+        "nombre": nombre_completo,
+        "salario": f"${format_value(contrato.salario)}",
+        "ingresos": f"${format_value(ingreso)}",
+        "egresos": f"${format_value(egreso)}",
+        "total": f"${format_value(total)}",
+        "conceptos": conceptos_data,
+    }
+    
+    return render(request, './payroll/partials/payrollmodal.html',{'data': data})
+
+
+@login_required
+@role_required('accountant')
+def payroll_form(request,idc,amount,value):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    if idc :
+        form = UpdateForm(id_empresa = idempresa , id_payroll = f'old-{idc}', initial={'payroll_concept': idc, 'concept_quantity': amount, 'concept_value': value })
+        #form = UpdateForm()
+    else :
+        form = UpdateForm(id_empresa = idempresa)
+    return render(request, './payroll/partials/payrollform.html',{'form': form})
+
 
 
 

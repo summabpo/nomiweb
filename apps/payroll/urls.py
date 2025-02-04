@@ -40,10 +40,22 @@ urlpatterns = [
     path('parameters/fixed', parameters.fixed, name='fixed'),
     path('parameters/annual', parameters.annual, name='annual'),
     path('parameters/concepts', parameters.concepts, name='concepts'),
-    path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
+    
 
 
-    ## pruebas
-    path('pruebas/<int:id>/<int:idnomina>/', pruebas.pruebas, name='pruebas'),
+    
 
 ]
+
+
+urlhtmxpatterns =[
+    path('pruebas/<int:id>/<int:idnomina>/', pruebas.pruebas, name='pruebas'),
+    
+    path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
+    path('parameters/concepts/check/code', parameters.check_code, name='check_code'),
+    
+    path('payroll/<int:id>/<int:idnomina>/modals', payroll.payroll_data, name='payroll_data'),
+    path('payroll/<int:idc>/<int:amount>/<str:value>/form', payroll.payroll_form, name='payroll_form'),
+]
+
+urlpatterns += urlhtmxpatterns  

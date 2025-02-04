@@ -158,3 +158,78 @@ Listado de Conceptos
     });
 </script>
 {% endblock %}
+
+
+
+
+if (responseJson.valid === false) {
+    input.classList.add('is-invalid');
+    input.classList.remove('is-valid');
+    
+    // Aquí actualizamos el mensaje de error de FormValidation
+    FormValidation.plugins.Bootstrap5.updateMessage(
+        input, 'codigo', 'notEmpty', responseJson.message
+    );
+    
+    // Actualizamos el estado del input con FormValidation
+    FormValidation.plugins.Bootstrap5.updateStatus(input, 'codigo', 'INVALID');
+} else {
+    input.classList.add('is-valid');
+    input.classList.remove('is-invalid');
+    
+    // Actualizamos el mensaje de éxito
+    FormValidation.plugins.Bootstrap5.updateMessage(
+        input, 'codigo', 'notEmpty', responseJson.message
+    );
+    
+    // Actualizamos el estado del input con FormValidation
+    FormValidation.plugins.Bootstrap5.updateStatus(input, 'codigo', 'VALID');
+}
+
+
+// Escucha el evento 'htmx:afterRequest' para manejar la respuesta del servidor
+document.body.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.successful) {
+        var response = evt.detail.xhr.responseText;
+        
+        // Verificar si la respuesta es un JSON con estado de éxito
+        try {
+            var responseJson = JSON.parse(response);
+            
+            if (responseJson.status === 'success') {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+                var modalBackdrop = document.querySelector('.modal-backdrop');
+                
+                if (modal) {
+                    modal.hide(); // Cierra el modal después de una respuesta exitosa
+                }
+
+                if (modalBackdrop) {
+                    modalBackdrop.remove(); // Elimina el fondo modal residual
+                }
+
+                // Mostrar el Swal de éxito
+                Swal.fire({
+                    text: responseJson.message, // Mensaje de éxito
+                    icon: "success",  
+                    showConfirmButton: true,
+                    confirmButtonText: "Ok",
+                    customClass: {
+                        confirmButton: "btn btn-primary"
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();  // Recarga la página
+                    }
+                });
+
+            } else {
+                
+            }
+        } catch (e) {
+            
+        }
+    }
+});
+
+

@@ -5,47 +5,227 @@
         <div class="modal-content" id="modal-container">
             <div class="modal-header">
                 <h5 class="modal-title" id="conceptsModalLabel">Nuevo Concepto</h5>
-                <button type="button" class="btn-close" onclick="closeModal()" aria-label="Close"></button>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()" >
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
             </div>
             <div class="modal-body">
-                <form hx-post="{% url 'payroll:concepts_add' %}" hx-target="#modal-container" hx-swap="innerHTML" id="form_tack">
-                    {% csrf_token %}
-                    {% crispy form %}
-                </form>
+                {% csrf_token %}
+                {% crispy form %}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" onclick="closeModal()">Cerrar</button>
-                <button type="submit" form="form_tack" class="btn btn-primary">Crear</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="closeModal()" >Cerrar</button>
+                <button type="submit" form="form_concepts" class="btn btn-primary">Crear</button>
             </div>
         </div>
     </div>
 </div>
 
+
 <script>
-    // Función para cerrar el modal
     function closeModal() {
         var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+        var modalBackdrop = document.querySelector('.modal-backdrop');
+        
         if (modal) {
-            modal.hide();
+            modal.hide(); // Cierra el modal
         }
-        // Limpiar el contenido del modal después de cerrarlo
+        if (modalBackdrop) {
+            modalBackdrop.remove(); // Elimina el fondo modal residual
+        }
+
+        // Limpiar los valores de los campos dentro del modal
+        document.getElementById('conceptsModal').querySelectorAll('input, select').forEach(function(input) {
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
+
+        // Limpiar los campos select2
+        $('#id_tipoconcepto').val(null).trigger('change');
+        $('#id_indicador').val(null).trigger('change');
+        $('#id_grupo_dian').val(null).trigger('change');
+        $('#id_formula').val(null).trigger('change');
+
+        // Limpiar cualquier validación de los campos
+        document.querySelectorAll('.is-invalid').forEach(function(element) {
+            element.classList.remove('is-invalid');
+        });
+        document.querySelectorAll('.invalid-feedback').forEach(function(feedback) {
+            feedback.innerHTML = '';
+        });
+
+        // Limpiar el contenido dentro del contenedor del modal
         document.getElementById('modal-container').innerHTML = '';
     }
+
+    $(document).ready(function () {
+        // Inicializa Select2 para los campos
+        $('#id_tipoconcepto').select2({
+            dropdownParent: $('#conceptsModal'),
+            minimumResultsForSearch: -1,
+            placeholder: "Seleccione un tipo de concepto",
+        });
+
+        $('#id_indicador').select2({
+            dropdownParent: $('#conceptsModal'),
+            placeholder: "Seleccione un Indicador",
+            allowClear: true,
+            closeOnSelect: false,
+            multiple: true
+        });
+
+        $('#id_grupo_dian').select2({
+            dropdownParent: $('#conceptsModal'),
+            minimumResultsForSearch: -1,
+            placeholder: "Seleccione un grupo DIAN",
+            allowClear: true
+        });
+
+        $('#id_formula').select2({
+            dropdownParent: $('#conceptsModal'),
+            minimumResultsForSearch: -1,
+            placeholder: "Seleccione una fórmula",
+        });
+
+
+    });
 
     // Escucha el evento 'htmx:afterRequest' para manejar la respuesta del servidor
     document.body.addEventListener('htmx:afterRequest', function(evt) {
         if (evt.detail.successful) {
-            // Verifica si la respuesta incluye un indicador de éxito
             var response = evt.detail.xhr.responseText;
-            if (response.includes('success')) {
-                // Si la solicitud fue exitosa, cierra el modal
-                var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
-                if (modal) {
-                    modal.hide();
+            
+            // Verificar si la respuesta es un JSON con estado de éxito
+            try {
+                var responseJson = JSON.parse(response);
+                
+                if (responseJson.status === 'success') {
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+                    var modalBackdrop = document.querySelector('.modal-backdrop');
+                    
+                    if (modal) {
+                        modal.hide(); // Cierra el modal después de una respuesta exitosa
+                    }
+    
+                    if (modalBackdrop) {
+                        modalBackdrop.remove(); // Elimina el fondo modal residual
+                    }
+    
+                    // Mostrar el Swal de éxito
+                    Swal.fire({
+                        text: responseJson.message, // Mensaje de éxito
+                        icon: "success",  
+                        showConfirmButton: true,
+                        confirmButtonText: "Ok",
+                        customClass: {
+                            confirmButton: "btn btn-primary"
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();  // Recarga la página
+                        }
+                    });
+    
+                } else {
+                    
                 }
-                // Recarga la página o actualiza la lista de tareas
-                window.location.reload();  // O usa HTMX para actualizar la lista
+            } catch (e) {
+                
             }
         }
     });
+
+
+    
+
+    // Define form element
+    const form = document.getElementById('form_concepts');
+
+    // Inicializa la validación
+    var validator = FormValidation.formValidation(
+        form,
+        {
+            fields: {
+                'id_codigo': {
+                    validators: {
+                        notEmpty: {
+                            message: 'El código es obligatorio'
+                        }
+                    }
+                },
+            },
+
+            plugins: {
+                trigger: new FormValidation.plugins.Trigger(),
+                bootstrap: new FormValidation.plugins.Bootstrap5({
+                    rowSelector: '.fv-row',
+                    eleInvalidClass: '',
+                    eleValidClass: ''
+                })
+            }
+        }
+    );
+
+
+    document.addEventListener("htmx:afterSwap", function(event) {
+        let input = document.querySelector("#id_codigo"); // Selecciona el campo de entrada
+        let feedback = document.querySelector("#codigo-validation"); // Selecciona el contenedor del feedback
+    
+        // Obtiene la respuesta de la API
+        var response = event.detail.xhr.responseText;
+        var responseJson = JSON.parse(response); // Parsea la respuesta JSON
+    
+        try {
+            // Verifica si la respuesta indica un error
+            if (responseJson.valid === false) {
+                // Si la respuesta es un error, muestra el mensaje en el feedback
+                feedback.textContent = responseJson.message; // Mensaje de error desde la API
+                feedback.classList.add('invalid-feedback');  // Asegúrate de que el mensaje tenga el estilo de error
+    
+                // Agrega las clases para el estado inválido en el campo de entrada
+                input.classList.add("is-invalid");
+                input.classList.remove("is-valid");
+    
+                // Si tienes FormValidation, puedes actualizar el estado del campo
+                // Aunque no es necesario para mostrar el error desde la API
+                if (validator) {
+                    validator.updateStatus('id_codigo', FormValidation.Status.True);
+                }
+    
+                console.log('Se ha producido un error de validación desde la API');
+            } else {
+                // Si la respuesta es válida (es decir, no hay error)
+                feedback.textContent = ''; // Limpiar cualquier mensaje de error anterior
+                feedback.classList.remove('invalid-feedback'); // Elimina la clase de error
+                feedback.style.display = 'none'; // Ocultar el feedback
+    
+                // Actualiza el estado del input como válido
+                input.classList.add('is-valid');
+                input.classList.remove('is-invalid');
+    
+                // Si deseas, actualiza el mensaje de éxito en el formulario
+                if (validator) {
+                    validator.updateStatus('id_codigo', FormValidation.Status.VALID);
+                }
+    
+                console.log('El código es válido');
+            }
+        } catch (e) {
+            console.error('Error al procesar la respuesta de la API:', e);
+        }
+    });
+    
+        
+    
+    
+    
+    
+
+
 </script>
+
