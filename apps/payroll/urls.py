@@ -55,7 +55,7 @@ urlhtmxpatterns =[
     path('payroll/<int:id>/<int:idnomina>/modals', payroll.payroll_data, name='payroll_data'),
     path('payroll/<int:idn>/<int:idc>/<int:amount>/<str:value>/form', payroll.payroll_form, name='payroll_form'),
     path('delete_payroll_row/<int:concept_id>/', payroll.delete_payroll, name='delete_payroll'),
-    
+    path('payroll/concept/<str:data>', payroll.payroll_concept, name='payroll_concept'),
     path('payroll/update/post', payroll.post_payroll, name='post_payroll'),
 ]
 

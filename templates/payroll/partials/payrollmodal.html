@@ -112,7 +112,6 @@
                         </div>  
                     </div>   
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
@@ -156,24 +155,7 @@
           });
         }
       } catch (e) {
-        console.error('Error al procesar la respuesta:', e);
+        console.error('Er');
       }
     });
 </script>
-
-{% comment %} {% for concepto in  data.conceptos %}
-                                            <tr>
-                                                <td>
-                                                    <input type="number" class="form-control form-control-sm" name="cantidad" id="cantidad" value="{{ concepto.id }}">
-                                                </td>
-                                                <td class="text-center">
-                                                    <input type="number" class="form-control form-control-sm " name="valor" id="valor" value="{{ concepto.amount }}">
-                                                </td>
-                                                <td class="text-center">
-                                                    <input type="number" class="form-control form-control-sm" name="valor" id="valor" value="{{ concepto.value }}">
-                                                </td>
-                                                <td class="text-center">
-
-                                                </td>
-                                            </tr> 
-                                        {% endfor %} {% endcomment %}

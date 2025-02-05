@@ -38,3 +38,25 @@
     });
   });
 </script>
+
+
+<script>
+  function actualizarCampos(response) {
+      // Recibir el estado de los campos (deshabilitar o habilitar)
+      const datos = JSON.parse(response);
+      const cantidadField = document.getElementById('cantidad');
+      const valorField = document.getElementById('valor');
+      
+      if (datos.cantidad_desactivada) {
+          cantidadField.disabled = true;
+      } else {
+          cantidadField.disabled = false;
+      }
+
+      if (datos.valor_desactivado) {
+          valorField.disabled = true;
+      } else {
+          valorField.disabled = false;
+      }
+  }
+</script>

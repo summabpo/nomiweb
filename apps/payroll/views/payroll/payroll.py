@@ -234,9 +234,6 @@ def post_payroll(request):
             # Determinar si es una fila nueva o existente
             if row_id.startswith('new-'):
                 # Es una fila nueva
-                print(f"Nueva fila: Concepto={payroll_concept}, Cantidad={concept_quantity}, Valor={concept_value}")
-                
-                
                 registro = Nomina(
                         idconcepto_id=payroll_concept,
                         cantidad=concept_quantity,
@@ -260,9 +257,6 @@ def post_payroll(request):
                     
                 except Nomina.DoesNotExist:
                     raise ValueError(f"No se encontró el concepto con ID {row_id}.")
-                
-                print(f"Fila existente (ID={row_id.replace("old-", "")}): Concepto={payroll_concept}, Cantidad={concept_quantity}, Valor={concept_value}")
-                # Aquí puedes actualizar la fila en la base de datos
             else:
                 # ID no reconocido
                 print(f"Error: ID no reconocido ({row_id})")
@@ -273,6 +267,39 @@ def post_payroll(request):
     
     
 
+
+@login_required
+@role_required('accountant')
+def payroll_concept(request,data):
+    
+    concepto = request.GET.get('concept_quantity')
+    concepto2 = request.GET.get('payroll_concept')
+    print('-'*50)
+    print(concepto2)
+    print('-'*50)
+    print(concepto)
+    print('-'*50)
+    print(data)
+    print('-'*50)
+    
+    
+    if concepto == 'salario':
+        respuesta = {
+            'cantidad_desactivada': False,
+            'valor_desactivado': True
+        }
+    elif concepto == 'bono':
+        respuesta = {
+            'cantidad_desactivada': True,
+            'valor_desactivado': False
+        }
+    else:
+        respuesta = {
+            'cantidad_desactivada': True,
+            'valor_desactivado': True
+        }
+    
+    return JsonResponse(respuesta)
 
 
 @login_required

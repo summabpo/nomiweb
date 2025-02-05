@@ -2,6 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Row, Column, Hidden
 from apps.common.models import Conceptosdenomina
+from django.urls import reverse_lazy
 
 class UpdateForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -25,6 +26,10 @@ class UpdateForm(forms.Form):
                 'class': 'form-control form-control-sm',
                 'id': f"{id_payroll}-quantity", 
                 'name': f"{id_payroll}-quantity",
+                'hx-get': reverse_lazy('payroll:payroll_concept', kwargs={'data': id_payroll} ),
+                'hx-params': "payroll_concept,concept_quantity",
+                'hx-trigger': 'keyup[target.value.length > 0]', 
+                'hx-on':"htmx:afterRequest: actualizarCampos(event.detail.response)",
             })
         )
         
@@ -45,15 +50,18 @@ class UpdateForm(forms.Form):
                 (item['idconcepto'], f"{item['codigo']} - {item['nombreconcepto']}")
                 for item in Conceptosdenomina.objects.filter(id_empresa_id=id_empresa)
                 .order_by('codigo')
-                .values('idconcepto', 'nombreconcepto', 'codigo')
+                .values('idconcepto', 'nombreconcepto', 'codigo')[:20]
             ],
+            
             label="",
             widget=forms.Select(attrs={
                 'id': f"{id_payroll}-concept", 
                 'name': f"{id_payroll}-concept",
+                'class': 'form-select form-select-sm',
                 'data-control': 'select2',
                 'data-dropdown-parent': "#conceptsModal",
-                'class': 'form-select form-select-sm'
+                
+                
             })
         )
         
