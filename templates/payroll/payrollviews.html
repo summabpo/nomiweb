@@ -120,9 +120,9 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
         <tbody>
             {% for empleado in empleados %}
                 <tr >
-                    <td class="text-center">{{ empleado.idempleado__docidentidad }}</td>
-                    <td>{{ empleado.idempleado__papellido }} {{ empleado.idempleado__sapellido }} {{ empleado.idempleado__pnombre }}</td>
-                    <td class="text-center">{{ empleado.salario|format_currency }} </td>
+                    <td class="text-center">{{ empleado.idcontrato__idempleado__docidentidad }}</td>
+                    <td>{{ empleado.idcontrato__idempleado__papellido }} {{ empleado.idcontrato__idempleado__sapellido }} {{ empleado.idcontrato__idempleado__pnombre }}</td>
+                    <td class="text-center">{{ empleado.idcontrato__salario|format_currency }} </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-icon btn-sm btn-light-info" id="kt_button_1" hx-get="{% url 'payroll:payroll_data' empleado.idcontrato nombre.idnomina  %}" hx-target="#modal-container" hx-swap="innerHTML">
                             <span class="indicator-label">

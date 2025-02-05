@@ -16,6 +16,8 @@ from django.utils.decorators import method_decorator
 import json
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
+from django.shortcuts import get_object_or_404
+
 
 
 @login_required
@@ -95,22 +97,23 @@ def payrollview(request, id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
 
-    empleados = Contratos.objects\
-        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
-        .order_by('idempleado__papellido') \
-        .filter(estadocontrato=1, id_empresa=idempresa) \
-        .values(
-            'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-            'idempleado__snombre', 'salario', 'idempleado__idempleado', 'idempleado__sapellido', 'idcontrato'
-        )
-    
 
+    empleados = Nomina.objects \
+        .select_related('idcontrato') \
+        .filter(idnomina=id) \
+        .values(
+            'idcontrato__idempleado__docidentidad', 'idcontrato__idempleado__papellido',
+            'idcontrato__idempleado__pnombre', 'idcontrato__idempleado__snombre',
+            'idcontrato__salario', 'idcontrato__idempleado__idempleado', 
+            'idcontrato__idempleado__sapellido', 'idcontrato'
+        ) \
+        .order_by('idcontrato__idempleado__papellido') \
+        .distinct()
 
     nombre = Crearnomina.objects.get(idnomina=id)
     # Inicializamos 'nomina' para cuando no se filtra
     nomina = Nomina.objects.filter(idnomina_id=id).order_by('idregistronom')
     
-
     return render(request, './payroll/payrollviews.html', {
         'nomina': nomina,
         'nombre':nombre,
@@ -135,7 +138,7 @@ def payroll_data(request,id,idnomina):
     conceptos = Nomina.objects.filter(
         idnomina__idnomina=idnomina,
         idcontrato__idcontrato=id
-    ).select_related('idcontrato')
+    ).select_related('idcontrato').order_by('idconcepto__codigo')
     
     
     # Verificar si hay conceptos encontrados
@@ -150,7 +153,7 @@ def payroll_data(request,id,idnomina):
     for concepto in conceptos:
         # Crear el diccionario con los datos del concepto
         concepto_info = {
-            "codigo": concepto.idregistronom,
+            'idn': concepto.idregistronom,
             "id": concepto.idconcepto.idconcepto,
             "amount": concepto.cantidad,
             "value": concepto.valor,
@@ -173,8 +176,10 @@ def payroll_data(request,id,idnomina):
     total = ingreso + egreso
     
     data = {
-        
+        "idnomina":idnomina,
+        "idempleado" :id,
         "nombre": nombre_completo,
+        "cargo": contrato.cargo,
         "salario": f"${format_value(contrato.salario)}",
         "ingresos": f"${format_value(ingreso)}",
         "egresos": f"${format_value(egreso)}",
@@ -187,38 +192,104 @@ def payroll_data(request,id,idnomina):
 
 @login_required
 @role_required('accountant')
-def payroll_form(request,idc,amount,value):
+def payroll_form(request,idn = None ,idc = None,amount = None,value = None):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if idc :
-        form = UpdateForm(id_empresa = idempresa , id_payroll = f'old-{idc}', initial={'payroll_concept': idc, 'concept_quantity': amount, 'concept_value': value })
+        form = UpdateForm(id_empresa = idempresa , id_payroll = f'old-{idn}', initial={'payroll_concept': idc, 'concept_quantity': amount, 'concept_value': value })
         #form = UpdateForm()
     else :
-        form = UpdateForm(id_empresa = idempresa)
+        form = UpdateForm(id_empresa = idempresa,id_payroll = f'new-{idn}' )
     return render(request, './payroll/partials/payrollform.html',{'form': form})
 
 
 
-
-class PayrollAPI2(View):
-    def get(self, request, *args, **kwargs):
-        usuario = request.session.get('usuario', {})
-        idempresa = usuario['idempresa']
-        try:
-            # Obtener los datos de la base de datos
-            conceptos_data = Conceptosdenomina.objects.filter(id_empresa_id = idempresa).values('idconcepto','nombreconcepto','multiplicadorconcepto','formula','codigo').order_by('codigo') # Convertir el QuerySet a un formato serializable
-            conceptos_list = list(conceptos_data)  # Convertir el QuerySet a una lista de diccionarios
-            
-            # Construir la respuesta JSON
-            data = {
-                "conceptos": conceptos_list,
+@login_required
+@role_required('accountant')
+def post_payroll(request):
+    if request.method == 'POST':
+        post_data = request.POST
+        idnomina = post_data.get('idnomina')  # Obtener el primer valor de idnomina
+        idempleado = post_data.get('idempleado')  # Obtener el primer valor de idempleado
+        # Número de filas (basado en la longitud de 'id')
+        num_rows = len(post_data.getlist('id'))
+    
+        rows = []
+        for i in range(num_rows):
+            row = {
+                'id': post_data.getlist('id')[i],
+                'payroll_concept': post_data.getlist('payroll_concept')[i],
+                'concept_quantity': post_data.getlist('concept_quantity')[i],
+                'concept_value': post_data.getlist('concept_value')[i],
             }
-            return JsonResponse(data, safe=False)
+            rows.append(row)
+        
+        # Procesar cada fila
+        for row in rows:
+            row_id = row['id']
+            payroll_concept = row['payroll_concept']
+            concept_quantity = row['concept_quantity']
+            concept_value = row['concept_value']
 
-        except Conceptosdenomina.DoesNotExist:
-            return JsonResponse({"error": "No se encontraron conceptos de nómina"}, status=404)
-        except Exception as e:
-            return JsonResponse({"error": f"Error interno: {str(e)}"}, status=500)
+            # Determinar si es una fila nueva o existente
+            if row_id.startswith('new-'):
+                # Es una fila nueva
+                print(f"Nueva fila: Concepto={payroll_concept}, Cantidad={concept_quantity}, Valor={concept_value}")
+                
+                
+                registro = Nomina(
+                        idconcepto_id=payroll_concept,
+                        cantidad=concept_quantity,
+                        valor=concept_value,
+                        idcontrato_id=idempleado,
+                        idnomina_id=idnomina,
+                    )
+                
+                registro.save()
+                #Aquí puedes guardar la fila en la base de datos
+            elif row_id.startswith('old-'):
+                # Es una fila existente
+                try:
+                    # Obtener el concepto por ID
+                    concepto_obj = Nomina.objects.get(idregistronom=row_id.replace("old-", ""))
+                    concepto_obj.idconcepto_id = payroll_concept  # Asigna el ID del concepto (no el objeto completo)
+                    concepto_obj.cantidad = concept_quantity
+                    concepto_obj.valor = concept_value
+                                
+                    concepto_obj.save()
+                    
+                except Nomina.DoesNotExist:
+                    raise ValueError(f"No se encontró el concepto con ID {row_id}.")
+                
+                print(f"Fila existente (ID={row_id.replace("old-", "")}): Concepto={payroll_concept}, Cantidad={concept_quantity}, Valor={concept_value}")
+                # Aquí puedes actualizar la fila en la base de datos
+            else:
+                # ID no reconocido
+                print(f"Error: ID no reconocido ({row_id})")
+                
+        
+        return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Método no permitido'}, status=400)
+    
+    
+
+
+
+@login_required
+@role_required('accountant')
+def delete_payroll(request,id):
+    # Obtener el concepto de nómina por su ID
+    concept = get_object_or_404(Nomina, id=id)
+    
+    # Eliminar el objeto de la base de datos si es necesario
+    concept.delete()  # Solo si deseas eliminar el objeto de la base de datos
+
+    # Si solo deseas eliminar la fila en la vista (sin eliminar el objeto en la base de datos),
+    # simplemente devolveremos una respuesta vacía.
+    return JsonResponse({'success': True})
+
+
+
 
 
 class PayrollAPI(View):

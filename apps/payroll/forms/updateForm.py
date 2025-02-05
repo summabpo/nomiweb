@@ -1,60 +1,76 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column
-from apps.common.models  import Conceptosdenomina
+from crispy_forms.layout import Submit, Layout, Row, Column, Hidden
+from apps.common.models import Conceptosdenomina
+
 class UpdateForm(forms.Form):
-
-    
-    concept_quantity = forms.IntegerField(
-        required=False,
-        label="",
-        widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm'})
-    )
-
-    concept_value = forms.DecimalField(
-        required=False,
-        label="",
-        max_digits=10,
-        decimal_places=2,
-        widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm '})
-    )
-
     def __init__(self, *args, **kwargs):
-        id_empresa = kwargs.pop('id_empresa', None) 
+        id_empresa = kwargs.pop('id_empresa', None)
         id_payroll = kwargs.pop('id_payroll', None)
         super().__init__(*args, **kwargs)
         
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.form_id = 'form_payroll'
-        self.helper.enctype = 'multipart/form-data'
+        # Campo oculto para id_payroll
+        self.fields['id'] = forms.CharField(
+            initial=id_payroll,
+            widget=forms.HiddenInput(attrs={
+                'id': 'id_payroll',  # Opcional: puedes personalizar el id del campo
+            })
+        )
+        
+        # Definir los campos con los atributos personalizados
+        self.fields['concept_quantity'] = forms.IntegerField(
+            required=False,
+            label="",
+            widget=forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm',
+                'id': f"{id_payroll}-quantity", 
+                'name': f"{id_payroll}-quantity",
+            })
+        )
+        
+        self.fields['concept_value'] = forms.DecimalField(
+            required=False,
+            label="",
+            max_digits=10,
+            decimal_places=2,
+            widget=forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm',
+                'id': f"{id_payroll}-value", 
+                'name': f"{id_payroll}-value",
+            })
+        )
         
         self.fields['payroll_concept'] = forms.ChoiceField(
             choices=[('', '----------')] + [
-                (item['idconcepto'], f"{item['nombreconcepto']} - {item['codigo']}")
-                for item in Conceptosdenomina.objects.filter(id_empresa_id = id_empresa)
+                (item['idconcepto'], f"{item['codigo']} - {item['nombreconcepto']}")
+                for item in Conceptosdenomina.objects.filter(id_empresa_id=id_empresa)
                 .order_by('codigo')
                 .values('idconcepto', 'nombreconcepto', 'codigo')
             ],
             label="",
             widget=forms.Select(attrs={
-                'id': id_payroll, 
+                'id': f"{id_payroll}-concept", 
+                'name': f"{id_payroll}-concept",
                 'data-control': 'select2',
                 'data-dropdown-parent': "#conceptsModal",
                 'class': 'form-select form-select-sm'
             })
         )
-
+        
+        # Configuración de Crispy Forms
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_tag = False
+        self.helper.enctype = False
+        
+        # Definir el layout del formulario
         self.helper.layout = Layout(
+            Hidden('id', id_payroll),  # Campo oculto para id_payroll
             Row(
-                Column('payroll_concept', css_class='input-group-sm  col-md-6'),
-                Column('concept_quantity', css_class='form-group col-md-3'),
+                Column('payroll_concept', css_class='input-group-sm col-md-5'),
+                Column('concept_quantity', css_class='form-group col-md-2'),
                 Column('concept_value', css_class='form-group col-md-3'),
+                Submit('submit', 'X', css_class='btn btn-icon btn-light-youtube col-md-2'),
                 css_class='row'
             )
         )
-        
-        
-
-    
-

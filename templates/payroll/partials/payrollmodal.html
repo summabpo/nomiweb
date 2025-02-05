@@ -52,7 +52,14 @@
                                             </div>
                 
                                             <div class="text-center mb-4">
-                                                <button type="submit" id="add-row-btn" name="submit_direct" class="btn btn-light-info" value="" > <i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto </button>
+                                            <!-- Botón para agregar nuevos formularios -->
+                                                <button class="btn btn-light-info" 
+                                                    hx-get="{% url 'payroll:payroll_form' 0 0 0 0 %}" 
+                                                    hx-target="#payroll-forms-container" 
+                                                    hx-swap="beforeend">
+                                                <i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto 
+                                                </button>
+
                                             </div>
                 
                                         </div>
@@ -66,8 +73,7 @@
                 
                         <!-- Columna de la tabla más grande -->
                         <div class="scroll h-400px px-5 col-md-8">
-                            <form id="form_custom_payroll_concept" method="post" action="{% url 'payroll:payrollviewapi' %}">
-                                {% csrf_token %}
+                               
                                 <table id="kt_datatable_example" class="table table-striped table-row-bordered gy-5 gs-7">
                                     <thead>
                                         <tr class="fw-bold fs-6 text-gray-800">
@@ -77,34 +83,83 @@
                                             <th class="text-center" >Gestionar</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        {% for concepto in data.conceptos %}
-                                        <tr
-                                            hx-get="{% url 'payroll:payroll_form' concepto.id concepto.amount|floatformat concepto.value|floatformat %}"
-                                            hx-trigger="load"
-                                            hx-target="this"
-                                            hx-swap="outerHTML"
-                                        >
-                                            <!-- El contenido dinámico se cargará aquí -->
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
                                 </table> 
-                            </form> 
-                        </div> 
+
+                                <form id="form_concepts"  
+                                    method="post" 
+                                    hx-post="{% url 'payroll:post_payroll' %}"
+                                    hx-trigger="submit"
+                                    hx-swap="none"
+                                    >   
+
+                                    <input type="hidden" name="idnomina" value={{data.idnomina}}>
+                                    <input type="hidden" name="idempleado" value={{data.idempleado}}>
+
+                                        {% csrf_token %}
+                                        <div id="payroll-forms-container"> 
+                                            {% for concepto in data.conceptos %}
+                                                <div
+                                                    hx-get="{% url 'payroll:payroll_form' concepto.idn concepto.id concepto.amount|floatformat concepto.value|floatformat %}"
+                                                    hx-trigger="load"
+                                                    hx-target="this"
+                                                    hx-swap="outerHTML"
+                                                >
+                                                    <!-- El contenido dinámico se cargará aquí -->
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                </form> 
+                        </div>  
                     </div>   
                 </div>
 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="form_concepts" class="btn btn-primary">Crear</button>
+                <button type="submit" form="form_concepts" class="btn btn-primary" >Actualizar</button>
             </div>
         </div>
     </div>
 </div>
 
+<script>
+    document.body.addEventListener('htmx:configRequest', function (event) {
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        event.detail.headers['X-CSRFToken'] = csrfToken;
+    });
+</script>
 
+
+<script>
+    // Escuchar la respuesta del formulario con HTMX
+    document.addEventListener('htmx:afterRequest', function(event) {
+      const response = event.detail.xhr.response; // Obtener la respuesta del servidor
+  
+      try {
+        const jsonResponse = JSON.parse(response); // Intentar parsear la respuesta JSON
+  
+        if (jsonResponse.success) {
+          // Mostrar un mensaje de éxito con SweetAlert
+          Swal.fire({
+            title: '¡Éxito!',
+            text: 'La nómina se procesó correctamente.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+        } else {
+          // Mostrar un mensaje de error si no es exitoso
+          Swal.fire({
+            title: 'Error',
+            text: 'Hubo un problema al procesar la nómina.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      } catch (e) {
+        console.error('Error al procesar la respuesta:', e);
+      }
+    });
+</script>
 
 {% comment %} {% for concepto in  data.conceptos %}
                                             <tr>

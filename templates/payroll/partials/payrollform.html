@@ -1,26 +1,23 @@
 {% load crispy_forms_tags %}
 
 
-<tr class="p-0">
-    <td class = "col-md-6">
-        {{ form.payroll_concept|as_crispy_field }}
-    </td>
-    <td class="text-center col-md-2">
-        {{ form.concept_quantity|as_crispy_field }}
-    </td>
-    <td class="text-center col-md-4">
-        {{ form.concept_value|as_crispy_field }}
-    </td>
-    <td class="text-center">
-        <a href="#" class="btn btn-icon btn-light-youtube me-5 ">
-            <i class="fa-solid fa-trash fs-4"></i>
-        </a>
-       
-    </td>
-</tr>
-
-
-
+{% comment %} <tr class="p-0">
+      <td class="col-md-6">
+          {{ form.payroll_concept }}
+      </td>
+      <td class="text-center col-md-2">
+          {{ form.concept_quantity }}
+      </td>
+      <td class="text-center col-md-4">
+          {{ form.concept_value }}
+      </td>
+      <td class="text-center">
+          <a href="#" class="btn btn-icon btn-light-youtube me-5">
+              <i class="fa-solid fa-trash fs-4"></i>
+          </a>
+      </td>
+  </tr> {% endcomment %}
+  {% crispy form %}
 
 <script>
   $(document).ready(function () {
