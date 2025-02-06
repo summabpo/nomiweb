@@ -44,7 +44,7 @@ def usercreate_admin(request):
                 is_active=cleaned_data['is_active'],
             )
             
-            return JsonResponse({'status': 'success', 'message': 'Formulario guardado exitosamente'})
+            return JsonResponse({'status': 'success', 'message': 'Usuario creado exitosamente'})
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario
             for field, errors in form.errors.items():

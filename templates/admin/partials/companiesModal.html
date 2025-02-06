@@ -1,0 +1,117 @@
+
+{% load crispy_forms_tags %}
+<!-- Modal -->
+<div class="modal fade" id="conceptsModal" name="conceptsModal" tabindex="-1" aria-labelledby="conceptsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-xl">
+        <div class="modal-content" id="modal-container">
+            <div class="modal-header">
+                <h5 class="modal-title" id="conceptsModalLabel">Nuevo Usuario</h5>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()" >
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                {% crispy form %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="closeModal()" >Cerrar</button>
+                <button type="submit" form="form_compani" class="btn btn-primary">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+function closeModal() {
+    var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+    var modalBackdrop = document.querySelector('.modal-backdrop');
+    
+    if (modal) {
+        modal.hide(); // Cierra el modal
+    }
+    if (modalBackdrop) {
+        modalBackdrop.remove(); // Elimina el fondo modal residual
+    }
+
+
+    // Limpiar el contenido dentro del contenedor del modal
+    document.getElementById('modal-container').innerHTML = '';
+}
+
+$(document).ready(function () {
+    // Inicializa Select2 para los campos
+    $('#id_codciudad').select2({
+        dropdownParent: $('#conceptsModal'),
+        
+    });
+
+    $('#id_tipodoc').select2({
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_pais').select2({
+        
+        dropdownParent: $('#conceptsModal'),
+        
+    });
+
+    $('#id_arl').select2({
+        dropdownParent: $('#conceptsModal'),
+        
+    });
+
+
+});
+
+
+document.body.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.successful) {
+        var response = evt.detail.xhr.responseText;
+        console.log('DATA ES ESTO ');
+        // Verificar si la respuesta es un JSON con estado de éxito
+        try {
+            var responseJson = JSON.parse(response);
+            
+            if (responseJson.status === 'success') {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+                var modalBackdrop = document.querySelector('.modal-backdrop');
+                
+                if (modal) {
+                    modal.hide(); // Cierra el modal después de una respuesta exitosa
+                }
+
+                if (modalBackdrop) {
+                    modalBackdrop.remove(); // Elimina el fondo modal residual
+                }
+
+                // Mostrar el Swal de éxito
+                Swal.fire({
+                    text: responseJson.message, // Mensaje de éxito
+                    icon: "success",  
+                    showConfirmButton: true,
+                    confirmButtonText: "Ok",
+                    customClass: {
+                        confirmButton: "btn btn-primary"
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();  // Recarga la página
+                    }
+                });
+
+            } else {
+                
+            }
+        } catch (e) {
+            console.log('Error');
+            console.log(e);
+        }
+    }
+});
+</script>

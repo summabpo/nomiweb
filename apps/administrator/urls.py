@@ -16,6 +16,7 @@ urlpatterns = [
     path('users/deactivate/<int:user_id>/', createuser.toggle_user_active_status, {'activate': False}, name='userdeactivate'),
 
     path('companies/', createcompanies.createcompanies_admin, name='companies'),
+    path('companies/create/', createcompanies.addcompanies_admin, name='companiescreate'),
     path('role/', role.role_admin, name='role'),
     path('loginweb/select/',loginweb.loginweb_admin , name='loginweb'),
     path('loginweb/edit/',loginweb.edit_main , name='editmain'),
