@@ -29,14 +29,14 @@ def usercreate_admin(request):
         if form.is_valid():
             # Procesar el formulario y crear el usuario
             cleaned_data = form.cleaned_data
-            id_empresa = Empresa.objects.get(idempresa=cleaned_data['company'])
+            id_empresa = Empresa.objects.get(idempresa=cleaned_data['company']) if cleaned_data['company'] else None
             rol = Role.objects.get(id=cleaned_data['permission'])
             User.objects.create_user(
                 first_name=cleaned_data['first_name'],
                 last_name=cleaned_data['last_name'],
                 email=cleaned_data['email'],
                 password=cleaned_data['password1'],
-                id_empresa=id_empresa,
+                id_empresa = id_empresa if cleaned_data['company'] else None,
                 tipo_user=cleaned_data['role'],
                 rol=rol,
                 is_staff=cleaned_data['is_staff'],
