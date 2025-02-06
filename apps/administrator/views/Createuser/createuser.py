@@ -5,6 +5,8 @@ from apps.common.models import User,Empresa , Role
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+
 
 def toggle_user_active_status(request, user_id, activate=True):
     usuario = get_object_or_404(User, id=user_id)
@@ -41,11 +43,13 @@ def usercreate_admin(request):
                 is_superuser=cleaned_data['is_superuser'],
                 is_active=cleaned_data['is_active'],
             )
-            messages.success(request, 'El Usuario ha sido añadido con éxito.')
-            return redirect('admin:user')
+            
+            return JsonResponse({'status': 'success', 'message': 'Formulario guardado exitosamente'})
         else:
-            # Si el formulario no es válido, devolver el formulario con errores
-            return render(request, 'admin/usercreate.html', {'form': form}, status=400)
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")
     else:
         form = UserCreationForm()
-    return render(request, 'admin/usercreate.html', {'form': form})
+    return render(request, './admin/usercreate.html', {'form': form})

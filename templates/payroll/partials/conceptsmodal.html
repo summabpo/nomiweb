@@ -103,7 +103,7 @@
             // Verificar si la respuesta es un JSON con estado de éxito
             try {
                 var responseJson = JSON.parse(response);
-                
+                console.log(responseJson);
                 if (responseJson.status === 'success') {
                     var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
                     var modalBackdrop = document.querySelector('.modal-backdrop');
@@ -142,85 +142,7 @@
 
 
     
-
-    // Define form element
-    const form = document.getElementById('form_concepts');
-
-    // Inicializa la validación
-    var validator = FormValidation.formValidation(
-        form,
-        {
-            fields: {
-                'id_codigo': {
-                    validators: {
-                        notEmpty: {
-                            message: 'El código es obligatorio'
-                        }
-                    }
-                },
-            },
-
-            plugins: {
-                trigger: new FormValidation.plugins.Trigger(),
-                bootstrap: new FormValidation.plugins.Bootstrap5({
-                    rowSelector: '.fv-row',
-                    eleInvalidClass: '',
-                    eleValidClass: ''
-                })
-            }
-        }
-    );
-
-
-    document.addEventListener("htmx:afterSwap", function(event) {
-        let input = document.querySelector("#id_codigo"); // Selecciona el campo de entrada
-        let feedback = document.querySelector("#codigo-validation"); // Selecciona el contenedor del feedback
-    
-        // Obtiene la respuesta de la API
-        var response = event.detail.xhr.responseText;
-        var responseJson = JSON.parse(response); // Parsea la respuesta JSON
-    
-        try {
-            // Verifica si la respuesta indica un error
-            if (responseJson.valid === false) {
-                // Si la respuesta es un error, muestra el mensaje en el feedback
-                feedback.textContent = responseJson.message; // Mensaje de error desde la API
-                feedback.classList.add('invalid-feedback');  // Asegúrate de que el mensaje tenga el estilo de error
-    
-                // Agrega las clases para el estado inválido en el campo de entrada
-                input.classList.add("is-invalid");
-                input.classList.remove("is-valid");
-    
-                // Si tienes FormValidation, puedes actualizar el estado del campo
-                // Aunque no es necesario para mostrar el error desde la API
-                if (validator) {
-                    validator.updateStatus('id_codigo', FormValidation.Status.True);
-                }
-    
-                console.log('Se ha producido un error de validación desde la API');
-            } else {
-                // Si la respuesta es válida (es decir, no hay error)
-                feedback.textContent = ''; // Limpiar cualquier mensaje de error anterior
-                feedback.classList.remove('invalid-feedback'); // Elimina la clase de error
-                feedback.style.display = 'none'; // Ocultar el feedback
-    
-                // Actualiza el estado del input como válido
-                input.classList.add('is-valid');
-                input.classList.remove('is-invalid');
-    
-                // Si deseas, actualiza el mensaje de éxito en el formulario
-                if (validator) {
-                    validator.updateStatus('id_codigo', FormValidation.Status.VALID);
-                }
-    
-                console.log('El código es válido');
-            }
-        } catch (e) {
-            console.error('Error al procesar la respuesta de la API:', e);
-        }
-    });
-    
-        
+ 
     
     
     

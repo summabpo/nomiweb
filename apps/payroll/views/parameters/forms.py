@@ -287,11 +287,7 @@ class PayrollConceptsForm(forms.Form):
         label='Código',
         widget=forms.NumberInput(attrs={'class': 'form-control', 
                                         'placeholder': 'Ingrese el código',
-                                        'hx-get': reverse_lazy('payroll:check_code'),  # URL donde se hará la validación
-                                        'hx-trigger': 'keyup changed delay:500ms',  # Activa la petición cuando cambia el campo
-                                        'hx-target': '#codigo-validation',  # Dónde mostrar el mensaje de validación
-                                        'hx-params':"codigo",
-                                        'hx-swap': 'innerHTML',  # Reemplazar contenido del objetivo
+                                 # Reemplazar contenido del objetivo
     # <input type="text" id="id_codigo" name="codigo" hx-get="/payroll/parameters/concepts/check/code" hx-trigger="change" hx-target="#codigo-validation">
                                   
                                         })

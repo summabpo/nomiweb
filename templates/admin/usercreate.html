@@ -1,27 +1,114 @@
+
 {% load crispy_forms_tags %}
-<!-- admin/usercreate.html -->
-
-
-<div class="modal fade" tabindex="-1" id="kt_modal_maintenance" hx-target="this">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
+<!-- Modal -->
+<div class="modal fade" id="conceptsModal" name="conceptsModal" tabindex="-1" aria-labelledby="conceptsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
+        <div class="modal-content" id="modal-container">
             <div class="modal-header">
-                <h3 class="modal-title">Nuevo Usuario</h3>
-                <!-- Botón para cerrar el modal -->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title" id="conceptsModalLabel">Nuevo Usuario</h5>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()" >
                     <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                 </div>
+                <!--end::Close-->
             </div>
-            <div class="modal-body" id="modal-content-body">
-                <form id="form_user" method="post" hx-post="{% url 'admin:usercreate' %}" hx-target="#modal-content-body">
-                    {% csrf_token %}
-                    {% crispy form %}  <!-- Usar crispy para mantener los estilos personalizados -->
-                </form> <!-- Incluye el formulario con crispy -->
+            <div class="modal-body">
+                {% csrf_token %}
+                {% crispy form %}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="closeModal()" >Cerrar</button>
                 <button type="submit" form="form_user" class="btn btn-primary">Crear</button>
             </div>
         </div>
     </div>
 </div>
+
+
+<script>
+
+function closeModal() {
+    var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+    var modalBackdrop = document.querySelector('.modal-backdrop');
+    
+    if (modal) {
+        modal.hide(); // Cierra el modal
+    }
+    if (modalBackdrop) {
+        modalBackdrop.remove(); // Elimina el fondo modal residual
+    }
+
+
+    // Limpiar el contenido dentro del contenedor del modal
+    document.getElementById('modal-container').innerHTML = '';
+}
+
+$(document).ready(function () {
+    // Inicializa Select2 para los campos
+    $('#id_company').select2({
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+        placeholder: "Seleccione una compañía",
+    });
+
+    $('#id_role').select2({
+        placeholder: "Seleccione un rol",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_permission').select2({
+        placeholder: "Seleccione un permiso de usuario",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+
+});
+
+
+document.body.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.successful) {
+        var response = evt.detail.xhr.responseText;
+        console.log('DATA ES ESTO ');
+        // Verificar si la respuesta es un JSON con estado de éxito
+        try {
+            var responseJson = JSON.parse(response);
+            
+            if (responseJson.status === 'success') {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+                var modalBackdrop = document.querySelector('.modal-backdrop');
+                
+                if (modal) {
+                    modal.hide(); // Cierra el modal después de una respuesta exitosa
+                }
+
+                if (modalBackdrop) {
+                    modalBackdrop.remove(); // Elimina el fondo modal residual
+                }
+
+                // Mostrar el Swal de éxito
+                Swal.fire({
+                    text: responseJson.message, // Mensaje de éxito
+                    icon: "success",  
+                    showConfirmButton: true,
+                    confirmButtonText: "Ok",
+                    customClass: {
+                        confirmButton: "btn btn-primary"
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();  // Recarga la página
+                    }
+                });
+
+            } else {
+                
+            }
+        } catch (e) {
+            console.log('Error');
+            console.log(e);
+        }
+    }
+});
+</script>

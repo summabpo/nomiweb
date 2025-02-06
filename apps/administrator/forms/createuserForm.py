@@ -4,6 +4,8 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 from apps.common.models import Empresa, Role, User
 import random
 import string
+from django.urls import reverse
+
 
 ROLES = (
     ('', '----------'),
@@ -88,7 +90,7 @@ class UserCreationForm(forms.Form):
             'data-control': 'select2',
             'data-tags': 'true',
             'class': 'form-select',
-            'data-dropdown-parent':'#kt_modal_maintenance',
+            'data-dropdown-parent':'#conceptsModal',
             'data-hide-search': "true",
         })
         
@@ -96,7 +98,7 @@ class UserCreationForm(forms.Form):
             'data-control': 'select2',
             'data-tags': 'true',
             'class': 'form-select',
-            'data-dropdown-parent':'#kt_modal_maintenance',
+            'data-dropdown-parent':'#conceptsModal',
             'data-hide-search': "true",
         })
         
@@ -104,7 +106,7 @@ class UserCreationForm(forms.Form):
             'data-control': 'select2',
             'data-tags': 'true',
             'class': 'form-select',
-            'data-dropdown-parent':'#kt_modal_maintenance',
+            'data-dropdown-parent':'#conceptsModal',
             'data-hide-search': "true",
         })
 
@@ -113,6 +115,14 @@ class UserCreationForm(forms.Form):
         self.helper.form_id = 'form_user'
         self.helper.form_action = '/admin/users/create/'
         self.helper.enctype = 'multipart/form-data'
+        
+        
+        self.helper.attrs.update({
+            'hx-post': reverse('admin:usercreate'),  # Usa el nombre de la vista en urls.py
+            'hx-target': '#modal-container',  # El elemento donde se actualizará el contenido
+            'hx-swap': 'innerHTML',  # Cómo se actualizará el contenido del objetivo
+        })
+        
         self.helper.layout = Layout(
             Row(
                 Column('email', css_class='form-group mb-0 col-md-6'),
