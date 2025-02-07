@@ -10,6 +10,9 @@ def validate_text_length(value, max_length):
     if len(value) > max_length:
         raise ValidationError(f"Este campo no puede tener más de {max_length} caracteres.")
 
+def validate_text_length_imagen(value, max_length):
+    if len(value.name) > max_length:
+        raise ValidationError(f"Este campo no puede tener más de {max_length} caracteres.")
 
 CHOICE_TIPODOC = [
     ('CC', 'Cédula de Ciudadanía'),
@@ -42,11 +45,11 @@ class  CompaniesForm(forms.Form):# Campos de identificación y datos básicos
     contactocontab = forms.CharField(label='Contacto Contabilidad', max_length=50,validators=[lambda v: validate_text_length(v,50)])
     emailcontab = forms.EmailField(label='Correo Contabilidad', max_length=50,validators=[lambda v: validate_text_length(v,50)])
     cargocertificaciones = forms.CharField(label='Cargo Certificaciones', max_length=50,validators=[lambda v: validate_text_length(v,50)])
-    firmacertificaciones = forms.ImageField(label='Firma Certificaciones',validators=[lambda v: validate_text_length(v, 30)])
+    firmacertificaciones = forms.ImageField(label='Firma Certificaciones',validators=[lambda v: validate_text_length_imagen(v, 30)])
 
     # Datos adicionales
     website = forms.URLField(label='Sitio Web', required=False)
-    logo = forms.ImageField(label='Logo',validators=[lambda v: validate_text_length(v, 30)])
+    logo = forms.ImageField(label='Logo',validators=[lambda v: validate_text_length_imagen(v, 30)])
     metodoextras = forms.CharField(label='Método Extras', max_length=255, required=False,validators=[lambda v: validate_text_length(v, 30)])
     realizarparafiscales = forms.CharField(label='Realizar Parafiscales', max_length=2, required=False,validators=[lambda v: validate_text_length(v, 2)])
     vstccf = forms.CharField(label='VST CCF', max_length=2, required=False,validators=[lambda v: validate_text_length(v, 2)])

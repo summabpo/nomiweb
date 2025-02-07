@@ -13,6 +13,9 @@ from django.contrib.auth.decorators import login_required
 @role_required('company')
 def headquarters(request): 
     usuario = request.session.get('usuario', {})
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    sedes = Sedes.objects.filter(id_empresa_id = idempresa).exclude(idsede=16).order_by('idsede')
     if request.method == 'POST':
         form = headquartersForm(request.POST)
         if form.is_valid():
@@ -26,19 +29,21 @@ def headquarters(request):
                         nombresede=nombresede,
                         cajacompensacion=aux.entidad,
                         codccf=aux.codigo,
+                        id_empresa_id = idempresa
                     )
                     sede.save()
                 
                 messages.success(request, 'La sede ha sido añadida con éxito.')
                 return redirect('companies:headquarters')
             except Exception as e:
+                print(e)
                 messages.error(request, 'Todo lo que podria salir mal , salio mal ')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"Error en el campo '{field}': {error}")
     else:
-        sedes = Sedes.objects.filter(id_empresa__idempresa=usuario['idempresa']).exclude(idsede=16).order_by('idsede')
+        
         form = headquartersForm()
     
     return render(request, './companies/headquarters.html',

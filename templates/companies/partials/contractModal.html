@@ -1,0 +1,217 @@
+
+{% load crispy_forms_tags %}
+<!-- Modal -->
+<div class="modal fade" id="contractModal" name="contractModal" tabindex="-1" aria-labelledby="contractModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
+        <div class="modal-content" id="modal-container">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contractModalLabel">Nuevo Contrato</h5>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()" >
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                {% crispy form_contratos %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="closeModal()" >Cerrar</button>
+                <button type="submit" form="form_Contract" class="btn btn-primary">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+function closeModal() {
+    var modal = bootstrap.Modal.getInstance(document.getElementById('contractModal'));
+    var modalBackdrop = document.querySelector('.modal-backdrop');
+    
+    if (modal) {
+        modal.hide(); // Cierra el modal
+    }
+    if (modalBackdrop) {
+        modalBackdrop.remove(); // Elimina el fondo modal residual
+    }
+
+
+    // Limpiar el contenido dentro del contenedor del modal
+    document.getElementById('modal-container').innerHTML = '';
+}
+
+$(document).ready(function () {
+    // Inicializa Select2 para los campos
+    $('#id_name').select2({
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+        disabled: true,
+    });
+
+    $('#id_payrollType').select2({
+        placeholder: "Tipo de Nómina",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_position').select2({
+        placeholder: "Cargo",
+        dropdownParent: $('#contractModal'),
+    });
+
+    $('#id_contributor').select2({
+        placeholder: "Tipo de Cotizante",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_subContributor').select2({
+        placeholder: "Subtipo de Cotizante",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_workLocation').select2({
+        placeholder: "Lugar de trabajo",
+        dropdownParent: $('#contractModal'),
+    });
+
+    $('#id_contractType').select2({
+        placeholder: "Tipo de Contrato",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_contractModel').select2({
+        placeholder: "Modelo de Contrato",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_salaryType').select2({
+        placeholder: "Tipo Salario",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+
+    $('#id_salaryMode').select2({
+        dropdownParent: $('#contractModal'),
+        placeholder: "Modalidad Salario",
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_livingPlace').select2({
+        dropdownParent: $('#contractModal'),
+        placeholder: "Vive en el lugar de trabajo",
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_paymentMethod').select2({
+        dropdownParent: $('#contractModal'),
+        placeholder: "Forma de pago",
+        minimumResultsForSearch: -1,
+    });
+
+
+    $('#id_bankAccount').select2({
+        placeholder: "Banco de la Cuenta",
+        dropdownParent: $('#contractModal'),
+        
+    });
+
+
+    $('#id_accountType').select2({
+        placeholder: "Tipo de Cuenta",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+
+    $('#id_costCenter').select2({
+        placeholder: "Centro de Costos",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_subCostCenter').select2({
+        placeholder: "Sub centro de Costos",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_eps').select2({
+        placeholder: "Eps",
+        dropdownParent: $('#contractModal'),
+    });
+
+
+    $('#id_pensionFund').select2({
+        placeholder: "Pension",
+        dropdownParent: $('#contractModal'),
+    });
+
+    $('#id_CesanFund').select2({
+        placeholder: "Fondo Cesantias",
+        dropdownParent: $('#contractModal'),
+    });
+
+    $('#id_workPlace').select2({
+        placeholder: "Sede de Trabajo",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_arlWorkCenter').select2({
+        placeholder: "Centro de Trabajo ARL",
+        dropdownParent: $('#contractModal'),
+        minimumResultsForSearch: -1,
+    });
+
+});
+
+document.body.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.successful) {
+        var response = evt.detail.xhr.responseText;
+        try {
+            var responseJson = JSON.parse(response);
+
+            // Verificar si responseJson tiene las propiedades esperadas
+            if (responseJson && responseJson.status === 'success' && responseJson.type === 'contract') {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('contractModal'));
+                var modalBackdrop = document.querySelector('.modal-backdrop');
+                
+                if (modal) {
+                    modal.hide(); // Cierra el modal después de una respuesta exitosa
+                }
+
+                if (modalBackdrop) {
+                    modalBackdrop.remove(); // Elimina el fondo modal residual
+                }
+
+                // Mostrar el Swal de éxito
+                Swal.fire({
+                    text: responseJson.message, // Mensaje de éxito
+                    icon: "success",  
+                    showConfirmButton: true,
+                    confirmButtonText: "Ok",
+                    customClass: {
+                        confirmButton: "btn btn-primary"
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();  // Recarga la página
+                    }
+                });
+
+            }
+        } catch (e) {
+            
+        }
+    }
+});
+
+</script>

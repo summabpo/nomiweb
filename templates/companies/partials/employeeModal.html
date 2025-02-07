@@ -5,7 +5,7 @@
     <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
         <div class="modal-content" id="modal-container">
             <div class="modal-header">
-                <h5 class="modal-title" id="conceptsModalLabel">Nuevo Usuario</h5>
+                <h5 class="modal-title" id="conceptsModalLabel">Nuevo Empleado</h5>
                 <!--begin::Close-->
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()" >
                     <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
@@ -14,11 +14,11 @@
             </div>
             <div class="modal-body">
                 {% csrf_token %}
-                {% crispy form %}
+                {% crispy form_empleados %}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="closeModal()" >Cerrar</button>
-                <button type="submit" form="form_user" class="btn btn-primary">Crear</button>
+                <button type="submit" form="form_Employee" class="btn btn-primary">Crear</button>
             </div>
         </div>
     </div>
@@ -45,24 +45,93 @@ function closeModal() {
 
 $(document).ready(function () {
     // Inicializa Select2 para los campos
-    $('#id_company').select2({
+    $('#id_identification_type').select2({
         dropdownParent: $('#conceptsModal'),
         minimumResultsForSearch: -1,
-        placeholder: "Seleccione una compañía",
+        placeholder: "Ciudad de expedición",
     });
 
-    $('#id_role').select2({
-        placeholder: "Seleccione un rol",
-        dropdownParent: $('#conceptsModal'),
-        minimumResultsForSearch: -1,
-    });
-
-    $('#id_permission').select2({
-        placeholder: "Seleccione un permiso de usuario",
+    $('#id_sex').select2({
+        placeholder: "Sexo",
         dropdownParent: $('#conceptsModal'),
         minimumResultsForSearch: -1,
     });
 
+    $('#id_marital_status').select2({
+        placeholder: "Seleccione un Estado Civil",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_education_level').select2({
+        placeholder: "Seleccione un Nivel Educativo",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_birth_city').select2({
+        placeholder: "Ciudad de Nacimiento",
+        dropdownParent: $('#conceptsModal'),
+    });
+
+    $('#id_stratum').select2({
+        placeholder: "Seleccione un Estrato",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_birth_country').select2({
+        placeholder: "País de Nacimiento",
+        dropdownParent: $('#conceptsModal'),
+    });
+
+    $('#id_blood_group').select2({
+        placeholder: "Seleccione un Grupo Sanguíneo",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+    $('#id_profession').select2({
+        placeholder: "Seleccione una Profesión",
+        dropdownParent: $('#conceptsModal'),
+    });
+
+
+    $('#id_residence_city').select2({
+        dropdownParent: $('#conceptsModal'),
+        placeholder: "Ciudad de Residencia",
+    });
+
+    $('#id_residence_country').select2({
+        dropdownParent: $('#conceptsModal'),
+        placeholder: "Ciudad de Residencia",
+    });
+
+    $('#id_expedition_city').select2({
+        dropdownParent: $('#conceptsModal'),
+        placeholder: "Ciudad de expedición",
+    });
+
+
+    $('#id_pants_size').select2({
+        placeholder: "Talla Pantalón",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+
+    $('#id_shirt_size').select2({
+        placeholder: "Talla Camisa",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
+
+
+    $('#id_shoes_size').select2({
+        placeholder: "Talla Zapatos",
+        dropdownParent: $('#conceptsModal'),
+        minimumResultsForSearch: -1,
+    });
 
 });
 
@@ -105,8 +174,6 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
                 
             }
         } catch (e) {
-            console.log('Error');
-            console.log(e);
         }
     }
 });

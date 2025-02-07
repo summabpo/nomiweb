@@ -35,9 +35,14 @@
 
 {% block actions %}
 
-<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
-    <i class="fa-solid fa-plus"></i> Nuevo Empleado
-</button>  
+<button type="button" class="btn btn-primary me-10" id="kt_button_1" hx-get="{% url 'companies:hiring_employee' %}" hx-target="#modal-container" hx-swap="innerHTML">
+    <span class="indicator-label">
+        <i class="fa-solid fa-plus"></i> Nuevo Empleado
+    </span>
+    <span class="indicator-progress">
+        Por favor espera... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+    </span>
+</button>
 
 {% endblock %}
 
@@ -47,6 +52,10 @@
 
 
 {% block content %}
+
+<!-- Contenedor donde se cargará el modal -->
+<div id="modal-container"></div>
+
 
 <div class="table-responsive">
     <h3>Empleados en espera de nuevo contrato </h3 >
@@ -67,10 +76,19 @@
                 {% for empleado in empleados %}
                     <tr>
                         <td>{{ empleado.docidentidad }}</td>
-                        <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }} {{empleado.idempleado}} </td>
+                        <td>{{ empleado.papellido }} {{ empleado.sapellido }} {{ empleado.pnombre }} {{ empleado.snombre }}</td>
                         <td class="text-end">
-                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-employees_id="{{ empleado.idempleado }}" >
+                            {% comment %} <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-employees_id="{{ empleado.idempleado }}" >
                                 <i class="fa-solid fa-pen-to-square fs-3"></i>
+                            </button> {% endcomment %}
+
+                            <button type="button" class="btn btn-icon btn-light-info" id="kt_button_2" hx-get="{% url 'companies:hiring_contract' empleado.idempleado %}" hx-target="#modal-container" hx-swap="innerHTML">
+                                <span class="indicator-label">
+                                    <i class="fa-solid fa-pen-to-square fs-3"></i>
+                                </span>
+                                <span class="indicator-progress">
+                                    <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                                </span>
                             </button>
                         </td>
                     </tr>
@@ -83,63 +101,71 @@
 </div>
     
 
-<!--begin::Modal Employees-->
-<div class="modal fade" tabindex="-1" id="kt_modal_1">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" >
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"> Nuevo Empleado</h5>
-
-                <!--begin::Close-->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                </div>
-                <!--end::Close-->
-            </div>
-
-            <div class="modal-body">
-                {% crispy form_empleados %}
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" id='submit_employee' class="btn btn-light-info" form="form_Employee" >Guardar Empleado</button>
-            </div>
-        </div>
-    </div>
-</div>
-<!--end::Modal-->
-
-<!--begin::Modal Contracts-->
-<div class="modal fade" tabindex="-1" id="kt_modal_2">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Nuevo Contrato</h3>
-    
-                <!--begin::Close-->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                </div>
-                <!--end::Close-->
-            </div>
-    
-            <div class="modal-body">
-                {% crispy form_contratos %}
-            </div>
-    
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="form_Contract" id='submit_contract'  class="btn btn-primary" >Crear Contrato</button>
-            </div>
-        </div>
-    </div>
-</div>
-<!--end::Modal-->
-
 {% endblock %}
 
 {% block js %}
+
+<script>
+    // Escucha el evento 'htmx:beforeRequest' para activar el indicador cuando el botón es presionado
+    document.getElementById('kt_button_1').addEventListener('click', function() {
+        // Activa el indicador de carga
+        this.setAttribute('data-kt-indicator', 'on');
+    });
+
+    // Escucha el evento 'htmx:afterSwap' para desactivar el indicador después de que se haya cargado el contenido del modal
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        if (evt.detail.target.id === 'modal-container') {
+            // Encuentra el botón y quita el indicador de carga
+            const button = document.getElementById('kt_button_1');
+            if (button) {
+                button.removeAttribute('data-kt-indicator');
+            }
+        }
+    });
+</script>
+
+<script>
+    // Escucha el evento 'htmx:afterSwap' para abrir el modal después de cargar el contenido
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        const modalContainer = document.getElementById('conceptsModal');
+        if (evt.detail.target.id === 'modal-container' && modalContainer) {
+            new bootstrap.Modal(modalContainer).show();
+        }
+    });
+    
+</script>
+
+
+<script>
+    // Escucha el evento 'htmx:afterSwap' para abrir el modal después de cargar el contenido
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        const modalContainer = document.getElementById('contractModal');
+        if (evt.detail.target.id === 'modal-container' && modalContainer) {
+            new bootstrap.Modal(modalContainer).show();
+        }
+    });
+    
+</script>
+
+<script>
+    // Escucha el evento 'htmx:beforeRequest' para activar el indicador cuando el botón es presionado
+    document.getElementById('kt_button_2').addEventListener('click', function() {
+        // Activa el indicador de carga
+        this.setAttribute('data-kt-indicator', 'on');
+    });
+
+    // Escucha el evento 'htmx:afterSwap' para desactivar el indicador después de que se haya cargado el contenido del modal
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        if (evt.detail.target.id === 'modal-container') {
+            // Encuentra el botón y quita el indicador de carga
+            const button = document.getElementById('kt_button_2');
+            if (button) {
+                button.removeAttribute('data-kt-indicator');
+            }
+        }
+    });
+</script>
+
 
 <script>
     $(document).ready(function() {
@@ -149,65 +175,41 @@
         {% endif %}
     })
 </script>
+
+
 <script>
-    document.getElementById('kt_modal_2').addEventListener('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var recipient = button.data('employees_id');
-        var modal1 = $(this);
-        console.log(recipient);
-
-        // Asigna el valor y deshabilita el select1 (empleados)
-        var $select1 = modal1.find('.modal-body #id_name');
-        $select1.val(recipient).trigger('change').prop('disabled', true);
-
-        // Intenta acceder al primer elemento con el ID #id_Employees
-        const data = document.querySelector('#id_Employees');  // Solo selecciona el primero, ya que un ID debería ser único
-        const container = document.querySelector('#div_id_Employees'); 
-        // Verifica si el elemento existe antes de acceder a su estilo
-        if (data) {
-            data.value = recipient;
-            container.style.display = 'none'; 
-        } else {
-            console.log('No se encontró el elemento con el ID #id_Employees');
-        }
+    // On document ready
+    $(document).ready(function() {
+        $('#tabla_usuarios').DataTable({
+            language: {
+                "decimal":        "",
+                "emptyTable":     "No hay datos disponibles en la tabla",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first":      "Primero",
+                    "last":       "Último",
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            
+        });
     });
 </script>
-
-
-
-    <script>
-        // On document ready
-        $(document).ready(function() {
-            $('#tabla_usuarios').DataTable({
-                language: {
-                    "decimal":        "",
-                    "emptyTable":     "No hay datos disponibles en la tabla",
-                    "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                    "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
-                    "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                    "infoPostFix":    "",
-                    "thousands":      ",",
-                    "lengthMenu":     "Mostrar _MENU_ entradas",
-                    "loadingRecords": "Cargando...",
-                    "processing":     "Procesando...",
-                    "search":         "Buscar:",
-                    "zeroRecords":    "No se encontraron registros coincidentes",
-                    "paginate": {
-                        "first":      "Primero",
-                        "last":       "Último",
-                        "next":       "Siguiente",
-                        "previous":   "Anterior"
-                    },
-                    "aria": {
-                        "sortAscending":  ": activar para ordenar la columna ascendente",
-                        "sortDescending": ": activar para ordenar la columna descendente"
-                    }
-                },
-                dom: 'frtip',
-                
-            });
-        });
-    </script>
 
 
 
