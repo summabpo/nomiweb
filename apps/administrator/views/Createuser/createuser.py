@@ -5,6 +5,8 @@ from apps.common.models import User,Empresa , Role
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+
 
 def toggle_user_active_status(request, user_id, activate=True):
     usuario = get_object_or_404(User, id=user_id)
@@ -27,25 +29,27 @@ def usercreate_admin(request):
         if form.is_valid():
             # Procesar el formulario y crear el usuario
             cleaned_data = form.cleaned_data
-            id_empresa = Empresa.objects.get(idempresa=cleaned_data['company'])
+            id_empresa = Empresa.objects.get(idempresa=cleaned_data['company']) if cleaned_data['company'] else None
             rol = Role.objects.get(id=cleaned_data['permission'])
             User.objects.create_user(
                 first_name=cleaned_data['first_name'],
                 last_name=cleaned_data['last_name'],
                 email=cleaned_data['email'],
                 password=cleaned_data['password1'],
-                id_empresa=id_empresa,
+                id_empresa = id_empresa if cleaned_data['company'] else None,
                 tipo_user=cleaned_data['role'],
                 rol=rol,
                 is_staff=cleaned_data['is_staff'],
                 is_superuser=cleaned_data['is_superuser'],
                 is_active=cleaned_data['is_active'],
             )
-            messages.success(request, 'El Usuario ha sido añadido con éxito.')
-            return redirect('admin:user')
+            
+            return JsonResponse({'status': 'success', 'message': 'Usuario creado exitosamente'})
         else:
-            # Si el formulario no es válido, devolver el formulario con errores
-            return render(request, 'admin/usercreate.html', {'form': form}, status=400)
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")
     else:
         form = UserCreationForm()
-    return render(request, 'admin/usercreate.html', {'form': form})
+    return render(request, './admin/usercreate.html', {'form': form})

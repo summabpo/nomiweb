@@ -1,93 +1,161 @@
 {% load crispy_forms_tags %}
 
-<div class="container">
-    <div class="row align-items-start">
-        <!-- Columna del acordeón más pequeña -->
-        <div class="col-md-4">
-            <div class="accordion" id="kt_accordion_1">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="kt_accordion_1_header_1">
-                        <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
-                            Datos de la Nómina
-                        </button>
-                    </h2>
-                    <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
-                        <div class="accordion-body">
-                            <div class="text-center mb-4">
-                                <p id="salary" class="d-flex justify-content-center">
-                                    <strong>Salario:</strong><span id="salary-value" class="ms-2">{{data.salario}}</span>
-                                </p>
-                            </div>
+{% load crispy_forms_tags %}
+<!-- Modal -->
+<div class="modal fade" id="conceptsModal" name="conceptsModal" tabindex="-1" aria-labelledby="conceptsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content" id="modal-container">
+            <div class="modal-header">
+                <h5 class="modal-title" id="conceptsModalLabel">Nuevo Concepto</h5>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close" >
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row align-items-start">
+                        <!-- Columna del acordeón más pequeña -->
+                        <div class="col-md-4">
+                            <div class="accordion" id="kt_accordion_1">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="kt_accordion_1_header_1">
+                                        <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
+                                            Datos de la Nómina
+                                        </button>
+                                    </h2>
+                                    <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
+                                        <div class="accordion-body">
+                                            <div class="text-center mb-4">
+                                                <p id="salary" class="d-flex justify-content-center">
+                                                    <strong>Salario:</strong><span id="salary-value" class="ms-2">{{data.salario}}</span>
+                                                </p>
+                                            </div>
+                
+                                            <div class="text-center mb-4">
+                                                <p id="income" class="flex-fill text-center">
+                                                    <strong>Ingresos:</strong><span id="income-value" class="ms-2">{{data.ingresos}}</span>
+                                                </p>
+                                            </div>
+                
+                                            <div class="text-center mb-4">
+                                                <p id="discounts" class="flex-fill text-center">
+                                                    <strong>Descuentos:</strong><span id="discounts-value" class="ms-2">{{data.egresos}}</span>
+                                                </p>
+                                            </div>
+                
+                                            <div class="text-center mb-4">
+                                                <p id="summation" class="flex-fill text-center">
+                                                    <strong>Total:</strong><span id="summation-value" class="ms-2">{{data.total}}</span>
+                                                </p>
+                                            </div>
+                
+                                            <div class="text-center mb-4">
+                                            <!-- Botón para agregar nuevos formularios -->
+                                                <button class="btn btn-light-info" 
+                                                    hx-get="{% url 'payroll:payroll_form' 0 0 0 0 %}" 
+                                                    hx-target="#payroll-forms-container" 
+                                                    hx-swap="beforeend">
+                                                <i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto 
+                                                </button>
 
-                            <div class="text-center mb-4">
-                                <p id="income" class="flex-fill text-center">
-                                    <strong>Ingresos:</strong><span id="income-value" class="ms-2">Valor</span>
-                                </p>
+                                            </div>
+                
+                                        </div>
+                                    </div>
+                                    
+                                </div>
                             </div>
-
-                            <div class="text-center mb-4">
-                                <p id="discounts" class="flex-fill text-center">
-                                    <strong>Descuentos:</strong><span id="discounts-value" class="ms-2">Valor</span>
-                                </p>
-                            </div>
-
-                            <div class="text-center mb-4">
-                                <p id="summation" class="flex-fill text-center">
-                                    <strong>Total:</strong><span id="summation-value" class="ms-2">Valor</span>
-                                </p>
-                            </div>
-
-                            <div class="text-center mb-4">
-                                <button type="submit" id="add-row-btn" name="submit_direct" class="btn btn-light-info" value="" > <i class="fa-solid fa-square-plus fs-2"></i> Agregar Concepto </button>
-                            </div>
-
                         </div>
-                    </div>
-                    
+                
+                        <br>
+                
+                        <!-- Columna de la tabla más grande -->
+                        <div class="scroll h-400px px-5 col-md-8">
+                               
+                                <table id="kt_datatable_example" class="table table-striped table-row-bordered gy-5 gs-7">
+                                    <thead>
+                                        <tr class="fw-bold fs-6 text-gray-800">
+                                            <th class="text-center" >Nombre Concepto</th>
+                                            <th>Cantidad</th>
+                                            <th class="text-center" >Valor</th>
+                                            <th class="text-center" >Gestionar</th>
+                                        </tr>
+                                    </thead>
+                                </table> 
+
+                                <form id="form_concepts"  
+                                    method="post" 
+                                    hx-post="{% url 'payroll:post_payroll' %}"
+                                    hx-trigger="submit"
+                                    hx-swap="none"
+                                    >   
+
+                                    <input type="hidden" name="idnomina" value={{data.idnomina}}>
+                                    <input type="hidden" name="idempleado" value={{data.idempleado}}>
+
+                                        {% csrf_token %}
+                                        <div id="payroll-forms-container"> 
+                                            {% for concepto in data.conceptos %}
+                                                <div
+                                                    hx-get="{% url 'payroll:payroll_form' concepto.idn concepto.id concepto.amount|floatformat concepto.value|floatformat %}"
+                                                    hx-trigger="load"
+                                                    hx-target="this"
+                                                    hx-swap="outerHTML"
+                                                >
+                                                    <!-- El contenido dinámico se cargará aquí -->
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                </form> 
+                        </div>  
+                    </div>   
                 </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" form="form_concepts" class="btn btn-primary" >Actualizar</button>
+            </div>
         </div>
-
-        <br>
-
-        <!-- Columna de la tabla más grande -->
-        <div class="scroll h-400px px-5 col-md-8">
-            <form id="form_custom_payroll_concept" method="post" action="{% url 'payroll:payrollviewapi' %}">
-                {% csrf_token %}
-                {% comment %} <table id="kt_datatable_example" class="table table-row-bordered table-row-dashed gy-5 ">
-                    <thead>
-                        <tr class="fw-bold fs-6 text-gray-800">
-                            <th class="text-center" >Nombre Concepto</th>
-                            <th>Cantidad</th>
-                            <th class="text-center" >Valor</th>
-                            <th class="text-center" >Gestionar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                        {% for concepto in  data.conceptos %}
-                            <tr>
-                                <td class="text-center">{{ concepto.codigo }}</td>
-                                <td>
-                                    <input type="number" class="form-control form-control-sm" name="cantidad" id="cantidad" value="{{ concepto.amount }}">
-                                </td>
-                                <td class="text-center">
-                                    <input type="number" class="form-control form-control-sm " name="valor" id="valor" value="{{ concepto.value }}">
-                                </td>
-                                <td class="text-center">
-                                    <input type="number" class="form-control form-control-sm" name="valor" id="valor" value="{{ concepto.value }}">
-                                </td>
-                            </tr> 
-                        {% endfor %}
-                            
-                    </tbody>
-                </table> {% endcomment %}
-                {% for form in forms %}
-                    <form method="post">
-                        {% crispy form %}
-                    </form>
-                {% endfor %}
-            </form> 
-        </div> 
-    </div>   
+    </div>
 </div>
+
+<script>
+    document.body.addEventListener('htmx:configRequest', function (event) {
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        event.detail.headers['X-CSRFToken'] = csrfToken;
+    });
+</script>
+
+
+<script>
+    // Escuchar la respuesta del formulario con HTMX
+    document.addEventListener('htmx:afterRequest', function(event) {
+      const response = event.detail.xhr.response; // Obtener la respuesta del servidor
+  
+      try {
+        const jsonResponse = JSON.parse(response); // Intentar parsear la respuesta JSON
+  
+        if (jsonResponse.success) {
+          // Mostrar un mensaje de éxito con SweetAlert
+          Swal.fire({
+            title: '¡Éxito!',
+            text: 'La nómina se procesó correctamente.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+        } else {
+          // Mostrar un mensaje de error si no es exitoso
+          Swal.fire({
+            title: 'Error',
+            text: 'Hubo un problema al procesar la nómina.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      } catch (e) {
+        console.error('Er');
+      }
+    });
+</script>

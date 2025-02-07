@@ -1,0 +1,153 @@
+{% load crispy_forms_tags %}
+<!-- Modal -->
+<div class="modal fade" id="conceptsModal" name="conceptsModal" tabindex="-1" aria-labelledby="conceptsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
+        <div class="modal-content" id="modal-container">
+            <div class="modal-header">
+                <h5 class="modal-title" id="conceptsModalLabel">Nuevo Concepto</h5>
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()" >
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                {% crispy form %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="closeModal()" >Cerrar</button>
+                <button type="submit" form="form_concepts" class="btn btn-primary">Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function closeModal() {
+        var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+        var modalBackdrop = document.querySelector('.modal-backdrop');
+        
+        if (modal) {
+            modal.hide(); // Cierra el modal
+        }
+        if (modalBackdrop) {
+            modalBackdrop.remove(); // Elimina el fondo modal residual
+        }
+
+        // Limpiar los valores de los campos dentro del modal
+        document.getElementById('conceptsModal').querySelectorAll('input, select').forEach(function(input) {
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
+
+        // Limpiar los campos select2
+        $('#id_tipoconcepto').val(null).trigger('change');
+        $('#id_indicador').val(null).trigger('change');
+        $('#id_grupo_dian').val(null).trigger('change');
+        $('#id_formula').val(null).trigger('change');
+
+        // Limpiar cualquier validación de los campos
+        document.querySelectorAll('.is-invalid').forEach(function(element) {
+            element.classList.remove('is-invalid');
+        });
+        document.querySelectorAll('.invalid-feedback').forEach(function(feedback) {
+            feedback.innerHTML = '';
+        });
+
+        // Limpiar el contenido dentro del contenedor del modal
+        document.getElementById('modal-container').innerHTML = '';
+    }
+
+    $(document).ready(function () {
+        // Inicializa Select2 para los campos
+        $('#id_tipoconcepto').select2({
+            dropdownParent: $('#conceptsModal'),
+            minimumResultsForSearch: -1,
+            placeholder: "Seleccione un tipo de concepto",
+        });
+
+        $('#id_indicador').select2({
+            dropdownParent: $('#conceptsModal'),
+            placeholder: "Seleccione un Indicador",
+            allowClear: true,
+            closeOnSelect: false,
+            multiple: true
+        });
+
+        $('#id_grupo_dian').select2({
+            dropdownParent: $('#conceptsModal'),
+            minimumResultsForSearch: -1,
+            placeholder: "Seleccione un grupo DIAN",
+            allowClear: true
+        });
+
+        $('#id_formula').select2({
+            dropdownParent: $('#conceptsModal'),
+            minimumResultsForSearch: -1,
+            placeholder: "Seleccione una fórmula",
+        });
+
+
+    });
+
+    // Escucha el evento 'htmx:afterRequest' para manejar la respuesta del servidor
+    document.body.addEventListener('htmx:afterRequest', function(evt) {
+        if (evt.detail.successful) {
+            var response = evt.detail.xhr.responseText;
+            
+            // Verificar si la respuesta es un JSON con estado de éxito
+            try {
+                var responseJson = JSON.parse(response);
+                console.log(responseJson);
+                if (responseJson.status === 'success') {
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
+                    var modalBackdrop = document.querySelector('.modal-backdrop');
+                    
+                    if (modal) {
+                        modal.hide(); // Cierra el modal después de una respuesta exitosa
+                    }
+    
+                    if (modalBackdrop) {
+                        modalBackdrop.remove(); // Elimina el fondo modal residual
+                    }
+    
+                    // Mostrar el Swal de éxito
+                    Swal.fire({
+                        text: responseJson.message, // Mensaje de éxito
+                        icon: "success",  
+                        showConfirmButton: true,
+                        confirmButtonText: "Ok",
+                        customClass: {
+                            confirmButton: "btn btn-primary"
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();  // Recarga la página
+                        }
+                    });
+    
+                } else {
+                    
+                }
+            } catch (e) {
+                
+            }
+        }
+    });
+
+
+    
+ 
+    
+    
+    
+    
+
+
+</script>
+

@@ -11,9 +11,7 @@ urlpatterns = [
     path('home/', index.index_payroll, name='index_payroll'),
     path('payroll/', payroll.payroll, name='payroll'),
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),
-    path('payrollapi/', payroll.PayrollAPI.as_view(), name='payrollviewapi'),
-    path('payrollapi2/', payroll.PayrollAPI2.as_view(), name='payrollviewapi2'),
-    #path('payroll/pruebas/2', pruebas.vista_con_dos_formularios, name='vista_con_dos_formularios'),
+
 
     #electronic_payroll
     path('payroll/electronic_payroll/', electronic_payroll.electronic_payroll_container, name='nomina_electronica'),
@@ -40,9 +38,25 @@ urlpatterns = [
     path('parameters/fixed', parameters.fixed, name='fixed'),
     path('parameters/annual', parameters.annual, name='annual'),
     path('parameters/concepts', parameters.concepts, name='concepts'),
+    
 
 
-    ## pruebas
-    path('pruebas/<int:id>/<int:idnomina>/', pruebas.pruebas, name='pruebas'),
+    
 
 ]
+
+
+urlhtmxpatterns =[
+    path('pruebas/<int:id>/<int:idnomina>/', pruebas.pruebas, name='pruebas'),
+    
+    path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
+    path('parameters/concepts/check/code', parameters.check_code, name='check_code'),
+    
+    path('payroll/<int:id>/<int:idnomina>/modals', payroll.payroll_data, name='payroll_data'),
+    path('payroll/<int:idn>/<int:idc>/<int:amount>/<str:value>/form', payroll.payroll_form, name='payroll_form'),
+    path('delete_payroll_row/<int:concept_id>/', payroll.delete_payroll, name='delete_payroll'),
+    path('payroll/concept/<str:data>', payroll.payroll_concept, name='payroll_concept'),
+    path('payroll/update/post', payroll.post_payroll, name='post_payroll'),
+]
+
+urlpatterns += urlhtmxpatterns  

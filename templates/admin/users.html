@@ -33,11 +33,15 @@
 {% block actions %}
     <!-- Button trigger modal -->
 
-    <button type="button" class="btn btn-light-info"
-        data-bs-toggle="modal" 
-        data-bs-target="#kt_modal_maintenance" >
+
+<button type="button" class="btn btn-primary me-10" id="kt_button_1" hx-get="{% url 'admin:usercreate' %}" hx-target="#modal-container" hx-swap="innerHTML">
+    <span class="indicator-label">
         <i class="fa-solid fa-user-plus"></i> Nuevo Usuario
-    </button>  
+    </span>
+    <span class="indicator-progress">
+        Por favor espera... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+    </span>
+</button>
 
 {% endblock %}
 
@@ -50,13 +54,15 @@
 
 
 {% block content %}
+
+<!-- Contenedor donde se cargará el modal -->
+<div id="modal-container"></div>
+
+
+
 {% comment %} <div>
     <a href="{% url 'admin:usercreate'  %}" class="btn btn-light-primary"> <i class="fa-solid fa-user-plus"></i> Nuevo Usuario</a>
 </div> {% endcomment %}
-
-<div >
-    {% include 'admin/usercreate.html' %}
-</div>
 
 <!-- Modal -->
 
@@ -174,28 +180,40 @@
 
 {% block js %}
 
+
+
 <script>
-    document.body.addEventListener('htmx:afterRequest', function(evt) {
-        if (evt.detail.successful) {
-            // Cerrar el modal si el formulario se envió correctamente
-            var modal = bootstrap.Modal.getInstance(document.getElementById('kt_modal_maintenance'));
-            modal.hide();
+    // Escucha el evento 'htmx:beforeRequest' para activar el indicador cuando el botón es presionado
+    document.getElementById('kt_button_1').addEventListener('click', function() {
+        // Activa el indicador de carga
+        this.setAttribute('data-kt-indicator', 'on');
+    });
+
+    // Escucha el evento 'htmx:afterSwap' para desactivar el indicador después de que se haya cargado el contenido del modal
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        if (evt.detail.target.id === 'modal-container') {
+            // Encuentra el botón y quita el indicador de carga
+            const button = document.getElementById('kt_button_1');
+            if (button) {
+                button.removeAttribute('data-kt-indicator');
+            }
         }
     });
 </script>
 
 <script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-        var modal = document.getElementById("kt_modal_maintenance");
-    
-        modal.addEventListener("hidden.bs.modal", function () {
-            document.getElementById("modal-content-body").innerHTML = "";
-        });
+    // Escucha el evento 'htmx:afterSwap' para abrir el modal después de cargar el contenido
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        const modalContainer = document.getElementById('conceptsModal');
+        if (evt.detail.target.id === 'modal-container' && modalContainer) {
+            new bootstrap.Modal(modalContainer).show();
+        }
     });
     
-
 </script>
+
+
+
 
 <script>
     $('#kt_modal_1').on('show.bs.modal', function (event) {
