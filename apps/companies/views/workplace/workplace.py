@@ -34,7 +34,7 @@ def workplace(request):
                 for error in errors:
                     messages.error(request, f"Error en el campo '{field}': {error}")
     else:
-        centrotrabajos = Centrotrabajo.objects.all().order_by('centrotrabajo')
+        centrotrabajos = Centrotrabajo.objects.filter(id_empresa_id = idempresa ).order_by('centrotrabajo')
         form = workplaceForm()
     
     return render(request, './companies/workplace.html',

@@ -45,6 +45,7 @@ FormaPago = (
 
 
 Cercania = (
+    ('', '----------'),
     (True, 'Si'),
     (False, 'No'),
 )
@@ -75,7 +76,7 @@ class ContractForm(forms.Form):
                 
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
-        
+        empleado_actual = kwargs.pop('empleado_actual', None)
         super(ContractForm, self).__init__(*args, **kwargs)   
         
         
@@ -87,12 +88,14 @@ class ContractForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_2",
+                'data-dropdown-parent':"#contractModal",
             }), 
             required=False )
         
-        
-        self.fields['Employees'] = forms.CharField(label='Cuenta de Nómina', max_length=100, required=False)  
+        if empleado_actual:
+            self.fields['name'].initial = empleado_actual
+            
+            
         self.fields['endDate'] = forms.DateField(label='Fecha de Terminación', widget=forms.DateInput(attrs={'type': 'date'}), required=False)
         
         self.fields['payrollType'] = forms.ChoiceField(
@@ -103,9 +106,10 @@ class ContractForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_2",
+                'data-dropdown-parent':"#contractModal",
             }), 
             required=False )
+        
         self.fields['position'] = forms.ChoiceField(
             choices=[('', '----------')] + [(cargo.idcargo, cargo.nombrecargo) for cargo in Cargos.objects.filter(id_empresa__idempresa =  idempresa ).exclude(idcargo=93).order_by('nombrecargo') ], 
             label='Cargo', required=True ,
@@ -113,7 +117,7 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }), 
             )
         
@@ -126,7 +130,7 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             )
         
@@ -139,7 +143,7 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             )
         
@@ -152,7 +156,7 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             )
         
@@ -166,7 +170,7 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             required=True)
         self.fields['contractModel'] = forms.ChoiceField(
@@ -177,9 +181,8 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
-                }),
-            required=False)
+                    'data-dropdown-parent':"#contractModal",
+                }))
         self.fields['salary'] = forms.CharField(label='Salario', max_length=100, required=True)   
         self.fields['salaryType'] = forms.ChoiceField(
             choices=[('', '----------')] + [(salario.idtiposalario, salario.tiposalario) for salario in Tiposalario.objects.all().order_by('tiposalario')], 
@@ -189,7 +192,7 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             required=True ) 
         self.fields['salaryMode'] = forms.ChoiceField(
@@ -200,7 +203,7 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             required=True)
         self.fields['livingPlace'] = forms.ChoiceField(
@@ -211,9 +214,8 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
-                }),
-            required=False)
+                    'data-dropdown-parent':"#contractModal",
+                }))
         
         self.fields['paymentMethod'] = forms.ChoiceField(
             label='Forma de pago', 
@@ -223,18 +225,17 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             required=False)
         self.fields['bankAccount'] = forms.ChoiceField(
             choices=[('', '----------')] + [(banco.idbanco, banco.nombanco) for banco in Bancos.objects.all().exclude(idbanco=27).order_by('nombanco')], 
             label='Banco de la Cuenta', 
-            required=False, 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }), )
         self.fields['accountType'] = forms.ChoiceField(
             label='Tipo de Cuenta', 
@@ -244,7 +245,7 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             required=False)                                     
         self.fields['payrollAccount'] = forms.CharField(label='Cuenta de Nómina', max_length=100, required=False)    
@@ -255,7 +256,7 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             required=True)
         self.fields['subCostCenter'] = forms.ChoiceField(
@@ -265,7 +266,7 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             required=False)
         self.fields['eps'] = forms.ChoiceField(
@@ -276,7 +277,7 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),) 
         self.fields['pensionFund'] = forms.ChoiceField(
             choices=[('', '----------')] + [(entidad.identidad, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
@@ -285,7 +286,7 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),) 
         self.fields['CesanFund'] = forms.ChoiceField(
             choices=[('', '----------')] + [(entidad.identidad, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
@@ -295,7 +296,7 @@ class ContractForm(forms.Form):
                     'data-control': 'select2',
                     'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),) 
         self.fields['workPlace'] = forms.ChoiceField(
             choices=[('', '----------')] + [(sede.idsede, sede.nombresede) for sede in Sedes.objects.filter(id_empresa__idempresa =  idempresa ).exclude(codccf='0').order_by('nombresede')], 
@@ -305,7 +306,7 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }), 
             required=True)
         self.fields['arlWorkCenter'] = forms.ChoiceField(
@@ -316,7 +317,7 @@ class ContractForm(forms.Form):
                     'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#kt_modal_2",
+                    'data-dropdown-parent':"#contractModal",
                 }),
             required=True)
         
@@ -327,15 +328,18 @@ class ContractForm(forms.Form):
         self.helper.form_class = 'container'
         self.helper.form_id = 'form_Contract'
         self.helper.enctype = 'multipart/form-data'
-        self.helper.form_action = reverse('companies:process_forms_contract')
+        #self.helper.form_action = reverse('companies:hiring_contract' , kwargs={'idempleado': empleado_actual})
+        #url = reverse('companies:hiring_contract', kwargs={'contract_id': empleado_id})
+
         
+        self.helper.attrs.update({
+            'hx-post': reverse('companies:hiring_contract' , kwargs={'idempleado': empleado_actual}),  # Usa el nombre de la vista en urls.py
+            'hx-target': '#modal-container',  # El elemento donde se actualizará el contenido
+            'hx-swap': 'innerHTML',  # Cómo se actualizará el contenido del objetivo
+        })
         self.helper.layout = Layout(
             Div(
                 Div('name', css_class='col' ),
-                css_class='row'
-            ),
-            Div(
-                Div('Employees', css_class='col' ),
                 css_class='row'
             ),
             HTML('<h3>Contrato</h3>'),

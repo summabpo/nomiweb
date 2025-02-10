@@ -44,7 +44,8 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
 @login_required
 @role_required('company')
 def loginweb(request):
-
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
 
     if request.method == 'POST':
         
@@ -104,17 +105,18 @@ def loginweb(request):
     empleados = []
     contratos_empleados = Contratos.objects\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
-        .filter(estadocontrato=1) \
+        .filter(estadocontrato=1,id_empresa_id =  idempresa) \
         .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
                 'idempleado__snombre', 'cargo__nombrecargo', 'idempleado__idempleado','idempleado__email',)
 
     for contrato in contratos_empleados:
         nombre_empleado = ' '.join(filter(None, [
             contrato['idempleado__papellido'],
-            contrato['idempleado__sapellido'],
+            contrato.get('idempleado__sapellido', ''),  # Evita KeyError si no existe
             contrato['idempleado__pnombre'],
-            contrato['idempleado__snombre']
+            contrato.get('idempleado__snombre', '')  # También protege este campo
         ]))
+
         contrato_data = {
             'documento': contrato['idempleado__docidentidad'],
             'nombre': nombre_empleado,

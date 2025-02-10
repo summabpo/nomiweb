@@ -4,6 +4,7 @@ from django import forms
 from apps.common.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Profesiones,Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit,HTML,Row,Column
+from django.urls import reverse
 
 
 class EmployeeForm(forms.Form):
@@ -86,7 +87,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
 
@@ -103,7 +104,7 @@ class EmployeeForm(forms.Form):
                 'data-control': 'select2',
                 'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
         self.fields['first_name'] = forms.CharField(label='Primer Nombre')
@@ -118,7 +119,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
         
@@ -131,7 +132,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
         
@@ -147,7 +148,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             }),
             required=False
         )
@@ -158,7 +159,7 @@ class EmployeeForm(forms.Form):
                 'data-control': 'select2',
                 'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
         self.fields['stratum'] = forms.ChoiceField(
@@ -169,7 +170,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             }),
             required=False
         )
@@ -180,10 +181,11 @@ class EmployeeForm(forms.Form):
                 'data-control': 'select2',
                 'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
         self.fields['military_id'] = forms.CharField(label='Libreta Militar', required=False)
+        
         self.fields['blood_group'] = forms.ChoiceField(
             choices=[('', '-----'), ('OP', 'O +'), ('ON', 'O -'), ('AN', 'A -'), ('AP', 'A +'), ('BP', 'B +'), ('BN', 'B -'), ('ABP', 'AB +'), ('ABN', 'AB -')],
             label='Grupo Sanguíneo',
@@ -192,7 +194,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             }),
             required=False
         )
@@ -204,7 +206,7 @@ class EmployeeForm(forms.Form):
                 'data-control': 'select2',
                 'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
         self.fields['residence_address'] = forms.CharField(label='Dirección de Residencia')
@@ -216,7 +218,7 @@ class EmployeeForm(forms.Form):
                 'data-control': 'select2',
                 'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
         self.fields['cell_phone'] = forms.CharField(label='Celular')
@@ -227,7 +229,7 @@ class EmployeeForm(forms.Form):
                 'data-control': 'select2',
                 'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             })
         )
         self.fields['employee_phone'] = forms.CharField(label='Teléfono del Empleado', required=False)
@@ -239,7 +241,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             }),
             required=False
         )
@@ -251,7 +253,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             }),
             required=False
         )
@@ -263,7 +265,7 @@ class EmployeeForm(forms.Form):
                 'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#kt_modal_1",
+                'data-dropdown-parent':"#conceptsModal",
             }),
             required=False
         )
@@ -276,6 +278,12 @@ class EmployeeForm(forms.Form):
         self.helper.form_class = 'container'
         self.helper.form_id = 'form_Employee'
         self.helper.enctype = 'multipart/form-data'
+        
+        self.helper.attrs.update({
+            'hx-post': reverse('companies:hiring_employee'),  # Usa el nombre de la vista en urls.py
+            'hx-target': '#modal-container',  # El elemento donde se actualizará el contenido
+            'hx-swap': 'innerHTML',  # Cómo se actualizará el contenido del objetivo
+        })
         
         self.helper.layout = Layout(
             HTML('<h3>Datos de Identificación</h3>'),

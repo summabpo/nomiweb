@@ -43,8 +43,11 @@ urlpatterns = [
 
     #hiring new items 
     path('employees/hiring/', hiring.hiring, name='hiring'),
-    path('employees/hiring/contract', hiring.process_forms_contract, name='process_forms_contract'),
-    path('employees/hiring/employee', hiring.process_forms_employee, name='process_forms_employee'),
+    path('employees/hiring/employee', hiring.hiring_employee, name='hiring_employee'),
+    
+    path('employees/hiring/contract/<str:idempleado>', hiring.hiring_contract, name='hiring_contract'),
+    
+    #path('employees/hiring/employee', hiring.process_forms_employee, name='process_forms_employee'),
     
     # ## Employee Management URLs
     # path('employees/new/employee', newEmployee.newEmployee, name='newemployee'),
