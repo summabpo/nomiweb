@@ -50,7 +50,7 @@ class UpdateForm(forms.Form):
                 (item['idconcepto'], f"{item['codigo']} - {item['nombreconcepto']}")
                 for item in Conceptosdenomina.objects.filter(id_empresa_id=id_empresa)
                 .order_by('codigo')
-                .values('idconcepto', 'nombreconcepto', 'codigo')[:20]
+                .values('idconcepto', 'nombreconcepto', 'codigo')
             ],
             
             label="",

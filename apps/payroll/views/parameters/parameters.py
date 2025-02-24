@@ -215,11 +215,12 @@ def annual(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def concepts(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    concepts   = Conceptosdenomina.objects.filter(id_empresa_id = idempresa ).order_by('codigo')
+    concepts = Conceptosdenomina.objects.filter(id_empresa_id=idempresa).select_related('grupo_dian').order_by('codigo')
+
     form = PayrollConceptsForm()
     
         
@@ -227,7 +228,7 @@ def concepts(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def concepts_add(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -281,7 +282,7 @@ def concepts_add(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def check_code(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario.get('idempresa')  # Usar get() en lugar de acceder directamente.

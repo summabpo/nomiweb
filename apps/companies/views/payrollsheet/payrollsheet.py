@@ -89,11 +89,18 @@ def payrollsheet(request):
             
             acumulados[docidentidad]['neto'] += data.valor
             acumulados[docidentidad]['ingresos'] += data.valor if data.valor > 0 else 0
-            acumulados[docidentidad]['basico'] += data.valor if data.idconcepto.sueldobasico == 1 else 0
-            acumulados[docidentidad]['tpte'] += data.valor if data.idconcepto.auxtransporte == 1 else 0
-            acumulados[docidentidad]['extras'] += data.valor if data.idconcepto.extras == 1 else 0
-            acumulados[docidentidad]['aportess'] += data.valor if data.idconcepto.aportess == 1 else 0
-            acumulados[docidentidad]['prestamos'] += data.valor if data.idconcepto.idconcepto == 50 else 0
+            
+            print(f"data : {docidentidad} ")
+            #acumulados[docidentidad]['basico'] += data.valor if data.idconcepto.sueldobasico == 1 else 0
+            acumulados[docidentidad]['basico'] += data.valor if data.idconcepto.indicador.filter(nombre='sueldobasico').exists() else 0
+            #acumulados[docidentidad]['tpte'] += data.valor if data.idconcepto.auxtransporte == 1 else 0
+            acumulados[docidentidad]['tpte'] += data.valor if data.idconcepto.indicador.filter(nombre='auxtransporte').exists() else 0
+            #acumulados[docidentidad]['extras'] += data.valor if data.idconcepto.extras == 1 else 0
+            acumulados[docidentidad]['extras'] += data.valor if data.idconcepto.indicador.filter(nombre='extras').exists() else 0
+            #acumulados[docidentidad]['aportess'] += data.valor if data.idconcepto.aportess == 1 else 0
+            acumulados[docidentidad]['aportess'] += data.valor if data.idconcepto.indicador.filter(nombre='aportess').exists() else 0
+            #acumulados[docidentidad]['prestamos'] += data.valor if data.idconcepto.idconcepto == 50 else 0
+            #acumulados[docidentidad]['prestamos'] += data.valor if data.idconcepto.indicador.filter(nombre='aportess').exists() else 0
         
         compects = list(acumulados.values())
 

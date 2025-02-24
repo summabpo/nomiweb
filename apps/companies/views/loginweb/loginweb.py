@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from apps.common.models import Contratos, Contratosemp
 from apps.components.mail import send_template_email
-from apps.common.models import User, Empresa
+from apps.common.models import User, Empresa ,Role
 from django.contrib.auth.hashers import make_password
 import random
 import string
@@ -89,8 +89,8 @@ def loginweb(request):
                     'contrasena': passwordoriginal,
                 }
                 subject = '¡Bienvenido a Nomiweb! Tu nueva plataforma de nóminas... ¡y tu mejor amigo!'
-                recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
-                #recipient_list = [usertempo.email,'manuel.david.13.b@gmail.com']
+                #recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
+                recipient_list = [usertempo.email,'mikepruebas@yopmail.com']
 
                 if send_template_email(email_type, context, subject, recipient_list):
                     messages.success(request, 'Los usuarios han sido enviados correctamente.')
