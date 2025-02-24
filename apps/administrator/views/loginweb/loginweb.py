@@ -100,14 +100,14 @@ def loginweb_admin(request):
     .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede')\
     .filter(estadocontrato=1)\
     .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-            'idempleado__snombre', 'cargo', 'idempleado__idempleado',
+            'idempleado__snombre', 'cargo__nombrecargo', 'idempleado__idempleado',
             'tipocontrato__tipocontrato', 'idempleado__email','idempleado__id_empresa__nombreempresa')
 
     empleados = [
         {
             'documento': contrato['idempleado__docidentidad'],
             'nombre': f"{contrato['idempleado__papellido']} {contrato['idempleado__pnombre']} {contrato['idempleado__snombre']}",
-            'cargo': contrato['cargo'],
+            'cargo': contrato['cargo__nombrecargo'],
             'tipocontrato': contrato['tipocontrato__tipocontrato'],
             'idempleado': contrato['idempleado__idempleado'],
             'email': contrato['idempleado__email'],

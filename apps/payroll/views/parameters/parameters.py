@@ -114,14 +114,16 @@ def holidays(request):
         form = HolidaysForm(request.POST)
         if form.is_valid():
             try:
+                fecha = form.cleaned_data['fecha']
                 # Crear instancia de Crearnomina
                 Festivos.objects.create(
-                    fecha=form.cleaned_data['fecha'],
-                    descripcion=form.cleaned_data['descripcion']
+                    dia=fecha,
+                    descripcion=form.cleaned_data['descripcion'],
+                    ano=fecha.year
                 )
 
                 messages.success(request, "Nómina creada exitosamente.")
-                return redirect('payroll:payroll')  # Redirigir a una vista de lista, por ejemplo
+                return redirect('payroll:holidays')  # Redirigir a una vista de lista, por ejemplo
             except :
                 messages.error(request, "Hubo un problema al procesar la información.")
 

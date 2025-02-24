@@ -162,6 +162,7 @@ class HolidaysForm(forms.Form):
         # Configuración de Crispy Forms
         self.helper = FormHelper()
         self.helper.form_method = 'post'
+        self.helper.form_id = 'form_holidays'
         self.helper.enctype = 'multipart/form-data'
 
         # Diseño del formulario con Crispy Forms
