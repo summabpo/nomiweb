@@ -35,7 +35,7 @@ def payrollaccumulations(request):
             
     
             # Aplicar filtros a la consulta de Nomina
-            nominas = Nomina.objects.all().order_by('idconcepto__idconcepto')
+            nominas = Nomina.objects.filter(idnomina__id_empresa_id = idempresa).order_by('idconcepto__idconcepto')
             if employee:
                 nominas = nominas.filter(idcontrato__idempleado__idempleado=employee)
             if cost_center:

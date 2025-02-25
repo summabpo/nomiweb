@@ -37,6 +37,11 @@ License: For each use you must have a valid license purchased only from above li
             color: red !important;
         }
         
+        .custom-text-color {
+            color: #212f87; /* Color RGB del Pantone 6105 C */
+            font-weight: 400; /* Letras más delgadas */
+        }
+
         {% block css %}
         {% endblock %}
     </style>
@@ -76,6 +81,25 @@ License: For each use you must have a valid license purchased only from above li
                     <!--begin::Navbar-->
                     <div class="app-navbar flex-grow-1 justify-content-end" id="kt_app_header_navbar">
                         <!--begin::User menu-->
+                        <div class="text-center">
+                            <div class="d-flex flex-column-auto h-50px justify-content-center align-items-center">
+                                {% if request.session.usuario.rol == 'admin' %}
+                                    <h1 class="custom-text-color">Panel de Administración</h1>
+                                {% elif request.session.usuario.rol == 'employee' %}
+                                    <h1 class="custom-text-color">Sistema del Empleado</h1>
+                                {% elif request.session.usuario.rol == 'company' %}
+                                    <h1 class="custom-text-color">Panel de la Empresa</h1>
+                                {% elif request.session.usuario.rol == 'accountant' %}
+                                    <h1 class="custom-text-color">Sistema del Contador</h1>
+                                {% else %}
+                                    <h1 class="custom-text-color">Sistema General</h1>
+                                {% endif %} 
+                            </div>
+                        </div>
+                        
+                        
+
+
                         <div class="app-navbar-item ms-3 ms-lg-4 me-lg-6" id="kt_header_user_menu_toggle">
                             <!--begin::Menu wrapper-->
                             <div class="cursor-pointer symbol symbol-30px symbol-lg-40px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
