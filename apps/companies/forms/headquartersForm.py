@@ -14,12 +14,21 @@ class headquartersForm(forms.Form):
         
         self.fields['cajacompensacion'] = forms.ChoiceField(choices=[('', '----------')] + [(entidad.codigo, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='CCF').order_by('entidad')], label='Caja de Compensación Familiar' , required=True , widget=forms.Select(attrs={'data-control': 'select2'}) )
         self.helper = FormHelper()
+        
+        
+        # Configurar la apariencia del campo nivelcargo
+        self.fields['cajacompensacion'].widget.attrs.update({
+            'data-control': 'select2',
+            'data-tags': 'true',
+            'class': 'form-select',
+            'data-dropdown-parent': '#conceptsModal',
+        })
+        
         self.helper.layout = Layout(
             Row(
                 Column('nombresede', css_class='form-group mb-0'),
                 Column('cajacompensacion', css_class='form-group mb-0'),
                 css_class='row'
             ),
-            Submit('submit', 'Guardar')
         )
     

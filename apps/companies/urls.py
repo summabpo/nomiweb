@@ -142,6 +142,9 @@ urlhtmxpatterns =[
     path('parameters/cost/center/add', Costcenter.costcenter_modal, name='costcenter_modal'),
     path('parameters/charges/add', charges.charges_modal, name='charges_modal'),
     path('parameters/accountin/add',accountinggroup.accountinggroup_modal , name='accountinggroup_modal'),
+    path('parameters/workplace/add', workplace.workplace_modal, name='workplace_modal'),
+    path('parameters/headquarters/add', headquarters.headquarters_modal, name='headquarters_modal'),
+
 ]
 
 urlpatterns += urlhtmxpatterns  

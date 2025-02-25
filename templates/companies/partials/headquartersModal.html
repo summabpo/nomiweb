@@ -5,7 +5,7 @@
     <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
         <div class="modal-content" id="modal-container">
             <div class="modal-header">
-                <h5 class="modal-title" id="conceptsModalLabel">Nuevo Centro de Costos</h5>
+                <h5 class="modal-title" id="conceptsModalLabel">Nueva sede</h5>
                 <!--begin::Close-->
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()" >
                     <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
@@ -18,7 +18,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="closeModal()" >Cerrar</button>
-                <button type="submit" form="form_costcenter" class="btn btn-light-info">Crear</button>
+                <button type="submit" form="form_charge" class="btn btn-light-info">Crear</button>
             </div>
         </div>
     </div>
@@ -48,16 +48,13 @@ function closeModal(reload = false) {
         window.location.reload();
     }
 } 
-    
 
 $(document).ready(function () {
     // Inicializa Select2 para los campos
-    $('#id_grupocontable').select2({
-        dropdownParent: $('#conceptsModal'),
-        minimumResultsForSearch: -1,
-        
-    });
 
+    $('#id_cajacompensacion').select2({
+        dropdownParent: $('#conceptsModal'),
+    });
 });
 
 
@@ -67,6 +64,7 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
         // Verificar si la respuesta es un JSON con estado de éxito
         try {
             var responseJson = JSON.parse(response);
+            
             if (responseJson.status === 'success') {
                 var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
                 var modalBackdrop = document.querySelector('.modal-backdrop');
@@ -74,9 +72,11 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
                 if (modal) {
                     modal.hide(); // Cierra el modal después de una respuesta exitosa
                 }
+
                 if (modalBackdrop) {
                     modalBackdrop.remove(); // Elimina el fondo modal residual
                 }
+
                 // Mostrar el Swal de éxito
                 Swal.fire({
                     text: responseJson.message, // Mensaje de éxito
