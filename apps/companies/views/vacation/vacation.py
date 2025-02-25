@@ -6,10 +6,12 @@ from apps.common.models  import Contratosemp, Vacaciones, Contratos
 
 
 def vacation(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     selected_empleado = request.GET.get('empleado')
     
     # Obtener la lista de empleados
-    empleados_select = Contratos.objects.filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ).order_by('idempleado__papellido').values(
+    empleados_select = Contratos.objects.filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] , id_empresa_id = idempresa ).order_by('idempleado__papellido').values(
         'idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido', 'idempleado__idempleado','idcontrato'
     )
     

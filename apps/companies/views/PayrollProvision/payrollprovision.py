@@ -67,9 +67,9 @@ def payrollprovision(request):
             }
 
             # Calcular la base para prestaciones sociales y sueldo básico fuera del bucle
-            base_prestacion_social = Q(idconcepto__baseprestacionsocial=1)
-            sueldo_basico = Q(idconcepto__sueldobasico=1)
-            aux_transporte = Q(idconcepto__auxtransporte=1)
+            base_prestacion_social = Q(idconcepto__indicador__nombre="baseprestacionsocial")
+            sueldo_basico = Q( idconcepto__indicador__nombre="sueldobasico" )
+            aux_transporte = Q(idconcepto__indicador__nombre="auxtransporte")
 
             for data in nominas:
                 docidentidad = data.idcontrato.idcontrato
@@ -132,7 +132,7 @@ def payrollprovision(request):
                         'documento': data.idcontrato.idempleado.docidentidad,
                         'nombre': f"{data.idcontrato.idempleado.papellido} {data.idcontrato.idempleado.sapellido} {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.snombre}",
                         'contrato': data.idcontrato.idcontrato,
-                        'idcosto': data.idcosto.idcosto,
+                        'idcosto': data.idcontrato.idcosto.idcosto,
                         'base': format_value(int(base)),
                         'cesantias': format_value(int(cesantias)),
                         'intcesa': format_value(int(intcesa)),
@@ -242,14 +242,14 @@ def contributionsprovision(request):
                     
                     # Crear un diccionario con los filtros para cada tipo de base
                     filters = {
-                        'base_ss': Q(idconcepto__basesegsocial=1),
-                        'base_arl': Q(idconcepto__baserarl=1),
-                        'base_caja': Q(idconcepto__basecaja=1),
-                        'pension_t': Q(idconcepto__idconcepto=70),
-                        'pension_ft': Q(idconcepto__idconcepto=90),
-                        'salud_t': Q(idconcepto__idconcepto=60),
-                        'variable': Q(idconcepto__sueldobasico=1) | Q(idconcepto__salintegral=1) | Q(idconcepto__incapacidad=1) | Q(idconcepto__idconcepto=24),
-                        'suspension': Q(idconcepto__suspcontrato=1),
+                        'base_ss': Q(idconcepto__indicador__nombre="basesegsocial"),
+                        'base_arl': Q ( idconcepto__indicador__nombre="baserarl" ),
+                        'base_caja': Q ( idconcepto__indicador__nombre="basecaja" ),
+                        'pension_t': Q (  idconcepto__codigo=70),
+                        'pension_ft': Q (  idconcepto__codigo=90),
+                        'salud_t': Q (  idconcepto__codigo=60),
+                        'variable': Q ( idconcepto__indicador__nombre="sueldobasico" ) | Q ( idconcepto__indicador__nombre="salintegral") | Q ( idconcepto__indicador__nombre="incapacidad") | Q (idconcepto__codigo=24),
+                        'suspension': Q ( idconcepto__indicador__nombre="suspcontrato"),
                     }
 
                     # Inicializar un diccionario para almacenar los resultados
@@ -386,7 +386,7 @@ def contributionsprovision(request):
                         'documento': data.idcontrato.idempleado.docidentidad,
                         'nombre': f"{data.idcontrato.idempleado.papellido} {data.idcontrato.idempleado.sapellido} {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.snombre}",
                         'contrato': data.idcontrato.idcontrato,
-                        'idcosto': data.idcosto.idcosto,
+                        'idcosto': data.idcontrato.idcosto.idcosto,
                         'salario': format_value(int(salario)),
                         'diasaportes': format_value(int(diasaportes)) ,
                         'base_ss': format_value(int(base_ss)) ,

@@ -301,11 +301,11 @@
                 console.log('Respuesta recibida:', response); // Muestra la respuesta completa
                 
                 // Verifica si la respuesta contiene 'message' y 'name'
-                if (response.message ) {
+                if (response.pass ) {
                     var message = "El correo con el comprobante de nómina se ha enviado correctamente a " + response.name + ".";
-                    toastr.success(message, "Envio de Correo");
+                    toastr.success(response.message, "Envio de Correo");
                 } else {
-                    toastr.error("Hubo un problema al enviar el correo. Por favor, intenta nuevamente.", "Error");
+                    toastr.error(response.status, "Error");
                 }
             },
             error: function(xhr, status, error) {

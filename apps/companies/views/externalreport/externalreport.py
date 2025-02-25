@@ -30,10 +30,10 @@ def externalreport(request):
                     'idcontrato__idcontrato',
                     'idconcepto__cuentacontable',
                     'idcontrato__idempleado__docidentidad',
-                    'idconcepto__idconcepto',
+                    'idconcepto__codigo',
                     'idconcepto__nombreconcepto',
                     'valor',
-                    'idcosto__idcosto'
+                    'idcontrato__idcosto__idcosto'
                 ).order_by('idcontrato__idcontrato')
                 
             for item in nominas:

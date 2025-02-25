@@ -7,10 +7,12 @@ from django.http import JsonResponse
 
 
 def vacation_general(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     # Obtener la lista de empleados
     contratos_empleados = Contratos.objects\
         .select_related('idempleado') \
-        .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ) \
+        .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] , id_empresa_id = idempresa ) \
         .values('idempleado__docidentidad','idempleado__sapellido', 'idempleado__papellido', 'idempleado__pnombre',
                 'idempleado__snombre','idempleado__idempleado','idcontrato') 
     
@@ -41,7 +43,7 @@ def get_novedades(request):
         "novedades": []  # Aquí almacenaremos las novedades
     }
 
-    if tipo_novedad == 'vacaciones':
+    if tipo_novedad == 'Vacaciones':
         vacaciones = Vacaciones.objects.filter(idcontrato__idcontrato=idcontaro, tipovac__idvac__in=[1,2]) 
         for vacacion in vacaciones:
             novedad = {

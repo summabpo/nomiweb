@@ -104,7 +104,7 @@ def generate_summary(idnomina,idempresa):
         return None  # O manejar el error de otra manera
     
     # Agregar un campo calculado para ingresos, descuentos y neto
-    grouped_nominas = nominas.values('idconcepto__nombreconcepto','idconcepto__idconcepto').annotate(
+    grouped_nominas = nominas.values('idconcepto__nombreconcepto','idconcepto__codigo').annotate(
         cantidad_total=Sum('cantidad'),
         ingresos=Sum(Case(
             When(valor__gt=0, then='valor'),
@@ -116,7 +116,7 @@ def generate_summary(idnomina,idempresa):
             default=Value(0),
             output_field=IntegerField()
         )),
-    ).order_by('idconcepto__idconcepto')
+    ).order_by('idconcepto__codigo')
     
     # Separar ingresos y descuentos, y ordenar por idconcepto
     ingresos = [compect for compect in grouped_nominas if compect['ingresos'] > 0]

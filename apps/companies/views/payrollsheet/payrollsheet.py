@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from apps.common.models import Nomina , NominaComprobantes ,Crearnomina
+from apps.common.models import Nomina , NominaComprobantes ,Crearnomina , Contratos
 from apps.components.humani import format_value
 from io import BytesIO
 from xhtml2pdf import pisa
@@ -90,7 +90,6 @@ def payrollsheet(request):
             acumulados[docidentidad]['neto'] += data.valor
             acumulados[docidentidad]['ingresos'] += data.valor if data.valor > 0 else 0
             
-            print(f"data : {docidentidad} ")
             #acumulados[docidentidad]['basico'] += data.valor if data.idconcepto.sueldobasico == 1 else 0
             acumulados[docidentidad]['basico'] += data.valor if data.idconcepto.indicador.filter(nombre='sueldobasico').exists() else 0
             #acumulados[docidentidad]['tpte'] += data.valor if data.idconcepto.auxtransporte == 1 else 0
@@ -99,7 +98,7 @@ def payrollsheet(request):
             acumulados[docidentidad]['extras'] += data.valor if data.idconcepto.indicador.filter(nombre='extras').exists() else 0
             #acumulados[docidentidad]['aportess'] += data.valor if data.idconcepto.aportess == 1 else 0
             acumulados[docidentidad]['aportess'] += data.valor if data.idconcepto.indicador.filter(nombre='aportess').exists() else 0
-            #acumulados[docidentidad]['prestamos'] += data.valor if data.idconcepto.idconcepto == 50 else 0
+            acumulados[docidentidad]['prestamos'] += data.valor if data.idconcepto.codigo == 50 else 0
             #acumulados[docidentidad]['prestamos'] += data.valor if data.idconcepto.indicador.filter(nombre='aportess').exists() else 0
         
         compects = list(acumulados.values())
@@ -323,7 +322,12 @@ def massive_mail(request):
 @login_required
 @role_required('company')
 def unique_mail(request,idnomina,idcontrato):
-    datacn = NominaComprobantes.objects.get(idnomina = idnomina ,idcontrato = idcontrato )
+    try:
+        datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )
+    except NominaComprobantes.DoesNotExist:
+        datacn = None
+        contrato = Contratos.objects.get(idcontrato = idcontrato)
+        
     context = genera_comprobante(idnomina, idcontrato)
 
     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
@@ -341,7 +345,7 @@ def unique_mail(request,idnomina,idcontrato):
     email_subject = 'Tu Comprobante de Nòmina'
     
     #
-    recipient_list = [context["mail"]]  # Lista de destinatarios
+    recipient_list = [context["mail"],'mikepruebas@yopmail.com']  # Lista de destinatarios
 
     attachment = {
         'filename': nombre_archivo,
@@ -358,19 +362,36 @@ def unique_mail(request,idnomina,idcontrato):
     )
 
     email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo.'
+    
+    if datacn :
+        pass
+    else :
+        NominaComprobantes.objects.create(
+            idcontrato = contrato, 
+            salario = contrato.salario, 
+            cargo = contrato.cargo.nombrecargo, 
+            idcosto_id = contrato.idcosto.idcosto , 
+            salud = contrato.salario ,
+            idnomina_id = idnomina ,
+            envio_email = 2
+            )
+        datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )
+        
+
     if email_sent :
         datacn.envio_email = 1
         datacn.save()
     else:
         datacn.envio_email = 2
         datacn.save()
-        
-
+    
     response_data = {
-        'message': 'ID recibido correctamente',
-        'status' : email_status,
-        'name' : context["nombre_completo"]
-    }
+            'message': 'ID recibido correctamente',
+            'status' : email_status,
+            'name' : context["nombre_completo"] ,
+            'pass' :email_sent
+        }
+    
     return JsonResponse(response_data)
 
 

@@ -32,7 +32,7 @@
                 <i class="ki-duotone ki-plus-square fs-3 accordion-icon-off"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
                 <i class="ki-duotone ki-minus-square fs-3 accordion-icon-on"><span class="path1"></span><span class="path2"></span></i>
             </span>
-            <h3 class="fs-4 fw-semibold mb-0 ms-4">generate certificate</h3>
+            <h3 class="fs-4 fw-semibold mb-0 ms-4">Generar Certificado</h3>
         </div>
         <!--end::Header-->
 
@@ -58,7 +58,7 @@
                 
                 {% if selected_empleado %}
                     {% if cont < 2 %}
-                    <h5 class="card-title">El Contrato ha sido seleccionado automaticamente</h5>
+                    <h5 class="card-title">El contrato ha sido seleccionado automaticamente</h5>
                     <select name="contrato" id="contrato" class="form-select" disabled onchange="cargarContratos2()" >
                         {% for contrato in contratos %}
                             <option value="{{ contrato.idcontrato }}" {% if contrato.idcontrato|stringformat:"s" == selected_empleado %}selected{% endif %} >
