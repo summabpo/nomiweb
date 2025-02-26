@@ -1,7 +1,17 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
 {% block navbar %}
-    {% include 'base/navbar_payroll.html' %}               
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}   
+    {% elif user.is_employee %}
+        {% include 'base/navbar_employees.html' %}   
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}               
 {% endblock %}
 
 {% load static %} 
@@ -12,9 +22,13 @@
 {% endblock %}
 
 {% block sub_titulo1 %} 
-<a href="{% url 'payroll:loans_list' %}" class="text-gray-500 text-hover-primary">
-    Prestamos Empleados
-</a>
+    {% if request.session.usuario.rol != 'employee' %}
+        <a href="{% url 'payroll:loans_list' %}" class="text-gray-500 text-hover-primary">
+            Prestamos Empleados
+        </a>
+    {% else %}
+        Prestamos Empleados
+    {% endif %}
 {% endblock %}
 
 {% block sub_titulo2 %} 
@@ -49,7 +63,7 @@ Información Empleado: {{ employee_info.full_name }}
 <table id="kt_datatable_dom_positioning" class="table table-striped table-row-bordered gy-5 gs-7 border rounded">
     <thead>
         <tr class="fw-bold fs-6 text-gray-800 px-7">
-            <th class="text-center align-middle">Prestamo #</th>
+            <th class="text-center align-middle">Prestamo</th>
             <th class="text-center align-middle">Fecha Préstamo</th>
             <th class="text-center align-middle">Valor Prestamo</th>
             <th class="text-center align-middle">Cuotas Prestamo</th>
@@ -203,18 +217,9 @@ $('#kt_modal_1').on('show.bs.modal', function(event) {
             },
         },
         "ordering": false,
-        "dom":
-            "<'row mb-2'" +
-            "<'col-sm-6 d-flex align-items-center justify-conten-start dt-toolbar'l>" +
-            "<'col-sm-6 d-flex align-items-center justify-content-end dt-toolbar'f>" +
-            ">" +
-    
-            "<'table-responsive'tr>" +
-    
-            "<'row'" +
-            "<'col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start'i>" +
-            "<'col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
-            ">"
+        dom: 'frtip',
+        "pageLength": 10, 
+        
     });
 </script>
 

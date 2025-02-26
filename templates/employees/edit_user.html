@@ -32,11 +32,7 @@ Editar Datos
     
 {% endblock %}
 
-
-
-{% block content %}
-
-<div class="d-flex justify-content-end">
+{% block actions %}
     <a href="{% url 'employees:user'  %}" class="btn btn-light-primary">
         Regresar
         <i class="ki-duotone ki-exit-left fs-2x">             
@@ -44,8 +40,11 @@ Editar Datos
             <span class="path2"></span>
         </i>
     </a>
-</div>
-<br>
+{% endblock %}
+
+
+
+{% block content %}
 <div class="card mb-5 mb-xxl-8">
     <div class="card-body pt-9 pb-0">
         {% crispy form %}

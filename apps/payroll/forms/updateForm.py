@@ -10,6 +10,7 @@ class UpdateForm(forms.Form):
         id_payroll = kwargs.pop('id_payroll', None)
         super().__init__(*args, **kwargs)
         
+        id = id_payroll.replace("old-", "").replace("new-", "")
         # Campo oculto para id_payroll
         self.fields['id'] = forms.CharField(
             initial=id_payroll,
@@ -78,7 +79,13 @@ class UpdateForm(forms.Form):
                 Column('payroll_concept', css_class='input-group-sm col-md-5'),
                 Column('concept_quantity', css_class='form-group col-md-2'),
                 Column('concept_value', css_class='form-group col-md-3'),
-                Submit('submit', 'X', css_class='btn btn-icon btn-light-youtube col-md-2'),
+                Column(
+                    Submit('delete', 'Eliminar', css_class='btn btn-danger btn-sm',
+                            **{'hx-delete': reverse_lazy('payroll:delete_payroll', kwargs={'id': id}),
+                                'hx-confirm': '¿Estás seguro de eliminar este concepto?',
+                                'hx-swap':"outerHTML swap:1s"}),
+                    css_class='col-md-2'
+                ),
                 css_class='row'
             )
         )

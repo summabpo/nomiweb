@@ -274,15 +274,6 @@ def payroll_concept(request,data):
     
     concepto = request.GET.get('concept_quantity')
     concepto2 = request.GET.get('payroll_concept')
-    print('-'*50)
-    print(concepto2)
-    print('-'*50)
-    print(concepto)
-    print('-'*50)
-    print(data)
-    print('-'*50)
-    
-    
     if concepto == 'salario':
         respuesta = {
             'cantidad_desactivada': False,
@@ -304,17 +295,16 @@ def payroll_concept(request,data):
 
 @login_required
 @role_required('accountant')
-def delete_payroll(request,id):
-    # Obtener el concepto de nómina por su ID
-    concept = get_object_or_404(Nomina, id=id)
-    
-    # Eliminar el objeto de la base de datos si es necesario
-    concept.delete()  # Solo si deseas eliminar el objeto de la base de datos
-
-    # Si solo deseas eliminar la fila en la vista (sin eliminar el objeto en la base de datos),
-    # simplemente devolveremos una respuesta vacía.
-    return JsonResponse({'success': True})
-
+def delete_payroll(request, id):
+    if request.method == 'DELETE':  # Asegura que solo acepte DELETE
+        # Obtener el concepto de nómina por su ID
+        concept = get_object_or_404(Nomina, idregistronom=id)
+        print(concept)
+        # Eliminar el objeto de la base de datos
+        #concept.delete()
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
 

@@ -35,7 +35,7 @@ Certificaciones Laborales
                     <div class="card-body">
                         
                         {% if cont < 2 %}
-                        <h5 class="card-title">Su Contrato ha sido seleccionado</h5>
+                        <h5 class="card-title">Su contrato ha sido seleccionado</h5>
                         <!-- Lógica para cuando contratos está vacío -->
                         <div class="input-group  mb-5" data-placeholder="Seleccione una opción"  aria-label="Seleccione un Contrato:">
                             <select name="contrato" id="contrato" class="form-select"  disabled >
@@ -118,6 +118,7 @@ Certificaciones Laborales
                 <th class="text-center" >Cargo</th>
                 <th class="text-center" >Tipo contrato</th>
                 <th class="text-center" >Promedio variable</th>
+                <th class="text-center" >Tipo certificado</th>
                 <th class="text-center" > 
                     <div class="btn btn-icon btn-sm btn-light-facebook me-5 container d-flex justify-content-center align-items-center  ">
                         <i class="fa-solid fa-certificate fs-3"></i>
@@ -134,6 +135,23 @@ Certificaciones Laborales
                         <td class="text-center" >{{ certificacione.cargo }}</td>
                         <td class="text-center" >{{ certificacione.tipo }}</td>
                         <td class="text-center" >{{ certificacione.promedio }}</td>
+                        <td class="text-center">
+                            {% if certificacione.tipocerti == 1 %}
+                                Salario Básico
+                            {% elif certificacione.tipocerti == 2 %}
+                                Salario Promedio
+                            {% elif certificacione.tipocerti == 3 %}
+                                Sin Salario
+                            {% elif certificacione.tipocerti == 4 %}
+                                Contrato Liquidado
+                            {% else %}
+                                <span class="badge badge-danger">
+                                Error
+                                </span>
+                            {% endif %}
+
+                            
+                        </td>
     
                         <td class="text-center" >
                             <a href="{% url 'employees:certificatedownload' idcert=certificacione.idcert %}" class="btn btn-icon btn-sm btn-light-facebook me-2 container d-flex justify-content-center align-items-center " data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar Certificado" target="_blank"  >
