@@ -61,3 +61,13 @@ urlhtmxpatterns =[
 ]
 
 urlpatterns += urlhtmxpatterns  
+
+
+
+urlunpolypatterns =[
+    path('payroll/modal/add', payroll.payroll_modal, name='payroll_modal'),
+    
+    
+]
+
+urlpatterns += urlunpolypatterns  

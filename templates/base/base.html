@@ -28,11 +28,17 @@ License: For each use you must have a valid license purchased only from above li
 
     <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">    
 
+    <script src="https://cdn.jsdelivr.net/npm/unpoly@3.10.2/unpoly.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.10.2/unpoly.min.css">
+    
+
+    <script src="{% static 'application.js' %}"></script>
 
     {% block cssarch %}
     {% endblock %}
 
     <style>
+        
         .asteriskField {
             color: red !important;
         }

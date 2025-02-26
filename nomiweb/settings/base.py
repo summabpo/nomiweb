@@ -144,6 +144,8 @@ BASE_MIDDLEWARE = [
         # Add the account middleware:
     "allauth.account.middleware.AccountMiddleware",
     
+    'unpoly.contrib.django.UnpolyMiddleware',
+    
 ]
 
 LOCAL_MIDDLEWARE = [

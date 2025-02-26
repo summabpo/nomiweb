@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block cssarch %}
-<script src="https://unpkg.com/htmx.org"></script>
+
 {% endblock %}
 
 {% load static %}
@@ -27,12 +27,27 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock %}
 
 {% block titulo2 %} 
-  {{ nombre.nombrenomina }}
+    {{ nombre.nombrenomina }}
 {% endblock %}
+
+
+{% block css %}
+
+
+up-modal[size=large] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+
+{% endblock %}
+
+
 
 {% block actions %}
     
-    <!-- Separación entre grupos -->
+    {% comment %} <!-- Separación entre grupos -->
     <!-- Botón para activar modal -->
     <a href="{% url 'payroll:payroll' %}"  class="btn btn-light-primary"   >
         <i class="ki-duotone ki-exit-left fs-2 ">             
@@ -59,11 +74,25 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
         data-bs-placement="bottom" 
         title="Descargar plantilla de Documento Plano" >
             <i class="fa-solid fa-download fs-2"></i>
-    </a> 
+    </a>  {% endcomment %}
+
+    <a
+        class='btn btn-primary up-loading'
+        up-layer='new modal'
+        up-target="#kt_modal_1 .modal-content"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-placeholder="Cargando contenido..."
+        up-cache="false"
+        href='{% url "payroll:payroll_modal" %}'>New project</a>
 
 {% endblock %}
 
 {% block content %}
+
 
 
 

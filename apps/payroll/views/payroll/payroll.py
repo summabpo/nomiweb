@@ -17,8 +17,7 @@ import json
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
-
-
+import random
 
 @login_required
 @role_required('accountant')
@@ -121,6 +120,13 @@ def payrollview(request, id):
         'id': id
     })
 
+@login_required
+@role_required('accountant')
+def payroll_modal(request):
+    data = {}
+    data['valor'] = random.randint(1, 100)
+    return render(request, './payroll/partials/payrollmodal2.html',data)
+
 
 
 @login_required
@@ -201,6 +207,10 @@ def payroll_form(request,idn = None ,idc = None,amount = None,value = None):
     else :
         form = UpdateForm(id_empresa = idempresa,id_payroll = f'new-{idn}' )
     return render(request, './payroll/partials/payrollform.html',{'form': form})
+
+
+
+
 
 
 
