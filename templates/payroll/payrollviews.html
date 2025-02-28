@@ -77,7 +77,7 @@ up-modal[size=large] up-modal-box {
     </a>  {% endcomment %}
 
     <a
-        class='btn btn-primary up-loading'
+        class='btn btn-icon btn-sm btn-light-info'
         up-layer='new modal'
         up-target="#kt_modal_1 .modal-content"
         up-size = "large"
@@ -85,13 +85,16 @@ up-modal[size=large] up-modal-box {
         up-backdrop = "true"
         up-history = "false"
         up-dismissable ="false"
-        up-placeholder="Cargando contenido..."
         up-cache="false"
-        href='{% url "payroll:payroll_modal" %}'>New project</a>
+        
+        <i class="fa-solid fa-file-circle-plus fs-3"></i>
+    </a>
 
 {% endblock %}
 
 {% block content %}
+
+
 
 
 
@@ -153,14 +156,20 @@ up-modal[size=large] up-modal-box {
                     <td>{{ empleado.idcontrato__idempleado__papellido }} {{ empleado.idcontrato__idempleado__sapellido }} {{ empleado.idcontrato__idempleado__pnombre }}</td>
                     <td class="text-center">{{ empleado.idcontrato__salario|format_currency }} </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-icon btn-sm btn-light-info" id="kt_button_1" hx-get="{% url 'payroll:payroll_data' empleado.idcontrato nombre.idnomina  %}" hx-target="#modal-container" hx-swap="innerHTML">
-                            <span class="indicator-label">
+                        <a
+                            class='btn btn-icon btn-sm btn-light-info'
+                            up-layer='new modal'
+                            up-target="#kt_modal_1 .modal-content"
+                            up-size = "large"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+                            href="{% url 'payroll:payroll_modal' empleado.idcontrato nombre.idnomina  %}">
                                 <i class="fa-solid fa-file-circle-plus fs-3"></i>
-                            </span>
-                            <span class="indicator-progress">
-                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-                            </span>
-                        </button>
+                        </a>
+
                     </td>
                 </tr>
             {% endfor %}
@@ -174,41 +183,55 @@ up-modal[size=large] up-modal-box {
 
 
 
-
-
 {% endblock content %}
 
 {% block js %}
 
 <script>
-    // Escucha el evento 'htmx:beforeRequest' para activar el indicador cuando el botón es presionado
-    document.getElementById('kt_button_1').addEventListener('click', function() {
-        // Activa el indicador de carga
-        this.setAttribute('data-kt-indicator', 'on');
-    });
-
-    // Escucha el evento 'htmx:afterSwap' para desactivar el indicador después de que se haya cargado el contenido del modal
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        if (evt.detail.target.id === 'modal-container') {
-            // Encuentra el botón y quita el indicador de carga
-            const button = document.getElementById('kt_button_1');
-            if (button) {
-                button.removeAttribute('data-kt-indicator');
+    up.on('up:layer:opened', function(event) {
+        const layer = event.layer;
+        if (layer.mode === 'modal') {
+            console.log('El modal está completamente abierto');
+            const modalContent = layer.element.querySelector('.modal-content');
+    
+            if (modalContent) {
+                console.log('El contenido del modal está disponible');
+                setTimeout(() => inicializarSelect2(modalContent), 0); // Asegura que el modal esté completamente en el DOM
+            } else {
+                console.log('No se encontró el contenido dentro del modal');
             }
         }
     });
-</script>
-
-<script>
-    // Escucha el evento 'htmx:afterSwap' para abrir el modal después de cargar el contenido
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        const modalContainer = document.getElementById('conceptsModal');
-        if (evt.detail.target.id === 'modal-container' && modalContainer) {
-            new bootstrap.Modal(modalContainer).show();
-        }
-    });
+    
+    function inicializarSelect2(modalContent) {
+        console.log('Inicializando Select2');
+    
+        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+    
+        selectElements.forEach(element => {
+            if ($(element).data('select2')) {
+                $(element).select2('destroy'); // Destruye Select2 si ya está inicializado
+            }
+    
+            $(element).select2({
+                dropdownParent: $(modalContent), // Se asegura que el dropdown esté dentro del modal
+                width: '100%' // Opcional, para evitar problemas de estilo
+            });
+    
+            console.log('Select2 inicializado en:', element);
+        });
+    }
+    
+    
+    
+    
+    
+    
     
 </script>
+    
+    
+    
 
 
 <script>

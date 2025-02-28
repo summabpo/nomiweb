@@ -52,7 +52,7 @@ urlhtmxpatterns =[
     path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
     path('parameters/concepts/check/code', parameters.check_code, name='check_code'),
     
-    path('payroll/<int:id>/<int:idnomina>/modals', payroll.payroll_data, name='payroll_data'),
+    #path('payroll/<int:id>/<int:idnomina>/modals', payroll.payroll_data, name='payroll_data'),
     path('payroll/<int:idn>/<int:idc>/<int:amount>/<str:value>/form', payroll.payroll_form, name='payroll_form'),
     path('delete_payroll_row/<int:concept_id>/', payroll.delete_payroll, name='delete_payroll'),
     path('payroll/concept/<str:data>', payroll.payroll_concept, name='payroll_concept'),
@@ -65,9 +65,8 @@ urlpatterns += urlhtmxpatterns
 
 
 urlunpolypatterns =[
-    path('payroll/modal/add', payroll.payroll_modal, name='payroll_modal'),
-    
-    
+    path('payroll/<int:id>/<int:idnomina>/modals/add', payroll.payroll_modal, name='payroll_modal'),
+    path('payroll/form/modals/data', payroll.agregar_huesped, name='agregar_huesped'),
 ]
 
 urlpatterns += urlunpolypatterns  

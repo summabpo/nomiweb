@@ -18,6 +18,9 @@ from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
 import random
+from django.http import HttpResponse
+
+
 
 @login_required
 @role_required('accountant')
@@ -120,18 +123,37 @@ def payrollview(request, id):
         'id': id
     })
 
-@login_required
-@role_required('accountant')
-def payroll_modal(request):
-    data = {}
-    data['valor'] = random.randint(1, 100)
-    return render(request, './payroll/partials/payrollmodal2.html',data)
+# @login_required
+# @role_required('accountant')
+# def payroll_modal(request,id,idnomina):
+#     usuario = request.session.get('usuario', {})
+#     idempresa = usuario['idempresa']
+#     ingreso = 0  # Inicializamos la variable ingreso
+#     egreso = 0   # Inicializamos la variable egreso
+#     conceptos_data = []
+    
+    
+#     contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
+
+
+#     conceptos = Nomina.objects.filter(
+#         idnomina__idnomina=idnomina,
+#         idcontrato__idcontrato=id
+#     ).select_related('idcontrato').order_by('idconcepto__codigo')
+    
+    
+    
+    
+    
+#     data = {}
+#     data['valor'] = random.randint(1, 100)
+#     return render(request, './payroll/partials/payrollmodal2.html',data)
 
 
 
 @login_required
 @role_required('accountant')
-def payroll_data(request,id,idnomina):
+def payroll_modal(request,id,idnomina):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     ingreso = 0  # Inicializamos la variable ingreso
@@ -180,7 +202,7 @@ def payroll_data(request,id,idnomina):
     nombre_completo = " ".join(filter(None, [empleado.papellido, empleado.sapellido, empleado.pnombre, empleado.snombre]))
 
     total = ingreso + egreso
-    
+        
     data = {
         "idnomina":idnomina,
         "idempleado" :id,
@@ -191,22 +213,28 @@ def payroll_data(request,id,idnomina):
         "egresos": f"${format_value(egreso)}",
         "total": f"${format_value(total)}",
         "conceptos": conceptos_data,
+        "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
+        
     }
     
-    return render(request, './payroll/partials/payrollmodal.html',{'data': data})
+    return render(request, './payroll/partials/payrollmodal2.html',{'data': data})
 
 
-@login_required
-@role_required('accountant')
-def payroll_form(request,idn = None ,idc = None,amount = None,value = None):
-    usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
+def agregar_huesped(request):
+    print('Agregando huesped')
+    return render(request, './payroll/partials/conceptsTables.html')
+    
+
+
+
+
+def payroll_form(idn = None ,idc = None,amount = None,value = None, idempresa = None):
     if idc :
         form = UpdateForm(id_empresa = idempresa , id_payroll = f'old-{idn}', initial={'payroll_concept': idc, 'concept_quantity': amount, 'concept_value': value })
         #form = UpdateForm()
     else :
         form = UpdateForm(id_empresa = idempresa,id_payroll = f'new-{idn}' )
-    return render(request, './payroll/partials/payrollform.html',{'form': form})
+    return form 
 
 
 
