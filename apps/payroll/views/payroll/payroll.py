@@ -19,8 +19,8 @@ from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
 import random
 from django.http import HttpResponse
-
-
+from decimal import Decimal
+from django.views.decorators.http import require_GET
 
 @login_required
 @role_required('accountant')
@@ -220,13 +220,97 @@ def payroll_modal(request,id,idnomina):
     return render(request, './payroll/partials/payrollmodal2.html',{'data': data})
 
 
-def agregar_huesped(request):
-    print('Agregando huesped')
-    return render(request, './payroll/partials/conceptsTables.html')
-    
+
+
+@login_required
+@role_required('accountant')
+def payroll_create(request):
+    if request.method == 'POST':
+        # Procesar los datos del formulario
+        mi_select = request.POST.get('mi-select')
+        cantidad = request.POST.get('cantidad')
+        valor = request.POST.get('valor')
+
+        # Validación simple
+        if not mi_select or not cantidad or not valor:
+            # Si hay errores, devuelve un mensaje de error
+            return HttpResponse("""
+                <div id="resultado">
+                    <p style="color: red;">Por favor, completa todos los campos.</p>
+                </div>
+            """, status=400)  # Código 400 para indicar un error
+
+        # Si todo está bien, devuelve un mensaje de éxito
+        return HttpResponse(f"""
+            <div id="resultado">
+                <p>¡Datos guardados correctamente!</p>
+                <p>Concepto: {mi_select}</p>
+                <p>Cantidad: {cantidad}</p>
+                <p>Valor: {valor}</p>
+            </div>
+        """)
+
+    # Si no es una solicitud POST, muestra el formulario
+    conceptors = [(1, 'Concepto 1'), (2, 'Concepto 2')]  # Ejemplo de datos
+    context = {
+        'data': {
+            'conceptors': conceptors,
+        }
+    }
+
+    return render(request, './payroll/partials/resultado.html', context)
 
 
 
+
+def payroll_edit(request):
+    if request.method == 'POST':
+        data = request.POST
+        idn = data.get('idn')
+        amount = data.get('amount').replace(',', '.')  # Reemplazamos la coma por un punto
+        value = data.get('value')
+        concept = data.get('concept')
+        try:
+            value_decimal = Decimal(value)
+            # Obtener el concepto por ID
+            concepto_obj = Nomina.objects.get(idregistronom=idn)
+            
+            concepto_obj.idconcepto_id = concept  # Asigna el ID del concepto (no el objeto completo)
+            concepto_obj.cantidad = amount
+            concepto_obj.valor = value_decimal
+            concepto_obj.save()
+        except Nomina.DoesNotExist: 
+            return JsonResponse(f"No se encontró el concepto con ID {idn}.")
+            
+        return JsonResponse({'mensaje': 'Concepto actualizado correctamente'})
+    print(request.method)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@require_GET
+def payroll_value(request):
+    print('Solicitud recibida:', request.GET)
+    print('llege')
+    cantidad = int(request.GET.get('cantidad', 0))
+    sueldo = 1400000  # Sueldo base
+    valor = cantidad * sueldo
+    # Devuelve un fragmento de HTML con el valor calculado
+    return HttpResponse(f"<input type='number' id='valor' name='valor' class='form-control mb-2 mb-md-0' value='{valor}' readonly />")
+
+
+
+
+
+def calculate_payroll(request):
+    """
+    Vista para manejar el envío del formulario.
+    """
+    if request.method == 'POST':
+        cantidad = int(request.POST.get('cantidad', 0))
+        valor = int(request.POST.get('valor', 0))
+        # Aquí puedes procesar los datos, por ejemplo, guardarlos en la base de datos
+        return HttpResponse(f"¡Cálculo exitoso! Cantidad: {cantidad}, Valor: {valor}")
+    return render(request, 'payroll/calculate_payroll.html')
 
 def payroll_form(idn = None ,idc = None,amount = None,value = None, idempresa = None):
     if idc :

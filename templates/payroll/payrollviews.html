@@ -40,6 +40,23 @@ up-modal[size=large] up-modal-box {
     
 }
 
+.select2-container .select2-selection--single .select2-selection__rendered {
+    text-align: left;
+}
+
+.select2-container .select2-search--dropdown .select2-search__field {
+    height: 28px; /* Ajusta la altura según prefieras */
+    padding: 4px 8px; /* Ajusta el padding para hacerlo más delgado */
+    font-size: 14px; /* Si quieres un texto más pequeño */
+    border-radius: 8px; /* Bordes más suaves si te gusta */
+}
+
+
+.select2-container .select2-results__option {
+    text-align: left;
+}
+
+
 
 {% endblock %}
 
@@ -188,47 +205,136 @@ up-modal[size=large] up-modal-box {
 {% block js %}
 
 <script>
-    up.on('up:layer:opened', function(event) {
-        const layer = event.layer;
-        if (layer.mode === 'modal') {
-            console.log('El modal está completamente abierto');
-            const modalContent = layer.element.querySelector('.modal-content');
-    
-            if (modalContent) {
-                console.log('El contenido del modal está disponible');
-                setTimeout(() => inicializarSelect2(modalContent), 0); // Asegura que el modal esté completamente en el DOM
-            } else {
-                console.log('No se encontró el contenido dentro del modal');
-            }
+
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toastr-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
+    up.on('edit-concepto', function(event) {
+        const idn = event.target.dataset.idn;
+
+        const select = document.getElementById(`select-${idn}`);
+        const amount = document.getElementById(`amount-${idn}`);
+        const value = document.getElementById(`value-${idn}`);
+
+        if (select && amount && value) {
+            select.disabled = false;
+            amount.disabled = false;
+            value.disabled = false;
+            event.target.hidden = true;
+            event.target.nextElementSibling.hidden = false;
         }
     });
-    
-    function inicializarSelect2(modalContent) {
-        console.log('Inicializando Select2');
-    
-        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
-    
-        selectElements.forEach(element => {
-            if ($(element).data('select2')) {
-                $(element).select2('destroy'); // Destruye Select2 si ya está inicializado
+
+    up.on('save-concepto', function(event) {
+        
+        const idn = event.target.dataset.idn;
+        // Deshabilitar el botón de save inmediatamente
+        event.target.disabled = true;
+        event.target.style.pointerEvents = 'none';
+        event.target.style.opacity = '0.5';
+
+
+        const data = {
+            idn: idn,
+            amount: document.getElementById(`amount-${idn}`).value,
+            value: document.getElementById(`value-${idn}`).value,
+            concept: document.getElementById(`select-${idn}`).value
+        };
+        
+
+
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        up.request("{% url 'payroll:payroll_edit' %}", {
+            method: 'POST',
+            params: {
+                ...data,
+                csrfmiddlewaretoken: csrftoken
             }
-    
-            $(element).select2({
-                dropdownParent: $(modalContent), // Se asegura que el dropdown esté dentro del modal
-                width: '100%' // Opcional, para evitar problemas de estilo
-            });
-    
-            console.log('Select2 inicializado en:', element);
+        }).then((response) => {
+            console.log('Respuesta exitosa:', response);
+
+            const res = response.json;
+
+            if (res.mensaje === 'Concepto actualizado correctamente') {
+                const select = document.getElementById(`select-${data.idn}`);
+                const amount = document.getElementById(`amount-${data.idn}`);
+                const value = document.getElementById(`value-${data.idn}`);
+                if (select && amount && value) {
+                    select.disabled = true;
+                    amount.disabled = true;
+                    value.disabled = true;
+
+                    event.target.hidden = true;
+                    event.target.previousElementSibling.hidden = false;
+                    
+                    toastr.success(res.mensaje, "Éxito");
+
+                } else {
+                    toastr.error("Ocurrio un error inesperado", "Error"); 
+                    console.warn('No se encontraron los elementos en el DOM');
+                }
+            } else {
+                toastr.error("Ocurrio un error inesperado", "Error"); 
+                console.warn(res.error || 'Ocurrió un error inesperado');
+
+            }
+        }).catch((response) => {
+            toastr.error("Ocurrio un error inesperado", "Error"); 
+            console.error('Error en la solicitud:', response);
         });
-    }
-    
-    
-    
-    
-    
-    
-    
+
+
+
+    });
 </script>
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer.current.element;
+
+        if (modalContent) {
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            
+            // Usamos un pequeño retraso para asegurar el renderizado completo
+            setTimeout(() => {
+                selectElements.forEach((select, index) => {
+                    // Aseguramos un ID único si no tiene uno
+                    if (!select.id) {
+                        select.id = `select2-unique-${Date.now()}-${index}`;
+                    }
+
+                    if (!$(select).data('select2')) {
+                        $(select).select2({
+                            dropdownParent: $(modalContent),
+                            width: '100%'
+                        });
+                    }
+                });
+            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
+        } else {
+            console.log('Contenido completo del fragmento:', event.target.innerHTML);
+        }
+    });
+</script>
+
     
     
     
