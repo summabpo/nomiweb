@@ -212,6 +212,8 @@ def payroll_modal(request,id,idnomina):
         "ingresos": f"${format_value(ingreso)}",
         "egresos": f"${format_value(egreso)}",
         "total": f"${format_value(total)}",
+        "idnomina": idnomina,
+        "id":id , 
         "conceptos": conceptos_data,
         "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
         
@@ -225,40 +227,48 @@ def payroll_modal(request,id,idnomina):
 @login_required
 @role_required('accountant')
 def payroll_create(request):
+    conceptos_data = []
+    data = {    }
     if request.method == 'POST':
         # Procesar los datos del formulario
         mi_select = request.POST.get('mi-select')
         cantidad = request.POST.get('cantidad')
         valor = request.POST.get('valor')
-
-        # Validación simple
-        if not mi_select or not cantidad or not valor:
-            # Si hay errores, devuelve un mensaje de error
-            return HttpResponse("""
-                <div id="resultado">
-                    <p style="color: red;">Por favor, completa todos los campos.</p>
-                </div>
-            """, status=400)  # Código 400 para indicar un error
-
-        # Si todo está bien, devuelve un mensaje de éxito
-        return HttpResponse(f"""
-            <div id="resultado">
-                <p>¡Datos guardados correctamente!</p>
-                <p>Concepto: {mi_select}</p>
-                <p>Cantidad: {cantidad}</p>
-                <p>Valor: {valor}</p>
-            </div>
-        """)
-
-    # Si no es una solicitud POST, muestra el formulario
-    conceptors = [(1, 'Concepto 1'), (2, 'Concepto 2')]  # Ejemplo de datos
-    context = {
-        'data': {
-            'conceptors': conceptors,
+        idnomina = request.POST.get('idnomina')
+        id = request.POST.get('idempleado')
+        
+        Nomina.objects.create(
+            idconcepto_id=mi_select,
+            cantidad=cantidad,
+            valor=valor,
+            idcontrato_id=id,
+            idnomina_id=idnomina,
+        )
+        
+        
+        conceptos = Nomina.objects.filter(
+                idnomina__idnomina=idnomina,
+                idcontrato__idcontrato=id
+            ).select_related('idcontrato').order_by('idconcepto__codigo')
+            
+        
+        for concepto in conceptos:
+            # Crear el diccionario con los datos del concepto
+            concepto_info = {
+                'idn': concepto.idregistronom,
+                "id": concepto.idconcepto.idconcepto,
+                "amount": concepto.cantidad,
+                "value": concepto.valor,
+            }
+            
+            # Agregar el concepto al arreglo
+            conceptos_data.append(concepto_info)
+        
+        data = {    
+            "conceptos": conceptos_data,
         }
-    }
 
-    return render(request, './payroll/partials/resultado.html', context)
+    return render(request, './payroll/partials/concepts_list.html', data)
 
 
 

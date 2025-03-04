@@ -47,7 +47,7 @@ urlpatterns = [
 
 
 urlhtmxpatterns =[
-    path('pruebas/<int:id>/<int:idnomina>/', pruebas.pruebas, name='pruebas'),
+    
     
     path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
     path('parameters/concepts/check/code', parameters.check_code, name='check_code'),
@@ -70,6 +70,13 @@ urlunpolypatterns =[
     path('payroll/form/modals/value', payroll.payroll_value, name='payroll_value'),
     path('payroll/form/modals/create', payroll.payroll_create, name='payroll_create'),
     path('calculate/', payroll.calculate_payroll, name='calculate_payroll'),
+    
+    # pruebas 
+    path('items/', pruebas.index_item, name='index_item'),
+    path('items/add/', pruebas.item_modal, name='item_modal'),
+    path('items/add/modal', pruebas.add_item, name='add_item'),
+    
+    
 ]
 
 urlpatterns += urlunpolypatterns  

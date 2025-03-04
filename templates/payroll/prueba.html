@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unpoly Modal Demo</title>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/unpoly@3.10.2/unpoly.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.10.2/unpoly.min.css">
+    
+
+
+</head>
+<body>
+    <a 
+    class='btn btn-icon btn-sm btn-light-info'
+    up-layer='new modal'
+    up-size="medium" 
+    up-target="#modal-content" 
+    href="{% url 'payroll:item_modal' %}">
+        Abrir Modal
+    </a>
+
+
+<script>
+    document.addEventListener('up:form:submit', function(event) {
+        // Bloquear el botón mientras se envía el formulario
+        const button = document.getElementById('add-item-button');
+        const input = document.querySelector('input[name="name"]');
+            if (input) {
+                input.value = '';  // Vaciar el campo
+            }
+    });
+    
+    document.addEventListener('up:request:loaded', function(event) {
+        // Verificar si la solicitud proviene del formulario
+        const form = event.request.form;
+        if (form && form.id === 'add-item-form') {
+            // Desbloquear el botón después de que el formulario se haya enviado
+            const button = document.getElementById('add-item-button');
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Agregar Ítem';  // Restaurar el texto del botón
+            }
+    
+            // Limpiar el campo de texto
+            const input = document.querySelector('input[name="name"]');
+            if (input) {
+                input.value = '';  // Vaciar el campo
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

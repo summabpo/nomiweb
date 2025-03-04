@@ -1,0 +1,16 @@
+<div id="modal-content">
+        <h2>Lista de Ítems</h2>
+        <form 
+        up-target="#item-list" 
+        up-submit="true" 
+        up-layer="current"  
+        method="post" 
+        action="{% url 'payroll:add_item' %}">
+            {% csrf_token %}
+            <input type="text" name="name" placeholder="Nombre del ítem" required>
+            <button type="submit" id="add-item-button" >Agregar Ítem</button>
+        </form>
+        <div >
+            {% include 'payroll/prueba_item_list.html' %}
+        </div>
+    </div>

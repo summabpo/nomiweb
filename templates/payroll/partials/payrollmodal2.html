@@ -73,10 +73,16 @@
 
 
 
-                                <form id="payroll-form" method="post" action="{% url 'payroll:payroll_create' %}" up-target="#item-table">
+                                <form 
+                                up-target="#item-table" 
+                                up-submit="true" 
+                                up-layer="current" 
+                                method="post" 
+                                action="{% url 'payroll:payroll_create' %}" >
                                 
                                     {% csrf_token %}
                                     <div class="form-group row align-items-center">
+
                                         <div class="col-md-4 input-group-sm">
                                             <select id="mi-select" name="mi-select"  class="form-select form-select-sm"  data-control="select2" data-placeholder="Seleccione un Concepto">
                                                 <option value=""></option>
@@ -97,11 +103,13 @@
                                         </div>
                                         <div class="col-md-3 input-group-sm" id="valor-wrapper">
                                             <input type="number" id="valor" name="valor" class="form-control mb-2 mb-md-0" placeholder="Valor" />
+                                            <input style="visibility: hidden;" type="number" id="idnomina" name="idnomina" class="form-control mb-2 mb-md-0" value = "{{data.idnomina}}"/>
+                                            <input style="visibility: hidden;" type="number" id="idempleado" name="idempleado" class="form-control mb-2 mb-md-0" value = "{{data.id}}" />
                                         </div>
                                 
                                         <div class="col-md-1">
                                             <!--begin::Form group-->
-                                            <button type="submit" class="btn btn-icon btn-light-twitter me-4"  up-submit >
+                                            <button type="submit" class="btn btn-icon btn-light-twitter me-4">
                                                 <i class="fa-solid fa-floppy-disk fs-4"></i>
                                             </button>
                                             <!--end::Form group-->
@@ -113,66 +121,14 @@
                                 
                                 </form>
 
-                                <h3>Item List</h3>
-                                <div id="item-table" up-target="#item-table">
-                                    
-                                </div>
-
                                 
                                 
 
 
                                 <div class="separator my-5"></div> 
-        
-                                {% for concepto in data.conceptos %}
-                                    {% csrf_token %}
-                                    <div class="form-group row align-items-center" id="concepto-{{ concepto.idn }}">
-                                        <div class="col-md-4 input-group-sm">
-                                            <select class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un Concepto" disabled id="select-{{ concepto.idn }}">
-                                                <option></option>
-                                                {% for id, nombre in data.conceptors %}
-                                                    <option value="{{ id }}" {% if concepto.id == id %}selected{% endif %}>{{ nombre }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-2 input-group-sm">
-                                            <input type="text" class="form-control mb-2 mb-md-0" placeholder="Cantidad" value="{{ concepto.amount }}" disabled id="amount-{{ concepto.idn }}" />
-                                        </div>
-                                        <div class="col-md-3 input-group-sm">
-                                            <input type="text" class="form-control mb-2 mb-md-0" placeholder="Valor" value="{{ concepto.value }}" disabled id="value-{{ concepto.idn }}" />
-                                        </div>
-
-                                        <div class="col-md-3 d-flex align-items-center">
-                                            
-
-                                            <a  class="btn btn-icon btn-light-facebook me-2" 
-                                                up-target="#concepto-{{ concepto.idn }}"
-                                                up-emit="edit-concepto" 
-                                                data-idn="{{ concepto.idn }}">
-                                                    <i class="fa-solid fa-pen-to-square fs-4"></i>
-                                            </a>
-
-                                            <a  class="btn btn-icon btn-light-success me-2" 
-                                                up-target="#concepto-{{ concepto.idn }}"
-                                                up-emit="save-concepto" 
-                                                data-idn="{{ concepto.idn }}" hidden>
-                                                    <i class="fa-solid fa-save fs-4"></i>
-                                            </a>
-
-                                            <a  class="btn btn-icon btn-light-youtube me-2" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Tooltip on top" >
-                                                    <i class="ki-duotone ki-trash  fs-4">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                        <span class="path3"></span>
-                                                        <span class="path4"></span>
-                                                        <span class="path5"></span>
-                                                    </i>
-                                            </a>
-
-                                        </div>
-                                    </div>
-                                {% endfor %}
+                                <div >
+                                    {% include 'payroll/partials/concepts_list.html' %}
+                                </div>
                                 
                                 
 
