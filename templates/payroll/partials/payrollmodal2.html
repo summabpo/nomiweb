@@ -95,11 +95,25 @@
                                         id="cantidad"
                                         name="cantidad"
                                         class="form-control mb-2 mb-md-0"
-                                        placeholder="Cantidad"/>
+                                        placeholder="Cantidad"
+                                        up-target="#dummy-target" 
+                                        onchange="this.form.action=&quot;{% url 'payroll:payroll_calculate' data.id %}&quot;; this.form.requestSubmit();"
+                                        
+                                        />
                     
                             </div>
+
+                            <div id="dummy-target" hidden></div>
+
+
                             <div class="col-md-3 input-group-sm" id="valor-wrapper">
-                                <input type="number" id="valor" name="valor" class="form-control mb-2 mb-md-0" placeholder="Valor" />
+                                <input 
+                                type="text" 
+                                id="valor" 
+                                name="valor" 
+                                class="form-control mb-2 mb-md-0" 
+                                x-mask:dynamic="$money($input, '.', ',', 4)"
+                                placeholder="Valor" />
                                 
                             </div>
                     

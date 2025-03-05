@@ -67,7 +67,7 @@ urlunpolypatterns =[
     path('payroll/form/modals/value', payroll.payroll_value, name='payroll_value'),
     path('payroll/form/modals/create', payroll.payroll_create, name='payroll_create'),
     path('payroll/form/modals/delete/<int:idn>', payroll.payroll_delete, name='payroll_delete'),
-    path('calculate/', payroll.calculate_payroll, name='calculate_payroll'),
+    path('payroll/form/calculate/<int:id>', payroll.payroll_calculate, name='payroll_calculate'),
     
     ## add employee
     path('payroll/<int:idnomina>/payroll_general', payroll.payroll_general, name='payroll_general'),

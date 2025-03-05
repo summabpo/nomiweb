@@ -213,7 +213,16 @@ up-modal[size=large] up-modal-box {
 {% endblock content %}
 
 {% block js %}
-
+<script>
+    document.getElementById('cantidad').addEventListener('input', function () {
+      document.getElementById('hidden-cantidad').value = this.value;
+    });
+  
+    document.addEventListener('up:fragment:receive', function(event) {
+      const resultado = event.detail.fragment;
+      document.getElementById('valor').value = resultado;
+    });
+</script>
 
 <script>
     function confirmDelete(itemId) {
