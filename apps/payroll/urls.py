@@ -52,12 +52,9 @@ urlhtmxpatterns =[
     path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
     path('parameters/concepts/check/code', parameters.check_code, name='check_code'),
     
-    #path('payroll/<int:id>/<int:idnomina>/modals', payroll.payroll_data, name='payroll_data'),
-    path('payroll/<int:idn>/<int:idc>/<int:amount>/<str:value>/form', payroll.payroll_form, name='payroll_form'),
-    path('delete_payroll_row/<int:concept_id>/', payroll.delete_payroll, name='delete_payroll'),
-    path('payroll/concept/<str:data>', payroll.payroll_concept, name='payroll_concept'),
-    path('payroll/update/post', payroll.post_payroll, name='post_payroll'),
-    path('delete-concept/<int:id>/', payroll.delete_payroll, name='delete_payroll'),
+    
+    
+
 ]
 
 urlpatterns += urlhtmxpatterns  
@@ -69,7 +66,12 @@ urlunpolypatterns =[
     path('payroll/modals/edit', payroll.payroll_edit, name='payroll_edit'),
     path('payroll/form/modals/value', payroll.payroll_value, name='payroll_value'),
     path('payroll/form/modals/create', payroll.payroll_create, name='payroll_create'),
+    path('payroll/form/modals/delete/<int:idn>', payroll.payroll_delete, name='payroll_delete'),
     path('calculate/', payroll.calculate_payroll, name='calculate_payroll'),
+    
+    ## add employee
+    path('payroll/<int:idnomina>/payroll_general', payroll.payroll_general, name='payroll_general'),
+    path('payroll/<int:idnomina>/payroll_general/data', payroll.payroll_general_data, name='payroll_general_data'),
     
     # pruebas 
     path('items/', pruebas.index_item, name='index_item'),

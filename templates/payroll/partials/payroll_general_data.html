@@ -1,0 +1,131 @@
+
+
+<div id="resultado" >
+    {% if data.true %}
+        <div class="row align-items-start">
+            <div class="col-md-4">
+                <div class="accordion" id="kt_accordion_1">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="kt_accordion_1_header_1">
+                            <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
+                                Datos de la Nómina 
+                            </button>
+                        </h2>
+                        <div id="kt_accordion_1_body_1" class="accordion-collapse collapse show" aria-labelledby="kt_accordion_1_header_1" data-bs-parent="#kt_accordion_1">
+                            <div class="accordion-body">
+                                <div class="text-center mb-4">
+                                    <p id="salary" class="d-flex justify-content-center">
+                                        <strong>Salario:</strong><span id="salary-value" class="ms-2">{{data.salario}}</span>
+                                    </p>
+                                </div>
+
+                                <div class="text-center mb-4">
+                                    <p id="income" class="flex-fill text-center">
+                                        <strong>Ingresos:</strong><span id="income-value" class="ms-2">{{data.ingresos}}</span>
+                                    </p>
+                                </div>
+
+                                <div class="text-center mb-4">
+                                    <p id="discounts" class="flex-fill text-center">
+                                        <strong>Descuentos:</strong><span id="discounts-value" class="ms-2">{{data.egresos}}</span>
+                                    </p>
+                                </div>
+
+                                <div class="text-center mb-4">
+                                    <p id="summation" class="flex-fill text-center">
+                                        <strong>Total:</strong><span id="summation-value" class="ms-2">{{data.total}}</span>
+                                    </p>
+                                </div>
+
+                                <div class="text-center mb-4">
+                                
+
+                                </div>
+
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+
+            <br>
+        
+                <!-- Columna de la tabla más grande -->
+                <div class="scroll h-400px px-5 col-md-8">
+
+
+
+                    <form 
+                    up-target="#item-list"
+                    up-submit="true" 
+                    up-layer="current" 
+                    method="post" 
+                    action="{% url 'payroll:payroll_create' %}" >
+                    
+                        {% csrf_token %}
+                        <div class="form-group row align-items-center">
+
+                            <div class="col-md-4 input-group-sm">
+                                <select id="concept" name="concept"  class="form-select form-select-sm"  data-control="select2" data-placeholder="Seleccione un Concepto">
+                                    <option value=""></option>
+                                    {% for id, nombre in data.conceptors %}
+                                        <option value="{{ id }}">{{ nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                            </div>
+                            
+                            <div class="col-md-2 input-group-sm">
+                                <input type="number"
+                                        id="cantidad"
+                                        name="cantidad"
+                                        class="form-control mb-2 mb-md-0"
+                                        placeholder="Cantidad"/>
+                    
+                            </div>
+                            <div class="col-md-3 input-group-sm" id="valor-wrapper">
+                                <input type="number" id="valor" name="valor" class="form-control mb-2 mb-md-0" placeholder="Valor" />
+                                
+                            </div>
+                    
+                            <div class="col-md-1">
+                                <!--begin::Form group-->
+                                <button type="submit" class="btn btn-icon btn-light-twitter me-4" id="add-item-button" >
+                                    <i class="fa-solid fa-floppy-disk fs-4"></i>
+                                </button>
+                                <!--end::Form group-->
+                                
+                            </div>
+                            <!--end::Form group-->
+                            <input type="hidden" id="idnomina" name="idnomina" value="{{data.idnomina}}"/>
+                            <input type="hidden" id="idempleado" name="idempleado" value="{{data.id}}"/>
+                        </div>
+                    
+                        
+                    
+                    </form>
+
+                    
+                    
+
+
+                    <div class="separator my-5"></div> 
+                    {% include 'payroll/partials/concepts_list.html' %}
+                    
+                    
+
+                        
+
+
+                </div>  
+
+        </div>
+    {% endif %}
+</div>
+
+
+
+
+

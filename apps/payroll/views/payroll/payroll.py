@@ -227,16 +227,18 @@ def payroll_modal(request,id,idnomina):
 @login_required
 @role_required('accountant')
 def payroll_create(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     conceptos_data = []
-    data = {    }
     if request.method == 'POST':
+        print('llegue')
         # Procesar los datos del formulario
-        mi_select = request.POST.get('mi-select')
+        mi_select = request.POST.get('concept')
         cantidad = request.POST.get('cantidad')
         valor = request.POST.get('valor')
         idnomina = request.POST.get('idnomina')
         id = request.POST.get('idempleado')
-        
+                
         Nomina.objects.create(
             idconcepto_id=mi_select,
             cantidad=cantidad,
@@ -264,11 +266,12 @@ def payroll_create(request):
             # Agregar el concepto al arreglo
             conceptos_data.append(concepto_info)
         
-        data = {    
-            "conceptos": conceptos_data,
-        }
-
-    return render(request, './payroll/partials/concepts_list.html', data)
+    data = {    
+        "conceptos": conceptos_data,
+        "value": True,
+        "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
+    }
+    return render(request, './payroll/partials/concepts_list.html', {'data': data})
 
 
 
@@ -297,6 +300,15 @@ def payroll_edit(request):
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
+@login_required
+@role_required('accountant')
+def payroll_delete(request, idn):
+    concepto = get_object_or_404(Conceptosdenomina, idn=idn)
+    concepto.delete()
+    return HttpResponse(status=204)  # Respuesta sin contenido (eliminación exitosa)
+
+
+
 @require_GET
 def payroll_value(request):
     print('Solicitud recibida:', request.GET)
@@ -322,293 +334,89 @@ def calculate_payroll(request):
         return HttpResponse(f"¡Cálculo exitoso! Cantidad: {cantidad}, Valor: {valor}")
     return render(request, 'payroll/calculate_payroll.html')
 
-def payroll_form(idn = None ,idc = None,amount = None,value = None, idempresa = None):
-    if idc :
-        form = UpdateForm(id_empresa = idempresa , id_payroll = f'old-{idn}', initial={'payroll_concept': idc, 'concept_quantity': amount, 'concept_value': value })
-        #form = UpdateForm()
-    else :
-        form = UpdateForm(id_empresa = idempresa,id_payroll = f'new-{idn}' )
-    return form 
-
-
-
-
-
 
 
 @login_required
 @role_required('accountant')
-def post_payroll(request):
+def payroll_general(request,idnomina):
+    
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    contratos_empleados = Contratos.objects\
+        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
+        .filter(estadocontrato=1,id_empresa_id =  idempresa) \
+        .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
+                'idempleado__snombre', 'cargo__nombrecargo', 'idcontrato')
+    
+    dato = {
+        'contratos_empleados': contratos_empleados,
+        'idnomina': idnomina
+    }
+        
+    return render(request, './payroll/partials/payroll_general.html',{'dato': dato})
+
+
+@login_required
+@role_required('accountant')
+def payroll_general_data(request,idnomina):
+    ingreso = 0  # Inicializamos la variable ingreso
+    egreso = 0   # Inicializamos la variable egreso
+    conceptos_data = []
+    variable = False
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     if request.method == 'POST':
-        post_data = request.POST
-        idnomina = post_data.get('idnomina')  # Obtener el primer valor de idnomina
-        idempleado = post_data.get('idempleado')  # Obtener el primer valor de idempleado
-        # Número de filas (basado en la longitud de 'id')
-        num_rows = len(post_data.getlist('id'))
-    
-        rows = []
-        for i in range(num_rows):
-            row = {
-                'id': post_data.getlist('id')[i],
-                'payroll_concept': post_data.getlist('payroll_concept')[i],
-                'concept_quantity': post_data.getlist('concept_quantity')[i],
-                'concept_value': post_data.getlist('concept_value')[i],
+        idcontrato = request.POST.get('contrato_empleado')
+        variable = True
+        
+        conceptos = Nomina.objects.filter(
+            idnomina__idnomina=idnomina,
+            idcontrato__idcontrato=idcontrato
+        ).select_related('idcontrato').order_by('idconcepto__codigo')
+            
+        # Estructurar los datos para la respuesta
+        for concepto in conceptos:
+            # Crear el diccionario con los datos del concepto
+            concepto_info = {
+                'idn': concepto.idregistronom,
+                "id": concepto.idconcepto.idconcepto,
+                "amount": concepto.cantidad,
+                "value": concepto.valor,
             }
-            rows.append(row)
+            
+            # Agregar el concepto al arreglo
+            conceptos_data.append(concepto_info)
+            
+            # Revisar si el valor es mayor que 0 (ingreso) o negativo (egreso)
+            if concepto.valor > 0:
+                ingreso += concepto.valor  # Agregar a ingreso si es positivo
+            elif concepto.valor < 0:
+                egreso += concepto.valor 
         
-        # Procesar cada fila
-        for row in rows:
-            row_id = row['id']
-            payroll_concept = row['payroll_concept']
-            concept_quantity = row['concept_quantity']
-            concept_value = row['concept_value']
-
-            # Determinar si es una fila nueva o existente
-            if row_id.startswith('new-'):
-                # Es una fila nueva
-                registro = Nomina(
-                        idconcepto_id=payroll_concept,
-                        cantidad=concept_quantity,
-                        valor=concept_value,
-                        idcontrato_id=idempleado,
-                        idnomina_id=idnomina,
-                    )
-                
-                registro.save()
-                #Aquí puedes guardar la fila en la base de datos
-            elif row_id.startswith('old-'):
-                # Es una fila existente
-                try:
-                    # Obtener el concepto por ID
-                    concepto_obj = Nomina.objects.get(idregistronom=row_id.replace("old-", ""))
-                    concepto_obj.idconcepto_id = payroll_concept  # Asigna el ID del concepto (no el objeto completo)
-                    concepto_obj.cantidad = concept_quantity
-                    concepto_obj.valor = concept_value
-                                
-                    concepto_obj.save()
-                    
-                except Nomina.DoesNotExist:
-                    raise ValueError(f"No se encontró el concepto con ID {row_id}.")
-            else:
-                # ID no reconocido
-                print(f"Error: ID no reconocido ({row_id})")
-                
+        # Optimizar consulta del contrato
+        contrato = Contratos.objects.select_related('idempleado').get(idcontrato=idcontrato)
         
-        return JsonResponse({'success': True})
-    return JsonResponse({'error': 'Método no permitido'}, status=400)
+    
+    total = ingreso + egreso
     
     
-
-
-@login_required
-@role_required('accountant')
-def payroll_concept(request,data):
+    data = {
+        'true': variable,
+        "salario": f"${format_value(contrato.salario)}",
+        "ingresos": f"${format_value(ingreso)}",
+        "egresos": f"${format_value(egreso)}",
+        "total": f"${format_value(total)}",
+        "conceptos": conceptos_data,
+        "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
+    }
     
-    concepto = request.GET.get('concept_quantity')
-    concepto2 = request.GET.get('payroll_concept')
-    if concepto == 'salario':
-        respuesta = {
-            'cantidad_desactivada': False,
-            'valor_desactivado': True
-        }
-    elif concepto == 'bono':
-        respuesta = {
-            'cantidad_desactivada': True,
-            'valor_desactivado': False
-        }
-    else:
-        respuesta = {
-            'cantidad_desactivada': True,
-            'valor_desactivado': True
-        }
+    print(data)
     
-    return JsonResponse(respuesta)
-
-
-@login_required
-@role_required('accountant')
-def delete_payroll(request, id):
-    if request.method == 'DELETE':  # Asegura que solo acepte DELETE
-        # Obtener el concepto de nómina por su ID
-        concept = get_object_or_404(Nomina, idregistronom=id)
-        print(concept)
-        # Eliminar el objeto de la base de datos
-        #concept.delete()
-        return JsonResponse({'success': True})
-    else:
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-
-
-
-class PayrollAPI(View):
-    def get(self, request, *args, **kwargs):
-        # Obtener los parámetros de la URL
-        nomina_id = request.GET.get('nomina_id')
-        empleado_id = request.GET.get('empleado_id')
-
-        if not nomina_id or not empleado_id:
-            return JsonResponse({"error": "Faltan parámetros: nomina_id o empleado_id"}, status=400)
-
-        try:
-            # Optimizar consultas con select_related
-            conceptos = Nomina.objects.filter(
-                idnomina__idnomina=nomina_id,
-                idcontrato__idcontrato=empleado_id
-            ).select_related('idcontrato')
-
-            # Verificar si hay conceptos encontrados
-            if not conceptos.exists():
-                return JsonResponse({"error": "No se encontraron conceptos para este empleado y nómina"}, status=404)
-
-            # Optimizar consulta del contrato
-            contrato = Contratos.objects.select_related('idempleado').get(idcontrato=empleado_id)
-
-            # Estructurar los datos para la respuesta
-            conceptos_data = [
-                {   
-                    "codigo": concepto.idregistronom ,
-                    "id": concepto.idconcepto.idconcepto,
-                    "amount": concepto.cantidad,
-                    "value": concepto.valor ,
-                    "bloquearAmount": "true" if concepto.idconcepto.formula == '2' else "false" if not concepto.idconcepto.formula else "undefined",
-                    "bloquearValue": "true" if concepto.idconcepto.formula == '1' else "false" if not concepto.idconcepto.formula else "undefined",
-                }
-                for concepto in conceptos
-            ]
-
-            # Construir el nombre completo
-            empleado = contrato.idempleado
-            nombre_completo = " ".join(filter(None, [empleado.papellido, empleado.sapellido, empleado.pnombre, empleado.snombre]))
-
-            # Respuesta estructurada
-            data = {
-                
-                "nombre": nombre_completo,
-                "salario": f"{format_value(contrato.salario)} $",
-                "conceptos": conceptos_data,
-            }
-            return JsonResponse(data)
-
-        except Contratos.DoesNotExist:
-            return JsonResponse({"error": "El contrato no existe"}, status=404)
-        except Nomina.DoesNotExist:
-            return JsonResponse({"error": "No se encontraron datos de nómina"}, status=404)
-        except Exception as e:
-            return JsonResponse({"error": f"Error interno: {str(e)}"}, status=500)
+    return render(request, './payroll/partials/payroll_general_data.html',{'data': data})
     
-        
-    @method_decorator(csrf_exempt)
-    def post(self, request, *args, **kwargs):
-        try:
-            # Filtrar solo las claves que contienen 'new' y agruparlas por fila
-            registros_creados = []
-            rows_to_create = {}
-            cont = 0
-            data = json.loads(request.body.decode('utf-8'))  # Decodifica el JSON
-            submit_direct = data.get('submit_direct')
-            # Verificar si 'submit_direct' está presente
-            if not submit_direct:
-                raise ValueError("Falta el campo 'submit_direct'.")
-            
-            # Usamos el método split para dividir la cadena en dos partes
-            partes = submit_direct.split('-')
 
-            # Verificar si 'submit_direct' tiene el formato esperado
-            if len(partes) != 2:
-                raise ValueError("El formato de 'submit_direct' no es válido. Se espera 'nomina-idcontrato'.")
 
-            nomina = partes[0]  # "900"
-            idcontrato = partes[1]  # "16"
-
-            ## Actualizar
-            for key, value in data.items():
-                if 'old' in key:
-                    # Obtener el row_id de la clave
-                    parts = key.split('-')
-                    
-                    # Verificar si la clave tiene el formato esperado
-                    if len(parts) < 3:
-                        raise ValueError(f"Clave con formato inesperado: {key}. No tiene suficientes partes.")
-                    
-                    row_id = parts[1]  # '148574' -> '148574'
-
-                    # Agrupar datos por fila
-                    if row_id not in rows_to_create:
-                        rows_to_create[row_id] = {}
-
-                    field_name = '-'.join(parts[2:])  # 'concept-old', 'amount-old', etc.
-                    rows_to_create[row_id][field_name] = value
-                    
-            # Actualizar los registros
-            for row_id, fields in rows_to_create.items():
-                # Asegurarse de que tengamos todos los datos necesarios para esa fila
-                concepto = fields.get('concept-old')
-                amount = fields.get('amount-old')
-                value = fields.get('value-old')
-                
-                if not concepto or not amount or not value:
-                    raise ValueError(f"Faltan datos requeridos en la fila {row_id}: concepto, cantidad o valor.")
-                
-                try:
-                    # Obtener el concepto por ID
-                    concepto_obj = Nomina.objects.get(idregistronom=row_id)
-                    concepto_obj.idconcepto_id = concepto  # Asigna el ID del concepto (no el objeto completo)
-                    concepto_obj.cantidad = amount
-                    concepto_obj.valor = value
-                    
-                    concepto_obj.save()
-                except Nomina.DoesNotExist:
-                    raise ValueError(f"No se encontró el concepto con ID {row_id}.")
-            
-            rows_to_create = {}
-
-            ## Crear Nuevos Registros
-            for key, value in data.items():
-                if 'new' in key:
-                    # Obtener el row_id de la clave
-                    parts = key.split('-')
-                    
-                    # Verificar si la clave tiene el formato esperado
-                    if len(parts) < 3:
-                        raise ValueError(f"Clave con formato inesperado: {key}. No tiene suficientes partes.")
-                    
-                    row_id = parts[1]  # 'row-2-concept-new' -> '2'
-
-                    # Agrupar datos por fila
-                    if row_id not in rows_to_create:
-                        rows_to_create[row_id] = {}
-
-                    field_name = '-'.join(parts[2:])  # 'concept-new', 'amount-new', etc.
-                    rows_to_create[row_id][field_name] = value
-            
-            # Crear los registros
-            for row_id, fields in rows_to_create.items():
-                # Asegurarse de que tengamos todos los datos necesarios para esa fila
-                concepto = fields.get('concept-new')
-                amount = fields.get('amount-new')
-                value = fields.get('value-new')
-
-                if not concepto or not amount or not value:
-                    raise ValueError(f"Faltan datos requeridos en la fila {row_id}: concepto, cantidad o valor.")
-
-                # Crear el nuevo registro solo una vez por fila
-                registro = Nomina(
-                    idconcepto_id=concepto,
-                    cantidad=amount,
-                    valor=value,
-                    idcontrato_id=idcontrato,
-                    idnomina_id=nomina,
-                )
-                registro.save()
-            
-            return JsonResponse({'success': True, 'message': 'Los conceptos fueron agregados o actualizados exitosamente.'})
-
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Error al decodificar el JSON. Verifique el formato."}, status=400)
-        except Exception as e:
-            print(f"Error inesperado: {str(e)}")
-            return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=500)
 
 
 
