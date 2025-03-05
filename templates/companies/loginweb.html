@@ -26,6 +26,13 @@
 {% endblock %}
 
 
+{% block actions %}
+<button type="submit" class="btn btn-light-info">
+    <i class="fa-solid fa-user-plus"></i>
+    Enviar
+</button>
+{% endblock %}
+
 {% block content %}
     
 
@@ -66,7 +73,7 @@
                 </tr>
                 {% endfor %}
             </tbody>
-            <button type="submit" class="btn btn-light-info">Enviar</button>
+            
         </table>
         
     </form>

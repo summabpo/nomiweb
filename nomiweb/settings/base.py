@@ -144,6 +144,7 @@ BASE_MIDDLEWARE = [
         # Add the account middleware:
     "allauth.account.middleware.AccountMiddleware",
     
+    
 ]
 
 LOCAL_MIDDLEWARE = [

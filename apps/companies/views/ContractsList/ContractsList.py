@@ -89,10 +89,13 @@ def exportar_excel1(request):
 @login_required
 @role_required('company','accountant')
 def exportar_excel2(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
     
     citys = Ciudades.objects.all()
-    contratosemp_empleados = Contratosemp.objects.filter(estadocontrato=1).values_list(
-        'docidentidad', 'tipodocident', 'pnombre', 'snombre', 'papellido', 'sapellido', 'fechanac',
+    contratosemp_empleados = Contratosemp.objects.filter(estadocontrato=1 , id_empresa_id = idempresa).values_list(
+        'docidentidad', 'tipodocident__codigo', 'pnombre', 'snombre', 'papellido', 'sapellido', 'fechanac',
         'ciudadnacimiento', 'telefonoempleado', 'direccionempleado', 'sexo', 'email', 
         'ciudadresidencia', 'estadocivil', 'idempleado', 'paisnacimiento', 'paisresidencia', 
         'celular', 'profesion', 'niveleducativo', 'gruposanguineo', 'estatura', 'peso', 

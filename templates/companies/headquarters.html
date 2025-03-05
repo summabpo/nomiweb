@@ -19,7 +19,18 @@
     Sedes
 {% endblock %}
 
-
+{% block actions %}
+    <!-- Button trigger modal -->
+<button type="button" class="btn btn-light-info me-10" id="kt_button_1" hx-get="{% url 'companies:headquarters_modal' %}" hx-target="#modal-container" hx-swap="innerHTML">
+    <span class="indicator-label">
+        <i class="fa-solid fa-plus"></i> Nueva sede 
+        
+    </span>
+    <span class="indicator-progress">
+        Por favor espera... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+    </span>
+</button>
+{% endblock %}
 
 {% block titulo2 %} 
     Sedes
@@ -28,49 +39,64 @@
 
 {% block content %}
     
+    <!-- Contenedor donde se cargará el modal -->
+    <div id="modal-container" ></div>
 
     
-
-    <main  class="flex-grow-1">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h3 class="card-title">Nueva Sede </h3>
-            </div>
-            <div class="card-body">
-                {% crispy form %}
-            </div>
-        </div>
-
-        <div class="separator my-10">
-            <h3> Sedes Activas </h3>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered" id="tablacargos" >
-                <thead>
-                    <tr class="fw-bold fs-6 text-gray-800">
-                        <th>Código Sede</th>
-                        <th>Nombre de la Sede </th>
-                        <th>Caja de Compensación Familiar</th>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered" id="tablacargos" >
+            <thead class="fw-bold fs-6 text-gray-800">
+                <tr>
+                    <th>Código Sede</th>
+                    <th>Nombre de la Sede </th>
+                    <th>Caja de Compensación Familiar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sede in sedes %}
+                    <tr>
+                        <td>{{ sede.idsede }}</td>
+                        <td>{{ sede.nombresede }}</td>
+                        <td>{{ sede.cajacompensacion }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for sede in sedes %}
-                        <tr>
-                            <td>{{ sede.idsede }}</td>
-                            <td>{{ sede.nombresede }}</td>
-                            <td>{{ sede.cajacompensacion }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </main>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     
 
 {% endblock %}
 {% block js %}
 
+<script>
+    // Escucha el evento 'htmx:beforeRequest' para activar el indicador cuando el botón es presionado
+    document.getElementById('kt_button_1').addEventListener('click', function() {
+        // Activa el indicador de carga
+        this.setAttribute('data-kt-indicator', 'on');
+    });
+
+    // Escucha el evento 'htmx:afterSwap' para desactivar el indicador después de que se haya cargado el contenido del modal
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        if (evt.detail.target.id === 'modal-container') {
+            // Encuentra el botón y quita el indicador de carga
+            const button = document.getElementById('kt_button_1');
+            if (button) {
+                button.removeAttribute('data-kt-indicator');
+            }
+        }
+    });
+</script>
+
+<script>
+    // Escucha el evento 'htmx:afterSwap' para abrir el modal después de cargar el contenido
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        const modalContainer = document.getElementById('conceptsModal');
+        if (evt.detail.target.id === 'modal-container' && modalContainer) {
+            new bootstrap.Modal(modalContainer).show();
+        }
+    });
+    
+</script>
 
     <script>
         $(document).ready(function() {

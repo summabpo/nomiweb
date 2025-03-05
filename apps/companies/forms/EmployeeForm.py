@@ -1,7 +1,7 @@
 import re
 # Django
 from django import forms
-from apps.common.models import Tipodocumento ,Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Profesiones,Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
+from apps.common.models import Tipodocumento , Contratosemp , Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Profesiones,Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit,HTML,Row,Column
 from django.urls import reverse
@@ -33,6 +33,21 @@ class EmployeeForm(forms.Form):
         cell_phone = cleaned_data.get('cell_phone')
         employee_phone = cleaned_data.get('employee_phone')
 
+        mail = cleaned_data.get('email')
+        
+        if mail:
+            
+            valid = Contratosemp.objects.filter(email=mail).exists()
+            if valid:
+                self.add_error('email', "Este correo electrónico ya está en uso.")
+            
+            if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', mail):
+                self.add_error('email', "Por favor, introduzca un correo electrónico válido.")
+            elif len(mail) > 100:
+                self.add_error('email', "El correo electrónico no puede tener más de 100 caracteres.")
+            elif len(mail) < 5:
+                self.add_error('email', "El correo electrónico no puede tener menos de 5 caracteres.")
+        
         if first_name:
             if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_name):
                 self.add_error('first_name', "El nombre solo puede contener letras.")
@@ -63,8 +78,16 @@ class EmployeeForm(forms.Form):
         if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
             self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
 
-        if identification_number and not re.match(r'^\d+$', str(identification_number)):
-            self.add_error('identification_number', "Este campo debe contener solo números.")
+        if identification_number :
+            valid = Contratosemp.objects.filter(docidentidad=identification_number).exists()
+            
+            if valid:
+                self.add_error('identification_number', "Este documento de identidad ya está en uso.")
+                
+            if identification_number and not re.match(r'^\d+$', str(identification_number)):
+                self.add_error('identification_number', "Este campo debe contener solo números.")
+            
+            
         if military_id and not re.match(r'^\d+$', military_id):
             self.add_error('military_id', "Este campo debe contener solo números.")
         if cell_phone and not re.match(r'^\d+$', cell_phone):

@@ -11,6 +11,8 @@ from .diangenerate import last_business_day_of_march
 
 
 def viewdian(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     selected_empleado = request.GET.get('empleado')
     selected_contra = request.GET.get('data')
 
@@ -18,11 +20,11 @@ def viewdian(request):
     empleados_select = []
 
     if selected_contra == "activo":
-        empleados_select = Contratosemp.objects.filter(estadocontrato=1).order_by('papellido').values(
+        empleados_select = Contratosemp.objects.filter(estadocontrato=1 , id_empresa_id = idempresa ).order_by('papellido').values(
             'pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado'
         )
     elif selected_contra == "inactivo":
-        empleados_select = Contratosemp.objects.filter(estadocontrato=2).order_by('papellido').values(
+        empleados_select = Contratosemp.objects.filter(estadocontrato=2, id_empresa_id = idempresa  ).order_by('papellido').values(
             'pnombre', 'snombre', 'papellido', 'sapellido', 'idempleado'
         )
 

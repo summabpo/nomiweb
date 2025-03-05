@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from apps.common.models   import Contabgrupos
-
+from django.urls import reverse
 
 # class Centrotrabajo(models.Model):
 #     nombrecentrotrabajo = models.CharField(max_length=30, blank=True, null=True)
@@ -26,11 +26,22 @@ class workplaceForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'form_charge'
+        self.helper.enctype = 'multipart/form-data'
+        
+        
+        self.helper.attrs.update({
+            'hx-post': reverse('companies:workplace_modal'),  # Usa el nombre de la vista en urls.py
+            'hx-target': '#modal-container',  # El elemento donde se actualizará el contenido
+            'hx-swap': 'innerHTML',  # Cómo se actualizará el contenido del objetivo
+        })
         
         self.fields['tarifaarl'].widget.attrs.update({
             'data-control': 'select2',
             'data-tags': 'true',
             'class': 'form-select',
+            'data-dropdown-parent': '#conceptsModal',
             'data-hide-search': "true",
         })
         
@@ -41,6 +52,5 @@ class workplaceForm(forms.Form):
                 Column('tarifaarl', css_class='form-group mb-0'),
                 css_class='row'
             ),
-            Submit('submit', 'Guardar')
         )
     

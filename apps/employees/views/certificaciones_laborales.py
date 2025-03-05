@@ -85,10 +85,11 @@ def vista_certificaciones(request):
                 'idcontrato__idempleado__sapellido',
                 'destino',
                 'fecha',
-                'cargo',
+                'cargo__nombrecargo',
                 'salario',
                 'tipocontrato',
-                'promediovariable'
+                'promediovariable',
+                'tipocertificacion'
             )
             
             for certi in certi_all:
@@ -101,9 +102,10 @@ def vista_certificaciones(request):
                     'destino': certi['destino'],
                     'Salario': salario,
                     'fecha': certi['fecha'],
-                    'cargo': certi['cargo'],
+                    'cargo': certi['cargo__nombrecargo'],
                     'tipo': certi['tipocontrato'],
                     'promedio': certi['promediovariable'],
+                    'tipocerti': certi['tipocertificacion'],
                 }
 
                 lista_certificaciones.append(certi_data)

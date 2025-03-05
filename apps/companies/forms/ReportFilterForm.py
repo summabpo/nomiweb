@@ -101,11 +101,11 @@ class ReportFilterForm(forms.Form):
         super().__init__(*args, **kwargs)        
         # Actualizar choices dinámicamente
         self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.filter(id_empresa__idempresa = idempresa ).values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').order_by('papellido')]
-        self.fields['cost_center'].choices = [('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.all()]
-        self.fields['city'].choices = [('', '----------')] + [(ciudad.idsede, f"{ciudad.nombresede}") for ciudad in Sedes.objects.all().order_by('nombresede')]
+        self.fields['cost_center'].choices = [('', '----------')] + [(costo.idcosto, costo.nomcosto) for costo in Costos.objects.filter(id_empresa__idempresa = idempresa )]
+        self.fields['city'].choices = [('', '----------')] + [(ciudad.idsede, f"{ciudad.nombresede}") for ciudad in Sedes.objects.filter(id_empresa__idempresa = idempresa ).order_by('nombresede')]
 
         self.fields['year_init'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(anos.idano,anos.ano   ) for anos in Anos.objects.all().order_by('ano')], 
+            choices=[('', '----------')] + [(n.ano, n.ano) for n in Anos.objects.all().order_by('-ano')], 
             label='Año Inicial' , 
             required=True ,
             widget=forms.Select(attrs={
@@ -117,7 +117,7 @@ class ReportFilterForm(forms.Form):
             )
         
         self.fields['year_end'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(anos.idano,anos.ano   ) for anos in Anos.objects.all().order_by('ano')], 
+            choices=[('', '----------')] + [(n.ano, n.ano) for n in Anos.objects.all().order_by('-ano')], 
             label='Año Final' , 
             required=True ,
             widget=forms.Select(attrs={

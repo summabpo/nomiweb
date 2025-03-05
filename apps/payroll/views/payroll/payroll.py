@@ -17,8 +17,10 @@ import json
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
-
-
+import random
+from django.http import HttpResponse
+from decimal import Decimal
+from django.views.decorators.http import require_GET
 
 @login_required
 @role_required('accountant')
@@ -121,11 +123,37 @@ def payrollview(request, id):
         'id': id
     })
 
+# @login_required
+# @role_required('accountant')
+# def payroll_modal(request,id,idnomina):
+#     usuario = request.session.get('usuario', {})
+#     idempresa = usuario['idempresa']
+#     ingreso = 0  # Inicializamos la variable ingreso
+#     egreso = 0   # Inicializamos la variable egreso
+#     conceptos_data = []
+    
+    
+#     contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
+
+
+#     conceptos = Nomina.objects.filter(
+#         idnomina__idnomina=idnomina,
+#         idcontrato__idcontrato=id
+#     ).select_related('idcontrato').order_by('idconcepto__codigo')
+    
+    
+    
+    
+    
+#     data = {}
+#     data['valor'] = random.randint(1, 100)
+#     return render(request, './payroll/partials/payrollmodal2.html',data)
+
 
 
 @login_required
 @role_required('accountant')
-def payroll_data(request,id,idnomina):
+def payroll_modal(request,id,idnomina):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     ingreso = 0  # Inicializamos la variable ingreso
@@ -174,7 +202,7 @@ def payroll_data(request,id,idnomina):
     nombre_completo = " ".join(filter(None, [empleado.papellido, empleado.sapellido, empleado.pnombre, empleado.snombre]))
 
     total = ingreso + egreso
-    
+        
     data = {
         "idnomina":idnomina,
         "idempleado" :id,
@@ -184,23 +212,127 @@ def payroll_data(request,id,idnomina):
         "ingresos": f"${format_value(ingreso)}",
         "egresos": f"${format_value(egreso)}",
         "total": f"${format_value(total)}",
+        "idnomina": idnomina,
+        "id":id , 
         "conceptos": conceptos_data,
+        "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
+        
     }
     
-    return render(request, './payroll/partials/payrollmodal.html',{'data': data})
+    return render(request, './payroll/partials/payrollmodal2.html',{'data': data})
+
+
 
 
 @login_required
 @role_required('accountant')
-def payroll_form(request,idn = None ,idc = None,amount = None,value = None):
-    usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
+def payroll_create(request):
+    conceptos_data = []
+    data = {    }
+    if request.method == 'POST':
+        # Procesar los datos del formulario
+        mi_select = request.POST.get('mi-select')
+        cantidad = request.POST.get('cantidad')
+        valor = request.POST.get('valor')
+        idnomina = request.POST.get('idnomina')
+        id = request.POST.get('idempleado')
+        
+        Nomina.objects.create(
+            idconcepto_id=mi_select,
+            cantidad=cantidad,
+            valor=valor,
+            idcontrato_id=id,
+            idnomina_id=idnomina,
+        )
+        
+        
+        conceptos = Nomina.objects.filter(
+                idnomina__idnomina=idnomina,
+                idcontrato__idcontrato=id
+            ).select_related('idcontrato').order_by('idconcepto__codigo')
+            
+        
+        for concepto in conceptos:
+            # Crear el diccionario con los datos del concepto
+            concepto_info = {
+                'idn': concepto.idregistronom,
+                "id": concepto.idconcepto.idconcepto,
+                "amount": concepto.cantidad,
+                "value": concepto.valor,
+            }
+            
+            # Agregar el concepto al arreglo
+            conceptos_data.append(concepto_info)
+        
+        data = {    
+            "conceptos": conceptos_data,
+        }
+
+    return render(request, './payroll/partials/concepts_list.html', data)
+
+
+
+
+def payroll_edit(request):
+    if request.method == 'POST':
+        data = request.POST
+        idn = data.get('idn')
+        amount = data.get('amount').replace(',', '.')  # Reemplazamos la coma por un punto
+        value = data.get('value')
+        concept = data.get('concept')
+        try:
+            value_decimal = Decimal(value)
+            # Obtener el concepto por ID
+            concepto_obj = Nomina.objects.get(idregistronom=idn)
+            
+            concepto_obj.idconcepto_id = concept  # Asigna el ID del concepto (no el objeto completo)
+            concepto_obj.cantidad = amount
+            concepto_obj.valor = value_decimal
+            concepto_obj.save()
+        except Nomina.DoesNotExist: 
+            return JsonResponse(f"No se encontró el concepto con ID {idn}.")
+            
+        return JsonResponse({'mensaje': 'Concepto actualizado correctamente'})
+    print(request.method)
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@require_GET
+def payroll_value(request):
+    print('Solicitud recibida:', request.GET)
+    print('llege')
+    cantidad = int(request.GET.get('cantidad', 0))
+    sueldo = 1400000  # Sueldo base
+    valor = cantidad * sueldo
+    # Devuelve un fragmento de HTML con el valor calculado
+    return HttpResponse(f"<input type='number' id='valor' name='valor' class='form-control mb-2 mb-md-0' value='{valor}' readonly />")
+
+
+
+
+
+def calculate_payroll(request):
+    """
+    Vista para manejar el envío del formulario.
+    """
+    if request.method == 'POST':
+        cantidad = int(request.POST.get('cantidad', 0))
+        valor = int(request.POST.get('valor', 0))
+        # Aquí puedes procesar los datos, por ejemplo, guardarlos en la base de datos
+        return HttpResponse(f"¡Cálculo exitoso! Cantidad: {cantidad}, Valor: {valor}")
+    return render(request, 'payroll/calculate_payroll.html')
+
+def payroll_form(idn = None ,idc = None,amount = None,value = None, idempresa = None):
     if idc :
         form = UpdateForm(id_empresa = idempresa , id_payroll = f'old-{idn}', initial={'payroll_concept': idc, 'concept_quantity': amount, 'concept_value': value })
         #form = UpdateForm()
     else :
         form = UpdateForm(id_empresa = idempresa,id_payroll = f'new-{idn}' )
-    return render(request, './payroll/partials/payrollform.html',{'form': form})
+    return form 
+
+
+
+
 
 
 
@@ -274,15 +406,6 @@ def payroll_concept(request,data):
     
     concepto = request.GET.get('concept_quantity')
     concepto2 = request.GET.get('payroll_concept')
-    print('-'*50)
-    print(concepto2)
-    print('-'*50)
-    print(concepto)
-    print('-'*50)
-    print(data)
-    print('-'*50)
-    
-    
     if concepto == 'salario':
         respuesta = {
             'cantidad_desactivada': False,
@@ -304,17 +427,16 @@ def payroll_concept(request,data):
 
 @login_required
 @role_required('accountant')
-def delete_payroll(request,id):
-    # Obtener el concepto de nómina por su ID
-    concept = get_object_or_404(Nomina, id=id)
-    
-    # Eliminar el objeto de la base de datos si es necesario
-    concept.delete()  # Solo si deseas eliminar el objeto de la base de datos
-
-    # Si solo deseas eliminar la fila en la vista (sin eliminar el objeto en la base de datos),
-    # simplemente devolveremos una respuesta vacía.
-    return JsonResponse({'success': True})
-
+def delete_payroll(request, id):
+    if request.method == 'DELETE':  # Asegura que solo acepte DELETE
+        # Obtener el concepto de nómina por su ID
+        concept = get_object_or_404(Nomina, idregistronom=id)
+        print(concept)
+        # Eliminar el objeto de la base de datos
+        #concept.delete()
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
 

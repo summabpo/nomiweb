@@ -34,6 +34,10 @@ from .views.vacation import vacation, vacation_general, vacation_balance, vacati
 
 from .views.index import index
 
+from .views.accountinggroup import accountinggroup
+
+
+
 urlpatterns = [
     # ## Employee Contract URLs
     path('employees/contract/', ContractsList.startCompanies, name='startcompanies'),
@@ -79,6 +83,7 @@ urlpatterns = [
     path('parameters/Cost/center', Costcenter.Costcenter, name='costcenter'),
     path('parameters/workplace', workplace.workplace, name='workplace'),
     path('parameters/headquarters', headquarters.headquarters, name='headquarters'),
+    path('parameters/accountin',accountinggroup.accountinggroup , name='accountinggroup'),
 
     # ## Accounting URLs
     path('accounting/payroll/provision/', payrollprovision.payrollprovision, name='payrollprovision'),
@@ -131,3 +136,16 @@ urlpatterns = [
     ## Index URL
     path('', index.index_companies, name='index_companies'),
 ]
+
+
+urlhtmxpatterns =[
+    path('parameters/cost/center/add', Costcenter.costcenter_modal, name='costcenter_modal'),
+    path('parameters/charges/add', charges.charges_modal, name='charges_modal'),
+    path('parameters/accountin/add',accountinggroup.accountinggroup_modal , name='accountinggroup_modal'),
+    path('parameters/workplace/add', workplace.workplace_modal, name='workplace_modal'),
+    path('parameters/headquarters/add', headquarters.headquarters_modal, name='headquarters_modal'),
+
+]
+
+urlpatterns += urlhtmxpatterns  
+

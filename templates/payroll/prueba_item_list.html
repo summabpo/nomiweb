@@ -1,0 +1,18 @@
+<table border="1" id="item-list" >
+    <thead>
+        <tr>
+            <th>Nombre</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.name }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td>No hay ítems disponibles.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

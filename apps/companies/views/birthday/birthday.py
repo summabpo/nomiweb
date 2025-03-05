@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 # Constante de meses
 MESES = {
+    13: "Todos",
     1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 
     5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto", 
     9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
@@ -19,14 +20,21 @@ MESES = {
 def birthday_view(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario.get('idempresa')
-    mes = int(request.GET.get('mes', datetime.now().month))
+    mes = int(request.GET.get('mes', 13))
 
-    # Filtrar empleados que cumplen años en el mes seleccionado
-    cumpleanieros = Contratosemp.objects.filter(
-        fechanac__month=mes,
-        estadocontrato=1,
-        id_empresa__idempresa=idempresa
-    ).values('papellido', 'pnombre', 'snombre', 'sapellido', 'fechanac')    
+    if mes == 13:
+        cumpleanieros = Contratosemp.objects.filter(
+            estadocontrato=1,
+            id_empresa__idempresa=idempresa
+        ).values('papellido', 'pnombre', 'snombre', 'sapellido', 'fechanac')
+    
+    else :
+        # Filtrar empleados que cumplen años en el mes seleccionado
+        cumpleanieros = Contratosemp.objects.filter(
+            fechanac__month=mes,
+            estadocontrato=1,
+            id_empresa__idempresa=idempresa
+        ).values('papellido', 'pnombre', 'snombre', 'sapellido', 'fechanac')    
 
     # Si se solicita descargar, generar el archivo Excel
     if 'descargar' in request.GET:

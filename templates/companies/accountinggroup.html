@@ -1,0 +1,160 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Cargos 
+{% endblock %}
+
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}    
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}
+               
+{% endblock %}
+
+{% block css %}
+    
+    .w-80 {
+        width: 75%;
+    }
+
+{% endblock %}
+
+{% block sub_titulo1 %} 
+    parametros
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+    Grupos Contables
+{% endblock %}
+
+
+
+{% block titulo2 %} 
+    Grupos Contables
+{% endblock %}
+
+
+{% block actions %}
+    <!-- Button trigger modal -->
+<button type="button" class="btn btn-light-info me-10" id="kt_button_1" hx-get="{% url 'companies:accountinggroup_modal' %}" hx-target="#modal-container" hx-swap="innerHTML">
+    <span class="indicator-label">
+        <i class="fa-solid fa-plus"></i> Nuevo Grupo
+        
+    </span>
+    <span class="indicator-progress">
+        Por favor espera... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+    </span>
+</button>
+{% endblock %}
+
+
+
+{% block content %}
+    
+<!-- Contenedor donde se cargará el modal -->
+<div id="modal-container" ></div>
+
+    
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered" id="table-charges" >
+        <thead class="fw-bold fs-6 text-gray-800">
+            <tr >
+                <th class="text-center" >Grupo</th>
+                <th class="text-center" >Nombre Grupo </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for groups in groups %}
+                <tr>
+                    <td class="text-center" >{{ groups.grupo }}</td>
+                    <td class="text-center" >{{ groups.grupocontable }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    
+
+
+
+
+{% endblock %}
+{% block js %}
+
+<script>
+    // Escucha el evento 'htmx:beforeRequest' para activar el indicador cuando el botón es presionado
+    document.getElementById('kt_button_1').addEventListener('click', function() {
+        // Activa el indicador de carga
+        this.setAttribute('data-kt-indicator', 'on');
+    });
+
+    // Escucha el evento 'htmx:afterSwap' para desactivar el indicador después de que se haya cargado el contenido del modal
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        if (evt.detail.target.id === 'modal-container') {
+            // Encuentra el botón y quita el indicador de carga
+            const button = document.getElementById('kt_button_1');
+            if (button) {
+                button.removeAttribute('data-kt-indicator');
+            }
+        }
+    });
+</script>
+
+<script>
+    // Escucha el evento 'htmx:afterSwap' para abrir el modal después de cargar el contenido
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        const modalContainer = document.getElementById('conceptsModal');
+        if (evt.detail.target.id === 'modal-container' && modalContainer) {
+            new bootstrap.Modal(modalContainer).show();
+        }
+    });
+    
+</script>
+
+<script>
+    $(document).ready(function() {
+
+        // Inicializar DataTable
+        var table = $('#table-charges').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 10
+        });
+    });
+</script>
+
+{% endblock %}
+

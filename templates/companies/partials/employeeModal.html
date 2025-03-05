@@ -18,7 +18,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal" onclick="closeModal()" >Cerrar</button>
-                <button type="submit" form="form_Employee" class="btn btn-primary">Crear</button>
+                <button type="submit" form="form_Employee" class="btn btn-light-info">Crear</button>
             </div>
         </div>
     </div>
@@ -27,21 +27,27 @@
 
 <script>
 
-function closeModal() {
-    var modal = bootstrap.Modal.getInstance(document.getElementById('conceptsModal'));
-    var modalBackdrop = document.querySelector('.modal-backdrop');
+    function closeModal(reload = false) {
+        var modals = document.querySelectorAll('.modal.show');
+        var backdrops = document.querySelectorAll('.modal-backdrop');
     
-    if (modal) {
-        modal.hide(); // Cierra el modal
+        modals.forEach(modalEl => {
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) {
+                modal.hide();
+            }
+        });
+    
+        backdrops.forEach(backdrop => backdrop.remove());
+    
+        // Limpiar el contenido del modal si aplica
+        document.getElementById('modal-container').innerHTML = '';
+    
+        // Recargar la página si se solicita
+        if (reload) {
+            window.location.reload();
+        }
     }
-    if (modalBackdrop) {
-        modalBackdrop.remove(); // Elimina el fondo modal residual
-    }
-
-
-    // Limpiar el contenido dentro del contenedor del modal
-    document.getElementById('modal-container').innerHTML = '';
-}
 
 $(document).ready(function () {
     // Inicializa Select2 para los campos

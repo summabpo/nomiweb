@@ -47,16 +47,36 @@ urlpatterns = [
 
 
 urlhtmxpatterns =[
-    path('pruebas/<int:id>/<int:idnomina>/', pruebas.pruebas, name='pruebas'),
+    
     
     path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
     path('parameters/concepts/check/code', parameters.check_code, name='check_code'),
     
-    path('payroll/<int:id>/<int:idnomina>/modals', payroll.payroll_data, name='payroll_data'),
+    #path('payroll/<int:id>/<int:idnomina>/modals', payroll.payroll_data, name='payroll_data'),
     path('payroll/<int:idn>/<int:idc>/<int:amount>/<str:value>/form', payroll.payroll_form, name='payroll_form'),
     path('delete_payroll_row/<int:concept_id>/', payroll.delete_payroll, name='delete_payroll'),
     path('payroll/concept/<str:data>', payroll.payroll_concept, name='payroll_concept'),
     path('payroll/update/post', payroll.post_payroll, name='post_payroll'),
+    path('delete-concept/<int:id>/', payroll.delete_payroll, name='delete_payroll'),
 ]
 
 urlpatterns += urlhtmxpatterns  
+
+
+
+urlunpolypatterns =[
+    path('payroll/<int:id>/<int:idnomina>/modals/add', payroll.payroll_modal, name='payroll_modal'),
+    path('payroll/modals/edit', payroll.payroll_edit, name='payroll_edit'),
+    path('payroll/form/modals/value', payroll.payroll_value, name='payroll_value'),
+    path('payroll/form/modals/create', payroll.payroll_create, name='payroll_create'),
+    path('calculate/', payroll.calculate_payroll, name='calculate_payroll'),
+    
+    # pruebas 
+    path('items/', pruebas.index_item, name='index_item'),
+    path('items/add/', pruebas.item_modal, name='item_modal'),
+    path('items/add/modal', pruebas.add_item, name='add_item'),
+    
+    
+]
+
+urlpatterns += urlunpolypatterns  

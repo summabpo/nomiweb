@@ -66,14 +66,36 @@ def workcertificategenerator(idc,destino ,modelo):
     salario = int(contrato.salario) 
     
     cargo = Cargos.objects.get(idcargo = contrato.cargo.idcargo)
-    queryset = Nomina.objects.filter(
-                (Q(idconcepto__baseprestacionsocial = 1)),
-                (Q(idnomina__mesacumular=nombre_mes_1) & Q(idnomina__anoacumular=ano_1) |
-                Q(idnomina__mesacumular=nombre_mes_2) & Q(idnomina__anoacumular=ano_2) |
-                Q(idnomina__mesacumular=nombre_mes_3) & Q(idnomina__anoacumular=ano_3)),
-                idcontrato = idc,
-                valor__gt=0
-                )
+
+    
+    queryset_1 = Nomina.objects.filter(
+        idconcepto__indicador__nombre="baseprestacionsocial",
+        idnomina__mesacumular=nombre_mes_1,
+        idnomina__anoacumular=ano_1,
+        idcontrato=idc,
+        valor__gt=0
+    )
+
+    queryset_2 = Nomina.objects.filter(
+        idconcepto__indicador__nombre="baseprestacionsocial",
+        idnomina__mesacumular=nombre_mes_2,
+        idnomina__anoacumular=ano_2,
+        idcontrato=idc,
+        valor__gt=0
+    )
+
+    queryset_3 = Nomina.objects.filter(
+        idconcepto__indicador__nombre="baseprestacionsocial",
+        idnomina__mesacumular=nombre_mes_3,
+        idnomina__anoacumular=ano_3,
+        idcontrato=idc,
+        valor__gt=0
+    )
+
+    queryset = queryset_1.union(queryset_2, queryset_3)
+
+
+            
     
     if queryset.exists():
         salario_promedio = (queryset.aggregate(salario_promedio=Sum('valor'))['salario_promedio'])/3

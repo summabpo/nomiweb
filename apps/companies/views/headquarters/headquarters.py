@@ -8,6 +8,7 @@ from django.db import transaction
 
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 @login_required
 @role_required('company')
@@ -16,38 +17,45 @@ def headquarters(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     sedes = Sedes.objects.filter(id_empresa_id = idempresa).exclude(idsede=16).order_by('idsede')
-    if request.method == 'POST':
-        form = headquartersForm(request.POST)
-        if form.is_valid():
-            try:
-                nombresede = form.cleaned_data['nombresede']
-                cajacompensacion = form.cleaned_data['cajacompensacion']
-                aux = Entidadessegsocial.objects.get(codigo=cajacompensacion)
-                
-                with transaction.atomic():
-                    sede = Sedes.objects.create(
-                        nombresede=nombresede,
-                        cajacompensacion=aux.entidad,
-                        codccf=aux.codigo,
-                        id_empresa_id = idempresa
-                    )
-                    sede.save()
-                
-                messages.success(request, 'La sede ha sido añadida con éxito.')
-                return redirect('companies:headquarters')
-            except Exception as e:
-                print(e)
-                messages.error(request, 'Todo lo que podria salir mal , salio mal ')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"Error en el campo '{field}': {error}")
-    else:
-        
-        form = headquartersForm()
-    
+    form = headquartersForm()
     return render(request, './companies/headquarters.html',
                     {
                         'sedes':sedes,
+                        'form':form,
+                    })
+    
+    
+    
+    
+
+@login_required
+@role_required('company')
+def headquarters_modal(request): 
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    if request.method == 'POST':
+        form = headquartersForm(request.POST)
+        if form.is_valid():
+            nombresede = form.cleaned_data['nombresede']
+            cajacompensacion = form.cleaned_data['cajacompensacion']
+            aux = Entidadessegsocial.objects.get(codigo=cajacompensacion)
+            sede = Sedes(
+                nombresede=nombresede,
+                cajacompensacion=aux.entidad,
+                codccf=aux.codigo,
+                id_empresa_id = idempresa
+            )
+            sede.save()
+            return JsonResponse({'status': 'success', 'message': 'Sede creada exitosamente'})
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")
+    else:
+        form = headquartersForm()    
+    return render(request, './companies/partials/headquartersModal.html',
+                    {
                         'form':form,
                     })

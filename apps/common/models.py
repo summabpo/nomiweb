@@ -754,6 +754,7 @@ class Conceptosdenomina(models.Model):
     multiplicadorconcepto = models.DecimalField(max_digits=4, decimal_places=2)
     tipoconcepto = models.IntegerField(choices=TiposConcepto.choices)
     formula = models.CharField(max_length=1, blank=True, null=True)
+    cuentacontable = models.CharField(max_length=25, blank=True, null=True)
     #familia = models.ForeignKey(Familia, on_delete=models.PROTECT, related_name="conceptos", blank=True,null=True)
     grupo_dian = models.ForeignKey('NeSumatorias', on_delete=models.DO_NOTHING , blank=True, null=True , related_name="conceptos_NeSumatorias",)
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING , blank=True, null=True , related_name="conceptos_Empresa",)
@@ -1183,7 +1184,9 @@ class Nomina(models.Model):
     idcosto = models.ForeignKey(Costos, models.DO_NOTHING , blank=True, null=True)
     idsubcosto = models.ForeignKey('Subcostos', models.DO_NOTHING  ,blank=True, null=True)
     control = models.IntegerField(blank=True, null=True) # vacaciones o incapacidades o prestamos automatico  
-
+    
+    
+    
     class Meta:
         db_table = 'nomina'
 

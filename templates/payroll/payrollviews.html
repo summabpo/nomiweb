@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block cssarch %}
-<script src="https://unpkg.com/htmx.org"></script>
+
 {% endblock %}
 
 {% load static %}
@@ -27,12 +27,44 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock %}
 
 {% block titulo2 %} 
-  {{ nombre.nombrenomina }}
+    {{ nombre.nombrenomina }}
 {% endblock %}
+
+
+{% block css %}
+
+
+up-modal[size=large] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    text-align: left;
+}
+
+.select2-container .select2-search--dropdown .select2-search__field {
+    height: 28px; /* Ajusta la altura según prefieras */
+    padding: 4px 8px; /* Ajusta el padding para hacerlo más delgado */
+    font-size: 14px; /* Si quieres un texto más pequeño */
+    border-radius: 8px; /* Bordes más suaves si te gusta */
+}
+
+
+.select2-container .select2-results__option {
+    text-align: left;
+}
+
+
+
+{% endblock %}
+
+
 
 {% block actions %}
     
-    <!-- Separación entre grupos -->
+    {% comment %} <!-- Separación entre grupos -->
     <!-- Botón para activar modal -->
     <a href="{% url 'payroll:payroll' %}"  class="btn btn-light-primary"   >
         <i class="ki-duotone ki-exit-left fs-2 ">             
@@ -59,11 +91,28 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
         data-bs-placement="bottom" 
         title="Descargar plantilla de Documento Plano" >
             <i class="fa-solid fa-download fs-2"></i>
-    </a> 
+    </a>  {% endcomment %}
+
+    <a
+        class='btn btn-icon btn-sm btn-light-info'
+        up-layer='new modal'
+        up-target="#kt_modal_1 .modal-content"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+        
+        <i class="fa-solid fa-file-circle-plus fs-3"></i>
+    </a>
 
 {% endblock %}
 
 {% block content %}
+
+
+
 
 
 
@@ -124,14 +173,20 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                     <td>{{ empleado.idcontrato__idempleado__papellido }} {{ empleado.idcontrato__idempleado__sapellido }} {{ empleado.idcontrato__idempleado__pnombre }}</td>
                     <td class="text-center">{{ empleado.idcontrato__salario|format_currency }} </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-icon btn-sm btn-light-info" id="kt_button_1" hx-get="{% url 'payroll:payroll_data' empleado.idcontrato nombre.idnomina  %}" hx-target="#modal-container" hx-swap="innerHTML">
-                            <span class="indicator-label">
+                        <a
+                            class='btn btn-icon btn-sm btn-light-info'
+                            up-layer='new modal'
+                            up-target="#kt_modal_1 .modal-content"
+                            up-size = "large"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+                            href="{% url 'payroll:payroll_modal' empleado.idcontrato nombre.idnomina  %}">
                                 <i class="fa-solid fa-file-circle-plus fs-3"></i>
-                            </span>
-                            <span class="indicator-progress">
-                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-                            </span>
-                        </button>
+                        </a>
+
                     </td>
                 </tr>
             {% endfor %}
@@ -145,41 +200,144 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
 
 
-
-
 {% endblock content %}
 
 {% block js %}
 
 <script>
-    // Escucha el evento 'htmx:beforeRequest' para activar el indicador cuando el botón es presionado
-    document.getElementById('kt_button_1').addEventListener('click', function() {
-        // Activa el indicador de carga
-        this.setAttribute('data-kt-indicator', 'on');
-    });
 
-    // Escucha el evento 'htmx:afterSwap' para desactivar el indicador después de que se haya cargado el contenido del modal
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        if (evt.detail.target.id === 'modal-container') {
-            // Encuentra el botón y quita el indicador de carga
-            const button = document.getElementById('kt_button_1');
-            if (button) {
-                button.removeAttribute('data-kt-indicator');
-            }
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toastr-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
+    up.on('edit-concepto', function(event) {
+        const idn = event.target.dataset.idn;
+
+        const select = document.getElementById(`select-${idn}`);
+        const amount = document.getElementById(`amount-${idn}`);
+        const value = document.getElementById(`value-${idn}`);
+
+        if (select && amount && value) {
+            select.disabled = false;
+            amount.disabled = false;
+            value.disabled = false;
+            event.target.hidden = true;
+            event.target.nextElementSibling.hidden = false;
         }
     });
+
+    up.on('save-concepto', function(event) {
+        
+        const idn = event.target.dataset.idn;
+        // Deshabilitar el botón de save inmediatamente
+        event.target.disabled = true;
+        event.target.style.pointerEvents = 'none';
+        event.target.style.opacity = '0.5';
+
+
+        const data = {
+            idn: idn,
+            amount: document.getElementById(`amount-${idn}`).value,
+            value: document.getElementById(`value-${idn}`).value,
+            concept: document.getElementById(`select-${idn}`).value
+        };
+        
+
+
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        up.request("{% url 'payroll:payroll_edit' %}", {
+            method: 'POST',
+            params: {
+                ...data,
+                csrfmiddlewaretoken: csrftoken
+            }
+        }).then((response) => {
+            console.log('Respuesta exitosa:', response);
+
+            const res = response.json;
+
+            if (res.mensaje === 'Concepto actualizado correctamente') {
+                const select = document.getElementById(`select-${data.idn}`);
+                const amount = document.getElementById(`amount-${data.idn}`);
+                const value = document.getElementById(`value-${data.idn}`);
+                if (select && amount && value) {
+                    select.disabled = true;
+                    amount.disabled = true;
+                    value.disabled = true;
+
+                    event.target.hidden = true;
+                    event.target.previousElementSibling.hidden = false;
+                    
+                    toastr.success(res.mensaje, "Éxito");
+
+                } else {
+                    toastr.error("Ocurrio un error inesperado", "Error"); 
+                    console.warn('No se encontraron los elementos en el DOM');
+                }
+            } else {
+                toastr.error("Ocurrio un error inesperado", "Error"); 
+                console.warn(res.error || 'Ocurrió un error inesperado');
+
+            }
+        }).catch((response) => {
+            toastr.error("Ocurrio un error inesperado", "Error"); 
+            console.error('Error en la solicitud:', response);
+        });
+
+
+
+    });
 </script>
+
+
 
 <script>
-    // Escucha el evento 'htmx:afterSwap' para abrir el modal después de cargar el contenido
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        const modalContainer = document.getElementById('conceptsModal');
-        if (evt.detail.target.id === 'modal-container' && modalContainer) {
-            new bootstrap.Modal(modalContainer).show();
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer.current.element;
+
+        if (modalContent) {
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            
+            // Usamos un pequeño retraso para asegurar el renderizado completo
+            setTimeout(() => {
+                selectElements.forEach((select, index) => {
+                    // Aseguramos un ID único si no tiene uno
+                    if (!select.id) {
+                        select.id = `select2-unique-${Date.now()}-${index}`;
+                    }
+
+                    if (!$(select).data('select2')) {
+                        $(select).select2({
+                            dropdownParent: $(modalContent),
+                            width: '100%'
+                        });
+                    }
+                });
+            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
+        } else {
+            console.log('Contenido completo del fragmento:', event.target.innerHTML);
         }
     });
-    
 </script>
+
+    
+    
+    
 
 
 <script>

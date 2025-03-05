@@ -114,14 +114,16 @@ def holidays(request):
         form = HolidaysForm(request.POST)
         if form.is_valid():
             try:
+                fecha = form.cleaned_data['fecha']
                 # Crear instancia de Crearnomina
                 Festivos.objects.create(
-                    fecha=form.cleaned_data['fecha'],
-                    descripcion=form.cleaned_data['descripcion']
+                    dia=fecha,
+                    descripcion=form.cleaned_data['descripcion'],
+                    ano=fecha.year
                 )
 
                 messages.success(request, "Nómina creada exitosamente.")
-                return redirect('payroll:payroll')  # Redirigir a una vista de lista, por ejemplo
+                return redirect('payroll:holidays')  # Redirigir a una vista de lista, por ejemplo
             except :
                 messages.error(request, "Hubo un problema al procesar la información.")
 
@@ -213,11 +215,12 @@ def annual(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def concepts(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    concepts   = Conceptosdenomina.objects.filter(id_empresa_id = idempresa ).order_by('codigo')
+    concepts = Conceptosdenomina.objects.filter(id_empresa_id=idempresa).select_related('grupo_dian').order_by('codigo')
+
     form = PayrollConceptsForm()
     
         
@@ -225,7 +228,7 @@ def concepts(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def concepts_add(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -279,7 +282,7 @@ def concepts_add(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def check_code(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario.get('idempresa')  # Usar get() en lugar de acceder directamente.

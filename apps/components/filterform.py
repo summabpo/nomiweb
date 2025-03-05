@@ -1,10 +1,13 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
+from apps.common.models import Anos
+
+
 
 class FilterForm(forms.Form):
     # Definir los choices para los años (2015-2024)
-    AÑO_CHOICES = [('', '--------------')] + [(str(year), str(year)) for year in range(2024, 2014, -1)]
+    #AÑO_CHOICES = [('', '--------------')] + [(str(year), str(year)) for year in range(2024, 2014, -1)]
 
     
     # Definir los choices para los meses
@@ -25,11 +28,18 @@ class FilterForm(forms.Form):
     ]
     
     # Cambiar los campos a ChoiceField
-    año = forms.ChoiceField(choices=AÑO_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+    #año = forms.ChoiceField(choices=AÑO_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
     mes = forms.ChoiceField(choices=MES_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        self.fields['año'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(n.ano, n.ano) for n in Anos.objects.all().order_by('-ano')],
+        )
+        
+        
+        
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_estudiocandidato'
@@ -61,7 +71,7 @@ class FilterForm(forms.Form):
 
 class FiltercompleteForm(forms.Form):
     # Definir los choices para los años (2015-2024)
-    AÑO_CHOICES = [('', '--------------')] + [(str(year), str(year)) for year in range(2024, 2014, -1)]
+    #AÑO_CHOICES = [('', '--------------')] + [(str(year), str(year)) for year in range(2024, 2014, -1)]
 
     
     # Definir los choices para los meses
@@ -88,13 +98,19 @@ class FiltercompleteForm(forms.Form):
     ]
     
     # Cambiar los campos a ChoiceField
-    año = forms.ChoiceField(choices=AÑO_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+    #año = forms.ChoiceField(choices=AÑO_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
     mes = forms.ChoiceField(choices=MES_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
     liquidation = forms.ChoiceField(choices=liquidation__CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
 
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        self.fields['año'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(n.ano, n.ano) for n in Anos.objects.all().order_by('-ano')],
+        )
+        
+        
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_estudiocandidato'

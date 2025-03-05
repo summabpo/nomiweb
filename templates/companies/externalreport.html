@@ -41,15 +41,15 @@ Movimientos Por Tercero
     {% if visual %}
         <div class="table-responsive">
             <table class="table table-striped" id="table-report-external" >
-                <thead>
-                    <tr class="fw-bold fs-6 text-gray-800"> 
+                <thead class="fw-bold fs-6 text-gray-800">
+                    <tr> 
                         <th>Idcontrato</th>
                         <th>Cuenta</th>
                         <th>Cedula</th>
                         <th>Idconcepto</th>
                         <th>Concepto</th>
-                        <th>Valor</th>
-                        <th>C. Costo</th>
+                        <th class="text-end">Valor</th>
+                        <th class="text-end" >C. Costo</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,10 +58,10 @@ Movimientos Por Tercero
                             <td>{{ items.idcontrato__idcontrato }}</td>
                             <td>{{ items.idconcepto__cuentacontable }}</td>
                             <td>{{ items.idcontrato__idempleado__docidentidad }}</td>
-                            <td>{{ items.idconcepto__idconcepto }}</td>
+                            <td>{{ items.idconcepto__codigo }}</td>
                             <td>{{ items.idconcepto__nombreconcepto }}</td>
                             <td class="text-end" >{{ items.valor }}</td>
-                            <td class="text-end">{{ items.idcosto__idcosto }}</td>
+                            <td class="text-end">{{ items.idcontrato__idcosto__idcosto }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
