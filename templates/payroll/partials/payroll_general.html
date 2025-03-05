@@ -1,0 +1,50 @@
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content2">
+    <div class="modal-header">
+        <h3 class="modal-title">Conceptos de Nomina </h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+
+        <div class="container">
+            <form 
+                id="empleado-form"
+                up-target="#resultado"
+                up-method="POST"
+            >
+                {% csrf_token %}
+                <select id="contrato_empleado" name="contrato_empleado" class="form-select form-select-sm"
+                    data-control="select2" data-placeholder="Seleccione un Empleado"
+                    onchange="this.form.action=&quot;{% url 'payroll:payroll_general_data' dato.idnomina %}&quot;; this.form.requestSubmit();">
+                    <option value=""></option>
+                    {% for contrato in dato.contratos_empleados %}
+                        <option value="{{ contrato.idcontrato }}">
+                            {{ contrato.idempleado__docidentidad }} - {{ contrato.idempleado__papellido }} {{ contrato.idempleado__pnombre }} {{ contrato.idempleado__snombre }} - {{ contrato.cargo__nombrecargo }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <!-- Columna de la tabla más grande -->
+            <div class="separator my-5"></div> 
+            {% include 'payroll/partials/payroll_general_data.html' %}
+
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+    </div>
+</div>
+
+
+
+

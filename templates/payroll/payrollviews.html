@@ -57,6 +57,12 @@ up-modal[size=large] up-modal-box {
 }
 
 
+.swal2-container {
+    z-index: 9999 !important; /* Más alto que el z-index de los modales de Unpoly */
+}
+
+
+
 
 {% endblock %}
 
@@ -64,7 +70,7 @@ up-modal[size=large] up-modal-box {
 
 {% block actions %}
     
-    {% comment %} <!-- Separación entre grupos -->
+     <!-- Separación entre grupos -->
     <!-- Botón para activar modal -->
     <a href="{% url 'payroll:payroll' %}"  class="btn btn-light-primary"   >
         <i class="ki-duotone ki-exit-left fs-2 ">             
@@ -74,6 +80,7 @@ up-modal[size=large] up-modal-box {
         Atras
         
     </a>  
+    
     <div style="width: 10px;"></div>
     <!-- Botón adicional -->
     <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_loaddata">
@@ -85,26 +92,29 @@ up-modal[size=large] up-modal-box {
 
     <!-- Botón adicional -->
     <a href="{% url 'payroll:document_flat' %}" 
-        download class="btn btn-light-primary text-dark" 
+        download class="btn btn-icon  btn-light-primary" 
         data-bs-toggle="tooltip" 
         data-bs-custom-class="tooltip-inverse" 
         data-bs-placement="bottom" 
         title="Descargar plantilla de Documento Plano" >
             <i class="fa-solid fa-download fs-2"></i>
-    </a>  {% endcomment %}
+    </a> 
+
+    <div style="width: 10px;"></div>
 
     <a
-        class='btn btn-icon btn-sm btn-light-info'
+        class='btn btn-icon btn-light-info'
         up-layer='new modal'
-        up-target="#kt_modal_1 .modal-content"
+        up-target=".modal-content"
         up-size = "large"
         up-align = "center"
         up-backdrop = "true"
         up-history = "false"
         up-dismissable ="false"
         up-cache="false"
-        
+        href="{% url 'payroll:payroll_general' nombre.idnomina %}">
         <i class="fa-solid fa-file-circle-plus fs-3"></i>
+
     </a>
 
 {% endblock %}
@@ -176,7 +186,7 @@ up-modal[size=large] up-modal-box {
                         <a
                             class='btn btn-icon btn-sm btn-light-info'
                             up-layer='new modal'
-                            up-target="#kt_modal_1 .modal-content"
+                            up-target="#modal-content" 
                             up-size = "large"
                             up-align = "center"
                             up-backdrop = "true"
@@ -204,7 +214,74 @@ up-modal[size=large] up-modal-box {
 
 {% block js %}
 
+
 <script>
+    function confirmDelete(itemId) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¡No podrás deshacer esta acción!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const deleteUrl = `/payroll/payroll/form/modals/delete/${itemId}/`;
+                htmx.ajax('DELETE', deleteUrl, {
+                    target: `#item-${itemId}`,
+                    swap: 'outerHTML'
+                });
+                Swal.fire('¡Eliminado!', 'El elemento ha sido eliminado.', 'success');
+            }
+        });
+    }
+</script>
+
+
+
+
+    
+
+<script>
+    document.addEventListener('up:request:loaded', function(event) {
+        const form = event.request.form;
+
+        const input1 = document.querySelector('input[name="cantidad"]');
+        const input2 = document.querySelector('input[name="valor"]');
+        if (input1) {
+            input1.value = '';  // Vaciar el campo
+        }
+        if (input2) {
+            input2.value = '';  // Vaciar el campo
+        }
+
+        $('#concept').val(null).trigger('change');
+
+        
+    });
+
+
+    document.addEventListener('up:request:loaded', function(event) {
+        // Verificar si la solicitud proviene del formulario
+        const form = event.request.form;
+        if (form && form.id === 'add-item-form') {
+            // Desbloquear el botón después de que el formulario se haya enviado
+            const button = document.getElementById('add-item-button');
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Agregar Ítem';  // Restaurar el texto del botón
+            }
+    
+        }
+    });
+</script>
+
+
+<script>
+
+   
+
 
     toastr.options = {
         "closeButton": false,
@@ -226,17 +303,23 @@ up-modal[size=large] up-modal-box {
 
     up.on('edit-concepto', function(event) {
         const idn = event.target.dataset.idn;
-
+    
         const select = document.getElementById(`select-${idn}`);
         const amount = document.getElementById(`amount-${idn}`);
         const value = document.getElementById(`value-${idn}`);
-
-        if (select && amount && value) {
+        const saveButton = event.target.nextElementSibling;
+    
+        if (select && amount && value && saveButton) {
             select.disabled = false;
             amount.disabled = false;
             value.disabled = false;
             event.target.hidden = true;
-            event.target.nextElementSibling.hidden = false;
+            saveButton.hidden = false;
+    
+            // Volver a habilitar el botón de save por si quedó deshabilitado
+            saveButton.disabled = false;
+            saveButton.style.pointerEvents = 'auto';
+            saveButton.style.opacity = '1';
         }
     });
 
@@ -265,7 +348,8 @@ up-modal[size=large] up-modal-box {
             params: {
                 ...data,
                 csrfmiddlewaretoken: csrftoken
-            }
+            },
+            fail: false
         }).then((response) => {
             console.log('Respuesta exitosa:', response);
 
