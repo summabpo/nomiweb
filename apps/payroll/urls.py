@@ -78,6 +78,9 @@ urlunpolypatterns =[
     path('items/add/', pruebas.item_modal, name='item_modal'),
     path('items/add/modal', pruebas.add_item, name='add_item'),
     
+    # segundas pruebas 
+    path('my_form/', pruebas.my_form, name='my_form'),
+    path('validate_number/', pruebas.validate_number, name='validate_number'),
     
 ]
 

@@ -1,55 +1,42 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Unpoly Modal Demo</title>
-    
-
+    <title>Formulario con Unpoly</title>
     <script src="https://cdn.jsdelivr.net/npm/unpoly@3.10.2/unpoly.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.10.2/unpoly.min.css">
-    
 
-
+    <script src="{% static 'application.js' %}"></script>
 </head>
 <body>
-    <a 
-    class='btn btn-icon btn-sm btn-light-info'
-    up-layer='new modal'
-    up-size="medium" 
-    up-target="#modal-content" 
-    href="{% url 'payroll:item_modal' %}">
-        Abrir Modal
-    </a>
+    <form>
+        <label for="option">Opción:</label>
+        <select name="option" id="option">
+            <option value="opcion1">Opción 1</option>
+            <option value="opcion2">Opción 2</option>
+        </select>
 
+        <label for="number">Número (máx 2 cifras):</label>
+        <input type="number" name="number" id="number" up-change="validateNumber()"/>
 
-<script>
-    document.addEventListener('up:form:submit', function(event) {
-        // Bloquear el botón mientras se envía el formulario
-        const button = document.getElementById('add-item-button');
-        const input = document.querySelector('input[name="name"]');
-            if (input) {
-                input.value = '';  // Vaciar el campo
-            }
-    });
-    
-    document.addEventListener('up:request:loaded', function(event) {
-        // Verificar si la solicitud proviene del formulario
-        const form = event.request.form;
-        if (form && form.id === 'add-item-form') {
-            // Desbloquear el botón después de que el formulario se haya enviado
-            const button = document.getElementById('add-item-button');
-            if (button) {
-                button.disabled = false;
-                button.textContent = 'Agregar Ítem';  // Restaurar el texto del botón
-            }
-    
-            // Limpiar el campo de texto
-            const input = document.querySelector('input[name="name"]');
-            if (input) {
-                input.value = '';  // Vaciar el campo
-            }
+        <label for="text">Resultado:</label>
+        <input type="text" name="text" id="text" readonly/>
+    </form>
+
+    <script>
+        function validateNumber() {
+            const numberInput = document.getElementById('number');
+            const textInput = document.getElementById('text');
+
+            up.request('{% url "payroll:validate_number" %}', {
+                method: 'GET',
+                params: { number: numberInput.value }
+            }).then(function(response) {
+                textInput.value = response.json.message;
+            }).catch(function(error) {
+                textInput.value = 'Error en la validación';
+            });
         }
-    });
-</script>
-
+    </script>
 </body>
 </html>

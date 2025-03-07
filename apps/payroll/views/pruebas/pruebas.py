@@ -1,5 +1,9 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.shortcuts import render
+
+
 
 # Datos de ejemplo
 items = [
@@ -27,3 +31,18 @@ def add_item(request):
             items.append({'name': item_name})
     context = {'items': items}
     return render(request, './payroll/prueba_item_list.html', context)
+
+
+
+
+def my_form(request):
+    return render(request, './payroll/prueba.html')
+
+
+def validate_number(request):
+    number = request.GET.get('number')
+    if not number.isdigit() or int(number) > 99:
+        response = 'Número inválido'
+    else:
+        response = f'Número válido: {number}'
+    return JsonResponse({'message': response})

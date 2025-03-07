@@ -81,7 +81,7 @@
                         <div class="form-group row align-items-center">
 
                             <div class="col-md-4 input-group-sm">
-                                <select id="concept" name="concept"  class="form-select form-select-sm"  data-control="select2" data-placeholder="Seleccione un Concepto">
+                                <select  required id="concept" name="concept"  class="form-select form-select-sm"  data-control="select2" data-placeholder="Seleccione un Concepto">
                                     <option value=""></option>
                                     {% for id, nombre in data.conceptors %}
                                         <option value="{{ id }}">{{ nombre }}</option>
