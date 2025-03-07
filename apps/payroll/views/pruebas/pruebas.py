@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render
-
+from apps.common.models import Contratos
+from django.shortcuts import get_object_or_404
 
 
 # Datos de ejemplo
@@ -36,13 +37,14 @@ def add_item(request):
 
 
 def my_form(request):
-    return render(request, './payroll/prueba.html')
+    data = {
+        "id":1121, 
+    }
+    return render(request, './payroll/prueba.html',{'data': data})
 
 
-def validate_number(request):
-    number = request.GET.get('number')
-    if not number.isdigit() or int(number) > 99:
-        response = 'Número inválido'
-    else:
-        response = f'Número válido: {number}'
-    return JsonResponse({'message': response})
+def get_multiplicador(request):
+    data_id = request.GET.get('data_id')
+    objeto = get_object_or_404(Contratos, idcontrato=data_id)
+    print(objeto.salario)
+    return JsonResponse({'multiplicador': objeto.salario/30})

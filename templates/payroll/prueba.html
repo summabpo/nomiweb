@@ -9,34 +9,71 @@
     <script src="{% static 'application.js' %}"></script>
 </head>
 <body>
-    <form>
+    <form method="POST">
         <label for="option">Opción:</label>
         <select name="option" id="option">
             <option value="opcion1">Opción 1</option>
             <option value="opcion2">Opción 2</option>
         </select>
 
-        <label for="number">Número (máx 2 cifras):</label>
-        <input type="number" name="number" id="number" up-change="validateNumber()"/>
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" step="0.01" id="cantidad" name="cantidad"  oninput="actualizarValor()" required>
 
-        <label for="text">Resultado:</label>
-        <input type="text" name="text" id="text" readonly/>
+        <label for="valor">Valor:</label>
+        <input type="text" id="valor" name="valor" readonly>
+
+        <button type="submit">Enviar</button>
     </form>
 
+    <div class="result"></div>
     <script>
-        function validateNumber() {
-            const numberInput = document.getElementById('number');
-            const textInput = document.getElementById('text');
-
-            up.request('{% url "payroll:validate_number" %}', {
-                method: 'GET',
-                params: { number: numberInput.value }
-            }).then(function(response) {
-                textInput.value = response.json.message;
-            }).catch(function(error) {
-                textInput.value = 'Error en la validación';
+        let multiplicador = 100.0; // Valor por defecto
+        let timeout = null;
+    
+        function actualizarValorConRetraso() {
+            // Limpiamos el temporizador anterior si sigue activo
+            clearTimeout(timeout);
+    
+            // Esperamos 1 segundo antes de ejecutar la petición
+            timeout = setTimeout(actualizarValor, 1000);
+        }
+    
+        function actualizarValor() {
+            const cantidad = parseFloat(document.getElementById('cantidad').value);
+            if (isNaN(cantidad)) return;
+    
+            const dataId = "{{ data.id }}";
+            up.request("{% url 'payroll:get_multiplicador' %}?data_id=" + dataId, {
+                method: 'GET'
+            }).then((response) => {
+                console.log('Respuesta completa:', response);
+    
+                try {
+                    const data = JSON.parse(response.text);  // Parseo manual aquí
+                    console.log('Datos parseados:', data);
+    
+                    multiplicador = parseFloat(data.multiplicador);
+                    const valor = cantidad * multiplicador;
+                    document.getElementById('valor').value = isNaN(valor) ? '' : formatearNumero(valor);
+                } catch (error) {
+                    console.error('Error al parsear el multiplicador:', error);
+                }
+            }).catch((error) => {
+                console.error('Error al obtener el multiplicador:', error);
+            });
+        }
+    
+        function formatearNumero(numero) {
+            return numero.toLocaleString('en-US', {
+                minimumFractionDigits: numero % 1 === 0 ? 0 : 4,
+                maximumFractionDigits: 4
             });
         }
     </script>
+    
+    
+    
+    
+    
 </body>
 </html>

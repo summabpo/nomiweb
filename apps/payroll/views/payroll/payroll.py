@@ -407,6 +407,21 @@ def payroll_general_data(request,idnomina):
 
 @login_required
 @role_required('accountant')
+def payroll_concept_info(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        idconcepto = data.get('idconcepto')
+        concepto = Conceptosdenomina.objects.get(idconcepto=idconcepto)
+        return JsonResponse({
+            'codigo': concepto.codigo,
+            'nombreconcepto': concepto.nombreconcepto,
+            'tipoconcepto': concepto.tipoconcepto,
+        })
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@login_required
+@role_required('accountant')
 def payroll_calculate(request,id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
