@@ -1,55 +1,79 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Unpoly Modal Demo</title>
-    
-
+    <title>Formulario con Unpoly</title>
     <script src="https://cdn.jsdelivr.net/npm/unpoly@3.10.2/unpoly.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.10.2/unpoly.min.css">
-    
 
-
+    <script src="{% static 'application.js' %}"></script>
 </head>
 <body>
-    <a 
-    class='btn btn-icon btn-sm btn-light-info'
-    up-layer='new modal'
-    up-size="medium" 
-    up-target="#modal-content" 
-    href="{% url 'payroll:item_modal' %}">
-        Abrir Modal
-    </a>
+    <form method="POST">
+        <label for="option">Opción:</label>
+        <select name="option" id="option">
+            <option value="opcion1">Opción 1</option>
+            <option value="opcion2">Opción 2</option>
+        </select>
 
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" step="0.01" id="cantidad" name="cantidad"  oninput="actualizarValor()" required>
 
-<script>
-    document.addEventListener('up:form:submit', function(event) {
-        // Bloquear el botón mientras se envía el formulario
-        const button = document.getElementById('add-item-button');
-        const input = document.querySelector('input[name="name"]');
-            if (input) {
-                input.value = '';  // Vaciar el campo
-            }
-    });
+        <label for="valor">Valor:</label>
+        <input type="text" id="valor" name="valor" readonly>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div class="result"></div>
+    <script>
+        let multiplicador = 100.0; // Valor por defecto
+        let timeout = null;
     
-    document.addEventListener('up:request:loaded', function(event) {
-        // Verificar si la solicitud proviene del formulario
-        const form = event.request.form;
-        if (form && form.id === 'add-item-form') {
-            // Desbloquear el botón después de que el formulario se haya enviado
-            const button = document.getElementById('add-item-button');
-            if (button) {
-                button.disabled = false;
-                button.textContent = 'Agregar Ítem';  // Restaurar el texto del botón
-            }
+        function actualizarValorConRetraso() {
+            // Limpiamos el temporizador anterior si sigue activo
+            clearTimeout(timeout);
     
-            // Limpiar el campo de texto
-            const input = document.querySelector('input[name="name"]');
-            if (input) {
-                input.value = '';  // Vaciar el campo
-            }
+            // Esperamos 1 segundo antes de ejecutar la petición
+            timeout = setTimeout(actualizarValor, 1000);
         }
-    });
-</script>
-
+    
+        function actualizarValor() {
+            const cantidad = parseFloat(document.getElementById('cantidad').value);
+            if (isNaN(cantidad)) return;
+    
+            const dataId = "{{ data.id }}";
+            up.request("{% url 'payroll:get_multiplicador' %}?data_id=" + dataId, {
+                method: 'GET'
+            }).then((response) => {
+                console.log('Respuesta completa:', response);
+    
+                try {
+                    const data = JSON.parse(response.text);  // Parseo manual aquí
+                    console.log('Datos parseados:', data);
+    
+                    multiplicador = parseFloat(data.multiplicador);
+                    const valor = cantidad * multiplicador;
+                    document.getElementById('valor').value = isNaN(valor) ? '' : formatearNumero(valor);
+                } catch (error) {
+                    console.error('Error al parsear el multiplicador:', error);
+                }
+            }).catch((error) => {
+                console.error('Error al obtener el multiplicador:', error);
+            });
+        }
+    
+        function formatearNumero(numero) {
+            return numero.toLocaleString('en-US', {
+                minimumFractionDigits: numero % 1 === 0 ? 0 : 4,
+                maximumFractionDigits: 4
+            });
+        }
+    </script>
+    
+    
+    
+    
+    
 </body>
 </html>

@@ -4,7 +4,7 @@
         <li id="item-{{ concepto.idn }}"  class="list-group-item">
             <div class="form-group row align-items-center" id="concepto-{{ concepto.idn }}">
                 <div class="col-md-4 input-group-sm">
-                    <select class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un Concepto" disabled id="select-{{ concepto.idn }}">
+                    <select required class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un Concepto" disabled id="select-{{ concepto.idn }}">
                         <option></option>
                         {% for id, nombre in data.conceptors %}
                             <option value="{{ id }}" {% if concepto.id == id %}selected{% endif %}>{{ nombre }}</option>

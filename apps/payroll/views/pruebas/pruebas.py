@@ -1,5 +1,10 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.shortcuts import render
+from apps.common.models import Contratos
+from django.shortcuts import get_object_or_404
+
 
 # Datos de ejemplo
 items = [
@@ -27,3 +32,19 @@ def add_item(request):
             items.append({'name': item_name})
     context = {'items': items}
     return render(request, './payroll/prueba_item_list.html', context)
+
+
+
+
+def my_form(request):
+    data = {
+        "id":1121, 
+    }
+    return render(request, './payroll/prueba.html',{'data': data})
+
+
+def get_multiplicador(request):
+    data_id = request.GET.get('data_id')
+    objeto = get_object_or_404(Contratos, idcontrato=data_id)
+    print(objeto.salario)
+    return JsonResponse({'multiplicador': objeto.salario/30})

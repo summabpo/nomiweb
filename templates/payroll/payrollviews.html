@@ -213,7 +213,39 @@ up-modal[size=large] up-modal-box {
 {% endblock content %}
 
 {% block js %}
-
+<script>
+    // Escuchar el cambio en el select
+    const conceptSelect = document.getElementById('concept');
+    conceptSelect.addEventListener('change', async function(event) {
+        const conceptId = event.target.value;
+    
+        if (conceptId) {
+            try {
+                let request = up.request("{% url 'payroll:payroll_concept_info' %}?concept_id=" + conceptId, {
+                    method: 'GET'
+                });
+    
+                let response = await request;
+                let data = await response.json();
+    
+                toggleField('valor', data.disable_value);
+                toggleField('cantidad', data.disable_quantity);
+            } catch (e) {
+                console.error('Error during request:', e);
+            }
+        }
+    });
+    
+    function toggleField(fieldId, shouldDisable) {
+        const field = document.getElementById(fieldId);
+        if (shouldDisable) {
+            field.setAttribute('disabled', 'disabled');
+        } else {
+            field.removeAttribute('disabled');
+        }
+    }
+    </script>
+    
 
 <script>
     function confirmDelete(itemId) {

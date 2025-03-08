@@ -231,18 +231,17 @@ def payroll_create(request):
     idempresa = usuario['idempresa']
     conceptos_data = []
     if request.method == 'POST':
-        print('llegue')
         # Procesar los datos del formulario
         mi_select = request.POST.get('concept')
         cantidad = request.POST.get('cantidad')
         valor = request.POST.get('valor')
         idnomina = request.POST.get('idnomina')
         id = request.POST.get('idempleado')
-                
+
         Nomina.objects.create(
             idconcepto_id=mi_select,
             cantidad=cantidad,
-            valor=valor,
+            valor=int(valor.replace(',', '')),
             idcontrato_id=id,
             idnomina_id=idnomina,
         )
@@ -323,18 +322,6 @@ def payroll_value(request):
 
 
 
-def calculate_payroll(request):
-    """
-    Vista para manejar el envío del formulario.
-    """
-    if request.method == 'POST':
-        cantidad = int(request.POST.get('cantidad', 0))
-        valor = int(request.POST.get('valor', 0))
-        # Aquí puedes procesar los datos, por ejemplo, guardarlos en la base de datos
-        return HttpResponse(f"¡Cálculo exitoso! Cantidad: {cantidad}, Valor: {valor}")
-    return render(request, 'payroll/calculate_payroll.html')
-
-
 
 @login_required
 @role_required('accountant')
@@ -407,17 +394,50 @@ def payroll_general_data(request,idnomina):
         "ingresos": f"${format_value(ingreso)}",
         "egresos": f"${format_value(egreso)}",
         "total": f"${format_value(total)}",
+        "idnomina": idnomina,
+        "id":idcontrato, 
         "conceptos": conceptos_data,
         "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
     }
-    
-    print(data)
     
     return render(request, './payroll/partials/payroll_general_data.html',{'data': data})
     
 
 
 
+@login_required
+@role_required('accountant')
+def payroll_concept_info(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        idconcepto = data.get('idconcepto')
+        concepto = Conceptosdenomina.objects.get(idconcepto=idconcepto)
+        return JsonResponse({
+            'codigo': concepto.codigo,
+            'nombreconcepto': concepto.nombreconcepto,
+            'tipoconcepto': concepto.tipoconcepto,
+        })
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@login_required
+@role_required('accountant')
+def payroll_calculate(request,id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    if request.method == 'POST':
+        print(id)
+        idcontrato = id         
+        try:
+            cantidad = int(request.POST.get('cantidad', 0))
+            print('------------')
+            print(cantidad)
+            print('------------')
+            resultado = cantidad * 2  # Por ejemplo, multiplicar por 2
+            return HttpResponse(resultado)  # Solo devolvemos el número, nada de HTML
+        except ValueError:
+            return HttpResponse("")
+    return HttpResponse("")
 
 
 
