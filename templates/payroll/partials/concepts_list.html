@@ -15,8 +15,8 @@
                 <div class="col-md-2 input-group-sm">
                     <input type="text" class="form-control mb-2 mb-md-0" placeholder="Cantidad" value="{{ concepto.amount }}" disabled id="amount-{{ concepto.idn }}" />
                 </div>
-                <div class="col-md-3 input-group-sm">
-                    <input type="text" class="form-control mb-2 mb-md-0" placeholder="Valor" value="{{ concepto.value }}" disabled id="value-{{ concepto.idn }}" />
+                <div class="col-md-3 input-group-sm" >
+                    <input type="text" class="form-control mb-2 mb-md-0" placeholder="Valor" value="{{ concepto.value }}" disabled id="value-{{ concepto.idn }}" x-mask:dynamic="$money($input, '.', ',', 4)" />
                 </div>
 
                 <div class="col-md-3 d-flex align-items-center">

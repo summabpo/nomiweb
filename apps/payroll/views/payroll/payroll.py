@@ -127,33 +127,6 @@ def payrollview(request, id):
         'id': id
     })
 
-# @login_required
-# @role_required('accountant')
-# def payroll_modal(request,id,idnomina):
-#     usuario = request.session.get('usuario', {})
-#     idempresa = usuario['idempresa']
-#     ingreso = 0  # Inicializamos la variable ingreso
-#     egreso = 0   # Inicializamos la variable egreso
-#     conceptos_data = []
-    
-    
-#     contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
-
-
-#     conceptos = Nomina.objects.filter(
-#         idnomina__idnomina=idnomina,
-#         idcontrato__idcontrato=id
-#     ).select_related('idcontrato').order_by('idconcepto__codigo')
-    
-    
-    
-    
-    
-#     data = {}
-#     data['valor'] = random.randint(1, 100)
-#     return render(request, './payroll/partials/payrollmodal2.html',data)
-
-
 
 @login_required
 @role_required('accountant')
@@ -535,4 +508,60 @@ def payroll_calculate(request,id):
     return HttpResponse("")
 
 
+
+# @login_required
+# @role_required('accountant')
+# def payroll_info_edit(request):
+#     if request.method == 'POST':
+#         body = QueryDict(request.body.decode('utf-8'))
+#         idn = body.get('idn') 
+        
+        
+           
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 

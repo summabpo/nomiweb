@@ -218,16 +218,6 @@ tr.htmx-swapping td {
 {% block js %}
 
 <script>
-    document.addEventListener('htmx:beforeSwap', function(evt) {
-        if (evt.detail.xhr.status === 200) {
-            let target = evt.detail.target;
-            target.classList.add('opacity-0', 'transition', 'duration-500');
-            setTimeout(() => target.remove(), 500);
-        }
-    });
-</script>
-
-<script>
     document.addEventListener('up:fragment:inserted', function(event) {
         console.log('Evento up:fragment:inserted disparado'); // Verifica que el evento se esté disparando
         console.log('Elemento objetivo:', event.target); // Muestra el elemento objetivo del evento
@@ -377,49 +367,7 @@ tr.htmx-swapping td {
 
 
 
-
-    
-
 <script>
-    document.addEventListener('up:request:loaded', function(event) {
-        const form = event.request.form;
-
-        const input1 = document.querySelector('input[name="cantidad"]');
-        const input2 = document.querySelector('input[name="valor"]');
-        if (input1) {
-            input1.value = '';  // Vaciar el campo
-        }
-        if (input2) {
-            input2.value = '';  // Vaciar el campo
-        }
-
-        $('#concept').val(null).trigger('change');
-
-        
-    });
-
-
-    document.addEventListener('up:request:loaded', function(event) {
-        // Verificar si la solicitud proviene del formulario
-        const form = event.request.form;
-        if (form && form.id === 'add-item-form') {
-            // Desbloquear el botón después de que el formulario se haya enviado
-            const button = document.getElementById('add-item-button');
-            if (button) {
-                button.disabled = false;
-                button.textContent = 'Agregar Ítem';  // Restaurar el texto del botón
-            }
-    
-        }
-    });
-</script>
-
-
-<script>
-
-   
-
-
     toastr.options = {
         "closeButton": false,
         "debug": false,
@@ -448,7 +396,7 @@ tr.htmx-swapping td {
     
         if (select && amount && value && saveButton) {
             select.disabled = false;
-            amount.disabled = false;
+            //amount.disabled = false;
             value.disabled = false;
             event.target.hidden = true;
             saveButton.hidden = false;
@@ -517,15 +465,35 @@ tr.htmx-swapping td {
                 } else {
                     toastr.error("Ocurrio un error inesperado", "Error"); 
                     console.warn('No se encontraron los elementos en el DOM');
+
+                    select.disabled = true;
+                    amount.disabled = true;
+                    value.disabled = true;
+
+                    event.target.hidden = true;
+                    event.target.previousElementSibling.hidden = false;
                 }
             } else {
                 toastr.error("Ocurrio un error inesperado", "Error"); 
                 console.warn(res.error || 'Ocurrió un error inesperado');
 
+                select.disabled = true;
+                amount.disabled = true;
+                value.disabled = true;
+
+                event.target.hidden = true;
+                event.target.previousElementSibling.hidden = false;
+
             }
         }).catch((response) => {
             toastr.error("Ocurrio un error inesperado", "Error"); 
             console.error('Error en la solicitud:', response);
+            select.disabled = true;
+            amount.disabled = true;
+            value.disabled = true;
+
+            event.target.hidden = true;
+            event.target.previousElementSibling.hidden = false;
         });
 
 
