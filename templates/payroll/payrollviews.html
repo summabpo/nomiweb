@@ -213,38 +213,106 @@ up-modal[size=large] up-modal-box {
 {% endblock content %}
 
 {% block js %}
-<script>
-    // Escuchar el cambio en el select
-    const conceptSelect = document.getElementById('concept');
-    conceptSelect.addEventListener('change', async function(event) {
-        const conceptId = event.target.value;
+
+
+
+
+<script> 
     
-        if (conceptId) {
-            try {
-                let request = up.request("{% url 'payroll:payroll_concept_info' %}?concept_id=" + conceptId, {
-                    method: 'GET'
-                });
+
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const conceptSelect = document.getElementById('concept');
+        const conceptAmount = document.getElementById('cantidad');
+        const conceptValue = document.getElementById('valor');
+        const conceptId = document.getElementById('idempleado');
+        const conceptPayroll = document.getElementById('idnomina');
+
+        const csrftoken = '{{ csrf_token }}';
+
+        if (conceptSelect) {
     
-                let response = await request;
-                let data = await response.json();
-    
-                toggleField('valor', data.disable_value);
-                toggleField('cantidad', data.disable_quantity);
-            } catch (e) {
-                console.error('Error during request:', e);
+            // Deshabilitar campos inicialmente
+            if (conceptAmount && conceptValue) {
+                conceptAmount.disabled = true;
+                conceptValue.disabled = true;
             }
+    
+            $(conceptSelect).on('select2:select', function(e) {
+                const selectedValue = e.params.data.id;
+                // Deshabilitar campos inicialmente
+                if (conceptAmount && conceptValue) {
+                    conceptAmount.disabled = true;
+                    conceptValue.disabled = true;
+                }
+    
+                
+
+                // Hacer un POST con Unpoly a una URL de Django
+                up.request('{% url "payroll:payroll_concept_info" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    params: {
+                        concept: selectedValue,
+                        idempleado: conceptId.value,
+                        payroll: conceptPayroll.value
+                    },
+                    feedback: true
+                }).then(function(response) {
+                    const data = JSON.parse(response.text);
+
+                    if (data.concept) {
+                        const conceptSelect = document.getElementById('concept');
+                        conceptSelect.value = data.concept;
+                        if (data.formula) {
+                            // Habilitar campos solo si se selecciona algo
+                            if (conceptAmount) {
+                                conceptAmount.disabled = !selectedValue;
+                            }
+                        } else {
+                            if (conceptValue) {
+                                conceptValue.disabled = !selectedValue;
+                            }
+                        }                        
+                        // Si usas Select2, también hay que actualizarlo así:
+                        $(conceptSelect).val(data.concept).trigger('change');
+
+
+                        conceptAmount.addEventListener('input', (event) => {
+                            const cantidad = parseFloat(event.target.value) || 0;
+                            const resultado = cantidad * data.multiplier;
+                            conceptValue.value = resultado.toFixed(2);
+                            console.log('Cantidad cambiada:', event.target.value);
+                        });
+
+
+                    }
+                }).catch(function(error) {
+                    console.error('Error en la petición:', error);
+                });
+
+            });
+            
+            
+
+
+            $(conceptSelect).on('select2:clear', function() {
+                // Deshabilitar campos si se limpia la selección
+                if (conceptAmount && conceptValue) {
+                    conceptAmount.disabled = true;
+                    conceptValue.disabled = true;
+                }
+            });
+
+
         }
     });
     
-    function toggleField(fieldId, shouldDisable) {
-        const field = document.getElementById(fieldId);
-        if (shouldDisable) {
-            field.setAttribute('disabled', 'disabled');
-        } else {
-            field.removeAttribute('disabled');
-        }
-    }
-    </script>
+
+</script> 
+
     
 
 <script>

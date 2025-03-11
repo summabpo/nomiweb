@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Crearnomina , Tipodenomina ,Subcostos,Costos,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
+from apps.common.models import Crearnomina , Tipodenomina , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
 from apps.payroll.forms.PayrollForm import PayrollForm
 from apps.payroll.forms.updateForm import UpdateForm
 from django.contrib import messages
@@ -21,6 +21,10 @@ import random
 from django.http import HttpResponse
 from decimal import Decimal
 from django.views.decorators.http import require_GET
+import json
+from django.http import QueryDict
+
+
 
 @login_required
 @role_required('accountant')
@@ -237,11 +241,29 @@ def payroll_create(request):
         valor = request.POST.get('valor')
         idnomina = request.POST.get('idnomina')
         id = request.POST.get('idempleado')
-
+        nomina = Crearnomina.objects.get(idnomina=idnomina)
+        concept1 = Conceptosdenomina.objects.get(idconcepto=mi_select)
+        formula = str(concept1.formula).strip() in ['0', '1', '2']
+        if formula:
+            if concept1.codigo == 2:
+                aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
+                multiplier = aux/30
+                valor = float(cantidad) * multiplier
+                
+            else :
+                multiplier = Contratos.objects.get(idcontrato=id).salario
+                multiplier = multiplier/30
+                valor = float(cantidad) * multiplier
+        else:
+            cantidad = 0
+            valor=int(valor.replace(',', ''))
+        
+        
+        
         Nomina.objects.create(
             idconcepto_id=mi_select,
             cantidad=cantidad,
-            valor=int(valor.replace(',', '')),
+            valor=valor,
             idcontrato_id=id,
             idnomina_id=idnomina,
         )
@@ -409,15 +431,39 @@ def payroll_general_data(request,idnomina):
 @role_required('accountant')
 def payroll_concept_info(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        idconcepto = data.get('idconcepto')
-        concepto = Conceptosdenomina.objects.get(idconcepto=idconcepto)
-        return JsonResponse({
-            'codigo': concepto.codigo,
-            'nombreconcepto': concepto.nombreconcepto,
-            'tipoconcepto': concepto.tipoconcepto,
-        })
+        body = QueryDict(request.body.decode('utf-8'))  # Parseamos el body
+        concept = body.get('concept')
+        idempleado = body.get('idempleado')
+        idnomina = body.get('payroll')
+
+        if not concept or not idempleado:
+            return JsonResponse({'error': 'Faltan datos requeridos'}, status=400)
+        # Dividir el string por '=' para obtener el valor (esto sirve si solo hay un valor)
+        try:
+            nomina = Crearnomina.objects.get(idnomina=idnomina)
+            concept1 = Conceptosdenomina.objects.get(idconcepto=concept)
+            formula = str(concept1.formula).strip() in ['0', '1', '2']
+            if formula:
+                if concept1.codigo == 2:
+                    aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
+                    multiplier = aux/30
+                else :
+                    multiplier = Contratos.objects.get(idcontrato=idempleado).salario
+                    multiplier = multiplier/30
+            else:
+                multiplier = 0
+                
+        except ValueError:
+            concept = None
+            formula = False
+            multiplier = 0
+            
+        if not concept:
+            return JsonResponse({'error': 'No se seleccionó ningún concepto'}, status=400)
+        
+        return JsonResponse({'message': 'Datos recibidos correctamente', 'concept': concept , 'formula': formula , 'multiplier': multiplier})
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 
 
 @login_required
