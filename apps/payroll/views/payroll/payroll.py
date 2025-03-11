@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Crearnomina , Tipodenomina , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
+from apps.common.models import Crearnomina , Tipodenomina , Conceptosfijos , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
 from apps.payroll.forms.PayrollForm import PayrollForm
 from apps.payroll.forms.updateForm import UpdateForm
 from django.contrib import messages
@@ -231,6 +231,8 @@ def payroll_modal(request,id,idnomina):
 @login_required
 @role_required('accountant')
 def payroll_create(request):
+    ingreso = 0  # Inicializamos la variable ingreso
+    egreso = 0   # Inicializamos la variable egreso
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     conceptos_data = []
@@ -241,24 +243,44 @@ def payroll_create(request):
         valor = request.POST.get('valor')
         idnomina = request.POST.get('idnomina')
         id = request.POST.get('idempleado')
+        
+        conceptfi = Conceptosfijos.objects.get(idfijo = 25) 
         nomina = Crearnomina.objects.get(idnomina=idnomina)
         concept1 = Conceptosdenomina.objects.get(idconcepto=mi_select)
         formula = str(concept1.formula).strip() in ['0', '1', '2']
+        
+        
+        
         if formula:
-            if concept1.codigo == 2:
-                aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
-                multiplier = aux/30
-                valor = float(cantidad) * multiplier
-                
-            else :
+            
+            
+            if concept1.formula == '1':
+                if concept1.codigo == 2:                    
+                    aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
+                    multiplier = aux/30
+                    valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
+                else :
+                    multiplier = Contratos.objects.get(idcontrato=id).salario
+                    multiplier = multiplier/30
+                    valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
+                    
+            elif concept1.formula == '2':
                 multiplier = Contratos.objects.get(idcontrato=id).salario
-                multiplier = multiplier/30
-                valor = float(cantidad) * multiplier
+                multiplier = (float(multiplier) / float(conceptfi.valorfijo))
+                valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
+            
+            else:
+                cantidad = 0
+                valor=int(valor.replace(',', ''))
         else:
             cantidad = 0
             valor=int(valor.replace(',', ''))
+            
+            
+
         
-        
+        # Optimizar consulta del contrato
+        contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
         
         Nomina.objects.create(
             idconcepto_id=mi_select,
@@ -286,8 +308,20 @@ def payroll_create(request):
             
             # Agregar el concepto al arreglo
             conceptos_data.append(concepto_info)
-        
+            
+            # Revisar si el valor es mayor que 0 (ingreso) o negativo (egreso)
+            if concepto.valor > 0:
+                ingreso += concepto.valor  # Agregar a ingreso si es positivo
+            elif concepto.valor < 0:
+                egreso += concepto.valor 
+    
+    total = ingreso + egreso
+    
     data = {    
+        "salario": f"${format_value(contrato.salario)}",
+        "ingresos": f"${format_value(ingreso)}",
+        "egresos": f"${format_value(egreso)}",
+        "total": f"${format_value(total)}",
         "conceptos": conceptos_data,
         "value": True,
         "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
@@ -296,7 +330,8 @@ def payroll_create(request):
 
 
 
-
+@login_required
+@role_required('accountant')
 def payroll_edit(request):
     if request.method == 'POST':
         data = request.POST
@@ -329,6 +364,13 @@ def payroll_delete(request, idn):
     return HttpResponse(status=204)  # Respuesta sin contenido (eliminación exitosa)
 
 
+
+def delete_item(request, item_id):
+    if request.method == "DELETE":
+        print('llegue')
+        return HttpResponse("<!-- empty -->", status=200)
+    return HttpResponse(status=405) 
+    
 
 @require_GET
 def payroll_value(request):
@@ -440,16 +482,23 @@ def payroll_concept_info(request):
             return JsonResponse({'error': 'Faltan datos requeridos'}, status=400)
         # Dividir el string por '=' para obtener el valor (esto sirve si solo hay un valor)
         try:
+            conceptfi = Conceptosfijos.objects.get(idfijo = 25) 
             nomina = Crearnomina.objects.get(idnomina=idnomina)
             concept1 = Conceptosdenomina.objects.get(idconcepto=concept)
             formula = str(concept1.formula).strip() in ['0', '1', '2']
             if formula:
-                if concept1.codigo == 2:
-                    aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
-                    multiplier = aux/30
-                else :
+                if concept1.formula == '1':
+                    if concept1.codigo == 2:
+                        aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
+                        multiplier = (aux/30) * float(concept1.multiplicadorconcepto)
+                    else :
+                        multiplier = Contratos.objects.get(idcontrato=idempleado).salario
+                        multiplier = (multiplier/30) * float(concept1.multiplicadorconcepto)
+                elif concept1.formula == '2':
                     multiplier = Contratos.objects.get(idcontrato=idempleado).salario
-                    multiplier = multiplier/30
+                    multiplier = (float(multiplier) / float(conceptfi.valorfijo)) * float(concept1.multiplicadorconcepto)
+                else:
+                    multiplier = 0
             else:
                 multiplier = 0
                 

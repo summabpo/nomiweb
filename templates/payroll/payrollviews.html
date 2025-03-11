@@ -62,7 +62,10 @@ up-modal[size=large] up-modal-box {
 }
 
 
-
+tr.htmx-swapping td {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
 
 {% endblock %}
 
@@ -112,6 +115,10 @@ up-modal[size=large] up-modal-box {
         up-history = "false"
         up-dismissable ="false"
         up-cache="false"
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="bottom" 
+        title="Cargar Novedades general" 
         href="{% url 'payroll:payroll_general' nombre.idnomina %}">
         <i class="fa-solid fa-file-circle-plus fs-3"></i>
 
@@ -120,10 +127,6 @@ up-modal[size=large] up-modal-box {
 {% endblock %}
 
 {% block content %}
-
-
-
-
 
 
 <div class="modal fade" tabindex="-1" id="kt_modal_loaddata">
@@ -214,7 +217,42 @@ up-modal[size=large] up-modal-box {
 
 {% block js %}
 
+<script>
+    document.addEventListener('htmx:beforeSwap', function(evt) {
+        if (evt.detail.xhr.status === 200) {
+            let target = evt.detail.target;
+            target.classList.add('opacity-0', 'transition', 'duration-500');
+            setTimeout(() => target.remove(), 500);
+        }
+    });
+</script>
 
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        console.log('Evento up:fragment:inserted disparado'); // Verifica que el evento se esté disparando
+        console.log('Elemento objetivo:', event.target); // Muestra el elemento objetivo del evento
+
+        // Verifica si el fragmento insertado es #item-list
+        if (event.target.matches("#item-list")) {
+            console.log('El elemento #item-list coincide'); // Verifica que el selector coincida
+
+            // Verifica si el acordeón existe en el DOM
+            const accordion = document.querySelector('#kt_accordion_1_body_1');
+            if (accordion) {
+                console.log('Recargando acordeón');
+                up.reload('#kt_accordion_1_body_1', { failSilently: true }); // Recarga el acordeón
+            } else {
+                console.log('El acordeón no existe en el DOM');
+            }
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('up:layer:dismiss', function(event) {
+        location.reload();
+    });
+</script>
 
 
 <script> 
@@ -284,7 +322,6 @@ up-modal[size=large] up-modal-box {
                             const cantidad = parseFloat(event.target.value) || 0;
                             const resultado = cantidad * data.multiplier;
                             conceptValue.value = resultado.toFixed(2);
-                            console.log('Cantidad cambiada:', event.target.value);
                         });
 
 
@@ -468,6 +505,14 @@ up-modal[size=large] up-modal-box {
                     event.target.previousElementSibling.hidden = false;
                     
                     toastr.success(res.mensaje, "Éxito");
+                    // Verifica si el acordeón existe en el DOM
+                    const accordion = document.querySelector('#kt_accordion_1_body_1');
+                    if (accordion) {
+                        console.log('Recargando acordeón');
+                        up.reload('#kt_accordion_1_body_1', { failSilently: true }); // Recarga el acordeón
+                    } else {
+                        console.log('El acordeón no existe en el DOM');
+                    }
 
                 } else {
                     toastr.error("Ocurrio un error inesperado", "Error"); 
