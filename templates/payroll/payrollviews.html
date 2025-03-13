@@ -219,6 +219,42 @@ tr.htmx-swapping td {
 
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
+        // Verifica si el target actualizado es #item-list
+        if (event.target.id === 'item-list') {
+            console.log('Formulario enviado y #item-list actualizado');
+            clearFormFields();
+            
+        }
+    });
+
+    function clearFormFields() {
+        const conceptSelect = document.querySelector('#concept');
+        if (conceptSelect) {
+            $(conceptSelect).val(null).trigger('change'); // Para Select2
+            console.log('---------------------');
+            console.log('ID del item1:', conceptSelect.id);
+            console.log('---------------------');
+        }
+    
+        const cantidadInput = document.querySelector('#cantidad');
+        if (cantidadInput) {
+            cantidadInput.value = '';
+            console.log('---------------------');
+            console.log('ID del item: cantidad');
+            console.log('---------------------');
+        }
+    
+        const valorInput = document.querySelector('#valor');
+        if (valorInput) {
+            valorInput.value = '';
+        }
+    }
+</script>
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
         console.log('Evento up:fragment:inserted disparado'); // Verifica que el evento se esté disparando
         console.log('Elemento objetivo:', event.target); // Muestra el elemento objetivo del evento
 
@@ -261,6 +297,8 @@ tr.htmx-swapping td {
     
             // Deshabilitar campos inicialmente
             if (conceptAmount && conceptValue) {
+                conceptAmount.value = '';
+                conceptValue.value = '';
                 conceptAmount.disabled = true;
                 conceptValue.disabled = true;
             }
@@ -269,6 +307,8 @@ tr.htmx-swapping td {
                 const selectedValue = e.params.data.id;
                 // Deshabilitar campos inicialmente
                 if (conceptAmount && conceptValue) {
+                    conceptAmount.value = '';
+                    conceptValue.value = '';
                     conceptAmount.disabled = true;
                     conceptValue.disabled = true;
                 }
@@ -295,6 +335,12 @@ tr.htmx-swapping td {
                         const conceptSelect = document.getElementById('concept');
                         conceptSelect.value = data.concept;
                         if (data.formula) {
+                            if (conceptAmount && conceptValue) {
+                                conceptAmount.value = '';
+                                conceptValue.value = '';
+                                conceptAmount.disabled = true;
+                                conceptValue.disabled = true;
+                            }
                             // Habilitar campos solo si se selecciona algo
                             if (conceptAmount) {
                                 conceptAmount.disabled = !selectedValue;
@@ -328,6 +374,8 @@ tr.htmx-swapping td {
             $(conceptSelect).on('select2:clear', function() {
                 // Deshabilitar campos si se limpia la selección
                 if (conceptAmount && conceptValue) {
+                    conceptAmount.value = '';
+                    conceptValue.value = '';
                     conceptAmount.disabled = true;
                     conceptValue.disabled = true;
                 }
@@ -353,14 +401,25 @@ tr.htmx-swapping td {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Sí, eliminar'
         }).then((result) => {
-            if (result.isConfirmed) {
-                const deleteUrl = `/payroll/payroll/form/modals/delete/${itemId}/`;
-                htmx.ajax('DELETE', deleteUrl, {
-                    target: `#item-${itemId}`,
-                    swap: 'outerHTML'
-                });
-                Swal.fire('¡Eliminado!', 'El elemento ha sido eliminado.', 'success');
-            }
+            const csrftoken = '{{ csrf_token }}';
+
+            up.request("{% url 'payroll:payroll_delete' %}", {
+                method: 'POST',
+                params: {
+                    idn: itemId,
+                    csrfmiddlewaretoken: csrftoken
+                },
+                fail: false
+            }).then((response) => {
+                console.log('Respuesta exitosa:', response);
+                const res = response.json;
+                up.reload('#item-list');
+
+            }).catch((response) => {
+                toastr.error("Ocurrio un error inesperado", "Error"); 
+                console.error('Error en la solicitud:', response);
+
+            });
         });
     }
 </script>
@@ -393,19 +452,70 @@ tr.htmx-swapping td {
         const amount = document.getElementById(`amount-${idn}`);
         const value = document.getElementById(`value-${idn}`);
         const saveButton = event.target.nextElementSibling;
-    
-        if (select && amount && value && saveButton) {
-            select.disabled = false;
-            //amount.disabled = false;
-            value.disabled = false;
-            event.target.hidden = true;
-            saveButton.hidden = false;
-    
-            // Volver a habilitar el botón de save por si quedó deshabilitado
-            saveButton.disabled = false;
-            saveButton.style.pointerEvents = 'auto';
-            saveButton.style.opacity = '1';
-        }
+        const csrftoken = '{{ csrf_token }}';
+
+        up.request('{% url "payroll:payroll_info_edit" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            params: {
+                concept: select.value,
+                idn: idn,
+            },
+            feedback: true
+        }).then(function(response) {
+            const data = JSON.parse(response.text);
+            console.log('Respuesta exitosa:', data);
+            if (data.formula) {
+                // Habilitar campos solo si se selecciona algo
+                if (amount) {
+                    amount.disabled = false;
+
+                    event.target.hidden = true;
+                    saveButton.hidden = false;
+            
+                    // Volver a habilitar el botón de save por si quedó deshabilitado
+                    saveButton.disabled = false;
+                    saveButton.style.pointerEvents = 'auto';
+                    saveButton.style.opacity = '1';
+
+                    amount.addEventListener('input', (event) => {
+                        const cantidad = parseFloat(event.target.value) || 0;
+                        const resultado = cantidad * data.multiplier;
+                        value.value = resultado.toFixed(2);
+                    });
+
+                }
+            } else {
+                if (value) {
+                    value.disabled = false;
+
+                    event.target.hidden = true;
+                    saveButton.hidden = false;
+            
+                    // Volver a habilitar el botón de save por si quedó deshabilitado
+                    saveButton.disabled = false;
+                    saveButton.style.pointerEvents = 'auto';
+                    saveButton.style.opacity = '1';
+
+                }
+            }
+
+
+
+
+        }).catch(function(error) {
+            console.error('Error en la petición:', error);
+        });
+
+
+
+
+        
+
+
     });
 
     up.on('save-concepto', function(event) {

@@ -310,7 +310,7 @@ def payroll_edit(request):
         data = request.POST
         idn = data.get('idn')
         amount = data.get('amount').replace(',', '.')  # Reemplazamos la coma por un punto
-        value = data.get('value')
+        value = data.get('value').replace(',', '') 
         concept = data.get('concept')
         try:
             value_decimal = Decimal(value)
@@ -331,19 +331,69 @@ def payroll_edit(request):
 
 @login_required
 @role_required('accountant')
-def payroll_delete(request, idn):
-    concepto = get_object_or_404(Conceptosdenomina, idn=idn)
-    concepto.delete()
-    return HttpResponse(status=204)  # Respuesta sin contenido (eliminación exitosa)
+def payroll_delete(request):
+    ingreso = 0  # Inicializamos la variable ingreso
+    egreso = 0   # Inicializamos la variable egreso
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    conceptos_data = []
 
-
-
-def delete_item(request, item_id):
-    if request.method == "DELETE":
-        print('llegue')
-        return HttpResponse("<!-- empty -->", status=200)
-    return HttpResponse(status=405) 
+    if request.method == 'POST':
+        
+        body = QueryDict(request.body.decode('utf-8'))  # Parseamos el body
+        idn = body.get('idn')
+        print('---------------------')
+        print(idn)
+        
+        #concepto = get_object_or_404(Nomina, idregistronom=idn)
+        concepto = Nomina.objects.get(idregistronom=idn)
+        
+        print(concepto.idconcepto.nombreconcepto)
+        print('---------------------')
+        
+        conceptos = Nomina.objects.filter(
+                    idnomina__idnomina=concepto.idnomina.idnomina,
+                    idcontrato__idcontrato=concepto.idcontrato.idcontrato
+                ).select_related('idcontrato').order_by('idconcepto__codigo')
+        
+        for concepto1 in conceptos:
+            # Crear el diccionario con los datos del concepto
+            concepto_info = {
+                'idn': concepto1.idregistronom,
+                "id": concepto1.idconcepto.idconcepto,
+                "amount": concepto1.cantidad,
+                "value": concepto1.valor,
+            }
+            
+            # Agregar el concepto al arreglo
+            conceptos_data.append(concepto_info)
+            
+            # Revisar si el valor es mayor que 0 (ingreso) o negativo (egreso)
+            if concepto.valor > 0:
+                ingreso += concepto.valor  # Agregar a ingreso si es positivo
+            elif concepto.valor < 0:
+                egreso += concepto.valor 
+        
+        total = ingreso + egreso
+                
+        concepto.delete()
     
+        
+    
+    data = {    
+        "salario": f"${format_value(concepto.idcontrato.salario)}",
+        "ingresos": f"${format_value(ingreso)}",
+        "egresos": f"${format_value(egreso)}",
+        "total": f"${format_value(total)}",
+        "conceptos": conceptos_data,
+        "value": True,
+        "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
+    }
+
+
+    return JsonResponse({'message': 'Datos recibidos correctamente', 'data': data})
+
+
 
 @require_GET
 def payroll_value(request):
@@ -509,13 +559,41 @@ def payroll_calculate(request,id):
 
 
 
-# @login_required
-# @role_required('accountant')
-# def payroll_info_edit(request):
-#     if request.method == 'POST':
-#         body = QueryDict(request.body.decode('utf-8'))
-#         idn = body.get('idn') 
+@login_required
+@role_required('accountant')
+def payroll_info_edit(request):
+    if request.method == 'POST':
+        body = QueryDict(request.body.decode('utf-8'))
+        concept = body.get('concept')
+        idn = body.get('idn') 
         
+        concepto_obj = Nomina.objects.get(idregistronom=idn)
+        conceptfi = Conceptosfijos.objects.get(idfijo = 25) 
+        nomina = Crearnomina.objects.get(idnomina=concepto_obj.idnomina.idnomina)
+        concept1 = Conceptosdenomina.objects.get(idconcepto=concept)
+        formula = str(concept1.formula).strip() in ['0', '1', '2']
+        
+        if formula:
+            if concept1.formula == '1':
+                if concept1.codigo == 2:
+                    aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
+                    multiplier = (aux/30) * float(concept1.multiplicadorconcepto)
+                else :
+                    multiplier = Contratos.objects.get(idcontrato=concepto_obj.idcontrato.idcontrato).salario
+                    multiplier = (multiplier/30) * float(concept1.multiplicadorconcepto)
+            elif concept1.formula == '2':
+                multiplier = Contratos.objects.get(idcontrato=concepto_obj.idcontrato.idcontrato).salario
+                multiplier = (float(multiplier) / float(conceptfi.valorfijo)) * float(concept1.multiplicadorconcepto)
+            else:
+                multiplier = 0
+        else:    
+            multiplier = 0
+        
+        if not concept:
+            return JsonResponse({'error': 'No se seleccionó ningún concepto'}, status=400)
+        
+        return JsonResponse({'message': 'Datos recibidos correctamente', 'concept': concept , 'idn': idn , 'formula': formula , 'multiplier': multiplier})
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
         
            
         

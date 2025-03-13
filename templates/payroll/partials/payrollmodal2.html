@@ -71,11 +71,11 @@
 
 
                     <form 
-                    up-target="#item-list"
-                    up-submit="true" 
-                    up-layer="current" 
-                    method="post" 
-                    action="{% url 'payroll:payroll_create' %}" >
+                        up-target="#item-list"
+                        up-submit="true" 
+                        up-layer="current" 
+                        method="post" 
+                        action="{% url 'payroll:payroll_create' %}" >
                     
                         {% csrf_token %}
                         <div class="form-group row align-items-center">
