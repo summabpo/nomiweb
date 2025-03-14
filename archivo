@@ -1,0 +1,342 @@
+$idn         =[v_idnomina];
+$parteNomina = [v_parte];
+
+if (empty($parteNomina)) {
+ 
+ $parteNomina = 0;
+}
+
+if ($parteNomina == 0) {
+
+ sc_lookup(databas,"SELECT DISTINCT idcontrato, idempleado, estadoliquidacion FROM contratos WHERE contratos.estadoliquidacion = 3 ");
+ 
+} else {
+ 
+ sc_lookup(databas,"SELECT DISTINCT idcontrato, idempleado, estadoliquidacion FROM contratos WHERE contratos.estadoliquidacion = 3 AND contratos.idcosto = $parteNomina");
+ 
+}
+
+#####################################################
+
+sc_lookup(datanomina, "select idnomina, fechainicial,fechafinal,diasnomina,mesacumular,anoacumular from crearnomina WHERE idnomina=$idn");
+
+if (!empty({datanomina}[0][0])) { 
+
+ $fechainicial   = {datanomina[0][1]};
+ $diainicial     = date("d", strtotime($fechainicial)); 
+ $fechafinal     = {datanomina[0][2]};
+ $diafinal       = date("d", strtotime($fechafinal)); 
+ [v_mesacumular] = {datanomina[0][4]};
+ [v_anoacumular] = {datanomina[0][5]};
+
+} else {
+
+ echo('error de creacion de nomina');
+
+}
+
+############################################################
+
+sc_lookup(datamin,"SELECT idano,salariominimo from salariominimoanual WHERE idano = '[v_anoacumular]'");
+
+$salmin = {datamin[0][1]};
+
+sc_lookup(datatra,"SELECT idano,auxtransporte from salariominimoanual WHERE idano = '[v_anoacumular]'");
+
+$auxtra   = {datatra[0][1]};
+$array    = {databas};
+$longitud = count($array);
+
+##########################INICIA ITERACION DE LA NOMINA########################
+$n = 0;
+
+for ($n=0; $n<$longitud; $n++) {
+ 
+ $ide = {databas[$n][1]};
+ $idc = {databas[$n][0]};
+ 
+ ############ calcula los dias a liquidar en la nomina teniendo en cuenta la fecha de contratacion y terminacion####
+
+    sc_lookup(datasalario, "SELECT idempleado, idcontrato, salario, tiposalario, fechainiciocontrato, fechafincontrato,    
+    auxiliotransporte,idcosto, tipocontrato from contratos WHERE idcontrato=$idc");
+
+
+$fechacontrato    = {datasalario[0][4]};
+ $fechaterminacion = {datasalario[0][5]};
+ $sal              = {datasalario[0][2]};
+ $tiposal          = {datasalario[0][3]};
+ $ccosto           = {datasalario[0][7]};
+    $tipocontrato     = {datasalario[0][8]};
+ 
+ if (!empty({datasalario}[0][0])) {
+  
+  if($fechacontrato <= $fechainicial){
+   
+   $diasnomina = {datanomina[0][3]};
+   
+  } else {
+   
+   $diasnomina = sc_date_dif($fechafinal, 'aaaa-mm-dd', $fechacontrato, 'aaaa-mm-dd')+1;
+   
+  }
+  
+  if (!empty($fechaterminacion)) {
+   
+   if (($fechaterminacion >= $fechainicial) and ($fechaterminacion <= $fechafinal)) { 
+    
+    $resto      = sc_date_dif($fechafinal, 'aaaa-mm-dd', $fechaterminacion, 'aaaa-mm-dd');
+    $diasnomina = $diasnomina - $resto ;
+    
+   }
+   
+  }
+  
+ }
+ 
+ 
+ ################## DESCUENTA TIEMPO DE VACACIONES/SUSPENSIONES/LICENCIAS #########################
+ sc_lookup(datavac, "SELECT idcontrato, fechainicialvac, ultimodiavac FROM vacaciones WHERE idcontrato = $idc 
+ AND tipovac <> '2' AND (
+    (fechainicialvac >= '$fechainicial' AND ultimodiavac <= '$fechafinal') 
+    OR (fechainicialvac < '$fechainicial' AND  ultimodiavac >= '$fechainicial' AND ultimodiavac <= '$fechafinal')
+    OR (fechainicialvac >= '$fechainicial' AND  fechainicialvac <= '$fechafinal' AND ultimodiavac >= '$fechafinal'))");
+ 
+ $array_vac          = {datavac};
+    $lineas_vac         = count($array_vac);
+    $v                  = 0;
+ $diasVacaciones     = 0;  
+ $acumDiasVacaciones = 0;
+   
+ if (!empty({datavac[0][0]})) {
+  
+  for ($v=0; $v < $lineas_vac; $v++) {
+   
+   $fechaInicialVac = {datavac[$v][1]};
+   $fechaFinalVac   = {datavac[$v][2]};
+   
+   if ($fechaInicialVac >= $fechainicial AND $fechaFinalVac <= $fechafinal) {
+    
+    $diasVacaciones = sc_date_dif($fechaFinalVac, 'aaaa-mm-dd', $fechaInicialVac, 'aaaa-mm-dd')+1;
+    
+   } elseif ($fechaInicialVac >= $fechainicial AND $fechaFinalVac > $fechafinal) {
+    
+    $diasVacaciones = sc_date_dif($fechafinal, 'aaaa-mm-dd', $fechaInicialVac, 'aaaa-mm-dd')+1;
+    
+   } elseif ($fechaInicialVac < $fechainicial AND $fechaFinalVac <= $fechafinal) {
+   
+    $diasVacaciones = sc_date_dif($fechaFinalVac, 'aaaa-mm-dd', $fechainicial, 'aaaa-mm-dd')+1;
+    
+   } elseif ($fechaInicialVac < $fechainicial AND $fechaFinalVac > $fechafinal) {
+   
+    $diasVacaciones = sc_date_dif($fechafinal, 'aaaa-mm-dd', $fechainicial, 'aaaa-mm-dd')+1;
+    
+   }
+   else{
+    
+    $diasVacaciones = 0;
+    
+   }
+   
+   $acumDiasVacaciones = $diasVacaciones + $acumDiasVacaciones;
+   
+  }
+  
+ }
+ 
+ $diasnomina = $diasnomina - $acumDiasVacaciones;
+ ################## CALCULA DIAS DE INCAPACIDAD  ##################
+ sc_lookup(datadiasincapacidad, "SELECT SUM(cantidad) FROM nomina where idnomina = '[v_idnomina]' AND idcontrato = $idc AND (idconcepto = 25 OR idconcepto = 26 OR idconcepto = 27 OR idconcepto = 28 OR idconcepto = 29)");
+ 
+if (!empty({datadiasincapacidad[0][0]})) { 
+ $sumaDiasIncapacidad = {datadiasincapacidad[0][0]};
+ } else {
+    $sumaDiasIncapacidad = 0;
+    }
+    $diasnomina = $diasnomina - $sumaDiasIncapacidad; # ELIMINADA DIVISION SumaDiasIncapacidad/8
+    ################## SEPARA SALARIO INTEGRAL DE SUELDO BASICO ###############
+ if ($diasnomina > 0) {
+  
+  $valorsalario  = ($sal/30*$diasnomina);
+  $cantidadhoras = ($diasnomina); #ELIMINADA MULIPLICACION $diasnomina*8
+   
+  sc_lookup(datareg, "select idconcepto from nomina where ((idconcepto = '1' or idconcepto = '4' or idconcepto = '33' or idconcepto = '34') and idnomina = 
+  $idn and idcontrato = $idc) ");
+
+  if ($tiposal == 2) {
+   
+   $idconceptoS     = '4';
+   $nombreconceptoS = 'Salario Integral';
+
+  } else {
+   
+   if (($tipocontrato == 5) or ($tipocontrato == 6)) {
+    
+    $idconceptoS     = '34';
+    $nombreconceptoS = 'Apoyo Sostenimiento EP';
+    
+   } else { 
+    
+    $idconceptoS     = '1';
+    $nombreconceptoS = 'Sueldo Basico';
+   } 
+  }
+ 
+  if (empty({datareg[0][0]})) {
+
+
+sc_exec_sql("INSERT INTO nomina (idregistronom, idnomina, idconcepto, nombreconcepto, valor,   idempleado, 
+   mesacumular, 
+   anoacumular, cantidad, idcontrato,idcosto) VALUES (nextval('sec_regnomina'),'[v_idnomina]', 
+   '$idconceptoS','$nombreconceptoS', $valorsalario, $ide, 
+   '[v_mesacumular]','[v_anoacumular]',$cantidadhoras,$idc,$ccosto)");
+
+  } else {
+
+   sc_exec_sql("UPDATE nomina SET valor = $valorsalario, cantidad = $cantidadhoras WHERE idnomina = $idn and  idcontrato = $idc and idconcepto = '$idconceptoS'");
+
+  }
+  
+ }
+    #######################IMPORTA NOVEDADES FIJAS################################
+ 
+    sc_lookup(datanf, "select idcontrato, idconcepto, nombreconcepto, valor, estado_novfija, pago, diapago, idnovfija from nov_fijos where 
+ idcontrato = $idc and estado_novfija = '1'");
+
+ $arrayfijas = {datanf};
+ $long       = count($arrayfijas);
+ $f          = 0;
+ 
+ for ($f=0; $f<$long; $f++) { 
+ 
+  $idconc       = {datanf[$f][1]};
+  $nc           = {datanf[$f][2]};
+  $valorfijo    = {datanf[$f][3]}/30*$diasnomina;
+  $diapago      = {datanf[$f][6]};
+  $pago         = {datanf[$f][5]};
+  $control_fija = {datanf[$f][7]};
+
+  sc_lookup(datafx, "select idconcepto,idnomina,idcontrato from nomina where idcontrato = $idc and idnomina = $idn and idconcepto = $idconc");
+
+  if ($pago == 1) {
+
+   if (($diapago >= $diainicial) && ($diapago <= $diafinal)) {
+
+    if (empty({datafx[0][0]})) {
+
+     sc_exec_sql("insert into nomina (idregistronom, idnomina, idconcepto, nombreconcepto,     
+     valor,idempleado,mesacumular, anoacumular, cantidad, idcontrato,idcosto, control) 
+     VALUES(nextval('sec_regnomina'),$idn,$idconc,'$nc',$valorfijo, $ide, 
+     '[v_mesacumular]', '[v_anoacumular]','0',$idc,$ccosto, $control_fija)");
+
+    } else {
+
+     sc_exec_sql("UPDATE nomina SET valor = $valorfijo, cantidad = '0' WHERE idnomina = $idn and idcontrato = 
+     $idc and idconcepto = $idconc");
+
+    } 
+
+   }
+
+  } else {
+
+   if (empty({datafx[0][0]})) {
+
+    sc_exec_sql("insert into nomina (idregistronom, idnomina, idconcepto, nombreconcepto,     
+    valor,idempleado,mesacumular, anoacumular, cantidad, idcontrato,idcosto, control) 
+    VALUES(nextval('sec_regnomina'),$idn,$idconc,'$nc',$valorfijo, $ide, 
+    '[v_mesacumular]', '[v_anoacumular]','0', $idc, $ccosto, $control_fija)");
+
+   } else {
+
+    sc_exec_sql("UPDATE nomina SET valor = $valorfijo, cantidad = '0' WHERE idnomina = $idn and idcontrato = 
+    $idc and idconcepto = $idconc");
+
+   } 
+  }
+ }
+ 
+  
+ ############# PRESTAMOS ########################
+
+ sc_lookup (dataprestamos, "select idprestamo, idcontrato, idempleado, valorcuota, estadoprestamo, formapago, 
+ diapago from prestamos where idcontrato = 
+ $idc and estadoprestamo = '1'");
+ 
+ sc_lookup(dataptmo, "select idconcepto from nomina where ((idconcepto = '50') and idnomina = $idn and 
+ idcontrato = $idc) ");
+
+ if (!empty({dataprestamos[0][0]})) {
+  
+  $arraypre = {dataprestamos};
+  $longpre  = count($arraypre);
+  $p        = 0;
+  
+  if (empty ({dataptmo[0][0]})) {
+
+   for($p = 0; $p < $longpre; $p++) {
+
+    $pagop = {dataprestamos[$p][5]};
+    $diapagop = {dataprestamos[$p][6]};
+
+    if ($pagop == 1) { 
+
+     if (($diapagop >= $diainicial) && ($diapagop <= $diafinal)) {
+
+      $valorcuota = {dataprestamos[$p][3]} * -1;
+
+      sc_exec_sql("insert into nomina (idregistronom, idnomina, idconcepto, nombreconcepto, 
+      valor,idempleado,mesacumular, anoacumular, cantidad, 
+      idcontrato,idcosto) 
+      VALUES(nextval('sec_regnomina'),'[v_idnomina]', '50','Prestamo a Empleados','$valorcuota', 
+      $ide, 
+      '[v_mesacumular]','[v_anoacumular]',0,$idc,$ccosto)");
+     }
+    } else {
+
+     $valorcuota = {dataprestamos[$p][3]} * -1;
+     sc_exec_sql("insert into nomina (idregistronom, idnomina, idconcepto,nombreconcepto, 
+     valor,idempleado,mesacumular, anoacumular, cantidad, 
+     idcontrato,idcosto) 
+     VALUES(nextval('sec_regnomina'),'[v_idnomina]', '50','Prestamo a Empleados','$valorcuota', $ide, 
+     '[v_mesacumular]','[v_anoacumular]',0,$idc,$ccosto)");
+
+    }
+
+   }
+
+  } else {
+
+$arraypre = {dataprestamos};
+   $longpre  = count($arraypre);
+   $p        = 0;
+
+   for ($p = 0; $p < $longpre; $p++) {
+
+    $pagop    = {dataprestamos[$p][5]};
+    $diapagop = {dataprestamos[$p][6]};
+
+    if ($pagop == 1) { 
+
+     if (($diapagop >= $diainicial) && ($diapagop <= $diafinal)) {
+
+      $valorcuota = {dataprestamos[$p][3]} * -1;
+
+      sc_exec_sql("UPDATE nomina SET valor = $valorcuota, cantidad = '0' WHERE idnomina = $idn 
+      and idcontrato = $idc and idconcepto = 50");
+
+     }
+
+    } else {
+
+     $valorcuota = {dataprestamos[$p][3]} * -1;
+
+     sc_exec_sql("UPDATE nomina SET valor = $valorcuota, cantidad = '0' WHERE idnomina = $idn and 
+     idcontrato = $idc and idconcepto = 50");
+
+    }
+   }
+
+  }
+ }
+ 
+}  //FIN DEL FOR GENERAL

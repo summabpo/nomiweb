@@ -1,11 +1,13 @@
 from django.urls import path
 from .views.index import index
-from .views.payroll import payroll
+from .views.payroll import payroll , payroll_automatic_systems
 from .views.flat  import flat 
 from .views.electronic_payroll import electronic_payroll
 from .views.loans import loans
 from .views.parameters import parameters
 from .views.pruebas import pruebas
+
+
 
 urlpatterns = [
     path('home/', index.index_payroll, name='index_payroll'),
@@ -83,6 +85,13 @@ urlunpolypatterns =[
     # segundas pruebas 
     path('my_form/', pruebas.my_form, name='my_form'),
     path('validate_number/', pruebas.get_multiplicador, name='get_multiplicador'),
+    
+    
+    
+    ## sitemas automaticos 
+    
+    path('payroll/automatic_systems/modal/<int:type_payroll>', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
+    
     
 ]
 

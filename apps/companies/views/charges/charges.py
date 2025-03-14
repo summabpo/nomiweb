@@ -32,7 +32,7 @@ def charges(request):
     
     
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def charges_modal(request): 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']

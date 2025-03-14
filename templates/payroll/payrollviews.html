@@ -40,6 +40,12 @@ up-modal[size=large] up-modal-box {
     
 }
 
+up-modal[size=medium] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
 .select2-container .select2-selection--single .select2-selection__rendered {
     text-align: left;
 }
@@ -127,6 +133,135 @@ tr.htmx-swapping td {
 {% endblock %}
 
 {% block content %}
+
+<div class="btn-group" role="group" aria-label="Payroll options">
+
+    <a 
+        up-layer="new modal"
+        up-target=".modal-content"
+        up-size="medium"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false"
+
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top"
+        title="Generación automática de nómina básica" 
+
+        href="{% url 'payroll:automatic_systems' 0 %}"
+        class="btn btn-light-info">
+        Nómina Básica
+    </a>
+
+    <a 
+        up-layer="new modal"
+        up-target=".modal-content"
+        up-size="medium"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false"
+
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top"
+        title="Generación automática de nómina con incapacidades" 
+
+        href="{% url 'payroll:automatic_systems' 1 %}"
+        class="btn btn-light-info">
+        Incapacidades
+    </a>
+
+    <a 
+        up-layer="new modal"
+        up-target=".modal-content"
+        up-size="medium"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false"
+        
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top"
+        title="Generación automática de nómina con aportes" 
+
+        href="{% url 'payroll:automatic_systems' 2 %}"
+        class="btn btn-light-info">
+        Aportes
+    </a>
+
+    <a 
+        up-layer="new modal"
+        up-target=".modal-content"
+        up-size="medium"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false"
+
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top"
+        title="Generación automática de nómina con transporte"
+
+        href="{% url 'payroll:automatic_systems' 3 %}"
+        class="btn btn-light-info">
+        Transporte
+    </a>
+
+    <a 
+        up-layer="new modal"
+        up-target=".modal-content"
+        up-size="medium"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false"
+
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top"
+        title="Reinicio de datos dentro de la nómina"
+
+        href="{% url 'payroll:automatic_systems' 4 %}"
+        class="btn btn-light-info">
+        Reiniciar
+    </a>
+
+</div>
+
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = event.target.querySelector('#modal-content');
+        if (modalContent) {
+            const checkbox = modalContent.querySelector('#need-comment');
+            if (checkbox) {
+            checkbox.addEventListener('change', toggleCommentField);
+            }
+        }
+        });
+    
+        function toggleCommentField() {
+        const checkbox = document.getElementById('need-comment');
+        const commentField = document.getElementById('comment-field');
+        if (checkbox && commentField) {
+            commentField.style.display = checkbox.checked ? 'block' : 'none';
+        }
+    }
+</script>
+
+
 
 
 <div class="modal fade" tabindex="-1" id="kt_modal_loaddata">
@@ -221,7 +356,7 @@ tr.htmx-swapping td {
     document.addEventListener('up:fragment:inserted', function(event) {
         // Verifica si el target actualizado es #item-list
         if (event.target.id === 'item-list') {
-            console.log('Formulario enviado y #item-list actualizado');
+            
             clearFormFields();
             
         }
@@ -231,17 +366,13 @@ tr.htmx-swapping td {
         const conceptSelect = document.querySelector('#concept');
         if (conceptSelect) {
             $(conceptSelect).val(null).trigger('change'); // Para Select2
-            console.log('---------------------');
-            console.log('ID del item1:', conceptSelect.id);
-            console.log('---------------------');
+            
         }
     
         const cantidadInput = document.querySelector('#cantidad');
         if (cantidadInput) {
             cantidadInput.value = '';
-            console.log('---------------------');
-            console.log('ID del item: cantidad');
-            console.log('---------------------');
+            
         }
     
         const valorInput = document.querySelector('#valor');
