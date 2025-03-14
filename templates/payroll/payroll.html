@@ -86,6 +86,7 @@ Plantilla de Nominas
                 <th>Nombre de Nomina</th>
                 <th class="text-center">Fecha Inicial</th>
                 <th class="text-center">Fecha Final</th>
+                <th class="text-center">Dias de nomina</th>
                 <th class="text-center">Fecha Pago</th>
                 <th class="text-center">
                     <div class="container d-flex justify-content-center align-items-center">
@@ -104,6 +105,7 @@ Plantilla de Nominas
                     <td class="align-middle">{{ nomina.nombrenomina }}</td>
                     <td class="text-center align-middle">{{ nomina.fechainicial|date:'d-m-Y' }}</td>
                     <td class="text-center align-middle">{{ nomina.fechafinal|date:'d-m-Y' }}</td>
+                    <td class="text-center align-middle">{{ nomina.diasnomina }}</td>
                     <td class="text-center align-middle">{{ nomina.fechapago|date:'d-m-Y' }}</td>
                     <td class="text-center align-middle">
                         <a href="{% url 'payroll:payrollview' nomina.idnomina %}" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Nomina">

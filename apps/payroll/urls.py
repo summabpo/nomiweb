@@ -1,11 +1,13 @@
 from django.urls import path
 from .views.index import index
-from .views.payroll import payroll
+from .views.payroll import payroll , payroll_automatic_systems
 from .views.flat  import flat 
 from .views.electronic_payroll import electronic_payroll
 from .views.loans import loans
 from .views.parameters import parameters
 from .views.pruebas import pruebas
+
+
 
 urlpatterns = [
     path('home/', index.index_payroll, name='index_payroll'),
@@ -66,9 +68,10 @@ urlunpolypatterns =[
     path('payroll/modals/edit', payroll.payroll_edit, name='payroll_edit'),
     path('payroll/form/modals/value', payroll.payroll_value, name='payroll_value'),
     path('payroll/form/modals/create', payroll.payroll_create, name='payroll_create'),
-    path('payroll/form/modals/delete/<int:idn>', payroll.payroll_delete, name='payroll_delete'),
+    path('payroll/form/modals/delete', payroll.payroll_delete, name='payroll_delete'),
     path('payroll/form/calculate/<int:id>', payroll.payroll_calculate, name='payroll_calculate'),
     path('payroll/form/concept/', payroll.payroll_concept_info, name='payroll_concept_info'),
+    path('payroll/form/concept/edit', payroll.payroll_info_edit, name='payroll_info_edit'),
     
     ## add employee
     path('payroll/<int:idnomina>/payroll_general', payroll.payroll_general, name='payroll_general'),
@@ -82,6 +85,13 @@ urlunpolypatterns =[
     # segundas pruebas 
     path('my_form/', pruebas.my_form, name='my_form'),
     path('validate_number/', pruebas.get_multiplicador, name='get_multiplicador'),
+    
+    
+    
+    ## sitemas automaticos 
+    
+    path('payroll/automatic_systems/modal/<int:type_payroll>', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
+    
     
 ]
 

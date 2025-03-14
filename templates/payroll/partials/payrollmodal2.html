@@ -71,11 +71,11 @@
 
 
                     <form 
-                    up-target="#item-list"
-                    up-submit="true" 
-                    up-layer="current" 
-                    method="post" 
-                    action="{% url 'payroll:payroll_create' %}" >
+                        up-target="#item-list"
+                        up-submit="true" 
+                        up-layer="current" 
+                        method="post" 
+                        action="{% url 'payroll:payroll_create' %}" >
                     
                         {% csrf_token %}
                         <div class="form-group row align-items-center">
@@ -96,8 +96,6 @@
                                         name="cantidad"
                                         class="form-control mb-2 mb-md-0"
                                         placeholder="Cantidad"
-                                        up-target="#dummy-target" 
-                                        onchange="this.form.action=&quot;{% url 'payroll:payroll_calculate' data.id %}&quot;; this.form.requestSubmit();"
                                         
                                         />
                     

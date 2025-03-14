@@ -1,0 +1,54 @@
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title"> {{titulo}} </h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        
+        <div class="d-flex justify-content-center">
+            <div class="col-md-12">
+              <form method="post" action="/submit" class="form-group">
+                <div class="row mb-3 justify-content-center">
+                  <div class="col-md-6 input-group-sm text-center">
+                    <label for="cost-center">
+                      <input type="checkbox" id="need-comment" up-change="toggleCommentField()">
+                      Cálculo por centro de costo?
+                    </label>
+                  </div>
+                  <div class="col-md-6 input-group-sm text-center ">
+                    <label for="no-cost-center">
+                      <input type="checkbox" id="no-cost-center" name="no-cost-center" up-change="toggleCommentField()">
+                      Sin centro de costo?
+                    </label>
+                  </div>
+                </div>
+                <br>
+                <div class="row mb-3 justify-content-center" id="comment-field" style="display: none;">
+                  <div class="col-md-12 input-group-sm text-center">
+                    <select required id="costos" name="costos" class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un Centro de Costo">
+                      <option value=""></option>
+                      {% for centro in centros %}
+                        <option value="{{ centro.idcosto }}">{{ centro.nomcosto }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer btn-group">
+        <button type="submit" class="btn btn-light-primary">Enviar</button>
+        <div style="width: 10px;"></div>
+        <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+    </div>
+</div>

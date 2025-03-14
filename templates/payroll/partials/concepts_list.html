@@ -15,8 +15,8 @@
                 <div class="col-md-2 input-group-sm">
                     <input type="text" class="form-control mb-2 mb-md-0" placeholder="Cantidad" value="{{ concepto.amount }}" disabled id="amount-{{ concepto.idn }}" />
                 </div>
-                <div class="col-md-3 input-group-sm">
-                    <input type="text" class="form-control mb-2 mb-md-0" placeholder="Valor" value="{{ concepto.value }}" disabled id="value-{{ concepto.idn }}" />
+                <div class="col-md-3 input-group-sm" >
+                    <input type="text" class="form-control mb-2 mb-md-0" placeholder="Valor" value="{{ concepto.value }}" disabled id="value-{{ concepto.idn }}" x-mask:dynamic="$money($input, '.', ',', 4)" />
                 </div>
 
                 <div class="col-md-3 d-flex align-items-center">
@@ -39,7 +39,7 @@
                     <!-- Botón de eliminar -->
                     <button 
                     class="btn btn-icon btn-light-youtube me-2"
-                    onclick="confirmDelete('{{ item.id }}')"
+                    onclick="confirmDelete('{{ concepto.idn }}')"
                     
                     >
                         <i class="ki-duotone ki-trash fs-4">
@@ -50,9 +50,6 @@
                             <span class="path5"></span>
                         </i>
                     </button>
-
-
-
                 </div>
             </div>
         </li>
