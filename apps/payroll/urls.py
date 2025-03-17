@@ -66,7 +66,6 @@ urlpatterns += urlhtmxpatterns
 urlunpolypatterns =[
     path('payroll/<int:id>/<int:idnomina>/modals/add', payroll.payroll_modal, name='payroll_modal'),
     path('payroll/modals/edit', payroll.payroll_edit, name='payroll_edit'),
-    path('payroll/form/modals/value', payroll.payroll_value, name='payroll_value'),
     path('payroll/form/modals/create', payroll.payroll_create, name='payroll_create'),
     path('payroll/form/modals/delete', payroll.payroll_delete, name='payroll_delete'),
     path('payroll/form/calculate/<int:id>', payroll.payroll_calculate, name='payroll_calculate'),
@@ -90,7 +89,7 @@ urlunpolypatterns =[
     
     ## sitemas automaticos 
     
-    path('payroll/automatic_systems/modal/<int:type_payroll>', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
+    path('payroll/automatic_systems/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
     
     
 ]

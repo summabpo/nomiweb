@@ -151,7 +151,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina básica" 
 
-        href="{% url 'payroll:automatic_systems' 0 %}"
+        href="{% url 'payroll:automatic_systems' 0  nombre.idnomina %}"
         class="btn btn-light-info">
         Nómina Básica
     </a>
@@ -171,7 +171,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina con incapacidades" 
 
-        href="{% url 'payroll:automatic_systems' 1 %}"
+        href="{% url 'payroll:automatic_systems' 1  nombre.idnomina %}"
         class="btn btn-light-info">
         Incapacidades
     </a>
@@ -191,7 +191,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina con aportes" 
 
-        href="{% url 'payroll:automatic_systems' 2 %}"
+        href="{% url 'payroll:automatic_systems' 2  nombre.idnomina %}"
         class="btn btn-light-info">
         Aportes
     </a>
@@ -211,7 +211,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina con transporte"
 
-        href="{% url 'payroll:automatic_systems' 3 %}"
+        href="{% url 'payroll:automatic_systems' 3  nombre.idnomina %}"
         class="btn btn-light-info">
         Transporte
     </a>
@@ -231,7 +231,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Reinicio de datos dentro de la nómina"
 
-        href="{% url 'payroll:automatic_systems' 4 %}"
+        href="{% url 'payroll:automatic_systems' 4  nombre.idnomina %}"
         class="btn btn-light-info">
         Reiniciar
     </a>
@@ -520,7 +520,6 @@ tr.htmx-swapping td {
 </script> 
 
     
-
 <script>
     function confirmDelete(itemId) {
         Swal.fire({
@@ -532,30 +531,43 @@ tr.htmx-swapping td {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Sí, eliminar'
         }).then((result) => {
-            const csrftoken = '{{ csrf_token }}';
+            if (result.isConfirmed) {
+                const csrftoken = '{{ csrf_token }}';
 
-            up.request("{% url 'payroll:payroll_delete' %}", {
-                method: 'POST',
-                params: {
-                    idn: itemId,
-                    csrfmiddlewaretoken: csrftoken
-                },
-                fail: false
-            }).then((response) => {
-                console.log('Respuesta exitosa:', response);
-                const res = response.json;
-                up.reload('#item-list');
+                up.request("{% url 'payroll:payroll_delete' %}", {
+                    method: 'POST',
+                    params: {
+                        idn: itemId,
+                        csrfmiddlewaretoken: csrftoken
+                    },
+                    fail: false
+                }).then((response) => {
+                    up.layer.stack.forEach(layer => {
+                        let items = up.fragment.all("#item-list", { layer });
+                        console.log(`Capas: ${layer.mode} - #item-list encontrados:`, items.length);
+                    });
+                    
+                    console.log('ajdnasj aaskfmakjfan ',document.querySelector("#item-list"));
 
-            }).catch((response) => {
-                toastr.error("Ocurrio un error inesperado", "Error"); 
-                console.error('Error en la solicitud:', response);
+                    //up.reload("#item-list", { layer: "modal" });
+                    up.reload();
+                    
+                    
 
-            });
+
+
+
+
+                    //up.reload("#item-list");
+                    toastr.success("Concepto eliminado correctamente", "Éxito");
+                }).catch((response) => {
+                    toastr.error("Ocurrió un error inesperado", "Error"); 
+                    console.error('Error en la solicitud:', response);
+                });
+            }
         });
     }
 </script>
-
-
 
 <script>
     toastr.options = {

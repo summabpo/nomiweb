@@ -148,12 +148,11 @@ def payroll_modal(request,id,idnomina):
     
     # Verificar si hay conceptos encontrados
     if not conceptos.exists():
-        return JsonResponse({"error": "No se encontraron conceptos para este empleado y nómina"}, status=404)
+        conceptos = []
 
     
     # Optimizar consulta del contrato
     contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
-
     # Estructurar los datos para la respuesta
     for concepto in conceptos:
         # Crear el diccionario con los datos del concepto
@@ -325,7 +324,6 @@ def payroll_edit(request):
             return JsonResponse(f"No se encontró el concepto con ID {idn}.")
             
         return JsonResponse({'mensaje': 'Concepto actualizado correctamente'})
-    print(request.method)
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
@@ -342,14 +340,8 @@ def payroll_delete(request):
         
         body = QueryDict(request.body.decode('utf-8'))  # Parseamos el body
         idn = body.get('idn')
-        print('---------------------')
-        print(idn)
-        
         #concepto = get_object_or_404(Nomina, idregistronom=idn)
         concepto = Nomina.objects.get(idregistronom=idn)
-        
-        print(concepto.idconcepto.nombreconcepto)
-        print('---------------------')
         
         conceptos = Nomina.objects.filter(
                     idnomina__idnomina=concepto.idnomina.idnomina,
@@ -375,13 +367,13 @@ def payroll_delete(request):
                 egreso += concepto.valor 
         
         total = ingreso + egreso
-                
+        salario = concepto.idcontrato.salario 
         concepto.delete()
     
         
     
     data = {    
-        "salario": f"${format_value(concepto.idcontrato.salario)}",
+        "salario": f"${format_value(salario)}",
         "ingresos": f"${format_value(ingreso)}",
         "egresos": f"${format_value(egreso)}",
         "total": f"${format_value(total)}",
@@ -395,15 +387,8 @@ def payroll_delete(request):
 
 
 
-@require_GET
-def payroll_value(request):
-    print('Solicitud recibida:', request.GET)
-    print('llege')
-    cantidad = int(request.GET.get('cantidad', 0))
-    sueldo = 1400000  # Sueldo base
-    valor = cantidad * sueldo
-    # Devuelve un fragmento de HTML con el valor calculado
-    return HttpResponse(f"<input type='number' id='valor' name='valor' class='form-control mb-2 mb-md-0' value='{valor}' readonly />")
+
+
 
 
 
@@ -544,13 +529,9 @@ def payroll_calculate(request,id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':
-        print(id)
         idcontrato = id         
         try:
             cantidad = int(request.POST.get('cantidad', 0))
-            print('------------')
-            print(cantidad)
-            print('------------')
             resultado = cantidad * 2  # Por ejemplo, multiplicar por 2
             return HttpResponse(resultado)  # Solo devolvemos el número, nada de HTML
         except ValueError:

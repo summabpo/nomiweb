@@ -1,3 +1,4 @@
+<div id="items-container">
 <ol id="item-list"  class="list-group"> 
     {% for concepto in data.conceptos %}
         {% csrf_token %}
@@ -54,12 +55,12 @@
             </div>
         </li>
     {% empty %}
-        <li>
+        <li class="list-group-item">
             El empleado aun no tiene novedades de nomina 
         </li>
     {% endfor %}
     
 </ol>
-
+</div>
 
 
