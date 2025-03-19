@@ -1,4 +1,3 @@
-Manuel Berdugo, [19/03/2025 2:12 p. m.]
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
