@@ -7,7 +7,7 @@ from .views.loans import loans
 from .views.parameters import parameters
 from .views.pruebas import pruebas
 
-## urls
+## urls de la aplicacion payroll
 
 urlpatterns = [
     path('home/', index.index_payroll, name='index_payroll'),
