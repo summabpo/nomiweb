@@ -325,7 +325,6 @@ def payroll_edit(request):
             return JsonResponse(f"No se encontró el concepto con ID {idn}.")
             
         return JsonResponse({'mensaje': 'Concepto actualizado correctamente'})
-    print(request.method)
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
@@ -342,14 +341,8 @@ def payroll_delete(request):
         
         body = QueryDict(request.body.decode('utf-8'))  # Parseamos el body
         idn = body.get('idn')
-        print('---------------------')
-        print(idn)
-        
         #concepto = get_object_or_404(Nomina, idregistronom=idn)
         concepto = Nomina.objects.get(idregistronom=idn)
-        
-        print(concepto.idconcepto.nombreconcepto)
-        print('---------------------')
         
         conceptos = Nomina.objects.filter(
                     idnomina__idnomina=concepto.idnomina.idnomina,
@@ -397,8 +390,6 @@ def payroll_delete(request):
 
 @require_GET
 def payroll_value(request):
-    print('Solicitud recibida:', request.GET)
-    print('llege')
     cantidad = int(request.GET.get('cantidad', 0))
     sueldo = 1400000  # Sueldo base
     valor = cantidad * sueldo
@@ -544,13 +535,9 @@ def payroll_calculate(request,id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':
-        print(id)
         idcontrato = id         
         try:
             cantidad = int(request.POST.get('cantidad', 0))
-            print('------------')
-            print(cantidad)
-            print('------------')
             resultado = cantidad * 2  # Por ejemplo, multiplicar por 2
             return HttpResponse(resultado)  # Solo devolvemos el número, nada de HTML
         except ValueError:
