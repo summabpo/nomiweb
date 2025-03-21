@@ -7,7 +7,7 @@ from django.db import transaction, models
 from datetime import datetime
 from django.db.models import Sum
 
-
+#prueba git
 @login_required
 @role_required('accountant')
 def automatic_systems(request, type_payroll=0,idnomina=0):
