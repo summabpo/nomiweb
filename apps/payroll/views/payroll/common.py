@@ -1,4 +1,5 @@
 
+from apps.common.models import Crearnomina 
 
 MES_CHOICES = [
     ('', '--------------'),
@@ -23,5 +24,13 @@ def generar_nombre_nomina(tiponomina, fechainicial):
     # Obtener el año
     ano = fechainicial.year
     
+    if tiponomina == 'Quincenal':
+        mensaje = f"Nómina {tiponomina} - {mes} - {ano} - #1"
+        if Crearnomina.objects.filter(nombrenomina=mensaje).exists():
+            mensaje = f"Nómina {tiponomina} - {mes} - {ano} -  #2"
+    else:
+        mensaje = f"Nómina {tiponomina} - {mes} - {ano}"
+    
+    
     # Retornar el nombre de la nómina con el formato requerido
-    return f"Nomina {tiponomina} - {mes} - {ano}"
+    return mensaje

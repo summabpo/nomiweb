@@ -49,8 +49,18 @@ def payroll(request):
                 fechainicial = form.cleaned_data['fechainicial']
                 fechafinal = form.cleaned_data['fechafinal']
 
-                # Calcular días de nómina
-                dias_nomina = (fechafinal - fechainicial).days + 1  # Incluir día inicial
+                # Calcular días de nómina, asegurando que nunca sea mayor a 30
+                print(tiponomina)
+                if tiponomina.tipodenomina == 'Mensual':
+                    dias_nomina = min(30, (fechafinal - fechainicial).days + 1)
+                    
+                elif tiponomina.tipodenomina == 'Quincenal':
+                    dias_nomina = max(15, (fechafinal - fechainicial).days + 1)
+                else:
+                    dias_nomina = (fechafinal - fechainicial).days + 1  # Incluir día inicial
+                
+                
+
 
                 mes_numero = fechainicial.month  # Obtener el número del mes (1-12)
                 mes_acumular = MES_CHOICES[mes_numero][0] if mes_numero else ''
@@ -148,12 +158,11 @@ def payroll_modal(request,id,idnomina):
     
     # Verificar si hay conceptos encontrados
     if not conceptos.exists():
-        return JsonResponse({"error": "No se encontraron conceptos para este empleado y nómina"}, status=404)
+        conceptos = []
 
     
     # Optimizar consulta del contrato
     contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
-
     # Estructurar los datos para la respuesta
     for concepto in conceptos:
         # Crear el diccionario con los datos del concepto
@@ -185,10 +194,10 @@ def payroll_modal(request,id,idnomina):
         "idempleado" :id,
         "nombre": nombre_completo,
         "cargo": contrato.cargo,
-        "salario": f"${format_value(contrato.salario)}",
-        "ingresos": f"${format_value(ingreso)}",
-        "egresos": f"${format_value(egreso)}",
-        "total": f"${format_value(total)}",
+        "salario": f"{format_value(contrato.salario)}$",
+        "ingresos": f"{format_value(ingreso)}$",
+        "egresos": f"{format_value(egreso)}$",
+        "total": f"{format_value(total)}$",
         "idnomina": idnomina,
         "id":id , 
         "conceptos": conceptos_data,
@@ -291,10 +300,10 @@ def payroll_create(request):
     total = ingreso + egreso
     
     data = {    
-        "salario": f"${format_value(contrato.salario)}",
-        "ingresos": f"${format_value(ingreso)}",
-        "egresos": f"${format_value(egreso)}",
-        "total": f"${format_value(total)}",
+        "salario": f"{format_value(contrato.salario)}$",
+        "ingresos": f"{format_value(ingreso)}$",
+        "egresos": f"{format_value(egreso)}$",
+        "total": f"{format_value(total)}$",
         "conceptos": conceptos_data,
         "value": True,
         "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
@@ -368,16 +377,16 @@ def payroll_delete(request):
                 egreso += concepto.valor 
         
         total = ingreso + egreso
-                
+        salario = concepto.idcontrato.salario 
         concepto.delete()
     
         
     
     data = {    
-        "salario": f"${format_value(concepto.idcontrato.salario)}",
-        "ingresos": f"${format_value(ingreso)}",
-        "egresos": f"${format_value(egreso)}",
-        "total": f"${format_value(total)}",
+        "salario": f"{format_value(salario)}$",
+        "ingresos": f"{format_value(ingreso)}$",
+        "egresos": f"{format_value(egreso)}$",
+        "total": f"{format_value(total)}$",
         "conceptos": conceptos_data,
         "value": True,
         "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
@@ -388,13 +397,8 @@ def payroll_delete(request):
 
 
 
-@require_GET
-def payroll_value(request):
-    cantidad = int(request.GET.get('cantidad', 0))
-    sueldo = 1400000  # Sueldo base
-    valor = cantidad * sueldo
-    # Devuelve un fragmento de HTML con el valor calculado
-    return HttpResponse(f"<input type='number' id='valor' name='valor' class='form-control mb-2 mb-md-0' value='{valor}' readonly />")
+
+
 
 
 
@@ -468,10 +472,10 @@ def payroll_general_data(request,idnomina):
     
     data = {
         'true': variable,
-        "salario": f"${format_value(contrato.salario)}",
-        "ingresos": f"${format_value(ingreso)}",
-        "egresos": f"${format_value(egreso)}",
-        "total": f"${format_value(total)}",
+        "salario": f"{format_value(contrato.salario)}$",
+        "ingresos": f"{format_value(ingreso)}$",
+        "egresos": f"{format_value(egreso)}$",
+        "total": f"{format_value(total)}$",
         "idnomina": idnomina,
         "id":idcontrato, 
         "conceptos": conceptos_data,
