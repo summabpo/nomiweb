@@ -13,25 +13,28 @@
         
         <div class="d-flex justify-content-center">
             <div class="col-md-12">
-              <form method="post" action="/submit" class="form-group">
+              <form method="post" action="{% url 'payroll:automatic_systems'  type_payroll  idnomina %}"  id="form_automatic" class="form-group">
+                {% csrf_token %}
+                
                 <div class="row mb-3 justify-content-center">
                   <div class="col-md-6 input-group-sm text-center">
                     <label for="cost-center">
-                      <input type="checkbox" id="need-comment" up-change="toggleCommentField()">
+                      <input type="checkbox"  id="need-comment" name="need_comment" up-change="toggleCommentField()">
                       Cálculo por centro de costo?
                     </label>
                   </div>
                   <div class="col-md-6 input-group-sm text-center ">
                     <label for="no-cost-center">
-                      <input type="checkbox" id="no-cost-center" name="no-cost-center" up-change="toggleCommentField()">
+                      <input type="checkbox" id="no-cost-center" name="no_cost_center">
                       Sin centro de costo?
                     </label>
                   </div>
                 </div>
+                <input type="hidden" name="idnomina" value={{idnomina}}>
                 <br>
                 <div class="row mb-3 justify-content-center" id="comment-field" style="display: none;">
                   <div class="col-md-12 input-group-sm text-center">
-                    <select required id="costos" name="costos" class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un Centro de Costo">
+                    <select id="costos" name="costos" class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un Centro de Costo">
                       <option value=""></option>
                       {% for centro in centros %}
                         <option value="{{ centro.idcosto }}">{{ centro.nomcosto }}</option>
@@ -47,7 +50,7 @@
     </div>
     <div class="separator my-5"></div>
     <div class="modal-footer btn-group">
-        <button type="submit" class="btn btn-light-primary">Enviar</button>
+        <button type="submit" class="btn btn-light-primary" form="form_automatic"  >Enviar</button>
         <div style="width: 10px;"></div>
         <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
     </div>

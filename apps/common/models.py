@@ -1657,7 +1657,7 @@ class Vacaciones(models.Model):
     totaldiastomados = models.SmallIntegerField(blank=True, null=True)
     basepago = models.IntegerField(blank=True, null=True)
     estadovac = models.SmallIntegerField(blank=True, null=True)
-    idnomina = models.ForeignKey(Crearnomina, models.DO_NOTHING ) 
+    idnomina = models.ForeignKey(Crearnomina, models.DO_NOTHING,blank=True, null=True ) 
     cuentasabados = models.SmallIntegerField(blank=True, null=True)
     tipovac = models.ForeignKey(Tipoavacaus, models.DO_NOTHING )
     idvacmaster = models.IntegerField(blank=True, null=True)

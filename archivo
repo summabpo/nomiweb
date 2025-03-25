@@ -1,3 +1,4 @@
+ 
 $idn         =[v_idnomina];
 $parteNomina = [v_parte];
 
@@ -60,7 +61,7 @@ for ($n=0; $n<$longitud; $n++) {
     sc_lookup(datasalario, "SELECT idempleado, idcontrato, salario, tiposalario, fechainiciocontrato, fechafincontrato,    
     auxiliotransporte,idcosto, tipocontrato from contratos WHERE idcontrato=$idc");
 
-
+ 
 $fechacontrato    = {datasalario[0][4]};
  $fechaterminacion = {datasalario[0][5]};
  $sal              = {datasalario[0][2]};
@@ -183,7 +184,7 @@ if (!empty({datadiasincapacidad[0][0]})) {
  
   if (empty({datareg[0][0]})) {
 
-
+ 
 sc_exec_sql("INSERT INTO nomina (idregistronom, idnomina, idconcepto, nombreconcepto, valor,   idempleado, 
    mesacumular, 
    anoacumular, cantidad, idcontrato,idcosto) VALUES (nextval('sec_regnomina'),'[v_idnomina]', 
@@ -306,6 +307,7 @@ sc_exec_sql("INSERT INTO nomina (idregistronom, idnomina, idconcepto, nombreconc
 
   } else {
 
+ 
 $arraypre = {dataprestamos};
    $longpre  = count($arraypre);
    $p        = 0;

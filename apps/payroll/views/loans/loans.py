@@ -30,13 +30,7 @@ def employee_loans(request):
 
     if request.method == 'POST':
         form = LoansForm(request.POST, id_empresa=idempresa)
-        print('AQUI VOY POR AQUI')
         if form.is_valid():
-            print('y POR AQUI')
-            print(form.cleaned_data['loan_date'])
-            print(form.cleaned_data['contract'])
-            print(form.cleaned_data['loan_amount'])
-            print(form.cleaned_data['installment_value'])
             Prestamos.objects.create(
                 idcontrato=Contratos.objects.get(idcontrato=form.cleaned_data['contract']),
                 valorprestamo=form.cleaned_data['loan_amount'],
@@ -123,7 +117,7 @@ def api_detail_payroll_loan(request, pk=None):
 
     # Obtener deducciones de nómina relacionadas al préstamo
     deducciones = Nomina.objects.filter(
-        idconcepto=35,  # Asegúrate que este es el id correcto para "deducción de préstamo"
+        idconcepto__codigo = 50,  # Asegúrate que este es el id correcto para "deducción de préstamo"
         control=pk
     ).order_by('idnomina__fechapago')  # Orden ascendente para cálculo progresivo
 
