@@ -260,13 +260,14 @@ def concepts_add(request):
                 codigo=codigo
             )
 
-            # Guardar los indicadores (ManyToMany)
-            # Ahora que el objeto existe en la BD, asignar los indicadores
-            indicador_ids = request.POST.getlist('indicador')  # Captura múltiples valores
+            #Ahora que el objeto existe en la BD, asignar los indicadores
+            indicador_ids = request.POST.getlist('indicador') #Captura múltiples valores
             indicadores = Indicador.objects.filter(id__in=indicador_ids)
             concepto.indicador.add(*indicadores)  # Usamos .add() en lugar de .set()
             
-            return JsonResponse({'status': 'success', 'message': 'Formulario guardado exitosamente'})
+            #return JsonResponse({'status': 'success', 'message': 'Concepto guardado exitosamente'})
+            messages.success(request, "Concepto guardado exitosamente")
+            return redirect('apartment:apartment_home')
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario
             for field, errors in form.errors.items():

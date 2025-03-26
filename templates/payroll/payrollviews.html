@@ -86,8 +86,7 @@ tr.htmx-swapping td {
             <span class="path1"></span>
             <span class="path2"></span>
         </i>
-        Atras
-        
+        Atrás
     </a>  
     
     <div style="width: 10px;"></div>
@@ -392,15 +391,28 @@ tr.htmx-swapping td {
         // Verifica si el fragmento insertado es #item-list
         if (event.target.matches("#item-list")) {
             console.log('El elemento #item-list coincide'); // Verifica que el selector coincida
+            var selectedValue = $('#contrato_empleado').val();
+            if (selectedValue) {
 
-            // Verifica si el acordeón existe en el DOM
-            const accordion = document.querySelector('#kt_accordion_1_body_1');
-            if (accordion) {
-                console.log('Recargando acordeón');
-                up.reload('#kt_accordion_1_body_1', { failSilently: true }); // Recarga el acordeón
+                up.reload().then(() => {
+                    // Esperar un breve momento para asegurarse de que el select se renderizó
+                    setTimeout(() => {
+                        if (selectedValue) {
+                            $('#contrato_empleado').val(selectedValue).trigger('change');
+                        }
+                    }, 200); // Espera 500ms para que el select2 se inicialice correctamente
+                });
+
             } else {
-                console.log('El acordeón no existe en el DOM');
+                const accordion = document.querySelector('#kt_accordion_1_body_1');
+                    if (accordion) {
+                        console.log('Recargando acordeón');
+                        up.reload('#kt_accordion_1_body_1', { failSilently: true }); // Recarga el acordeón
+                    } else {
+                        console.log('El acordeón no existe en el DOM');
+                    }
             }
+
         }
     });
 </script>
@@ -533,7 +545,8 @@ tr.htmx-swapping td {
         }).then((result) => {
             if (result.isConfirmed) {
                 const csrftoken = '{{ csrf_token }}';
-
+                // Guardar el valor seleccionado antes del reload
+                var selectedValue = $('#contrato_empleado').val();
                 up.request("{% url 'payroll:payroll_delete' %}", {
                     method: 'POST',
                     params: {
@@ -542,23 +555,16 @@ tr.htmx-swapping td {
                     },
                     fail: false
                 }).then((response) => {
-                    up.layer.stack.forEach(layer => {
-                        let items = up.fragment.all("#item-list", { layer });
-                        console.log(`Capas: ${layer.mode} - #item-list encontrados:`, items.length);
+                    // Recargar la página o fragmento con Unpoly
+                    up.reload().then(() => {
+                        // Esperar un breve momento para asegurarse de que el select se renderizó
+                        setTimeout(() => {
+                            if (selectedValue) {
+                                $('#contrato_empleado').val(selectedValue).trigger('change');
+                            }
+                        }, 500); // Espera 500ms para que el select2 se inicialice correctamente
                     });
-                    
-                    console.log('ajdnasj aaskfmakjfan ',document.querySelector("#item-list"));
-
-                    //up.reload("#item-list", { layer: "modal" });
-                    up.reload();
-                    
-                    
-
-
-
-
-
-                    //up.reload("#item-list");
+    
                     toastr.success("Concepto eliminado correctamente", "Éxito");
                 }).catch((response) => {
                     toastr.error("Ocurrió un error inesperado", "Error"); 
@@ -567,6 +573,7 @@ tr.htmx-swapping td {
             }
         });
     }
+    
 </script>
 
 <script>

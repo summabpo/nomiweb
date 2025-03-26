@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Crearnomina , Contratos,Conceptosfijos ,Costos,Salariominimoanual, Crearnomina ,EmpVacaciones,Prestamos ,Conceptosdenomina , Empresa , Vacaciones , Nomina , Contratos
+from apps.common.models import Crearnomina , Contratos, EditHistory , Conceptosfijos ,Costos,Salariominimoanual, Crearnomina ,EmpVacaciones,Prestamos ,Conceptosdenomina , Empresa , Vacaciones , Nomina , Contratos
 from django.contrib import messages
 from django.db import transaction, models
 from datetime import datetime
@@ -57,7 +57,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
         
         elif  type_payroll == 2:
             if procesar_nomina_aportes(idnomina, ne , idempresa):
-                messages.success(request, "Proceso de Incapacidades realizado correctamente")
+                messages.success(request, "Proceso de Aportes realizado correctamente")
                 return redirect('payroll:payrollview', id=idnomina)
             else :
                 messages.error(request, "Error al realizar procesar la nómina")
@@ -65,13 +65,11 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
             
         elif  type_payroll == 3:
             if procesar_nomina_transporte(idnomina, ne , idempresa):
-                messages.success(request, "Proceso de Incapacidades realizado correctamente")
+                messages.success(request, "Proceso de Transporte realizado correctamente")
                 return redirect('payroll:payrollview', id=idnomina)
             else :
                 messages.error(request, "Error al realizar procesar la nómina")
                 return redirect('payroll:payrollview', id=idnomina)
-        
-        
         else:
             messages.error(request, "Error #13 al procesar la nómina")
             return redirect('payroll:payrollview', id=idnomina)
@@ -136,9 +134,15 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
             ).first()
             
             if aux_pass:
-                aux_pass.cantidad = diasnomina
-                aux_pass.valor = valorsalario
-                aux_pass.save()                
+                if not EditHistory.objects.filter(
+                    id_empresa_id=idempresa,
+                    modified_object_id=aux_pass.idregistronom,
+                    modified_model='Nomina',
+                ).exists():
+                    aux_pass.cantidad = diasnomina
+                    aux_pass.valor = valorsalario
+                    aux_pass.save()  
+                                
             else:
                 Nomina.objects.create(
                     idconcepto = concepto ,#*
@@ -153,6 +157,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
 def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
+        
 
 
 def procesar_nomina_aportes(idn, parte_nomina,idempresa):
@@ -200,8 +205,14 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
             ).first()
             
             if aux_pass:
-                aux_pass.valor = -1*valoreps
-                aux_pass.save()     
+                if not EditHistory.objects.filter(
+                    id_empresa_id=idempresa,
+                    modified_object_id=aux_pass.idregistronom,
+                    modified_model='Nomina',
+                ).exists():
+                    aux_pass.valor = -1*valoreps
+                    aux_pass.save() 
+                                
             else:
                 Nomina.objects.create(
                         idconcepto = concepto ,#*
@@ -261,9 +272,14 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
                 
                 
                 if aux_pass:
-                    aux_pass.cantidad = diasnomina
-                    aux_pass.valor = valorsalario
-                    aux_pass.save()                
+                    if not EditHistory.objects.filter(
+                        id_empresa_id=idempresa,
+                        modified_object_id=aux_pass.idregistronom,
+                        modified_model='Nomina',
+                    ).exists():
+                        aux_pass.cantidad = diasnomina
+                        aux_pass.valor = valorsalario
+                        aux_pass.save()                  
                 else:
                     Nomina.objects.create(
                         idconcepto = concepto ,#*

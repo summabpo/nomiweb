@@ -18,19 +18,13 @@ MES_CHOICES = [
 ]
 
 
-def generar_nombre_nomina(tiponomina, fechainicial):
-    # Obtener el mes en letras y en mayúsculas
-    mes = MES_CHOICES[fechainicial.month][0] if fechainicial.month else ''
-    # Obtener el año
-    ano = fechainicial.year
+def generar_nombre_nomina(name , idempresa):
     
-    if tiponomina == 'Quincenal':
-        mensaje = f"Nómina {tiponomina} - {mes} - {ano} - #1"
-        if Crearnomina.objects.filter(nombrenomina=mensaje).exists():
-            mensaje = f"Nómina {tiponomina} - {mes} - {ano} -  #2"
+    if "Quincenal" in name:
+        if Crearnomina.objects.filter(nombrenomina=name, id_empresa=idempresa).exists():
+            mensaje = f"{name} - #2"
+        else:
+            mensaje = f"{name} - #1"
     else:
-        mensaje = f"Nómina {tiponomina} - {mes} - {ano}"
-    
-    
-    # Retornar el nombre de la nómina con el formato requerido
+        mensaje = f"{name}"
     return mensaje

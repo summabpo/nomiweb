@@ -6,11 +6,24 @@ from apps.common.models  import Contratos
 class LoansForm(forms.Form):
 
     loan_amount = forms.IntegerField(required=True, label="Valor del Préstamo")
+    
+    
     installments_number = forms.IntegerField(
         required=False, 
         label="Cuotas del Préstamo",
     )
-    installment_value = forms.IntegerField(required=True, label="Valor de la Cuota")
+    
+    
+    #installment_value = forms.IntegerField(required=True, label="Valor de la Cuota")
+    
+    installment_value = forms.CharField(
+        label="Valor de la Cuota",
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+        })
+    )
+    
     
     loan_date = forms.CharField(
         label='Fecha Prestamo',
@@ -23,6 +36,19 @@ class LoansForm(forms.Form):
     def __init__(self, *args, **kwargs):
         id_empresa = kwargs.pop('id_empresa', None)  # Obtener id_empresa de los argumentos
         super().__init__(*args, **kwargs)
+        
+        
+        self.fields['installment_value'].widget.attrs.update({
+            'x-mask:dynamic':"$money($input, '.', ',', 4)",
+            
+        })
+        
+        self.fields['installments_number'].widget.attrs.update({
+            'x-mask:dynamic':"$money($input, '.', ',', 4)",
+            
+        })
+        
+        
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_loans'
