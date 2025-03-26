@@ -288,9 +288,6 @@ class PayrollConceptsForm(forms.Form):
         label='Código',
         widget=forms.NumberInput(attrs={'class': 'form-control', 
                                         'placeholder': 'Ingrese el código',
-                                 # Reemplazar contenido del objetivo
-    # <input type="text" id="id_codigo" name="codigo" hx-get="/payroll/parameters/concepts/check/code" hx-trigger="change" hx-target="#codigo-validation">
-                                  
                                         })
 
     )
@@ -302,7 +299,7 @@ class PayrollConceptsForm(forms.Form):
         
         super().__init__(*args, **kwargs)
         
-        #self.fields['codigo'].validators.append(lambda value: validate_codigo_unique(value, self.id_empresa))
+        self.fields['codigo'].validators.append(lambda value: validate_codigo_unique(value, self.id_empresa))
 
         self.fields['tipoconcepto'].widget.attrs.update({
             'data-control': 'select2',

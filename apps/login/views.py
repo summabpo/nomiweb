@@ -60,6 +60,7 @@ def Login_view(request):
                 if user is not None:
                     login(request, user)
                     complements = {
+                        'id': user.id,
                         'rol': user.tipo_user,
                         'name': f"{user.first_name} {user.last_name}",
                         'idempleado': user.id_empleado.idempleado if user.id_empleado else None ,

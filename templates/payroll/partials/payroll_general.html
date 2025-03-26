@@ -26,7 +26,7 @@
                     <option value=""></option>
                     {% for contrato in dato.contratos_empleados %}
                         <option value="{{ contrato.idcontrato }}">
-                            {{ contrato.idempleado__docidentidad }} - {{ contrato.idempleado__papellido }} {{ contrato.idempleado__pnombre }} {{ contrato.idempleado__snombre }} - {{ contrato.cargo__nombrecargo }}
+                            {{ contrato.idempleado__docidentidad }} - {{contrato.nombre_completo}} - {{ contrato.cargo__nombrecargo }}
                         </option>
                     {% endfor %}
                 </select>
