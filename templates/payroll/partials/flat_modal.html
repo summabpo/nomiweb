@@ -1,0 +1,41 @@
+
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Carga de Documento</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+
+            <form id="upload-form" name="upload-form" method="POST" action="" enctype="multipart/form-data">
+                <div class="mb-3">
+                    {% csrf_token %}
+                    <input  class="form-control form-control-sm" id="file-upload" name="file" type="file" />
+                    <small id="fileHelp" class="form-text text-muted">
+                        Solo se aceptan archivos de tipo Excel (.xlsx). <a href="" download>Descarga la plantilla aquí</a> si aún no la tienes.
+                    </small>
+                </div>
+                <input type="hidden" id="hidden-field" name="hidden_field" value="valor_secreto" />
+            </form>
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" id="send-request" class="btn btn-primary">Cargar Archivo</button>
+    </div>
+</div>
+
+
+
+

@@ -92,6 +92,10 @@ urlunpolypatterns =[
     path('payroll/automatic_systems/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
     
     
+    ## flat
+    path('flat/modal', flat.flat_modal, name='flat_modal'),
+    
+    
 ]
 
 urlpatterns += urlunpolypatterns  

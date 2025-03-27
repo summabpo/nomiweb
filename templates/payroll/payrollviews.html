@@ -46,6 +46,12 @@ up-modal[size=medium] up-modal-box {
     
 }
 
+up-modal[size=small] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
 .select2-container .select2-selection--single .select2-selection__rendered {
     text-align: left;
 }
@@ -91,14 +97,34 @@ tr.htmx-swapping td {
     
     <div style="width: 10px;"></div>
     <!-- Botón adicional -->
-    <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_loaddata">
+    {% comment %} <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_loaddata">
         <i class="fa-solid fa-upload fs-2"></i>
         Cargar Archivo Plano
-    </button>
-    <!-- Separación entre grupos -->
-    <div style="width: 10px;"></div>
+    </button> {% endcomment %}
 
-    <!-- Botón adicional -->
+    <a
+        class='btn btn-light-info'
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "small"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="bottom" 
+        href="{% url 'payroll:flat_modal' %}">
+        <i class="fa-solid fa-upload fs-2"></i>
+        Cargar Archivo Plano
+
+    </a>
+
+    <!-- Separación entre grupos -->
+    {% comment %}<div style="width: 10px;"></div>
+
+     <!-- Botón adicional -->
     <a href="{% url 'payroll:document_flat' %}" 
         download class="btn btn-icon  btn-light-primary" 
         data-bs-toggle="tooltip" 
@@ -106,7 +132,7 @@ tr.htmx-swapping td {
         data-bs-placement="bottom" 
         title="Descargar plantilla de Documento Plano" >
             <i class="fa-solid fa-download fs-2"></i>
-    </a> 
+    </a>  {% endcomment %}
 
     <div style="width: 10px;"></div>
 
@@ -240,67 +266,7 @@ tr.htmx-swapping td {
 
 
 
-<script>
-    document.addEventListener('up:fragment:inserted', function(event) {
-        const modalContent = event.target.querySelector('#modal-content');
-        if (modalContent) {
-            const checkbox = modalContent.querySelector('#need-comment');
-            if (checkbox) {
-            checkbox.addEventListener('change', toggleCommentField);
-            }
-        }
-        });
-    
-        function toggleCommentField() {
-        const checkbox = document.getElementById('need-comment');
-        const commentField = document.getElementById('comment-field');
-        if (checkbox && commentField) {
-            commentField.style.display = checkbox.checked ? 'block' : 'none';
-        }
-    }
-</script>
 
-
-
-
-<div class="modal fade" tabindex="-1" id="kt_modal_loaddata">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Carga de Documento</h3>
-
-                <!--begin::Close-->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                </div>
-                <!--end::Close-->
-            </div>
-
-            <div class="modal-body">
-
-                <form id="upload-form" name="upload-form" method="POST" action="{% url 'payroll:flat' id=id %}" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        {% csrf_token %}
-                        {% comment %} <label for="file-upload" class="form-label">
-                            <i class="fa-solid fa-upload fs-2"></i>
-                            Cargar Archivo Plano
-                        </label> {% endcomment %}
-                        <input  class="form-control form-control-sm" id="file-upload" name="file" type="file" />
-                        <small id="fileHelp" class="form-text text-muted">
-                            Solo se aceptan archivos de tipo Excel (.xlsx). <a href="{% url 'payroll:document_flat' %}" download>Descarga la plantilla aquí</a> si aún no la tienes.
-                        </small>
-                    </div>
-                </form>
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="upload-form" class="btn btn-primary">Cargar Archivo</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 <div class="table-responsive">
@@ -343,13 +309,35 @@ tr.htmx-swapping td {
 
 
 
-<div id="modal-container"></div>
 
 
 
 {% endblock content %}
 
 {% block js %}
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = event.target.querySelector('#modal-content');
+        if (modalContent) {
+            const checkbox = modalContent.querySelector('#need-comment');
+            if (checkbox) {
+            checkbox.addEventListener('change', toggleCommentField);
+            }
+        }
+        });
+    
+        function toggleCommentField() {
+        const checkbox = document.getElementById('need-comment');
+        const commentField = document.getElementById('comment-field');
+        if (checkbox && commentField) {
+            commentField.style.display = checkbox.checked ? 'block' : 'none';
+        }
+    }
+</script>
+
+
 
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
@@ -417,11 +405,11 @@ tr.htmx-swapping td {
     });
 </script>
 
-<script>
+{% comment %} <script>
     document.addEventListener('up:layer:dismiss', function(event) {
         location.reload();
     });
-</script>
+</script> {% endcomment %}
 
 
 <script> 
@@ -792,10 +780,6 @@ tr.htmx-swapping td {
     });
 </script>
 
-    
-    
-    
-
 
 <script>
     $(document).ready(function() {
@@ -830,4 +814,170 @@ tr.htmx-swapping td {
         });
     });
 </script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const PAYROLL_MODAL_URL = "{% url 'payroll:flat_modal' %}";
+        const sendRequestButton = document.getElementById("send-request");
+        const csrftoken = '{{ csrf_token }}';
+
+
+            // Enviar solicitud con Unpoly cuando se haga clic en "Enviar"
+            sendRequestButton.addEventListener("click", function () {
+                up.request(PAYROLL_MODAL_URL, {
+                    method: "POST",
+                    params: { key: "valor desde JS" },
+                    headers: { 
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    } // Para seguridad en Django
+
+                    }).then(response => {
+                        console.log("Respuesta del servidor:", response.json);
+                        alert(response.json.message);
+                    }).catch(error => {
+                        console.error("Error en la solicitud:", error);
+                        alert("Error al enviar la solicitud");
+                    });
+                });    
+
+        });
+
+
+
+
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const PAYROLL_MODAL_URL = "{% url 'payroll:flat_modal' %}";
+        const csrftoken = '{{ csrf_token }}';
+        
+
+        // Configuración global para modales (opcional pero recomendado)
+        up.on('up:layer:open', function(event) {
+            if (event.layerOptions.content?.classList?.contains('custom-modal')) {
+                Object.assign(event.layerOptions, {
+                    class: 'custom-modal', // Clase base
+                    animation: 'fade-in',
+                    duration: 250,
+                    dismissable: true,
+                    backdrop: 'dimmed',
+                    position: 'center'
+                });
+            }
+        });
+
+        up.on('click', '#send-request', function(event) {
+            event.preventDefault();
+        
+            const fileInput = document.getElementById("file-upload");
+            const hiddenField = document.getElementById("hidden-field");
+        
+            if (!fileInput) {
+                console.error("No se encontró el input de archivo.");
+                return;
+            }
+        
+            if (!hiddenField) {
+                console.error("No se encontró el campo oculto.");
+                return;
+            }
+        
+            // Crear objeto FormData para enviar archivos
+            const formData = new FormData();
+            formData.append("key", "valor desde JS");
+            
+            if (fileInput.files.length > 0) {
+                formData.append("file", fileInput.files[0]); // 📌 Se envía el archivo correctamente
+            }
+        
+            formData.append("hidden_field", hiddenField.value);
+        
+            fetch(PAYROLL_MODAL_URL, {
+                method: "POST",
+                body: formData,
+                headers: { "X-CSRFToken": csrftoken }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Respuesta del servidor:", data);
+            
+                let modalContent = "";
+                
+                if (data?.errors?.length > 0 || data?.general_error) {
+                    // Construir lista de errores en HTML si existen errores específicos
+                    let errorsHtml = "";
+                    if (data.errors?.length > 0) {
+                        errorsHtml = "<ul>";
+                        data.errors.forEach(error => {
+                            errorsHtml += `<li><strong>Línea ${error.line}:</strong> ${error.error}</li>`;
+                        });
+                        errorsHtml += "</ul>";
+                    }
+                
+                    // Agregar error general si existe
+                    let generalErrorHtml = data.general_error ? `<p class="general-error"><strong>Error general:</strong> ${data.general_error}</p>` : "";
+                
+                    modalContent = `
+                        <div class="custom-modal">
+                            <div class="modal-content">
+                                <h2 class="modal-title">Errores encontrados</h2>
+                                <div class="modal-body scroll h-400px ">
+                                    <p>Se encontraron los siguientes errores en el archivo:</p>
+                                    ${generalErrorHtml}
+                                    ${errorsHtml}
+                                </div>
+                                <div class="modal-actions">
+                                    <button class="btn up-close" onclick="up.layer.dismiss()">Entendido</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    modalContent = `
+                        <div class="custom-modal">
+                            <div class="modal-content">
+                                <h2 class="modal-title">Éxito</h2>
+                                <p>${data.message}</p>
+                                <button class="btn up-close" onclick="up.layer.dismiss()">Cerrar</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            
+                // Abrir el modal con el contenido generado
+                up.layer.open({
+                    content: modalContent,
+                    mode: "modal",
+                    backdrop: true,
+                    dismissable: true,
+                    position: "center"
+                });
+            })
+            .catch(error => {
+                console.error("Error en la solicitud:", error);
+                up.layer.open({
+                    content: `
+                        <div class="custom-modal">
+                            <div class="modal-content error">
+                                <h2>Error</h2>
+                                <p>Ocurrió un error al procesar la solicitud</p>
+                                <button class="btn up-close" up-dismiss>Cerrar</button>
+                            </div>
+                        </div>
+                    `,
+                    mode: "modal"
+                });
+            });
+            
+        });
+        
+        
+    });
+</script>
+
+
 {% endblock %}
