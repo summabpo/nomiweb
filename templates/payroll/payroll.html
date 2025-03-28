@@ -8,17 +8,17 @@
 
 
 {% block title %}
-    Nomiweb.co - Aplicacion Contable - Nominas
+    Nomiweb.co - Aplicacion Contable - Nóminas
 {% endblock %}
 
 
 
 {% block sub_titulo1 %} 
-Nominas
+Nóminas
 {% endblock %}
 
 {% block sub_titulo2 %} 
-Plantilla de Nominas
+Plantilla de Nóminas
 {% endblock %}
 
 {% block titulo2 %} 
@@ -28,7 +28,7 @@ Plantilla de Nominas
 {% block actions %}
 <!-- Button trigger modal -->
     <button type="button"  class="btn btn-light-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_maintenance" >
-        <i class="fa-solid fa-square-plus fs-2"></i>Crear Nomina
+        <i class="fa-solid fa-square-plus fs-2"></i>Crear Nómina
     </button>  
 {% endblock %}
 
@@ -56,7 +56,7 @@ Plantilla de Nominas
     <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Nueva Nomina</h3>
+                <h3 class="modal-title">Nueva Nómina</h3>
 
                 <!--begin::Close-->
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
@@ -82,11 +82,11 @@ Plantilla de Nominas
     <table class="table table-striped table-bordered" id="tabla-nomina">
         <thead>
             <tr class="fw-bold fs-6 text-gray-800">
-                <th class="text-center">Codigo</th>
-                <th>Nombre de Nomina</th>
+                <th class="text-center">Código</th>
+                <th>Nombre de Nómina</th>
                 <th class="text-center">Fecha Inicial</th>
                 <th class="text-center">Fecha Final</th>
-                <th class="text-center">Dias de nomina</th>
+                <th class="text-center">Días de Nómina</th>
                 <th class="text-center">Fecha Pago</th>
                 <th class="text-center">
                     <div class="container d-flex justify-content-center align-items-center">
@@ -108,7 +108,7 @@ Plantilla de Nominas
                     <td class="text-center align-middle">{{ nomina.diasnomina }}</td>
                     <td class="text-center align-middle">{{ nomina.fechapago|date:'d-m-Y' }}</td>
                     <td class="text-center align-middle">
-                        <a href="{% url 'payroll:payrollview' nomina.idnomina %}" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Nomina">
+                        <a href="{% url 'payroll:payrollview' nomina.idnomina %}" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Nómina">
                             <i class="fa-regular fa-eye fs-2"></i>
                         </a>
                     </td>
@@ -192,7 +192,7 @@ Plantilla de Nominas
                 const tipoTexto = tipoNominaMap[tipoId];
 
                 if (tipoTexto) {
-                    nombreNomina.value = `Nomina - ${tipoTexto} - ${mes} - ${año}`;
+                    nombreNomina.value = `Nómina - ${tipoTexto} - ${mes} - ${año}`;
                 }
             }
         };
@@ -201,7 +201,11 @@ Plantilla de Nominas
         fechaInicial.addEventListener("change", calcularDias);
         fechaFinal.addEventListener("change", calcularDias);
         fechaPago.addEventListener("change", actualizarNombreNomina);
-        tipoNomina.addEventListener("change", actualizarNombreNomina);
+
+        $("#id_tiponomina").on("select2:select", function () {
+            actualizarNombreNomina();
+        });
+
     });
 </script>
 

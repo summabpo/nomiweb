@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Crearnomina , Tipodenomina , Conceptosfijos , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
+from apps.common.models import Crearnomina , Tipodenomina , EditHistory , Conceptosfijos , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
 from apps.payroll.forms.PayrollForm import PayrollForm
 from apps.payroll.forms.updateForm import UpdateForm
 from django.contrib import messages
@@ -24,6 +24,13 @@ from django.views.decorators.http import require_GET
 import json
 from django.http import QueryDict
 
+
+def get_empleado_name(empleado):
+    papellido = empleado.get('idempleado__papellido', '') if empleado.get('idempleado__papellido') is not None else ""
+    sapellido = empleado.get('idempleado__sapellido', '') if empleado.get('idempleado__sapellido') is not None else ""
+    pnombre = empleado.get('idempleado__pnombre', '') if empleado.get('idempleado__pnombre') is not None else ""
+    snombre = empleado.get('idempleado__snombre', '') if empleado.get('idempleado__snombre') is not None else ""
+    return f"{papellido} {sapellido} {pnombre} {snombre}"
 
 
 @login_required
@@ -50,7 +57,6 @@ def payroll(request):
                 fechafinal = form.cleaned_data['fechafinal']
 
                 # Calcular días de nómina, asegurando que nunca sea mayor a 30
-                print(tiponomina)
                 if tiponomina.tipodenomina == 'Mensual':
                     dias_nomina = min(30, (fechafinal - fechainicial).days + 1)
                     
@@ -72,8 +78,9 @@ def payroll(request):
                 empresa = Empresa.objects.get(idempresa=idempresa)
 
                 # Crear instancia de Crearnomina
+                
                 Crearnomina.objects.create(
-                    nombrenomina=generar_nombre_nomina(tipo_nomina_text, fechainicial),
+                    nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa),
                     fechainicial=fechainicial,
                     fechafinal=fechafinal,
                     fechapago=form.cleaned_data['fechapago'],
@@ -81,10 +88,9 @@ def payroll(request):
                     mesacumular=mes_acumular,
                     anoacumular=ano_acumular,
                     estadonomina=True, 
-                    diasnomina=dias_nomina,  # Usamos el cálculo aquí
+                    diasnomina=dias_nomina,  #Usamos el cálculo aquí
                     id_empresa=empresa,
                 )
-
                 messages.success(request, "Nómina creada exitosamente.")
                 return redirect('payroll:payroll')  # Redirigir a una vista de lista, por ejemplo
             except (Tipodenomina.DoesNotExist, Empresa.DoesNotExist):
@@ -234,8 +240,6 @@ def payroll_create(request):
         
         
         if formula:
-            
-            
             if concept1.formula == '1':
                 if concept1.codigo == 2:                    
                     aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
@@ -315,21 +319,73 @@ def payroll_create(request):
 @login_required
 @role_required('accountant')
 def payroll_edit(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    
     if request.method == 'POST':
         data = request.POST
         idn = data.get('idn')
         amount = data.get('amount').replace(',', '.')  # Reemplazamos la coma por un punto
         value = data.get('value').replace(',', '') 
-        concept = data.get('concept')
+
         try:
             value_decimal = Decimal(value)
             # Obtener el concepto por ID
             concepto_obj = Nomina.objects.get(idregistronom=idn)
             
-            concepto_obj.idconcepto_id = concept  # Asigna el ID del concepto (no el objeto completo)
+            ## anteriores =  
+            before_amount = concepto_obj.cantidad
+            before_value = concepto_obj.valor
+            
+            
             concepto_obj.cantidad = amount
             concepto_obj.valor = value_decimal
             concepto_obj.save()
+            
+            
+            
+            
+            if amount != before_amount  and value_decimal == before_value : 
+                EditHistory.objects.create(
+                    modified_model = "Nomina"  , #Nombre del modelo modificado
+                    modified_object_id = concepto_obj.idregistronom , #ID del objeto modificado
+                    user_id = usuario['id']  , #Usuario que hizo la modificación
+                    operation_type = "update" , #Tipo de operación
+                    field_name = "cantidad" , #Campo modificado
+                    old_value = before_amount ,  #Valor anterior (si aplica)
+                    new_value = amount ,  #Valor nuevo (si aplica)
+                    description =  "Modificacion de Cantidad de valor de concepto de Nomina" , #Descripción de la modificación 
+                    id_empresa_id  = idempresa #Empresa a la que pertenece la modificación
+                )
+            
+            
+            elif value_decimal != before_value  and amount == before_amount :
+                EditHistory.objects.create(
+                    modified_model = "Nomina"  , #Nombre del modelo modificado
+                    modified_object_id = concepto_obj.idregistronom , #ID del objeto modificado
+                    user_id = usuario['id']  , #Usuario que hizo la modificación
+                    operation_type = "update" , #Tipo de operación
+                    field_name = "valor" , #Campo modificado
+                    old_value = before_value  ,  #Valor anterior (si aplica)
+                    new_value = value_decimal  ,  #Valor nuevo (si aplica)
+                    description =  "Modificacion de valor concepto de Nomina" , #Descripción de la modificación 
+                    id_empresa_id  = idempresa, #Empresa a la que pertenece la modificación
+                )
+                
+            elif value_decimal != before_value and amount != before_amount :
+                EditHistory.objects.create(
+                    modified_model = "Nomina"  , #Nombre del modelo modificado
+                    modified_object_id = concepto_obj.idregistronom , #ID del objeto modificado
+                    user_id = usuario['id']  , #Usuario que hizo la modificación
+                    operation_type = "update" , #Tipo de operación
+                    field_name = "cantidad y valor" , #Campo modificado
+                    old_value = f"{before_amount} - {before_value}" ,  #Valor anterior (si aplica)
+                    new_value = f"{amount} - {value_decimal}"  ,  #Valor nuevo (si aplica)
+                    description =  "Modificacion de Cantidad y valor de concepto de Nomina" , #Descripción de la modificación 
+                    id_empresa_id  = idempresa, #Empresa a la que pertenece la modificación
+                )
+                
         except Nomina.DoesNotExist: 
             return JsonResponse(f"No se encontró el concepto con ID {idn}.")
             
@@ -407,23 +463,26 @@ def payroll_delete(request):
 
 @login_required
 @role_required('accountant')
-def payroll_general(request,idnomina):
-    
+def payroll_general(request, idnomina):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    
-    contratos_empleados = Contratos.objects\
-        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
-        .filter(estadocontrato=1,id_empresa_id =  idempresa) \
-        .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-                'idempleado__snombre', 'cargo__nombrecargo', 'idcontrato')
-    
+
+    contratos_empleados = list(Contratos.objects
+        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede')
+        .filter(estadocontrato=1, id_empresa_id=idempresa)
+        .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__sapellido',
+                'idempleado__pnombre', 'idempleado__snombre', 'cargo__nombrecargo', 'idcontrato'))
+
+    # Agregar el nombre completo a cada empleado
+    for empleado in contratos_empleados:
+        empleado['nombre_completo'] = get_empleado_name(empleado)
+
     dato = {
         'contratos_empleados': contratos_empleados,
         'idnomina': idnomina
     }
-        
-    return render(request, './payroll/partials/payroll_general.html',{'dato': dato})
+
+    return render(request, './payroll/partials/payroll_general.html', {'dato': dato})
 
 
 @login_required

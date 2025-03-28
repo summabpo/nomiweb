@@ -31,14 +31,17 @@ def employee_loans(request):
     if request.method == 'POST':
         form = LoansForm(request.POST, id_empresa=idempresa)
         if form.is_valid():
-            Prestamos.objects.create(
-                idcontrato=Contratos.objects.get(idcontrato=form.cleaned_data['contract']),
-                valorprestamo=form.cleaned_data['loan_amount'],
-                fechaprestamo=form.cleaned_data['loan_date'],
-                cuotasprestamo=form.cleaned_data['installments_number'],
-                valorcuota=form.cleaned_data['installment_value'],
-                estadoprestamo = 1
-            )
+            
+            print(form.cleaned_data)
+            
+            # Prestamos.objects.create(
+            #     idcontrato=Contratos.objects.get(idcontrato=form.cleaned_data['contract']),
+            #     valorprestamo=form.cleaned_data['loan_amount'],
+            #     fechaprestamo=form.cleaned_data['loan_date'],
+            #     cuotasprestamo=form.cleaned_data['installments_number'],
+            #     valorcuota=form.cleaned_data['installment_value'],
+            #     estadoprestamo = 1
+            # )
 
             messages.success(request, 'Prestamo creado exitosamente')
             return redirect('payroll:loans_list')

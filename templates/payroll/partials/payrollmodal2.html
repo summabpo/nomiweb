@@ -3,7 +3,7 @@
 <!-- Bootstrap-styled modal -->
 <div class="modal-content"  id="modal-content">
     <div class="modal-header">
-        <h3 class="modal-title">Conceptos de Nomina : {{data.nombre}}  numero de contrato :# {{data.id}}  </h3>
+        <h3 class="modal-title">Conceptos de Nómina: {{ data.nombre }} - Número de contrato: #{{ data.id }}</h3>
         <!--begin::Close-->
         <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
             <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
@@ -18,7 +18,7 @@
             <div class="row align-items-start">
                 <!-- Columna del acordeón más pequeña -->
                 <div class="col-md-4">
-                    <div class="accordion" id="kt_accordion_1">
+                    <div class="accordion" id="kt_accordion_1" up-target="self" >
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="kt_accordion_1_header_1">
                                 <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_1" aria-expanded="true" aria-controls="kt_accordion_1_body_1">
@@ -96,8 +96,7 @@
                                         name="cantidad"
                                         class="form-control mb-2 mb-md-0"
                                         placeholder="Cantidad"
-                                        
-                                        />
+                                        step="any" min="0"/>
                     
                             </div>
 
