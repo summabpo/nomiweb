@@ -342,3 +342,408 @@ $arraypre = {dataprestamos};
  }
  
 }  //FIN DEL FOR GENERAL
+
+
+
+
+$idn=[v_idnomina];
+
+############################################
+sc_lookup(datanomina, "select idnomina, fechainicial,fechafinal,diasnomina,mesacumular,anoacumular from crearnomina WHERE idnomina=$idn");
+if(!empty({datanomina}[0][0]))
+{ 
+[v_mesacumular] = {datanomina[0][4]};
+[v_anoacumular] = {datanomina[0][5]};
+}
+else
+{
+ echo('error de creacion de nomina');
+}
+#############################################
+
+sc_lookup(datamin, "select idano, salariominimo from salariominimoanual where idano = '[v_anoacumular]'");
+$salmin = {datamin[0][1]};
+
+sc_lookup(dataeps, "select idfijo, valorfijo 
+from conceptosfijos where idfijo = 10");
+$eps = {dataeps[0][1]};
+sc_lookup(dataafp, "select idfijo, valorfijo from conceptosfijos where idfijo = 12");
+$afp = {dataafp[0][1]};
+sc_lookup(dataibc, "select idfijo, valorfijo from conceptosfijos where idfijo = 4");
+$topeibc = {dataibc[0][1]};
+sc_lookup(data416, "select idfijo, valorfijo from conceptosfijos where idfijo = 14");
+$fsp416 = {data416[0][1]};
+sc_lookup(data617, "select idfijo, valorfijo from conceptosfijos where idfijo = 15");
+$fsp1617 = {data617[0][1]};
+sc_lookup(data718, "select idfijo, valorfijo from conceptosfijos where idfijo = 16");
+$fsp1718 = {data718[0][1]};
+sc_lookup(data819, "select idfijo, valorfijo from conceptosfijos where idfijo = 17");
+$fsp1819 = {data819[0][1]};
+sc_lookup(data920, "select idfijo, valorfijo from conceptosfijos where idfijo = 18");
+$fsp1920 = {data920[0][1]};
+sc_lookup(data21, "select idfijo, valorfijo from conceptosfijos where idfijo = 19");
+$fsp21 = {data21[0][1]};
+sc_lookup(datafactor, "select idfijo, valorfijo from conceptosfijos where idfijo = 3");
+$factorintegral = {datafactor[0][1]};
+
+###################### INICIA ITERACION DE LA NOMINA  #############################
+sc_lookup(dataall,"select idcontrato, idempleado from nomina where idnomina=$idn");
+$array = {dataall};
+$longitud = count($array);
+$n = 0;
+for($n=0; $n<$longitud; $n++)
+{
+ $ide = {dataall[$n][1]};
+ $idc = {dataall[$n][0]};
+ $acueps = 0;
+ $acupen = 0;
+ $acufsp = 0;
+
+ sc_lookup(datacon,"select idempleado, estadocontrato, salario, idcontrato, tiposalario,idcosto from contratos WHERE idcontrato=$idc");
+
+ sc_lookup(dataliqss, "select SUM(valor) FROM nomina LEFT JOIN conceptosdenomina ON  conceptosdenomina.idconcepto=nomina.idconcepto WHERE  conceptosdenomina.basesegsocial=1  AND nomina.mesacumular='[v_mesacumular]' AND nomina.anoacumular='[v_anoacumular]' AND nomina.idcontrato=$idc");
+
+ sc_lookup(dataap, "select SUM(valor) FROM nomina WHERE (idconcepto=60) AND (idcontrato=$idc)  AND (mesacumular='[v_mesacumular]') AND (anoacumular='[v_anoacumular]'and estadonomina = 2)");
+
+ sc_lookup(datapen, "select SUM(valor) FROM nomina WHERE (idconcepto=70) AND (idcontrato=$idc)  AND (mesacumular='[v_mesacumular]') AND (anoacumular='[v_anoacumular]')and estadonomina = 2 ");
+
+ sc_lookup(datafsp, "select SUM(valor) FROM nomina WHERE (idconcepto=90) AND (idcontrato=$idc)  AND (mesacumular='[v_mesacumular]') AND (anoacumular='[v_anoacumular]')and estadonomina = 2");
+
+ if (!empty ({dataap[0][0]}))
+ {
+ $acueps=({dataap[0][0]});
+ }
+ else
+ {
+ $acueps = 0;
+ }
+
+ if (!empty ({datapen[0][0]}))
+ {
+ $acupen=({datapen[0][0]});
+ }
+ else
+ {
+ $acupen = 0;
+ }
+
+ if (!empty ({datafsp[0][0]}))
+ {
+ $acufsp = ({datafsp[0][0]});
+ }
+ else
+ {
+ $acufsp = 0;
+ }
+
+ if (!empty ({dataliqss[0][0]}))
+ {
+ $totalbasesstotal = ({dataliqss[0][0]});
+ }
+ else
+ {
+ $totalbasesstotal = 0;
+ }
+ 
+ $basemax = ($salmin*$topeibc);
+ $tiposalario = {datacon[0][4]};
+ $salarioemp = {datacon[0][2]};
+ $ccosto = {datacon[0][5]};
+
+ ########### ESTABLECE SI EL SALARIO ES ORDINARIO O INTEGRAL ###############
+ if ($tiposalario == '2')
+  {
+  $salario = ($salarioemp * $factorintegral/100);
+  $totalbasess = ($totalbasesstotal * $factorintegral/100);
+  }
+ else
+  {
+  $salario = $salarioemp;
+  $totalbasess = $totalbasesstotal;
+  }
+
+ ###########################################################################
+
+
+  if ($totalbasess < $basemax)
+    {
+    $basess=$totalbasess;
+    }
+  else
+   { 
+   $basess=$basemax;
+   }
+
+if (($basess>($salmin*4)) and ($basess<($salmin*16)))
+  {
+  $fsp = $fsp416;
+  }
+  elseif ($basess > ($salmin*16) and $basess < ($salmin*17))
+   {
+  $fsp = $fsp1617;
+   }
+  elseif ($basess > $salmin*17 and $basess< $salmin*18)
+   {
+   $fsp = $fsp1718;
+   }
+  elseif ($basess > $salmin*18 and $basess< $salmin*19)
+   {
+   $fsp = $fsp1819;
+   }
+  elseif ($basess > $salmin*19 and $basess< $salmin*20)
+   {
+   $fsp = $fsp1920;
+   }
+  elseif ($basess > $salmin*20)
+   {
+   $fsp = $fsp21;
+   }
+  else
+   {
+   $fsp=0;
+   }
+
+  if ($basess<($salmin*4))
+  {
+  $valoreps=($basess*$eps/100*-1)-$acueps;
+  $valorafp=($basess*$afp/100*-1)-$acupen;
+  $valorfsp=0;
+  }
+  else
+  {
+  $valoreps=($basess*$eps/100*-1)-$acueps;
+  $valorafp=($basess*$afp/100*-1)-$acupen;
+  $valorfsp=($basess*$fsp/100*-1)-$acufsp;
+  }
+    ################ PENSIONADOS #######################
+ sc_lookup(datapensionado, "SELECT pensionado FROM contratos WHERE idcontrato = $idc");
+ if({datapensionado[0][0]} == '2'){
+ $valorafp = 0;
+ $valorfsp = 0;
+ }
+ ######VERIFICA SI HAY QUE INSERTAR O ACTUALIZAR LA LIQ DE APORTES#######
+
+ sc_lookup(dataE, "select idconcepto from nomina where idconcepto = 60 and idnomina = $idn and idcontrato = $idc");
+ sc_lookup(dataP, "select idconcepto from nomina where idconcepto = 70 and idnomina = $idn and idcontrato = $idc");
+ sc_lookup(dataF, "select idconcepto from nomina where idconcepto = 90 and idnomina = $idn and idcontrato = $idc");
+
+
+ #################### EPS ####################################################
+
+ if (empty({dataE[0][0]}))
+  {
+  sc_exec_sql("insert into nomina (idregistronom, idnomina, idconcepto, nombreconcepto, valor, idempleado, 
+  mesacumular, anoacumular, cantidad, idcontrato,idcosto) VALUES (nextval('sec_regnomina'),'[v_idnomina]', 
+  '60','EPS', $valoreps, $ide, '[v_mesacumular]', '[v_anoacumular]','0',$idc,$ccosto)");
+  }
+ else
+  {
+  sc_exec_sql("UPDATE nomina SET valor = $valoreps WHERE idnomina = $idn and idcontrato = $idc and  
+  idconcepto = 60");
+  }
+ ########## PENSION ############ 
+
+ if (empty({dataP[0][0]}))
+  {
+  sc_exec_sql("insert into nomina (idregistronom, idnomina, idconcepto, nombreconcepto, valor, idempleado,  
+  mesacumular, anoacumular, cantidad, idcontrato, idcosto) VALUES (nextval('sec_regnomina'),'[v_idnomina]', 
+  '70','AFP', $valorafp, $ide, '[v_mesacumular]', '[v_anoacumular]','0',$idc, $ccosto)");
+  }
+ else
+  {
+  sc_exec_sql("UPDATE nomina SET valor = $valorafp WHERE idnomina = $idn and idcontrato = $idc and 
+  idconcepto = 70");
+  }
+
+ ################ FSP ###########
+   if (empty({dataF[0][0]}))
+   {
+  if (($valorfsp*-1) > 0)
+  {
+  sc_exec_sql("insert into nomina (idregistronom, idnomina, idconcepto, nombreconcepto, valor, idempleado,  
+  mesacumular, anoacumular, cantidad, idcontrato, idcosto) VALUES (nextval('sec_regnomina'),'[v_idnomina]',  
+  '90','FSP', $valorfsp, $ide, '[v_mesacumular]', '[v_anoacumular]','0',$idc, $ccosto)");
+  } 
+   }
+   else
+    {
+    sc_exec_sql("UPDATE nomina SET valor = $valorfsp WHERE idnomina = $idn and  
+    idcontrato = $idc and idconcepto = 90");
+    }
+ 
+    [v_idcontrato] = $idc;
+ [v_idempleado] = $ide;
+ retefuente();
+ 
+} //FIN FOR GENERAL
+
+
+
+$idn=[v_idnomina];
+
+sc_lookup(databas,"SELECT DISTINCT idcontrato, idempleado, estadoliquidacion FROM contratos WHERE contratos.estadoliquidacion = 3 ");
+
+#####################################################
+sc_lookup(datanomina, "select idnomina, fechainicial,fechafinal,diasnomina,mesacumular,anoacumular from crearnomina WHERE idnomina=$idn");
+ if(!empty({datanomina}[0][0]))
+  { 
+  $fechainicial={datanomina[0][1]};
+  $diainicial = date("d", strtotime($fechainicial)); 
+  $fechafinal={datanomina[0][2]};
+  $diafinal = date("d", strtotime($fechafinal)); 
+  [v_mesacumular] = {datanomina[0][4]};
+  [v_anoacumular] = {datanomina[0][5]};
+  }
+ else
+  {
+   echo('error de creacion de nomina');
+  }
+############################################################
+
+sc_lookup(datamin,"SELECT idano,salariominimo,auxtransporte from salariominimoanual WHERE idano = '[v_anoacumular]'");
+$salmin={datamin[0][1]};
+$auxtra={datamin[0][2]};
+
+$array = {databas};
+$longitud = count($array);
+
+
+##########################INICIA ITERACION DE LA NOMINA########################
+$n = 0;
+for($n=0; $n<$longitud; $n++)
+{
+ $ide = {databas[$n][1]};
+ $idc = {databas[$n][0]};
+ 
+############ calcula los dias a liquidar en la nomina teniendo en cuenta la fecha de contratacion y terminacion####
+
+    sc_lookup(datasalario, "select idempleado, idcontrato, salario, tiposalario, fechainiciocontrato, fechafincontrato,    
+    auxiliotransporte,idcosto, tipocontrato from contratos WHERE idcontrato=$idc");
+
+ $fechacontrato = {datasalario[0][4]};
+ $fechaterminacion = {datasalario[0][5]};
+ $sal = {datasalario[0][2]};
+ $tiposal = {datasalario[0][3]};
+ $ccosto = {datasalario[0][7]};
+    $tipocontrato = {datasalario[0][8]};
+ 
+ if(!empty({datasalario}[0][0]))
+ {
+  if($fechacontrato <= $fechainicial)
+  {
+  $diasnomina = {datanomina[0][3]};
+  }
+ else
+  {
+  $diasnomina = sc_date_dif($fechafinal, 'aaaa-mm-dd', $fechacontrato, 'aaaa-mm-dd')+1;
+  }
+  
+ if (!empty($fechaterminacion))
+  {
+  if(($fechaterminacion >= $fechainicial) and ($fechaterminacion <= $fechafinal))
+  { 
+  $resto = sc_date_dif($fechafinal, 'aaaa-mm-dd', $fechaterminacion, 'aaaa-mm-dd');
+  $diasnomina = $diasnomina - $resto ;
+  }
+  }
+ }
+ 
+##############################  CALCULO DE DIAS BASICO  ###########################
+ sc_lookup(datahorasbasico,"SELECT SUM(cantidad) from nomina WHERE idconcepto=1 AND idcontrato=$idc AND  
+   mesacumular='[v_mesacumular]' AND anoacumular='[v_anoacumular]' AND estadonomina='2' ");
+
+ sc_lookup(datahorasactual,"SELECT SUM(cantidad) from nomina WHERE idconcepto=1 AND idcontrato=$idc AND idnomina = $idn ");
+ 
+ 
+    if(!empty({datahorasbasico[0][0]})) 
+   { 
+   $horasbasicomes = {datahorasbasico[0][0]};
+   }
+ else
+   {
+    $horasbasicomes = 0;
+   }
+ 
+ if(!empty({datahorasactual[0][0]})) 
+ {
+ $horasbasicoquincena = {datahorasactual[0][0]};
+ }
+ else
+ {
+ $horasbasicoquincena = 0;
+ }
+ 
+ $totalmes = (($horasbasicomes) + $horasbasicoquincena); ###SE ELIMINA DIVISION /8
+ 
+ ##########################  CALCULO DE TRANSPORTE  ###########################
+  
+$dertransporte = {datasalario[0][6]};
+
+     if ($dertransporte == 1)
+  {
+  $transporte = 0;
+  }
+  elseif ($sal <= ($salmin*2))
+  {
+   
+   sc_lookup(dataingtp, "select SUM(valor) FROM nomina LEFT JOIN conceptosdenomina ON  
+   conceptosdenomina.idconcepto=nomina.idconcepto WHERE  conceptosdenomina.basetransporte=1  AND 
+   nomina.mesacumular='[v_mesacumular]' AND nomina.anoacumular='[v_anoacumular]' AND nomina.idcontrato=$idc");
+
+sc_lookup(datatrapagado,"SELECT SUM(cantidad) from nomina WHERE idconcepto=2 AND idcontrato=$idc AND  
+   mesacumular='[v_mesacumular]' AND anoacumular='[v_anoacumular]' AND estadonomina='2' ");
+   
+   if(!empty({datatrapagado[0][0]}))
+    {
+       $trapagado =  {datatrapagado[0][0]};
+       }
+   else
+    {
+       $trapagado = 0;
+       }
+   $diasnomina = $totalmes - $trapagado;
+   
+   if(!empty({dataingtp[0][0]}))
+    { 
+    $basecalctransporte = {dataingtp[0][0]};
+    if($basecalctransporte < ($salmin*2))
+     {
+      $transporte = $diasnomina*($auxtra/30);
+     }
+    else
+     {
+      $transporte = 0;
+      $diasnomina = 0;
+     }
+    }
+    else
+     {
+              $transporte = 0;   
+        }
+       }
+    else
+     {
+              $transporte = 0;   
+        }
+ 
+if ($transporte > 0)
+{ 
+ 
+    ##VERIFICA SI EL REGISTRO DE TRANSPORTE YA ESTA LIQUIDADO INS OR UPD#####
+      
+    sc_lookup(dataT, "select idconcepto from nomina where ((idconcepto = '2') and idnomina = $idn and idcontrato = $idc) ");
+
+    if (empty({dataT[0][0]}))
+     {
+       sc_exec_sql("insert into nomina (idregistronom, idnomina, idconcepto, nombreconcepto, valor,idempleado,mesacumular, anoacumular, cantidad, 
+       idcontrato, idcosto) VALUES(nextval('sec_regnomina'),'[v_idnomina]', '2','Auxilio de Transporte',$transporte, $ide, '[v_mesacumular]', 
+       '[v_anoacumular]',$diasnomina,$idc,$ccosto)");
+     }
+    else
+     {
+      sc_exec_sql("UPDATE nomina SET valor = $transporte, cantidad = $diasnomina WHERE idnomina = $idn and idcontrato = $idc and idconcepto = 2");
+     }   
+}
+
+}
+
