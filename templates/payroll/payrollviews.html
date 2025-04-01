@@ -286,20 +286,38 @@ tr.htmx-swapping td {
                     <td>{{ empleado.idcontrato__idempleado__papellido }} {{ empleado.idcontrato__idempleado__sapellido }} {{ empleado.idcontrato__idempleado__pnombre }}</td>
                     <td class="text-center">{{ empleado.idcontrato__salario|format_currency }} </td>
                     <td class="text-center">
-                        <a
-                            class='btn btn-icon btn-sm btn-light-info'
-                            up-layer='new modal'
-                            up-target="#modal-content" 
-                            up-size = "large"
-                            up-align = "center"
-                            up-backdrop = "true"
-                            up-history = "false"
-                            up-dismissable ="false"
-                            up-cache="false"
-                            href="{% url 'payroll:payroll_modal' empleado.idcontrato nombre.idnomina  %}">
-                                <i class="fa-solid fa-file-circle-plus fs-3"></i>
-                        </a>
+                        <div class="btn-group" >
+                            <a
+                                class='btn btn-icon btn-sm btn-light-info'
+                                up-layer='new modal'
+                                up-target="#modal-content" 
+                                up-size = "large"
+                                up-align = "center"
+                                up-backdrop = "true"
+                                up-history = "false"
+                                up-dismissable ="false"
+                                up-cache="false"
 
+                                data-bs-toggle="tooltip" 
+                                data-bs-custom-class="tooltip-inverse" 
+                                data-bs-placement="bottom" 
+                                title="Cargar Novedad" 
+
+                                href="{% url 'payroll:payroll_modal' empleado.idcontrato nombre.idnomina  %}">
+                                    <i class="fa-solid fa-file-circle-plus fs-3"></i>
+                            </a>
+                            <div style="width: 10px;"></div>
+                            <a 
+                            data-bs-toggle="tooltip" 
+                            data-bs-custom-class="tooltip-inverse" 
+                            data-bs-placement="bottom" 
+                            title="Ver comprobante de nómina actual" 
+                            href="{% url 'companies:generatepayrollcertificate' nombre.idnomina empleado.idcontrato  %}" 
+                            target="_blank" 
+                            class="btn btn-icon btn-sm btn-light-info">
+                                <i class="fa-solid fa-file fs-3"></i>
+                            </a> 
+                        </div>
                     </td>
                 </tr>
             {% endfor %}

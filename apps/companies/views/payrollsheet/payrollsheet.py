@@ -27,7 +27,7 @@ def get_email_status(estado_email):
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def payrollsheet(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -121,7 +121,7 @@ def payrollsheet(request):
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def generatepayrollsummary(request,idnomina):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -146,7 +146,7 @@ def generatepayrollsummary(request,idnomina):
     return response
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def generatepayrollsummary2(request, idnomina):
     # Obtener los contratos únicos ordenados por apellido
     idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idcontrato__idempleado__papellido').values_list('idcontrato', flat=True).distinct()
@@ -189,7 +189,7 @@ def generatepayrollsummary2(request, idnomina):
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def generatepayrollcertificate(request ,idnomina,idcontrato):
     context = genera_comprobante(idnomina,idcontrato)
 
@@ -225,7 +225,7 @@ icono 3 :  success, message - linea 177
 """
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def massive_mail(request):
     if request.method == 'POST':
         nomina = request.POST.get('nomina2', '')
@@ -320,7 +320,7 @@ def massive_mail(request):
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def unique_mail(request,idnomina,idcontrato):
     try:
         datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )

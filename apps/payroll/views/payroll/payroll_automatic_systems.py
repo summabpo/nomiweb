@@ -202,17 +202,14 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
         
         if total_base_ss > 0:
             
-            concepto1 = Conceptosdenomina.objects.get(codigo= 60 , id_empresa_id = idempresa)
-            concepto2 = Conceptosdenomina.objects.get(codigo= 70 , id_empresa_id = idempresa)
-            concepto3 = Conceptosdenomina.objects.get(codigo= 90 , id_empresa_id = idempresa)
+            concepto1 = Conceptosdenomina.objects.get(codigo = 60 , id_empresa_id = idempresa)
+            concepto2 = Conceptosdenomina.objects.get(codigo = 70 , id_empresa_id = idempresa)
+            concepto3 = Conceptosdenomina.objects.get(codigo = 90 , id_empresa_id = idempresa)
             
             base_max = sal_min * tope_ibc.valorfijo
         
             if tipo_salario == '2':
-                salario = salario_emp * (factor_integral / 100)
                 total_base_ss *= (factor_integral / 100)
-            else:
-                salario = salario_emp
                 
             base_ss = min(total_base_ss, base_max)
             
@@ -384,10 +381,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
             ).distinct().aggregate(total=Sum('valor'))['total'] or 0# Reemplaza 'monto' con el nombre correcto de la columna
             
             if total_base_trans < (sal_min * 2):
-                print(f'-----------{contrato.idcontrato}------')
-                print(f'-----------{total_base_trans}------')
-                print(f'-----------{(sal_min * 2)}------')
-                print(f'-----------------')
                 transporte = diasnomina * (aux_tra / 30)
             else:
                 transporte = 0
