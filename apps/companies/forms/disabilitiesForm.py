@@ -4,6 +4,8 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 from django.core.exceptions import ValidationError
 from datetime import timedelta
 from apps.common.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
+from django.urls import reverse
+
 
 class DisabilitiesForm(forms.Form):
     origin = forms.ChoiceField(choices=[('', '----------'),('EPS1', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS2', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
@@ -12,10 +14,10 @@ class DisabilitiesForm(forms.Form):
     extension = forms.ChoiceField(choices=[('', '-----'),('1', 'Sí'), ('0', 'No')], label="Prórroga", widget=forms.Select(attrs={'class': 'form-select'}))
     #initial_date = forms.DateField(label="Fecha Inicial de la Incapacidad", widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
     initial_date = forms.CharField(
-        label='Fecha Inicial de la Incapacidad',
+        label='Fecha de Inicio',
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
-            'placeholder': 'Pick date range',
+            'placeholder': 'Seleccione una fecha',
             'id': 'kt_daterangepicker_1'
         })
     )
@@ -33,7 +35,7 @@ class DisabilitiesForm(forms.Form):
         required=False ,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Pick date range',
+            'placeholder': '',
             'id': 'kt_daterangepicker_2' 
         })
     )
@@ -44,25 +46,21 @@ class DisabilitiesForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         # Obtener la variable externa pasada al formulario
+        idempresa = kwargs.pop('idempresa', None)
         dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_1')
         select2_ids = kwargs.pop('select2_ids', {})
         
         super().__init__(*args, **kwargs)
         self.fields['entity'] = forms.ChoiceField(
-            choices=[('', '----------')] + [
-                (item['codigo'], f"{item['entidad']}")
-                for item in Entidadessegsocial.objects.filter( tipoentidad__in=['EPS', 'ARL'])
-                .order_by('codigo')  # Aplica el orden antes de hacer el slice
-                .values('codigo', 'entidad')
-            ],
+            choices=[('', '----------')],
             label="Entidad" , 
         )
 
         
         self.fields['contract'] = forms.ChoiceField(
             choices=[('', '----------')] + [
-                (item['idcontrato'], f"{item['idempleado__papellido']} {item['idempleado__sapellido']} {item['idempleado__pnombre']} {item['idempleado__snombre']} - {item['idcontrato']}")
-                for item in Contratos.objects.filter(estadocontrato=1)
+                (item['idcontrato'], f"{item['idempleado__papellido']} {item['idempleado__pnombre']} - {item['idcontrato']}")
+                for item in Contratos.objects.filter(estadocontrato=1 , id_empresa = idempresa )
                 .order_by('idempleado__papellido')  # Aplica el orden antes de hacer el slice
                 .values('idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido', 'idcontrato')
             ],
@@ -81,15 +79,15 @@ class DisabilitiesForm(forms.Form):
         
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.form_id = 'form_loans'
+        self.helper.form_id = 'form_disablities'
         self.helper.enctype = 'multipart/form-data'
+        self.helper.form_action = reverse('companies:disabilities_modal') 
         
         for field_name in ['entity', 'contract', 'diagnosis_code']:
             field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
-                    'data-dropdown-parent': dropdown_parent,
                     'class': 'form-select',
                     'id': field_id,
                 })
@@ -99,7 +97,6 @@ class DisabilitiesForm(forms.Form):
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
-                    'data-dropdown-parent': dropdown_parent,
                     'class': 'form-select',
                     'data-hide-search': 'true' ,
                     'id': field_id,
@@ -134,4 +131,6 @@ class DisabilitiesForm(forms.Form):
             ),
             
         )
+    
+    
     

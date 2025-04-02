@@ -10,6 +10,21 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import json
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+import os
+import random
+import string
+from django.core.files.storage import default_storage
+from django.conf import settings
+
+
+
+def generate_random_filename(extension="jpg"):
+    """Genera un nombre aleatorio de 100 caracteres con la extensión adecuada."""
+    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=80))
+    return f"{random_string}.{extension}"
+  
 
 def maem(fecha_str):
     """
@@ -53,9 +68,13 @@ def maem(fecha_str):
     return meses[previous_month], year
   
   
-
+@login_required
+@role_required('company','accountant')
 def disabilities(request):
-  errors = False
+  
+  usuario = request.session.get('usuario', {})
+  idempresa = usuario['idempresa']
+  
   incapacidades = Incapacidades.objects.values(
       'idcontrato__idcontrato',
       'idcontrato__idempleado__docidentidad',
@@ -63,93 +82,86 @@ def disabilities(request):
       'idcontrato__idempleado__snombre',
       'idcontrato__idempleado__papellido',
       'idcontrato__idempleado__sapellido',
-      'entidad',
+      'entidad__entidad',
       'coddiagnostico__coddiagnostico',
+      'coddiagnostico__diagnostico',
       'prorroga',
       'fechainicial',
       'dias',
-      'idincapacidad'
+      'idincapacidad',
+      'imagenincapacidad',
+      
   ).order_by('-idincapacidad')
   
   
-  form1 = DisabilitiesForm()
-  form2 = DisabilitiesForm(dropdown_parent='#kt_modal_2')
+  
+  return render (request, './companies/disabilities.html', {'incapacidades' :incapacidades})
+
+  
+
+
+@login_required
+@role_required('company','accountant')
+def disabilities_modal(request):
+  usuario = request.session.get('usuario', {})
+  idempresa = usuario['idempresa']
+  
+  form = DisabilitiesForm(idempresa = idempresa)
   
   if request.method == 'POST':
-    form1 = DisabilitiesForm(request.POST)
-    if form1.is_valid():
-      # Procesa los datos del formulario
-      contract = form1.cleaned_data['contract']
-      entity = form1.cleaned_data['entity']
-      origin = form1.cleaned_data['origin']
-      initial_date = form1.cleaned_data['initial_date']
-      incapacity_days = form1.cleaned_data['incapacity_days']
-      diagnosis_code = form1.cleaned_data['diagnosis_code']
-      extension = form1.cleaned_data['extension']
-      end_date = form1.cleaned_data['end_date']
-      
-      
-      
-      contrato = Contratos.objects.get(idcontrato = contract)
-      empleado = Contratosemp.objects.get(idempleado = contrato.idempleado.idempleado)
-      entidad = Entidadessegsocial.objects.get(codigo = entity)
-      dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
-      # Calcular el mes anterior
-      mesanterior = maem(initial_date)
-      mes_anterior, year = maem(initial_date)
-      fecha1 = datetime.strptime(initial_date, "%Y-%m-%d")
-      
-      base_prestacion_social = Q(idconcepto__baseprestacionsocial=1)
-      sueldo_basico = Q(idconcepto__sueldobasico=1)
-      
-      salario = Nomina.objects.filter(
-          (base_prestacion_social),
-          mesacumular=mesanterior,
-          anoacumular=year,
-          idcontrato=contract
-      ).aggregate(total=Sum('valor'))['total']
+  # Obtener datos del formulario
+    contract = request.POST.get('contract')
+    origin = request.POST.get('origin')
+    entity = request.POST.get('entity')
+    initial_date = request.POST.get('initial_date')
+    incapacity_days = request.POST.get('incapacity_days')
+    diagnosis_code = request.POST.get('diagnosis_code')
+    extension = str(request.POST.get('extension', '0'))  # Convierte a string y usa '0' como valor predeterminado
+    prorroga = extension == '1'  # Devuelve True si extension es '1'
 
-      # Verificar si el resultado es None
-      if salario is None:
-          # Realizar la consulta para obtener el salario del contrato
-          try:
-              salario = Contratos.objects.get(idcontrato=contract).salario  
-          except Contratos.DoesNotExist:
-              salario = 0 
-              
-      fin_incap = fecha1 + timedelta(days=int(incapacity_days))
-      new_incapacity = Incapacidades(
-        empleado = f"{empleado.papellido} {empleado.sapellido} {empleado.snombre} {empleado.pnombre} - {empleado.snombre}" , 
-        tipoentidad = entidad.tipoentidad, 
-        entidad = entidad.entidad,
-        coddiagnostico = dianostico,
-        diagnostico =  dianostico.diagnostico,
-        fechainicial = fecha1 ,
-        dias = int (incapacity_days),
-        idempleado= empleado,
-        idcontrato = contrato,
-        prorroga =  extension ,
-        ibc = salario,
-        finincap =  fin_incap,
-      )
-      new_incapacity.save()  
-      errors = False
-      messages.success(request, 'La Incapacidad ha sido añadido con éxito.')
-      return redirect('companies:disabilities')
-    else:
-      print(form1.errors)
-      errors = True
+    entidad = Entidadessegsocial.objects.get(codigo = entity)
+    dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
     
+    # Obtener la imagen
+    imagen = request.FILES.get('image')
+    if imagen:
+      # Obtener la extensión del archivo
+      ext = imagen.name.split('.')[-1]
 
-  return render (request, './companies/disabilities.html',
-                  {
-                    'incapacidades' :incapacidades,  
-                    'form1' :form1,
-                    'form2' :form2,
-                    'errors':errors,
-                  })
+      # Generar un nombre aleatorio con la misma extensión
+      filename = generate_random_filename(ext)
+
+      # Guardar en MEDIA_ROOT en la subcarpeta 'incapacities/'
+      file_path = os.path.join(settings.MEDIA_ROOT, 'incapacities', filename)
+      os.makedirs(os.path.dirname(file_path), exist_ok=True)  # Asegurar que la carpeta existe
+      
+      with open(file_path, 'wb+') as destination:
+          for chunk in imagen.chunks():
+              destination.write(chunk)
+
+      print(f"Imagen guardada en: {file_path}")
+      
+      
+    # Guardar en la base de datos
+    Incapacidades.objects.create(
+      entidad = entidad ,#enlace segsocial
+      coddiagnostico = dianostico ,
+      fechainicial = initial_date ,
+      dias = incapacity_days,
+      imagenincapacidad = filename if filename else "" ,  # cambiar tipo enlace 
+      idcontrato_id  = contract ,  
+      prorroga = prorroga ,
+      ibc =  0 ,
+      origenincap = origin , 
+    )
+        
+    #messages.success(request, 'La Incapacidad ha sido añadido con éxito.')
+    return redirect('companies:disabilities')
   
-  
+  return render (request, './companies/partials/create_disabilities_modal.html',{'form' :form,})
+
+
+
 global_id = None 
 
 @csrf_exempt

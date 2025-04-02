@@ -3,6 +3,21 @@
 {% load static %}
 
 
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}   
+    {% elif user.is_employee %}
+        {% include 'base/navbar_employees.html' %}   
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}               
+{% endblock %}
+
+
 {% block title %}
     Nomiweb.co - Portal Empresas - Incapacidades
 {% endblock %}
@@ -16,6 +31,52 @@
         justify-content: center;
         height: 100%;
     }
+
+    up-modal[size=large] up-modal-box {
+        border-radius: 0.75rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+        
+    }
+    
+    up-modal[size=medium] up-modal-box {
+        border-radius: 0.75rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+        
+    }
+    
+    up-modal[size=small] up-modal-box {
+        border-radius: 0.75rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+        
+    }
+    
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        text-align: left;
+    }
+    
+    .select2-container .select2-search--dropdown .select2-search__field {
+        height: 28px; /* Ajusta la altura según prefieras */
+        padding: 4px 8px; /* Ajusta el padding para hacerlo más delgado */
+        font-size: 14px; /* Si quieres un texto más pequeño */
+        border-radius: 8px; /* Bordes más suaves si te gusta */
+    }
+    
+    
+    .select2-container .select2-results__option {
+        text-align: left;
+    }
+    
+    
+    .swal2-container {
+        z-index: 9999 !important; /* Más alto que el z-index de los modales de Unpoly */
+    }
+    
+    
+    tr.htmx-swapping td {
+        opacity: 0;
+        transition: opacity 1s ease-out;
+    }
+
 {% endblock %}
 
 {% block sub_titulo1 %} 
@@ -29,10 +90,31 @@ Incapacidades
 
 {% block actions %}
 
-<button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
+{% comment %} <button type="button" class="btn btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_1">
     <i class="fa-solid fa-plus"></i> Nueva Incapacidad
-</button>  
+</button>   
+<div style="width: 10px;"></div>
+{% endcomment %}
 
+
+    <a
+        class='btn btn-light-info'
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "medium"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="bottom" 
+        href="{% url 'companies:disabilities_modal' %}">
+        <i class="fa-solid fa-plus"></i> Nueva Incapacidad
+
+    </a> 
+    {% comment %} {% url 'payroll:flat_modal' %} {% endcomment %}
 {% endblock %}
 
 {% block titulo2 %} 
@@ -65,17 +147,17 @@ Listado de Incapacidades
                 {% for item in incapacidades %}
                     <tr>
                         <td>{{ item.idcontrato__idcontrato }}</td>
-                        <td>{{ item.idempleado__docidentidad }}</td>
-                        <td> {{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }} </td>
-                        <td>{{ item.entidad }}</td>
+                        <td>{{ item.idcontrato__idempleado__docidentidad }}</td>
+                        <td> {{ item.idcontrato__idempleado__papellido }} {{ item.idcontrato__idempleado__sapellido }} {{ item.idcontrato__idempleado__pnombre }} {{ item.idcontrato__idempleado__snombre }} </td>
+                        <td>{{ item.entidad__entidad }}</td>
                         <td>{{ item.coddiagnostico__coddiagnostico }}</td>
-                        <td>{{ item.diagnostico }}</td>
+                        <td>{{ item.coddiagnostico__diagnostico }}</td>
                         <td>
                             
                             {% if item.prorroga == '0'  %}
                                 <h4>No</h4>
                             {% else %}
-                                <h4>sI</h4>
+                                <h4>Si</h4>
                             {% endif %}
 
                         </td>
@@ -83,9 +165,10 @@ Listado de Incapacidades
                         <td>{{ item.dias }}</td>
                         <td>
                             <!--begin::Overlay-->
-                            <a class="btn btn-icon btn-light-info" data-fslightbox="lightbox-basic" href="{% static 'media/stock/900x600/23.jpg' %}">
+                            <a class="btn btn-icon btn-light-info" data-fslightbox="lightbox-basic" href="{{ MEDIA_URL }}media/incapacities/kluMHCMDyE3EYACRqMY9JsJXrX0dxwSgjPtEHY0Zh5LqgfI006ZMrf9fQRwtLUxOLLTeabbIz2jAqrdk.jpg">
                                 <!--begin::Image-->
                                 <i class="fa-solid fa-file-image fs-3"></i>
+                                
                                 <!--end::Image-->
                             </a>
                             <!--end::Overlay-->
@@ -111,64 +194,6 @@ Listado de Incapacidades
 {% endif %}
     
 
-<!--begin::Modal-->
-<div class="modal fade" tabindex="-1" id="kt_modal_1">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" >
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"> Nueva Incapacidad</h5>
-
-                <!--begin::Close-->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                </div>
-                <!--end::Close-->
-            </div>
-
-            <div class="modal-body">
-                {% crispy form1 %}
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary" form="form_loans" >Guardar Incapacidad</button>
-            </div>
-        </div>
-    </div>
-</div>
-<!--end::Modal-->
-
-<div class="modal fade" tabindex="-1" id="kt_modal_2">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title"> Editar Incapacidad</h3>
-    
-                <!--begin::Close-->
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                </div>
-                <!--end::Close-->
-            </div>
-    
-            <div class="modal-body">
-                <form id="disabilities-form-edit" method="post" action="{% url 'companies:edit_disabilities' %}">
-                    {% crispy form2 %}
-                </form>
-            </div>
-    
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="disabilities-form-edit"  class="btn btn-primary">Actualizar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
 {% endblock %}
 
 
@@ -177,296 +202,6 @@ Listado de Incapacidades
 
 
 {% block js %}
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-    // Asigna eventos 'change' a los selects de origen de ambos modales
-    initializeSelect('origin_kt_modal_1', 'entity_kt_modal_1');
-    initializeSelect('origin_kt_modal_2', 'entity_kt_modal_2');
-
-    // Agregar el evento para el cierre del modal
-    $('#kt_modal_2').on('hidden.bs.modal', function () {
-        const entitySelect2 = document.getElementById('entity_kt_modal_2');
-        
-        // Deshabilitar el select de entidades al cerrar el modal
-        if (entitySelect2) {
-            entitySelect2.disabled = true;
-        }
-
-        fetchEntities('TDO', entitySelect2);
-    });
-
-    // Agregar el evento para abrir el modal
-    $('#kt_modal_2').on('shown.bs.modal', function () {
-        const entitySelect2 = document.getElementById('entity_kt_modal_2');
-        // Asegurarse de que el select esté deshabilitado al abrir el modal
-        if (entitySelect2) {
-            entitySelect2.disabled = true;
-        }
-    });
-});
-
-const entitiesUrl = "{% url 'companies:get_entity' %}";
-
-function initializeSelect(originSelectId, entitySelectId) {
-    const originSelect = $(`#${originSelectId}`);
-    const entitySelect = document.getElementById(entitySelectId);
-
-    // Deshabilita el select de entidades al cargar la página
-    if (entitySelect) {
-        entitySelect.disabled = true;
-    }
-
-    if (originSelect.length) {
-        // Detectar el cambio de valor en select2
-        originSelect.on('select2:select', function(e) {
-            const idOrigin = e.params.data.id;  // Obtén el valor seleccionado
-            fetchEntities(idOrigin, entitySelect);  // Pasa el select correspondiente
-        });
-    } else {
-        console.log(`No se ha podido detectar el select con id ${originSelectId}.`);
-    }
-}
-
-async function fetchEntities(idOrigin, idEntitySelect) {
-    if (idOrigin) {
-        try {
-            // Deshabilitar el select mientras se cargan las entidades
-            idEntitySelect.disabled = true;
-
-            const entities = await get_entity(idOrigin);
-
-            idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
-
-            // Agregar las nuevas opciones
-            entities.forEach(entity => {
-                const option = document.createElement('option');
-                option.value = entity.codigo;
-                option.textContent = entity.entidad;
-                idEntitySelect.appendChild(option);
-            });
-
-            // Habilitar el select si hay entidades disponibles
-            idEntitySelect.disabled = entities.length === 0;
-
-        } catch (error) {
-            console.error('Error al obtener las entidades:', error);
-        }
-    } else {
-        // Restablecer el select si no se ha seleccionado ningún origen
-        idEntitySelect.innerHTML = '<option value="">Seleccione una entidad</option>';
-        idEntitySelect.disabled = true;
-    }
-}
-
-async function get_entity(idOrigin) {
-    try {
-        const response = await fetch(`${entitiesUrl}?dato=${idOrigin}`);
-        if (!response.ok) {
-            throw new Error(`Network response was not ok: ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Error en la petición AJAX:', error);
-        throw error;
-    }
-}
-</script>
-
-
-
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const startDateInput = document.getElementById('kt_daterangepicker_1');
-        const daysInput = document.getElementById('id_incapacity_days');
-        const endDateInput = document.getElementById('kt_daterangepicker_2');
-    
-        function calculateEndDate() {
-            const startDate = new Date(startDateInput.value);
-            const daysToAdd = parseInt(daysInput.value) || 0;
-    
-            if (!isNaN(startDate) && daysToAdd) {
-                const endDate = new Date(startDate);
-                endDate.setDate(endDate.getDate() + daysToAdd);
-                endDateInput.value = endDate.toLocaleDateString(); 
-                endDateInput.disabled = true;
-            } else {
-                endDateInput.value = '';
-            }
-        }
-    
-        const modalElement = document.getElementById('kt_modal_1');
-    
-        modalElement.addEventListener('shown.bs.modal', function() {
-            startDateInput.value = ''; // Limpia los campos al abrir el modal
-            daysInput.value = '';      // Limpia los campos al abrir el modal
-            endDateInput.value = '';   // Limpia los campos al abrir el modal
-            endDateInput.disabled = true;
-    
-            startDateInput.addEventListener('change', calculateEndDate);
-            daysInput.addEventListener('input', calculateEndDate);
-        });
-    
-        modalElement.addEventListener('hidden.bs.modal', function() {
-            startDateInput.removeEventListener('change', calculateEndDate);
-            daysInput.removeEventListener('input', calculateEndDate);
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        {% if errors %}
-            var modal = new bootstrap.Modal(document.getElementById('kt_modal_1'));
-            modal.show();
-        {% endif %}
-    });
-</script>
-
-<script>
-    $("#kt_daterangepicker_1").daterangepicker({
-        singleDatePicker: true,
-        showDropdowns: true,
-        minYear: 2000,
-        maxYear: parseInt(moment().format("YYYY"), 12),
-        
-        endDate: moment(),
-        minDate: '01/01/2020',
-        maxDate: moment(),
-        autoApply: true,
-        locale: {
-            format: 'YYYY-MM-DD',
-            applyLabel: 'Aplicar',
-            cancelLabel: 'Cancelar',
-            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-        },
-    });
-</script>
-
-<script>
-    $("#kt_daterangepicker_2").daterangepicker({
-        singleDatePicker: true,
-        showDropdowns: true,
-        minYear: 2000,
-        maxYear: parseInt(moment().format("YYYY"), 12),
-        
-        endDate: moment(),
-        minDate: '01/01/2020',
-        autoApply: true,
-        locale: {
-            format: 'YYYY-MM-DD',
-            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-        },
-    });
-    
-</script>
-
-
-<script>
-    $(document).ready(function() {
-        $('#kt_modal_2').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var recipient = button.data('disabilites_id');
-            var modal = $(this);
-            
-            const startDateInput = modal.find('.modal-body #kt_daterangepicker_1');
-            const daysInput = modal.find('.modal-body #id_incapacity_days');
-            const endDateInput = modal.find('.modal-body #kt_daterangepicker_2');
-
-            function calculateEndDate() {
-                const startDate = moment(startDateInput.val(), 'YYYY-MM-DD');
-                const daysToAdd = parseInt(daysInput.val()) || 0;
-
-                if (startDate.isValid() && daysToAdd > 0) {
-                    const endDate = startDate.clone().add(daysToAdd, 'days');
-                    endDateInput.val(endDate.format('YYYY-MM-DD'));
-                    endDateInput.prop('disabled', true); // Bloquear campo de fecha final
-                } else {
-                    endDateInput.val('');
-                }
-            }
-
-            modal.on('shown.bs.modal', function() {
-                endDateInput.prop('disabled', true); // Deshabilitar campo de fecha final
-
-                // Agregar eventos para calcular la fecha final
-                startDateInput.on('change', calculateEndDate);
-                daysInput.on('input', calculateEndDate);
-            });
-
-            modal.on('hidden.bs.modal', function() {
-                // Eliminar los eventos de cálculo al cerrar el modal
-                startDateInput.off('change', calculateEndDate);
-                daysInput.off('input', calculateEndDate);
-            });
-
-            $.ajax({ 
-                url: '/companies/payroll/new/disabilities/edit',
-                type: 'GET',
-                data: {
-                    'dato': recipient
-                },
-                success: function(response) {
-                    
-                    modal.find('.modal-title').text('Editar Incapacidad #' + response.data.id);
-                    modal.find('.modal-body #id_incapacity_days').val(response.data.incapacity_days);
-                    
-                    var initialDate = response.data.initial_date ? moment(response.data.initial_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
-                    modal.find('.modal-body #kt_daterangepicker_1').val(initialDate);
-
-                    var endDate = response.data.end_date ? moment(response.data.end_date, 'YYYY-MM-DD').format('YYYY-MM-DD') : '';
-                    modal.find('.modal-body #kt_daterangepicker_2').val(endDate);
-
-                    var $select1 = modal.find('.modal-body #contract_kt_modal_2');
-                    $select1.val(response.data.contract).trigger('change').prop('disabled', true); // Establece el valor y deshabilita el select
-
-                    var $select2 = modal.find('.modal-body #entity_kt_modal_2');
-                    $select2.val(response.data.entity).trigger('change').prop('disabled', true);; // Actualiza el valor y refleja el cambio
-
-                    var $select3 = modal.find('.modal-body #diagnosis_code_kt_modal_2');
-                    $select3.val(response.data.diagnosis_code).trigger('change');
-
-                    var $select4 = modal.find('.modal-body #extension_kt_modal_2');
-                    $select4.val(response.data.extension).trigger('change');
-
-                    var $select5 = modal.find('.modal-body #origin_kt_modal_2');
-                    $select5.val(response.data.origin).trigger('change');
-                    
-                    // Inicializar daterangepicker en el campo de fecha inicial
-                    modal.find('.modal-body #kt_daterangepicker_1').daterangepicker({
-                        singleDatePicker: true,
-                        showDropdowns: true,
-                        minYear: 2000,
-                        maxYear: parseInt(moment().format("YYYY"), 12),
-                        startDate: moment(initialDate),
-                        endDate: moment(),
-                        minDate: '01/01/2020',
-                        autoApply: true,
-                        locale: {
-                            format: 'YYYY-MM-DD',
-                            applyLabel: 'Aplicar',
-                            cancelLabel: 'Cancelar',
-                            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-                            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-                        },
-                    });
-
-                    endDateInput.prop('disabled', true); // Asegurarse de que la fecha final esté deshabilitada
-                },
-                error: function(response) {
-                    console.log(response.error);
-                }
-            });
-        });
-    });
-</script>
-
-
-
 
 
 <script>
@@ -505,6 +240,149 @@ async function get_entity(idOrigin) {
         });
     });
 </script>
+
+
+{% comment %}  Nuevo modal  {% endcomment %}
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer.current.element;
+        const entitiesUrl = "{% url 'companies:get_entity' %}";
+
+        if (modalContent) {
+
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            const date = modalContent.querySelector('#kt_daterangepicker_1');
+            const conceptSelect = modalContent.querySelector('#origin_kt_modal_1');
+            const date2 = modalContent.querySelector('#kt_daterangepicker_2'); // Campo de texto
+            const select1 = modalContent.querySelector('#entity_kt_modal_1'); // Select
+
+            // calculo de dias basado fechas 
+            const startDateInput = modalContent.querySelector('#kt_daterangepicker_1');
+            const daysInput = modalContent.querySelector('#id_incapacity_days');
+            const endDateInput = modalContent.querySelector('#kt_daterangepicker_2');
+
+            // Actualizar el input cuando se seleccione una fecha
+            $(startDateInput).on('apply.daterangepicker', function(ev, picker) {
+                startDateInput.value = picker.startDate.format('YYYY-MM-DD');
+                calculateEndDate();
+            });
+
+            function calculateEndDate() {
+                const startDateValue = startDateInput.value;
+                const daysValue = parseInt(daysInput.value, 10);
+                
+                if (startDateValue && !isNaN(daysValue) && daysValue > 0) {
+                    const startDate = new Date(startDateValue);
+                    startDate.setDate(startDate.getDate() + daysValue);
+                    
+                    const formattedEndDate = startDate.getFullYear() + '-' +
+                        String(startDate.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(startDate.getDate()).padStart(2, '0');
+                    
+                    endDateInput.value = formattedEndDate;
+                    endDateInput.disabled = true;
+                } else {
+                    endDateInput.value = '';
+                }
+            }
+
+            daysInput.addEventListener('input', calculateEndDate);
+
+
+            // selector de tipo de 
+            if (conceptSelect) {
+                
+                // Asegurar que select2 está inicializado antes de asignar el evento
+                if (!$(conceptSelect).data('select2')) {
+                    $(conceptSelect).select2({
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    });
+                }
+    
+                // Agregar evento select2:select con un pequeño retraso para asegurar inicialización
+                setTimeout(() => {
+                    $(conceptSelect).on('select2:select', function(e) {
+                        select1.disabled = true;
+                        const selectedValue = e.params.data.id;
+
+                        up.request(`${entitiesUrl}?dato=${selectedValue}`)
+                            .then(response => response.json)
+                            .then(data => {
+                                select1.innerHTML = '<option value="">Seleccione una entidad</option>';
+                                // Agregar las nuevas opciones
+                                data.forEach(data => {
+                                    const option = document.createElement('option');
+                                    option.value = data.codigo;
+                                    option.textContent = data.entidad;
+                                    select1.appendChild(option);
+                                });
+                                // Habilitar el select si hay entidades disponibles
+                                select1.disabled = select1.length === 0;
+                            })
+                            .catch(error => {
+                                console.error('Error al obtener la entidad:', error);
+                            });
+                        
+                        
+                    });
+                }, 200);
+            }
+
+            if (date2) date2.disabled = true;
+            if (select1) select1.disabled = true;
+
+            if (date) { // Verificamos que el elemento exista antes de inicializar daterangepicker
+                $(date).daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 2000,
+                    maxYear: parseInt(moment().format("YYYY"), 12),
+                    endDate: moment(),
+                    minDate: '01/01/2020',
+                    maxDate: moment().add(10, 'days'),
+                    autoApply: true,
+                    locale: {
+                        format: 'YYYY-MM-DD',
+                        applyLabel: 'Aplicar',
+                        cancelLabel: 'Cancelar',
+                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                    },
+                });
+                // **Forzar el z-index del daterangepicker**
+                setTimeout(() => {
+                    $('.daterangepicker').css('z-index', 9999); // Ajusta el z-index para estar sobre Unpoly
+                }, 10);
+
+            } else {
+                console.warn("El elemento #kt_daterangepicker_2 no se encontró dentro de modalContent.");
+            }
+
+            // Usamos un pequeño retraso para asegurar el renderizado completo
+            setTimeout(() => {
+                selectElements.forEach((select, index) => {
+                    // Aseguramos un ID único si no tiene uno
+                    if (!select.id) {
+                        select.id = `select2-unique-${Date.now()}-${index}`;
+                    }
+
+                    if (!$(select).data('select2')) {
+                        $(select).select2({
+                            dropdownParent: $(modalContent),
+                            width: '100%'
+                        });
+                    }
+                });
+            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
+        } else {
+            console.log('Contenido completo del fragmento:', event.target.innerHTML);
+        }
+    });
+
+
+</script>
+
 
 
 {% endblock %}

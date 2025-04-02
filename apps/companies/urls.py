@@ -149,3 +149,10 @@ urlhtmxpatterns =[
 
 urlpatterns += urlhtmxpatterns  
 
+urlunpolypatterns =[
+    
+    path('payroll/new/disabilities/modal', disabilities.disabilities_modal, name='disabilities_modal'),
+
+]
+
+urlpatterns += urlunpolypatterns  
