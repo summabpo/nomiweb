@@ -5,7 +5,22 @@ from django.core.exceptions import ValidationError
 from datetime import timedelta
 from apps.common.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
 from django.urls import reverse
+import os
 
+def validate_pdf_file(value):
+    # Verificar que el archivo sea un PDF
+    ext = os.path.splitext(value.name)[1].lower()
+    if ext != '.pdf':
+        raise ValidationError("Solo se permiten archivos en formato PDF.")
+
+    # Verificar el tamaño del archivo (máx. 5 MB)
+    max_size = 5 * 1024 * 1024  # 5MB en bytes
+    if value.size > max_size:
+        raise ValidationError("El tamaño máximo permitido es 5 MB.")
+
+    # Verificar que el nombre no contenga caracteres especiales
+    if not value.name.replace(".", "").replace("_", "").isalnum():
+        raise ValidationError("El nombre del archivo no debe contener caracteres especiales.")
 
 class DisabilitiesForm(forms.Form):
     origin = forms.ChoiceField(choices=[('', '----------'),('EPS1', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS2', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
@@ -28,8 +43,6 @@ class DisabilitiesForm(forms.Form):
                                         initial=0, 
                                         min_value=0,   
                                         widget=forms.NumberInput(attrs={'class': 'form-control'}))
-   
-   
     end_date  = forms.CharField(
         label="Fin de la Incapacidad",
         required=False ,
@@ -41,8 +54,14 @@ class DisabilitiesForm(forms.Form):
     )
     
 
-    image = forms.ImageField(label="Imagen",required=False , widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
+    #image = forms.ImageField(label="Imagen",required=False , widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
 
+    pdf_file = forms.FileField(
+        label="Subir archivo PDF",
+        validators=[validate_pdf_file],
+        help_text="Solo archivos PDF. Tamaño máximo: 5MB."
+    )
+    
     
     def __init__(self, *args, **kwargs):
         # Obtener la variable externa pasada al formulario
@@ -52,7 +71,12 @@ class DisabilitiesForm(forms.Form):
         
         super().__init__(*args, **kwargs)
         self.fields['entity'] = forms.ChoiceField(
-            choices=[('', '----------')],
+            choices=[('', '----------')] + [
+                (item['codigo'], f"{item['entidad']}")
+                for item in Entidadessegsocial.objects.filter( tipoentidad__in=['EPS', 'ARL'])
+                .order_by('codigo')  # Aplica el orden antes de hacer el slice
+                .values('codigo', 'entidad')
+            ],
             label="Entidad" , 
         )
 
@@ -81,25 +105,30 @@ class DisabilitiesForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_disablities'
         self.helper.enctype = 'multipart/form-data'
-        self.helper.form_action = reverse('companies:disabilities_modal') 
+        
+        
+        self.helper.attrs.update({
+            'up-target': '#modal-content',  # El elemento donde se actualizará el contenido
+            'up-mode': 'replace',  # Cómo se actualizará el contenido del objetivo
+            'up-submit': reverse('companies:disabilities_modal'), # Usa el nombre de la vista en urls.py
+        })
+        
+        
         
         for field_name in ['entity', 'contract', 'diagnosis_code']:
-            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
                     'class': 'form-select',
-                    'id': field_id,
+                    
                 })
         
         for field_name in [ 'origin','extension']:
-            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
                     'class': 'form-select',
                     'data-hide-search': 'true' ,
-                    'id': field_id,
                 })
                 
                 
@@ -126,7 +155,7 @@ class DisabilitiesForm(forms.Form):
                 css_class='row'
             ),
             Row(
-                Column('image', css_class=' form-group col-md-12 mb-3'),
+                Column('pdf_file', css_class=' form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             

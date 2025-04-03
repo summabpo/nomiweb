@@ -110,6 +110,8 @@ Incapacidades
         data-bs-toggle="tooltip" 
         data-bs-custom-class="tooltip-inverse" 
         data-bs-placement="bottom" 
+        title="Cargar Incapacidad"
+        data-bs-delay-hide="1000" 
         href="{% url 'companies:disabilities_modal' %}">
         <i class="fa-solid fa-plus"></i> Nueva Incapacidad
 
@@ -167,16 +169,34 @@ Listado de Incapacidades
                             <!--begin::Overlay-->
                             <a class="btn btn-icon btn-light-info" data-fslightbox="lightbox-basic" href="{{ MEDIA_URL }}media/incapacities/kluMHCMDyE3EYACRqMY9JsJXrX0dxwSgjPtEHY0Zh5LqgfI006ZMrf9fQRwtLUxOLLTeabbIz2jAqrdk.jpg">
                                 <!--begin::Image-->
-                                <i class="fa-solid fa-file-image fs-3"></i>
-                                
+                                <i class="fa-solid fa-eye fs-3"></i>
                                 <!--end::Image-->
                             </a>
                             <!--end::Overlay-->
                         </td>
                         <td>
-                            <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-disabilites_id="{{ item.idincapacidad }}" >
+                            {% comment %} <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-disabilites_id="{{ item.idincapacidad }}" >
+                                
+                            </button>   {% endcomment %}
+                            <a
+                                class='btn btn-icon btn-light-info'
+                                up-layer='new modal'
+                                up-target=".modal-content"
+                                up-size = "medium"
+                                up-align = "center"
+                                up-backdrop = "true"
+                                up-history = "false"
+                                up-dismissable ="false"
+                                up-cache="false"
+                                data-bs-toggle="tooltip" 
+                                data-bs-custom-class="tooltip-inverse" 
+                                data-bs-placement="bottom" 
+                                title="Editar Incapacidad"
+                                data-bs-delay-hide="1000" 
+                                href="{% url 'companies:disabilities_modal_edit' %}">
                                 <i class="fa-solid fa-pen-to-square fs-3"></i>
-                            </button>   
+
+                            </a>  
                         </td>
                     </tr>
                 {% endfor %}
@@ -252,14 +272,27 @@ Listado de Incapacidades
 
             const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
             const date = modalContent.querySelector('#kt_daterangepicker_1');
-            const conceptSelect = modalContent.querySelector('#origin_kt_modal_1');
+            const conceptSelect = modalContent.querySelector('#id_origin');
             const date2 = modalContent.querySelector('#kt_daterangepicker_2'); // Campo de texto
-            const select1 = modalContent.querySelector('#entity_kt_modal_1'); // Select
+            const select1 = modalContent.querySelector('#id_entity'); // Select
 
             // calculo de dias basado fechas 
             const startDateInput = modalContent.querySelector('#kt_daterangepicker_1');
             const daysInput = modalContent.querySelector('#id_incapacity_days');
             const endDateInput = modalContent.querySelector('#kt_daterangepicker_2');
+            
+
+            if (date2) date2.disabled = true;
+
+            if (select1) {
+                if(select1.value){
+                    select1.disabled = false;
+                    calculateEndDate();
+                }else {
+                    select1.disabled = true;
+                }
+            }
+            
 
             // Actualizar el input cuando se seleccione una fecha
             $(startDateInput).on('apply.daterangepicker', function(ev, picker) {
@@ -329,8 +362,7 @@ Listado de Incapacidades
                 }, 200);
             }
 
-            if (date2) date2.disabled = true;
-            if (select1) select1.disabled = true;
+            
 
             if (date) { // Verificamos que el elemento exista antes de inicializar daterangepicker
                 $(date).daterangepicker({
@@ -339,8 +371,8 @@ Listado de Incapacidades
                     minYear: 2000,
                     maxYear: parseInt(moment().format("YYYY"), 12),
                     endDate: moment(),
-                    minDate: '01/01/2020',
-                    maxDate: moment().add(10, 'days'),
+                    minDate: moment().subtract(10, 'days'),  // Establece la fecha mínima como 10 días antes
+                    maxDate: moment().add(10, 'days'),  // Fecha máxima sigue siendo 10 días después
                     autoApply: true,
                     locale: {
                         format: 'YYYY-MM-DD',
