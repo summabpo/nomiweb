@@ -17,7 +17,9 @@ import random
 import string
 from django.core.files.storage import default_storage
 from django.conf import settings
-
+from django.http import JsonResponse
+from django.urls import reverse
+from django.http import HttpResponse
 
 
 def generate_random_filename(extension="pdf"):
@@ -84,37 +86,39 @@ def disabilities_modal(request):
       dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
       
       #* Funcion de guardado de pdf 
-      # Generar un nuevo nombre aleatorio
-      new_filename = generate_random_filename("pdf")
-      pdf_folder = os.path.join(settings.MEDIA_ROOT, 'pdfs')
-
-      # ✅ Crear la carpeta si no existe
-      os.makedirs(pdf_folder, exist_ok=True)
-
-      # Guardar el archivo con el nuevo nombre
-      pdf_path = os.path.join(pdf_folder, new_filename)
-      with open(pdf_path, 'wb+') as destination:
-          for chunk in pdf_file.chunks():
-              destination.write(chunk)
+      new_filename = ''
+      
+      if pdf_file :
+        # Generar un nuevo nombre aleatorio
+        new_filename = generate_random_filename("pdf")
+        pdf_folder = os.path.join(settings.MEDIA_ROOT, 'pdfs')
+        # ✅ Crear la carpeta si no existe
+        os.makedirs(pdf_folder, exist_ok=True)
+        # Guardar el archivo con el nuevo nombre
+        pdf_path = os.path.join(pdf_folder, new_filename)
+        with open(pdf_path, 'wb+') as destination:
+            for chunk in pdf_file.chunks():
+                destination.write(chunk)
               
               
 
       # Guardar en la base de datos
-      Incapacidades.objects.create(
-        entidad = entidad ,# enlace segsocial
-        coddiagnostico = dianostico ,
-        fechainicial = initial_date ,
-        dias = incapacity_days,
-        imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
-        certificadoincapacidad = pdf_file if pdf_file else "", 
-        idcontrato_id  = contract ,  
-        prorroga = prorroga ,
-        ibc =  0 ,
-        origenincap = origin , 
-      )
-      print('llege aca ')
-      messages.success(request, 'La Incapacidad ha sido añadido con éxito.')
+      # Incapacidades.objects.create(
+      #   entidad = entidad ,# enlace segsocial
+      #   coddiagnostico = dianostico ,
+      #   fechainicial = initial_date ,
+      #   dias = incapacity_days,
+      #   imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
+      #   certificadoincapacidad = pdf_file if pdf_file else "", 
+      #   idcontrato_id  = contract ,  
+      #   prorroga = prorroga ,
+      #   ibc =  0 ,
+      #   origenincap = origin , 
+      # )
+      
+      
       return redirect('companies:disabilities')
+        
   return render (request, './companies/partials/create_disabilities_modal.html',{'form' :form,})
 
 

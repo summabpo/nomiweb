@@ -242,25 +242,17 @@ tr.htmx-swapping td {
     </a>
 
     <a 
-        data-bs-toggle="tooltip" 
-        data-bs-custom-class="tooltip-inverse" 
-        data-bs-placement="top"
-        title="Generación automática del Resumen de Nomina"
         target="_blank" 
         href="{% url 'companies:generatepayrollsummary' idnomina=nombre.idnomina %}"
         class="btn btn-light-info">
-        <i class="fa-solid fa-list-check"></i>  Resumen de Nomina 
+        Resumen de Nomina 
     </a>
 
     <a 
-        data-bs-toggle="tooltip" 
-        data-bs-custom-class="tooltip-inverse" 
-        data-bs-placement="top"
-        title="Generación automática de comprobantes de Nominas"
         target="_blank" 
         href="{% url 'companies:generatepayrollsummary2' idnomina=nombre.idnomina %}"
         class="btn btn-light-info">
-        <i class="fa-solid fa-receipt"></i> comprobantes de Nominas 
+        comprobantes de Nominas 
     </a>
 
     <a 

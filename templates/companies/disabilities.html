@@ -107,11 +107,6 @@ Incapacidades
         up-history = "false"
         up-dismissable ="false"
         up-cache="false"
-        data-bs-toggle="tooltip" 
-        data-bs-custom-class="tooltip-inverse" 
-        data-bs-placement="bottom" 
-        title="Cargar Incapacidad"
-        data-bs-delay-hide="1000" 
         href="{% url 'companies:disabilities_modal' %}">
         <i class="fa-solid fa-plus"></i> Nueva Incapacidad
 
@@ -263,13 +258,17 @@ Listado de Incapacidades
 
 
 {% comment %}  Nuevo modal  {% endcomment %}
+
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
-        const modalContent = up.layer.current.element;
+
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
+
         const entitiesUrl = "{% url 'companies:get_entity' %}";
 
         if (modalContent) {
-
+            console.log('llege aqui')
             const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
             const date = modalContent.querySelector('#kt_daterangepicker_1');
             const conceptSelect = modalContent.querySelector('#id_origin');
@@ -285,20 +284,19 @@ Listado de Incapacidades
             if (date2) date2.disabled = true;
 
             if (select1) {
-                if(select1.value){
-                    select1.disabled = false;
-                    calculateEndDate();
-                }else {
-                    select1.disabled = true;
-                }
+                select1.disabled = !select1.value;
+                if (select1.value) calculateEndDate();
             }
             
 
             // Actualizar el input cuando se seleccione una fecha
-            $(startDateInput).on('apply.daterangepicker', function(ev, picker) {
-                startDateInput.value = picker.startDate.format('YYYY-MM-DD');
-                calculateEndDate();
-            });
+            if(startDateInput){
+                $(startDateInput).on('apply.daterangepicker', function(ev, picker) {
+                    startDateInput.value = picker.startDate.format('YYYY-MM-DD');
+                    calculateEndDate();
+                });
+            }
+            
 
             function calculateEndDate() {
                 const startDateValue = startDateInput.value;
@@ -318,8 +316,10 @@ Listado de Incapacidades
                     endDateInput.value = '';
                 }
             }
-
-            daysInput.addEventListener('input', calculateEndDate);
+            if(daysInput){
+                daysInput.addEventListener('input', calculateEndDate);
+            }
+        
 
 
             // selector de tipo de 
@@ -387,8 +387,6 @@ Listado de Incapacidades
                     $('.daterangepicker').css('z-index', 9999); // Ajusta el z-index para estar sobre Unpoly
                 }, 10);
 
-            } else {
-                console.warn("El elemento #kt_daterangepicker_2 no se encontró dentro de modalContent.");
             }
 
             // Usamos un pequeño retraso para asegurar el renderizado completo

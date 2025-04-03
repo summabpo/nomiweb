@@ -747,3 +747,149 @@ if ($transporte > 0)
 
 }
 
+
+
+##ESTA APLICACION BUSCA SI EL IDCONTRATO TIENE ##INCAPACIDAD-ES EN LA VISTA VW_INCAPACIDADES. EN CASO AFIRMATIVO-PUEDEN SER VARIAS- EVALUA LOS RANGOS DE ##FECHAS EN LOS QUE SE ENCUENTRA LA INCAPACIDAD Y CALCULA LOS DIAS DE INCAPACIDAD A LIQUIDAR EN EL PERIODO ##DE LA NOMINA QUE SE ESTA PROCESANDO.
+##LUEGO DETERMINA QUE TIPO DE INCAPACIDAD ES, SI ES PRORROGA, EVALUA SI EL IBC ES MENOR AL MINIMO Y DEFINE ##EL IDCONCEPTO
+
+$idn = '[v_idnomina]';
+$idc = [v_idcontrato];
+
+sc_lookup(datanom, "SELECT fechainicial, fechafinal, anoacumular, mesacumular FROM crearnomina WHERE idnomina = '[v_idnomina]'");
+
+$inicioNomina = {datanom[0][0]};
+$finNomina = {datanom[0][1]};
+$anoNomina = {datanom[0][2]};
+$mesAcumular = {datanom[0][3]};
+
+sc_lookup(datamin,"SELECT idano,salariominimo from salariominimoanual WHERE idano = $anoNomina");
+$minimo={datamin[0][1]};
+
+sc_lookup(datainc,"select ige100 from empresa where idempresa = '1'");
+        if(!empty({datainc[0][0]}))
+  {
+  $pagoIncapacidad = {datainc[0][0]};
+  }
+        else
+  {
+  $pagoIncapacidad = 'NO';
+  }
+
+
+
+sc_lookup(databas,"SELECT idcontrato, idempleado, estadoliquidacion, idcosto FROM contratos WHERE estadoliquidacion = 3 AND idcontrato = $idc");
+
+ $ide = {databas[0][1]};
+ $idc = {databas[0][0]};
+ $idCosto = {databas[0][3]};
+
+sc_lookup(datainca, "SELECT fechainicial, finincap, ibc, origenincap, idincapacidad, prorroga, dias FROM vw_incapacidades WHERE idcontrato = $idc");
+
+if(!empty({datainca[0][0]})){
+  $arrayIncapacidades = {datainca};
+  $longitudArray = count($arrayIncapacidades);
+
+  $i = 0;
+  for($i=0; $i<$longitudArray; $i++)                        
+  {
+   $inicioIncapacidad = {datainca[$i][0]};
+   $finIncapacidad = {datainca[$i][1]};
+   $tipoIncapacidad = {datainca[$i][3]};
+   $diasIncapacidad = {datainca[$i][6]};
+   $ibc = {datainca[$i][2]};
+   $prorroga = {datainca[$i][5]};
+   $idIncapacidad = {datainca[$i][4]};
+   $segundoDiaIncapacidad = sc_date($inicioIncapacidad, "aaaa-mm-dd", "+", 1, 0, 0);
+   
+ if (($inicioIncapacidad >= $inicioNomina) && ($inicioIncapacidad <= $finNomina)){
+ $diaAsumidoUno = 1;
+ } else {
+ $diaAsumidoUno = 0;
+ }  
+ if (($segundoDiaIncapacidad >= $inicioNomina) && ($segundoDiaIncapacidad <= $finNomina)){
+ $diaAsumidoDos = 1;
+ } else {
+ $diaAsumidoDos = 0;
+ }  
+   
+ $diasAsumidos = $diaAsumidoUno + $diaAsumidoDos; 
+ if($diasIncapacidad == 1){
+ $diasAsumidos = $diaAsumidoUno;
+ }
+   
+  if($inicioIncapacidad <= $inicioNomina AND $finIncapacidad >= $finNomina){
+  $diasIncapacidad = sc_date_dif($finNomina, "aaaa-mm-dd", $inicioNomina, "aaaa-mm-dd")+1;
+ } elseif($inicioIncapacidad <= $inicioNomina AND $finIncapacidad <= $finNomina AND $finIncapacidad >= $inicioNomina){
+ $diasIncapacidad = sc_date_dif($finIncapacidad, "aaaa-mm-dd", $inicioNomina, "aaaa-mm-dd")+1;
+ } elseif($inicioIncapacidad >= $inicioNomina AND $finIncapacidad <= $finNomina){
+    $diasIncapacidad = sc_date_dif($finIncapacidad, "aaaa-mm-dd", $inicioIncapacidad, "aaaa-mm-dd")+1;
+ } elseif($inicioIncapacidad >= $inicioNomina AND $finIncapacidad >= $finNomina){
+    $diasIncapacidad = sc_date_dif($finNomina, "aaaa-mm-dd", $inicioIncapacidad, "aaaa-mm-dd")+1; 
+ } else {
+ $diasIncapacidad = 0;
+ }  
+
+   
+####### CALCULO DEL IBC DE ACUEREDO A FORMA DE PAGO DEL CLIENTE 100% O 66% Y ASEGURA QUE NO SE INFERIOR AL ####### SALARIO MINIMIO
+if($pagoIncapacidad == 'NO'){
+    $ibc = round($ibc * 2/3,0);
+ }
+if($ibc < $minimo){
+ $ibc = $minimo;
+ }
+
+###### ASIGNA DIAS ASUMIDOS Y DEFINE CONCEPTOS DE ACUERDO AL TIPO DE INCAPACIDAD Y AL NUMERO DE DIAS
+###### 1: EPS 2: ARL 3: MATERNIDAD
+   
+     switch ($tipoIncapacidad)
+       {
+    case 1:
+   $idconceptoi = 25;
+   $idconceptoa = 26;
+   $nombreconceptoi = 'Incapacidad E.Gral'; 
+   $nombreconceptoa = 'Incapacidad 2 dias E.Gral.';
+   break;
+   case 2:
+   $diasAsumidos = $diaAsumidoUno;
+   $idconceptoi = 27;
+   $idconceptoa = 28;
+   $nombreconceptoi = 'Incapacidad ARL'; 
+   $nombreconceptoa = 'Incapacidad ARL 1 dia';
+      break;
+   case 3:
+   $diasAsumidos = 0;
+   $idconceptoi = 29;
+   $nombreconceptoi = 'Licencia de Maternidad'; 
+   break;
+    }
+          if($prorroga == 1)
+     {
+     $diasAsumidos = 0;
+     }
+
+   $diasIncapacidad = $diasIncapacidad - $diasAsumidos;
+   $horasIncapacidad = $diasIncapacidad * 8;
+   $valorIncapacidad = $ibc / 240 * $horasIncapacidad;
+   $horasAsumidas = $diasAsumidos * 8;
+   $valorAsumido = $ibc / 240 * $horasAsumidas;
+   
+   if($diasAsumidos > 0){
+  sc_exec_sql("INSERT INTO nomina (idregistronom, idnomina, idconcepto, 
+     nombreconcepto, valor, idempleado, mesacumular, anoacumular, cantidad, 
+     idcontrato,idcosto, control) VALUES 
+     (nextval('sec_regnomina'),'[v_idnomina]', 
+     '$idconceptoa','$nombreconceptoa', $valorAsumido, $ide, '$mesAcumular', 
+     $anoNomina,$horasAsumidas,$idc,$idCosto, $idIncapacidad)");
+    }    
+   
+   if($diasIncapacidad > 0){
+  sc_exec_sql("INSERT INTO nomina (idregistronom, idnomina, idconcepto, 
+     nombreconcepto, valor, idempleado, mesacumular, anoacumular, cantidad, 
+     idcontrato,idcosto, control) VALUES 
+     (nextval('sec_regnomina'),'[v_idnomina]', 
+     '$idconceptoi','$nombreconceptoi', $valorIncapacidad, $ide, '$mesAcumular', 
+     $anoNomina,$horasIncapacidad,$idc,$idCosto, $idIncapacidad)");
+    }    
+
+   } ## fin for array incapacidades 
+} ## fin if revision si hay incapacidad para el idcontrato

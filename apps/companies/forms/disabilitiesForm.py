@@ -59,6 +59,7 @@ class DisabilitiesForm(forms.Form):
     pdf_file = forms.FileField(
         label="Subir archivo PDF",
         validators=[validate_pdf_file],
+        required=False ,
         help_text="Solo archivos PDF. Tamaño máximo: 5MB."
     )
     
@@ -66,8 +67,6 @@ class DisabilitiesForm(forms.Form):
     def __init__(self, *args, **kwargs):
         # Obtener la variable externa pasada al formulario
         idempresa = kwargs.pop('idempresa', None)
-        dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_1')
-        select2_ids = kwargs.pop('select2_ids', {})
         
         super().__init__(*args, **kwargs)
         self.fields['entity'] = forms.ChoiceField(
@@ -108,9 +107,12 @@ class DisabilitiesForm(forms.Form):
         
         
         self.helper.attrs.update({
-            'up-target': '#modal-content',  # El elemento donde se actualizará el contenido
-            'up-mode': 'replace',  # Cómo se actualizará el contenido del objetivo
-            'up-submit': reverse('companies:disabilities_modal'), # Usa el nombre de la vista en urls.py
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',  # Clave para resolver el error
+            'up-submit': reverse('companies:disabilities_modal'),
+            'up-accept-location': reverse('companies:disabilities'),
+            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
         })
         
         
