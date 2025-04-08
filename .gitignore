@@ -124,5 +124,7 @@ dmypy.json
 .pyre/
 # .sqlite3
 .vscode/PythonImportHelper-v2-Completion.json
+# Ignorar cualquier archivo de requisitos
+requirements*.txt
 
 nomiweb/.DS_Store

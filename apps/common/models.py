@@ -930,12 +930,12 @@ class Incapacidades(models.Model):
     
     """
     idincapacidad = models.AutoField(primary_key=True)#models.AutoField(primary_key=True)
-    certificadoincapacidad = models.CharField(max_length=15, blank=True, null=True)
+    certificadoincapacidad = models.CharField(max_length=200, blank=True, null=True)
     entidad = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING) #enlace segsocial
     coddiagnostico = models.ForeignKey(Diagnosticosenfermedades, on_delete=models.DO_NOTHING) 
     fechainicial = models.DateField(blank=True, null=True)
     dias = models.IntegerField(blank=True, null=True)
-    imagenincapacidad = models.CharField(max_length=100 ,blank=True, null=True) # cambiar tipo enlace 
+    imagenincapacidad = models.CharField(max_length=200 ,blank=True, null=True) # cambiar tipo enlace 
     idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING) 
     prorroga = models.BooleanField(default=False) #boleano 
     ibc = models.IntegerField(blank=True, null=True)# calculado 

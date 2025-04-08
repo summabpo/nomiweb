@@ -4,6 +4,23 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 from django.core.exceptions import ValidationError
 from datetime import timedelta
 from apps.common.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
+from django.urls import reverse
+import os
+
+def validate_pdf_file(value):
+    # Verificar que el archivo sea un PDF
+    ext = os.path.splitext(value.name)[1].lower()
+    if ext != '.pdf':
+        raise ValidationError("Solo se permiten archivos en formato PDF.")
+
+    # Verificar el tamaño del archivo (máx. 5 MB)
+    max_size = 5 * 1024 * 1024  # 5MB en bytes
+    if value.size > max_size:
+        raise ValidationError("El tamaño máximo permitido es 5 MB.")
+
+    # Verificar que el nombre no contenga caracteres especiales
+    if not value.name.replace(".", "").replace("_", "").isalnum():
+        raise ValidationError("El nombre del archivo no debe contener caracteres especiales.")
 
 class DisabilitiesForm(forms.Form):
     origin = forms.ChoiceField(choices=[('', '----------'),('EPS1', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS2', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
@@ -12,10 +29,10 @@ class DisabilitiesForm(forms.Form):
     extension = forms.ChoiceField(choices=[('', '-----'),('1', 'Sí'), ('0', 'No')], label="Prórroga", widget=forms.Select(attrs={'class': 'form-select'}))
     #initial_date = forms.DateField(label="Fecha Inicial de la Incapacidad", widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
     initial_date = forms.CharField(
-        label='Fecha Inicial de la Incapacidad',
+        label='Fecha de Inicio',
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
-            'placeholder': 'Pick date range',
+            'placeholder': 'Seleccione una fecha',
             'id': 'kt_daterangepicker_1'
         })
     )
@@ -26,26 +43,30 @@ class DisabilitiesForm(forms.Form):
                                         initial=0, 
                                         min_value=0,   
                                         widget=forms.NumberInput(attrs={'class': 'form-control'}))
-   
-   
     end_date  = forms.CharField(
         label="Fin de la Incapacidad",
         required=False ,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Pick date range',
+            'placeholder': '',
             'id': 'kt_daterangepicker_2' 
         })
     )
     
 
-    image = forms.ImageField(label="Imagen",required=False , widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
+    #image = forms.ImageField(label="Imagen",required=False , widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
 
+    pdf_file = forms.FileField(
+        label="Subir archivo PDF",
+        validators=[validate_pdf_file],
+        required=False ,
+        help_text="Solo archivos PDF. Tamaño máximo: 5MB."
+    )
+    
     
     def __init__(self, *args, **kwargs):
         # Obtener la variable externa pasada al formulario
-        dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_1')
-        select2_ids = kwargs.pop('select2_ids', {})
+        idempresa = kwargs.pop('idempresa', None)
         
         super().__init__(*args, **kwargs)
         self.fields['entity'] = forms.ChoiceField(
@@ -61,8 +82,8 @@ class DisabilitiesForm(forms.Form):
         
         self.fields['contract'] = forms.ChoiceField(
             choices=[('', '----------')] + [
-                (item['idcontrato'], f"{item['idempleado__papellido']} {item['idempleado__sapellido']} {item['idempleado__pnombre']} {item['idempleado__snombre']} - {item['idcontrato']}")
-                for item in Contratos.objects.filter(estadocontrato=1)
+                (item['idcontrato'], f"{item['idempleado__papellido']} {item['idempleado__pnombre']} - {item['idcontrato']}")
+                for item in Contratos.objects.filter(estadocontrato=1 , id_empresa = idempresa )
                 .order_by('idempleado__papellido')  # Aplica el orden antes de hacer el slice
                 .values('idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido', 'idcontrato')
             ],
@@ -81,28 +102,35 @@ class DisabilitiesForm(forms.Form):
         
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.form_id = 'form_loans'
+        self.helper.form_id = 'form_disablities'
         self.helper.enctype = 'multipart/form-data'
         
+        
+        self.helper.attrs.update({
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',  # Clave para resolver el error
+            'up-submit': reverse('companies:disabilities_modal'),
+            'up-accept-location': reverse('companies:disabilities'),
+            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
+        })
+        
+        
+        
         for field_name in ['entity', 'contract', 'diagnosis_code']:
-            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
-                    'data-dropdown-parent': dropdown_parent,
                     'class': 'form-select',
-                    'id': field_id,
+                    
                 })
         
         for field_name in [ 'origin','extension']:
-            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
-                    'data-dropdown-parent': dropdown_parent,
                     'class': 'form-select',
                     'data-hide-search': 'true' ,
-                    'id': field_id,
                 })
                 
                 
@@ -129,9 +157,11 @@ class DisabilitiesForm(forms.Form):
                 css_class='row'
             ),
             Row(
-                Column('image', css_class=' form-group col-md-12 mb-3'),
+                Column('pdf_file', css_class=' form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             
         )
+    
+    
     

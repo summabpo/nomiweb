@@ -10,7 +10,7 @@ from openpyxl.styles import Alignment
 from openpyxl.worksheet.dimensions import DimensionHolder
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
-
+from django.http import JsonResponse
 
 # Diccionario de mensajes de error con números como claves
 error_messages = {
@@ -62,7 +62,66 @@ def validate_concepts(df, available_concepts):
                 columns_df.append(int(col))  # Intentar convertir cada nombre de columna a entero
             except ValueError:
                 # Si no se puede convertir, agregamos el error a la lista
-                errors.append(f"¡Ay, no! El concepto '{col}' se escapó del camino y tiene algo raro. ¡Dale un poco de rumbo numérico!")
+                col = col.replace('Unnamed: ', '')  # Eliminar 'Unnamed: ' si es una columna sin nombre
+                errors.append(f"""
+                        <div class="validation-error" style="
+                            border-left: 4px solid #e74c3c;
+                            background: #fef6f6;
+                            padding: 15px;
+                            margin: 10px 0;
+                            border-radius: 0 4px 4px 0;
+                            font-family: Arial, sans-serif;
+                            color: #333;
+                        ">
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                margin-bottom: 10px;
+                                color: #e74c3c;
+                                font-weight: bold;
+                            ">
+                                <svg style="margin-right: 8px; width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Error de validación en Excel
+                            </div>
+                            
+                            <p style="margin: 8px 0;">La columna <strong>{col}</strong> no cumple con el formato esperado:</p>
+                            
+                            <ul style="
+                                margin: 8px 0;
+                                padding-left: 20px;
+                            ">
+                                <li style="margin-bottom: 5px;">Todos los valores deben ser <strong>números enteros</strong> (sin decimales o texto)</li>
+                                <li style="margin-bottom: 5px;">No debe contener celdas vacías o datos incorrectos</li>
+                            </ul>
+                            
+                            <div style="
+                                background: #fff;
+                                border-radius: 4px;
+                                padding: 10px;
+                                margin: 10px 0;
+                                border: 1px solid #eee;
+                            ">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Revisar:</div>
+                                <ul style="
+                                    margin: 0;
+                                    padding-left: 20px;
+                                    color: #555;
+                                ">
+                                    <li>Formato de celdas (deben ser numéricas)</li>
+                                    <li>Datos ingresados (evitar texto o caracteres no válidos)</li>
+                                </ul>
+                            </div>
+                            
+                            <div style="
+                                margin-top: 12px;
+                                font-size: 14px;
+                            ">
+                                <span style="font-weight: bold;">Solución:</span> Corrija los valores en la columna <strong>{col}</strong> y vuelva a validar.
+                            </div>
+                        </div>
+                        """)
 
     # Encontrar conceptos faltantes
     missing = [col for col in columns_df if col not in available_concepts]
@@ -135,6 +194,7 @@ def flat(request, id):
                     if contrato.estadocontrato != '1':
                         row_errors.append('4')
                         
+                        
                     if contrato.id_empresa_id != idempresa:
                         row_errors.append('6')
 
@@ -165,7 +225,7 @@ def flat(request, id):
                         'details' : 'detalles' 
                     })
                 
-
+                
         except Exception as e:
             errors.append({'general': f'Ocurrió un error procesando el archivo: {str(e)}'})
         
@@ -262,6 +322,95 @@ def document(request):
     return response
 
 
+
+def flat_modal(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    # Diccionario para almacenar los errores por fila
+    errors = [] 
+    general_error = []
+    
+    if request.method == 'POST':
+        file = request.FILES.get("file")
+
+        if file:
+            file_name = file.name  # Nombre del archivo
+            file_size = file.size  # Tamaño del archivo
+            
+            # Determinar el formato del archivo
+            if file_name.endswith('.csv'):
+                df = pd.read_csv(file)  # Leer CSV directamente
+            elif file_name.endswith(('.xls', '.xlsx')):
+                df = pd.read_excel(file)  # Leer Excel directamente
+            else:
+                return JsonResponse({"message": "Formato de archivo no soportado"}, status=400)
+            
+            df = df.fillna(0) # Reemplazar NaN por 0
+            # Definir las columnas fijas
+            fixed_columns = ['Contrato', 'Nombre']
+
+            # Identificar las columnas dinámicas
+            dynamic_columns = [col for col in df.columns if col not in fixed_columns]
+    
+            # Validar que las columnas fijas existan
+            missing_columns = [col for col in fixed_columns if col not in df.columns]
+            
+            if missing_columns:
+                errors.append({'general': f'Faltan las siguientes columnas obligatorias: {", ".join(missing_columns)}.'})
+                return JsonResponse({"message": "Ha ocurrido un error ","errors": errors }, status=400)
+
+            conceptos = Conceptosdenomina.objects.filter(id_empresa_id=idempresa).values_list('codigo', flat=True)
+
+            general_error.append(validate_concepts(df,list(conceptos)))
+            
+            # Validar filas y generar errores
+            for index, row in df.iterrows():
+                row_errors = [] 
+
+                # Validar las columnas fijas
+                idcontrato = row.get('Contrato')
+                
+                if pd.isnull(idcontrato):
+                    row_errors.append('1')
+                else : 
+                    contrato = Contratos.objects.filter(idcontrato=idcontrato, id_empresa_id=idempresa).first()                
+                
+                if contrato is None:
+                    row_errors.append('3')
+                else:
+                    if contrato.estadocontrato != 1:
+                        row_errors.append('4')
+                        
+                    if contrato.id_empresa_id != idempresa:
+                        row_errors.append('6')
+                        
+                if row_errors:
+                    errors.append({
+                        'line': index + 1,  # Fila 1 en Excel corresponde al índice 0 en DataFrame
+                        'contract_id': contrato.idcontrato  if contrato is not None else "Contrato no disponible" ,
+                        'identification': contrato.idempleado.docidentidad if contrato is not None else "Identificación no disponible",
+                        'name':  f"{contrato.idempleado.pnombre} {contrato.idempleado.papellido}" if contrato is not None else "Nombre no disponible" ,  # Suponiendo que no se tiene la columna Nombre
+                        'error': "".join([f"<li>{error_messages[err]}</li>" for err in row_errors]) , 
+                        'details' : 'detalles' 
+                    })
+            
+            
+            if errors:
+                return JsonResponse({
+                    "message": "¡Se encontraron errores en el archivo!",
+                    "errors": errors,
+                    "general_error": general_error
+                })
+            else :
+                return JsonResponse({
+                    "message": "¡Operación completada con éxito!",
+
+                })
+
+        return JsonResponse({"message": "No se recibió ningún archivo"}, status=400)
+    
+    return render(request, './payroll/partials/flat_modal.html')
 
 
 

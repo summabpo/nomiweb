@@ -6,7 +6,6 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import F, Q, Case, When, Value, CharField, Sum, Count
 
-
 #models
 from apps.common.models import Prestamos, Contratos, Nomina
 
@@ -32,16 +31,14 @@ def employee_loans(request):
         form = LoansForm(request.POST, id_empresa=idempresa)
         if form.is_valid():
             
-            print(form.cleaned_data)
-            
-            # Prestamos.objects.create(
-            #     idcontrato=Contratos.objects.get(idcontrato=form.cleaned_data['contract']),
-            #     valorprestamo=form.cleaned_data['loan_amount'],
-            #     fechaprestamo=form.cleaned_data['loan_date'],
-            #     cuotasprestamo=form.cleaned_data['installments_number'],
-            #     valorcuota=form.cleaned_data['installment_value'],
-            #     estadoprestamo = 1
-            # )
+            Prestamos.objects.create(
+                idcontrato=Contratos.objects.get(idcontrato=form.cleaned_data['contract']),
+                valorprestamo=form.cleaned_data['loan_amount'],
+                fechaprestamo=form.cleaned_data['loan_date'],
+                cuotasprestamo=form.cleaned_data['installments_number'],
+                valorcuota=form.cleaned_data['installment_value'],
+                estadoprestamo = 1
+            )
 
             messages.success(request, 'Prestamo creado exitosamente')
             return redirect('payroll:loans_list')
@@ -56,7 +53,7 @@ def employee_loans(request):
     loans_list = Prestamos.objects.select_related(
         'idcontrato__idempleado'
     ).filter(
-        idcontrato__id_empresa=idempresa  # Filtrar por la empresa relacionada
+        idcontrato__id_empresa=idempresa
     ).values(
         contract_id=F('idcontrato__idcontrato'),
         employee_document=F('idcontrato__idempleado__docidentidad'),
@@ -67,6 +64,15 @@ def employee_loans(request):
     ).annotate(
         loan_count=Count('idprestamo')
     ).order_by('idcontrato__idempleado__papellido')
+
+    # Construcción del nombre sin None ni espacios extra
+    for loan in loans_list:
+        loan["full_name"] = " ".join(filter(None, [
+            loan["employee_first_name"],
+            loan["employee_second_name"],
+            loan["employee_first_last_name"],
+            loan["employee_second_last_name"]
+        ]))
 
     context = {
         'loans_list': loans_list,
@@ -93,10 +99,17 @@ def detail_employee_loans(request, pk=None):
     contrato_id = employee_info.idcontrato
     
     
-    full_name = f"{employee_info.idempleado.pnombre} {employee_info.idempleado.snombre} {employee_info.idempleado.papellido} {employee_info.idempleado.sapellido}"
+    full_name = " ".join(filter(None, [
+        employee_info.idempleado.pnombre,
+        employee_info.idempleado.snombre,
+        employee_info.idempleado.papellido,
+        employee_info.idempleado.sapellido
+    ]))
+
     document_id = employee_info.idempleado.docidentidad
     # position = employee_info.idempleado.cargo
     loans_detail = Prestamos.objects.filter(idcontrato=contrato_id).order_by('-idprestamo')
+    
     context = {
         'employee_info': {
             'full_name': full_name,
@@ -107,7 +120,9 @@ def detail_employee_loans(request, pk=None):
     }
     return render(request, 'payroll/detail_employee_loans.html', context)
 
-from django.http import JsonResponse
+
+
+
 
 def api_detail_payroll_loan(request, pk=None):
 

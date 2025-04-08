@@ -12,7 +12,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def payrollaccumulations(request):
     acumulados = {}
     compects = []
@@ -117,7 +117,7 @@ def payrollaccumulations(request):
     
     
 @login_required
-@role_required('company')    
+@role_required('company','accountant')  
 def descargar_excel_empleados(request):
     if request.method == 'POST':
         acumulados = {}

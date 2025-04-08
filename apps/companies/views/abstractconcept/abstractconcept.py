@@ -7,7 +7,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def abstractconcept(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']

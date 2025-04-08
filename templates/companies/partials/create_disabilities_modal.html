@@ -1,0 +1,35 @@
+
+{% load crispy_forms_tags %}
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title"> Nueva Incapacidad</h5>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+
+        <div class="container">
+            <div class="row align-items-start">
+                {% csrf_token %}
+                {% crispy form %}
+            </div>   
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-secondary"  up-dismiss>Cancelar</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" class="btn btn-light-info" form="form_disablities" >Guardar Incapacidad</button>
+    </div>
+</div>
+
+
+
+
