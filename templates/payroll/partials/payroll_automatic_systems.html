@@ -17,16 +17,10 @@
                 {% csrf_token %}
                 
                 <div class="row mb-3 justify-content-center">
-                  <div class="col-md-6 input-group-sm text-center">
+                  <div class="col-md-12 input-group-sm text-center">
                     <label for="cost-center">
                       <input type="checkbox"  id="need-comment" name="need_comment" up-change="toggleCommentField()">
                       Cálculo por centro de costo?
-                    </label>
-                  </div>
-                  <div class="col-md-6 input-group-sm text-center ">
-                    <label for="no-cost-center">
-                      <input type="checkbox" id="no-cost-center" name="no_cost_center">
-                      Sin centro de costo?
                     </label>
                   </div>
                 </div>

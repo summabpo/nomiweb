@@ -163,7 +163,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
         
     nomina = Crearnomina.objects.get(idnomina=idn)
     inicio_nomina, fin_nomina = nomina.fechainicial, nomina.fechafinal
-    ano, mes = nomina.anoacumular.ano, nomina.mesacumular
+    ano = nomina.anoacumular.ano 
     
     salario_minimo = Salariominimoanual.objects.get( ano = ano ).salariominimo
     pago_incapacidad = Empresa.objects.get(idempresa=1).ige100 or "NO"
@@ -205,10 +205,10 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
         #Calculo del IBC
         if pago_incapacidad == "NO":
             ibc = round(ibc * 2 / 3, 0)
+            
         if ibc < salario_minimo:
             ibc = salario_minimo
         
-        print('tipo',tipo)
         #Tipo de incapacidad
         if tipo == 'EPS1':
             idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
@@ -245,14 +245,13 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
         
         
         
-        print('1',incapacidad.idcontrato.idempleado.docidentidad)
+
         if dias_asumidos > 0 :
             if idconceptoa :
-                print('llege aqui 1 ')
                 Nomina.objects.create(
                     
                     valor = valor_asumido,
-                    cantidad = horas_asumidas,
+                    cantidad = horas_asumidas/8,
                     idconcepto = idconceptoa , 
                     idnomina = nomina , 
                     idcontrato = incapacidad.idcontrato , 
@@ -262,19 +261,16 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
 
         if dias_incapacidad > 0:
             if idconceptoi :
-                print('llege aqui 2 ')
                 Nomina.objects.create(
                                         
                     valor = valor_incapacidad,
-                    cantidad = horas_incapacidad,
+                    cantidad = horas_incapacidad/8,
                     idconcepto = idconceptoi, 
                     idnomina = nomina, 
                     idcontrato = incapacidad.idcontrato, 
                     control = incapacidad.idincapacidad,
                     
-                )
-        print('------------')
-        
+                )        
     return True
 
 
@@ -472,7 +468,13 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
         if contrato.fechafincontrato and nomina.fechafinal <= contrato.fechafincontrato <= nomina.fechafinal:
             diasnomina -= (nomina.fechafinal - contrato.fechafincontrato).days
             
-    
+        dias_vacaciones = calcular_vacaciones(contrato,nomina)
+        dias_incapacidad = calculo_incapacidad(contrato, idn)
+
+        diasnomina -= dias_vacaciones 
+        diasnomina -= dias_incapacidad 
+        
+        
         horas_basico_mes = Nomina.objects.filter(idconcepto__codigo = 1, idcontrato=contrato.idcontrato, 
                                                  idnomina__mesacumular = nomina.mesacumular , idnomina__anoacumular = nomina.anoacumular ,
                                                  estadonomina=2).aggregate(Sum('cantidad'))['cantidad__sum'] or 0
@@ -573,7 +575,7 @@ def calculo_incapacidad(contrato, idn ):
     if dias_incapacidad_tempo:
         dias_incapacidad = dias_incapacidad_tempo
     
-    return dias_incapacidad
+    return int(dias_incapacidad)
 
 
 
