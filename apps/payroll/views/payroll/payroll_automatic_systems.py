@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Crearnomina , Contratos, EditHistory , Conceptosfijos ,Costos,Salariominimoanual, Crearnomina ,EmpVacaciones,Prestamos ,Conceptosdenomina , Empresa , Vacaciones , Nomina , Contratos
+from apps.common.models import Crearnomina , Contratos, EditHistory ,Incapacidades, Conceptosfijos ,Costos,Salariominimoanual, Crearnomina ,EmpVacaciones,Prestamos ,Conceptosdenomina , Empresa , Vacaciones , Nomina , Contratos
 from django.contrib import messages
 from django.db import transaction, models
 from datetime import datetime
 from django.db.models import Sum
+from datetime import timedelta
+
+
 
 #prueba git
 @login_required
@@ -158,6 +161,121 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
         
+    nomina = Crearnomina.objects.get(idnomina=idn)
+    inicio_nomina, fin_nomina = nomina.fechainicial, nomina.fechafinal
+    ano, mes = nomina.anoacumular.ano, nomina.mesacumular
+    
+    salario_minimo = Salariominimoanual.objects.get( ano = ano ).salariominimo
+    pago_incapacidad = Empresa.objects.get(idempresa=1).ige100 or "NO"
+    
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa)
+    
+    if parte_nomina != 0:
+        contratos = contratos.filter(idcosto = parte_nomina)
+    
+    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, fechainicial__range=(inicio_nomina, fin_nomina) )
+    
+    if parte_nomina != 0:
+        incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
+    
+    for incapacidad in incapacidades:
+        ini = incapacidad.fechainicial
+        fin = ini + timedelta(days = incapacidad.dias )  
+        ibc = incapacidad.ibc
+        tipo = incapacidad.origenincap
+        prorroga = incapacidad.prorroga
+        dias = incapacidad.dias
+
+        segundo_dia = ini + timedelta(days=1)
+        dia_asumido_1 = int(inicio_nomina <= ini <= fin_nomina)
+        dia_asumido_2 = int(inicio_nomina <= segundo_dia <= fin_nomina)
+        dias_asumidos = dia_asumido_1 + dia_asumido_2 if dias != 1 else dia_asumido_1
+
+        if ini <= inicio_nomina <= fin <= fin_nomina:
+            dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
+        elif ini <= inicio_nomina <= fin_nomina <= fin:
+            dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
+        elif inicio_nomina <= ini <= fin <= fin_nomina:
+            dias_incapacidad = (fin - ini).days + 1
+        elif ini >= inicio_nomina and fin >= fin_nomina:
+            dias_incapacidad = (fin_nomina - ini).days + 1
+        else:
+            dias_incapacidad = 0
+
+        #Calculo del IBC
+        if pago_incapacidad == "NO":
+            ibc = round(ibc * 2 / 3, 0)
+        if ibc < salario_minimo:
+            ibc = salario_minimo
+        
+        print('tipo',tipo)
+        #Tipo de incapacidad
+        if tipo == 'EPS1':
+            idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
+            idconceptoa = Conceptosdenomina.objects.get(codigo=26, id_empresa_id = idempresa) 
+            
+        elif tipo == 'ARL':
+            
+            dias_asumidos = dia_asumido_1
+            
+            idconceptoi = Conceptosdenomina.objects.get(codigo=27, id_empresa_id = idempresa)
+            idconceptoa = Conceptosdenomina.objects.get(codigo=28, id_empresa_id = idempresa) 
+            
+        elif tipo == 'EPS2':
+            dias_asumidos = 0
+            idconceptoi = Conceptosdenomina.objects.get(codigo=29, id_empresa_id = idempresa)
+        
+        else :
+            idconceptoa = None
+            idconceptoi = None
+        
+            
+        if prorroga:
+            dias_asumidos = 0
+
+        dias_incapacidad -= dias_asumidos
+
+        horas_incapacidad = dias_incapacidad * 8
+        valor_incapacidad = ibc / 240 * horas_incapacidad
+        horas_asumidas = dias_asumidos * 8
+        valor_asumido = ibc / 240 * horas_asumidas
+        
+        ## division de conceptos 
+        # idconceptoa
+        
+        
+        
+        print('1',incapacidad.idcontrato.idempleado.docidentidad)
+        if dias_asumidos > 0 :
+            if idconceptoa :
+                print('llege aqui 1 ')
+                Nomina.objects.create(
+                    
+                    valor = valor_asumido,
+                    cantidad = horas_asumidas,
+                    idconcepto = idconceptoa , 
+                    idnomina = nomina , 
+                    idcontrato = incapacidad.idcontrato , 
+                    control = incapacidad.idincapacidad,
+    
+                )
+
+        if dias_incapacidad > 0:
+            if idconceptoi :
+                print('llege aqui 2 ')
+                Nomina.objects.create(
+                                        
+                    valor = valor_incapacidad,
+                    cantidad = horas_incapacidad,
+                    idconcepto = idconceptoi, 
+                    idnomina = nomina, 
+                    idcontrato = incapacidad.idcontrato, 
+                    control = incapacidad.idincapacidad,
+                    
+                )
+        print('------------')
+        
+    return True
 
 
 def procesar_nomina_aportes(idn, parte_nomina,idempresa):
