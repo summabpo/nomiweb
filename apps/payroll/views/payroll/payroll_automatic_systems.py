@@ -248,29 +248,63 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
 
         if dias_asumidos > 0 :
             if idconceptoa :
-                Nomina.objects.create(
-                    
-                    valor = valor_asumido,
-                    cantidad = horas_asumidas/8,
-                    idconcepto = idconceptoa , 
-                    idnomina = nomina , 
-                    idcontrato = incapacidad.idcontrato , 
-                    control = incapacidad.idincapacidad,
-    
-                )
+                
+                aux_pass = Nomina.objects.filter(
+                    idconcepto = idconceptoa,
+                    idcontrato = contrato.idcontrato,
+                    idnomina_id=idn
+                ).first()
+                
+                if aux_pass:
+                    if not EditHistory.objects.filter(
+                        id_empresa_id=idempresa,
+                        modified_object_id=aux_pass.idregistronom,
+                        modified_model='Nomina',
+                    ).exists():
+                        aux_pass.cantidad = horas_asumidas/8
+                        aux_pass.valor =  valor_asumido
+                        aux_pass.save()  
+                                    
+                else:
+                    Nomina.objects.create(
+                        valor = valor_asumido,
+                        cantidad = horas_asumidas/8,
+                        idconcepto = idconceptoa , 
+                        idnomina = nomina , 
+                        idcontrato = incapacidad.idcontrato , 
+                        control = incapacidad.idincapacidad,
+                    ) 
+                
 
         if dias_incapacidad > 0:
             if idconceptoi :
-                Nomina.objects.create(
-                                        
-                    valor = valor_incapacidad,
-                    cantidad = horas_incapacidad/8,
-                    idconcepto = idconceptoi, 
-                    idnomina = nomina, 
-                    idcontrato = incapacidad.idcontrato, 
-                    control = incapacidad.idincapacidad,
-                    
-                )        
+                
+                aux_pass = Nomina.objects.filter(
+                    idconcepto = idconceptoi,
+                    idcontrato = contrato.idcontrato,
+                    idnomina_id=idn
+                ).first()
+                
+                if aux_pass:
+                    if not EditHistory.objects.filter(
+                        id_empresa_id=idempresa,
+                        modified_object_id=aux_pass.idregistronom,
+                        modified_model='Nomina',
+                    ).exists():
+                        aux_pass.cantidad = horas_incapacidad/8
+                        aux_pass.valor =  valor_incapacidad
+                        aux_pass.save()  
+                                    
+                else:
+                    Nomina.objects.create(
+                        valor = valor_incapacidad,
+                        cantidad = horas_incapacidad/8,
+                        idconcepto = idconceptoi, 
+                        idnomina = nomina, 
+                        idcontrato = incapacidad.idcontrato, 
+                        control = incapacidad.idincapacidad,
+                    )  
+                
     return True
 
 
