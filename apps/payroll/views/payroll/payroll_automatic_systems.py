@@ -486,6 +486,11 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
         
         total_mes = horas_basico_mes + horas_basico_quincena
         
+        print('--------------')
+        print(contrato.salario)
+        print('--------------')
+        print(sal_min*2)
+        print('--------------')
         
         if not contrato.auxiliotransporte :
             transporte = 0
@@ -506,42 +511,41 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
                 transporte = 0
                 diasnomina = 0
         
-        concepto = Conceptosdenomina.objects.get(codigo= 2 , id_empresa_id = idempresa)
-        
-        
-        
-        if diasnomina > 0 and transporte > 0 :
+            concepto = Conceptosdenomina.objects.get(codigo= 2 , id_empresa_id = idempresa)
             
-            if diasnomina > 30:
-                diasnomina = 30
-                
+            if contrato.tipocontrato.idtipocontrato not in [5, 6]:
+                if diasnomina > 0 and transporte > 0 :
+                    
+                    if diasnomina > 30:
+                        diasnomina = 30
+                        
+                    
+                    aux_pass = Nomina.objects.filter(
+                        idconcepto=concepto,
+                        idcontrato=contrato,
+                        idnomina_id=idn
+                    ).first()
+                    
+                    
+                    if aux_pass:
+                        if not EditHistory.objects.filter(
+                            id_empresa_id=idempresa,
+                            modified_object_id=aux_pass.idregistronom,
+                            modified_model='Nomina',
+                        ).exists():
+                            aux_pass.cantidad = diasnomina
+                            aux_pass.valor = transporte
+                            aux_pass.save()                  
+                    else:
+                        
+                        Nomina.objects.create(
+                            idconcepto = concepto ,#*
+                            cantidad=diasnomina ,#*
+                            valor=transporte , #*
+                            idcontrato_id=contrato.idcontrato ,
+                            idnomina_id = idn ,
+                        )  
             
-            aux_pass = Nomina.objects.filter(
-                idconcepto=concepto,
-                idcontrato=contrato,
-                idnomina_id=idn
-            ).first()
-            
-            
-            if aux_pass:
-                if not EditHistory.objects.filter(
-                    id_empresa_id=idempresa,
-                    modified_object_id=aux_pass.idregistronom,
-                    modified_model='Nomina',
-                ).exists():
-                    aux_pass.cantidad = diasnomina
-                    aux_pass.valor = transporte
-                    aux_pass.save()                  
-            else:
-                
-                Nomina.objects.create(
-                    idconcepto = concepto ,#*
-                    cantidad=diasnomina ,#*
-                    valor=transporte , #*
-                    idcontrato_id=contrato.idcontrato ,
-                    idnomina_id = idn ,
-                )  
-        
     return True
         
 

@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.urls import path ,include
 from apps.login.views import custom_400 ,custom_403,custom_404 ,custom_500
 from django.conf import settings
-from django.conf import settings
 from django.conf.urls.static import static
 
 # Importa Django Debug Toolbar solo si DEBUG está activado
