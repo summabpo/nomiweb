@@ -306,20 +306,23 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                                             {% endif %}
 
                                             {% if json_data.Devengados.Cesantias %}
-                                            
-                                                {% if json_data.Devengados.Cesantias.PagoIntereses %}
-                                                    <tr>
-                                                        <td>Pago Intereses</td>
-                                                        <td class="text-center"></td>
-                                                        <td class="text-end">{{ json_data.Devengados.Cesantias.PagoIntereses|floatformat:2|intcomma }}</td>
-                                                    </tr>
-                                                {% else %}
+
+                                                {% if json_data.Devengados.Cesantias.Pago %}
                                                 <tr>
                                                     <td>Cesantías</td>
                                                     <td class="text-center"></td>
                                                     <td class="text-end">{{ json_data.Devengados.Cesantias.Pago|floatformat:2|intcomma }}</td>
                                                 </tr>
                                                 {% endif %}
+
+                                                {% if json_data.Devengados.Cesantias.PagoIntereses %}
+                                                <tr>
+                                                    <td>Intereses Cesantías</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ json_data.Devengados.Cesantias.PagoIntereses|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endif %}
+
                                             {% endif %}
                                             
                                             {% if json_data.Devengados.Primas %}
@@ -361,6 +364,128 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                                                 </tr>
                                                 {% endfor %}
                                             {% endif %}
+
+                                            {% if json_data.Devengados.LicenciaR %}
+                                                {% for licencia in json_data.Devengados.LicenciaR %}
+                                                <tr>
+                                                    <td>Licencia Remunerada</td>
+                                                    <td class="text-center">{{ licencia.Cantidad }}</td>
+                                                    <td class="text-end">{{ licencia.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.LicenciaNR %}
+                                                {% for licencia in json_data.Devengados.LicenciaNR %}
+                                                <tr>
+                                                    <td>Licencia No Remunerada</td>
+                                                    <td class="text-center">{{ licencia.Cantidad }}</td>
+                                                    <td class="text-end">{{ licencia.Pago|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Bonificacion.BonificacionS %}
+                                            <tr>
+                                                <td>Bonificación Salarial</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-end">{{ json_data.Devengados.Bonificacion.BonificacionS|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Bonificacion.BonificacionNS %}
+                                            <tr>
+                                                <td>Bonificación No Salarial</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-end">{{ json_data.Devengados.Bonificacion.BonificacionNS|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Auxilio.AuxilioS %}
+                                            <tr>
+                                                <td>Auxilio Salarial</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-end">{{ json_data.Devengados.Auxilio.AuxilioS|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Auxilio.AuxilioNS %}
+                                            <tr>
+                                                <td>Auxilio No Salarial</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-end">{{ json_data.Devengados.Auxilio.AuxilioNS|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.HuelgaLegal %}
+                                                {% for huelga in json_data.Devengados.HuelgaLegal %}
+                                                <tr>
+                                                    <td>Huelga Legal</td>
+                                                    <td class="text-center">{{ huelga.Cantidad }}</td>
+                                                    <td class="text-end">{{ huelga.FechaInicio }} - {{ huelga.FechaFin }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.OtroConcepto %}
+                                                {% for otro in json_data.Devengados.OtroConcepto %}
+                                                <tr>
+                                                    <td>{{ otro.DescripcionConcepto }}</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ otro.ConceptoS|floatformat:2|intcomma }} / {{ otro.ConceptoNS|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Compensacion %}
+                                                {% for compensacion in json_data.Devengados.Compensacion %}
+                                                <tr>
+                                                    <td>Compensación</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ compensacion.CompensacionO|floatformat:2|intcomma }} / {{ compensacion.CompensacionE|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.BonoEPCTV %}
+                                                {% for bono in json_data.Devengados.BonoEPCTV %}
+                                                <tr>
+                                                    <td>Bono EPCTV</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ bono.PagoS|floatformat:2|intcomma }} / {{ bono.PagoNS|floatformat:2|intcomma }} / {{ bono.PagoAlimentacionS|floatformat:2|intcomma }} / {{ bono.PagoAlimentacionNS|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Comisiones %}
+                                                {% for comision in json_data.Devengados.Comisiones %}
+                                                <tr>
+                                                    <td>Comisiones</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ comision.Comision|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.PagosTerceros %}
+                                                {% for pago in json_data.Devengados.PagosTerceros %}
+                                                <tr>
+                                                    <td>Pagos a Terceros</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ pago.PagosTercero|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+
+                                            {% if json_data.Devengados.Anticipos %}
+                                                {% for anticipo in json_data.Devengados.Anticipos %}
+                                                <tr>
+                                                    <td>Anticipos</td>
+                                                    <td class="text-center"></td>
+                                                    <td class="text-end">{{ anticipo.Anticipo|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
                                         </tbody>
                                         <tfoot>
                                             <tr>
@@ -395,14 +520,113 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                                                 <td class="text-end">{{ json_data.Deducciones.FondoPension.Deduccion|floatformat:2|intcomma }}</td>
                                             </tr>
                                             {% endif %}
-                                            {% for sindicato in json_data.Deducciones.Sindicato %}
-                                            {% if sindicato.Deduccion %}
+
+                                            {% if json_data.Deducciones.FondoSP.DeduccionSP %}
                                             <tr>
-                                                <td>Sindicato</td>
-                                                <td class="text-end">{{ sindicato.Deduccion|floatformat:2|intcomma }}</td>
+                                                <td>Fondo de Solidaridad Pensional</td>
+                                                <td class="text-end">{{ json_data.Deducciones.FondoSP.DeduccionSP|floatformat:2|intcomma }}</td>
                                             </tr>
                                             {% endif %}
+                                            
+                                            {% for sindicato in json_data.Deducciones.Sindicato %}
+                                                {% if sindicato.Deduccion %}
+                                                <tr>
+                                                    <td>Sindicato</td>
+                                                    <td class="text-end">{{ sindicato.Deduccion|floatformat:2|intcomma }}</td>
+                                                </tr>
+                                                {% endif %}
                                             {% endfor %}
+
+                                            {% if json_data.Deducciones.Sanciones %}
+                                            <tr>
+                                                <td>Sanciones</td>
+                                                <td class="text-end">{{ json_data.Deducciones.Sanciones|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.Libranzas.Deduccion %}
+                                            <tr>
+                                                <td>Libranzas</td>
+                                                <td class="text-end">{{ json_data.Deducciones.Libranzas.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.OtrasDeducciones.Deduccion %}
+                                            <tr>
+                                                <td>Otras Deducciones</td>
+                                                <td class="text-end">{{ json_data.Deducciones.OtrasDeducciones.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.Anticipos.Deduccion %}
+                                            <tr>
+                                                <td>Anticipos</td>
+                                                <td class="text-end">{{ json_data.Deducciones.Anticipos.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.PensionVoluntaria.Deduccion %}
+                                            <tr>
+                                                <td>Pensión Voluntaria</td>
+                                                <td class="text-end">{{ json_data.Deducciones.PensionVoluntaria.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.RetencionFuente.Deduccion %}
+                                            <tr>
+                                                <td>Retención en la Fuente</td>
+                                                <td class="text-end">{{ json_data.Deducciones.RetencionFuente.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            
+                                            {% if json_data.Deducciones.AFC.Deduccion %}
+                                            <tr>
+                                                <td>AFC</td>
+                                                <td class="text-end">{{ json_data.Deducciones.AFC.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.AFC.Deduccion %}
+                                            <tr>
+                                                <td>AFC</td>
+                                                <td class="text-end">{{ json_data.Deducciones.AFC.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.EmbargoFiscal.Deduccion %}
+                                            <tr>
+                                                <td>Embargo Fiscal</td>
+                                                <td class="text-end">{{ json_data.Deducciones.EmbargoFiscal.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.PlanComplementarios.Deduccion %}
+                                            <tr>
+                                                <td>Plan Complementarios</td>
+                                                <td class="text-end">{{ json_data.Deducciones.PlanComplementarios.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.Educacion.Deduccion %}
+                                            <tr>
+                                                <td>Educación</td>
+                                                <td class="text-end">{{ json_data.Deducciones.Educacion.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.Reintegro.Deduccion %}
+                                            <tr>
+                                                <td>Reintegro</td>
+                                                <td class="text-end">{{ json_data.Deducciones.Reintegro.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+                                            {% if json_data.Deducciones.Deuda.Deduccion %}
+                                            <tr>
+                                                <td>Deuda</td>
+                                                <td class="text-end">{{ json_data.Deducciones.Deuda.Deduccion|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
                                             <!-- Agrega validaciones para más conceptos según el JSON -->
                                         </tbody>
                                         <tfoot>
