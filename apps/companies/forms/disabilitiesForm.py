@@ -83,7 +83,7 @@ class DisabilitiesForm(forms.Form):
         self.fields['contract'] = forms.ChoiceField(
             choices=[('', '----------')] + [
                 (item['idcontrato'], f"{item['idempleado__papellido']} {item['idempleado__pnombre']} - {item['idcontrato']}")
-                for item in Contratos.objects.filter(estadocontrato=1 , id_empresa = idempresa )
+                for item in Contratos.objects.filter(estadocontrato=1 ,  id_empresa = idempresa ).exclude( tipocontrato__idtipocontrato__in = [5,6] )
                 .order_by('idempleado__papellido')  # Aplica el orden antes de hacer el slice
                 .values('idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido', 'idcontrato')
             ],
