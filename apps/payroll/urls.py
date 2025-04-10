@@ -75,17 +75,7 @@ urlunpolypatterns =[
     ## add employee
     path('payroll/<int:idnomina>/payroll_general', payroll.payroll_general, name='payroll_general'),
     path('payroll/<int:idnomina>/payroll_general/data', payroll.payroll_general_data, name='payroll_general_data'),
-    
-    # pruebas 
-    path('items/', pruebas.index_item, name='index_item'),
-    path('items/add/', pruebas.item_modal, name='item_modal'),
-    path('items/add/modal', pruebas.add_item, name='add_item'),
-    
-    # segundas pruebas 
-    path('my_form/', pruebas.my_form, name='my_form'),
-    path('validate_number/', pruebas.get_multiplicador, name='get_multiplicador'),
-    
-    
+        
     
     ## sitemas automaticos 
     
@@ -94,6 +84,11 @@ urlunpolypatterns =[
     
     ## flat
     path('flat/modal', flat.flat_modal, name='flat_modal'),
+    
+    
+    ### pruebas 
+    path('payroll/modal/pruebas', pruebas.prueba, name='prueba'),
+    path('payroll/modal/pruebas/modal', pruebas.prueba_modal, name='prueba_modal'),
     
     
 ]

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.db.models import Q, Sum, DecimalField, F
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
-from apps.common.models  import Incapacidades , Contratosemp ,Contratos,Entidadessegsocial ,Diagnosticosenfermedades,Nomina
+from apps.common.models  import Incapacidades , Contratosemp , NominaComprobantes ,Contratos,Entidadessegsocial ,Diagnosticosenfermedades,Nomina
 from apps.companies.forms.disabilitiesForm  import DisabilitiesForm
 from datetime import datetime, timedelta
 from django.http import JsonResponse
@@ -52,10 +52,18 @@ def disabilities(request):
       'dias',
       'idincapacidad',
       'imagenincapacidad',
-      
   ).order_by('-idincapacidad')
-  
-  
+
+  # Reemplazar None por cadena vacía en los campos especificados
+  for inc in incapacidades:
+      for campo in [
+          'idcontrato__idempleado__pnombre',
+          'idcontrato__idempleado__snombre',
+          'idcontrato__idempleado__papellido',
+          'idcontrato__idempleado__sapellido'
+      ]:
+          if inc[campo] is None:
+              inc[campo] = ""
   
   return render (request, './companies/disabilities.html', {'incapacidades' :incapacidades})
 
@@ -101,20 +109,21 @@ def disabilities_modal(request):
                 destination.write(chunk)
               
               
+      ibc = NominaComprobantes.objects.filter(idcontrato_id=contract).order_by('-idhistorico').first()
 
       # Guardar en la base de datos
-      # Incapacidades.objects.create(
-      #   entidad = entidad ,# enlace segsocial
-      #   coddiagnostico = dianostico ,
-      #   fechainicial = initial_date ,
-      #   dias = incapacity_days,
-      #   imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
-      #   certificadoincapacidad = pdf_file if pdf_file else "", 
-      #   idcontrato_id  = contract ,  
-      #   prorroga = prorroga ,
-      #   ibc =  0 ,
-      #   origenincap = origin , 
-      # )
+      Incapacidades.objects.create(
+        entidad = entidad ,# enlace segsocial
+        coddiagnostico = dianostico ,
+        fechainicial = initial_date ,
+        dias = incapacity_days,
+        imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
+        certificadoincapacidad = pdf_file if pdf_file else "", 
+        idcontrato_id  = contract ,  
+        prorroga = prorroga ,
+        ibc =  ibc.salario ,
+        origenincap = origin , 
+      )
       
       
       return redirect('companies:disabilities')
@@ -125,11 +134,27 @@ def disabilities_modal(request):
 
 @login_required
 @role_required('company','accountant')
-def disabilities_modal_edit(request):
+def disabilities_modal_edit(request , id ):
   usuario = request.session.get('usuario', {})
   idempresa = usuario['idempresa']
   
-  form = DisabilitiesForm(idempresa = idempresa)
+  incapacidad = Incapacidades.objects.get(pk = id)
+  
+  
+  data = {
+    'contract' :incapacidad.idcontrato.idcontrato , 
+    'origin' :incapacidad.origenincap ,  
+    'entity' :incapacidad.entidad.codigo ,  
+    'initial_date' :incapacidad.fechainicial ,  
+    'incapacity_days' :incapacidad.dias ,  
+    'diagnosis_code' :incapacidad.coddiagnostico ,  
+    'extension' : '1' if incapacidad.prorroga  else '0',  
+    
+  }
+  
+  
+  
+  form = DisabilitiesForm(idempresa = idempresa ,initial= data )
   
   if request.method == 'POST':
   # Obtener datos del formulario
