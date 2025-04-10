@@ -217,6 +217,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
         elif tipo == 'ARL':
             
             dias_asumidos = dia_asumido_1
+            ibc = incapacidad.ibc
             
             idconceptoi = Conceptosdenomina.objects.get(codigo=27, id_empresa_id = idempresa)
             idconceptoa = Conceptosdenomina.objects.get(codigo=28, id_empresa_id = idempresa) 
@@ -240,10 +241,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
         horas_asumidas = dias_asumidos * 8
         valor_asumido = ibc / 240 * horas_asumidas
         
-        ## division de conceptos 
-        # idconceptoa
-        
-        
+        ## division de conceptos     
         
 
         if dias_asumidos > 0 :
@@ -279,7 +277,11 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
             if idconceptoi :
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoi,
+<<<<<<< HEAD
                     idcontrato = incapacidad.idcontrato ,                   
+=======
+                    idcontrato = incapacidad.idcontrato , 
+>>>>>>> Master
                     idnomina_id=idn
                 ).first()
                 
@@ -517,12 +519,8 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
         
         
         total_mes = horas_basico_mes + horas_basico_quincena
+
         
-        print('--------------')
-        print(contrato.salario)
-        print('--------------')
-        print(sal_min*2)
-        print('--------------')
         
         if not contrato.auxiliotransporte :
             transporte = 0

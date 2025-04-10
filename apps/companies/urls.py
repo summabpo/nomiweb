@@ -152,7 +152,12 @@ urlpatterns += urlhtmxpatterns
 urlunpolypatterns =[
     
     path('payroll/new/disabilities/modal', disabilities.disabilities_modal, name='disabilities_modal'),
-    path('payroll/new/disabilities/modal/edit', disabilities.disabilities_modal_edit, name='disabilities_modal_edit'),
+    path('payroll/new/disabilities/modal/edit/<str:id>', disabilities.disabilities_modal_edit, name='disabilities_modal_edit'),
+    
+    ### 
+    
+    
+    
 
 ]
 

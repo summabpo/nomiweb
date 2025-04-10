@@ -17,11 +17,19 @@ def genera_comprobante(idnomina, idcontrato):
     datac = datos_cliente(contrato.id_empresa.idempresa)
     
     if contrato:
-        nombre_completo = f"{contrato.idempleado.papellido} {contrato.idempleado.sapellido} {contrato.idempleado.pnombre} {contrato.idempleado.snombre}"
+        
+        
+        
+        nombre_completo = " ".join(filter(None, [
+            contrato.idempleado.papellido,
+            contrato.idempleado.sapellido,
+            contrato.idempleado.pnombre,
+            contrato.idempleado.snombre
+        ]))
 
         # Obtener datos de devengados y descuentos
-        dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina, valor__gt=0).order_by('idconcepto')
-        dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina, valor__lt=0).order_by('idconcepto')
+        dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina, valor__gt=0).order_by('idconcepto__codigo')
+        dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina, valor__lt=0).order_by('idconcepto__codigo')
 
         # Formatear valores con puntos para los miles en dataDevengado
         for item in dataDevengado:
@@ -60,7 +68,7 @@ def genera_comprobante(idnomina, idcontrato):
             'idcon': idcontrato,
             'idnomi': idnomina,
             'fecha1': str(contrato.fechainiciocontrato),
-            'cargo': contrato.cargo, #!
+            'cargo': contrato.cargo.nombrecargo, #!
             'salario': format_value(contrato.salario),
             'cuenta': contrato.cuentanomina,
             'ccostos': centro,
