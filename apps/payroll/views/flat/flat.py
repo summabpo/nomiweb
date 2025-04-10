@@ -133,7 +133,7 @@ def validate_concepts(df, available_concepts):
     if errors:
         return "\n".join(errors)
     
-    return "Todos los conceptos son válidos."
+    return ""
 
 
 
@@ -174,6 +174,7 @@ def flat(request, id):
             conceptos = Conceptosdenomina.objects.filter(id_empresa_id=idempresa).values_list('codigo', flat=True)
 
             general_error.append(validate_concepts(df,list(conceptos)))
+            
             
             
             # Validar filas y generar errores
@@ -363,6 +364,10 @@ def flat_modal(request):
             conceptos = Conceptosdenomina.objects.filter(id_empresa_id=idempresa).values_list('codigo', flat=True)
 
             general_error.append(validate_concepts(df,list(conceptos)))
+            
+            print('-----------------')
+            print(df)
+            print('-----------------')
             
             # Validar filas y generar errores
             for index, row in df.iterrows():

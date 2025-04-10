@@ -248,7 +248,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
 
         if dias_asumidos > 0 :
             if idconceptoa :
-                
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoa,
                     idcontrato = contrato.idcontrato,
@@ -278,7 +277,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
 
         if dias_incapacidad > 0:
             if idconceptoi :
-                
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoi,
                     idcontrato = contrato.idcontrato,
