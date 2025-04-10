@@ -250,7 +250,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
             if idconceptoa :
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoa,
-                    idcontrato = contrato.idcontrato,
+                    idcontrato = incapacidad.idcontrato , 
                     idnomina_id=idn
                 ).first()
                 
@@ -279,7 +279,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
             if idconceptoi :
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoi,
-                    idcontrato = contrato.idcontrato,
+                    idcontrato = incapacidad.idcontrato ,                   
                     idnomina_id=idn
                 ).first()
                 
