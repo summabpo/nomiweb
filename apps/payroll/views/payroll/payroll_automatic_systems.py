@@ -308,15 +308,16 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
     EPS = Conceptosfijos.objects.get(idfijo = 10)
     AFP = Conceptosfijos.objects.get(idfijo = 12)
     tope_ibc = Conceptosfijos.objects.get(idfijo = 4)
-    factor_integral = Conceptosfijos.objects.get(idfijo = 3)
+    factor_integral = Conceptosfijos.objects.get(idfijo = 3).valorfijo
     
     ## pruebas de valores 
-    fsp416 = Conceptosfijos.objects.get(idfijo = 14)
-    fsp1617 = Conceptosfijos.objects.get(idfijo = 15)
-    fsp1718 = Conceptosfijos.objects.get(idfijo = 16)
-    fsp1819 = Conceptosfijos.objects.get(idfijo = 17)
-    fsp1920 = Conceptosfijos.objects.get(idfijo = 18)
-    fsp21 = Conceptosfijos.objects.get(idfijo = 19)
+    fsp416 = Conceptosfijos.objects.get(idfijo = 14).valorfijo
+    fsp1617 = Conceptosfijos.objects.get(idfijo = 15).valorfijo
+    fsp1718 = Conceptosfijos.objects.get(idfijo = 16).valorfijo
+    fsp1819 = Conceptosfijos.objects.get(idfijo = 17).valorfijo
+    fsp1920 = Conceptosfijos.objects.get(idfijo = 18).valorfijo
+    fsp21 = Conceptosfijos.objects.get(idfijo = 19).valorfijo
+
     
     sal_min = Salariominimoanual.objects.get(ano = datetime.now().year).salariominimo
 
@@ -330,7 +331,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
     for contrato in contratos:
         
         salario_emp = contrato.salario
-        tipo_salario = contrato.tiposalario
+        tipo_salario = contrato.tiposalario.idtiposalario
 
         
         # Obtener la suma de las deducciones de la eps 
@@ -352,33 +353,47 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
             
             base_max = sal_min * tope_ibc.valorfijo
         
-            if tipo_salario == '2':
+            if tipo_salario == 2 :
                 total_base_ss *= (factor_integral / 100)
+            
                 
             base_ss = min(total_base_ss, base_max)
             
             
-            if base_ss > (sal_min * 20):
-                FSP = fsp21.valorfijo
-            elif base_ss > (sal_min * 19):
-                FSP = fsp1920.valorfijo
-            elif base_ss > (sal_min * 18):
-                FSP = fsp1819.valorfijo
-            elif base_ss > (sal_min * 17):
-                FSP = fsp1718.valorfijo
-            elif base_ss > (sal_min * 16):
-                FSP = fsp1617.valorfijo
-            elif base_ss > (sal_min * 4):
-                FSP = fsp416.valorfijo
+            if (base_ss > (sal_min * 4)) and (base_ss < (sal_min * 16)):
+                FSP = fsp416
+                
+            elif (base_ss > (sal_min * 16)) and (base_ss < (sal_min * 17)):
+                FSP = fsp1617
+                
+            elif (base_ss > (sal_min * 17)) and (base_ss < (sal_min * 18)):
+                FSP = fsp1718
+                
+            elif (base_ss > (sal_min * 18)) and (base_ss < (sal_min * 19)):
+                FSP = fsp1819
+                
+            elif (base_ss > (sal_min * 19)) and (base_ss < (sal_min * 20)):
+                FSP = fsp1920
+                
+            elif base_ss > (sal_min * 20):
+                FSP = fsp21
+                
             else:
                 FSP = 0
+                
+
             
             
             
+            print('---------')
+            print(contrato.idcontrato)
+            print(total_base_ss)
+            print(tipo_salario)
+            print('---------')
             
             valoreps = (total_base_ss * EPS.valorfijo ) / 100
             valorafp = (total_base_ss * AFP.valorfijo ) / 100
-            valorfsp = (total_base_ss * FSP ) / 100 if total_base_ss >= (sal_min * 4) else 0
+            valorfsp = (total_base_ss * FSP) / 100 if total_base_ss >= (sal_min * 4) else 0
             
             
             if contrato.pensionado == '2':
