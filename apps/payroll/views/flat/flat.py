@@ -11,6 +11,10 @@ from openpyxl.worksheet.dimensions import DimensionHolder
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from django.http import JsonResponse
+from apps.common.models import Crearnomina , Contratos, EditHistory ,Incapacidades, Conceptosfijos ,Costos,Salariominimoanual, Crearnomina ,EmpVacaciones,Prestamos ,Conceptosdenomina , Empresa , Vacaciones , Nomina , Contratos
+from decimal import Decimal
+
+
 
 # Diccionario de mensajes de error con números como claves
 error_messages = {
@@ -133,7 +137,7 @@ def validate_concepts(df, available_concepts):
     if errors:
         return "\n".join(errors)
     
-    return ""
+    return None
 
 
 
@@ -334,6 +338,7 @@ def flat_modal(request):
     
     if request.method == 'POST':
         file = request.FILES.get("file")
+        id = int(request.POST.get('key'))
 
         if file:
             file_name = file.name  # Nombre del archivo
@@ -363,11 +368,11 @@ def flat_modal(request):
 
             conceptos = Conceptosdenomina.objects.filter(id_empresa_id=idempresa).values_list('codigo', flat=True)
 
-            general_error.append(validate_concepts(df,list(conceptos)))
+
+            if validate_concepts(df,list(conceptos)):
+                general_error.append(validate_concepts(df,list(conceptos)))
+
             
-            print('-----------------')
-            print(df)
-            print('-----------------')
             
             # Validar filas y generar errores
             for index, row in df.iterrows():
@@ -400,14 +405,61 @@ def flat_modal(request):
                         'details' : 'detalles' 
                     })
             
-            
-            if errors:
+            if general_error : 
+                return JsonResponse({
+                    "message": "¡Se encontraron errores en el archivo!",
+                    "errors": errors,
+                    "general_error": general_error
+                })
+            elif errors:
                 return JsonResponse({
                     "message": "¡Se encontraron errores en el archivo!",
                     "errors": errors,
                     "general_error": general_error
                 })
             else :
+                # Convertir la columna 'Contrato' a enteros
+                df['Contrato'] = df['Contrato'].astype(int)
+
+                # Crear lista de diccionarios sin la columna 'Nombre'
+                filas_como_diccionarios = df.drop(columns=['Nombre']).to_dict(orient='records')
+
+                # Campos que no se consideran "conceptos"
+                excluir = {'Contrato', '1'}
+                nominaid = Crearnomina.objects.get(idnomina =  id)
+                # Recorrer y mostrar según lo solicitado
+                for fila in filas_como_diccionarios:
+                    contrato = fila['Contrato']
+                    for clave, celda in fila.items():
+                        if clave not in excluir and celda != 0:
+                            concepto = Conceptosdenomina.objects.get(codigo=clave, id_empresa_id=idempresa)
+                            contrato2 = Contratos.objects.get(idcontrato = contrato )
+                            celda2 = abs(celda)
+
+                            print("-----------")
+                            print(f"contrato : {contrato}")
+                            print(f"idconcepto : {clave}")
+                            print(f"celda : {int(celda) if celda == int(celda) else celda}")
+
+                            if celda2 > 100 : 
+                                cantidad = 0.0 
+                                valor = celda 
+                            else :
+                                cantidad = celda 
+                                valor = (contrato2.salario / Decimal('30')) * Decimal(celda) * concepto.multiplicadorconcepto
+                                
+                            Nomina.objects.create (
+                                valor = valor ,
+                                cantidad = cantidad , 
+                                idconcepto = concepto ,  
+                                idnomina =  nominaid , 
+                                estadonomina = True , 
+                                idcontrato = contrato2 ,  
+                            )
+
+                            
+
+
                 return JsonResponse({
                     "message": "¡Operación completada con éxito!",
 

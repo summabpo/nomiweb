@@ -383,14 +383,6 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
                 
 
             
-            
-            
-            print('---------')
-            print(contrato.idcontrato)
-            print(total_base_ss)
-            print(tipo_salario)
-            print('---------')
-            
             valoreps = (total_base_ss * EPS.valorfijo ) / 100
             valorafp = (total_base_ss * AFP.valorfijo ) / 100
             valorfsp = (total_base_ss * FSP) / 100 if total_base_ss >= (sal_min * 4) else 0
