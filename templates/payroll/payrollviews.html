@@ -920,13 +920,12 @@ tr.htmx-swapping td {
         
             // Crear objeto FormData para enviar archivos
             const formData = new FormData();
-            formData.append("key", "valor desde JS");
+            formData.append("key", "{{ nombre.idnomina }}");
             
             if (fileInput.files.length > 0) {
-                formData.append("file", fileInput.files[0]); // 📌 Se envía el archivo correctamente
+                formData.append("file", fileInput.files[0]); // Se envía el archivo correctamente
             }
         
-            formData.append("hidden_field", hiddenField.value);
         
             fetch(PAYROLL_MODAL_URL, {
                 method: "POST",
