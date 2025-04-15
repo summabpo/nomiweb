@@ -277,11 +277,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
             if idconceptoi :
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoi,
-<<<<<<< HEAD
-                    idcontrato = incapacidad.idcontrato ,                   
-=======
                     idcontrato = incapacidad.idcontrato , 
->>>>>>> Master
                     idnomina_id=idn
                 ).first()
                 
