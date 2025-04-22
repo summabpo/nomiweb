@@ -6,6 +6,8 @@ from .views.electronic_payroll import electronic_payroll
 from .views.loans import loans
 from .views.parameters import parameters
 from .views.pruebas import pruebas
+from .views.fixed import fixed
+
 
 # afsa fsa asfad 
 
@@ -42,7 +44,8 @@ urlpatterns = [
     path('parameters/concepts', parameters.concepts, name='concepts'),
     
 
-
+    ## conceptos fijos 
+    path('fixed', fixed.fixed, name='fixedconcepts'),
     
 
 ]
@@ -85,7 +88,9 @@ urlunpolypatterns =[
     ## flat
     path('flat/modal', flat.flat_modal, name='flat_modal'),
     
-    
+    # fixed concepts 
+    path('fixed/modal', fixed.fixed_modal, name='fixed_modal'),
+
     ### pruebas 
     path('payroll/modal/pruebas', pruebas.prueba, name='prueba'),
     path('payroll/modal/pruebas/modal', pruebas.prueba_modal, name='prueba_modal'),

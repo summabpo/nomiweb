@@ -1,0 +1,257 @@
+{% extends 'base/base.html' %}
+{% block navbar %}
+    {% include 'base/navbar_payroll.html' %}               
+{% endblock %}
+
+{% load static %} 
+
+
+{% block title %}
+    Nomiweb.co - Aplicacion Contable - Conceptos Fijos
+{% endblock %}
+
+
+
+{% block sub_titulo1 %} 
+inicio
+{% endblock %}
+
+{% block sub_titulo2 %} 
+inicio
+{% endblock %}
+
+{% block titulo2 %} 
+
+{% endblock %}
+
+
+
+{% block css %}
+
+
+up-modal[size=large] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+up-modal[size=medium] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+up-modal[size=small] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    text-align: left;
+}
+
+.select2-container .select2-search--dropdown .select2-search__field {
+    height: 28px; /* Ajusta la altura según prefieras */
+    padding: 4px 8px; /* Ajusta el padding para hacerlo más delgado */
+    font-size: 14px; /* Si quieres un texto más pequeño */
+    border-radius: 8px; /* Bordes más suaves si te gusta */
+}
+
+
+.select2-container .select2-results__option {
+    text-align: left;
+}
+
+
+.swal2-container {
+    z-index: 9999 !important; /* Más alto que el z-index de los modales de Unpoly */
+}
+
+
+tr.htmx-swapping td {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
+{% endblock %}
+
+{% block actions %}
+    <!-- Button trigger modal -->
+    <a
+        class='btn btn-light-info'
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "medium"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+        href="{% url 'payroll:fixed_modal' %}">
+        <i class="fa-solid fa-square-plus fs-2"></i>Nueva novedad
+
+    </a> 
+
+{% endblock %}
+
+
+
+{%block content%} 
+
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered" id="tabla-novefijas">
+        <thead>
+            <tr class="fw-bold fs-6 text-gray-800">
+                <th class="text-center">Empleado</th>
+                <th class="text-center">Contrato</th>
+                <th class="text-center">Concepto</th>
+                <th class="text-center">valor</th>
+                <th class="text-center">Fecha Fin </th>
+                <th class="text-center">pago</th>
+                <th class="text-center">descripcion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for novfijo in novfijos %}
+                <tr>
+                    <td class="text-center align-middle">{{ novfijo.idcontrato.idempleado.pnombre }} {{ novfijo.idcontrato.idempleado.papellido }}</td>
+                    <td class="text-center align-middle">{{ novfijo.idcontrato.idcontrato }}</td>
+                    <td class="align-middle">{{ novfijo.idconcepto }}</td>
+                    <td class="text-center align-middle">{{ novfijo.valor}}</td>
+                    <td class="text-center align-middle">{{ novfijo.fechafinnovedad|date:'d-m-Y' }}</td>
+                    <td class="text-center align-middle">{{ novfijo.pago }}</td>
+                    <td class="text-center align-middle">{{ novfijo.descripcion }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal-body">
+    <!-- Aquí se mostrará el mensaje si el encabezado llega -->
+</div>
+
+{% endblock content %}
+
+
+
+
+
+
+
+{% block js %}
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        // Verifica si el target actualizado es #item-list
+        if (event.target.id === 'item-list') {
+            
+            clearFormFields();
+            
+        }
+    });
+
+    function clearFormFields() {
+        const conceptSelect = document.querySelector('#concept');
+        if (conceptSelect) {
+            $(conceptSelect).val(null).trigger('change'); // Para Select2
+            
+        }
+    
+        const cantidadInput = document.querySelector('#cantidad');
+        if (cantidadInput) {
+            cantidadInput.value = '';
+            
+        }
+    
+        const valorInput = document.querySelector('#valor');
+        if (valorInput) {
+            valorInput.value = '';
+        }
+    }
+</script>
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
+
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-novefijas').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 10,
+        });
+
+    });
+</script>
+
+{% endblock %}

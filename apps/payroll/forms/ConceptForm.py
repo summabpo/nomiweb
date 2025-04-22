@@ -47,7 +47,7 @@ class ConceptForm(forms.Form):
         idempresa = kwargs.pop('idempresa', None)
         form_id = kwargs.pop('form_id', 'form_payroll_concept')
         # Obtener la variable externa pasada al formulario
-        dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_concept')
+        dropdown_parent = kwargs.pop('dropdown_parent', '#modal-content')
         select2_ids = kwargs.pop('select2_ids', {})
 
 
