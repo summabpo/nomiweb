@@ -257,8 +257,6 @@ Listado de Incapacidades
 </script>
 
 
-{% comment %}  Nuevo modal  {% endcomment %}
-
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
 
@@ -268,7 +266,6 @@ Listado de Incapacidades
         const entitiesUrl = "{% url 'companies:get_entity' %}";
 
         if (modalContent) {
-            console.log('llege aqui')
             const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
             const date = modalContent.querySelector('#kt_daterangepicker_1');
             const conceptSelect = modalContent.querySelector('#id_origin');
@@ -405,7 +402,9 @@ Listado de Incapacidades
                     }
                 });
             }, 300); // Aumentamos un poco el tiempo para mayor seguridad
-        } else {
+        }
+        else 
+        {
             console.log('Contenido completo del fragmento:', event.target.innerHTML);
         }
     });

@@ -118,8 +118,18 @@ class FixidForm(forms.Form):
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
-                    'data-dropdown-parent': dropdown_parent,
                     'class': 'form-select',
+                })
+
+
+        for field_name in ['estado', 'pago']:
+            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs.update({
+                    'data-control': 'select2',
+                    'class': 'form-select',
+                    'data-hide-search':"true",
+
                 })
 
 

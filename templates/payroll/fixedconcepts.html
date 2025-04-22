@@ -145,33 +145,37 @@ tr.htmx-swapping td {
 
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
-        // Verifica si el target actualizado es #item-list
-        if (event.target.id === 'item-list') {
-            
-            clearFormFields();
-            
-        }
-    });
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
 
-    function clearFormFields() {
-        const conceptSelect = document.querySelector('#concept');
-        if (conceptSelect) {
-            $(conceptSelect).val(null).trigger('change'); // Para Select2
-            
-        }
-    
-        const cantidadInput = document.querySelector('#cantidad');
-        if (cantidadInput) {
-            cantidadInput.value = '';
-            
-        }
-    
-        const valorInput = document.querySelector('#valor');
-        if (valorInput) {
-            valorInput.value = '';
-        }
-    }
+        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+        console.log('llegué aquí');
+
+        setTimeout(() => {
+            selectElements.forEach((select, index) => {
+                if (!select.id) {
+                    select.id = `select2-unique-${Date.now()}-${index}`;
+                }
+
+                if (!$(select).data('select2')) {
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+
+                    // Si tiene el atributo data-hide-search, desactiva el buscador
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
+                    }
+
+                    $(select).select2(options);
+                }
+            });
+        }, 300);
+    });
 </script>
+
+
 <script>
     up.on('up:layer:accepted', function(event) {
         const location = event.response.header('X-Up-Location');
