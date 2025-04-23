@@ -6,6 +6,17 @@ from datetime import timedelta
 from apps.common.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
 from django.urls import reverse
 import os
+from django.core.cache import cache
+
+def get_diagnostico_choices():
+    return cache.get_or_set('diagnostico_choices', lambda: [
+        ('', '----------')
+    ] + list(Diagnosticosenfermedades.objects
+        .order_by('coddiagnostico')
+        .values_list('coddiagnostico', 'diagnostico')
+        .iterator()
+    ), 60 * 60)  # Cache por 1 hora
+
 
 def validate_pdf_file(value):
     # Verificar que el archivo sea un PDF
@@ -82,22 +93,17 @@ class DisabilitiesForm(forms.Form):
         
         self.fields['contract'] = forms.ChoiceField(
             choices=[('', '----------')] + [
-                (item['idcontrato'], f"{item['idempleado__papellido']} {item['idempleado__pnombre']} - {item['idcontrato']}")
+                (item['idcontrato'], f"{item['idempleado__papellido']} {item['idempleado__pnombre']} - {item['cargo__nombrecargo']} - Contrato #{item['idcontrato']} ")
                 for item in Contratos.objects.filter(estadocontrato=1 ,  id_empresa = idempresa ).exclude( tipocontrato__idtipocontrato__in = [5,6] )
                 .order_by('idempleado__papellido')  # Aplica el orden antes de hacer el slice
-                .values('idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido', 'idcontrato')
+                .values('idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido', 'idcontrato','cargo__nombrecargo')
             ],
             label="Contrato" , 
         )
 
         self.fields['diagnosis_code'] = forms.ChoiceField(
-            choices=[('', '----------')] + [
-                (item['coddiagnostico'], f" {item['coddiagnostico']} - {item['diagnostico']} ")
-                for item in Diagnosticosenfermedades.objects.all()
-                .order_by('coddiagnostico')  # Aplica el orden antes de hacer el slice
-                .values('coddiagnostico', 'diagnostico')
-            ],
-            label="Codigo de Incapacidad" , 
+            choices=[(cod, f"{cod} - {desc}") for cod, desc in get_diagnostico_choices()],
+            label="Código de Incapacidad"
         )
         
         self.helper = FormHelper()

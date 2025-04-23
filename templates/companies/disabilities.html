@@ -219,12 +219,53 @@ Listado de Incapacidades
 {% block js %}
 
 
+
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
 <script>
     $(document).ready(function() {
-
-        var year = '{{ year }}';  // Obtener el año del contexto de Django
-        var mth = '{{ mth }}';  
-        // Inicializar DataTable
         var table = $('#table-disabilities').DataTable({
             language: {
                 "decimal": "",
@@ -257,8 +298,6 @@ Listado de Incapacidades
 </script>
 
 
-{% comment %}  Nuevo modal  {% endcomment %}
-
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
 
@@ -268,7 +307,6 @@ Listado de Incapacidades
         const entitiesUrl = "{% url 'companies:get_entity' %}";
 
         if (modalContent) {
-            console.log('llege aqui')
             const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
             const date = modalContent.querySelector('#kt_daterangepicker_1');
             const conceptSelect = modalContent.querySelector('#id_origin');
@@ -371,7 +409,6 @@ Listado de Incapacidades
                     minYear: 2000,
                     maxYear: parseInt(moment().format("YYYY"), 12),
                     endDate: moment(),
-                    minDate: moment().subtract(10, 'days'),  // Establece la fecha mínima como 10 días antes
                     maxDate: moment().add(10, 'days'),  // Fecha máxima sigue siendo 10 días después
                     autoApply: true,
                     locale: {
@@ -405,7 +442,9 @@ Listado de Incapacidades
                     }
                 });
             }, 300); // Aumentamos un poco el tiempo para mayor seguridad
-        } else {
+        }
+        else 
+        {
             console.log('Contenido completo del fragmento:', event.target.innerHTML);
         }
     });
