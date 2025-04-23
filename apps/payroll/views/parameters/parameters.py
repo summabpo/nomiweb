@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def banks(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -49,7 +49,7 @@ def banks(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def entities(request):
 
     form = EntitiesForm()
@@ -102,7 +102,7 @@ def entities(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def holidays(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -141,7 +141,7 @@ def holidays(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def fixed(request):
     fixeds = Conceptosfijos.objects.all().order_by('idfijo')
     form = FixedForm()
@@ -177,7 +177,7 @@ def fixed(request):
 
 
 @login_required
-@role_required('company','admin')
+@role_required('company','admin','accountant')
 def annual(request):
     wages = Salariominimoanual.objects.all().order_by('-ano')
     form = AnnualForm()
