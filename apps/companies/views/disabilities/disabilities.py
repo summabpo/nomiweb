@@ -302,20 +302,38 @@ def edit_disabilities(request):
 
 @csrf_exempt
 def get_entity(request):
+  entidad_select = ''
   if request.method == 'GET':
     dato = request.GET.get('dato')
+    id = request.GET.get('id')
+    
+    
+    
     dato_sin_numeros = ''.join([char for char in dato if not char.isdigit()])
-
-    if dato_sin_numeros.upper() == "TDO":
+    print(dato_sin_numeros)
+    
+    if dato_sin_numeros.upper() == "EPS":
       # Filtrar tanto ARL como EPS
+      print('llege aqui 1 ')
+      entidad_select = Contratos.objects.get(idcontrato = id ).codeps.codigo
       entidad = Entidadessegsocial.objects.filter(tipoentidad__in=['ARL', 'EPS']).order_by('codigo').values('codigo', 'entidad')
     else:
+      print('llege aqui 2 ')
+      
+      entidad_select = Contratos.objects.get(idcontrato = id ).id_empresa.arl.codigo
       # Filtrar por tipoentidad específico
       entidad = Entidadessegsocial.objects.filter(tipoentidad=dato_sin_numeros).order_by('codigo').values('codigo', 'entidad')
+
+    print(entidad_select)
+    
     entidad_list = list(entidad)
 
+    data = {
+      'entidad_list' : entidad_list,
+      'entidad_select' : entidad_select 
+    }
     # Devolver la respuesta JSON
-    return JsonResponse(entidad_list, safe=False)
+    return JsonResponse(data ,safe=False)
 
 
   

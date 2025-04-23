@@ -313,6 +313,9 @@ Listado de Incapacidades
             const date2 = modalContent.querySelector('#kt_daterangepicker_2'); // Campo de texto
             const select1 = modalContent.querySelector('#id_entity'); // Select
 
+            // 
+            const contract = modalContent.querySelector('#id_contract');
+
             // calculo de dias basado fechas 
             const startDateInput = modalContent.querySelector('#kt_daterangepicker_1');
             const daysInput = modalContent.querySelector('#id_incapacity_days');
@@ -320,6 +323,48 @@ Listado de Incapacidades
             
 
             if (date2) date2.disabled = true;
+
+            if (contract) {
+                if (!$(contract).data('select2')) {
+                    $(contract).select2({
+                        dropdownParent: $(modalContent),
+                        width: '100%',
+                        placeholder: 'Seleccione un contrato',
+                        allowClear: true // por si quieres que pueda limpiarse
+                    });
+                }
+            
+                $(contract).on('select2:select select2:clear', function (e) {
+                    const selectedValue = $(this).val();
+            
+                    // Siempre limpiar estos dos campos cuando el contrato cambia
+                    $(conceptSelect).val('').trigger('change');
+                    $(select1).val('').trigger('change');
+            
+                    // Y deshabilitarlos si no hay contrato
+                    if (selectedValue) {
+                        conceptSelect.disabled = false;
+                        select1.disabled = true; // Se habilita después vía la petición AJAX al seleccionar origen
+                    } else {
+                        conceptSelect.disabled = true;
+                        select1.disabled = true;
+                    }
+                });
+            
+                // Validación inicial por si hay contrato preseleccionado
+                setTimeout(() => {
+                    if ($(contract).val()) {
+                        conceptSelect.disabled = false;
+                    } else {
+                        conceptSelect.disabled = true;
+                        select1.disabled = true;
+                        $(conceptSelect).val('').trigger('change');
+                        $(select1).val('').trigger('change');
+                    }
+                }, 100);
+            }
+            
+            
 
             if (select1) {
                 select1.disabled = !select1.value;
@@ -367,7 +412,8 @@ Listado de Incapacidades
                 if (!$(conceptSelect).data('select2')) {
                     $(conceptSelect).select2({
                         dropdownParent: $(modalContent),
-                        width: '100%'
+                        width: '100%',
+                        minimumResultsForSearch: Infinity
                     });
                 }
     
@@ -376,20 +422,32 @@ Listado de Incapacidades
                     $(conceptSelect).on('select2:select', function(e) {
                         select1.disabled = true;
                         const selectedValue = e.params.data.id;
+                        const idcontrato = $(contract).val();
 
-                        up.request(`${entitiesUrl}?dato=${selectedValue}`)
+                        up.request(`${entitiesUrl}?dato=${selectedValue}&id=${idcontrato}`)
                             .then(response => response.json)
                             .then(data => {
-                                select1.innerHTML = '<option value="">Seleccione una entidad</option>';
-                                // Agregar las nuevas opciones
-                                data.forEach(data => {
+                                
+                        
+                                const entidadList = data.entidad_list;
+                                const entidadSelect = data.entidad_select;
+                                
+                                select1.innerHTML = '<option value="">----------</option>';
+                                $(select1).val('').trigger('change');
+                        
+                                entidadList.forEach(entidad => {
                                     const option = document.createElement('option');
-                                    option.value = data.codigo;
-                                    option.textContent = data.entidad;
+                                    option.value = entidad.codigo;
+                                    option.textContent = entidad.entidad;
+                                    
+                                    if (entidad.codigo === entidadSelect) {
+                                        option.selected = true; // ← aquí marcamos la opción por defecto
+                                    }
+
                                     select1.appendChild(option);
                                 });
-                                // Habilitar el select si hay entidades disponibles
-                                select1.disabled = select1.length === 0;
+                        
+                                select1.disabled = entidadList.length === 0;
                             })
                             .catch(error => {
                                 console.error('Error al obtener la entidad:', error);
@@ -398,7 +456,7 @@ Listado de Incapacidades
                         
                     });
                 }, 200);
-            }
+            } 
 
             
 
@@ -429,16 +487,23 @@ Listado de Incapacidades
             // Usamos un pequeño retraso para asegurar el renderizado completo
             setTimeout(() => {
                 selectElements.forEach((select, index) => {
-                    // Aseguramos un ID único si no tiene uno
                     if (!select.id) {
                         select.id = `select2-unique-${Date.now()}-${index}`;
                     }
-
+    
                     if (!$(select).data('select2')) {
-                        $(select).select2({
+                        const options = {
                             dropdownParent: $(modalContent),
                             width: '100%'
-                        });
+                        };
+    
+                        // Si tiene el atributo data-hide-search, desactiva el buscador
+                        if (select.hasAttribute('data-hide-search')) {
+                            options.minimumResultsForSearch = Infinity;
+                            
+                        }
+    
+                        $(select).select2(options);
                     }
                 });
             }, 300); // Aumentamos un poco el tiempo para mayor seguridad
