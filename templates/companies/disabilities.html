@@ -151,10 +151,10 @@ Listado de Incapacidades
                         <td>{{ item.coddiagnostico__diagnostico }}</td>
                         <td>
                             
-                            {% if item.prorroga == '0'  %}
-                                <h4>No</h4>
-                            {% else %}
+                            {% if item.prorroga  %}
                                 <h4>Si</h4>
+                            {% else %}
+                                <h4>No</h4>
                             {% endif %}
 
                         </td>
