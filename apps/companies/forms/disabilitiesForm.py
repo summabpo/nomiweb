@@ -2,11 +2,14 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from django.core.exceptions import ValidationError
-from datetime import timedelta
-from apps.common.models  import Contratos,Entidadessegsocial ,Diagnosticosenfermedades
+from datetime import timedelta , datetime
+from apps.common.models  import Contratos, Entidadessegsocial , Diagnosticosenfermedades , Incapacidades
 from django.urls import reverse
 import os
 from django.core.cache import cache
+from django.db import models
+
+
 
 def get_diagnostico_choices():
     return cache.get_or_set('diagnostico_choices', lambda: [
@@ -34,6 +37,41 @@ def validate_pdf_file(value):
         raise ValidationError("El nombre del archivo no debe contener caracteres especiales.")
 
 class DisabilitiesForm(forms.Form):
+    
+    def clean(self):
+        # Llama primero al clean() del padre para asegurar que los datos del formulario
+        # hayan sido limpiados (convertidos al tipo correcto, etc.)
+        cleaned_data = super().clean()
+
+        # Obtenemos los valores necesarios del formulario
+        contrato = cleaned_data.get("contract")      # Contrato asociado a la incapacidad
+        fechainicial = cleaned_data.get("initial_date")  # Fecha inicial de la incapacidad
+        dias = cleaned_data.get("incapacity_days")                # Duración de la incapacidad en días
+
+            
+        # Solo validamos si los tres datos requeridos están presentes
+        if contrato and fechainicial and dias:
+            # Asegurarse de que fechainicial sea una fecha (por si viene como texto)
+            if isinstance(fechainicial, str):
+                fechainicial = datetime.strptime(fechainicial, "%Y-%m-%d").date()
+
+            # Convertir dias a entero si es necesario
+            fechafinal = fechainicial + timedelta(days=int(dias))
+
+            overlapping = Incapacidades.objects.filter(
+                idcontrato=contrato,
+                fechainicial__lt=fechafinal,
+                fechainicial__gte=fechainicial
+            )
+
+            if overlapping.exists():
+                self.add_error('initial_date', 'Ya existe una incapacidad en ese rango de fechas para este contrato.')
+                
+
+        return cleaned_data
+    
+    
+        
     origin = forms.ChoiceField(choices=[('', '----------'),('EPS1', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS2', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
     #entity = forms.ModelChoiceField(queryset=Entidadessegsocial.objects.none(), label="Entidad", widget=forms.Select(attrs={'class': 'form-select'}))
     
