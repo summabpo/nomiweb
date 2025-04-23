@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
+
 {% block navbar %}
     {% if user.is_admin %}
         {% include 'base/navbar_administrator.html' %} 

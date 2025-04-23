@@ -6,7 +6,8 @@ from apps.components.utils import calcular_dias_360
 from datetime import datetime
 from django.http import HttpResponse 
 from apps.components.generate_vacation_balance import generate_balance_excel
-
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
 def calcular_vacaciones(contrato, concepto,fecha_actual):
     # Calcular las vacaciones disponibles
@@ -93,7 +94,8 @@ def vacation_balance(request):
     return render(request, './companies/vacation_balance.html', context)
 
 
-
+@login_required
+@role_required('company','accountant')
 def vacation_balance_download(request):
     date_str = request.GET.get('date')
 

@@ -149,8 +149,6 @@ tr.htmx-swapping td {
         if (!modalContent) return;
 
         const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
-        console.log('llegué aquí');
-
         setTimeout(() => {
             selectElements.forEach((select, index) => {
                 if (!select.id) {

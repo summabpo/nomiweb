@@ -113,18 +113,18 @@ def disabilities_modal(request):
       ibc = NominaComprobantes.objects.filter(idcontrato_id=contract).order_by('-idhistorico').first()
 
       # Guardar en la base de datos
-      # Incapacidades.objects.create(
-      #   entidad = entidad ,# enlace segsocial
-      #   coddiagnostico = dianostico ,
-      #   fechainicial = initial_date ,
-      #   dias = incapacity_days,
-      #   imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
-      #   certificadoincapacidad = pdf_file if pdf_file else "", 
-      #   idcontrato_id  = contract ,  
-      #   prorroga = prorroga ,
-      #   ibc =  ibc.salario ,
-      #   origenincap = origin , 
-      # )
+      Incapacidades.objects.create(
+        entidad = entidad ,# enlace segsocial
+        coddiagnostico = dianostico ,
+        fechainicial = initial_date ,
+        dias = incapacity_days,
+        imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
+        certificadoincapacidad = pdf_file if pdf_file else "", 
+        idcontrato_id  = contract ,  
+        prorroga = prorroga ,
+        ibc =  ibc.salario ,
+        origenincap = origin , 
+      )
       
       response = HttpResponse()
       response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
@@ -302,20 +302,34 @@ def edit_disabilities(request):
 
 @csrf_exempt
 def get_entity(request):
+  entidad_select = ''
   if request.method == 'GET':
     dato = request.GET.get('dato')
+    id = request.GET.get('id')
+    
+    
+    
     dato_sin_numeros = ''.join([char for char in dato if not char.isdigit()])
-
-    if dato_sin_numeros.upper() == "TDO":
+    
+    
+    if dato_sin_numeros.upper() == "EPS":
       # Filtrar tanto ARL como EPS
+      entidad_select = Contratos.objects.get(idcontrato = id ).codeps.codigo
       entidad = Entidadessegsocial.objects.filter(tipoentidad__in=['ARL', 'EPS']).order_by('codigo').values('codigo', 'entidad')
     else:
+
+      entidad_select = Contratos.objects.get(idcontrato = id ).id_empresa.arl.codigo
       # Filtrar por tipoentidad específico
       entidad = Entidadessegsocial.objects.filter(tipoentidad=dato_sin_numeros).order_by('codigo').values('codigo', 'entidad')
+          
     entidad_list = list(entidad)
 
+    data = {
+      'entidad_list' : entidad_list,
+      'entidad_select' : entidad_select 
+    }
     # Devolver la respuesta JSON
-    return JsonResponse(entidad_list, safe=False)
+    return JsonResponse(data ,safe=False)
 
 
   
