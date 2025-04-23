@@ -37,7 +37,7 @@ def disabilities(request):
   usuario = request.session.get('usuario', {})
   idempresa = usuario['idempresa']
   
-  incapacidades = Incapacidades.objects.values(
+  incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa = idempresa ).values(
       'idcontrato__idcontrato',
       'idcontrato__idempleado__docidentidad',
       'idcontrato__idempleado__pnombre',
@@ -52,6 +52,7 @@ def disabilities(request):
       'dias',
       'idincapacidad',
       'imagenincapacidad',
+      'idcontrato__id_empresa_id'
   ).order_by('-idincapacidad')
 
   # Reemplazar None por cadena vacía en los campos especificados
@@ -112,21 +113,25 @@ def disabilities_modal(request):
       ibc = NominaComprobantes.objects.filter(idcontrato_id=contract).order_by('-idhistorico').first()
 
       # Guardar en la base de datos
-      Incapacidades.objects.create(
-        entidad = entidad ,# enlace segsocial
-        coddiagnostico = dianostico ,
-        fechainicial = initial_date ,
-        dias = incapacity_days,
-        imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
-        certificadoincapacidad = pdf_file if pdf_file else "", 
-        idcontrato_id  = contract ,  
-        prorroga = prorroga ,
-        ibc =  ibc.salario ,
-        origenincap = origin , 
-      )
+      # Incapacidades.objects.create(
+      #   entidad = entidad ,# enlace segsocial
+      #   coddiagnostico = dianostico ,
+      #   fechainicial = initial_date ,
+      #   dias = incapacity_days,
+      #   imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
+      #   certificadoincapacidad = pdf_file if pdf_file else "", 
+      #   idcontrato_id  = contract ,  
+      #   prorroga = prorroga ,
+      #   ibc =  ibc.salario ,
+      #   origenincap = origin , 
+      # )
       
-      
-      return redirect('companies:disabilities')
+      response = HttpResponse()
+      response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+      response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+      response['X-Up-message'] = 'La Incapacidad fue registrada correctamente'    
+      response['X-Up-Location'] = reverse('companies:disabilities')           
+      return response
         
   return render (request, './companies/partials/create_disabilities_modal.html',{'form' :form,})
 
