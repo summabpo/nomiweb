@@ -3,8 +3,11 @@ from django.contrib import messages
 from apps.components.filterform import FilterForm
 from apps.components.decorators import role_required
 from apps.common.models  import Contratosemp, Vacaciones, Contratos
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
+@role_required('company','accountant')
 def vacation(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']

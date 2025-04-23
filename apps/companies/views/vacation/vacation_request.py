@@ -13,7 +13,8 @@ from django.db.models import Sum, Q
 from datetime import timedelta, datetime, date
 from django.db.models.functions import Coalesce
 from apps.components.mail import send_template_email
-
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
     """
@@ -45,6 +46,8 @@ def calcular_dias_360(fechainicial, fechafinal):
 
     return dias_totales_360
 
+@login_required
+@role_required('company','accountant')
 def vacation_request(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -75,8 +78,8 @@ def vacation_request(request):
 
 
 
-
-
+@login_required
+@role_required('company','accountant')
 @csrf_exempt
 def get_vacation_details(request):
     if request.method == 'GET':
@@ -148,7 +151,8 @@ def get_vacation_details(request):
 
 
 
-
+@login_required
+@role_required('company','accountant')
 @csrf_exempt
 def get_vacation_acction(request):
     try:

@@ -4,8 +4,10 @@ from apps.components.filterform import FilterForm
 from apps.components.decorators import  role_required
 from apps.common.models  import Contratosemp , Vacaciones ,Contratos 
 from django.http import JsonResponse
-
-
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
+@login_required
+@role_required('company','accountant')
 def vacation_general(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -29,7 +31,8 @@ def vacation_general(request):
     
     return render(request, './companies/vacation_general.html', context)
 
-
+@login_required
+@role_required('company','accountant')
 def get_novedades(request):
     tipo_novedad = request.GET.get('tipo', '')  
     idcontaro = request.GET.get('idcontrato', '')  
