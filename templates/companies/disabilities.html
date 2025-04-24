@@ -136,7 +136,6 @@ Listado de Incapacidades
                     <th>Prorroga</th>
                     <th>Fecha Inicial</th>
                     <th>dias Incapacidad</th>
-                    <th ><i class="fa-regular fa-image fs-3"></i></th>
                     <th> </th>
                 </tr>
             </thead>
@@ -160,19 +159,33 @@ Listado de Incapacidades
                         </td>
                         <td>{{ item.fechainicial | date:"d/m/Y"  }}</td>
                         <td>{{ item.dias }}</td>
-                        <td>
-                            <!--begin::Overlay-->
-                            <a class="btn btn-icon btn-light-info" data-fslightbox="lightbox-basic" href="{{ MEDIA_URL }}media/incapacities/kluMHCMDyE3EYACRqMY9JsJXrX0dxwSgjPtEHY0Zh5LqgfI006ZMrf9fQRwtLUxOLLTeabbIz2jAqrdk.jpg">
-                                <!--begin::Image-->
-                                <i class="fa-solid fa-eye fs-3"></i>
-                                <!--end::Image-->
-                            </a>
-                            <!--end::Overlay-->
-                        </td>
+                        
                         <td>
                             {% comment %} <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_2" data-disabilites_id="{{ item.idincapacidad }}" >
                                 
                             </button>   {% endcomment %}
+
+                            <a
+                                class='btn btn-icon btn-light-info'
+
+                                data-bs-toggle="tooltip"
+                                data-bs-custom-class="tooltip-inverse"
+                                data-bs-placement="top" 
+                                title="Ver Detalle"
+
+                                up-layer='new modal'
+                                up-target=".modal-content1"
+                                up-size = "medium"
+                                up-align = "center"
+                                up-backdrop = "true"
+                                up-history = "false"
+                                up-dismissable ="false"
+                                up-cache="false"
+
+                                href="{% url 'companies:disabilities_modal_detail' item.idincapacidad %}">
+                                <i class="fa-regular fa-eye fs-2"></i>
+                            </a> 
+
                             <a
                                 class='btn btn-icon btn-light-info'
                                 up-layer='new modal'
@@ -192,6 +205,8 @@ Listado de Incapacidades
                                 <i class="fa-solid fa-pen-to-square fs-3"></i>
 
                             </a>  
+
+                            
                         </td>
                     </tr>
                 {% endfor %}
