@@ -33,6 +33,57 @@ Conceptos de Nomina
 Listado de Conceptos
 {% endblock %}
 
+
+{% block css %}
+
+
+up-modal[size=large] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+up-modal[size=medium] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+up-modal[size=small] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    text-align: left;
+}
+
+.select2-container .select2-search--dropdown .select2-search__field {
+    height: 28px; /* Ajusta la altura según prefieras */
+    padding: 4px 8px; /* Ajusta el padding para hacerlo más delgado */
+    font-size: 14px; /* Si quieres un texto más pequeño */
+    border-radius: 8px; /* Bordes más suaves si te gusta */
+}
+
+
+.select2-container .select2-results__option {
+    text-align: left;
+}
+
+
+.swal2-container {
+    z-index: 9999 !important; /* Más alto que el z-index de los modales de Unpoly */
+}
+
+
+tr.htmx-swapping td {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
+{% endblock %}
+
 {% block actions %}
 <!-- Button trigger modal -->
     {% comment %} <button type="button"  class="btn btn-light-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_maintenance" >
@@ -71,6 +122,14 @@ Listado de Conceptos
                 <th class="text-center">Nombre del Concepto</th>
                 <th class="text-center">Tipo de Concepto</th>
                 <th class="text-center">Grupo DIAN</th>
+                <th class="text-center">
+                    <div class="container d-flex justify-content-center align-items-center">
+                        <i class="ki-duotone ki-chart fs-1">
+                            <i class="path1"></i>
+                            <i class="path2"></i>
+                        </i>
+                    </div>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -91,6 +150,51 @@ Listado de Conceptos
                         {% endif %}
                     </td>
                     <td class="text-center align-middle" >{{ concept.grupo_dian.campo }}</td>
+                    <td class="text-center align-middle">
+
+                        <a
+                            class='btn btn-icon btn-light-info'
+
+                            data-bs-toggle="tooltip"
+                            data-bs-custom-class="tooltip-inverse"
+                            data-bs-placement="top" 
+                            title="Ver Detalle"
+
+                            up-layer='new modal'
+                            up-target=".modal-content1"
+                            up-size = "medium"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+
+                            href="{% url 'payroll:concepts_detail' concept.idconcepto %}">
+                            <i class="fa-regular fa-eye fs-2"></i>
+                        </a> 
+
+                        <a
+                            class='btn btn-icon btn-light-info'
+
+                            data-bs-toggle="tooltip"
+                            data-bs-custom-class="tooltip-inverse"
+                            data-bs-placement="top" 
+                            title="Editar"
+
+                            up-layer='new modal'
+                            up-target=".modal-content2"
+                            up-size = "large"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+
+                            href="{% url 'payroll:concepts_edit' concept.idconcepto %}">
+                            <i class="fa-solid fa-file-pen fs-2"></i>
+                        </a> 
+
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

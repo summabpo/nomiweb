@@ -136,20 +136,30 @@ tr.htmx-swapping td {
 {% endblock content %}
 
 
-
-
-
-
-
 {% block js %}
+
+<script>
+    $('#id_descrip').maxlength({
+        threshold: 20,
+        warningClass: "badge badge-danger",
+        limitReachedClass: "badge badge-success",
+        separator: ' of ',
+        preText: 'hola ',
+        postText: ' chars remaining.',
+        validate: true
+    });
+</script>
 
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
         const modalContent = up.layer?.current?.element;
         if (!modalContent) return;
 
-        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
         setTimeout(() => {
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            const descrip = modalContent.querySelector('#id_descrip');
+
+            // Inicializar select2
             selectElements.forEach((select, index) => {
                 if (!select.id) {
                     select.id = `select2-unique-${Date.now()}-${index}`;
@@ -161,7 +171,6 @@ tr.htmx-swapping td {
                         width: '100%'
                     };
 
-                    // Si tiene el atributo data-hide-search, desactiva el buscador
                     if (select.hasAttribute('data-hide-search')) {
                         options.minimumResultsForSearch = Infinity;
                     }
@@ -169,6 +178,23 @@ tr.htmx-swapping td {
                     $(select).select2(options);
                 }
             });
+
+            // Inicializar maxlength
+            if (descrip && typeof $(descrip).maxlength === 'function') {
+                
+                $(descrip).maxlength({
+                    threshold: 20,
+                    warningClass: "badge badge-danger",
+                    limitReachedClass: "badge badge-success",
+                    separator: ' of ',
+                    preText: 'You have ',
+                    postText: ' chars remaining.',
+                    validate: true
+                });
+
+                console.log($('#id_descrip').length);
+            } 
+
         }, 300);
     });
 </script>

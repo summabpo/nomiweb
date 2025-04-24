@@ -6,6 +6,8 @@ from django.contrib import messages
 from .forms import BanksForm ,HolidaysForm , EntitiesForm ,FixedForm , AnnualForm , PayrollConceptsForm
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
 
 @login_required
 @role_required('company','admin','accountant')
@@ -279,7 +281,35 @@ def concepts_add(request):
     return render(request, './payroll/partials/conceptsmodal.html', {'form': form})
 
 
+@login_required
+@role_required('company','admin','accountant')
+def concepts_detail(request,id):
+    concept = get_object_or_404(Conceptosdenomina, pk=id)
+    return render(request, './payroll/partials/conceptsmodaldetail.html',{'concept':concept})
 
+@login_required
+@role_required('company','admin','accountant')
+def concepts_edit(request,id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    
+    concept = get_object_or_404(Conceptosdenomina, pk=id)
+    
+    
+    data = {
+        'nombreconcepto':concept.nombreconcepto ,
+        'multiplicadorconcepto':concept.multiplicadorconcepto ,
+        'tipoconcepto':concept.tipoconcepto ,
+        'formula':concept.formula ,
+        'codigo':concept.codigo ,
+        'grupo_dian':concept.grupo_dian.ne_id ,
+        
+        }
+    
+    form = PayrollConceptsForm(initial = data ,id_empresa=idempresa)
+    
+    return render(request, './payroll/partials/conceptsmodaledit.html',{'form':form})
 
 
 @login_required

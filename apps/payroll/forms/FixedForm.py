@@ -3,6 +3,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from apps.common.models import Empresa, Contratos, Conceptosdenomina
 from django.urls import reverse
+from django.utils.safestring import mark_safe
+
+
 TIPO_CHOICES = (
     ('', '-------------'),
     ('1', 'Mensual'),
@@ -19,7 +22,6 @@ TIPO_CHOICES = (
 )
 
 ESTADO_CHOICES = (
-    ('', '-------------'),
     (True, 'Activo'),
     (False, 'Cerrado'),
 )
@@ -45,11 +47,13 @@ class FixidForm(forms.Form):
 
     descrip = forms.CharField(
         label='Descripción',
-        widget=forms.Textarea(attrs={
+        required=False,
+        widget=forms.TextInput(attrs={
             'placeholder': 'Escribe una descripción detallada...',
-            'rows': 3,
+            #'rows': 3,
+            'maxlength':"35",
             'class': 'form-control',  # Bootstrap o compatible
-            'style': 'resize: none; height: 100px; max-width: 600px;'  # ancho fino y redimensionable verticalmente
+            #'style': 'resize: none; height: 100px; max-width: 600px;'  # ancho fino y redimensionable verticalmente
         })
     )
 
@@ -65,36 +69,24 @@ class FixidForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 
-    pago = forms.ChoiceField(
-        label='tipo pago',
-        choices=PAGO_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
-
-    dia = forms.IntegerField(
-        label='Día pago',
-        min_value=1,
-        max_value=31,
-        widget=forms.NumberInput(attrs={'placeholder': '1 al 31'})
-    )
 
     fecha = forms.DateField(
         label='Fecha fin',
+        required=False,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
 
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
-        form_id = kwargs.pop('form_id', 'form_payroll_concept')
-        # Obtener la variable externa pasada al formulario
-        dropdown_parent = kwargs.pop('dropdown_parent', '#kt_modal_concept')
-        select2_ids = kwargs.pop('select2_ids', {})
-
-
+        
         super().__init__(*args, **kwargs)
+        
+        self.fields['descrip'].help_text = mark_safe(
+            '<span class="fs-6 text-muted"> Máximo 35 caracteres. Describe brevemente la situación. </span> '
+        )
 
         self.fields['idconcepto'].choices = [('', '-------------')] + [(concepto.idconcepto, f"{concepto.nombreconcepto}") for concepto in Conceptosdenomina.objects.all()]
-        self.fields['idcontrato'].choices = [('', '-------------')] + [(contra.idcontrato, f"{contra.idempleado.papellido } {contra.idempleado.sapellido } {contra.idempleado.pnombre } -- {contra.idcontrato} ") for contra in Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa) .order_by('idempleado__papellido')]
+        self.fields['idcontrato'].choices = [('', '-------------')] + [(contra.idcontrato, f"{contra.idempleado.papellido } {contra.idempleado.sapellido } {contra.idempleado.pnombre } -- {contra.cargo.nombrecargo } -- Contrato #{contra.idcontrato} ") for contra in Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa) .order_by('idempleado__papellido')]
         
 
         self.helper = FormHelper()
@@ -114,7 +106,6 @@ class FixidForm(forms.Form):
 
 
         for field_name in ['idconcepto', 'idcontrato']:
-            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
@@ -122,8 +113,7 @@ class FixidForm(forms.Form):
                 })
 
 
-        for field_name in ['estado', 'pago']:
-            field_id = select2_ids.get(field_name, f'{field_name}_{dropdown_parent.strip("#")}')
+        for field_name in ['estado']:
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
@@ -141,15 +131,13 @@ class FixidForm(forms.Form):
             
             Row(
                 Column('idconcepto', css_class='form-group  col-md-6 mb-0'),
-                Column('valor', css_class='form-group  col-md-3 mb-0'),
-                Column('estado', css_class='form-group  col-md-3 mb-0'),
+                Column('valor', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
 
             Row(
-                Column('pago', css_class='form-group  col-md-4 mb-0'),
-                Column('dia', css_class='form-group  col-md-4 mb-0'),
-                Column('fecha', css_class='form-group  col-md-4 mb-0'),
+                Column('estado', css_class='form-group  col-md-6 mb-0'),
+                Column('fecha', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
             Row(
