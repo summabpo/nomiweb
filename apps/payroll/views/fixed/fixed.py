@@ -11,7 +11,7 @@ from django.urls import reverse
 def fixed(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    novfijos = NovFijos.objects.filter(idcontrato__id_empresa = idempresa)
+    novfijos = NovFijos.objects.filter(idcontrato__id_empresa = idempresa).order_by('-idnovfija')
     return render(request, './payroll/fixedconcepts.html',{'novfijos': novfijos})
     
 
@@ -32,8 +32,6 @@ def fixed_modal(request):
             descrip = form.cleaned_data['descrip']
             idconcepto = form.cleaned_data['idconcepto']
             estado = form.cleaned_data['estado']
-            pago = form.cleaned_data['pago']
-            dia = form.cleaned_data['dia']
             fecha = form.cleaned_data['fecha']
 
             concepto = Conceptosdenomina.objects.get(idconcepto = idconcepto  )
@@ -44,8 +42,6 @@ def fixed_modal(request):
                 valor = valor , 
                 idcontrato = contrato ,   #fk principal 
                 estado_novfija = estado,
-                pago = pago ,
-                diapago = dia ,
                 descripcion = descrip ,
                 fechafinnovedad = fecha ,
 

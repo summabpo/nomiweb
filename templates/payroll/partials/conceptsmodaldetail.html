@@ -1,0 +1,74 @@
+{% load crispy_forms_tags %}
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content1"  id="modal-content1">
+    <div class="modal-header">
+        <h3 class="modal-title">Detalle de Concepto</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+
+            <table class="table table-bordered table-striped">
+                <tbody>
+                    <tr>
+                        <th>Nombre</th>
+                        <td>{{ concept.nombreconcepto }}</td>
+                    </tr>
+                    <tr>
+                        <th>Código</th>
+                        <td>{{ concept.codigo }}</td>
+                    </tr>
+                    <tr>
+                        <th>Multiplicador</th>
+                        <td>{{ concept.multiplicadorconcepto }}</td>
+                    </tr>
+                    <tr>
+                        <th>Tipo de Concepto</th>
+                        <td>{{ concept.get_tipoconcepto_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fórmula</th>
+                        <td>{{ concept.formula|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Cuenta Contable</th>
+                        <td>{{ concept.cuentacontable|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Grupo DIAN</th>
+                        <td>{{ concept.grupo_dian.campo|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Indicadores</th>
+                        <td>
+                            {% if concept.indicador.all %}
+                                <ul>
+                                    {% for i in concept.indicador.all %}
+                                        <li>{{ i }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                — 
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+</div>
+
+
+
+

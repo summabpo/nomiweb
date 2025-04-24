@@ -67,6 +67,7 @@ urlpatterns += urlhtmxpatterns
 
 
 urlunpolypatterns =[
+    
     path('payroll/<int:id>/<int:idnomina>/modals/add', payroll.payroll_modal, name='payroll_modal'),
     path('payroll/modals/edit', payroll.payroll_edit, name='payroll_edit'),
     path('payroll/form/modals/create', payroll.payroll_create, name='payroll_create'),
@@ -79,6 +80,9 @@ urlunpolypatterns =[
     path('payroll/<int:idnomina>/payroll_general', payroll.payroll_general, name='payroll_general'),
     path('payroll/<int:idnomina>/payroll_general/data', payroll.payroll_general_data, name='payroll_general_data'),
         
+    
+    path('parameters/concepts/detail/modal/<int:id>', parameters.concepts_detail, name='concepts_detail'),
+    path('parameters/concepts/edit/modal/<int:id>', parameters.concepts_edit, name='concepts_edit'),
     
     ## sitemas automaticos 
     

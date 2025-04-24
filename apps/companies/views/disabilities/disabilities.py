@@ -90,10 +90,7 @@ def disabilities_modal(request):
       extension = form.cleaned_data['extension'] #Convierte a string y usa '0' como valor predeterminado
       prorroga = extension == '1'  #Devuelve True si extension es '1'
       pdf_file = form.cleaned_data['pdf_file']
-      
-      
-      print(prorroga)
-      
+            
       entidad = Entidadessegsocial.objects.get(codigo = entity)
       dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
       
@@ -117,11 +114,11 @@ def disabilities_modal(request):
 
       # Guardar en la base de datos
       Incapacidades.objects.create(
-        entidad = entidad , # enlace segsocial
+        entidad = entidad , #enlace segsocial
         coddiagnostico = dianostico ,
         fechainicial = initial_date ,
         dias = incapacity_days,
-        imagenincapacidad = new_filename if new_filename else "" ,  # cambiar tipo enlace 
+        imagenincapacidad = new_filename if new_filename else "" ,  #cambiar tipo enlace 
         certificadoincapacidad = pdf_file if pdf_file else "", 
         idcontrato_id  = contract ,  
         prorroga = prorroga ,
