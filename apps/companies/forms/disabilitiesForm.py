@@ -8,7 +8,7 @@ from django.urls import reverse
 import os
 from django.core.cache import cache
 from django.db import models
-
+from dateutil.relativedelta import relativedelta
 
 
 def get_diagnostico_choices():
@@ -39,6 +39,7 @@ def validate_pdf_file(value):
 class DisabilitiesForm(forms.Form):
     
     def clean(self):
+        incapa = []
         # Llama primero al clean() del padre para asegurar que los datos del formulario
         # hayan sido limpiados (convertidos al tipo correcto, etc.)
         cleaned_data = super().clean()
@@ -58,15 +59,25 @@ class DisabilitiesForm(forms.Form):
             # Convertir dias a entero si es necesario
             fechafinal = fechainicial + timedelta(days=int(dias))
 
+             # Ampliar el rango de búsqueda a un mes antes y un mes después
+            fecha_inicio_busqueda = fechainicial - relativedelta(months=1)
+            fecha_fin_busqueda = fechainicial + relativedelta(months=1)
+
             overlapping = Incapacidades.objects.filter(
                 idcontrato=contrato,
-                fechainicial__lt=fechafinal,
-                fechainicial__gte=fechainicial
+                fechainicial__gte=fecha_inicio_busqueda,
+                fechainicial__lte=fecha_fin_busqueda
             )
 
-            if overlapping.exists():
-                self.add_error('initial_date', 'Ya existe una incapacidad en ese rango de fechas para este contrato.')
-                
+            
+            for data in overlapping:
+                data_fechafinal = data.fechainicial + timedelta(days=int(data.dias))
+
+                # Aquí validamos si hay cruce real de fechas
+                if fechainicial <= data_fechafinal and fechafinal >= data.fechainicial:
+                    self.add_error('initial_date', 'Ya existe una incapacidad que se cruza con este nuevo rango de fechas.')
+                    break  # Ya con una sola basta para mostrar el error
+                            
 
         return cleaned_data
     
