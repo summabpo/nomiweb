@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Crearnomina , Contratos, EditHistory ,Incapacidades, Conceptosfijos ,Costos,Salariominimoanual, Crearnomina ,EmpVacaciones,Prestamos ,Conceptosdenomina , Empresa , Vacaciones , Nomina , Contratos
+from apps.common.models import Crearnomina , Contratos,NovFijos , EditHistory ,Incapacidades, Conceptosfijos ,Costos,Salariominimoanual, Crearnomina ,EmpVacaciones,Prestamos ,Conceptosdenomina , Empresa , Vacaciones , Nomina , Contratos
 from django.contrib import messages
 from django.db import transaction, models
 from datetime import datetime
@@ -116,13 +116,19 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
         
         calculo_prestamo(contrato, idn)
         
+        calculo_novfija(contrato, idn)
+        
         if contrato.tiposalario_id == 2:
             codigo_aux = '4'
         elif contrato.tipocontrato_id in [5, 6]:
             codigo_aux = '34'
         else:
             codigo_aux = '1'
+            
+            
         concepto = Conceptosdenomina.objects.get(codigo=codigo_aux, id_empresa_id = idempresa)
+        
+        
         if diasnomina > 0:
             if diasnomina > 30:
                 diasnomina = 30
@@ -658,8 +664,7 @@ def calculo_prestamo(contrato, idn):
                 
         else:
             valor = load.valorprestamo / load.cuotasprestamo
-            
-            
+
             Nomina.objects.create(
                 idconcepto = conceptosdenomina ,
                 cantidad = 1,
@@ -670,4 +675,37 @@ def calculo_prestamo(contrato, idn):
             )
     
     
+def calculo_novfija(contrato, idn):
+    nomina = Crearnomina.objects.get(pk =  idn)
     
+    novs = NovFijos.objects.filter( idcontrato = contrato , estado_novfija = True ).order_by('-idnovfija')
+        
+    for nov in novs:
+        nomictual = Nomina.objects.filter(idnomina=idn , idconcepto=nov.idconcepto ,control=nov.idnovfija).exists()
+
+        if nov.fechafinnovedad :
+            if nov.fechafinnovedad >= nomina.fechainicial  and nov.fechafinnovedad <= nomina.fechafinal : 
+                if not nomictual : 
+                    
+                    Nomina.objects.create(
+                        idconcepto = nov.idconcepto ,
+                        cantidad = 0,
+                        valor = nov.valor,
+                        idcontrato = contrato,
+                        idnomina_id = idn,
+                        control = nov.idnovfija
+                    )
+                    
+                        
+                else:
+                    
+                    Nomina.objects.create(
+                        idconcepto = nov.idconcepto ,
+                        cantidad = 1,
+                        valor = nov.valor,
+                        idcontrato = contrato,
+                        idnomina_id = idn,
+                        control = nov.idnovfija 
+                    )
+            
+        
