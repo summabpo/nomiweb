@@ -1,0 +1,65 @@
+{% load humanize %}
+<!-- Bootstrap-styled modal -->
+<div class="modal-content1"  id="modal-content1">
+    <div class="modal-header">
+        <h3 class="modal-title">Detalle de Concepto</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+
+            <table class="table table-bordered table-striped">
+                <tbody>
+                    <tr>
+                        <th>Entidad</th>
+                        <td>{{ incapacidad.entidad.entidad|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Diagnóstico</th>
+                        <td>{{ incapacidad.coddiagnostico.coddiagnostico|default:"—" }} - {{ incapacidad.coddiagnostico.diagnostico|default:"—" }}</td>
+                    </tr>
+                    
+                    <tr>
+                        <th>Fecha Inicial</th>
+                        <td>{{ incapacidad.fechainicial|date:"Y-m-d"|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Días</th>
+                        <td>{{ incapacidad.dias|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Contrato</th>
+                        <td>Contrato #{{ incapacidad.idcontrato.idcontrato|default:"—" }} -  {{ incapacidad.idcontrato.cargo.nombrecargo|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>¿Prórroga?</th>
+                        <td>{{ incapacidad.prorroga|yesno:"Sí,No" }}</td>
+                    </tr>
+                    <tr>
+                        <th>IBC</th>
+                        <td>${{ incapacidad.ibc|default:"—"|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <th>Origen</th>
+                        <td>{{ incapacidad.origenincap|default:"—" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+</div>
+
+
+
+

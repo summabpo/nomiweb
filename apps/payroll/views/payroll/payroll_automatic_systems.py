@@ -675,37 +675,37 @@ def calculo_prestamo(contrato, idn):
             )
     
     
-def calculo_novfija(contrato, idn):
-    nomina = Crearnomina.objects.get(pk =  idn)
     
-    novs = NovFijos.objects.filter( idcontrato = contrato , estado_novfija = True ).order_by('-idnovfija')
-        
-    for nov in novs:
-        nomictual = Nomina.objects.filter(idnomina=idn , idconcepto=nov.idconcepto ,control=nov.idnovfija).exists()
+def calculo_novfija(contrato, idn):
+    nomina = Crearnomina.objects.get(pk=idn)
+    novs = NovFijos.objects.filter(idcontrato=contrato, estado_novfija=True).order_by('-idnovfija')
 
-        if nov.fechafinnovedad :
-            if nov.fechafinnovedad >= nomina.fechainicial  and nov.fechafinnovedad <= nomina.fechafinal : 
-                if not nomictual : 
-                    
-                    Nomina.objects.create(
-                        idconcepto = nov.idconcepto ,
-                        cantidad = 0,
-                        valor = nov.valor,
-                        idcontrato = contrato,
-                        idnomina_id = idn,
-                        control = nov.idnovfija
-                    )
-                    
-                        
-                else:
-                    
-                    Nomina.objects.create(
-                        idconcepto = nov.idconcepto ,
-                        cantidad = 1,
-                        valor = nov.valor,
-                        idcontrato = contrato,
-                        idnomina_id = idn,
-                        control = nov.idnovfija 
-                    )
-            
-        
+    for nov in novs:
+        if Nomina.objects.filter(idnomina=idn, idconcepto=nov.idconcepto, control=nov.idnovfija).exists():
+            continue  # Ya existe, saltar
+
+        cantidad = 1  # Valor por defecto
+        crear = False
+
+        if nov.fechafinnovedad:
+            if nomina.fechainicial <= nov.fechafinnovedad <= nomina.fechafinal:
+                cantidad = 0
+                crear = True
+            else:
+                crear = True
+                nov.estado_novfija = False
+                nov.save()
+        else:
+            crear = True
+            nov.estado_novfija = False
+            nov.save()
+
+        if crear:
+            Nomina.objects.create(
+                idconcepto=nov.idconcepto,
+                cantidad=cantidad,
+                valor=nov.valor,
+                idcontrato=contrato,
+                idnomina_id=idn,
+                control=nov.idnovfija
+            )

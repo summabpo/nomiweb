@@ -215,6 +215,14 @@ def disabilities_modal_edit(request , id ):
 
 
 
+@login_required
+@role_required('company','accountant')
+def disabilities_modal_detail(request , id ):
+  incapacidad = get_object_or_404(Incapacidades, pk=id)
+  
+  return render (request, './companies/partials/create_disabilities_modal_detail.html',{'incapacidad':incapacidad}) 
+  
+
 
 
 global_id = None 
