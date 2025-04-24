@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load humanize %}
 {% block navbar %}
     {% include 'base/navbar_payroll.html' %}               
 {% endblock %}
@@ -109,7 +110,6 @@ tr.htmx-swapping td {
                 <th class="text-center">Concepto</th>
                 <th class="text-center">valor</th>
                 <th class="text-center">Fecha Fin </th>
-                <th class="text-center">pago</th>
                 <th class="text-center">descripcion</th>
             </tr>
         </thead>
@@ -119,9 +119,8 @@ tr.htmx-swapping td {
                     <td class="text-center align-middle">{{ novfijo.idcontrato.idempleado.pnombre }} {{ novfijo.idcontrato.idempleado.papellido }}</td>
                     <td class="text-center align-middle">{{ novfijo.idcontrato.idcontrato }}</td>
                     <td class="align-middle">{{ novfijo.idconcepto }}</td>
-                    <td class="text-center align-middle">{{ novfijo.valor}}</td>
-                    <td class="text-center align-middle">{{ novfijo.fechafinnovedad|date:'d-m-Y' }}</td>
-                    <td class="text-center align-middle">{{ novfijo.pago }}</td>
+                    <td class="text-center align-middle">{{ novfijo.valor|intcomma }}$</td>
+                    <td class="text-center align-middle">{{ novfijo.fechafinnovedad|date:'d-m-Y'|default:"—" }}</td>
                     <td class="text-center align-middle">{{ novfijo.descripcion }}</td>
                 </tr>
             {% endfor %}

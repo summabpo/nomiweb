@@ -11,7 +11,7 @@ from django.urls import reverse
 def fixed(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    novfijos = NovFijos.objects.filter(idcontrato__id_empresa = idempresa)
+    novfijos = NovFijos.objects.filter(idcontrato__id_empresa = idempresa).order_by('-idnovfija')
     return render(request, './payroll/fixedconcepts.html',{'novfijos': novfijos})
     
 
