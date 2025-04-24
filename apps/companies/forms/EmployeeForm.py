@@ -20,86 +20,10 @@ class EmployeeForm(forms.Form):
         label='Peso (Kg)'
     )
     
-    def clean(self):
-        cleaned_data = super().clean()
-        first_name = cleaned_data.get('first_name')
-        second_name = cleaned_data.get('second_name')
-        first_last_name = cleaned_data.get('first_last_name')
-        second_last_name = cleaned_data.get('second_last_name')
-        height = cleaned_data.get('height')
-        weight = cleaned_data.get('weight')
-        identification_number = cleaned_data.get('identification_number')
-        military_id = cleaned_data.get('military_id')
-        cell_phone = cleaned_data.get('cell_phone')
-        employee_phone = cleaned_data.get('employee_phone')
-
-        mail = cleaned_data.get('email')
-        
-        if mail:
-            
-            valid = Contratosemp.objects.filter(email=mail).exists()
-            if valid:
-                self.add_error('email', "Este correo electrónico ya está en uso.")
-            
-            if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', mail):
-                self.add_error('email', "Por favor, introduzca un correo electrónico válido.")
-            elif len(mail) > 100:
-                self.add_error('email', "El correo electrónico no puede tener más de 100 caracteres.")
-            elif len(mail) < 5:
-                self.add_error('email', "El correo electrónico no puede tener menos de 5 caracteres.")
-        
-        if first_name:
-            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_name):
-                self.add_error('first_name', "El nombre solo puede contener letras.")
-            else:
-                cleaned_data['first_name'] = first_name.upper()
-
-        if second_name:
-            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$', second_name):
-                self.add_error('second_name', "El segundo nombre solo puede contener letras.")
-            else:
-                cleaned_data['second_name'] = second_name.upper()
-
-        if first_last_name:
-            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_last_name):
-                self.add_error('first_last_name', "El primer apellido solo puede contener letras.")
-            else:
-                cleaned_data['first_last_name'] = first_last_name.upper()
-
-        if second_last_name:
-            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$', second_last_name):
-                self.add_error('second_last_name', "El segundo apellido solo puede contener letras.")
-            else:
-                cleaned_data['second_last_name'] = second_last_name.upper()
-
-        # Validación para height y weight si tienen contenido
-        if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
-            self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
-        if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
-            self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
-
-        if identification_number :
-            valid = Contratosemp.objects.filter(docidentidad=identification_number).exists()
-            
-            if valid:
-                self.add_error('identification_number', "Este documento de identidad ya está en uso.")
-                
-            if identification_number and not re.match(r'^\d+$', str(identification_number)):
-                self.add_error('identification_number', "Este campo debe contener solo números.")
-            
-            
-        if military_id and not re.match(r'^\d+$', military_id):
-            self.add_error('military_id', "Este campo debe contener solo números.")
-        if cell_phone and not re.match(r'^\d+$', cell_phone):
-            self.add_error('cell_phone', "Este campo debe contener solo números.")
-        if employee_phone and not re.match(r'^\d+$', employee_phone):
-            self.add_error('employee_phone', "Este campo debe contener solo números.")
-
-        return cleaned_data
-                
-    
                     
     def __init__(self, *args, **kwargs):
+        self.idempresa = kwargs.pop('idempresa', None)
+        
         super(EmployeeForm, self).__init__(*args, **kwargs)
         
         self.fields['identification_type'] = forms.ChoiceField(
@@ -399,3 +323,86 @@ class EmployeeForm(forms.Form):
                 css_class='row'
             ),
         )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        # Ahora puedes usar self.idempresa aquí
+        idempresa = self.idempresa
+        
+        
+        first_name = cleaned_data.get('first_name')
+        second_name = cleaned_data.get('second_name')
+        first_last_name = cleaned_data.get('first_last_name')
+        second_last_name = cleaned_data.get('second_last_name')
+        height = cleaned_data.get('height')
+        weight = cleaned_data.get('weight')
+        identification_number = cleaned_data.get('identification_number')
+        military_id = cleaned_data.get('military_id')
+        cell_phone = cleaned_data.get('cell_phone')
+        employee_phone = cleaned_data.get('employee_phone')
+
+        mail = cleaned_data.get('email')
+        
+        if mail:
+            
+            valid = Contratosemp.objects.filter(email=mail).exists()
+            if valid:
+                self.add_error('email', "Este correo electrónico ya está en uso.")
+            
+            if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', mail):
+                self.add_error('email', "Por favor, introduzca un correo electrónico válido.")
+            elif len(mail) > 100:
+                self.add_error('email', "El correo electrónico no puede tener más de 100 caracteres.")
+            elif len(mail) < 5:
+                self.add_error('email', "El correo electrónico no puede tener menos de 5 caracteres.")
+        
+        if first_name:
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_name):
+                self.add_error('first_name', "El nombre solo puede contener letras.")
+            else:
+                cleaned_data['first_name'] = first_name.upper()
+
+        if second_name:
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$', second_name):
+                self.add_error('second_name', "El segundo nombre solo puede contener letras.")
+            else:
+                cleaned_data['second_name'] = second_name.upper()
+
+        if first_last_name:
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$', first_last_name):
+                self.add_error('first_last_name', "El primer apellido solo puede contener letras.")
+            else:
+                cleaned_data['first_last_name'] = first_last_name.upper()
+
+        if second_last_name:
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$', second_last_name):
+                self.add_error('second_last_name', "El segundo apellido solo puede contener letras.")
+            else:
+                cleaned_data['second_last_name'] = second_last_name.upper()
+
+        # Validación para height y weight si tienen contenido
+        if height is not None and not re.match(r'^\d+(\.)?\d*$', str(height)):
+            self.add_error('height', "Por favor, introduzca una altura válida. Debe usar punto decimal.")
+        if weight is not None and not re.match(r'^\d+(\.)?\d*$', str(weight)):
+            self.add_error('weight', "Por favor, introduzca un peso válido. Debe usar punto decimal.")
+
+        if identification_number :
+            valid = Contratosemp.objects.filter(docidentidad=identification_number ,id_empresa_id = idempresa ).exists()
+            
+            if valid:
+                self.add_error('identification_number', "Este documento de identidad ya está en uso.")
+                
+            if identification_number and not re.match(r'^\d+$', str(identification_number)):
+                self.add_error('identification_number', "Este campo debe contener solo números.")
+            
+            
+        if military_id and not re.match(r'^\d+$', military_id):
+            self.add_error('military_id', "Este campo debe contener solo números.")
+        if cell_phone and not re.match(r'^\d+$', cell_phone):
+            self.add_error('cell_phone', "Este campo debe contener solo números.")
+        if employee_phone and not re.match(r'^\d+$', employee_phone):
+            self.add_error('employee_phone', "Este campo debe contener solo números.")
+
+        return cleaned_data
+                
+    

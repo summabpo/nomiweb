@@ -42,7 +42,7 @@ def hiring_employee(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':
-        form_empleados = EmployeeForm(request.POST)
+        form_empleados = EmployeeForm(request.POST,idempresa = idempresa)
         
         if form_empleados.is_valid():
             tipodocumento = Tipodocumento.objects.get(codigo = form_empleados.cleaned_data['identification_type'] )
@@ -124,7 +124,7 @@ def hiring_employee(request):
                 for error in errors:
                     print(request, f"Error en {field}: {error}")
     else:
-        form_empleados = EmployeeForm()
+        form_empleados = EmployeeForm(idempresa = idempresa)
     
     return render(request, './companies/partials/employeeModal.html',{'form_empleados':form_empleados })
 
