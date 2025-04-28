@@ -3,11 +3,12 @@ from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from apps.common.models import Bancos ,Festivos , Entidadessegsocial,Conceptosfijos , Salariominimoanual , Conceptosdenomina , NeSumatorias , Empresa , Indicador
 from django.contrib import messages
-from .forms import BanksForm ,HolidaysForm , EntitiesForm ,FixedForm , AnnualForm , PayrollConceptsForm
+from .forms import BanksForm ,HolidaysForm , EntitiesForm ,FixedForm , AnnualForm , PayrollConceptsForm, PayrollConceptsForm2
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-
+import json
+from django.urls import reverse
 
 @login_required
 @role_required('company','admin','accountant')
@@ -267,9 +268,14 @@ def concepts_add(request):
             indicadores = Indicador.objects.filter(id__in=indicador_ids)
             concepto.indicador.add(*indicadores)  # Usamos .add() en lugar de .set()
             
-            #return JsonResponse({'status': 'success', 'message': 'Concepto guardado exitosamente'})
-            messages.success(request, "Concepto guardado exitosamente")
-            return redirect('apartment:apartment_home')
+            
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'Concepto guardado exitosamente'    
+            response['X-Up-Location'] = reverse('payroll:concepts')           
+            return response
+
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario
             for field, errors in form.errors.items():
@@ -304,10 +310,19 @@ def concepts_edit(request,id):
         'formula':concept.formula ,
         'codigo':concept.codigo ,
         'grupo_dian':concept.grupo_dian.ne_id ,
-        
+        'indicador': [i.id for i in concept.indicador.all()],
         }
     
-    form = PayrollConceptsForm(initial = data ,id_empresa=idempresa)
+    form = PayrollConceptsForm2(initial = data ,id_empresa=idempresa)
+    
+    
+    if request.method == 'POST':
+        form = PayrollConceptsForm2(request.POST,id_empresa=idempresa)
+        if form.is_valid():
+            print('-----------')
+            print(request.POST)
+            print('-----------')
+            
     
     return render(request, './payroll/partials/conceptsmodaledit.html',{'form':form})
 
@@ -329,3 +344,6 @@ def check_code(request):
 
     print('Código disponible:', codigo)
     return JsonResponse({"valid": True, "message": "Código disponible"})
+
+
+

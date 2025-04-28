@@ -74,7 +74,7 @@ def exportar_excel1(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     excel_data = generate_contract_excel(idempresa)
-    file_name = f"contratos_activos.xlsx"
+    file_name = f"contratos_activos_todos_los_campos.xlsx"
     
     # Crear la respuesta con el archivo Excel
     response = HttpResponse(excel_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -119,7 +119,8 @@ def exportar_excel2(request):
 
     # Escribir los datos
     for contrato in contratosemp_empleados:
-        nombre_empleado = f"{contrato[2]} {contrato[3]} {contrato[4]} {contrato[5]}"
+        nombre_empleado = f"{contrato[2] or ''} {contrato[3] or ''} {contrato[4] or ''} {contrato[5] or ''}"
+
         
         # Convertir y formatear las fechas
         fechanac = contrato[6]

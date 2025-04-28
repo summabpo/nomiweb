@@ -54,7 +54,7 @@ urlpatterns = [
 urlhtmxpatterns =[
     
     
-    path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
+    #path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
     path('parameters/concepts/check/code', parameters.check_code, name='check_code'),
     
     
@@ -94,6 +94,7 @@ urlunpolypatterns =[
     
     # fixed concepts 
     path('fixed/modal', fixed.fixed_modal, name='fixed_modal'),
+    path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
 
     ### pruebas 
     path('payroll/modal/pruebas', pruebas.prueba, name='prueba'),

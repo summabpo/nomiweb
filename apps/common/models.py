@@ -516,7 +516,7 @@ class EditHistory(models.Model):
         
 class Contratosemp(models.Model):
     idempleado = models.AutoField(primary_key=True)
-    docidentidad = models.BigIntegerField(unique=True)
+    docidentidad = models.BigIntegerField()
     tipodocident = models.ForeignKey(Tipodocumento, on_delete=models.DO_NOTHING)
 
     # Nombres y apellidos

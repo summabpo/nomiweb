@@ -13,6 +13,8 @@ import random
 import string
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.urls import reverse
 
 
 def generate_random_password(length=12):
@@ -41,8 +43,10 @@ def hiring(request):
 def hiring_employee(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
+    form_empleados = EmployeeForm(idempresa = idempresa)
+    
     if request.method == 'POST':
-        form_empleados = EmployeeForm(request.POST)
+        form_empleados = EmployeeForm(request.POST,idempresa = idempresa)
         
         if form_empleados.is_valid():
             tipodocumento = Tipodocumento.objects.get(codigo = form_empleados.cleaned_data['identification_type'] )
@@ -117,14 +121,17 @@ def hiring_employee(request):
                 id_empresa = empresa 
             )
             contratosemp_instance.save()
-            return JsonResponse({'status': 'success', 'message': 'Empleado creado exitosamente'})
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'La Hoja de vida fue registrada correctamente'    
+            response['X-Up-Location'] = reverse('companies:hiring')           
+            return response
         else :
             #En caso de que el formulario no sea válido, mostrar los errores del formulario
             for field, errors in form_empleados.errors.items():
                 for error in errors:
                     print(request, f"Error en {field}: {error}")
-    else:
-        form_empleados = EmployeeForm()
     
     return render(request, './companies/partials/employeeModal.html',{'form_empleados':form_empleados })
 
@@ -137,6 +144,8 @@ def hiring_contract(request,idempleado):
     if request.method == 'POST':
         form_contratos = ContractForm(request.POST,idempresa=idempresa ,empleado_actual = idempleado )
         if form_contratos.is_valid():
+            
+            print('llege aqui ')
             empresa = Empresa.objects.get(idempresa = idempresa )
             cargos = get_or_none(Cargos, idcargo=form_contratos.cleaned_data['position'])
             tipocontrato = get_or_none(Tipocontrato, idtipocontrato=form_contratos.cleaned_data['contractType'])
@@ -156,6 +165,10 @@ def hiring_contract(request,idempleado):
             cjc = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['CesanFund'])
             modelo = get_or_none(ModelosContratos, idmodelo=form_contratos.cleaned_data['contractModel'])
             
+            salario = form_contratos.cleaned_data['salary']
+            
+            salario=int(salario.replace(',', ''))
+            
             contratos_instance = Contratos(
                     #* desde aqui 
                     cargo = cargos , 
@@ -169,7 +182,7 @@ def hiring_contract(request,idempleado):
                     centrotrabajo = centrotrabajo , 
                     ciudadcontratacion = ciudades , 
                     estadocontrato = 1 , 
-                    salario = form_contratos.cleaned_data['salary'], 
+                    salario = salario, 
                     idempleado = empleado ,
                     tipocotizante =  tiposdecotizantes ,
                     subtipocotizante =  subtipocotizantes ,
@@ -202,12 +215,18 @@ def hiring_contract(request,idempleado):
             contratos_instance.save()
             empleado.estadocontrato = 1
             empleado.save()
-            return JsonResponse({'status': 'success','type': 'contract' ,'message': 'Contrato creado exitosamente'})
+            
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'El Contrato fue creado exitosamente'    
+            response['X-Up-Location'] = reverse('companies:hiring')           
+            return response
+        
         else:
             for field, errors in form_contratos.errors.items():
                 for error in errors:
                     print(f'{error} - {field} ' )
-                    messages.error(request, f'{error}')
     else:
         form_contratos = ContractForm(idempresa=idempresa ,empleado_actual = idempleado )
     return render(request, './companies/partials/contractModal.html',{'form_contratos':form_contratos })
