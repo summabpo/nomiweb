@@ -399,32 +399,38 @@ class PayrollConceptsForm(forms.Form):
 class PayrollConceptsForm2(forms.Form):
     nombreconcepto = forms.CharField(
         label='Nombre del Concepto',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre del concepto'})
+        required=False ,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el nombre del concepto','disabled': 'disabled' })
     )
     multiplicadorconcepto = forms.DecimalField(
         label='Multiplicador',
         max_digits=4,
         decimal_places=2,
+        required=False ,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el multiplicador'})
     )
     
     tipoconcepto = forms.ChoiceField(
         label='Tipo de Concepto',
         choices=TIPE_CONCEPTS,
+        required=False ,
         widget=forms.Select(attrs={'class': 'form-control', 'placeholder': 'Ingrese el tipo de concepto'})
     )
     
     formula = forms.ChoiceField(
         label='¿El concepto tiene fórmula?',
         choices=TIPE_Formula,
+        required=False ,
         widget=forms.Select(attrs={'class': 'form-control', 'placeholder': 'Seleccione una opción'})
     )
         
     # TIPE_Formula
     codigo = forms.IntegerField(
         label='Código',
+        required=False ,
         widget=forms.NumberInput(attrs={'class': 'form-control', 
                                         'placeholder': 'Ingrese el código',
+                                        'disabled': 'disabled'
                                         })
 
     )
@@ -433,7 +439,7 @@ class PayrollConceptsForm2(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.id_empresa = kwargs.pop('id_empresa', None)
-        
+        id = kwargs.pop('id', None)
         super().__init__(*args, **kwargs)
         
         #self.fields['codigo'].validators.append(lambda value: validate_codigo_unique(value, self.id_empresa))
@@ -492,7 +498,7 @@ class PayrollConceptsForm2(forms.Form):
             'up-target': '#modal-content3',
             'up-mode': 'replace',
             'up-layer': 'current',  # Clave para resolver el error
-            'up-submit': reverse('payroll:concepts_add'),
+            'up-submit': reverse('payroll:concepts_edit',kwargs={'id': id}),
             'up-accept-location': reverse('payroll:concepts'),
             'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
         })

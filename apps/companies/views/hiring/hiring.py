@@ -144,8 +144,8 @@ def hiring_contract(request,idempleado):
     if request.method == 'POST':
         form_contratos = ContractForm(request.POST,idempresa=idempresa ,empleado_actual = idempleado )
         if form_contratos.is_valid():
-            
-            print('llege aqui ')
+
+
             empresa = Empresa.objects.get(idempresa = idempresa )
             cargos = get_or_none(Cargos, idcargo=form_contratos.cleaned_data['position'])
             tipocontrato = get_or_none(Tipocontrato, idtipocontrato=form_contratos.cleaned_data['contractType'])

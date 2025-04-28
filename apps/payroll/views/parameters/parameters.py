@@ -313,15 +313,52 @@ def concepts_edit(request,id):
         'indicador': [i.id for i in concept.indicador.all()],
         }
     
-    form = PayrollConceptsForm2(initial = data ,id_empresa=idempresa)
+    form = PayrollConceptsForm2(initial = data ,id_empresa=idempresa ,id = id)
     
     
     if request.method == 'POST':
-        form = PayrollConceptsForm2(request.POST,id_empresa=idempresa)
+        form = PayrollConceptsForm2(request.POST,id_empresa=idempresa,id = id)
         if form.is_valid():
-            print('-----------')
-            print(request.POST)
-            print('-----------')
+            
+            # Aquí puedes guardar los datos del formulario en la base de datos
+            multiplicadorconcepto = form.cleaned_data['multiplicadorconcepto']
+            tipoconcepto = form.cleaned_data['tipoconcepto']
+            formula = form.cleaned_data['formula']
+            indicadores_nuevos = form.cleaned_data['indicador']            # Obtener el objeto grupo_dian
+            grupo_dian_id = form.cleaned_data['grupo_dian']
+            grupo_dian = NeSumatorias.objects.filter(ne_id=grupo_dian_id).first() 
+
+
+            ##
+            if multiplicadorconcepto != concept.multiplicadorconcepto:
+                concept.multiplicadorconcepto = multiplicadorconcepto
+
+            if tipoconcepto != concept.tipoconcepto:
+                concept.tipoconcepto = tipoconcepto
+                
+            if formula != concept.formula:
+                concept.formula = formula
+                
+            if grupo_dian != concept.grupo_dian:
+                concept.grupo_dian = grupo_dian
+                
+                
+            if grupo_dian != concept.grupo_dian:
+                concept.grupo_dian = grupo_dian
+                
+            concept.save()  # IMPORTANTE: guardar primero el objeto antes de set()
+            concept.indicador.set(indicadores_nuevos)
+            
+            
+            ##
+            
+            
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'Concepto actualizado exitosamente'    
+            response['X-Up-Location'] = reverse('payroll:concepts')           
+            return response
             
     
     return render(request, './payroll/partials/conceptsmodaledit.html',{'form':form})
