@@ -86,18 +86,22 @@ tr.htmx-swapping td {
 
 {% block actions %}
 <!-- Button trigger modal -->
-    {% comment %} <button type="button"  class="btn btn-light-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_maintenance" >
-        <i class="fa-solid fa-square-plus fs-2"></i>Agregar Concepto
-    </button>   {% endcomment %}
 
-    <button type="button" class="btn btn-primary me-10" id="kt_button_1" hx-get="{% url 'payroll:concepts_add' %}" hx-target="#modal-container" hx-swap="innerHTML">
-        <span class="indicator-label">
-            Agregar Concepto
-        </span>
-        <span class="indicator-progress">
-            Por favor espera... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-        </span>
-    </button>
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content3"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        href="{% url 'payroll:concepts_add' %}">
+        <i class="fa-solid fa-plus"></i> Agregar Concepto
+    </a> 
     
 {% endblock %}
 
@@ -214,7 +218,49 @@ tr.htmx-swapping td {
 
 {% block js %}
 
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
 
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
 
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
