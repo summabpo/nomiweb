@@ -305,7 +305,6 @@ class PayrollConceptsForm(forms.Form):
             'data-control': 'select2',
             'data-hide-search': 'true' ,
             'class': 'form-select',
-            'data-dropdown-parent': '#conceptsModal',
             'data-placeholder':'seleccione un tipo de concepto',
         })
         
@@ -317,7 +316,6 @@ class PayrollConceptsForm(forms.Form):
                 'data-control': 'select2',
                 'class': 'form-select',
                 'data-allow-clear' : "true"  , 
-                'data-dropdown-parent': '#conceptsModal',
                 'data-placeholder':'seleccione un grupo DIAN',
             }), 
             required=False )
@@ -332,7 +330,7 @@ class PayrollConceptsForm(forms.Form):
                 'data-placeholder': 'Seleccione un Indicador',
                 'data-allow-clear': "true",
                 'multiple': "multiple",
-                'data-dropdown-parent': '#conceptsModal',
+
             })
         )
 

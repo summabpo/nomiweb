@@ -5,6 +5,17 @@ from django.http import HttpResponse
 from apps.common.models import Contratos
 from django.db.models import Sum
 
+
+FormaPago = (
+    ('', '----------'),
+    ('1', 'Abono a cuenta'),
+    ('2', 'Cheque'),
+    ('3', 'Efectivo'),
+    ('4', 'Transferencia electrónica'),
+)
+
+
+
 """ 
 original :
 'Documento', 'Nombre', 'Fecha Inicio Contrato', 'Cargo', 'Salario',
@@ -32,8 +43,8 @@ def generate_contract_excel(idempresa):
         'Centro de Costos', 'Tipo de Contrato', 'Tarifa ARL', 'Fecha Fin Contrato',
         'Tipo Nomina', 'Banco Cuenta', 'Cuenta Nomina', 'Tipo Cuenta Nomina', 'EPS', 'Pension',
         'Caja Compensacion', 'Ciudad Contratacion ', 
-        'Forma Pago', 'Tipo Salario', 'Modelo', 'Departamento',
-        'Ciudad']
+        'Forma Pago', 'Tipo Salario', 'Modelo', 'Departamento'
+        ,'ID Contrato']
     ws.append(headers)
 
     # Estilo para formato decimal
@@ -65,14 +76,16 @@ def generate_contract_excel(idempresa):
             'formapago', 
             'tiposalario__tiposalario', 
             'jornada', 
-            'idmodelo__tipocontrato',
+            'idmodelo__nombremodelo',
+            'idcontrato'
         )
 
     # Añadir datos a la hoja de cálculo
     for data in contratos_empleados:
+        forma_pago_dict = dict(FormaPago)
         row = [
             data.idempleado.docidentidad, #* 
-            f'{data.idempleado.papellido} {data.idempleado.pnombre} {data.idempleado.snombre }', #* 
+            f'{data.idempleado.papellido or ""} {data.idempleado.pnombre or ""} {data.idempleado.snombre or ""}',#* 
             data.fechainiciocontrato, # *
             data.cargo.nombrecargo, #* 
             data.salario, #*
@@ -88,10 +101,11 @@ def generate_contract_excel(idempresa):
             data.codafp.entidad  , #* 
             data.codccf.entidad  , #* 
             data.ciudadcontratacion.ciudad  , #* 
-            data.formapago  , #* 
+            forma_pago_dict.get(data.formapago, 'Valor no encontrado') , #* 
             data.tiposalario.tiposalario  , # *
             data.jornada  , # 
-            data.idmodelo.tipocontrato  , #* 
+            data.idmodelo.nombremodelo  , #* 
+            data.idcontrato 
         ]
         ws.append(row)
 
@@ -125,7 +139,7 @@ def generate_contract_start_excel(idempresa):
 
     # Encabezados del reporte
     headers = ['Documento', 'Nombre', 'Fecha Inicio Contrato', 'Cargo', 'Salario',
-        'Centro de Costos', 'Tipo de Contrato', 'Tarifa ARL']
+        'Centro de Costos', 'Tipo de Contrato', 'Tarifa ARL','ID Contrato']
     ws.append(headers)
 
     # Estilo para formato decimal
@@ -147,20 +161,22 @@ def generate_contract_start_excel(idempresa):
         'salario', 
         'idcosto__nomcosto',
         'tipocontrato__tipocontrato', 
-        'centrotrabajo__tarifaarl'
+        'centrotrabajo__tarifaarl',
+        'idcontrato'
     )
     # Añadir datos a la hoja de cálculo
     for data in contratos_empleados:
         
         row = [
             data.idempleado.docidentidad, 
-            f'{data.idempleado.papellido} {data.idempleado.pnombre} {data.idempleado.snombre }', 
+            f'{data.idempleado.papellido or ""} {data.idempleado.pnombre or ""} {data.idempleado.snombre or ""}', 
             data.fechainiciocontrato, 
             data.cargo.nombrecargo,  
             data.salario, 
             data.idcosto.nomcosto, 
             data.tipocontrato.tipocontrato,  
             data.centrotrabajo.tarifaarl  , 
+            data.idcontrato 
         ]
         ws.append(row)
 

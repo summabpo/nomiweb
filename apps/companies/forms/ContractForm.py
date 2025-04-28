@@ -23,7 +23,7 @@ from apps.common.models import (
 
 # Crispy Forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Submit, HTML
+from crispy_forms.layout import Layout, Div, Submit, HTML ,Row,Column
 
 
 
@@ -85,10 +85,8 @@ class ContractForm(forms.Form):
             label='Empleado' ,
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#contractModal",
             }), 
             required=False )
         
@@ -103,21 +101,17 @@ class ContractForm(forms.Form):
             label='Tipo de Nómina' ,
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#contractModal",
             }), 
-            required=False )
+            )
         
         self.fields['position'] = forms.ChoiceField(
             choices=[('', '----------')] + [(cargo.idcargo, cargo.nombrecargo) for cargo in Cargos.objects.filter(id_empresa__idempresa =  idempresa ).exclude(idcargo=93).order_by('nombrecargo') ], 
             label='Cargo', required=True ,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#contractModal",
                 }), 
             )
         
@@ -127,10 +121,8 @@ class ContractForm(forms.Form):
             required=True ,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
                 }),
             )
         
@@ -140,10 +132,8 @@ class ContractForm(forms.Form):
             required=True ,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
                 }),
             )
         
@@ -154,9 +144,7 @@ class ContractForm(forms.Form):
             required = True ,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
-                    'data-dropdown-parent':"#contractModal",
                 }),
             )
         
@@ -167,10 +155,9 @@ class ContractForm(forms.Form):
             label='Tipo de Contrato',
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),
             required=True)
         self.fields['contractModel'] = forms.ChoiceField(
@@ -178,21 +165,29 @@ class ContractForm(forms.Form):
             label='Modelo de Contrato',
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }))
-        self.fields['salary'] = forms.CharField(label='Salario', max_length=100, required=True)   
+        self.fields['salary'] = forms.CharField(
+                label='Salario', 
+                max_length=100, 
+                required=True,
+                widget=forms.TextInput(attrs={
+                    'class': 'form-control',
+                    'required': True,
+                    'x-mask:dynamic': "$money($input, '.', ',', 4)"
+                })
+            ) 
+    
         self.fields['salaryType'] = forms.ChoiceField(
             choices=[('', '----------')] + [(salario.idtiposalario, salario.tiposalario) for salario in Tiposalario.objects.all().order_by('tiposalario')], 
             label='Tipo Salario', 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),
             required=True ) 
         self.fields['salaryMode'] = forms.ChoiceField(
@@ -200,10 +195,9 @@ class ContractForm(forms.Form):
             choices=ModalidadSalario, 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),
             required=True)
         self.fields['livingPlace'] = forms.ChoiceField(
@@ -211,10 +205,9 @@ class ContractForm(forms.Form):
             choices=Cercania, 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }))
         
         self.fields['paymentMethod'] = forms.ChoiceField(
@@ -222,10 +215,10 @@ class ContractForm(forms.Form):
             choices=FormaPago, 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),
             required=False)
         self.fields['bankAccount'] = forms.ChoiceField(
@@ -233,19 +226,19 @@ class ContractForm(forms.Form):
             label='Banco de la Cuenta', 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
-                    'data-dropdown-parent':"#contractModal",
+
                 }), )
         self.fields['accountType'] = forms.ChoiceField(
             label='Tipo de Cuenta', 
             choices=TipoCcuenta, 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),
             required=False)                                     
         self.fields['payrollAccount'] = forms.CharField(label='Cuenta de Nómina', max_length=100, required=False)    
@@ -254,9 +247,9 @@ class ContractForm(forms.Form):
             label='Centro de Costos', 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),
             required=True)
         self.fields['subCostCenter'] = forms.ChoiceField(
@@ -264,9 +257,9 @@ class ContractForm(forms.Form):
             label='Sub centro de Costos', 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),
             required=False)
         self.fields['eps'] = forms.ChoiceField(
@@ -275,18 +268,18 @@ class ContractForm(forms.Form):
             required=True , 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),) 
         self.fields['pensionFund'] = forms.ChoiceField(
             choices=[('', '----------')] + [(entidad.identidad, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
             label='Pension', required=True , 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),) 
         self.fields['CesanFund'] = forms.ChoiceField(
             choices=[('', '----------')] + [(entidad.identidad, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='AFP').order_by('entidad')], 
@@ -294,19 +287,19 @@ class ContractForm(forms.Form):
             required=True , 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),) 
         self.fields['workPlace'] = forms.ChoiceField(
             choices=[('', '----------')] + [(sede.idsede, sede.nombresede) for sede in Sedes.objects.filter(id_empresa__idempresa =  idempresa ).exclude(codccf='0').order_by('nombresede')], 
             label='Sede de Trabajo',
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }), 
             required=True)
         self.fields['arlWorkCenter'] = forms.ChoiceField(
@@ -314,20 +307,38 @@ class ContractForm(forms.Form):
             label='Centro de Trabajo ARL', 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
-                    'data-tags': 'true',
+
                     'class': 'form-select',
                     'data-hide-search': 'true',
-                    'data-dropdown-parent':"#contractModal",
+
                 }),
             required=True)
         
         
+        
+        # self.helper = FormHelper()
+        # self.helper.form_method = 'post'
+        # self.helper.form_class = 'container'
+        # self.helper.form_id = 'form_Contract'
+        # self.helper.enctype = 'multipart/form-data'
         
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_class = 'container'
         self.helper.form_id = 'form_Contract'
         self.helper.enctype = 'multipart/form-data'
+
+        # Atributos específicos para Unpoly
+        self.helper.attrs.update({
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',
+            'up-submit': reverse('companies:hiring_contract', kwargs={'idempleado': empleado_actual}),
+            'up-accept-location': reverse('companies:hiring'),
+            'up-on-accepted': ""
+        })
+        
+        
         #self.helper.form_action = reverse('companies:hiring_contract' , kwargs={'idempleado': empleado_actual})
         #url = reverse('companies:hiring_contract', kwargs={'contract_id': empleado_id})
 
@@ -338,93 +349,94 @@ class ContractForm(forms.Form):
             'hx-swap': 'innerHTML',  # Cómo se actualizará el contenido del objetivo
         })
         self.helper.layout = Layout(
-            Div(
-                Div('name', css_class='col' ),
+            Row(
+                Column('name', css_class='form-group  col-md-12 mb-0'),
                 css_class='row'
             ),
+            
             HTML('<h3>Contrato</h3>'),
-            Div(
-                Div('contractType', css_class='col' ),
-                Div('payrollType', css_class='col'),
+            Row(
+                Column('contractType', css_class='form-group  col-md-6 mb-0'),
+                Column('payrollType', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
-            Div(
-                Div('position', css_class='col'),
-                Div('workLocation', css_class='col'),
+            Row(
+                Column('position', css_class='form-group  col-md-6 mb-0'),
+                Column('workLocation', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
-            Div(
-                Div('contractStartDate', css_class='col'),
-                Div('endDate', css_class='col'),
+            Row(
+                Column('contractStartDate', css_class='form-group  col-md-6 mb-0'),
+                Column('endDate', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
-            Div(
-                Div('contractModel', css_class='col'),
+            Row(
+                Column('contractModel', css_class='form-group  col-md-12 mb-0'),
                 css_class='row'
             ),
-
+            
             HTML('<h3>Compensación</h3>'),
             # compenasion 
-            Div(
-                Div('salary', css_class='col'),
-                Div('salaryType', css_class='col'),
+            
+            Row(
+                Column('salary', css_class='form-group  col-md-6 mb-0'),
+                Column('salaryType', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
             
-            Div(
-                Div('salaryMode', css_class='col'),
-                Div('livingPlace', css_class='col'),
+            Row(
+                Column('salaryMode', css_class='form-group  col-md-6 mb-0'),
+                Column('livingPlace', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
             
-            Div(
-                Div('paymentMethod', css_class='col'),
-                Div('bankAccount', css_class='col'),
+            Row(
+                Column('paymentMethod', css_class='form-group  col-md-6 mb-0'),
+                Column('bankAccount', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
             
-            Div(
-                Div('accountType', css_class='col'),
-                Div('payrollAccount', css_class='col'),
+            Row(
+                Column('accountType', css_class='form-group  col-md-6 mb-0'),
+                Column('payrollAccount', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
-            
-            Div(
-                Div('costCenter', css_class='col'),
-                Div('subCostCenter', css_class='col'),
+                        
+            Row(
+                Column('costCenter', css_class='form-group  col-md-6 mb-0'),
+                Column('subCostCenter', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
-            
+                    
             HTML('<h3>Seguridad Social</h3>'),
             
-            Div(
-                Div('eps', css_class='col'),
-                Div('pensionFund', css_class='col'),
+            Row(
+                Column('eps', css_class='form-group  col-md-6 mb-0'),
+                Column('pensionFund', css_class='form-group  col-md-6 mb-0'),
                 css_class='row'
             ),
             
+            Row(
+                Column('CesanFund', css_class='form-group  col-md-6 mb-0'),
+                Column('arlWorkCenter', css_class='form-group  col-md-6 mb-0'),
+                css_class='row'
+            ),            
             
-            Div(
-                Div('CesanFund', css_class='col'),
-                Div('arlWorkCenter', css_class='col'),
+            Row(
+                Column('workPlace', css_class='form-group  col-md-12 mb-0'),
                 css_class='row'
             ),
             
-            Div(
-                Div('workPlace', css_class='col'),
-                #Div('arlWorkCenter', css_class='col'),
+            Row(
+                Column('contributor', css_class='form-group  col-md-12 mb-0'),
                 css_class='row'
             ),
-            Div(
-                Div('contributor', css_class='col'),
-                #Div('arlWorkCenter', css_class='col'),
+            
+            Row(
+                Column('subContributor', css_class='form-group  col-md-12 mb-0'),
                 css_class='row'
             ),
-            Div(
-                Div('subContributor', css_class='col'),
-                #Div('arlWorkCenter', css_class='col'),
-                css_class='row'
-            ),
+            
         )
         
         

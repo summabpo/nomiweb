@@ -7,7 +7,7 @@ from .forms import BanksForm ,HolidaysForm , EntitiesForm ,FixedForm , AnnualFor
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-
+import json
 
 @login_required
 @role_required('company','admin','accountant')
@@ -304,7 +304,10 @@ def concepts_edit(request,id):
         'formula':concept.formula ,
         'codigo':concept.codigo ,
         'grupo_dian':concept.grupo_dian.ne_id ,
+        'indicador': json.dumps([{'value': skill.nombre} for skill in concept.indicador.all()]),
+
         
+
         }
     
     form = PayrollConceptsForm(initial = data ,id_empresa=idempresa)

@@ -1,7 +1,7 @@
 import re
 # Django
 from django import forms
-from apps.common.models import Tipodocumento , Contratosemp , Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Profesiones,Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
+from apps.common.models import Tipodocumento , Contratosemp,User , Cargos, Centrotrabajo,Paises , Tipodenomina , Ciudades , Profesiones,Tipocontrato , ModelosContratos ,Tiposalario , Bancos , Costos ,Subcostos , Entidadessegsocial
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit,HTML,Row,Column
 from django.urls import reverse
@@ -31,10 +31,9 @@ class EmployeeForm(forms.Form):
             label='Tipo de documento de identidad',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
 
@@ -49,9 +48,8 @@ class EmployeeForm(forms.Form):
             label='Ciudad de expedición',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
         self.fields['first_name'] = forms.CharField(label='Primer Nombre')
@@ -63,10 +61,9 @@ class EmployeeForm(forms.Form):
             label='Sexo',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
         
@@ -76,10 +73,9 @@ class EmployeeForm(forms.Form):
             label='Estado Civil',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
         
@@ -92,10 +88,9 @@ class EmployeeForm(forms.Form):
             label='Nivel Educativo',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             }),
             required=False
         )
@@ -104,9 +99,8 @@ class EmployeeForm(forms.Form):
             label='Ciudad de Nacimiento',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
         self.fields['stratum'] = forms.ChoiceField(
@@ -114,10 +108,9 @@ class EmployeeForm(forms.Form):
             label='Estrato',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             }),
             required=False
         )
@@ -126,9 +119,8 @@ class EmployeeForm(forms.Form):
             label='País de Nacimiento',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
         self.fields['military_id'] = forms.CharField(label='Libreta Militar', required=False)
@@ -138,10 +130,9 @@ class EmployeeForm(forms.Form):
             label='Grupo Sanguíneo',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             }),
             required=False
         )
@@ -151,9 +142,8 @@ class EmployeeForm(forms.Form):
             required=False,
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
         self.fields['residence_address'] = forms.CharField(label='Dirección de Residencia')
@@ -163,9 +153,8 @@ class EmployeeForm(forms.Form):
             label='Ciudad de Residencia',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
         self.fields['cell_phone'] = forms.CharField(label='Celular')
@@ -174,9 +163,8 @@ class EmployeeForm(forms.Form):
             label='País de residencia',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
-                'data-dropdown-parent':"#conceptsModal",
+    
             })
         )
         self.fields['employee_phone'] = forms.CharField(label='Teléfono del Empleado', required=False)
@@ -185,10 +173,9 @@ class EmployeeForm(forms.Form):
             label='Talla Pantalón',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             }),
             required=False
         )
@@ -197,10 +184,9 @@ class EmployeeForm(forms.Form):
             label='Talla Camisa',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             }),
             required=False
         )
@@ -209,49 +195,48 @@ class EmployeeForm(forms.Form):
             label='Talla Zapatos',
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-tags': 'true',
                 'class': 'form-select',
                 'data-hide-search': 'true',
-                'data-dropdown-parent':"#conceptsModal",
+    
             }),
             required=False
         )
-        
-        
-        
-        
+                
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.form_class = 'container'
         self.helper.form_id = 'form_Employee'
         self.helper.enctype = 'multipart/form-data'
-        
+
+        # Atributos específicos para Unpoly
         self.helper.attrs.update({
-            'hx-post': reverse('companies:hiring_employee'),  # Usa el nombre de la vista en urls.py
-            'hx-target': '#modal-container',  # El elemento donde se actualizará el contenido
-            'hx-swap': 'innerHTML',  # Cómo se actualizará el contenido del objetivo
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',
+            'up-submit': reverse('companies:hiring_employee'),
+            'up-accept-location': reverse('companies:hiring'),
+            'up-on-accepted': ""
         })
         
         self.helper.layout = Layout(
             HTML('<h3>Datos de Identificación</h3>'),
             Row(
-                Column('identification_type', css_class='form-group mb-0'),
-                Column('identification_number', css_class='form-group mb-0'),
+                Column('identification_type', css_class='form-group col-md-6 mb-0'),
+                Column('identification_number', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             Row(
-                Column('expedition_date', css_class='form-group mb-0'),
-                Column('expedition_city', css_class='form-group mb-0'),
+                Column('expedition_date', css_class='form-group col-md-6 mb-0'),
+                Column('expedition_city', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             Row(
-                Column('first_name', css_class='form-group mb-0'),
-                Column('second_name', css_class='form-group mb-0'),
+                Column('first_name', css_class='form-group col-md-6 mb-0'),
+                Column('second_name', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             Row(
-                Column('first_last_name', css_class='form-group mb-0'),
-                Column('second_last_name', css_class='form-group mb-0'),
+                Column('first_last_name', css_class='form-group col-md-6 mb-0'),
+                Column('second_last_name', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
@@ -259,67 +244,67 @@ class EmployeeForm(forms.Form):
             HTML('<h3>Datos Personales</h3>'),
             
             Row(
-                Column('sex', css_class='form-group mb-0'),
-                Column('height', css_class='form-group mb-0'),
+                Column('sex', css_class='form-group col-md-6 mb-0'),
+                Column('height', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
             Row(
-                Column('marital_status', css_class='form-group mb-0'),
-                Column('weight', css_class='form-group mb-0'),
+                Column('marital_status', css_class='form-group col-md-6 mb-0'),
+                Column('weight', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
             Row(
-                Column('birthdate', css_class='form-group mb-0'),
-                Column('education_level', css_class='form-group mb-0'),
+                Column('birthdate', css_class='form-group col-md-6 mb-0'),
+                Column('education_level', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
             Row(
-                Column('birth_city', css_class='form-group mb-0'),
-                Column('stratum', css_class='form-group mb-0'),
+                Column('birth_city', css_class='form-group col-md-6 mb-0'),
+                Column('stratum', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
             Row(
-                Column('birth_country', css_class='form-group mb-0'),
-                Column('military_id', css_class='form-group mb-0'),
+                Column('birth_country', css_class='form-group col-md-6 mb-0'),
+                Column('military_id', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
             Row(
-                Column('blood_group', css_class='form-group mb-0'),
-                Column('profession', css_class='form-group mb-0'),
+                Column('blood_group', css_class='form-group col-md-6 mb-0'),
+                Column('profession', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
             HTML('<div class="separator my-10"></div>'),
             HTML('<h3>Datos de Contacto</h3>'),
             Row(
-                Column('residence_address', css_class='form-group mb-0'),
-                Column('email', css_class='form-group mb-0'),
+                Column('residence_address', css_class='form-group col-md-6 mb-0'),
+                Column('email', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
             Row(
-                Column('residence_city', css_class='form-group mb-0'),
-                Column('cell_phone', css_class='form-group mb-0'),
+                Column('residence_city', css_class='form-group col-md-6 mb-0'),
+                Column('cell_phone', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
             
             Row(
-                Column('residence_country', css_class='form-group mb-0'),
-                Column('employee_phone', css_class='form-group mb-0'),
+                Column('residence_country', css_class='form-group col-md-6 mb-0'),
+                Column('employee_phone', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
                 
             HTML('<div class="separator my-10"></div>'),
             HTML('<h3>Dotación</h3>'),
             Row(
-                Column('pants_size', css_class='form-group mb-0'),
-                Column('shirt_size', css_class='form-group mb-0'),
-                Column('shoes_size', css_class='form-group mb-0'),
+                Column('pants_size', css_class='form-group col-md-4 mb-0'),
+                Column('shirt_size', css_class='form-group col-md-4 mb-0'),
+                Column('shoes_size', css_class='form-group col-md-4 mb-0'),
                 css_class='row'
             ),
         )
@@ -347,6 +332,10 @@ class EmployeeForm(forms.Form):
             
             valid = Contratosemp.objects.filter(email=mail).exists()
             if valid:
+                self.add_error('email', "Este correo electrónico ya está en uso.")
+                
+            valid2 = User.objects.filter(email=mail).exists()
+            if valid2:
                 self.add_error('email', "Este correo electrónico ya está en uso.")
             
             if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', mail):
