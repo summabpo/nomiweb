@@ -36,6 +36,33 @@ def get_empleado_name(empleado):
 @login_required
 @role_required('accountant')
 def payroll(request):
+    """
+    Vista que permite listar las nóminas existentes y crear nuevas.
+
+    Cuando se envía el formulario, se validan los datos ingresados y se calcula la cantidad de días
+    de nómina según el tipo (mensual, quincenal u otro). También se determina automáticamente el mes
+    y año a acumular. Si la creación es exitosa, se guarda un nuevo registro en el modelo `Crearnomina`.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP del usuario, puede ser GET para mostrar el formulario o POST para procesarlo.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/payroll.html' con el formulario, la lista de nóminas activas
+        y mensajes de éxito o error.
+
+    See Also
+    --------
+    PayrollForm : Formulario utilizado para registrar una nueva nómina.
+    Crearnomina : Modelo que representa una nómina registrada.
+    Tipodenomina : Define el tipo de nómina (mensual, quincenal, etc.).
+    Anos : Representa el año fiscal vinculado a la nómina.
+    generar_nombre_nomina : Función auxiliar para construir el nombre único de la nómina.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form = PayrollForm()
@@ -147,6 +174,31 @@ def payrollview(request, id):
 @login_required
 @role_required('accountant')
 def payroll_modal(request,id,idnomina):
+    """
+    Vista que muestra los detalles generales de una nómina específica.
+
+    Obtiene la lista de empleados vinculados a la nómina y los muestra junto con la información
+    de la nómina seleccionada.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP estándar.
+    id : int
+        Identificador de la nómina.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/payrollviews.html' con la nómina, los empleados asociados
+        y su información básica.
+
+    See Also
+    --------
+    Crearnomina : Modelo que contiene los datos generales de una nómina.
+    Nomina : Contiene los conceptos asignados por empleado y nómina.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     ingreso = 0  # Inicializamos la variable ingreso
@@ -219,6 +271,32 @@ def payroll_modal(request,id,idnomina):
 @login_required
 @role_required('accountant')
 def payroll_create(request):
+    """
+    Vista que permite registrar un nuevo concepto en la nómina de un empleado.
+
+    Procesa los datos enviados por POST, calcula el valor del concepto si aplica una fórmula
+    asociada y actualiza la lista de conceptos asignados al empleado en la nómina. También calcula
+    totales de ingresos, egresos y el valor neto.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP que contiene los datos del formulario.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/partials/concepts_list.html' con la lista actualizada de
+        conceptos del empleado y los totales asociados.
+
+    See Also
+    --------
+    Nomina : Modelo donde se registran los conceptos por contrato y nómina.
+    Conceptosdenomina : Contiene la configuración de cada concepto, incluidas fórmulas y multiplicadores.
+    Contratos : Proporciona información contractual necesaria para cálculos.
+    Salariominimoanual : Se usa en el cálculo de auxilio de transporte u otros conceptos relacionados.
+    """
+
     ingreso = 0  # Inicializamos la variable ingreso
     egreso = 0   # Inicializamos la variable egreso
     usuario = request.session.get('usuario', {})
