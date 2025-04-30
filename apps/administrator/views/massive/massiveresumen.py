@@ -9,6 +9,33 @@ from django.core.files.storage import default_storage
 # Create your views here.
 
 def massiveresumen(request):
+    """
+    Realiza la importación masiva de empleados desde un archivo Excel.
+
+    Esta función permite cargar un archivo Excel con los datos de los empleados y realizar validaciones
+    de los campos antes de realizar la migración de los datos a la base de datos. Los errores de validación
+    se almacenan en un reporte, el cual es mostrado al usuario al final del proceso.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP, debe ser un POST con un archivo Excel que contenga los datos de los empleados.
+
+    Returns
+    -------
+    HttpResponseRedirect
+        Redirige a la vista `admin:massiveresumen` con un mensaje que indica si el proceso fue exitoso o no,
+        y un reporte con los errores encontrados.
+
+    Notes
+    -----
+    - El archivo Excel debe tener una estructura definida con las columnas correspondientes a los datos de los empleados.
+    - Se realizan varias validaciones sobre los campos del archivo Excel, como verificar el tipo de dato y la longitud de los valores.
+    - Si hay errores de validación, estos se reportan junto con el número total de migraciones exitosas y fallidas.
+    - Las claves foráneas (como `ciudadnacimiento_id` o `paisnacimiento_id`) deben coincidir con los registros existentes en la base de datos.
+    """
+
+
     visual = False
     migration_status = []  # Lista para almacenar mensajes de éxito o error
     migration_count = 0  # Contador de migraciones exitosas
@@ -236,6 +263,40 @@ def massiveresumen(request):
 
 @csrf_exempt
 def massiveresumenmigrate(request):
+    
+    """
+    Realiza la migración de datos de empleados a la base de datos desde un archivo Excel.
+
+    Esta vista recibe un archivo Excel con los datos de empleados y realiza una migración masiva
+    a la base de datos. Valida los datos y crea un registro en la tabla `Contratosemp` para cada fila
+    válida, y proporciona un reporte de errores para las filas que no cumplan con los requisitos.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que debe ser una solicitud POST con un archivo Excel en `excel_file`.
+
+    Returns
+    -------
+    JsonResponse
+        Respuesta en formato JSON que indica si la migración fue exitosa o si ocurrieron errores.
+        Si hubo errores, incluye un reporte detallado de las filas con problemas.
+
+    Notes
+    -----
+    - El archivo debe ser un Excel con datos en formato específico, con las siguientes columnas:
+      - `docidentidad`, `pnombre`, `snombre`, `papellido`, `sapellido`, `email`, `telefonoempleado`, 
+        `celular`, `direccionempleado`, `sexo`, `fechanac`, `estadocivil`, `profesion`, `niveleducativo`,
+        `estatura`, `peso`, `gruposanguineo`, `fechaexpedicion`, `formatohv`, `dotpantalon`, `dotcamisa`,
+        `dotzapatos`, `estadocontrato`, `estrato`, `numlibretamil`, `fotografiaempleado`, `ciudadexpedicion_id`,
+        `ciudadnacimiento_id`, `ciudadresidencia_id`, `id_empresa_id`, `paisnacimiento_id`, `paisresidencia_id`,
+        `tipodocident_id`.
+    - Si los datos de una fila no son válidos, la fila será ignorada y se incluirá un reporte de error.
+    - Se validan los tipos de datos de cada campo (por ejemplo, si `docidentidad` es un entero, si `email` tiene un formato correcto, etc.).
+    - El archivo Excel debe tener una fila de encabezado y los datos deben comenzar desde la segunda fila.
+
+    """
+    
     if request.method == 'POST' and request.FILES.get('excel_file'):
         archivo = request.FILES['excel_file']
         

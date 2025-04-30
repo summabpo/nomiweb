@@ -7,10 +7,56 @@ import random
 import string
 
 def generate_random_password(length=12):
+    """
+    Genera una contraseña aleatoria segura.
+
+    Combina letras, números y caracteres especiales para crear una contraseña fuerte.
+
+    Parameters
+    ----------
+    length : int, optional
+        Longitud de la contraseña a generar (por defecto 12 caracteres).
+
+    Returns
+    -------
+    str
+        Cadena con la contraseña aleatoria generada.
+    """
+    
     characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(characters) for i in range(length))
 
 def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_empleado):
+    """
+    Crea un nuevo usuario en el sistema a partir de los datos del empleado.
+
+    Parameters
+    ----------
+    email : str
+        Correo electrónico del nuevo usuario.
+    pnombre : str
+        Primer nombre del usuario.
+    papellido : str
+        Primer apellido del usuario.
+    password : str
+        Contraseña ya encriptada para el usuario.
+    empresa : int
+        ID de la empresa asociada.
+    id_empleado : int
+        ID del empleado asociado (referencia a Contratosemp).
+
+    Returns
+    -------
+    tuple[bool, User or None]
+        - `True` y el objeto `User` si la creación fue exitosa.
+        - `False` y `None` si ocurrió un error.
+
+    Notes
+    -----
+    - Se asigna automáticamente el `Role` con ID 1.
+    - Si hay errores (por ejemplo, empresa o empleado no encontrados), se captura y retorna `False`.
+    """
+    
     try:
         empresa = Empresa.objects.get( idempresa = empresa )
         
@@ -39,7 +85,31 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
 
 
 def loginweb_admin(request):
-    
+    """
+    Crea usuarios automáticamente desde la lista de empleados activos con contrato, y les envía sus credenciales por correo.
+
+    Si se envía un POST con IDs seleccionados, genera una contraseña aleatoria para cada uno, 
+    crea o actualiza su usuario, y envía el acceso por correo.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP, puede ser GET o POST.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla `admin/loginweb.html` con la lista de empleados si es GET, o redirige con mensajes si es POST.
+
+    Notes
+    -----
+    - En modo POST:
+        - Verifica si el usuario ya existe. Si no, lo crea con rol fijo (ID=1).
+        - Se encripta la nueva contraseña con `make_password`.
+        - Se envía un correo usando `send_template_email` con tipo `'loginweb'`.
+    - Los destinatarios están momentáneamente quemados para pruebas.
+    - Muestra mensajes `success` o `error` dependiendo del resultado.
+    """
     if request.method == 'POST':
         
         selected_ids = request.POST.getlist('selected_ids')
@@ -122,6 +192,28 @@ def loginweb_admin(request):
 
 
 def edit_main(request):
+    """
+    Edita el correo electrónico de un empleado y su usuario asociado.
+
+    Permite actualizar el correo de un empleado (`Contratosemp`) y su correspondiente usuario (`User`) desde el panel administrativo.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP, debe ser POST con campos `correo1` y `correo2`.
+
+    Returns
+    -------
+    HttpResponseRedirect
+        Redirige a la vista `admin:loginweb` con mensajes de éxito o error.
+
+    Notes
+    -----
+    - `correo2` es el correo original actual del empleado.
+    - `correo1` es el nuevo correo que se desea establecer.
+    - Se asegura que el nuevo correo no sea idéntico al anterior.
+    - El cambio se realiza en ambas tablas: `Contratosemp` y `User`.
+    """
     if request.method == 'POST':
         correo1 = request.POST.get('correo1')
         correo2 = request.POST.get('correo2')

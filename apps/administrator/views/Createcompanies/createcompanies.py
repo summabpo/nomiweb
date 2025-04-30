@@ -5,6 +5,37 @@ from django.http import JsonResponse
 
 
 def createcompanies_admin(request):
+    
+    """
+    Renderiza el formulario de creación de nuevas empresas para el panel de administración.
+
+    Este view se encarga de cargar el formulario para registrar nuevas empresas y mostrar
+    una lista de las empresas ya existentes ordenadas de manera descendente por ID.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP enviado por el navegador del usuario.
+
+    Returns
+    -------
+    HttpResponse
+        Página HTML renderizada que contiene el formulario de creación de empresas
+        y la lista de empresas existentes.
+
+    See Also
+    --------
+    CompaniesForm : Formulario utilizado para registrar una nueva empresa.
+    Empresa : Modelo que representa una empresa dentro del sistema.
+
+    Notes
+    -----
+    - Este view solo renderiza el formulario y los datos existentes; no procesa envíos POST.
+    - Para la creación efectiva de empresas, se requiere un view complementario que maneje los POST.
+    - El formulario está disponible en la plantilla 'admin/companies.html'.
+    """
+    
+    
     form = CompaniesForm()
     empresas = Empresa.objects.all().order_by('-idempresa')
     return render(request, './admin/companies.html',{
@@ -15,6 +46,47 @@ def createcompanies_admin(request):
     
     
 def addcompanies_admin(request):
+    
+    """
+    Procesa el formulario de creación de una nueva empresa en el panel administrativo.
+
+    Este view maneja solicitudes POST con datos del formulario para registrar una nueva empresa.
+    Si la solicitud no es POST, se renderiza el modal con el formulario vacío.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP, que puede ser GET o POST.
+
+    Returns
+    -------
+    JsonResponse
+        Si el formulario es enviado por POST y es válido, retorna un JSON indicando éxito.
+
+    HttpResponse
+        Si la solicitud es GET o el formulario no es válido, renderiza el formulario HTML en
+        la plantilla `admin/partials/companiesModal.html`.
+
+    See Also
+    --------
+    CompaniesForm : Formulario para la creación de empresas.
+    Empresa : Modelo principal que representa una empresa registrada.
+    Ciudades, Paises, Entidadessegsocial, Bancos : Modelos auxiliares relacionados con la empresa.
+
+    Notes
+    -----
+    - Este view extrae múltiples campos del formulario, incluyendo campos relacionales (como ciudad, país, banco, ARL).
+    - Algunos campos numéricos o booleanos se transforman a texto y se truncan a los dos primeros caracteres.
+    - Se carga el formulario con `request.FILES` para permitir el envío de archivos como el logo empresarial.
+    - Si el formulario no es válido, los errores se imprimen en consola pero no se devuelven en la respuesta JSON.
+    - Este view está diseñado para funcionar junto con un modal (partial) del panel administrativo.
+
+    Examples
+    --------
+    - POST: Registro de una nueva empresa con los campos completos.
+    - GET: Apertura de un modal con el formulario de creación de empresas.
+    """
+    
     if request.method == 'POST':
         form = CompaniesForm(request.POST, request.FILES)
         if form.is_valid():
@@ -23,8 +95,7 @@ def addcompanies_admin(request):
             ige100 = form.cleaned_data.get('ige100', '')
             ajustarnovedad = form.cleaned_data.get('ajustarnovedad', '')
             
-            print(request.POST)
-            
+                        
             empresa = Empresa(
                 nit=form.cleaned_data['nit'],
                 nombreempresa=form.cleaned_data['nombreempresa'],
