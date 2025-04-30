@@ -4,7 +4,7 @@ from django.db.models import Q, Sum, DecimalField, F
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
 from apps.common.models  import Incapacidades , Contratosemp , NominaComprobantes ,Contratos,Entidadessegsocial ,Diagnosticosenfermedades,Nomina
-from apps.companies.forms.disabilitiesForm  import DisabilitiesForm
+from apps.companies.forms.disabilitiesForm  import DisabilitiesForm , DisabilitiesEditForm
 from datetime import datetime, timedelta
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -154,64 +154,77 @@ def disabilities_modal_edit(request , id ):
     'incapacity_days' :incapacidad.dias ,  
     'diagnosis_code' :incapacidad.coddiagnostico ,  
     'extension' : '1' if incapacidad.prorroga  else '0',  
-    
+    'id':incapacidad.idincapacidad 
   }
   
   
   
-  form = DisabilitiesForm(idempresa = idempresa ,initial= data )
+  form = DisabilitiesEditForm(idempresa = idempresa ,initial= data ,id=id)
   
   if request.method == 'POST':
-  # Obtener datos del formulario
-    contract = request.POST.get('contract')
-    origin = request.POST.get('origin')
-    entity = request.POST.get('entity')
-    initial_date = request.POST.get('initial_date')
-    incapacity_days = request.POST.get('incapacity_days')
-    diagnosis_code = request.POST.get('diagnosis_code')
-    extension = str(request.POST.get('extension', '0'))  # Convierte a string y usa '0' como valor predeterminado
-    prorroga = extension == '1'  # Devuelve True si extension es '1'
-
-    entidad = Entidadessegsocial.objects.get(codigo = entity)
-    dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
-    
-    # Obtener la imagen
-    imagen = request.FILES.get('image')
-    if imagen:
-      # Obtener la extensión del archivo
-      ext = imagen.name.split('.')[-1]
-
-      # Generar un nombre aleatorio con la misma extensión
-      filename = generate_random_filename(ext)
-
-      # Guardar en MEDIA_ROOT en la subcarpeta 'incapacities/'
-      file_path = os.path.join(settings.MEDIA_ROOT, 'incapacities', filename)
-      os.makedirs(os.path.dirname(file_path), exist_ok=True)  # Asegurar que la carpeta existe
+    form = DisabilitiesEditForm(request.POST, request.FILES ,idempresa = idempresa,id=id)
+    if form.is_valid():
+      #Obtener datos del formulario
+      origin = form.cleaned_data['origin']
+      entity = form.cleaned_data['entity']
+      initial_date = form.cleaned_data['initial_date']
+      incapacity_days = form.cleaned_data['incapacity_days']
+      diagnosis_code = form.cleaned_data['diagnosis_code']
+      extension = form.cleaned_data['extension'] #Convierte a string y usa '0' como valor predeterminado
+      prorroga = extension == '1'  #Devuelve True si extension es '1'
+      pdf_file = form.cleaned_data['pdf_file']
+            
+      entidad = Entidadessegsocial.objects.get(codigo = entity)
+      dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
       
-      with open(file_path, 'wb+') as destination:
-          for chunk in imagen.chunks():
-              destination.write(chunk)
-
-      print(f"Imagen guardada en: {file_path}")
+      #* Funcion de guardado de pdf 
+      new_filename = ''
       
-      
-    # Guardar en la base de datos
-    Incapacidades.objects.create(
-      entidad = entidad ,#enlace segsocial
-      coddiagnostico = dianostico ,
-      fechainicial = initial_date ,
-      dias = incapacity_days,
-      imagenincapacidad = filename if filename else "" ,  # cambiar tipo enlace 
-      idcontrato_id  = contract ,  
-      prorroga = prorroga ,
-      ibc =  0 ,
-      origenincap = origin , 
-    )
-        
-    messages.success(request, 'La Incapacidad ha sido añadido con éxito.')
-    return redirect('companies:disabilities')
+      if pdf_file :
+        # Generar un nuevo nombre aleatorio
+        new_filename = generate_random_filename("pdf")
+        pdf_folder = os.path.join(settings.MEDIA_ROOT, 'pdfs')
+        # ✅ Crear la carpeta si no existe
+        os.makedirs(pdf_folder, exist_ok=True)
+        # Guardar el archivo con el nuevo nombre
+        pdf_path = os.path.join(pdf_folder, new_filename)
+        with open(pdf_path, 'wb+') as destination:
+            for chunk in pdf_file.chunks():
+                destination.write(chunk)
+              
+              
   
-  return render (request, './companies/partials/create_disabilities_modal.html',{'form' :form,})
+
+      # Guardar en la base de datos
+      
+      if incapacidad.entidad != entidad:
+        incapacidad.entidad = entidad  # enlace segsocial
+
+      if incapacidad.coddiagnostico != dianostico:
+        incapacidad.coddiagnostico = dianostico
+
+      if incapacidad.fechainicial != initial_date:
+        incapacidad.fechainicial = initial_date
+
+      if incapacidad.dias != incapacity_days:
+        incapacidad.dias = incapacity_days
+
+      if incapacidad.prorroga != prorroga:
+        incapacidad.prorroga = prorroga
+
+      if incapacidad.origenincap != origin:
+        incapacidad.origenincap = origin
+
+      incapacidad.save()
+      
+      response = HttpResponse()
+      response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+      response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+      response['X-Up-message'] = 'La incapacidad fue actualizada correctamente.'    
+      response['X-Up-Location'] = reverse('companies:disabilities')           
+      return response
+  
+  return render (request, './companies/partials/create_disabilities_modal_edit.html',{'form' :form, 'data':data})
 
 
 

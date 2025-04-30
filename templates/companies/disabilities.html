@@ -189,7 +189,7 @@ Listado de Incapacidades
                             <a
                                 class='btn btn-icon btn-light-info'
                                 up-layer='new modal'
-                                up-target=".modal-content"
+                                up-target=".modal-content-edit"
                                 up-size = "medium"
                                 up-align = "center"
                                 up-backdrop = "true"
@@ -322,6 +322,12 @@ Listado de Incapacidades
         const entitiesUrl = "{% url 'companies:get_entity' %}";
 
         if (modalContent) {
+
+            console.log(modalContent)
+            modal_edit = modalContent.querySelector('#modal-content-edit'); 
+
+            
+
             const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
             const date = modalContent.querySelector('#kt_daterangepicker_1');
             const conceptSelect = modalContent.querySelector('#id_origin');
@@ -338,6 +344,10 @@ Listado de Incapacidades
             
 
             if (date2) date2.disabled = true;
+
+            if(modal_edit){
+                if (contract) contract.disabled = true;
+            }
 
             if (contract) {
                 if (!$(contract).data('select2')) {

@@ -186,7 +186,9 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
     
     for incapacidad in incapacidades:
         ini = incapacidad.fechainicial
-        fin = ini + timedelta(days = incapacidad.dias )  
+        fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
+        
+        
         ibc = incapacidad.ibc
         tipo = incapacidad.origenincap
         prorroga = incapacidad.prorroga
