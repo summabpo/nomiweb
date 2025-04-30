@@ -9,6 +9,34 @@ from django.urls import reverse
 @login_required
 @role_required('accountant')
 def fixed(request):
+    """
+    Muestra las novedades fijas asociadas a los contratos de una empresa.
+
+    Filtra las novedades fijas (`NovFijos`) correspondientes a la empresa del usuario 
+    autenticado y las ordena por ID descendente para su visualización.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP con la sesión del usuario autenticado.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta que renderiza la plantilla `'./payroll/fixedconcepts.html'` con 
+        el contexto de las novedades fijas.
+
+    See Also
+    --------
+    NovFijos : Modelo de novedades fijas asociadas a contratos.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe tener el rol `'accountant'` para acceder a esta vista.
+    """
+     
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     novfijos = NovFijos.objects.filter(idcontrato__id_empresa = idempresa).order_by('-idnovfija')
@@ -18,6 +46,43 @@ def fixed(request):
 @login_required
 @role_required('accountant')
 def fixed_modal(request):
+    """
+    Muestra y procesa el formulario modal para registrar una novedad fija.
+
+    Si la solicitud es GET, renderiza el formulario vacío. Si es POST y los datos 
+    son válidos, crea una nueva instancia de `NovFijos` y devuelve una respuesta 
+    HTTP personalizada con encabezados compatibles con Unpoly para cerrar el modal 
+    y actualizar la vista principal.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que puede contener datos POST del formulario.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta que renderiza la plantilla `'./payroll/partials/fixedconceptsmodal.html'`
+        con el formulario si es una solicitud GET o si el formulario no es válido.
+
+    HttpResponse
+        Respuesta con encabezados Unpoly para cerrar el modal y mostrar un mensaje de éxito 
+        si el formulario es válido y se crea la novedad.
+
+    See Also
+    --------
+    FixidForm : Formulario para registrar una novedad fija.
+    NovFijos : Modelo que representa novedades fijas en contratos.
+    Conceptosdenomina : Modelo de conceptos de nómina relacionados.
+    Contratos : Modelo de contratos vinculados a empleados.
+
+    Notes
+    -----
+    Esta vista está diseñada para funcionar con Unpoly, utilizando encabezados como 
+    `'X-Up-Accept-Layer'`, `'X-Up-message'` y `'X-Up-Location'` para controlar el comportamiento 
+    del modal en el frontend.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form = FixidForm(idempresa=idempresa)

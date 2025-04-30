@@ -40,6 +40,30 @@ def get_client_ip(request):
 @login_required
 @role_required('employee')
 def vacation_request_function(request):
+    """
+    Permite a los empleados solicitar o actualizar una solicitud de vacaciones/licencia.
+
+    Esta vista permite a los empleados solicitar vacaciones o licencias, o actualizar una solicitud existente. Calcula los días de vacaciones y licencia de acuerdo con las fechas proporcionadas y otros parámetros como si deben contarse los sábados. También envía una notificación por correo electrónico sobre la solicitud de vacaciones.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP que contiene los datos del empleado, las fechas de las vacaciones y otros detalles relacionados con la solicitud de vacaciones.
+
+    Returns
+    -------
+    HttpResponse
+        Si la solicitud es exitosa, redirige a la página del formulario de vacaciones, mostrando los detalles de la solicitud.
+        Si el método es 'POST' y la solicitud es válida, se guarda la solicitud de vacaciones, se envía un correo de notificación, y se muestra un mensaje de éxito.
+
+    Notes
+    -----
+    - Solo accesible para empleados autenticados.
+    - La vista verifica y calcula los días hábiles y el calendario de vacaciones.
+    - Enviar un correo de notificación a un correo específico (o al correo del empleado).
+    - Si se está actualizando una solicitud, el sistema realiza las modificaciones pertinentes en la base de datos.
+    """
+
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
     nombre_empleado = Contratosemp.objects.get(idempleado=ide).pnombre
@@ -150,6 +174,29 @@ global_dato = None
 
 @csrf_exempt
 def my_get_view(request):
+    """
+    Permite obtener o actualizar información de una solicitud de vacaciones a través de un método GET o POST.
+
+    Si se hace una solicitud GET, devuelve los detalles de una solicitud de vacaciones específica en formato JSON. Si se hace una solicitud POST, actualiza los detalles de la solicitud de vacaciones.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP que contiene los datos de la solicitud de vacaciones que se desean obtener o actualizar.
+
+    Returns
+    -------
+    JsonResponse
+        Si es GET, devuelve los detalles de la solicitud de vacaciones en formato JSON.
+        Si es POST, actualiza la solicitud de vacaciones y devuelve un mensaje de éxito.
+
+    Notes
+    -----
+    - Esta vista permite interactuar con solicitudes de vacaciones a través de un método AJAX (GET/POST).
+    - Los datos devueltos por GET incluyen información como la fecha de inicio y fin de las vacaciones, el tipo de vacaciones y el estado.
+    - Si se recibe un POST, actualiza los detalles de la solicitud de vacaciones y la guarda en la base de datos.
+    """
+
     global global_dato
     
     if request.method == 'GET':

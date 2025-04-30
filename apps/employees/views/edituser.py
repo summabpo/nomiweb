@@ -12,6 +12,28 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('employee')
 def user_employees(request):
+    """
+    Muestra la información personal del empleado autenticado.
+
+    Esta vista permite al empleado ver su información personal, como dirección, teléfono, ciudad de residencia, fotografía y celular.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP del navegador. Contiene la sesión del usuario para obtener el ID del empleado y mostrar sus datos.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'employees/user.html' con la información personal del empleado.
+        
+    Notes
+    -----
+    - Solo accesible para empleados autenticados.
+    - La información mostrada se obtiene del modelo `Contratosemp`.
+    - La vista muestra los datos personales del empleado, pero no permite la modificación de los mismos.
+    """
+
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
     data = Contratosemp.objects.only('direccionempleado', 'telefonoempleado', 'ciudadresidencia','fotografiaempleado','celular').get(idempleado=ide)
@@ -29,6 +51,31 @@ def user_employees(request):
 @login_required
 @role_required('employee')   
 def edit_user_employees(request):
+    
+    """
+    Permite al empleado editar su información personal.
+
+    Esta vista proporciona un formulario para editar la información personal del empleado, como teléfono, dirección, ciudad, celular y fotografía.
+    Si se proporciona una nueva foto de perfil, se actualizará la base de datos. Si no se proporciona, los datos de la fotografía y otros campos permanecen sin cambios.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP del navegador. Contiene los datos del formulario, así como la sesión del usuario para obtener el ID del empleado y los datos actuales.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'employees/edit_user.html' con un formulario de edición de datos personales.
+
+    Notes
+    -----
+    - Solo accesible para empleados autenticados.
+    - El formulario permite al empleado actualizar su foto de perfil y otros campos como teléfono, dirección, celular y ciudad de residencia.
+    - Si la actualización es exitosa, se guarda la información en la base de datos y se redirige al usuario a su perfil con un mensaje de éxito.
+    - Si el formulario no es válido o ocurre algún error, se muestra un mensaje de error.
+    """
+
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
     data = Contratosemp.objects.only('direccionempleado', 'telefonoempleado', 'ciudadresidencia','celular').get(idempleado=ide)

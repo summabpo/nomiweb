@@ -25,6 +25,37 @@ def get_empleado_name(empleado):
 @login_required
 @role_required('employee')
 def vista_certificaciones(request):
+    """
+    Muestra al empleado una vista interactiva para gestionar sus certificaciones laborales.
+
+    Esta vista permite al usuario seleccionar un contrato y ver las certificaciones asociadas. 
+    Según el estado del contrato (activo o terminado), se cargan opciones diferentes para generar certificados.
+    También se formatea la información para presentarla de manera clara en la interfaz.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP del navegador. Contiene la sesión del usuario y parámetros GET.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'employees/certificaciones_laborales.html' con los datos del contrato y certificaciones.
+
+    See Also
+    --------
+    Certificaciones : Modelo que representa los certificados laborales generados.
+    Contratos : Modelo que contiene información sobre los contratos del empleado.
+    get_empleado_name : Función auxiliar para formatear el nombre completo del empleado.
+
+    Notes
+    -----
+    - Solo accesible para empleados autenticados.
+    - Si el empleado tiene un solo contrato, se selecciona automáticamente.
+    - Se ajustan las opciones del select según si el contrato está activo o liquidado.
+    - Los valores de salario se formatean en estilo colombiano (puntos como separador de miles).
+    """
+
     usuario = request.session.get('usuario', {})
     select_data = {}
     ESTADOS_CONTRATO = {
@@ -128,7 +159,35 @@ def vista_certificaciones(request):
 @login_required
 @role_required('employee')
 def generateworkcertificate(request):
-    
+    """
+    Genera un certificado laboral en formato PDF según los datos enviados por el usuario.
+
+    Esta vista recibe los datos del formulario POST y genera un PDF con el contenido de un certificado laboral. 
+    Usa una plantilla HTML y convierte el contenido a PDF con `xhtml2pdf`.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP del navegador. Se espera que contenga los campos 'empleado', 'contrato', 
+        'data_input' y 'data_model' en el método POST.
+
+    Returns
+    -------
+    HttpResponse
+        PDF renderizado con el certificado, enviado en línea al navegador.
+
+    See Also
+    --------
+    workcertificategenerator : Función que genera el contexto necesario para el certificado.
+
+    Notes
+    -----
+    - Solo accesible para usuarios con rol `employee`.
+    - El contenido se genera con base en una plantilla HTML ('workcertificatework.html').
+    - Se usa `xhtml2pdf` (pisa) para convertir HTML a PDF.
+    - En caso de error, se muestra un mensaje de error y se redirige a la vista de certificaciones.
+    """
+
     try:
         if request.method == 'POST':
             empleado_id = request.POST.get('empleado')
@@ -162,7 +221,36 @@ def generateworkcertificate(request):
 @login_required
 @role_required('employee')
 def certificatedownload(request,idcert):
-    
+    """
+    Descarga un certificado laboral previamente generado según su ID.
+
+    Esta vista recupera los datos de un certificado ya existente y genera un PDF desde una plantilla HTML. 
+    El archivo PDF se abre en el navegador.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud del navegador para descargar el certificado.
+
+    idcert : int
+        ID del certificado que se desea visualizar en PDF.
+
+    Returns
+    -------
+    HttpResponse
+        PDF renderizado del certificado laboral.
+
+    See Also
+    --------
+    workcertificatedownload : Función que prepara el contexto del certificado según su ID.
+
+    Notes
+    -----
+    - Solo accesible para empleados autenticados.
+    - En caso de error, se muestra un mensaje y se redirige al listado de certificados.
+    - Utiliza la plantilla HTML 'workcertificatework.html'.
+    """
+
     try:
         context = workcertificatedownload(idcert)
         html_string = render(request, './html/workcertificatework.html', context).content.decode('utf-8')

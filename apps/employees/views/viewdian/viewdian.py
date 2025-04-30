@@ -15,6 +15,33 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('employee')
 def viewdian(request):
+    """
+    Muestra al empleado la lista de certificados de ingresos y retenciones registrados.
+
+    Esta vista recupera los certificados de ingresos y retenciones asociados al empleado actualmente autenticado 
+    y renderiza una plantilla con la información disponible. También obtiene el año del primer certificado encontrado 
+    para mostrarlo como referencia.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP enviado por el navegador. Se utiliza para acceder a la sesión del usuario y renderizar la respuesta.
+
+    Returns
+    -------
+    HttpResponse
+        Render de la plantilla 'employees/viewdian.html' con los certificados y el año más reciente.
+
+    See Also
+    --------
+    Ingresosyretenciones : Modelo que almacena los certificados de ingresos y retenciones de los empleados.
+
+    Notes
+    -----
+    - La vista solo puede ser accedida por usuarios autenticados con el rol `employee`.
+    - El año (`anoacumular`) es extraído solo del primer registro encontrado, lo cual puede limitar su utilidad si hay múltiples años.
+    """
+    
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
     
@@ -33,6 +60,38 @@ def viewdian(request):
 @login_required
 @role_required('employee')
 def viewdian_empleado(request,idingret ):
+    """
+    Genera un certificado en formato PDF a partir de una imagen personalizada del certificado DIAN.
+
+    Esta vista crea dinámicamente un PDF con una imagen previamente generada del certificado 
+    de ingresos y retenciones. Utiliza `ReportLab` para construir el PDF y `Pillow` para procesar la imagen. 
+    El resultado se muestra en el navegador.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del usuario autenticado.
+
+    idingret : int
+        ID del registro de ingresos y retenciones a visualizar.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta HTTP con el contenido PDF generado que contiene la imagen del certificado.
+
+    See Also
+    --------
+    imggenerate1 : Función personalizada que genera una imagen del certificado DIAN.
+    Ingresosyretenciones : Modelo que contiene los registros de certificados de ingresos y retenciones.
+
+    Notes
+    -----
+    - Solo pueden acceder usuarios autenticados con el rol `employee`.
+    - La imagen se redimensiona para ajustarse a la hoja tamaño carta sin perder la relación de aspecto.
+    - El PDF se abre directamente en el navegador (`inline`) y no se descarga automáticamente.
+    - El archivo de imagen se guarda temporalmente como `temp_image.png` en el mismo directorio del proyecto.
+    """
     # Generar la imagen usando la función personalizada
     
     certificado = Ingresosyretenciones.objects.filter(idingret=idingret).values('anoacumular').first()

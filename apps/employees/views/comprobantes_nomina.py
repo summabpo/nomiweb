@@ -8,6 +8,9 @@ import locale
 from datetime import datetime
 from io import BytesIO
 from xhtml2pdf import pisa
+from apps.components.payrollgenerate import genera_comprobante 
+from apps.components.decorators import  role_required
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 from django.views.generic import  ListView
@@ -22,15 +25,36 @@ except locale.Error:
     locale.setlocale(locale.LC_ALL, 'C')
     print("Advertencia: No se pudo configurar 'es_ES.UTF-8'. Usando 'C'.")
 
-from apps.components.payrollgenerate import genera_comprobante 
-from apps.components.decorators import  role_required
-from django.contrib.auth.decorators import login_required
 
 
 
 @login_required
 @role_required('employee')
 def listaNomina(request):
+    """
+    Muestra una lista de nóminas asociadas a un empleado según su contrato.
+
+    Esta vista permite a un empleado visualizar sus nóminas disponibles. Los contratos activos o terminados
+    asociados al empleado se recuperan y presentan para que el usuario seleccione uno. Dependiendo del contrato
+    seleccionado, se muestran las nóminas correspondientes.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP del navegador. Contiene la sesión del usuario y parámetros GET para determinar el contrato seleccionado.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'employees/comprobantes.html' con la lista de nóminas disponibles y los contratos del empleado.
+
+    Notes
+    -----
+    - Solo accesible para empleados autenticados.
+    - Si el empleado tiene un solo contrato, se selecciona automáticamente.
+    - Los contratos se formatean para incluir información sobre el cargo, estado y fechas de inicio y fin.
+    """
+
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
     ESTADOS_CONTRATO = {
@@ -77,6 +101,33 @@ def listaNomina(request):
 @login_required
 @role_required('employee')
 def generatepayrollcertificate(request ,idnomina,idcontrato,):
+    """
+    Genera un certificado de nómina en formato PDF para un empleado y contrato específicos.
+
+    Esta vista toma los datos de una nómina y contrato, los utiliza para generar un comprobante de nómina en formato PDF.
+    El PDF se genera utilizando una plantilla HTML y se envía al navegador como un archivo descargable.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP del navegador. Contiene los parámetros POST necesarios para generar el certificado.
+    idnomina : int
+        ID de la nómina para la que se generará el certificado.
+    idcontrato : int
+        ID del contrato asociado con la nómina.
+
+    Returns
+    -------
+    HttpResponse
+        PDF del certificado de nómina generado.
+
+    Notes
+    -----
+    - Solo accesible para empleados autenticados.
+    - El nombre del archivo PDF incluye el nombre del contrato y la fecha actual.
+    - En caso de error al generar el PDF, se muestra un mensaje de error y el código de estado 400.
+    """
+
     context = genera_comprobante(idnomina,idcontrato)
 
     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
@@ -104,6 +155,31 @@ def generatepayrollcertificate(request ,idnomina,idcontrato,):
 
 
 class ListaNominas(ListView):
+    """
+    Clase que muestra una lista paginada de nóminas para un contrato específico.
+
+    Esta vista de clase hereda de ListView y muestra las nóminas asociadas a un contrato en particular. 
+    Los registros se ordenan por ID de nómina y se presentan en formato paginado.
+
+    Attributes
+    ----------
+    model : Nomina
+        Modelo de datos asociado con la vista. En este caso, el modelo `Nomina` es utilizado para obtener los datos.
+    template_name : str
+        Nombre del archivo de plantilla que se utiliza para renderizar la respuesta.
+    paginate_by : int
+        Número de elementos a mostrar por página.
+    context_object_name : str
+        Nombre del contexto de la variable que contiene la lista de nóminas en la plantilla.
+    ordering : str
+        Campo por el cual se ordenarán las nóminas.
+
+    Methods
+    -------
+    get_queryset()
+        Recupera las nóminas asociadas al contrato del empleado para ser presentadas en la vista.
+    """
+
     template_name = 'employees/comprobantes.html'
     paginate_by = 30
     context_object_name = 'nominas'
@@ -117,6 +193,37 @@ class ListaNominas(ListView):
         return queryset
 
 class ListaConceptosNomina(ListView):
+    """
+    Clase que muestra los detalles de los conceptos de una nómina.
+
+    Esta vista de clase hereda de ListView y se utiliza para mostrar los conceptos detallados de una nómina específica,
+    tales como devengados y descuentos. Además, proporciona los totales y el cálculo del neto a pagar. 
+
+    Attributes
+    ----------
+    model : Nomina
+        Modelo de datos asociado con la vista. En este caso, el modelo `Nomina` se utiliza para obtener los datos.
+    context_object_name : str
+        Nombre del contexto de la variable que contiene la lista de conceptos en la plantilla.
+    template_name : str
+        Nombre del archivo de plantilla que se utiliza para renderizar la respuesta.
+
+    Methods
+    -------
+    nombreNomina()
+        Obtiene el nombre de la nómina correspondiente.
+    get_queryset()
+        Recupera los conceptos detallados de la nómina según el contrato y la nómina seleccionada.
+    totalDevengados()
+        Calcula el total de los valores devengados en la nómina.
+    totalDescuentos()
+        Calcula el total de los descuentos aplicados en la nómina.
+    netoPagar()
+        Calcula el monto neto a pagar después de los descuentos.
+    get_context_data(**kwargs)
+        Devuelve el contexto adicional necesario para renderizar la plantilla, incluyendo los totales calculados.
+    """
+
     model = Nomina
     context_object_name = 'conceptos'
     template_name = 'employees/recibo.html'

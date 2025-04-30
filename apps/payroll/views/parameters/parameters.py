@@ -13,6 +13,27 @@ from django.urls import reverse
 @login_required
 @role_required('company','admin','accountant')
 def banks(request):
+    """
+    Vista que gestiona la creación y visualización de bancos.
+
+    Permite listar bancos existentes y registrar nuevos mediante un formulario. Solo accesible
+    para usuarios autenticados con roles específicos.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP que puede ser GET o POST.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/banks.html' con el formulario y la lista de bancos.
+
+    See Also
+    --------
+    Banks : Modelo que almacena la información bancaria de la empresa.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form = BanksForm()
@@ -54,6 +75,26 @@ def banks(request):
 @login_required
 @role_required('company','admin','accountant')
 def entities(request):
+    """
+    Vista para registrar y listar entidades de seguridad social.
+
+    Filtra entidades inválidas por NIT o código y previene duplicados. Accesible solo para
+    usuarios con roles autorizados.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP que puede ser GET o POST.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/entities.html' con el formulario y lista de entidades.
+
+    See Also
+    --------
+    Entity : Modelo que representa entidades como EPS, ARL o fondos de pensión.
+    """
 
     form = EntitiesForm()
     entidades = Entidadessegsocial.objects.all().exclude(
@@ -107,6 +148,26 @@ def entities(request):
 @login_required
 @role_required('company','admin','accountant')
 def holidays(request):
+    """
+    Vista que gestiona la creación de festivos en el sistema.
+
+    Permite registrar días festivos que afectan el cálculo de nómina y validarlos por año.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP con datos del formulario o solicitud de vista.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/holidays.html' con los festivos existentes.
+
+    See Also
+    --------
+    Festivos : Modelo que almacena fechas festivas por año.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form = HolidaysForm()
@@ -146,6 +207,26 @@ def holidays(request):
 @login_required
 @role_required('company','admin','accountant')
 def fixed(request):
+    """
+    Vista que permite gestionar conceptos fijos asociados a contratos.
+
+    Permite listar, agregar y validar conceptos fijos como bonificaciones recurrentes o descuentos.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP GET o POST con datos del formulario.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/fixed.html' con el formulario y lista de conceptos.
+
+    See Also
+    --------
+    ConceptosFijos : Modelo de conceptos de nómina fijos ligados a contratos.
+    """
+
     fixeds = Conceptosfijos.objects.all().order_by('idfijo')
     form = FixedForm()
     error = False
@@ -182,6 +263,26 @@ def fixed(request):
 @login_required
 @role_required('company','admin','accountant')
 def annual(request):
+    """
+    Vista que administra el salario mínimo, auxilio de transporte y UVT anual.
+
+    Permite crear registros anuales con los valores legales correspondientes.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud GET para ver o POST para guardar nuevo salario mínimo anual.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/annual.html' con datos actuales y formulario.
+
+    See Also
+    --------
+    SalarioMinimo : Modelo que contiene los valores anuales relevantes para nómina.
+    """
+
     wages = Salariominimoanual.objects.all().order_by('-ano')
     form = AnnualForm()
     error = False
@@ -220,6 +321,26 @@ def annual(request):
 @login_required
 @role_required('company','admin','accountant')
 def concepts(request):
+    """
+    Vista que lista los conceptos de nómina definidos por la empresa.
+
+    Proporciona un formulario vacío para registrar nuevos conceptos si se desea.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP GET para visualizar conceptos existentes.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/concepts.html' con los conceptos y formulario.
+
+    See Also
+    --------
+    Concepto : Modelo que representa reglas o fórmulas de cálculo de nómina.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     concepts = Conceptosdenomina.objects.filter(id_empresa_id=idempresa).select_related('grupo_dian').order_by('codigo')
@@ -233,6 +354,40 @@ def concepts(request):
 @login_required
 @role_required('company','admin','accountant')
 def concepts_add(request):
+    """
+    Vista para agregar nuevos conceptos de nómina mediante un formulario modal.
+
+    Esta vista se encarga de crear un nuevo concepto de nómina (como bonificaciones, descuentos o
+    prestaciones) dentro del sistema. Soporta múltiples relaciones con indicadores contables y
+    parámetros adicionales. Además, es compatible con peticiones asincrónicas a través de Unpoly,
+    lo que permite una experiencia más fluida en la interfaz de usuario.
+
+    El formulario valida automáticamente la unicidad del código del concepto por empresa, y
+    verifica que el nombre no esté repetido. También puede procesar reglas de fórmula y 
+    condicionales según el tipo y categoría del concepto (devengo, deducción, aporte).
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP POST con los datos del formulario del concepto.
+
+    Returns
+    -------
+    HttpResponse
+        Si el formulario es válido:
+            - Retorna cabeceras HTTP específicas para Unpoly, lo que provoca el cierre del modal
+            y la actualización de secciones en la vista principal.
+        Si el formulario contiene errores:
+            - Renderiza nuevamente el formulario dentro del modal con los errores visibles para
+            su corrección.
+
+    See Also
+    --------
+    Concepto : Modelo principal que define la lógica del concepto de nómina.
+    Indicador : Modelo relacionado que categoriza o clasifica los conceptos según su naturaleza contable.
+    """
+
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':
@@ -290,12 +445,73 @@ def concepts_add(request):
 @login_required
 @role_required('company','admin','accountant')
 def concepts_detail(request,id):
+    """
+    Vista que muestra los detalles de un concepto de nómina en un modal.
+
+    Accede a través de ID del concepto y despliega su fórmula, tipo, categoría y otros atributos.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP GET.
+    id : int
+        Identificador del concepto.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/conceptsmodaldetail.html' con información del concepto.
+
+    See Also
+    --------
+    Concepto : Modelo de conceptos de nómina.
+    """
+
     concept = get_object_or_404(Conceptosdenomina, pk=id)
     return render(request, './payroll/partials/conceptsmodaldetail.html',{'concept':concept})
 
 @login_required
 @role_required('company','admin','accountant')
 def concepts_edit(request,id):
+    """
+    Vista para editar un concepto de nómina existente mediante un formulario modal.
+
+    Permite modificar atributos clave de un concepto de nómina ya creado, como el nombre, tipo,
+    categoría, fórmula de cálculo, valores fijos, condiciones, y su relación con indicadores. Es
+    una vista diseñada para funcionar con formularios modales, especialmente en flujos de trabajo
+    con Unpoly.
+
+    Realiza validaciones de integridad (por ejemplo, si se intenta cambiar el tipo de concepto y
+    ya está asociado a movimientos de nómina), y también se asegura de mantener la unicidad del
+    código y el nombre dentro de la empresa.
+
+    La lógica también considera qué campos deben ser bloqueados o protegidos si el concepto ya fue
+    usado en una nómina liquidada (por ejemplo, evitando el cambio del tipo o categoría si ya hay
+    registros históricos).
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP GET o POST. GET carga el formulario prellenado, POST intenta actualizarlo.
+    id : int
+        Identificador del concepto a editar.
+
+    Returns
+    -------
+    HttpResponse
+        Si el formulario es válido:
+            - Respuesta HTTP con cabeceras Unpoly para cerrar el modal y actualizar la vista principal.
+        Si hay errores:
+            - Renderiza el formulario con errores para su corrección dentro del modal.
+
+    See Also
+    --------
+    Concepto : Modelo que define la fórmula, comportamiento y naturaleza del concepto.
+    Indicador : Modelo que clasifica el concepto (e.g., salud, pensión, bonificación).
+    """
+
+
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
@@ -367,6 +583,26 @@ def concepts_edit(request,id):
 @login_required
 @role_required('company','admin','accountant')
 def check_code(request):
+    """
+    Vista asincrónica para validar si un código de concepto ya está en uso.
+
+    Usada comúnmente en formularios con validación en tiempo real.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud GET con parámetro 'code'.
+
+    Returns
+    -------
+    JsonResponse
+        Diccionario con clave 'valid': True si el código está disponible, False si no.
+
+    See Also
+    --------
+    Concepto : Modelo que contiene el campo 'code' único por empresa.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario.get('idempresa')  # Usar get() en lugar de acceder directamente.
     codigo = request.GET.get('codigo', '').strip()

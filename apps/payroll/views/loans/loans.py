@@ -20,6 +20,30 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('accountant', 'company')
 def employee_loans(request):
+    """
+    Vista que permite a usuarios con rol 'accountant' o 'company' gestionar préstamos de empleados.
+
+    Muestra un formulario para registrar nuevos préstamos y una lista agrupada por contrato que 
+    resume cuántos préstamos tiene cada empleado. La vista valida y guarda los datos del formulario
+    cuando se realiza un POST.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que puede incluir datos de formulario vía POST.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/employee_loans.html' con el formulario y la lista de préstamos.
+
+    See Also
+    --------
+    LoansForm : Formulario para registrar préstamos.
+    Prestamos : Modelo que representa los préstamos de los empleados.
+    Contratos : Relación entre empleados y la empresa.
+    """
+
     #variables
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -86,7 +110,31 @@ def employee_loans(request):
 @login_required
 @role_required('accountant', 'company', 'employee')
 def detail_employee_loans(request, pk=None):
+    """
+    Vista que muestra el historial detallado de préstamos de un empleado específico.
 
+    Se adapta dinámicamente según el rol del usuario autenticado: si es un empleado, se filtra 
+    automáticamente el contrato más reciente. Para otros roles, se usa el contrato directamente 
+    identificado por 'pk'.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP estándar.
+    pk : int, optional
+        Identificador del contrato o del empleado, dependiendo del rol del usuario.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'payroll/detail_employee_loans.html' con información del empleado
+        y sus préstamos detallados.
+
+    See Also
+    --------
+    Prestamos : Modelo de préstamos asociados al contrato.
+    Contratos : Modelo para obtener los datos del empleado asociado al préstamo.
+    """
     # Verificar si el usuario tiene el rol de 'employee'
     usuario = request.session.get('usuario', {})
     rol = usuario['rol']
@@ -125,7 +173,50 @@ def detail_employee_loans(request, pk=None):
 
 
 def api_detail_payroll_loan(request, pk=None):
+    """
+    API que devuelve en formato JSON el detalle de pagos y deducciones de un préstamo específico.
 
+    Esta vista calcula el saldo restante de un préstamo, restando las deducciones de nómina 
+    asociadas al mismo. La información se devuelve en orden cronológico con fechas de pago, 
+    valor deducido y saldo restante.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP estándar.
+    pk : int, optional
+        ID del préstamo a consultar.
+
+    Returns
+    -------
+    JsonResponse
+        Un objeto JSON que incluye el saldo inicial y una lista de deducciones con fechas y saldos.
+
+    Raises
+    ------
+    Http404
+        Si no se encuentra el préstamo con el ID dado.
+
+    Example Response
+    ----------------
+    {
+        "saldo_inicial": "$2,000,000",
+        "detalles": [
+            {
+                "nomina_id": 45,
+                "fecha_pago": "15/03/2024",
+                "valor_deduccion": "$200,000",
+                "saldo_restante": "$1,800,000"
+            },
+            ...
+        ]
+    }
+
+    See Also
+    --------
+    Prestamos : Modelo que representa préstamos.
+    Nomina : Modelo que representa movimientos de nómina (deducciones).
+    """
     # Obtener el préstamo y su saldo inicial
     try:
         prestamo = Prestamos.objects.get(idprestamo=pk)

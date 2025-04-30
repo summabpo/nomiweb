@@ -144,6 +144,42 @@ def validate_concepts(df, available_concepts):
 @login_required
 @role_required('accountant')
 def flat(request, id):
+    """
+    Procesa y valida un archivo Excel plano con datos de conceptos de nómina por contrato.
+
+    Esta vista permite a los usuarios con rol 'accountant' subir un archivo `.xlsx` con 
+    información de conceptos asociados a contratos de empleados. El sistema valida tanto 
+    la estructura del archivo como los datos por fila, generando mensajes de error claros 
+    en caso de inconsistencias.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que puede incluir un archivo Excel enviado mediante POST.
+
+    id : int
+        Identificador de la nómina o contexto al que se relaciona el procesamiento del archivo.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta que renderiza la plantilla `'./payroll/plane.html'` mostrando errores generales 
+        y por fila si los hay, junto con el identificador de la nómina original.
+
+    See Also
+    --------
+    validate_concepts : Función auxiliar que valida las columnas dinámicas del archivo.
+    Conceptosdenomina : Modelo de conceptos válidos registrados para la empresa.
+    Contratos : Modelo que representa contratos activos en la empresa.
+
+    Notes
+    -----
+    - El archivo debe estar en formato `.xlsx` y contener al menos las columnas 'Contrato' y 'Nombre'.
+    - Las columnas adicionales se tratan como conceptos codificados por número.
+    - Se genera una lista detallada de errores por cada fila inválida, usando un sistema de códigos predefinidos.
+    - Los errores de validación general se agrupan por tipo y pueden incluir problemas de formato o datos inesperados.
+    - El sistema es compatible con renderizados HTML enriquecidos para errores en columnas específicas del Excel.
+    """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
