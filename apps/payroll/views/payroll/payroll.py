@@ -399,40 +399,37 @@ def payroll_create(request):
 def payroll_edit(request):
     
     """
-    Procesa y valida un archivo Excel plano con datos de conceptos de nómina por contrato.
+    Edita los valores de cantidad y valor de un concepto de nómina individual.
 
-    Esta vista permite a los usuarios con rol 'accountant' subir un archivo `.xlsx` con 
-    información de conceptos asociados a contratos de empleados. El sistema valida tanto 
-    la estructura del archivo como los datos por fila, generando mensajes de error claros 
-    en caso de inconsistencias.
+    Esta vista permite a los usuarios con rol 'accountant' actualizar los valores de 
+    un concepto de nómina específico. Si se detectan cambios respecto a los valores 
+    previos, se registra la modificación en el historial de ediciones.
 
     Parameters
     ----------
     request : HttpRequest
-        Objeto de solicitud HTTP que puede incluir un archivo Excel enviado mediante POST.
-
-    id : int
-        Identificador de la nómina o contexto al que se relaciona el procesamiento del archivo.
+        Solicitud HTTP de tipo POST que debe contener los campos:
+        - idn: ID del concepto de nómina a editar.
+        - amount: Nueva cantidad (con punto o coma como separador decimal).
+        - value: Nuevo valor numérico (con o sin separador de miles).
 
     Returns
     -------
-    HttpResponse
-        Respuesta que renderiza la plantilla `'./payroll/plane.html'` mostrando errores generales 
-        y por fila si los hay, junto con el identificador de la nómina original.
+    JsonResponse
+        - {'mensaje': 'Concepto actualizado correctamente'} si la operación fue exitosa.
+        - {'error': 'Método no permitido'} si se accede por otro método.
+        - Mensaje de error personalizado si no se encuentra el concepto.
 
     See Also
     --------
-    validate_concepts : Función auxiliar que valida las columnas dinámicas del archivo.
-    Conceptosdenomina : Modelo de conceptos válidos registrados para la empresa.
-    Contratos : Modelo que representa contratos activos en la empresa.
+    Nomina : Modelo que almacena los conceptos de nómina por contrato.
+    EditHistory : Modelo que registra los cambios aplicados a conceptos de nómina.
 
     Notes
     -----
-    - El archivo debe estar en formato `.xlsx` y contener al menos las columnas 'Contrato' y 'Nombre'.
-    - Las columnas adicionales se tratan como conceptos codificados por número.
-    - Se genera una lista detallada de errores por cada fila inválida, usando un sistema de códigos predefinidos.
-    - Los errores de validación general se agrupan por tipo y pueden incluir problemas de formato o datos inesperados.
-    - El sistema es compatible con renderizados HTML enriquecidos para errores en columnas específicas del Excel.
+    - El campo 'amount' puede incluir comas como separador decimal, las cuales se convierten.
+    - Se registra el cambio solo si hay diferencia entre el valor anterior y el nuevo.
+    - Las modificaciones se auditan por campo y se guardan con información del usuario y empresa.
     """
     
     
@@ -513,6 +510,44 @@ def payroll_edit(request):
 @login_required
 @role_required('accountant')
 def payroll_delete(request):
+    
+    """
+    Elimina un concepto de nómina específico y actualiza el resumen de ingresos y egresos del contrato asociado.
+
+    Esta vista permite a los usuarios con rol 'accountant' eliminar un concepto de nómina individual a través 
+    de una solicitud POST. Luego de eliminar el concepto, recalcula los ingresos, egresos y total del contrato 
+    relacionado, retornando además una lista actualizada de los conceptos restantes.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP de tipo POST que debe incluir en el cuerpo (`body`) el ID del concepto a eliminar (`idn`).
+
+    Returns
+    -------
+    JsonResponse
+        - 'message': Mensaje de confirmación.
+        - 'data': Diccionario que contiene:
+            - 'salario': Salario base del contrato en formato de moneda.
+            - 'ingresos': Suma de los conceptos positivos.
+            - 'egresos': Suma de los conceptos negativos.
+            - 'total': Resultado neto (ingresos + egresos).
+            - 'conceptos': Lista de conceptos de nómina restantes.
+            - 'value': Valor booleano de control (siempre True).
+            - 'conceptors': Lista de conceptos de nómina disponibles para la empresa.
+
+    See Also
+    --------
+    Nomina : Modelo que almacena los conceptos de nómina por contrato.
+    Conceptosdenomina : Modelo que representa los conceptos disponibles por empresa.
+
+    Notes
+    -----
+    - El valor eliminado no se resta directamente, sino que se recalculan los totales en base a los conceptos restantes.
+    - La vista formatea los valores monetarios para mejorar su legibilidad en la interfaz.
+    - El contrato y la nómina asociados se determinan a partir del concepto recibido.
+    """
+    
     ingreso = 0  # Inicializamos la variable ingreso
     egreso = 0   # Inicializamos la variable egreso
     usuario = request.session.get('usuario', {})
@@ -581,6 +616,41 @@ def payroll_delete(request):
 @login_required
 @role_required('accountant')
 def payroll_general(request, idnomina):
+    
+    """
+    Renderiza la vista general de contratos activos para una nómina específica.
+
+    Esta vista permite a los usuarios con rol 'accountant' visualizar los contratos activos asociados a la empresa,
+    proporcionando los datos básicos de los empleados, incluyendo nombre completo, cargo y documento de identidad. 
+    Se utiliza como punto de partida para la asignación o consulta de conceptos de nómina por contrato.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP que contiene la sesión activa del usuario autenticado.
+    
+    idnomina : int
+        Identificador de la nómina con la que se relacionan los contratos que se mostrarán.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla `'./payroll/partials/payroll_general.html'` con un diccionario que incluye:
+            - 'contratos_empleados': Lista de contratos activos con datos del empleado.
+            - 'idnomina': Identificador de la nómina proporcionado como parámetro.
+
+    See Also
+    --------
+    Contratos : Modelo que representa los contratos laborales activos.
+    get_empleado_name : Función auxiliar que construye el nombre completo de un empleado.
+
+    Notes
+    -----
+    - Solo se incluyen contratos con estado activo (`estadocontrato=1`).
+    - Se utiliza `select_related` para optimizar las consultas relacionadas con empleados, sedes, cargos y tipos de contrato.
+    - El nombre completo de cada empleado se construye dinámicamente para facilitar la presentación en la vista HTML.
+    """
+    
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
 
@@ -605,6 +675,50 @@ def payroll_general(request, idnomina):
 @login_required
 @role_required('accountant')
 def payroll_general_data(request,idnomina):
+    
+    """
+    Procesa y muestra los conceptos de nómina asignados a un contrato específico dentro de una nómina.
+
+    Esta vista permite a los usuarios con rol 'accountant' consultar los conceptos de nómina asociados a un contrato 
+    específico dentro de una nómina ya existente. Calcula ingresos, egresos y el total, y prepara los datos para 
+    renderizar la interfaz parcial con los detalles del contrato y sus conceptos.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la información del usuario autenticado y el contrato seleccionado.
+
+    idnomina : int
+        Identificador de la nómina en la que se encuentran los conceptos a consultar.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla `'./payroll/partials/payroll_general_data.html'` con un diccionario que incluye:
+            - 'salario': Salario base del contrato.
+            - 'ingresos': Total de conceptos positivos.
+            - 'egresos': Total de conceptos negativos.
+            - 'total': Suma de ingresos y egresos.
+            - 'idnomina': ID de la nómina actual.
+            - 'id': ID del contrato seleccionado.
+            - 'conceptos': Lista detallada de conceptos asignados al contrato.
+            - 'conceptors': Lista de conceptos registrados en la empresa para ser seleccionados.
+            - 'true': Bandera booleana para indicar si hubo selección de contrato.
+
+    See Also
+    --------
+    Nomina : Modelo que contiene los conceptos asignados por contrato.
+    Contratos : Modelo que representa los contratos activos.
+    Conceptosdenomina : Modelo con los conceptos válidos registrados para la empresa.
+
+    Notes
+    -----
+    - La vista requiere una solicitud POST con el ID de contrato (`contrato_empleado`).
+    - Se calcula automáticamente el total de ingresos y egresos del contrato.
+    - Utiliza `select_related` para optimizar las consultas relacionadas con conceptos y contratos.
+    - El salario se muestra en formato monetario.
+    """
+    
     ingreso = 0  # Inicializamos la variable ingreso
     egreso = 0   # Inicializamos la variable egreso
     conceptos_data = []
@@ -666,6 +780,53 @@ def payroll_general_data(request,idnomina):
 @login_required
 @role_required('accountant')
 def payroll_concept_info(request):
+    """
+    Retorna información detallada sobre un concepto de nómina específico aplicado a un contrato.
+
+    Esta vista, restringida al rol 'accountant', se encarga de calcular el valor estimado de un concepto de nómina 
+    utilizando su fórmula y multiplicador, en función del salario del empleado o del auxilio de transporte, 
+    dependiendo del tipo de fórmula registrada en la base de datos.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que debe contener los siguientes datos en el cuerpo (formato POST codificado como `application/x-www-form-urlencoded` o `application/json`):
+            - concept : int
+                ID del concepto de nómina a consultar.
+            - idempleado : int
+                ID del contrato del empleado al que se le aplicará el concepto.
+            - payroll : int
+                ID de la nómina a la que pertenece el concepto.
+
+    Returns
+    -------
+    JsonResponse
+        Devuelve un JSON con:
+            - 'message': Mensaje de éxito si todo fue correcto.
+            - 'concept': ID del concepto solicitado.
+            - 'formula': Booleano que indica si el concepto tiene fórmula válida (1 o 2).
+            - 'multiplier': Valor numérico calculado con base en la fórmula del concepto.
+
+        En caso de error, devuelve un mensaje apropiado con código HTTP 400 o 405.
+
+    See Also
+    --------
+    Conceptosdenomina : Modelo con los conceptos de nómina y sus fórmulas.
+    Contratos : Modelo que contiene información del salario del contrato activo.
+    Salariominimoanual : Modelo con los valores del auxilio de transporte por año.
+    Crearnomina : Modelo que representa la nómina mensual o acumulada.
+    Conceptosfijos : Modelo que almacena valores fijos referenciales como el divisor estándar.
+
+    Notes
+    -----
+    - Las fórmulas válidas son: 
+        '1' para multiplicar por días y valor base (salario o auxilio),
+        '2' para multiplicar por un factor fijo dividido entre salario,
+        '0' u otros son considerados como sin fórmula válida.
+    - El código `2` representa el auxilio de transporte, y se maneja de manera especial.
+    - Si faltan datos requeridos o se usa un método diferente a POST, se devuelve un error.
+    """
+    
     if request.method == 'POST':
         body = QueryDict(request.body.decode('utf-8'))  # Parseamos el body
         concept = body.get('concept')
@@ -712,6 +873,33 @@ def payroll_concept_info(request):
 @login_required
 @role_required('accountant')
 def payroll_calculate(request,id):
+    """
+    Realiza un cálculo simple asociado a un contrato de nómina.
+
+    Esta vista recibe una cantidad enviada mediante POST y devuelve el doble de dicha cantidad.
+    Está restringida a usuarios autenticados con el rol 'accountant'. No realiza validaciones adicionales 
+    ni consulta la base de datos más allá del ID del contrato recibido por parámetro.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        La solicitud HTTP que contiene:
+            - cantidad : int (en POST)
+                Cantidad numérica que se desea multiplicar por 2.
+    id : int
+        ID del contrato del cual se quiere usar el dato, aunque no se utiliza directamente.
+
+    Returns
+    -------
+    HttpResponse
+        Una respuesta plana con el número calculado (cantidad * 2), o vacía si ocurre un error o no es POST.
+
+    Notes
+    -----
+    - Esta vista puede usarse para pruebas o cálculos intermedios en el frontend.
+    - No retorna HTML ni renderiza plantilla.
+    """
+    
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':
@@ -729,6 +917,51 @@ def payroll_calculate(request,id):
 @login_required
 @role_required('accountant')
 def payroll_info_edit(request):
+    """
+    Retorna información detallada sobre un concepto aplicado a un registro específico de nómina.
+
+    Esta vista permite obtener la fórmula y el multiplicador de un concepto existente en la base de datos
+    vinculado a una línea de nómina. Se calcula el valor base del concepto con base en su tipo de fórmula
+    y se devuelve junto con su identificador y estado.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        La solicitud HTTP debe ser de tipo POST y debe contener en el cuerpo:
+            - concept : int
+                ID del concepto de nómina.
+            - idn : int
+                ID del registro de nómina (`idregistronom`) al que pertenece el concepto.
+
+    Returns
+    -------
+    JsonResponse
+        Retorna un JSON con:
+            - 'message': Confirmación de recepción exitosa.
+            - 'concept': ID del concepto solicitado.
+            - 'idn': ID del registro de nómina.
+            - 'formula': Booleano que indica si tiene fórmula asociada.
+            - 'multiplier': Valor calculado según la fórmula del concepto.
+
+        En caso de error o si no es método POST, retorna un mensaje apropiado con código HTTP 400 o 405.
+
+    See Also
+    --------
+    Nomina : Modelo de registros de nómina.
+    Conceptosdenomina : Contiene la fórmula y multiplicador del concepto.
+    Salariominimoanual : Usado para obtener el valor del auxilio de transporte.
+    Conceptosfijos : Referencia para fórmulas con divisores fijos.
+    Crearnomina : Para obtener el año base del cálculo.
+    Contratos : Modelo que contiene los salarios para aplicar en la fórmula.
+
+    Notes
+    -----
+    - Fórmulas posibles:
+        '1': Multiplica el salario o auxilio de transporte diario por el multiplicador.
+        '2': Usa un valor fijo como divisor para calcular el proporcional.
+        '0': No tiene fórmula y devuelve multiplicador 0.
+    - Si el concepto tiene código 2, se trata como auxilio de transporte.
+    """
     if request.method == 'POST':
         body = QueryDict(request.body.decode('utf-8'))
         concept = body.get('concept')

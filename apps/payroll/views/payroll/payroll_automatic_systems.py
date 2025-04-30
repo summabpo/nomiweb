@@ -14,6 +14,49 @@ from datetime import timedelta
 @login_required
 @role_required('accountant')
 def automatic_systems(request, type_payroll=0,idnomina=0):
+    """
+        Ejecuta procesos automáticos sobre distintos tipos de nómina según el tipo de cálculo seleccionado.
+
+        Esta vista permite al usuario contable ejecutar distintos tipos de procesos automáticos sobre una
+        nómina ya creada, como: cálculo básico, incapacidades, aportes o transporte. Además, maneja opciones
+        adicionales como comentarios obligatorios para la modificacion del modal en donde se visualiza el procesp y centros de costo.
+
+        Parameters
+        ----------
+        request : HttpRequest
+            Solicitud HTTP de tipo GET o POST que puede contener los siguientes campos en el POST:
+            - no-cost-center: Indica si se omite el centro de costo (valor 'on' si está marcado).
+            - costos: ID del centro de costo, solo si se requiere usarlo.
+
+        type_payroll : int, opcional
+            Define el tipo de proceso a ejecutar:
+            - 0: Nómina básica.
+            - 1: Incapacidades.
+            - 2: Aportes.
+            - 3: Transporte.
+            - Otro: Error de tipo.
+
+        idnomina : int, opcional
+            ID de la nómina sobre la que se aplicará el proceso.
+
+        Returns
+        -------
+        HttpResponse
+            - Renderiza el template 'payroll/partials/payroll_automatic_systems.html' si es una solicitud GET.
+            - Redirige a la vista de la nómina con un mensaje de éxito o error si es una solicitud POST.
+
+        See Also
+        --------
+        Costos : Modelo que representa los centros de costo disponibles por empresa.
+        messages : Sistema de mensajes de Django utilizado para notificar el estado del proceso.
+
+        Notes
+        -----
+        - El título del proceso se adapta dinámicamente al tipo de proceso seleccionado.
+        - Las funciones de procesamiento de nómina (`procesar_nomina_basica`, `procesar_nomina_incapacidad`, etc.) 
+            se encargan de realizar el cálculo según el tipo seleccionado.
+        - La vista maneja redirecciones con mensajes de éxito o error dependiendo de si el proceso fue exitoso o no.
+    """
     
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -33,11 +76,9 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
     
     if request.method == 'POST':
         need_comment = request.POST.get('need_comment', False)  # Devuelve 'on' si está marcado, None si no
-        no_cost_center = request.POST.get('no-cost-center', False)
         costo = request.POST.get('costos', False)
         # Convertirlo a True/False
         need_comment = need_comment == 'on'
-        no_cost_center = no_cost_center == 'on'
         
         ne = costo if need_comment else 0
         
@@ -85,6 +126,45 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
 
 def procesar_nomina_basica(idn, parte_nomina,idempresa):
+    """
+    Procesa la nómina básica para todos los contratos activos de una empresa en un periodo determinado.
+
+    Esta función calcula y registra el valor correspondiente a los días trabajados de cada contrato
+    en una nómina específica. El valor se ajusta por ausencias relacionadas con vacaciones o incapacidades, 
+    y se determina el concepto de nómina según el tipo de salario o contrato del empleado.
+
+    Parameters
+    ----------
+    idn : int
+        ID de la nómina a procesar.
+
+    parte_nomina : int
+        ID del centro de costo o parte de nómina a filtrar (0 si no se desea filtrar).
+
+    idempresa : int
+        ID de la empresa a la que pertenecen los contratos.
+
+    Returns
+    -------
+    bool
+        True si el proceso se ejecuta correctamente, o un string de error si ocurre un problema
+        al obtener la nómina.
+
+    See Also
+    --------
+    Crearnomina : Modelo que almacena los datos generales de una nómina.
+    Contratos : Modelo que representa los contratos de empleados.
+    Nomina : Modelo donde se registran los conceptos individuales por empleado.
+    Conceptosdenomina : Catálogo de conceptos utilizados en la nómina.
+    EditHistory : Registro de modificaciones hechas en la nómina.
+
+    Notes
+    -----
+    - Se descuenta del total de días de nómina los días de vacaciones e incapacidades.
+    - El código del concepto de nómina depende del tipo de salario y tipo de contrato.
+    - Si el concepto ya existe y no tiene historial de edición, se actualiza; de lo contrario, se crea uno nuevo.
+    """
+    
     if not parte_nomina:
         parte_nomina = 0
 
@@ -164,6 +244,47 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
 
 
 def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
+    """
+    Procesa las incapacidades médicas reportadas dentro del rango de fechas de una nómina.
+
+    Esta función calcula y registra los valores correspondientes a las horas de incapacidad 
+    asumidas por la empresa o por las entidades de salud, dependiendo del tipo de incapacidad. 
+    Los valores son calculados a partir del IBC (ingreso base de cotización), ajustado según normativas.
+
+    Parameters
+    ----------
+    idn : int
+        ID de la nómina que se está procesando.
+
+    parte_nomina : int
+        ID del centro de costo o parte de nómina a filtrar (0 si no se desea filtrar).
+
+    idempresa : int
+        ID de la empresa sobre la que se aplican los cálculos.
+
+    Returns
+    -------
+    bool
+        True si el proceso se ejecuta correctamente.
+
+    See Also
+    --------
+    Crearnomina : Modelo que representa los datos de una nómina.
+    Incapacidades : Modelo con el registro de incapacidades por contrato.
+    Nomina : Modelo donde se almacenan los conceptos resultantes de la incapacidad.
+    Conceptosdenomina : Catálogo de conceptos de nómina.
+    EditHistory : Modelo para auditar cambios en los registros de nómina.
+
+    Notes
+    -----
+    - El IBC puede ser ajustado según si la empresa paga el 100% o el 66.7% de la incapacidad.
+    - El valor mínimo del IBC es el salario mínimo del año correspondiente.
+    - La función distingue los conceptos según si la incapacidad es EPS (primera o prolongada), ARL u otra.
+    - Se registra la incapacidad en dos conceptos si hay días asumidos por la empresa y por la EPS/ARL.
+    - Las horas se calculan a partir de los días usando una jornada de 8 horas diarias.
+    - Si ya existe un registro del concepto y no ha sido editado, se actualiza; si no, se crea uno nuevo.
+    """
+    
     if not parte_nomina:
         parte_nomina = 0
         
@@ -313,6 +434,49 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
 
 
 def procesar_nomina_aportes(idn, parte_nomina,idempresa):
+    """
+    Procesa los aportes obligatorios a seguridad social (EPS, AFP y FSP) para los contratos activos en una nómina.
+
+    Esta función calcula los valores que deben descontarse al empleado por concepto de EPS, AFP y FSP 
+    según la base de cotización determinada por los conceptos salariales devengados. El cálculo considera 
+    topes máximos de cotización y aplica condiciones especiales como tipo de salario integral y 
+    exenciones por condición de pensionado.
+
+    Parameters
+    ----------
+    idn : int
+        ID de la nómina que se está procesando.
+
+    parte_nomina : int
+        ID del centro de costo o parte de nómina a filtrar (0 si no se desea filtrar).
+
+    idempresa : int
+        ID de la empresa sobre la que se aplican los cálculos.
+
+    Returns
+    -------
+    bool
+        True si el proceso se ejecuta correctamente.
+
+    See Also
+    --------
+    Nomina : Modelo donde se almacenan los conceptos deducidos de la nómina.
+    Conceptosfijos : Tabla de valores fijos como porcentaje EPS/AFP o topes.
+    Conceptosdenomina : Catálogo de conceptos de nómina con su codificación.
+    Contratos : Modelo que representa los contratos activos de los empleados.
+    EditHistory : Modelo para auditar cambios en los registros de nómina.
+
+    Notes
+    -----
+    - El cálculo de la base de cotización excluye ciertos conceptos como cesantías, primas, etc.
+    - Si el salario es de tipo integral, se ajusta la base según el porcentaje del factor integral.
+    - El FSP se aplica solo si la base supera los 4 salarios mínimos, y su porcentaje varía por rango.
+    - Si el empleado es pensionado (valor '2'), no se aplican descuentos de AFP ni FSP.
+    - Los valores se registran como negativos en la tabla `Nomina`, indicando deducción.
+    - Si ya existe un registro y no ha sido editado por el usuario, se actualiza; si no, se crea uno nuevo.
+    """
+    
+    
     EPS = Conceptosfijos.objects.get(idfijo = 10)
     AFP = Conceptosfijos.objects.get(idfijo = 12)
     tope_ibc = Conceptosfijos.objects.get(idfijo = 4)
@@ -487,6 +651,50 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
 
 
 def procesar_nomina_transporte(idn, parte_nomina,idempresa):
+    """
+    Procesa el auxilio de transporte para los contratos activos dentro de una nómina.
+
+    Esta función calcula y registra el valor correspondiente al auxilio de transporte, 
+    teniendo en cuenta si el empleado tiene derecho a este beneficio según su salario 
+    y condiciones del contrato. El valor es proporcional a los días efectivamente laborados, 
+    excluyendo vacaciones e incapacidades.
+
+    Parameters
+    ----------
+    idn : int
+        ID de la nómina que se está procesando.
+
+    parte_nomina : int
+        ID del centro de costo o parte de nómina a filtrar (0 si no se desea filtrar).
+
+    idempresa : int
+        ID de la empresa sobre la que se aplican los cálculos.
+
+    Returns
+    -------
+    bool
+        True si el proceso se ejecuta correctamente.
+
+    See Also
+    --------
+    Crearnomina : Modelo que representa los datos de una nómina.
+    Nomina : Modelo donde se almacenan los conceptos resultantes del auxilio.
+    Conceptosdenomina : Catálogo de conceptos de nómina.
+    EditHistory : Modelo para auditar cambios en los registros de nómina.
+    Salariominimoanual : Tabla con los valores del salario mínimo y auxilio de transporte por año.
+
+    Notes
+    -----
+    - Solo se liquida el auxilio si el salario es igual o inferior a dos salarios mínimos y 
+      si el contrato tiene activado el beneficio (`auxiliotransporte`).
+    - No se liquida auxilio durante días de vacaciones o incapacidades.
+    - El cálculo es proporcional a los días efectivamente laborados, con un tope de 30 días.
+    - Si ya existe un registro del auxilio y no ha sido editado, se actualiza; si no, se crea uno nuevo.
+    - El concepto usado para registrar el auxilio tiene código `2`.
+    - Se excluyen conceptos específicos con indicador 25 para calcular la base del auxilio.
+    """
+
+
     if not parte_nomina:
         parte_nomina = 0
 
@@ -591,6 +799,32 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
         
 
 def calcular_vacaciones(contrato,nomina ):
+    """
+    Calcula los días de vacaciones que se cruzan con el período de la nómina.
+
+    Esta función determina cuántos días de vacaciones corresponden dentro del rango de fechas 
+    de una nómina, considerando únicamente vacaciones efectivas de tipo legal ('tipovac' = '1') 
+    y con estado aprobado (`estado = 2`).
+
+    Parameters
+    ----------
+    contrato : Contratos
+        Objeto de contrato al que se le desea calcular los días de vacaciones.
+
+    nomina : Crearnomina
+        Objeto de nómina con las fechas que se utilizarán para determinar el cruce.
+
+    Returns
+    -------
+    int
+        Número de días de vacaciones que coinciden con el período de la nómina.
+
+    See Also
+    --------
+    EmpVacaciones : Modelo maestro de solicitudes de vacaciones.
+    Vacaciones : Modelo con el detalle de fechas por solicitud de vacaciones.
+    """
+
     dias_vacaciones = 0
     vacaciones = EmpVacaciones.objects.filter(idcontrato=contrato ,estado = 2 ,tipovac='1' )
     for vac in vacaciones:
@@ -608,6 +842,30 @@ def calcular_vacaciones(contrato,nomina ):
 
 
 def calculo_incapacidad(contrato, idn ):   
+    """
+    Calcula los días de incapacidad registrados en la nómina para un contrato.
+
+    Esta función consulta los registros de incapacidad presentes en la nómina 
+    a través de los conceptos con códigos específicos asociados a incapacidades.
+
+    Parameters
+    ----------
+    contrato : Contratos
+        Objeto de contrato al que se le desea calcular la incapacidad.
+
+    idn : int
+        ID de la nómina correspondiente al período a evaluar.
+
+    Returns
+    -------
+    int
+        Número total de días de incapacidad registrados.
+
+    See Also
+    --------
+    Nomina : Modelo donde se registran los conceptos de nómina, incluyendo incapacidades.
+    """
+
     dias_incapacidad = 0
     
     dias_incapacidad_tempo = Nomina.objects.filter(
@@ -627,6 +885,29 @@ def calculo_incapacidad(contrato, idn ):
 
 
 def calculo_prestamo(contrato, idn):
+    """
+    Calcula y registra las deducciones por préstamos activos de un contrato.
+
+    Esta función verifica si un préstamo está activo y si ya fue deducido en la nómina actual. 
+    Si no ha sido registrado, se calcula el valor correspondiente a descontar (cuota del préstamo) 
+    y se crea un registro en la nómina. Si ya hay deducciones previas, se verifica si el préstamo 
+    ya está totalmente cubierto.
+
+    Parameters
+    ----------
+    contrato : Contratos
+        Objeto de contrato asociado al préstamo.
+
+    idn : int
+        ID de la nómina actual donde se registra la deducción.
+
+    See Also
+    --------
+    Prestamos : Modelo que representa los préstamos otorgados.
+    Conceptosdenomina : Catálogo de conceptos de nómina.
+    Nomina : Modelo donde se registran los descuentos de los préstamos.
+    """
+
     loans = Prestamos.objects.filter(idcontrato=contrato , estadoprestamo = True ).order_by('-idprestamo')
     conceptosdenomina = Conceptosdenomina.objects.get(codigo = 50 , id_empresa = contrato.id_empresa_id)
     
@@ -679,6 +960,28 @@ def calculo_prestamo(contrato, idn):
     
     
 def calculo_novfija(contrato, idn):
+    """
+    Procesa las novedades fijas activas para un contrato en la nómina actual.
+
+    Esta función verifica si una novedad fija ya ha sido registrada en la nómina. 
+    Si no lo ha sido, la registra con su valor correspondiente. Si la novedad tiene fecha de finalización 
+    dentro del período de la nómina, se registra con cantidad cero y se marca como inactiva.
+
+    Parameters
+    ----------
+    contrato : Contratos
+        Objeto de contrato al que se aplican las novedades fijas.
+
+    idn : int
+        ID de la nómina actual en la que se deben registrar las novedades.
+
+    See Also
+    --------
+    NovFijos : Modelo que contiene las novedades fijas asociadas a un contrato.
+    Conceptosdenomina : Catálogo de conceptos de nómina.
+    Nomina : Modelo donde se registran las novedades.
+    """
+
     nomina = Crearnomina.objects.get(pk=idn)
     novs = NovFijos.objects.filter(idcontrato=contrato, estado_novfija=True).order_by('-idnovfija')
 
