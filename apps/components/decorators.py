@@ -5,8 +5,29 @@ from django.core.exceptions import PermissionDenied
 
 def role_required(*allowed_roles):
     """
-    Decorador para verificar si el usuario tiene alguno de los roles permitidos y redirigir en consecuencia.
+    
+    Decorador para verificar si el usuario tiene uno de los roles permitidos y redirigir en consecuencia.
+
+    Este decorador comprueba si el rol del usuario, almacenado en la sesión, coincide con alguno de los roles
+    permitidos que se pasan como argumento. Si el rol del usuario es uno de los permitidos, la vista se ejecuta
+    normalmente. Si no, el usuario es redirigido a una página acorde a su rol.
+
+    Parameters
+    ----------
+    allowed_roles : tuple
+        Tupla de roles permitidos que el usuario debe tener para poder acceder a la vista decorada.
+
+    Returns
+    -------
+    function
+        Función decoradora que envuelve la vista original y la protege con la lógica de verificación de roles.
+
+    See Also
+    --------
+    - `redirect_by_role`: Función encargada de redirigir al usuario según su rol.
+    
     """
+    
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
@@ -25,6 +46,29 @@ def role_required(*allowed_roles):
 
 
 def custom_login_required(view_func):
+    """
+    
+    Decorador para asegurar que el usuario esté autenticado antes de acceder a la vista.
+
+    Este decorador verifica si el usuario está autenticado, es decir, si la sesión tiene una sesión activa. Si
+    el usuario no está autenticado, se le redirige a la página de inicio de sesión.
+
+    Parameters
+    ----------
+    view_func : function
+        Función de vista que será envuelta por el decorador y a la cual se le aplicará la lógica de autenticación.
+
+    Returns
+    -------
+    function
+        Función decoradora que protege la vista asegurando que el usuario esté autenticado.
+
+    See Also
+    --------
+    - `TempSession`: Clase que maneja la lógica de verificación de sesión activa.
+    
+    """
+    
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if not TempSession().is_logged_in():
@@ -34,6 +78,28 @@ def custom_login_required(view_func):
 
 
 def custom_permission(permission):
+    """
+    
+    Decorador para verificar que el usuario tenga un permiso específico.
+
+    Este decorador valida si el usuario tiene un permiso específico antes de permitirle acceder a la vista.
+    Si el permiso no coincide con el que se espera, el usuario será redirigido a la página de permisos.
+
+    Parameters
+    ----------
+    permission : str
+        El permiso requerido para que el usuario pueda acceder a la vista.
+
+    Returns
+    -------
+    function
+        Función decoradora que envuelve la vista original y la protege con la lógica de verificación de permisos.
+
+    See Also
+    --------
+    - `TempSession`: Clase que maneja la verificación de permisos de sesión.
+    
+    """
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
