@@ -25,6 +25,28 @@ def generate_random_password(length=12):
 @login_required
 @role_required('company','accountant')
 def hiring(request):
+    """
+    Vista para mostrar el listado de empleados contratados.
+
+    Esta vista muestra la lista de empleados contratados en la empresa. Solo pueden acceder los usuarios 
+    autenticados con el rol 'company' o 'accountant'. La vista filtra a los empleados que tienen el estado 
+    de contrato activo (estado 4).
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP utilizado para obtener los datos del usuario y los empleados contratados.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta HTTP con el template 'companies/hiring.html' que contiene la lista de empleados 
+        contratados y los formularios para agregar nuevos empleados y contratos.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     empleados = {}
@@ -41,6 +63,29 @@ def hiring(request):
 @login_required
 @role_required('company','accountant')
 def hiring_employee(request):
+    """
+    Vista para crear un nuevo empleado.
+
+    Esta vista permite crear un nuevo empleado en la empresa mediante el formulario 'EmployeeForm'. Si el 
+    formulario es válido, se crea el empleado y se guarda en la base de datos. Si el formulario no es válido, 
+    se muestran los errores de validación. Si el empleado es registrado correctamente, se muestra un mensaje 
+    de éxito.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del nuevo empleado a crear.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta HTTP con el resultado de la operación. Si el formulario es válido, se registra 
+        el empleado y se muestra un mensaje de éxito; si no, se muestra el formulario con los errores.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form_empleados = EmployeeForm(idempresa = idempresa)
@@ -139,6 +184,31 @@ def hiring_employee(request):
 @login_required
 @role_required('company','accountant')
 def hiring_contract(request,idempleado):
+    """
+    Vista para crear un contrato para un empleado.
+
+    Esta vista permite crear un contrato para un empleado específico mediante el formulario 'ContractForm'. 
+    Si el formulario es válido, se crea el contrato y se actualiza el estado del empleado a 'activo'. Si el formulario
+    no es válido, se muestran los errores del formulario en la interfaz.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del contrato a crear.
+
+    idempleado : int
+        El ID del empleado para el cual se va a crear el contrato.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta HTTP con el resultado de la operación, ya sea mostrando el formulario con errores 
+        o un mensaje de éxito si el contrato fue creado correctamente.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':
@@ -246,6 +316,29 @@ def get_or_none(model, **kwargs):
 @login_required
 @role_required('company','accountant')
 def process_forms_contract(request):
+    """
+    Vista para procesar y crear un contrato basado en los datos del formulario.
+
+    Esta vista permite a los usuarios crear un contrato para un empleado específico. Los datos del contrato 
+    son enviados mediante un formulario 'ContractForm'. Si el formulario es válido, se crea el contrato con los 
+    parámetros especificados, se guarda en la base de datos, y el estado del empleado se actualiza a 'activo'. 
+    Si el formulario no es válido, se muestran los errores correspondientes.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del formulario de contrato.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta HTTP redirigiendo a la vista de contratación ('companies:hiring') o mostrando 
+        los errores del formulario en caso de ser inválido.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     # Procesar los datos del formulario 2
@@ -333,6 +426,27 @@ def process_forms_contract(request):
 @login_required
 @role_required('company')
 def process_forms_employee(request):
+    """
+    Vista para procesar la creación de un nuevo empleado.
+
+    Esta vista permite procesar la creación de un nuevo empleado en la empresa. Si el formulario es válido, 
+    se crea el nuevo empleado y se guarda en la base de datos. En caso contrario, se redirige a la vista de 
+    contratación con posibles errores de validación.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del nuevo empleado.
+
+    Returns
+    -------
+    HttpResponse
+        Redirige a la vista 'companies:hiring' tras procesar el formulario de empleado.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' para acceder a esta vista.
+    """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     

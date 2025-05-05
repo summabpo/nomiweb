@@ -9,6 +9,44 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('company','accountant')
 def EditContracVisual(request,idempleado):
+    """
+    Vista para editar el contrato de un empleado de manera visual.
+
+    Esta vista permite editar los detalles del contrato de un empleado, mostrando un formulario pre-rellenado 
+    con la información actual del contrato. Los usuarios autenticados con roles de 'company' o 'accountant' 
+    pueden acceder y realizar cambios en los datos del contrato. Los cambios se guardan en la base de datos 
+    si el formulario es válido. En caso de errores, se muestran mensajes de error correspondientes.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del formulario de edición del contrato.
+        - Si la solicitud es de tipo POST, incluye los datos modificados del contrato.
+    idempleado : int
+        Identificador del empleado cuyo contrato se va a editar.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta HTTP que muestra el formulario de edición de contrato, 
+        o redirige a otra página si el formulario se guarda correctamente.
+
+    See Also
+    --------
+    ContractForm : Formulario para la edición de los contratos de empleados.
+    Contratos : Modelo que representa los contratos de los empleados.
+    Costos : Modelo que representa los costos asociados al contrato.
+    Subcostos : Modelo que representa los subcostos asociados al contrato.
+    Centrotrabajo : Modelo que representa los centros de trabajo.
+    messages : Módulo para mostrar mensajes de éxito o error.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener los roles de 'company' o 'accountant' para acceder a esta vista.
+    Si se produce un error al guardar el contrato, se muestra un mensaje de error.
+    Si el formulario es válido, el contrato se actualiza y se muestra un mensaje de éxito.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     empleado = Contratosemp.objects.get(idempleado=int(idempleado)) 

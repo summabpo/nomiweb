@@ -11,7 +11,12 @@ import json
 from apps.components.humani import format_value
 
 
+"""
+#!Obsolete view 
+"""
+
 def loans(request):
+
   # Obtener los datos de la tabla Prestamos
   prestamos = Prestamos.objects.values(
       'idcontrato__idcontrato',

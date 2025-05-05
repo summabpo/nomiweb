@@ -4,6 +4,83 @@ from django.db.models import Sum
 from .datacompanies import datos_cliente
 from apps.components.humani import format_value ,format_value_float , format_value_void
 
+
+"""
+Funciones para la Gestión de Nómina y Comprobantes
+
+Estas funciones están diseñadas para generar comprobantes de nómina y resúmenes de nómina, realizando cálculos de devengados, descuentos, y el total neto.
+
+1. `limitar_cadena(cadena, max_length=25)`
+    Limita el tamaño de una cadena a un máximo de `max_length` caracteres. Si la cadena es más larga, se trunca y se le agrega "..." al final.
+
+    Parámetros
+    ----------
+    cadena : str
+        La cadena de texto a limitar.
+    max_length : int, opcional
+        La longitud máxima permitida para la cadena. El valor predeterminado es 25.
+
+    Retorna
+    -------
+    str
+        La cadena truncada o la misma cadena si no supera el límite de longitud.
+
+    Ejemplo
+    -------
+    limitar_cadena('Empleado Ejemplo de Nombre', 10) -> 'Empleado...'
+
+
+2. `genera_comprobante(idnomina, idcontrato)`
+    Genera un comprobante de nómina con los datos de devengados y descuentos para un empleado específico.
+
+    Parámetros
+    ----------
+    idnomina : int
+        ID de la nómina.
+    idcontrato : int
+        ID del contrato del empleado.
+
+    Retorna
+    -------
+    dict
+        Un diccionario con los datos del comprobante, incluyendo la empresa, el empleado, los devengados, descuentos, y el total neto.
+        Si no se encuentran los datos, devuelve un diccionario con valores nulos.
+
+    Descripción
+    -----------
+    Esta función genera un comprobante de nómina para un empleado con los datos de los devengados y descuentos asociados al contrato. Además, formatea los valores de la nómina con separadores de miles. Calcula también los totales de devengados, descuentos y el total neto.
+
+    Ejemplo
+    -------
+    genera_comprobante(1, 123) -> {'empresa': 'XYZ S.A.', 'nit': '123456789', ...}
+
+
+3. `generate_summary(idnomina, idempresa)`
+    Genera un resumen de la nómina para una empresa específica, agrupando los conceptos de ingresos y descuentos, y calculando el total de ingresos, descuentos y el neto.
+
+    Parámetros
+    ----------
+    idnomina : int
+        ID de la nómina.
+    idempresa : int
+        ID de la empresa.
+
+    Retorna
+    -------
+    dict
+        Un diccionario con el resumen de la nómina, que incluye los ingresos, descuentos, neto, y otros datos relevantes de la empresa.
+        Si no se encuentran los datos, retorna `None`.
+
+    Descripción
+    -----------
+    Esta función genera un resumen de la nómina, agrupando los ingresos y descuentos por concepto. También calcula la cantidad de empleados distintos, los totales de ingresos, descuentos y el total neto. Los valores se formatean con separadores de miles.
+
+    Ejemplo
+    -------
+    generate_summary(1, 456) -> {'empresa': 'XYZ S.A.', 'grouped_nominas': [...], 'total_ingresos': '1,000,000', ...}
+"""
+
+
 def limitar_cadena(cadena, max_length=25):
     if len(cadena) > max_length:
         return cadena[:max_length-3] + '...'

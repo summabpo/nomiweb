@@ -4,6 +4,38 @@ from crispy_forms.layout import Layout, Submit, Row, Column
 from apps.common.models import Anos
 
 
+"""
+Formulario para filtrar por año, mes y estado de liquidación.
+
+Este módulo incluye dos formularios:
+- `FilterForm`: Permite a los usuarios seleccionar un año y un mes para realizar un filtrado de los datos correspondientes.
+    Los años disponibles provienen de los registros en el modelo `Anos`, mientras que los meses son predefinidos.
+- `FiltercompleteForm`: Extiende el `FilterForm` añadiendo la opción de filtrar por el estado de liquidación. 
+    El campo `liquidation` permite seleccionar entre dos opciones: pagos efectivamente hechos o calculando salario al 100%.
+
+Parameters
+----------
+None
+
+Returns
+-------
+dict
+    - En `FilterForm`: Un formulario con dos campos: `año` y `mes`. El campo `año` carga los años desde el modelo `Anos`, 
+        y el campo `mes` tiene opciones predefinidas para cada mes del año.
+    - En `FiltercompleteForm`: Un formulario con tres campos: `año`, `mes` y `liquidation`. El campo `año` carga los años 
+        desde el modelo `Anos`, el campo `mes` tiene opciones predefinidas para cada mes, y el campo `liquidation` permite 
+        seleccionar entre dos estados de liquidación.
+
+Notes
+-----
+Ambos formularios se configuran para usar el diseño de `crispy_forms`, con selectores estilizados para una mejor experiencia 
+de usuario. Se incluye un botón de búsqueda en cada formulario que permite enviar los valores seleccionados.
+
+- En `FilterForm`, el campo `mes` es obligatorio, mientras que en `FiltercompleteForm`, el campo `liquidation` es adicional, 
+    permitiendo realizar una filtración más específica según el estado de liquidación.
+"""
+
+
 
 class FilterForm(forms.Form):
     # Definir los choices para los años (2015-2024)

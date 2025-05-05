@@ -15,6 +15,33 @@ from .generate_docu import generate_contract_excel,generate_contract_start_excel
 @login_required
 @role_required('company','accountant')
 def startCompanies(request): 
+   """
+    Muestra la lista de empleados activos con sus respectivos contratos.
+
+    Esta vista recupera los contratos activos de los empleados de la empresa a la que el usuario pertenece,
+    formatea la información y la presenta en una tabla. Los empleados son ordenados por apellido y se incluye
+    información como el salario, el cargo, y la fecha de inicio del contrato.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la sesión del usuario.
+
+    Returns
+    -------
+    render : HttpResponse
+        Respuesta con la vista de la lista de empleados y sus contratos.
+
+    See Also
+    --------
+    Contratos : Modelo que representa los contratos de los empleados.
+    
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+ 
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
@@ -57,6 +84,31 @@ def startCompanies(request):
 @login_required
 @role_required('company','accountant')
 def exportar_excel0(request):
+    """
+    Exporta los contratos activos en formato Excel.
+
+    Esta vista genera un archivo Excel con la información de los contratos activos de los empleados y lo
+    devuelve como una respuesta HTTP para su descarga.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la sesión del usuario.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta HTTP que contiene el archivo Excel generado.
+
+    See Also
+    --------
+    generate_contract_start_excel : Función que genera el archivo Excel con los contratos activos.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     excel_data = generate_contract_start_excel(idempresa)
@@ -71,6 +123,31 @@ def exportar_excel0(request):
 @login_required
 @role_required('company','accountant')
 def exportar_excel1(request):
+    """
+    Exporta los contratos activos con todos los campos en formato Excel.
+
+    Esta vista genera un archivo Excel con toda la información disponible de los contratos activos de los empleados
+    y lo devuelve como una respuesta HTTP para su descarga.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la sesión del usuario.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta HTTP que contiene el archivo Excel generado.
+
+    See Also
+    --------
+    generate_contract_excel : Función que genera el archivo Excel con todos los campos de los contratos activos.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     excel_data = generate_contract_excel(idempresa)
@@ -89,6 +166,33 @@ def exportar_excel1(request):
 @login_required
 @role_required('company','accountant')
 def exportar_excel2(request):
+    """
+    Exporta la información de las hojas de vida de los empleados activos en formato Excel.
+
+    Esta vista genera un archivo Excel con información detallada sobre los empleados activos de la empresa,
+    incluyendo datos personales como nombre, fecha de nacimiento, ciudad de residencia, y más. La información
+    se obtiene de los contratos de los empleados y se organiza en una hoja de Excel.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la sesión del usuario.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta HTTP que contiene el archivo Excel generado.
+
+    See Also
+    --------
+    Contratosemp : Modelo que representa los contratos de los empleados en la empresa.
+    Ciudades : Modelo que representa las ciudades y sus datos.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     

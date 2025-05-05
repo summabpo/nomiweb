@@ -10,6 +10,43 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('company','accountant')
 def EditEmployeeVisual(request,idempleado):
+    """
+    Vista para editar la información personal de un empleado de manera visual.
+
+    Esta vista permite editar los datos personales de un empleado, mostrando un formulario pre-rellenado 
+    con la información actual del empleado. Los usuarios autenticados con roles de 'company' o 'accountant' 
+    pueden acceder y realizar cambios en los datos del empleado. Los cambios se guardan en la base de datos 
+    si el formulario es válido. En caso de errores, se muestran mensajes de error correspondientes.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del formulario de edición del empleado.
+        - Si la solicitud es de tipo POST, incluye los datos modificados del empleado.
+    idempleado : int
+        Identificador del empleado cuyo perfil se va a editar.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta HTTP que muestra el formulario de edición de empleado, 
+        o redirige a otra página si el formulario se guarda correctamente.
+
+    See Also
+    --------
+    EmployeeForm : Formulario para la edición de los datos personales del empleado.
+    Contratosemp : Modelo que representa los empleados de la empresa.
+    Paises : Modelo que representa los países.
+    Ciudades : Modelo que representa las ciudades.
+    messages : Módulo para mostrar mensajes de éxito o error.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener los roles de 'company' o 'accountant' para acceder a esta vista.
+    Si se produce un error al guardar la información del empleado, se muestra un mensaje de error.
+    Si el formulario es válido, los datos del empleado se actualizan y se muestra un mensaje de éxito.
+    """
+
     empleado = Contratosemp.objects.get(idempleado=idempleado) 
     DicContract = {
         'nombre': (empleado.papellido or '') + ' ' + (empleado.sapellido or '') + ' ' + (empleado.pnombre or '') + ' ' + (empleado.snombre or ''),
@@ -156,6 +193,7 @@ def EditEmployeeVisual(request,idempleado):
 @login_required
 @role_required('company')
 def EditEmployeeSearch(request):
+    
     contratos_empleados = Contratos.objects \
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .filter(estadocontrato=1) \

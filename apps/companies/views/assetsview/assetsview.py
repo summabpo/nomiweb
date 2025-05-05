@@ -10,7 +10,33 @@ from django.http import JsonResponse
 @login_required
 @role_required('company','accountant')
 def contractview(request): 
-    
+    """
+    Muestra los detalles de un contrato específico de un empleado.
+
+    Recupera la información de un contrato dado el ID del contrato proporcionado en los parámetros 
+    de la solicitud GET. Devuelve la información del contrato como un objeto JSON.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene el parámetro 'dato' con el ID del contrato.
+
+    Returns
+    -------
+    JsonResponse
+        Respuesta en formato JSON con los detalles del contrato solicitado.
+
+    See Also
+    --------
+    Contratos : Modelo que representa los contratos de los empleados.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+        
     resultados = {
         '1': 'Abono a cuenta',
         '2': 'Cheque',
@@ -68,6 +94,32 @@ def contractview(request):
 @login_required
 @role_required('company','accountant')
 def resumeview(request):
+    """
+    Muestra el resumen de un empleado específico.
+
+    Recupera la información personal de un empleado dado su ID proporcionado en los parámetros
+    de la solicitud GET. Devuelve la información del empleado como un objeto JSON.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene el parámetro 'dato' con el ID del empleado.
+
+    Returns
+    -------
+    JsonResponse
+        Respuesta en formato JSON con los detalles del empleado solicitado.
+
+    See Also
+    --------
+    Contratosemp : Modelo que representa los datos del empleado.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
     dato = request.GET.get('dato')
     try:
         empleado = Contratosemp.objects.get(idempleado=dato)

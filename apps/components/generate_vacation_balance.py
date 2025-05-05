@@ -7,7 +7,39 @@ from django.utils import timezone
 from datetime import datetime
 from apps.components.utils import calcular_dias_360
 
+
+
 def calcular_vacaciones(contrato, concepto, fecha_actual):
+    
+    """
+    Calcula las vacaciones disponibles de un empleado en función de su contrato y los conceptos fijos.
+
+    Parámetros
+    ----------
+    contrato : Contratos
+        El contrato del empleado para el cual se calcularán las vacaciones.
+    
+    concepto : float
+        El porcentaje correspondiente al concepto de vacaciones (por ejemplo, 1.25% para vacaciones).
+
+    fecha_actual : datetime
+        La fecha actual (puede ser una fecha proporcionada en el parámetro o la fecha actual del sistema).
+
+    Retorna
+    -------
+    dict
+        Un diccionario con los siguientes valores:
+        - 'total_vac_disf' : float : El total de días de vacaciones ya disfrutados.
+        - 'total_vac' : float : El total de días de vacaciones que corresponden al empleado según su contrato.
+        - 'saldo' : float : El saldo de vacaciones disponible (total vacacional - días disfrutados).
+    
+    Descripción
+    -----------
+    Esta función calcula el saldo de vacaciones disponible de un empleado, sumando las vacaciones ya disfrutadas y comparándolas con el total que corresponde según el contrato.
+    - Los días disfrutados de vacaciones se obtienen de la tabla `Vacaciones` (tipovac '1' o '2').
+    - El total de días de vacaciones se calcula con base en los días del contrato y el porcentaje de vacaciones que corresponde según el concepto (proporcionado como parámetro).
+    """
+
     # Calcular las vacaciones disponibles
     total_vac_disf = Vacaciones.objects.filter(
         idcontrato=contrato.idcontrato
@@ -26,6 +58,46 @@ def calcular_vacaciones(contrato, concepto, fecha_actual):
     }
 
 def generate_balance_excel(fecha_param=None):
+    
+    """
+    Genera un archivo Excel con el saldo de vacaciones de los empleados para un período determinado.
+
+    Parámetros
+    ----------
+    fecha_param : str, opcional
+        La fecha en formato 'YYYY-MM-DD' para la cual se calculan los saldos de vacaciones. Si no se proporciona, se utiliza la fecha actual.
+
+    Retorna
+    -------
+    bytes
+        Un archivo Excel en formato binario (bytes) con el saldo de vacaciones de cada empleado.
+
+    Descripción
+    -----------
+    Esta función genera un archivo Excel que contiene un reporte de saldo de vacaciones de los empleados activos, calculando los días disfrutados, los días totales y el saldo de vacaciones disponible.
+    
+    - Los datos incluidos en el reporte son:
+      - Contrato
+      - Documento de identidad
+      - Nombre completo del empleado
+      - Fecha de inicio de contrato
+      - Salario
+      - Valor de vacaciones (calculado)
+      - Vacaciones disfrutadas
+      - Total de vacaciones (según contrato)
+      - Saldo de vacaciones
+
+    - La fecha actual o la fecha proporcionada se utiliza para calcular el saldo de vacaciones de acuerdo con los días transcurridos desde la fecha de inicio del contrato.
+    - Los valores de vacaciones se calculan con base en un concepto fijo almacenado en `Conceptosfijos`.
+    - Se aplica formato decimal a las columnas numéricas y formato de fecha a la columna de fecha de inicio de contrato.
+    - El archivo es guardado en memoria y retornado como un archivo binario en formato Excel.
+
+    Notas
+    -----
+    - El cálculo de días de vacaciones es realizado utilizando la función `calcular_dias_360`, que utiliza un cálculo de días en base a 360 días al año.
+    - El archivo contiene una hoja llamada "Saldo Vacaciones" con los datos mencionados.
+    """
+
     # Crear un archivo en memoria
     output = BytesIO()
 

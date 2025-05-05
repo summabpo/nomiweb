@@ -18,6 +18,38 @@ MESES = {
 @login_required
 @role_required('company')
 def birthday_view(request):
+    """
+    Muestra los empleados que cumplen años en un mes específico o en todos los meses.
+
+    Esta vista permite visualizar los empleados que cumplen años en un mes determinado o en todos los meses 
+    de un año. Si se solicita la descarga, genera un archivo Excel con la lista de los empleados y sus fechas de nacimiento.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los parámetros 'mes' y 'descargar'.
+        - 'mes' es el número del mes para filtrar los empleados (opcional, por defecto es 13 para todos los meses).
+        - 'descargar' es un parámetro opcional que indica si se desea generar el archivo Excel de los empleados.
+
+    Returns
+    -------
+    HttpResponse
+        Si el parámetro 'descargar' está presente, devuelve un archivo Excel con los empleados que cumplen años.
+        Si no, retorna una respuesta con la página de visualización de los empleados.
+
+    See Also
+    --------
+    Contratosemp : Modelo que representa los datos de los empleados.
+    generar_excel_cumpleanieros : Función que genera el archivo Excel con los empleados que cumplen años.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` para acceder a esta vista.
+    El parámetro 'mes' se debe proporcionar como un número del 1 al 12, donde 13 significa "todos los meses".
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario.get('idempresa')
     mes = int(request.GET.get('mes', 13))

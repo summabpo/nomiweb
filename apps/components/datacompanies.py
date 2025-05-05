@@ -1,5 +1,29 @@
 from apps.common.models import  Empresa
 
+"""
+Obtiene la información detallada de una empresa a partir de su ID.
+
+Esta función consulta la base de datos para obtener los datos de una empresa especificada 
+por su identificador `idemp` (ID de la empresa). Los datos se retornan en un diccionario que contiene 
+información clave como el NIT, nombre, dirección, contacto y otros detalles relacionados con la empresa.
+
+Parameters
+----------
+idemp : int
+    El identificador único de la empresa para la cual se desean obtener los datos.
+
+Returns
+-------
+dict
+    Un diccionario con los datos de la empresa, donde las claves representan las diferentes propiedades 
+    de la empresa (como nombre, NIT, dirección, etc.). Si algún valor no está disponible, se retorna 
+    un valor predeterminado, como "No encontrado" o `0` según corresponda.
+
+Notes
+-----
+- Si la empresa con el `idemp` especificado no existe en la base de datos, se generará una excepción `Empresa.DoesNotExist`.
+- Los valores retornados por esta función son siempre no nulos: en caso de datos faltantes, se utiliza un valor por defecto.
+"""
 
 def datos_cliente(idemp):
     empresa_data = Empresa.objects.get(idempresa=idemp)

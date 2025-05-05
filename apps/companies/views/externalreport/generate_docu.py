@@ -6,6 +6,52 @@ from apps.common.models import Nomina
 from django.db.models import Sum
 
 def generate_nomina_excel(year, month,idempresa):
+    """
+    Función para generar un informe de nómina en formato Excel.
+
+    Esta función genera un archivo Excel en memoria que contiene los datos de la nómina para un 
+    año y mes específicos, asociados a una empresa en particular. Los datos se extraen de la base de 
+    datos y se estructuran en una hoja de cálculo con las columnas correspondientes, incluyendo el 
+    contrato, cuenta contable, documento de identidad, concepto, nombre del concepto, valor y costo.
+
+    Parámetros
+    ----------
+    year : int
+        El año del período de nómina que se desea generar en el informe (formato YYYY).
+    
+    month : int
+        El mes del período de nómina que se desea generar en el informe (formato MM).
+    
+    idempresa : int
+        El identificador de la empresa cuyos datos de nómina se deben consultar.
+
+    Retorna
+    -------
+    bytes
+        Un archivo en formato Excel generado en memoria que contiene los datos de la nómina correspondiente
+        al período de año y mes especificados. El archivo es devuelto en formato de bytes para ser descargado
+        o procesado por el cliente.
+    
+    Notas
+    -----
+    El archivo generado contiene las siguientes columnas:
+        - Contrato: Identificador del contrato del empleado.
+        - Cuenta Contable: Cuenta contable asociada al concepto.
+        - Documento de Identidad: Número de documento de identidad del empleado.
+        - Concepto: Identificador del concepto de la nómina.
+        - Nombre del Concepto: Descripción del concepto de la nómina.
+        - Valor: El valor asignado al concepto de nómina.
+        - Costo: Identificador del costo asociado al concepto.
+
+    Se aplica formato decimal a la columna 'Valor' para asegurar que los números se muestren con dos decimales.
+    También se ajusta automáticamente el ancho de las columnas para que el contenido se ajuste correctamente.
+
+    Ejemplo de uso
+    ---------------
+    excel_data = generate_nomina_excel(2025, 4, 1)  # Genera un reporte para abril de 2025, empresa con ID 1
+    """
+
+
     # Crear un archivo en memoria
     output = BytesIO()
     

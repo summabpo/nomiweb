@@ -30,6 +30,15 @@ quitados
 """
 
 def generate_contract_excel(idempresa):
+    """
+    Genera un archivo Excel con los detalles de los contratos activos de los empleados de una empresa.
+
+    Parámetros:
+    - idempresa (int): Identificador de la empresa para la que se generan los contratos.
+
+    Retorna:
+    - bytes: Archivo Excel (.xlsx) con la información de los contratos de los empleados.
+    """
     # Crear un archivo en memoria
     output = BytesIO()
     
@@ -129,6 +138,15 @@ def generate_contract_excel(idempresa):
 
 
 def generate_contract_start_excel(idempresa):
+    """
+    Genera un archivo Excel con un resumen de los contratos activos de los empleados de una empresa.
+
+    Parámetros:
+    - idempresa (int): Identificador de la empresa para la que se generan los contratos.
+
+    Retorna:
+    - bytes: Archivo Excel (.xlsx) con el resumen de los contratos de los empleados.
+    """
     # Crear un archivo en memoria
     output = BytesIO()
     

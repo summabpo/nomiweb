@@ -11,6 +11,36 @@ from .diangenerate import last_business_day_of_march
 
 
 def viewdian(request):
+    """
+    Muestra los ingresos y retenciones de un empleado basado en su estado de contrato.
+
+    Esta vista permite al usuario ver los ingresos y retenciones de un empleado específico. 
+    Se filtran los empleados según su estado de contrato (activo o inactivo), y si se selecciona 
+    un empleado, se muestra la información correspondiente a ese empleado.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los parámetros 'empleado' y 'data'.
+        - 'empleado' es el identificador del empleado seleccionado (opcional).
+        - 'data' indica el estado de contrato del empleado: 'activo' o 'inactivo'.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una página HTML con la lista de empleados y la información de ingresos y retenciones 
+        para el empleado seleccionado (si corresponde).
+
+    See Also
+    --------
+    Contratosemp : Modelo que representa los empleados con su estado de contrato.
+    Ingresosyretenciones : Modelo que representa los ingresos y retenciones de los empleados.
+    
+    Notes
+    -----
+    El usuario debe estar autenticado para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     selected_empleado = request.GET.get('empleado')
@@ -50,6 +80,35 @@ def viewdian(request):
 
 
 def viewdian_download(request,idingret ):
+    
+    """
+    Genera y descarga un certificado en formato PDF con una imagen del certificado de ingresos y retenciones.
+
+    Esta vista genera un certificado en formato PDF para el ingreso y retención de un empleado, 
+    incluyendo una imagen generada previamente. El certificado se descarga como un archivo PDF.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene el identificador del registro de ingresos y retenciones.
+        - 'idingret' es el identificador del registro de ingresos y retenciones.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve un archivo PDF que contiene el certificado generado.
+
+    See Also
+    --------
+    imggenerate1 : Función personalizada para generar la imagen del certificado.
+    last_business_day_of_march : Función personalizada que calcula el último día hábil de marzo.
+    Ingresosyretenciones : Modelo que representa los ingresos y retenciones de los empleados.
+
+    Notes
+    -----
+    El usuario debe estar autenticado para acceder a esta vista.
+    """
+
     # Generar la imagen usando la función personalizada
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']

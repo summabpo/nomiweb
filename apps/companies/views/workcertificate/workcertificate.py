@@ -30,6 +30,31 @@ def get_empleado_name(empleado):
 @login_required
 @role_required('company')
 def workcertificate(request):
+    """
+    Vista para filtrar empleados y visualizar certificados laborales generados.
+
+    Esta vista permite a usuarios autenticados con el rol 'company' seleccionar un empleado, ver sus contratos y,
+    dependiendo del contrato seleccionado, visualizar los certificados laborales existentes. Según el estado del contrato 
+    (activo o terminado), se muestran diferentes opciones de generación de certificados, incluyendo tipos de salario.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP. Puede incluir parámetros GET como 'empleado' (ID del empleado) y 
+        'contrato' (ID del contrato), utilizados para filtrar la información que se mostrará.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve la plantilla HTML 'companies/workcertificate.html' con el contexto necesario para 
+        mostrar empleados, contratos, certificados generados y opciones de salario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company'. La vista proporciona datos clave para los pasos 
+    de generación y descarga de certificados laborales. Usa `Contratosemp`, `Contratos` y `Certificaciones` como modelos principales.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     empleados = []
@@ -128,6 +153,33 @@ def workcertificate(request):
 @login_required
 @role_required('company')
 def generateworkcertificate(request):
+    """
+    Vista para generar un nuevo certificado laboral en formato PDF.
+
+    Esta vista procesa una solicitud POST para generar un certificado laboral, utilizando datos enviados por 
+    formulario, incluyendo el contrato seleccionado, la plantilla y el contenido específico del certificado. 
+    Usa la función `workcertificategenerator` para construir el contenido dinámico del certificado.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP con método POST. Se esperan los campos:
+        - 'contrato' (ID del contrato a certificar)
+        - 'data_input' (datos personalizados)
+        - 'data_model' (tipo o plantilla del certificado)
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve un archivo PDF renderizado en el navegador si la generación es exitosa.
+        En caso de error, redirige a la vista 'workcertificate' y muestra un mensaje de error.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company'.
+    Utiliza `xhtml2pdf` para generar el PDF a partir de la plantilla HTML 'workcertificatework.html'.
+    """
+
     
     try:
         if request.method == 'POST':
@@ -161,6 +213,32 @@ def generateworkcertificate(request):
 @login_required
 @role_required('company')  
 def certificatedownload(request,idcert):
+    """
+    Vista para descargar un certificado laboral previamente generado.
+
+    Esta vista permite a usuarios autenticados descargar un certificado laboral ya existente en formato PDF. 
+    Se utiliza el identificador del certificado para recuperar la información y renderizar el documento 
+    a través de la plantilla HTML correspondiente.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP estándar. El método puede ser GET o POST.
+    
+    idcert : int
+        ID del certificado que se desea descargar.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve un archivo PDF renderizado directamente en el navegador.
+        Si ocurre un error durante la generación, redirige a la vista 'workcertificate' con un mensaje de error.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company'.
+    La función auxiliar `workcertificatedownload` prepara el contexto necesario para la plantilla HTML.
+    """
 
     try:
         context = workcertificatedownload(idcert)

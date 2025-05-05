@@ -19,6 +19,35 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('company')
 def bank_list_get(request):
+    """
+        Recupera el resumen de los pagos asociados a una nómina específica.
+
+        Esta vista obtiene información relacionada con los pagos de una nómina, como el banco y el número de cuenta,
+        y un desglose de los registros de empleados asociados con las cuentas de ahorro y corriente.
+
+        Parameters
+        ----------
+        request : HttpRequest
+            Objeto de solicitud HTTP que contiene el parámetro 'id_nomina' con el identificador de la nómina.
+
+        Returns
+        -------
+        JsonResponse
+            Respuesta en formato JSON con los detalles del banco, número de cuenta, 
+            cantidad de registros con cuenta de ahorro y corriente, y el total de pagos realizados.
+
+        See Also
+        --------
+        Nomina : Modelo que representa los registros de pago de empleados.
+        Bancos : Modelo que representa los datos bancarios.
+        format_value : Función que formatea valores monetarios.
+        
+
+        Notes
+        -----
+        El usuario debe estar autenticado y tener el rol `'company'` para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     count_cuenta_1 = 0
@@ -71,6 +100,36 @@ def bank_list_get(request):
 @login_required
 @role_required('company')
 def bank_file(request,idnomina):
+    """
+    Genera un archivo de texto plano con los pagos de la nómina.
+
+    Esta vista construye un archivo de texto con la información de los pagos realizados en una nómina específica, 
+    estructurado conforme al formato requerido por el banco, en este caso, Davivienda.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene el parámetro 'idnomina' con el identificador de la nómina.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta que contiene el archivo de texto generado para ser descargado.
+
+    See Also
+    --------
+    Nomina : Modelo que representa los registros de pago de empleados.
+    Bancos : Modelo que representa los datos bancarios.
+    obtener_numero_documento : Función que obtiene el número de documento de un empleado.
+    formttex, formtnun : Funciones que formatean los valores de acuerdo al formato requerido por el archivo.
+
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` para acceder a esta vista.
+    El archivo generado tiene el formato requerido por Davivienda y será descargado por el navegador.
+    """
+
     # Obtener la fecha actual
     fecha_actual = datetime.now()
 
