@@ -14,6 +14,30 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('company','accountant')
 def payrollaccumulations(request):
+    """
+    Vista para consultar los acumulados de nómina de los empleados de una empresa.
+
+    Esta vista permite a usuarios con el rol 'company' o 'accountant' aplicar filtros como empleado, centro de costos, ciudad,
+    año y mes para generar una lista de conceptos acumulados por empleado en el periodo seleccionado. La información es agrupada
+    por empleado y concepto, sumando cantidad y valor. También se formatea el valor antes de enviarlo al template.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que puede contener parámetros POST con los filtros seleccionados por el usuario.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta renderizada con el template 'companies/payrollaccumulations.html', que incluye el formulario de filtros
+        y los datos acumulados por empleado y concepto.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    En caso de errores de validación en el formulario, se muestran mensajes de error al usuario.
+    """
+
     acumulados = {}
     compects = []
     usuario = request.session.get('usuario', {})
@@ -119,6 +143,31 @@ def payrollaccumulations(request):
 @login_required
 @role_required('company','accountant')  
 def descargar_excel_empleados(request):
+    """
+    Vista para descargar en Excel los acumulados de nómina por empleado.
+
+    Esta vista recibe una solicitud POST con parámetros de filtrado (fechas, empleado, centro de costos, ciudad)
+    y genera un archivo Excel con los conceptos de nómina acumulados por empleado dentro del rango dado.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que debe contener datos POST con los filtros de búsqueda.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve un archivo Excel generado con los datos acumulados si la solicitud es POST y válida.
+
+    JsonResponse
+        Si la solicitud no es POST, devuelve una respuesta de error con estado HTTP 405.
+
+    Notes
+    -----
+    La vista requiere autenticación y el rol adecuado. Utiliza la función `parse_dates` para descomponer las fechas 
+    y `generate_employee_excel` para generar el archivo de Excel.
+    """
+
     if request.method == 'POST':
         acumulados = {}
         # Obtener parámetros del POST

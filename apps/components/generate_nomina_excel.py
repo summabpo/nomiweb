@@ -4,6 +4,48 @@ from io import BytesIO
 from apps.common.models import Nomina, Contratos, Conceptosfijos
 from django.db.models import Q, Sum
 
+
+"""
+Genera un archivo Excel con los datos de nómina de los empleados para un mes y año específicos.
+
+Este script crea un archivo Excel en memoria que contiene los datos de la nómina de los empleados, incluyendo información sobre costos, prestaciones sociales y total de cada empleado.
+
+Parámetros
+----------
+year : int
+    El año para el cual se genera el reporte de la nómina.
+
+mth : str
+    El mes para el cual se genera el reporte de la nómina.
+
+idempresa : int
+    El ID de la empresa para la cual se genera el reporte de nómina.
+
+Retorna
+-------
+bytes
+    Un archivo Excel en formato binario (bytes) con los datos de nómina de los empleados.
+
+Descripción
+-----------
+- El archivo generado contiene una hoja llamada "Provisionalidades" con los siguientes encabezados:
+    'Contrato', 'Identificación', 'Nombre', 'Costo', 'Base PS', 'Cesantías', 'Int. cesa', 'Prima', 'Vacaciones', 'Total PS'.
+- Los datos de cada empleado incluyen su contrato, identificación, nombre, los valores correspondientes a conceptos fijos y prestaciones sociales (como cesantías, prima, vacaciones).
+- Las prestaciones sociales se calculan utilizando las fórmulas correspondientes para cada tipo de salario.
+- El archivo también contiene un estilo decimal para los valores numéricos de las prestaciones sociales y costos.
+- Las columnas tienen un ancho ajustado automáticamente para mejorar la legibilidad de los datos.
+- El archivo es guardado en memoria y retornado como un valor en bytes para ser descargado o utilizado en otros contextos.
+
+Notas
+-----
+- La información de conceptos fijos (como cesantías, prima, vacaciones) se obtiene de la tabla `Conceptosfijos`.
+- El costo de cada empleado se obtiene de la relación con el contrato.
+- El cálculo de las prestaciones sociales se realiza en función de los valores de la base y el tipo de salario.
+- El formato de celdas aplica un estilo decimal a las columnas de valores monetarios.
+- El archivo se guarda con el nombre `excel_nomina.xlsx` en la memoria.
+"""
+
+
 def generate_nomina_excel(year, mth,idempresa):
     # Crear un archivo en memoria
     output = BytesIO()

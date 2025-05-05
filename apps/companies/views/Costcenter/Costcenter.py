@@ -10,6 +10,35 @@ from django.http import JsonResponse
 @login_required
 @role_required('company')
 def Costcenter(request): 
+    """
+    Muestra los centros de costos asociados a una empresa.
+
+    Esta vista permite visualizar todos los centros de costos asociados a una empresa en particular. 
+    Los centros de costos que tienen un grupo contable y sufijo diferente a 0 son incluidos en la lista.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del usuario en sesión.
+        - 'usuario' es un diccionario con información de la sesión, incluyendo 'idempresa'.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una página HTML que muestra la lista de centros de costos y el formulario 
+        para crear un nuevo centro de costo.
+
+    See Also
+    --------
+    Costos : Modelo que representa los datos de los centros de costos.
+    CostcenterForm : Formulario utilizado para la creación de un nuevo centro de costo.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` para acceder a esta vista.
+    """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     costos = Costos.objects.filter(id_empresa__idempresa=usuario['idempresa'] ).exclude(grupocontable= 0 ,suficosto = 0 ).order_by('idcosto')
@@ -26,6 +55,37 @@ def Costcenter(request):
 @login_required
 @role_required('company')
 def costcenter_modal(request): 
+    
+    """
+    Muestra el modal para crear un nuevo centro de costo.
+
+    Esta vista maneja la creación de un nuevo centro de costo a través de un formulario en un modal. 
+    Si se realiza una solicitud POST con datos válidos, crea un nuevo centro de costo y responde en formato JSON.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del formulario a procesar.
+
+    Returns
+    -------
+    JsonResponse
+        Si el formulario es válido, devuelve una respuesta JSON con un mensaje de éxito.
+    HttpResponse
+        Si la solicitud no es POST, muestra el formulario vacío en un modal.
+
+    See Also
+    --------
+    CostcenterForm : Formulario utilizado para la creación de un nuevo centro de costo.
+    Costos : Modelo que representa los datos de los centros de costos.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     

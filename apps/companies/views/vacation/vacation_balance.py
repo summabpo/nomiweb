@@ -30,6 +30,34 @@ def calcular_vacaciones(contrato, concepto,fecha_actual):
 
 
 def vacation_balance(request):
+    """
+    Vista que genera una visualización del saldo de vacaciones para todos los empleados de una empresa activa.
+
+    Permite consultar, calcular y mostrar en una tabla el saldo de vacaciones para cada contrato activo.
+    Usa una fecha de corte opcional recibida por GET y toma como base un valor fijo (porcentaje de acumulación mensual)
+    que se obtiene del concepto fijo con ID 9 en la base de datos.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP que puede incluir el parámetro GET 'fecha' (en formato YYYY-MM-DD).
+        Si no se incluye, se usa la fecha actual del sistema.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza la plantilla 'vacation_balance.html' con el contexto:
+        - 'contratos_empleados': Lista de diccionarios con los datos de contratos y vacaciones calculadas.
+        - 'date': Fecha de corte usada para el cálculo.
+        - 'visual': Booleano que indica si se pasó una fecha manual o no.
+
+    Notes
+    -----
+    - Se filtran contratos activos con tipos específicos (1 al 4).
+    - Se calcula el valor diario del salario base para mostrar también el valor parcial.
+    """
+
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     acumulados= {} 
@@ -97,6 +125,35 @@ def vacation_balance(request):
 @login_required
 @role_required('company','accountant')
 def vacation_balance_download(request):
+    """
+    Vista protegida que permite descargar el saldo de vacaciones de empleados en formato Excel.
+
+    Utiliza una fecha pasada por GET (`date`) para generar un reporte a través de la función `generate_balance_excel`,
+    y retorna un archivo `.xlsx` con el nombre `vacaciones_saldo_<fecha>.xlsx`.
+
+    Decoradores
+    -----------
+    @login_required
+    @role_required('company','accountant')
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Solicitud HTTP que debe incluir el parámetro GET 'date' en formato 'YYYY-MM-DD'.
+
+    Returns
+    -------
+    HttpResponse
+        - Si el parámetro está presente y es válido, devuelve un archivo Excel con el saldo de vacaciones.
+        - Si falta el parámetro o la fecha no es válida, devuelve una respuesta de error 400.
+
+    Raises
+    ------
+    HttpResponse
+        En caso de errores de parámetros o formato de fecha, se retorna una respuesta con estado 400.
+    """
+
+
     date_str = request.GET.get('date')
 
     # Verificar si date está presente

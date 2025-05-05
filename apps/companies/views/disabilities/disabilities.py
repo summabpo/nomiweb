@@ -33,6 +33,34 @@ def generate_random_filename(extension="pdf"):
 @login_required
 @role_required('company','accountant')
 def disabilities(request):
+  """
+    Genera un nombre de archivo aleatorio con una extensión especificada.
+
+    Esta función genera un nombre de archivo único utilizando una cadena aleatoria de 80 caracteres 
+    combinados con letras y números. Se puede especificar la extensión del archivo (por defecto es 
+    "pdf"). El nombre generado puede ser usado para guardar archivos de manera segura y única.
+
+    Parameters
+    ----------
+    extension : str, opcional
+        La extensión del archivo a generar (por defecto "pdf").
+
+    Returns
+    -------
+    str
+        Devuelve un nombre de archivo aleatorio con la extensión especificada.
+
+    Notes
+    -----
+    El nombre del archivo generado es aleatorio y tiene 80 caracteres, lo que lo hace único y adecuado
+    para evitar conflictos de nombres de archivo.
+
+    Example
+    --------
+    >>> generate_random_filename("pdf")
+    'A3fG6kjB7hF29xCzL1yP0mQsA1aPdf6A9Pq5Ym3s.txt'
+    """
+
   
   usuario = request.session.get('usuario', {})
   idempresa = usuario['idempresa']
@@ -73,6 +101,36 @@ def disabilities(request):
 @login_required
 @role_required('company','accountant')
 def disabilities_modal(request):
+  """
+    Vista para registrar una incapacidad en el sistema.
+
+    Esta vista permite registrar una incapacidad de un empleado en el sistema, asociando los detalles 
+    como el contrato, origen, entidad de salud, fecha de inicio, días de incapacidad y diagnóstico.
+    Además, guarda el archivo PDF asociado con el certificado de incapacidad si se proporciona.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del formulario de incapacidad a registrar.
+        - El formulario debe incluir detalles como el contrato, origen, entidad de salud, fecha inicial, 
+        días de incapacidad, código diagnóstico y un archivo PDF opcional.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta HTTP que indica el estado del proceso de registro de la incapacidad.
+
+    See Also
+    --------
+    generate_random_filename : Función para generar un nombre de archivo aleatorio para el PDF.
+    DisabilitiesForm : Formulario para la creación de incapacidades.
+    Incapacidades : Modelo que representa las incapacidades registradas en el sistema.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol de 'accountant' en la empresa para acceder a esta vista.
+    """
+
   usuario = request.session.get('usuario', {})
   idempresa = usuario['idempresa']
   form = DisabilitiesForm(idempresa = idempresa)
@@ -140,6 +198,38 @@ def disabilities_modal(request):
 @login_required
 @role_required('company','accountant')
 def disabilities_modal_edit(request , id ):
+  """
+    Vista para editar una incapacidad existente en el sistema.
+
+    Esta vista permite editar los detalles de una incapacidad ya registrada, como el origen, entidad de 
+    salud, fecha de inicio, días de incapacidad y diagnóstico. Si se proporciona un nuevo archivo PDF, 
+    este se guarda como un archivo nuevo con un nombre aleatorio.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del formulario para editar la incapacidad.
+        - El formulario debe incluir detalles como el origen, entidad de salud, fecha inicial, días de incapacidad,
+        código diagnóstico y un archivo PDF opcional.
+    id : int
+        Identificador de la incapacidad a editar.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta HTTP que indica el estado del proceso de edición de la incapacidad.
+
+    See Also
+    --------
+    generate_random_filename : Función para generar un nombre de archivo aleatorio para el PDF.
+    DisabilitiesEditForm : Formulario para editar las incapacidades.
+    Incapacidades : Modelo que representa las incapacidades registradas en el sistema.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol de 'accountant' en la empresa para acceder a esta vista.
+    """
+
   usuario = request.session.get('usuario', {})
   idempresa = usuario['idempresa']
   
@@ -231,6 +321,36 @@ def disabilities_modal_edit(request , id ):
 @login_required
 @role_required('company','accountant')
 def disabilities_modal_detail(request , id ):
+  """
+  Vista para editar los detalles de una incapacidad mediante una solicitud AJAX.
+
+  Esta vista permite editar una incapacidad existente a través de una solicitud GET o POST. Los datos editados
+  incluyen el contrato, origen, entidad de salud, fecha de inicio, días de incapacidad, diagnóstico y fecha de 
+  finalización de la incapacidad. Esta vista es utilizada en combinación con un sistema AJAX para la actualización 
+  dinámica de la incapacidad.
+
+  Parameters
+  ----------
+  request : HttpRequest
+      Objeto de solicitud HTTP que contiene los datos para la modificación de la incapacidad.
+      - En GET, contiene el identificador de la incapacidad a editar.
+      - En POST, contiene los nuevos datos de la incapacidad a modificar.
+
+  Returns
+  -------
+  JsonResponse
+      Devuelve una respuesta JSON con los datos modificados y el estado de la operación.
+
+  See Also
+  --------
+  Incapacidades : Modelo que representa las incapacidades registradas en el sistema.
+
+  Notes
+  -----
+  La vista acepta tanto solicitudes GET como POST. La solicitud POST se utiliza para actualizar los detalles
+  de una incapacidad existente.
+  """
+
   incapacidad = get_object_or_404(Incapacidades, pk=id)
   
   return render (request, './companies/partials/create_disabilities_modal_detail.html',{'incapacidad':incapacidad}) 
@@ -242,6 +362,36 @@ global_id = None
 
 @csrf_exempt
 def edit_disabilities(request):
+  """
+  Vista para editar los detalles de una incapacidad mediante una solicitud AJAX.
+
+  Esta vista permite editar una incapacidad existente a través de una solicitud GET o POST. Los datos editados
+  incluyen el contrato, origen, entidad de salud, fecha de inicio, días de incapacidad, diagnóstico y fecha de 
+  finalización de la incapacidad. Esta vista es utilizada en combinación con un sistema AJAX para la actualización 
+  dinámica de la incapacidad.
+
+  Parameters
+  ----------
+  request : HttpRequest
+      Objeto de solicitud HTTP que contiene los datos para la modificación de la incapacidad.
+      - En GET, contiene el identificador de la incapacidad a editar.
+      - En POST, contiene los nuevos datos de la incapacidad a modificar.
+
+  Returns
+  -------
+  JsonResponse
+      Devuelve una respuesta JSON con los datos modificados y el estado de la operación.
+
+  See Also
+  --------
+  Incapacidades : Modelo que representa las incapacidades registradas en el sistema.
+
+  Notes
+  -----
+  La vista acepta tanto solicitudes GET como POST. La solicitud POST se utiliza para actualizar los detalles
+  de una incapacidad existente.
+  """
+
   global global_id
   
   if request.method == 'GET':
@@ -323,6 +473,35 @@ def edit_disabilities(request):
 
 @csrf_exempt
 def get_entity(request):
+  """
+    Vista para obtener las entidades de salud disponibles basadas en un tipo de entidad.
+
+    Esta vista permite obtener una lista de entidades de salud basadas en el tipo de entidad (EPS o ARL). 
+    Dependiendo del tipo de entidad proporcionado, se devuelve una lista filtrada de entidades que pueden ser seleccionadas 
+    para asociar a una incapacidad. 
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos de tipo de entidad y contrato.
+        - 'dato' es el tipo de entidad (EPS o ARL).
+        - 'id' es el identificador del contrato.
+
+    Returns
+    -------
+    JsonResponse
+        Devuelve una respuesta JSON con las entidades de salud disponibles para el tipo de entidad dado.
+
+    See Also
+    --------
+    Contratos : Modelo que representa los contratos de los empleados.
+    Entidadessegsocial : Modelo que representa las entidades de salud disponibles.
+
+    Notes
+    -----
+    El usuario debe estar autenticado para acceder a esta vista.
+    """
+
   entidad_select = ''
   if request.method == 'GET':
     dato = request.GET.get('dato')

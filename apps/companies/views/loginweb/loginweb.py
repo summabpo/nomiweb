@@ -44,6 +44,34 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
 @login_required
 @role_required('company')
 def loginweb(request):
+    """
+    Vista para crear usuarios y asignar contraseñas a empleados.
+
+    Esta vista permite a los usuarios autenticados con el rol 'company' crear usuarios en el sistema 
+    para los empleados seleccionados, asignándoles una contraseña aleatoria. Si el usuario ya existe, 
+    se actualiza su contraseña. Los datos de los empleados provienen de los contratos activos de la empresa, 
+    y se envía un correo de bienvenida a cada empleado con sus credenciales de acceso.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los parámetros necesarios para crear o actualizar los usuarios. 
+        En el caso de un `POST`, se esperan los identificadores de los empleados seleccionados.
+
+    Returns
+    -------
+    HttpResponse
+        Redirige a la página 'loginweb' después de procesar los empleados seleccionados, mostrando mensajes 
+        de éxito o error según el resultado de la operación.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' para acceder a esta vista.
+    Si los empleados seleccionados no se encuentran o se presenta algún error durante el proceso de creación 
+    o actualización, se muestra un mensaje de error correspondiente.
+    """
+
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
 

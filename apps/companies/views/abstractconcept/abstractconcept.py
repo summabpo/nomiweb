@@ -9,6 +9,36 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('company','accountant')
 def abstractconcept(request):
+    """
+    Muestra los conceptos abstractos asociados a una empresa y permite filtrarlos
+    por concepto, nómina, empleado, mes y año.
+
+    Filtra los registros de la nómina (`Nomina`) de acuerdo con los filtros proporcionados
+    en el formulario. Si los filtros son válidos, se obtienen los resultados y se muestran
+    en la plantilla correspondiente.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP con los datos del formulario y la sesión del usuario autenticado.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta que renderiza la plantilla `'companies/abstractconcept.html'` con los resultados
+        filtrados y el formulario.
+
+    See Also
+    --------
+    AbstractConceptForm : Formulario utilizado para capturar los filtros de búsqueda.
+    Nomina : Modelo de nómina que se filtra según los parámetros seleccionados.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':

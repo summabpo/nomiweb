@@ -13,6 +13,28 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('company','accountant')
 def settlementlist(request):
+    """
+    Vista para listar las liquidaciones de contrato realizadas en una empresa.
+
+    Esta vista recupera todas las liquidaciones asociadas a la empresa del usuario actual, las ordena por identificador 
+    y aplica formato a los valores monetarios (cesantías, intereses, prima, vacaciones y total de liquidación) antes de enviarlos al template.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la sesión del usuario autenticado, incluyendo el ID de la empresa.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza el template 'companies/settlementlist.html' con la lista de liquidaciones disponibles para la empresa.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    Los valores monetarios se formatean con la función `format_value` antes de ser enviados al template.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
@@ -34,7 +56,31 @@ def settlementlist(request):
 @login_required
 @role_required('company','accountant')
 def settlementlistdownload(request,idliqui):
-    
+    """
+    Vista para generar y descargar en PDF la liquidación detallada de un contrato.
+
+    Esta vista genera un archivo PDF con la información de liquidación de un contrato específico, utilizando una plantilla HTML 
+    y la función `settlementgenerator`. El archivo generado se muestra en el navegador o se descarga directamente.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la sesión del usuario autenticado y sus datos de empresa.
+    idliqui : int
+        Identificador único de la liquidación que se desea descargar en formato PDF.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta con el archivo PDF generado, con el tipo de contenido 'application/pdf'.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    Se utiliza `xhtml2pdf` para convertir el HTML a PDF.
+    En caso de error durante la generación del PDF, se devuelve un mensaje de error con estado HTTP 400.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     

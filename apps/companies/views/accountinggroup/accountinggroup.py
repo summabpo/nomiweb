@@ -11,6 +11,36 @@ from django.http import JsonResponse
 @login_required
 @role_required('company','accountant')
 def accountinggroup(request): 
+    """
+    Muestra los grupos contables asociados a una empresa y el formulario para agregar nuevos grupos.
+
+    Filtra los registros de grupos contables (`Contabgrupos`) de acuerdo con la empresa del usuario
+    autenticado y los ordena por ID de grupo ascendente. También se renderiza el formulario vacío para 
+    crear nuevos grupos contables.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP con la sesión del usuario autenticado.
+
+    Returns
+    -------
+    HttpResponse
+        Respuesta que renderiza la plantilla `'companies/accountinggroup.html'` con los grupos contables
+        y el formulario para agregar nuevos grupos.
+
+    See Also
+    --------
+    Contabgrupos : Modelo de grupos contables asociados a una empresa.
+    accountinggroupForm : Formulario utilizado para crear nuevos grupos contables.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     groups = Contabgrupos.objects.filter(id_empresa__idempresa = idempresa ).order_by('idgrupo')
@@ -25,6 +55,37 @@ def accountinggroup(request):
 @login_required
 @role_required('company','accountant')
 def accountinggroup_modal(request): 
+    """
+    Permite crear un nuevo grupo contable para una empresa.
+
+    Recibe datos a través de una solicitud POST, valida el formulario para crear un nuevo grupo contable
+    y lo guarda en la base de datos. En caso de éxito, devuelve una respuesta JSON con el estado y mensaje.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del formulario para crear un grupo contable.
+
+    Returns
+    -------
+    JsonResponse
+        Respuesta en formato JSON indicando el estado de la creación del grupo contable.
+        
+    HttpResponse
+        Si la solicitud no es de tipo POST, renderiza el formulario de creación del grupo contable.
+
+    See Also
+    --------
+    accountinggroupForm : Formulario utilizado para crear nuevos grupos contables.
+    Contabgrupos : Modelo que representa los grupos contables asociados a una empresa.
+    role_required : Decorador personalizado que restringe el acceso según el rol.
+    login_required : Decorador de Django que exige autenticación del usuario.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+    
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':

@@ -3,6 +3,49 @@ import openpyxl
 from openpyxl.styles import PatternFill, Alignment
 from io import BytesIO
 
+"""
+Genera un archivo Excel con los datos de empleados y sus conceptos asociados.
+
+Este script crea un archivo Excel en memoria que contiene un reporte de acumulados de empleados. 
+El reporte incluye detalles como el nombre del empleado, los conceptos asociados (id, nombre, cantidad, valor) y los totales por cada empleado.
+
+Parámetros
+----------
+diccionario_empleados : dict
+    Diccionario que contiene la información de los empleados. Cada clave corresponde al identificador de un empleado, y su valor es otro diccionario que contiene detalles como el nombre, los conceptos y el total acumulado.
+
+month1 : str
+    Mes inicial para el reporte.
+
+year1 : int
+    Año inicial para el reporte.
+
+month2 : str
+    Mes final para el reporte.
+
+year2 : int
+    Año final para el reporte.
+
+Retorna
+-------
+bytes
+    Un archivo Excel en formato binario (bytes) con los datos de los empleados y sus conceptos asociados.
+
+Descripción
+-----------
+- El archivo generado tiene un formato con colores diferenciados para los encabezados y los datos de los empleados.
+- La primera fila contiene un título "Reporte de acumulados" y la fila siguiente tiene los meses y años de inicio y final del reporte.
+- Cada empleado tiene su propio bloque de datos, donde se muestra su nombre, sus conceptos (id, nombre, cantidad, valor) y el total acumulado.
+- Al final de cada bloque de empleado, se presenta el total acumulado de ese empleado.
+- Las columnas del archivo Excel tienen un ancho adecuado para que los datos sean fácilmente legibles.
+- El archivo es guardado en memoria y retornado como un valor en bytes para ser descargado o utilizado en otros contextos.
+
+Notas
+-----
+- El formato de celdas usa colores personalizados (`azul_fill` y `amarillo_fill`) y alineación centrada para una mejor presentación visual.
+- El archivo se guarda con el nombre `excel_temporal.xlsx` en la carpeta `static/docs/` y también se genera en memoria.
+"""
+
 
 output_path = './static/docs/excel_temporal.xlsx'
 

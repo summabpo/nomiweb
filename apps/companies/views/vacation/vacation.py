@@ -9,6 +9,30 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @role_required('company','accountant')
 def vacation(request):
+    """
+    Vista para consultar y visualizar el historial de vacaciones de los empleados activos en la empresa.
+
+    Esta vista permite a usuarios con el rol 'company' o 'accountant' visualizar las vacaciones registradas para un 
+    empleado específico, siempre que tenga un contrato activo. El usuario puede seleccionar al empleado desde una lista 
+    y ver sus periodos vacacionales anteriores.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la sesión del usuario autenticado y posibles parámetros GET, como el ID del empleado seleccionado.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza el template 'companies/vacation.html' con la información de los empleados y sus vacaciones, si aplica.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    Solo se muestran empleados con contratos activos de tipo 1, 2, 3 o 4.
+    Se aplican validaciones para manejar valores nulos tanto en los nombres de empleados como en los campos de vacaciones.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     selected_empleado = request.GET.get('empleado')

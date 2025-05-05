@@ -49,6 +49,29 @@ def calcular_dias_360(fechainicial, fechafinal):
 @login_required
 @role_required('company','accountant')
 def vacation_request(request):
+    """
+    Vista para listar las solicitudes de vacaciones realizadas por los empleados de la empresa.
+
+    Esta vista permite a usuarios con el rol 'company' o 'accountant' consultar todas las solicitudes de vacaciones 
+    registradas por empleados asociados a la empresa actual. Se muestran los datos básicos del empleado, tipo de 
+    vacación, fechas y estado de la solicitud.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP con la sesión del usuario autenticado.
+
+    Returns
+    -------
+    HttpResponse
+        Renderiza el template 'companies/vacation_request.html' con el listado de solicitudes de vacaciones.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant'.
+    Las solicitudes se ordenan por el ID de solicitud de vacaciones en orden descendente.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
@@ -82,6 +105,34 @@ def vacation_request(request):
 @role_required('company','accountant')
 @csrf_exempt
 def get_vacation_details(request):
+    """
+    Vista que retorna los detalles de una solicitud de vacaciones en formato JSON, utilizada para mostrar información detallada en el frontend.
+
+    Esta vista se accede mediante petición GET y retorna información detallada de una solicitud de vacaciones, incluyendo:
+    - Datos del contrato y del empleado
+    - Días de vacaciones y licencias disfrutadas
+    - Cálculo de periodos completos según la fecha de ingreso
+    - Días restantes de vacaciones
+    - Datos específicos de la solicitud seleccionada
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP con el parámetro GET 'dato', que contiene el ID de la solicitud de vacaciones.
+
+    Returns
+    -------
+    JsonResponse
+        Devuelve un JSON con todos los detalles relacionados con la solicitud de vacaciones si es GET; 
+        en caso contrario, devuelve un error 405.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant'.
+    Usa la función personalizada `calcular_dias_360` para determinar la cantidad de días trabajados desde la fecha de inicio del contrato.
+    La respuesta contiene datos numéricos redondeados a dos decimales y datos de fecha en formato DD-MM-YYYY.
+    """
+
     if request.method == 'GET':
         dato = request.GET.get('dato')
         
@@ -155,6 +206,39 @@ def get_vacation_details(request):
 @role_required('company','accountant')
 @csrf_exempt
 def get_vacation_acction(request):
+    """
+    Vista que permite cambiar el estado de una solicitud de vacaciones y notificar al empleado por correo electrónico.
+
+    Esta vista se accede mediante POST y permite a un usuario con rol 'company' o 'accountant':
+    - Aprobar una solicitud de vacaciones (estado 2)
+    - Rechazar una solicitud de vacaciones (estado 3)
+    - Marcarla como pendiente (estado 1)
+    Además, se guarda un comentario de respuesta y se envía un correo de notificación al empleado implicado.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP con los siguientes campos POST:
+        - 'loanSelect': Opción elegida (1=Aprobar, 2=Rechazar, 3=Pendiente)
+        - 'comments': Comentarios o razones para la acción
+        - 'vacationDetails': ID de la solicitud de vacaciones a actualizar
+
+    Returns
+    -------
+    JsonResponse
+        Devuelve una respuesta JSON con el resultado de la operación:
+        - `success=True` si se guardó el estado y se envió el correo correctamente
+        - `success=False` si hubo errores (por ejemplo, al enviar el correo)
+        - Status HTTP 405 si el método HTTP no es POST
+
+    Notes
+    -----
+    - El campo `estado` en el modelo `EmpVacaciones` se actualiza según la opción seleccionada.
+    - Se envía un correo al empleado usando la función `send_template_email`, con un mensaje adaptado al estado.
+    - La lista de destinatarios incluye un correo de prueba ('mikepruebas@yopmail.com') y el correo del empleado.
+    - En caso de excepción, se responde con un mensaje genérico de error.
+    """
+
     try:
         if request.method == 'POST':
             option = request.POST.get('loanSelect')

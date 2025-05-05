@@ -20,6 +20,32 @@ def toggle_charge_active_status(request, id, activate=True):
 @login_required
 @role_required('company','accountant')
 def charges(request): 
+    """
+    Muestra la lista de cargos en la empresa.
+
+    Esta vista recupera y muestra todos los cargos activos de la empresa a la que el usuario pertenece,
+    excluyendo un cargo con un ID específico. También proporciona un formulario para la creación de nuevos cargos.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene la sesión del usuario.
+
+    Returns
+    -------
+    render : HttpResponse
+        Respuesta con la vista de los cargos y el formulario para crear nuevos cargos.
+
+    See Also
+    --------
+    Cargos : Modelo que representa los cargos en la empresa.
+    ChargesForm : Formulario utilizado para la creación de nuevos cargos.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     cargos = Cargos.objects.filter(id_empresa__idempresa=usuario['idempresa']).exclude(idcargo=241).order_by('idcargo')
@@ -34,6 +60,36 @@ def charges(request):
 @login_required
 @role_required('company','accountant')
 def charges_modal(request): 
+    """
+    Muestra y maneja el formulario modal para la creación de un nuevo cargo.
+
+    Esta vista maneja el formulario para la creación de un nuevo cargo en la empresa. Si el formulario es
+    válido, crea un nuevo cargo y lo guarda en la base de datos. Si el formulario no es válido, muestra los errores
+    correspondientes.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que contiene los datos del formulario.
+
+    Returns
+    -------
+    render : HttpResponse
+        Respuesta con el formulario de creación de cargo en un modal. Si el formulario es válido, se retorna
+        un objeto JSON con el estado de éxito. Si no, se muestra el formulario con errores.
+
+    See Also
+    --------
+    Cargos : Modelo que representa los cargos en la empresa.
+    ChargesForm : Formulario utilizado para la creación de nuevos cargos.
+    Empresa : Modelo que representa la empresa.
+    Nivelesestructura : Modelo que representa los niveles de la estructura organizativa de la empresa.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    """
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
