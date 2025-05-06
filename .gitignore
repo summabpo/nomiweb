@@ -126,3 +126,7 @@ dmypy.json
 .vscode/PythonImportHelper-v2-Completion.json
 # Ignorar cualquier archivo de requisitos
 requirements*.txt
+
+
+# Ignorar archivos .rst temporalmente
+*.rst

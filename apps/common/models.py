@@ -437,7 +437,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     tipo_user = models.CharField(max_length = 10, choices = TIPO_USER_CHOICES, default='admin')
     rol = models.ForeignKey(Role, on_delete = models.DO_NOTHING, null=True)
-    id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING, blank=True, null=True)
+    id_empresa = models.ManyToManyField(Empresa, blank=True)
     id_empleado = models.ForeignKey('Contratosemp', on_delete=models.DO_NOTHING, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

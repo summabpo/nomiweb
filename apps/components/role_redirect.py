@@ -62,7 +62,7 @@ def redirect_by_role(user):
 # Diccionario de roles y vistas asociadas
     role_views = {
         'admin': 'admin:admin',
-        'accountant': 'payroll:index_payroll',
+        'accountant': 'payroll:select_company',
         'employee': 'employees:index_employees',
         'company': 'companies:index_companies',
     }

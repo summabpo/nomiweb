@@ -12,6 +12,8 @@ urlpatterns = [
     path('', index.index_admin, name='admin'),
     path('users/', createuser.user_admin, name='user'),
     path('users/create/', createuser.usercreate_admin, name='usercreate'),
+    path('users/edit/<str:id>', createuser.usercreate_edit, name='useredit'),
+    
     path('users/activate/<int:user_id>/', createuser.toggle_user_active_status, {'activate': True}, name='useractivate'),
     path('users/deactivate/<int:user_id>/', createuser.toggle_user_active_status, {'activate': False}, name='userdeactivate'),
 
