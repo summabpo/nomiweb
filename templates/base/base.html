@@ -154,6 +154,12 @@ License: For each use you must have a valid license purchased only from above li
                                         <a href="{% url 'employees:user'  %}" class="menu-link px-5">Mi Perfil</a>
                                     </div>
                                 {% endif %}
+
+                                {% if request.session.usuario.pass  %}
+                                    <div class="menu-item px-5">
+                                        <a href="{% url 'payroll:select_company'  %}" class="menu-link px-5">Cambio de Empresa</a>
+                                    </div>
+                                {% endif %}
                                 
                                 <!--end::Menu item-->
                                 

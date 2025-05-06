@@ -79,12 +79,30 @@
                 <th class="text-center" >Activo</th>
                 <th class="text-center" >rol</th>
                 <th class="text-center" >Acciones</th>
+                <th class="text-center" >
+                    <div class="container d-flex justify-content-center align-items-center">
+                        <i class="ki-duotone ki-chart fs-1">
+                            <i class="path1"></i>
+                            <i class="path2"></i>
+                        </i>
+                    </div>
+                </th>
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
                 <tr>
-                    <td class="text-center" >{{ user.id_empresa.nombreempresa }}</td>
+                    <td class="text-center">
+                        {% if user.id_empresa.all %}
+                            <ul class="list-unstyled mb-0">
+                                {% for empresa in user.id_empresa.all %}
+                                    <li>• {{ empresa.nombreempresa }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">Sin empresas asociadas</span>
+                        {% endif %}
+                    </td>
                     <td class="text-center" >{{ user.email }}</td>
                     <td class="text-center" >{{ user.first_name }} {{ user.last_name }}</td>
                     <td class="text-center" >
@@ -113,6 +131,11 @@
                             </button>
                         {% endif %}
                         
+                    </td>
+                    <td class="text-center" >
+                        <a href="" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Editar Usuario">
+                            <i class="fa-solid fa-user-pen fs-2"></i>
+                        </a>
                     </td>
                 </tr>
 

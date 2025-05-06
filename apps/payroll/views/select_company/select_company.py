@@ -66,6 +66,7 @@ def select_company(request):
         if form.is_valid():
             empresa_id = form.cleaned_data['idempresa']
             usuario['idempresa'] = empresa_id
+            usuario['pass'] = True
             request.session['usuario'] = usuario
             return redirect('payroll:index_payroll')  # Redirige a donde necesites
     else:
