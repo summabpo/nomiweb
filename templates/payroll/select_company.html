@@ -1,0 +1,34 @@
+{% extends "baselogin.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load account socialaccount %}
+
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card" style="width: 500px;">
+        <div class="card-body btn-primary">
+            <div class="d-flex flex-center h-150px "> <!-- Reduce la altura del contenedor del logo -->
+                <img
+                    src="{% static 'img/logonomiweb.png' %}"
+                    data-src="{% static 'img/logonomiweb.png' %}"
+                    class="lozad rounded mw-100"
+                    alt="Logo Nomiweb"
+                />
+            </div>
+            
+            {% csrf_token %}
+            {% crispy form %}
+           
+            
+        </div>
+
+        <div class="separator separator-content border-success my-4"> <!-- Ajusta el margen -->
+            <i class="ki-duotone ki-chart-pie-4 fs-2 text-success"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

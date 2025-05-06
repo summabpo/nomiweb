@@ -7,11 +7,12 @@ from .views.loans import loans
 from .views.parameters import parameters
 from .views.pruebas import pruebas
 from .views.fixed import fixed
-
+from .views.select_company import select_company
 
 # afsa fsa asfad 
 
 urlpatterns = [
+    path('home/select/company', select_company.select_company, name='select_company'),
     path('home/', index.index_payroll, name='index_payroll'),
     path('payroll/', payroll.payroll, name='payroll'),
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),

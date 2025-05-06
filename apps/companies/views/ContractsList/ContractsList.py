@@ -15,7 +15,7 @@ from .generate_docu import generate_contract_excel,generate_contract_start_excel
 @login_required
 @role_required('company','accountant')
 def startCompanies(request): 
-   """
+    """
     Muestra la lista de empleados activos con sus respectivos contratos.
 
     Esta vista recupera los contratos activos de los empleados de la empresa a la que el usuario pertenece,
