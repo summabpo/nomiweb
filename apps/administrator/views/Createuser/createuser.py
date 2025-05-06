@@ -3,9 +3,9 @@ from apps.administrator.forms.createuserForm import UserCreationForm
 from django.contrib import messages
 from apps.common.models import User,Empresa , Role
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
+from django.urls import reverse
+from django.http import HttpResponse
 
 
 def toggle_user_active_status(request, user_id, activate=True):
@@ -118,15 +118,20 @@ def usercreate_admin(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             # Procesar el formulario y crear el usuario
+            
             cleaned_data = form.cleaned_data
-            id_empresa = Empresa.objects.get(idempresa=cleaned_data['company']) if cleaned_data['company'] else None
+            indicador_ids = request.POST.getlist('company') #Captura múltiples valores
+            
+            #concepto.indicador.add(*indicadores)
+            
+            id_empresa = Empresa.objects.filter(idempresa__in=indicador_ids) if cleaned_data['company'] else None
             rol = Role.objects.get(id=cleaned_data['permission'])
-            User.objects.create_user(
+            
+            user = User.objects.create_user(
                 first_name=cleaned_data['first_name'],
                 last_name=cleaned_data['last_name'],
                 email=cleaned_data['email'],
                 password=cleaned_data['password1'],
-                id_empresa = id_empresa if cleaned_data['company'] else None,
                 tipo_user=cleaned_data['role'],
                 rol=rol,
                 is_staff=cleaned_data['is_staff'],
@@ -134,7 +139,14 @@ def usercreate_admin(request):
                 is_active=cleaned_data['is_active'],
             )
             
-            return JsonResponse({'status': 'success', 'message': 'Usuario creado exitosamente'})
+            user.id_empresa.add(*id_empresa)
+            
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'Concepto guardado exitosamente'    
+            response['X-Up-Location'] = reverse('admin:user')           
+            return response
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario
             for field, errors in form.errors.items():
@@ -142,4 +154,23 @@ def usercreate_admin(request):
                     print(request, f"Error en {field}: {error}")
     else:
         form = UserCreationForm()
-    return render(request, './admin/usercreate.html', {'form': form})
+    return render(request, './admin/partials/usercreate.html', {'form': form})
+
+
+
+def usercreate_edit(request,id):
+    user = get_object_or_404(User, pk=id)
+    
+    data = {
+        'email':user.email ,
+        'first_name':user.first_name ,
+        'last_name':user.last_name ,
+        'role':user.tipo_user,
+        'permission':user.rol.id ,
+        'company' : user.id_empresa,
+        
+        }
+
+    form = UserCreationForm(initial = data)
+    
+    return render(request, './admin/partials/editUserModal.html', {'form': form})

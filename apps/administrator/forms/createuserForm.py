@@ -10,7 +10,6 @@ from django.urls import reverse
 ROLES = (
     ('', '----------'),
     ('admin', 'Administrator'),
-    ('employee', 'Employee'),
     ('company', 'Company'),
     ('accountant', 'Accountant'),
 )
@@ -72,12 +71,12 @@ class UserCreationForm(forms.Form):
             help_text='Seleccione el rol que se asignará al usuario.'
         )
         
-        self.fields['company'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(empresa.idempresa, empresa.nombreempresa) for empresa in Empresa.objects.all()],
-            label='Compañía Usuario',
-            required=False,
-            help_text='Seleccione la compañía del usuario.'
-        )
+        # self.fields['company'] = forms.ChoiceField(
+        #     choices=[('', '----------')] + [(empresa.idempresa, empresa.nombreempresa) for empresa in Empresa.objects.all()],
+        #     label='Compañía Usuario',
+        #     required=False,
+        #     help_text='Seleccione la compañía del usuario.'
+        # )
         
         self.fields['permission'] = forms.ChoiceField(
             choices=[('', '----------')] + [(role.id, role.name) for role in Role.objects.all()],
@@ -90,37 +89,49 @@ class UserCreationForm(forms.Form):
             'data-control': 'select2',
             'data-tags': 'true',
             'class': 'form-select',
-            'data-dropdown-parent':'#conceptsModal',
             'data-hide-search': "true",
         })
         
-        self.fields['company'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-tags': 'true',
-            'class': 'form-select',
-            'data-dropdown-parent':'#conceptsModal',
-            'data-hide-search': "true",
-        })
+        # self.fields['company'].widget.attrs.update({
+        #     'data-control': 'select2',
+        #     'data-tags': 'true',
+        #     'class': 'form-select',
+        #     'data-hide-search': "true",
+        # })
+        
+        self.fields['company'] = forms.MultipleChoiceField(
+            choices=[('', '----------')] + [(empresa.idempresa, empresa.nombreempresa) for empresa in Empresa.objects.all()],
+            label='Indicador',
+            required=False,
+            widget=forms.SelectMultiple(attrs={
+                'data-control': 'select2',
+                'data-close-on-select': "false",
+                'data-placeholder': 'Seleccione una empresa',
+                'data-allow-clear': "true",
+                'multiple': "multiple",
+
+            })
+        )
         
         self.fields['permission'].widget.attrs.update({
             'data-control': 'select2',
             'data-tags': 'true',
             'class': 'form-select',
-            'data-dropdown-parent':'#conceptsModal',
             'data-hide-search': "true",
         })
 
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_user'
-        self.helper.form_action = '/admin/users/create/'
         self.helper.enctype = 'multipart/form-data'
         
-        
         self.helper.attrs.update({
-            'hx-post': reverse('admin:usercreate'),  # Usa el nombre de la vista en urls.py
-            'hx-target': '#modal-container',  # El elemento donde se actualizará el contenido
-            'hx-swap': 'innerHTML',  # Cómo se actualizará el contenido del objetivo
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',  # Clave para resolver el error
+            'up-submit': reverse('admin:usercreate'),
+            'up-accept-location': reverse('admin:user'),
+            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
         })
         
         self.helper.layout = Layout(
