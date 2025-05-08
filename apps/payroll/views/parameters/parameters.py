@@ -566,9 +566,6 @@ def concepts_edit(request,id):
             concept.indicador.set(indicadores_nuevos)
             
             
-            ##
-            
-            
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
             response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
@@ -606,16 +603,13 @@ def check_code(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario.get('idempresa')  # Usar get() en lugar de acceder directamente.
     codigo = request.GET.get('codigo', '').strip()
-    print('codigo recibido:', codigo)  # Agregar un print para verificar el valor recibido
+    # Agregar un print para verificar el valor recibido
     
     
     data = Conceptosdenomina.objects.filter(codigo=codigo, id_empresa=idempresa).exists()
-    print('data:',data)
     if data:
-        print('Código ya en uso:',data)
         return JsonResponse({"valid": False, "message": "Código ya en uso"})
 
-    print('Código disponible:', codigo)
     return JsonResponse({"valid": True, "message": "Código disponible"})
 
 
