@@ -1,11 +1,35 @@
 from django.shortcuts import render,redirect
-from apps.administrator.forms.createuserForm import UserCreationForm
+from apps.administrator.forms.createuserForm import UserCreationForm , UserEditForm
 from django.contrib import messages
 from apps.common.models import User,Empresa , Role
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse
+from apps.components.mail import send_template_email
+import random
+import string
+
+
+def generate_random_password(length=12):
+    """
+    Genera una contraseña aleatoria segura.
+
+    Combina letras, números y caracteres especiales para crear una contraseña fuerte.
+
+    Parameters
+    ----------
+    length : int, optional
+        Longitud de la contraseña a generar (por defecto 12 caracteres).
+
+    Returns
+    -------
+    str
+        Cadena con la contraseña aleatoria generada.
+    """
+    
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(characters) for i in range(length))
 
 
 def toggle_user_active_status(request, user_id, activate=True):
@@ -159,6 +183,9 @@ def usercreate_admin(request):
 
 
 def usercreate_edit(request,id):
+    icon = 'success' 
+    message = '¡Todo un éxito! El usuario fue actualizado,' 
+    
     user = get_object_or_404(User, pk=id)
     
     data = {
@@ -167,10 +194,68 @@ def usercreate_edit(request,id):
         'last_name':user.last_name ,
         'role':user.tipo_user,
         'permission':user.rol.id ,
-        'company' : user.id_empresa,
+        'company' :[i.idempresa for i in user.id_empresa.all()],
         
         }
+    
 
-    form = UserCreationForm(initial = data)
+    form = UserEditForm(initial = data,id = id)
+    
+    if request.method == 'POST':
+        form = UserEditForm(request.POST,id = id)
+        if form.is_valid():
+            
+            email = form.cleaned_data['email']
+            last_name = form.cleaned_data['last_name']
+            first_name = form.cleaned_data['first_name']
+            company = form.cleaned_data['company']            # Obtener el objeto grupo_dian
+            role = form.cleaned_data['role']
+            permission = form.cleaned_data['permission']
+            
+
+            if last_name != user.last_name:
+                user.last_name = last_name
+                
+            if first_name != user.first_name:
+                user.first_name = first_name
+            
+            if role != user.tipo_user:
+                user.tipo_user = role
+                
+            if permission!= user.rol.id:
+                user.rol = Role.objects.get(id= permission)
+            
+            
+            
+            if form.cleaned_data['new_pass'] : 
+                passwordoriginal = generate_random_password()
+                user.password = make_password(passwordoriginal)
+                message += ' la contraseña cambiada sin dramas  ' 
+            
+            user.save() 
+            user.id_empresa.set(company)
+            
+            
+            email_type = 'loginweb'
+            context = {
+                'usuario': user.email,
+                'contrasena': passwordoriginal,
+            }
+            subject = '¡Contraseña renovada en Nomiweb! Como cambiar de look... pero más seguro'
+            recipient_list = [user.email,'manuel.david.13.b@gmail.com']
+
+            if send_template_email(email_type, context, subject, recipient_list):
+                message += 'y el correo voló directo a su bandeja. ¡Como magia… pero con teclas!' 
+            else:
+                message = '¡Uy! El correo electrónico tropezó en el camino y no llegó a su destino.' 
+                icon = 'error' 'success' 
+            
+            
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = icon # URL para recargar la página principal   
+            response['X-Up-message'] = message    
+            response['X-Up-Location'] = reverse('admin:user')           
+            return response
     
     return render(request, './admin/partials/editUserModal.html', {'form': form})

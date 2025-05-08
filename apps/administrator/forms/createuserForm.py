@@ -14,6 +14,13 @@ ROLES = (
     ('accountant', 'Accountant'),
 )
 
+ROLES2 = (
+    ('admin', 'Administrator'),
+    ('employee', 'Employee'),
+    ('company', 'Company'),
+    ('accountant', 'Accountant'),
+    )
+
 class UserCreationForm(forms.Form):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput, help_text='Su contraseña no puede ser demasiado similar a su otra información personal.')
     password2 = forms.CharField(label='Password confirmacion', widget=forms.PasswordInput, help_text='Ingrese la misma contraseña que antes, para verificación.')
@@ -35,6 +42,10 @@ class UserCreationForm(forms.Form):
 
         if role == 'company' and not company:
             self.add_error('company', "Debe seleccionar una compañía para el rol de compañía.")
+        
+        if role != 'accountant' and company and len(company) > 1:
+            self.add_error('company', 'Solo el rol Contador admite varias empresas.')
+
         
         return cleaned_data
     
@@ -71,12 +82,6 @@ class UserCreationForm(forms.Form):
             help_text='Seleccione el rol que se asignará al usuario.'
         )
         
-        # self.fields['company'] = forms.ChoiceField(
-        #     choices=[('', '----------')] + [(empresa.idempresa, empresa.nombreempresa) for empresa in Empresa.objects.all()],
-        #     label='Compañía Usuario',
-        #     required=False,
-        #     help_text='Seleccione la compañía del usuario.'
-        # )
         
         self.fields['permission'] = forms.ChoiceField(
             choices=[('', '----------')] + [(role.id, role.name) for role in Role.objects.all()],
@@ -92,16 +97,10 @@ class UserCreationForm(forms.Form):
             'data-hide-search': "true",
         })
         
-        # self.fields['company'].widget.attrs.update({
-        #     'data-control': 'select2',
-        #     'data-tags': 'true',
-        #     'class': 'form-select',
-        #     'data-hide-search': "true",
-        # })
         
         self.fields['company'] = forms.MultipleChoiceField(
             choices=[('', '----------')] + [(empresa.idempresa, empresa.nombreempresa) for empresa in Empresa.objects.all()],
-            label='Indicador',
+            label='Empresa',
             required=False,
             widget=forms.SelectMultiple(attrs={
                 'data-control': 'select2',
@@ -169,3 +168,136 @@ class UserCreationForm(forms.Form):
         characters = string.ascii_letters + string.digits + string.punctuation
         random_password = ''.join(random.choice(characters) for i in range(length))
         return random_password
+
+
+
+class UserEditForm(forms.Form):
+    
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        role = cleaned_data.get('role')
+        company = cleaned_data.get('company')
+
+        # Validar que si no es 'contador', solo pueda seleccionar una empresa
+        if role != 'accountant' and company and len(company) > 1:
+            self.add_error('company', 'Solo el rol Contador admite varias empresas.')
+
+        return cleaned_data
+    
+    def __init__(self, *args, **kwargs):
+        id = kwargs.pop('id', None)
+        super().__init__(*args, **kwargs)
+        
+        
+        self.fields['email'] = forms.EmailField(
+                        label='Email',
+                        required=False,
+                        help_text='La dirección de correo no se puede modificar.',
+                        widget=forms.EmailInput(attrs={
+                            'class': 'form-control',
+                            'disabled': True
+                        })
+                    )
+
+        
+        
+        
+        self.fields['first_name'] = forms.CharField(label='Primer Nombre',required=False, help_text='Introduzca su primer nombre.')
+        self.fields['last_name'] = forms.CharField(label='Apellido',required=False, help_text='Introduzca su apellido.')
+        
+        self.fields['new_pass'] = forms.BooleanField(
+            label='¿ Desea cambiar la contraseña ? ',
+            required=False,
+            initial=False,  # Se marca por defecto
+            widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        )
+        
+        
+        self.fields['role'] = forms.ChoiceField(
+            choices=ROLES2,
+            required=False,
+            label='Rol Usuario',
+            help_text='Seleccione el rol que se asignará al usuario.'
+        )
+        
+        
+        self.fields['permission'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(role.id, role.name) for role in Role.objects.all()],
+            label='Permisos',
+            help_text='Seleccione los permisos del usuario.'
+        )
+        
+        # Configurar la apariencia de los campos
+        self.fields['role'].widget.attrs.update({
+            'data-control': 'select2',
+            'data-tags': 'true',
+            'class': 'form-select',
+            'data-hide-search': "true",
+        })
+        
+        
+        
+        self.fields['company'] = forms.MultipleChoiceField(
+            choices=[('', '----------')] + [(empresa.idempresa, empresa.nombreempresa) for empresa in Empresa.objects.all()],
+            label='Empresa',
+            required=False,
+            widget=forms.SelectMultiple(attrs={
+                'data-control': 'select2',
+                'data-close-on-select': "false",
+                'data-placeholder': 'Seleccione una empresa',
+                'data-allow-clear': "true",
+                'multiple': "multiple",
+
+            })
+        )
+        
+        self.fields['permission'].widget.attrs.update({
+            'data-control': 'select2',
+            'data-tags': 'true',
+            'class': 'form-select',
+            'data-hide-search': "true",
+        })
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'form_edit_user'
+        self.helper.enctype = 'multipart/form-data'
+        
+        self.helper.attrs.update({
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',  # Clave para resolver el error
+            'up-submit': reverse('admin:useredit',kwargs={'id': id}),
+            'up-accept-location': reverse('admin:user'),
+            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
+        })
+        
+        self.helper.layout = Layout(
+            Row(
+                Column('email', css_class='form-group mb-0 col-md-6'),
+                Column('permission', css_class='form-group mb-0 col-md-6'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('last_name', css_class='form-group mb-0 col-md-6'),
+                Column('first_name', css_class='form-group mb-0 col-md-6'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('company', css_class='form-group mb-0 col-md-6'),
+                Column('role', css_class='form-group mb-0 col-md-6'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('new_pass', css_class='form-group mb-0 col-md-12 d-flex justify-content-center align-items-center'),
+                css_class='form-row'
+            ),
+
+
+
+            
+        )
