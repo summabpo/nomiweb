@@ -273,7 +273,7 @@ tr.htmx-swapping td {
 <script>
     up.on('up:layer:accepted', function(event) {
         const location = event.response.header('X-Up-Location');
-        const message  = event.response.header('X-Up-message');
+        const message  = decodeURIComponent(event.response.header('X-Up-message'));
         const icon     = event.response.header('X-Up-icon');
 
 

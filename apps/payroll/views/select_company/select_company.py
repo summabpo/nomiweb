@@ -4,7 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import User
+from apps.common.models import User ,Empresa
 
 
 
@@ -65,7 +65,9 @@ def select_company(request):
         form = CompanyForms(request.POST, id=request.user.id)
         if form.is_valid():
             empresa_id = form.cleaned_data['idempresa']
+            name = Empresa.objects.get(idempresa = empresa_id ).nombreempresa
             usuario['idempresa'] = empresa_id
+            usuario['nombre_empresa'] = name
             usuario['pass'] = True
             request.session['usuario'] = usuario
             return redirect('payroll:index_payroll')  # Redirige a donde necesites

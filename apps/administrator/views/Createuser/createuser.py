@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from apps.components.mail import send_template_email
 import random
 import string
-
+import urllib.parse
 
 def generate_random_password(length=12):
     """
@@ -163,7 +163,8 @@ def usercreate_admin(request):
                 is_active=cleaned_data['is_active'],
             )
             
-            user.id_empresa.add(*id_empresa)
+            if id_empresa != None :
+                user.id_empresa.add(*id_empresa)
             
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
@@ -254,7 +255,7 @@ def usercreate_edit(request,id):
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
             response['X-Up-icon'] = icon # URL para recargar la página principal   
-            response['X-Up-message'] = message    
+            response['X-Up-message'] = urllib.parse.quote(message)    
             response['X-Up-Location'] = reverse('admin:user')           
             return response
     
