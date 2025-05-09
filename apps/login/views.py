@@ -88,8 +88,10 @@ def Login_view(request):
                         'rol': user.tipo_user,
                         'name': f"{user.first_name} {user.last_name}",
                         'idempleado': user.id_empleado.idempleado if user.id_empleado else None ,
-                        #'idempresa': user.id_empresa.idempresa if user.id_empresa else None
+                        'idempresa': user.id_empresa.first().idempresa if user.id_empresa.count() == 1 else None,
+                        'nombre_empresa': user.id_empresa.first().nombreempresa if user.id_empresa.count() == 1 else None
                     }
+                    
                     request.session['usuario'] = complements
                     return redirect_by_role(user.tipo_user)
                 else:
@@ -171,7 +173,8 @@ def login_home(request, sociallogin=None, **kwargs):
                 'rol': user.tipo_user,
                 'name': f"{user.first_name} {user.last_name}",
                 'idempleado': user.id_empleado.idempleado if user.id_empleado else None,
-                
+                'idempresa': user.id_empresa.first().idempresa if user.id_empresa.count() == 1 else None,
+                'nombre_empresa': user.id_empresa.first().nombreempresa if user.id_empresa.count() == 1 else None
             }
     return redirect_by_role(rol)
 
@@ -249,7 +252,7 @@ def password_reset_view(request):
     -----
     - El token temporal es generado utilizando `secrets.token_urlsafe` para garantizar su seguridad.
     - El enlace de restablecimiento se genera concatenando la URL base del sitio (`settings.HOSTNAME`)
-      con el token generado.
+        con el token generado.
     - El token se almacena en la base de datos junto con un timestamp para rastrear su creación.
     - El sistema muestra un mensaje de error si el correo no está registrado en el sistema.
 
