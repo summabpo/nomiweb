@@ -1646,7 +1646,7 @@ class SalariosImportador(models.Model):
 
 # validar 
 class Vacaciones(models.Model):
-    idvacaciones = models.IntegerField(primary_key=True)
+    idvacaciones = models.AutoField(primary_key=True)
     idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING, blank=True, null=True)
     fechainicialvac = models.DateField(blank=True, null=True)
     ultimodiavac = models.DateField(blank=True, null=True)

@@ -13,13 +13,7 @@
     <div class="separator my-5"></div> 
     <!--begin::Input group-->        
     <div class="modal-body">
-        <div class="container">
-            {% csrf_token %}
-            {% crispy form %}
-
-            <div id="extra-section">
-                
-            <form 
+        <form 
                 id="form-fila-1"
                 up-target="#item-list"
                 up-submit="true"
@@ -28,7 +22,13 @@
                 method="post"
                 action="{% url 'payroll:vacation_settlement_add' %}"
             >
-                {% csrf_token %}
+        {% csrf_token %}
+        <div class="container">
+            {% crispy form %}
+
+            <div id="extra-section">
+                
+            
                 <div class="table-responsive">
                     <table class="table table-rounded table-striped border table-sm text-center mx-auto w-auto" id="items-table">
                         <colgroup>
@@ -60,15 +60,18 @@
                             </tr>
                         </thead>
                         <tbody id="item-list">
-                            {% for item in entries %}
+                            {% for item in vacaciones_list %}
                             <tr>
-                                <td>{{ item.novedad }}</td>
-                                <td>{{ item.fecha_inicio }}</td>
-                                <td>{{ item.fecha_fin }}</td>
-                                <td class="text-end">{{ item.dias_c }}</td>
-                                <td class="text-end">{{ item.dias_v }}</td>
+                                <td>{{ item.tipovac.nombrevacaus }}</td>
+                                <td>{{ item.fechainicialvac }}</td>
+                                <td>{{ item.ultimodiavac }}</td>
+                                <td class="text-end">{{ item.cuentasabados }}</td>
+                                <td class="text-end">{{ item.diascalendario }}</td>
+                                <td class="text-end">{{ item.diasvac }}</td>
                                 <td class="text-end">{{ item.base }}</td>
                                 <td class="text-end">{{ item.valor }}</td>
+                                <td class="text-end">{{ item.perinicio }}</td>
+                                <td class="text-end">{{ item.perfinal }}</td>
                                 <td><span class="badge bg-success">G</span></td>
                             </tr>
                             {% endfor %}
@@ -93,16 +96,20 @@
                                     </div>
                                 </td>
     
-                                <td>
-                                    <input type="text" id="dias_c-1" name="dias_c-1" class="form-control form-control-sm text-end" min="0" max="999"  />
-                                </td>
-                                <td><input type="text" id="dias_v-1" name="dias_v-1" class="form-control form-control-sm text-end" min="0" max="999" /></td> <!-- este dato es variable V -->
+                                <span id="resultado-dias-1">
+                                    <td id="td-dias-c-1">
+                                        <input type="text" id="dias_c-1" name="dias_c-1" class="form-control form-control-sm text-end" disabled />
+                                    </td>
+                                    <td id="td-dias-v-1">
+                                        <input type="text" id="dias_v-1" name="dias_v-1" class="form-control form-control-sm text-end" disabled />
+                                    </td>
+                                </span>
 
-                                <td><input type="text" id="base-1" name="base-1" class="form-control form-control-sm text-end"  /></td>
-                                <td><input type="text" id="valor-1" name="valor-1" class="form-control form-control-sm text-end"   /></td>
+                                <td><input type="text" id="base-1" name="base-1" class="form-control form-control-sm text-end" disabled /></td>
+                                <td><input type="text" id="valor-1" name="valor-1" class="form-control form-control-sm text-end" disabled  /></td>
 
-                                <td><input type="text" id="per-i-1" name="per-i-1" class="form-control form-control-sm text-end"  /></td>  <!-- este dato es variable  V -->
-                                <td><input type="text" id="per-f-1" name="per-f-1" class="form-control form-control-sm text-end"   /></td> <!-- este dato es variable  V -->
+                                <td><input type="text" id="per-i-1" name="per-i-1" class="form-control form-control-sm text-end" disabled /></td>  <!-- este dato es variable  V -->
+                                <td><input type="text" id="per-f-1" name="per-f-1" class="form-control form-control-sm text-end" disabled /></td> <!-- este dato es variable  V -->
 
                                 <td>
                                     <button type="submit" class="btn btn-icon btn-light-twitter btn-sm" id="add-item-button-1">
@@ -113,12 +120,12 @@
                         </tbody>
                     </table>
                 </div>
-            </form>
+            
 
             </div>
           <!-- Formulario solo para la fila nueva -->
 
-
+</form>
 <!-- Fila ya guardadas fuera del formulario -->
 <table class="table table-sm align-middle mt-2">
     <tbody id="item-list">

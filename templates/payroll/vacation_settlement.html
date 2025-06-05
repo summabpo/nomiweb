@@ -243,9 +243,7 @@ document.addEventListener('up:fragment:inserted', function(event) {
 
     if (!modalContent) return;
     
-    setTimeout(() => {
-
-        
+        setTimeout(() => {      
 
         const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
 
@@ -256,6 +254,44 @@ document.addEventListener('up:fragment:inserted', function(event) {
         const novedadSelect = modalContent.querySelector('#novedad');
 
 
+        
+        const fecha_inicio = modalContent.querySelector('#fecha_inicio-1')
+        const sabados_checkbox = modalContent.querySelector('#sabados-1');
+        const incluir_sabados = sabados_checkbox && sabados_checkbox.checked ? '1' : '0';
+        const fecha_fin = modalContent.querySelector('#fecha_fin-1')
+        const dias_c_input = modalContent.querySelector('#dias_c-1');
+        const dias_v_input = modalContent.querySelector('#dias_v-1');
+        const salario_input = modalContent.querySelector('#base-1');
+        const valor_input = modalContent.querySelector('#valor-1');
+        
+        function calcularDias() {
+            if (fecha_inicio.value && fecha_fin.value) {
+                    up.request({
+                    url: "{% url 'payroll:vacation_days_calc' %}",
+                    method: "POST",
+                    params: {
+                        fecha_inicio: fecha_inicio.value,
+                        fecha_fin: fecha_fin.value,
+                        idc: contract.value , 
+                        incluir_sabados: sabados_checkbox.checked,
+                        csrfmiddlewaretoken: modalContent.querySelector('[name="csrfmiddlewaretoken"]').value
+                    }
+                    }).then(function(response) {
+                        const data = JSON.parse(response.text);  // Suponiendo que tu view retorna JSON
+                        dias_c_input.value = data.dias_c;
+                        dias_v_input.value = data.dias_v;
+                        salario_input.value = data.salario;
+                        valor_input.value = data.valor;
+
+                    });
+                }
+            }
+
+        if (fecha_inicio && fecha_fin && sabados_checkbox) {
+            fecha_inicio.addEventListener('change', calcularDias);
+            fecha_fin.addEventListener('change', calcularDias);
+            sabados_checkbox.addEventListener('change', calcularDias);
+        }
         
 
         // Inicializar Select2
@@ -307,13 +343,13 @@ document.addEventListener('up:fragment:inserted', function(event) {
         // Opciones dinámicas según el tipo de novedad
         const opcionesPorTipo = {
             '1': [  // Vacaciones
-                { id: 'vac_d', text: 'Vacaciones Disfrutadas' },
-                { id: 'vac_c', text: 'Vacaciones Compensadas' }
+                { id: '1', text: 'Vacaciones Disfrutadas' },
+                { id: '2', text: 'Vacaciones Compensadas' }
             ],
             '2': [  // Ausencias
-                { id: 'aus_lr', text: 'Licencia Remunerada' },
-                { id: 'aus_lnr', text: 'Licencia No Remunerada' },
-                { id: 'aus_susp', text: 'Suspensiones' }
+                { id: '3', text: 'Licencia Remunerada' },
+                { id: '4', text: 'Licencia No Remunerada' },
+                { id: '5', text: 'Suspensiones' }
             ]
         };
 
