@@ -6,6 +6,7 @@ from apps.common.models  import Contratosemp , Vacaciones ,Contratos
 from django.http import JsonResponse
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
+
 @login_required
 @role_required('company','accountant')
 def vacation_general(request):

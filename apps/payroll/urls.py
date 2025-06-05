@@ -8,6 +8,8 @@ from .views.parameters import parameters
 from .views.pruebas import pruebas
 from .views.fixed import fixed
 from .views.select_company import select_company
+from .views.settlements import vacation_settlement 
+
 
 # afsa fsa asfad 
 
@@ -47,6 +49,13 @@ urlpatterns = [
 
     ## conceptos fijos 
     path('fixed', fixed.fixed, name='fixedconcepts'),
+
+
+    ## settlements
+    path('settlements/vacation', vacation_settlement.vacation_settlement, name='vacation_settlement'),
+    path('settlements/vacation/add', vacation_settlement.vacation_settlement_add, name='vacation_settlement_add'),
+    path('settlements/vacation/data/<str:id>/<str:t>', vacation_settlement.vacation_modal_data, name='vacation_modal_data'),
+    # path('settlements/', vacation_settlement.fixed, name='fixedconcepts'),
     
 
 ]
