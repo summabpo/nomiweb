@@ -13,12 +13,11 @@ class VacationSettlementForm(forms.Form):
         
     )
 
-    pay_date = forms.DateField(
+    pay_date = forms.CharField(
         label='Fecha de pago',
         widget=forms.TextInput(attrs={
-            'type': 'date',
-            'placeholder': 'Seleccione la fecha',
-            'class': 'form-control input-group-sm'
+            'class': 'form-control', 
+            'placeholder': 'Seleccione una fecha',
         })
     )
 

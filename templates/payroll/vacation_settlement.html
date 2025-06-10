@@ -197,6 +197,7 @@ Listado de Liquidaciones
 <script>
 document.addEventListener('up:fragment:inserted', function(event) {
     const modalContent = up.layer?.current?.element;
+    const fecha0 = modalContent.querySelector('#id_pay_date');
     const fecha1 = modalContent.querySelector('#fecha_inicio-1');
     const fecha2 = modalContent.querySelector('#fecha_fin-1');
 
@@ -232,6 +233,11 @@ document.addEventListener('up:fragment:inserted', function(event) {
         });
     }
     
+    if (fecha0) {
+        $(fecha0).flatpickr();
+    }
+
+
     if (fecha1) {
         $(fecha1).flatpickr();
     }
@@ -433,9 +439,6 @@ document.addEventListener('up:fragment:inserted', function(event) {
                     toggleColumnas([4, 6, 9, 10], false);
                 }
             }
-
-            
-        
 
 
         }

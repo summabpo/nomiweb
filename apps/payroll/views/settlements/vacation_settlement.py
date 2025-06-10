@@ -44,7 +44,6 @@ def vacation_settlement_add(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form = VacationSettlementForm(id_empresa=idempresa)
-    formset = BenefitFormSet()
 
     data = {
         "conceptors": [
@@ -57,18 +56,44 @@ def vacation_settlement_add(request):
     }
 
     if request.method == 'POST':
-        print(request.POST)
-        contrato = request.POST.get("contract")
-
+        
+        contrato = request.POST.get("contract") #*
+        fecha_pago = request.POST.get("pay_date")
         novedad = request.POST.get("novedad")
         fecha_inicio = request.POST.get("fecha_inicio-1")
         fecha_fin = request.POST.get("fecha_fin-1")
-        dias_c = request.POST.get("dias_c-1")
-        dias_v = request.POST.get("dias_v-1")
-        base = request.POST.get("base-1")
-        valor = request.POST.get("valor-1")
         sabados = request.POST.get("sabados-1")
-        fecha_pago = request.POST.get("pay_date")
+        salario = Contratos.objects.get(idcontrato = contrato).salario
+        
+
+        if sabados == 'on':
+            dias = 6
+            csabado = 1
+        else :
+            dias = 5
+            csabado = 0
+    
+        if fecha_inicio and fecha_fin:
+            try:
+                fi = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+                ff = datetime.strptime(fecha_fin, '%Y-%m-%d')
+
+                # Días calendario
+                dias_c = (ff - fi).days + 1 if ff >= fi else 0
+
+                # Días hábiles (lunes a viernes o lunes a sábado)
+                delta = ff - fi
+                dias_v = sum(
+                    1 for i in range(delta.days + 1)
+                    if (fi + timedelta(days=i)).weekday() < (dias)
+                )
+
+                valor = round((salario / 30) * dias_c)
+                
+            except Exception:
+                dias_c = dias_v = 0
+       
+        
 
         vacacion = Vacaciones.objects.create( 
             idcontrato= Contratos.objects.get(idcontrato = contrato) ,
@@ -78,11 +103,11 @@ def vacation_settlement_add(request):
             diasvac = int(dias_v) if dias_v else 0,
             #diaspendientes = ,
             pagovac = valor if valor else 0,
-            #totaldiastomados=10,
-            #basepago=1500000,
-            estadovac=1,
+            totaldiastomados = int(dias_c) ,
+            basepago = salario ,
+            estadovac = 1,
             #idnomina = nomina,
-            #cuentasabados=1,
+            cuentasabados= csabado ,
             tipovac= Tipoavacaus.objects.get(idvac = novedad ) ,
             fechapago = fecha_pago
 
@@ -94,7 +119,6 @@ def vacation_settlement_add(request):
 
     return render(request, './payroll/partials/vacation_settlement_add.html', {
         'form': form,
-        'formset': formset,
         'data': data ,
         'vacaciones_list':vacaciones_list ,
         
