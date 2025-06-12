@@ -835,6 +835,9 @@ class Crearnomina(models.Model):
     
     class Meta:
         db_table = 'crearnomina'
+        
+    def __str__(self):
+        return f'{self.nombrenomina} - {self.id_empresa}'
 
 
 
