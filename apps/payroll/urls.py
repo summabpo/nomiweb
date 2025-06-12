@@ -58,6 +58,7 @@ urlpatterns = [
     path('settlements/vacation/', vacation_settlement.vacation_days_calc, name='vacation_days_calc'),
     
     path('settlements/bonus/p', bonus_settlement.bonus_p_settlement, name='bonus_p_settlement'),
+    path('settlements/bonus/p/add', bonus_settlement.bonus_p_settlement_add, name='bonus_p_settlement_add'),
     
 
 ]

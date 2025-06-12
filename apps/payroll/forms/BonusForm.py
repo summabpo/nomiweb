@@ -1,7 +1,7 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Div, Submit
-from apps.common.models import Contratos
+from apps.common.models import Contratos , Crearnomina
 
 class BonusForm(forms.Form):
     
@@ -44,5 +44,34 @@ class BonusForm(forms.Form):
                 ),
                 css_class='row'
             )
+            
+        )
+
+
+class BonusAddForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        idempresa = kwargs.pop('idempresa', None)
+        super().__init__(*args, **kwargs)
+        
+        self.fields['Payroll'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(nomina.idnomina, f" {nomina.nombrenomina}" ) for nomina in Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')], 
+            label='Empleado' ,
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+            }), 
+            required=False )
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'form_bonus_add'
+        
+        self.helper.layout = Layout(
+            Row(
+                Column('Payroll', css_class='form-group col-md-12 mb-3'),
+                css_class='row'
+            ),
             
         )

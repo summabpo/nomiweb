@@ -42,7 +42,6 @@
 
     up-modal[size=medium] up-modal-box {
         border-radius: 0.75rem;
-        width: 800px;
         box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
         
     }
@@ -105,19 +104,7 @@ Listado de Empleados
 
 {% block actions %}
     <!-- Button trigger modal -->
-    <a
-        class='btn btn-light-info'
-        up-layer='new modal'
-        up-target=".modal-content"
-        up-size = "large"
-        up-align = "center"
-        up-backdrop = "true"
-        up-history = "false"
-        up-dismissable ="false"
-        up-cache="false"
-        href="{% url 'payroll:vacation_settlement_add' %}">
-        <i class="fa-solid fa-plus"></i> Nuevo Reporte
-    </a> 
+    
 
 {% endblock %}
 
@@ -141,6 +128,20 @@ Listado de Empleados
 
     
     {% if contratos_empleados %}
+        <a
+            class='btn btn-light-info'
+            up-layer='new modal'
+            up-target=".modal-content"
+            up-size = "medium"
+            up-align = "center"
+            up-backdrop = "true"
+            up-history = "false"
+            up-dismissable ="false"
+            up-cache="false"
+            href="{% url 'payroll:bonus_p_settlement_add' %}">
+            <i class="fa-solid fa-plus"></i> Agregar
+        </a> 
+
         <div class="table-responsive">
             <table id='tabla-bonus-p' class="table table-striped table-bordered">
                 <thead>

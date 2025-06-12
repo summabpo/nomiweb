@@ -9,8 +9,10 @@ from apps.components.humani import format_value_float
 from django.db.models import Sum, Q
 from decimal import Decimal
 from datetime import datetime, timedelta
-from apps.payroll.forms.BonusForm import BonusForm
+from apps.payroll.forms.BonusForm import BonusForm , BonusAddForm
 from dateutil.relativedelta import relativedelta
+
+
 @login_required
 @role_required('accountant')
 def bonus_p_settlement(request):
@@ -122,6 +124,23 @@ def bonus_p_settlement(request):
     
     return render(request, './payroll/bonus_p_settlement.html', context)
 
+@login_required
+@role_required('accountant')
+def bonus_p_settlement_add(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    form = BonusAddForm(idempresa=idempresa)
+
+    if request.method == 'POST':
+        form = BonusAddForm(request.POST,idempresa=idempresa)
+        if form.is_valid():
+            print('Se hizo un post')
+
+    context = {
+        'form': form,
+    }
+    return render(request, './payroll/partials/bonus_p_settlement_add.html', context)
+
 
 
 def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_actual, fin_calculo, id_empresa):
@@ -208,3 +227,5 @@ def aux_transporte(idcontrato , salario, minimo,aux):
     if contrato.tipocontrato.idtipocontrato == 5 or contrato.tiposalario.idtiposalario == 2 : 
         return 0
     return aux if salario < 2 * minimo else 0
+
+
