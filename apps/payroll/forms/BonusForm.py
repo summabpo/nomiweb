@@ -63,11 +63,12 @@ class BonusAddForm(forms.Form):
                 'data-hide-search': 'true',
             }), 
             required=False )
-
+                
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_bonus_add'
-        
+        self.helper.enctype = 'multipart/form-data'
+
         self.helper.layout = Layout(
             Row(
                 Column('Payroll', css_class='form-group col-md-12 mb-3'),

@@ -11,7 +11,9 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 from apps.payroll.forms.BonusForm import BonusForm , BonusAddForm
 from dateutil.relativedelta import relativedelta
-
+from django.http import HttpResponse
+from django.http import JsonResponse
+from django.urls import reverse
 
 @login_required
 @role_required('accountant')
@@ -135,6 +137,13 @@ def bonus_p_settlement_add(request):
         form = BonusAddForm(request.POST,idempresa=idempresa)
         if form.is_valid():
             print('Se hizo un post')
+
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'ups algo salio mal'    
+            response['X-Up-Location'] = reverse('payroll:concepts')      
+
 
     context = {
         'form': form,
