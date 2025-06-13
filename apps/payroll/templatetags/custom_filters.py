@@ -31,6 +31,15 @@ def format_currency(value):
         return value
 
 
+@register.filter(name='none_to_empty')
+def none_to_empty(value):
+    """
+    Convierte None en una cadena vacía.
+    """
+    if value is None:
+        return ''
+    return value
+
 @register.filter
 def zip_lists(value, arg):
     return zip(value, arg)

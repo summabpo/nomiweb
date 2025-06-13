@@ -1,0 +1,197 @@
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from apps.components.decorators import  role_required
+from apps.common.models  import Contratosemp , Vacaciones ,Contratos , Tipoavacaus
+from apps.payroll.forms.VacationSettlementForm import VacationSettlementForm , BenefitFormSet
+from datetime import datetime, timedelta
+from django.http import JsonResponse
+from apps.components.humani import format_value_float
+
+
+vacaciones_list = []
+
+@login_required
+@role_required('accountant')
+def vacation_settlement(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    # Obtener la lista de empleados
+    contratos_empleados = Contratos.objects\
+        .select_related('idempleado') \
+        .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] , id_empresa_id = idempresa ) \
+        .values('idempleado__docidentidad','idempleado__sapellido', 'idempleado__papellido', 'idempleado__pnombre',
+                'idempleado__snombre','idempleado__idempleado','idcontrato') 
+    
+    for emp in contratos_empleados:
+        emp['idempleado__pnombre'] = '' if emp['idempleado__pnombre'] is None else emp['idempleado__pnombre']  
+        emp['idempleado__snombre'] = '' if emp['idempleado__snombre'] is None else emp['idempleado__snombre']  
+        emp['idempleado__papellido'] = '' if emp['idempleado__papellido'] is None else emp['idempleado__papellido']  
+        emp['idempleado__sapellido'] = '' if emp['idempleado__sapellido'] is None else emp['idempleado__sapellido']  
+
+    
+    context = {
+        'contratos_empleados': contratos_empleados,
+    }
+
+    return render(request, './payroll/vacation_settlement.html', context)
+    
+
+@login_required
+@role_required('accountant')
+def vacation_settlement_add(request):
+    
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    form = VacationSettlementForm(id_empresa=idempresa)
+
+    data = {
+        "conceptors": [
+            (1, "Vacaciones Disfrutadas"),
+            (2, "Vacaciones Compensadas"),
+            (3, "Licencia Remunerada"),
+            (4, "Licencia No Remunerada"),
+            (5, "Suspension"),
+        ]
+    }
+
+    if request.method == 'POST':
+        
+        contrato = request.POST.get("contract") #*
+        fecha_pago = request.POST.get("pay_date")
+        novedad = request.POST.get("novedad")
+        fecha_inicio = request.POST.get("fecha_inicio-1")
+        fecha_fin = request.POST.get("fecha_fin-1")
+        sabados = request.POST.get("sabados-1")
+        salario = Contratos.objects.get(idcontrato = contrato).salario
+        
+
+        if sabados == 'on':
+            dias = 6
+            csabado = 1
+        else :
+            dias = 5
+            csabado = 0
+    
+        if fecha_inicio and fecha_fin:
+            try:
+                fi = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+                ff = datetime.strptime(fecha_fin, '%Y-%m-%d')
+
+                # Días calendario
+                dias_c = (ff - fi).days + 1 if ff >= fi else 0
+
+                # Días hábiles (lunes a viernes o lunes a sábado)
+                delta = ff - fi
+                dias_v = sum(
+                    1 for i in range(delta.days + 1)
+                    if (fi + timedelta(days=i)).weekday() < (dias)
+                )
+
+                valor = round((salario / 30) * dias_c)
+                
+            except Exception:
+                dias_c = dias_v = 0
+       
+        
+
+        vacacion = Vacaciones.objects.create( 
+            idcontrato= Contratos.objects.get(idcontrato = contrato) ,
+            fechainicialvac = fecha_inicio , 
+            ultimodiavac = fecha_fin ,
+            diascalendario = int(dias_c) ,
+            diasvac = int(dias_v) if dias_v else 0,
+            #diaspendientes = ,
+            pagovac = valor if valor else 0,
+            totaldiastomados = int(dias_c) ,
+            basepago = salario ,
+            estadovac = 1,
+            #idnomina = nomina,
+            cuentasabados= csabado ,
+            tipovac= Tipoavacaus.objects.get(idvac = novedad ) ,
+            fechapago = fecha_pago
+
+            )
+
+        vacaciones_list.append(vacacion)
+
+
+
+    return render(request, './payroll/partials/vacation_settlement_add.html', {
+        'form': form,
+        'data': data ,
+        'vacaciones_list':vacaciones_list ,
+        
+    })
+
+@login_required
+@role_required('accountant')
+def vacation_modal_data(request,id,t):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    novedad = Vacaciones.objects.filter(idcontrato_id = id)
+
+    if t == '1' : 
+        titulo = 'Vacaciones'
+        p = False
+        novedad =  Vacaciones.objects.filter(idcontrato__idcontrato=id, tipovac__idvac__in=[1,2]) 
+    else:
+        novedad = Vacaciones.objects.filter(idcontrato__idcontrato=id, tipovac__idvac__in=[3,4,5])
+        titulo = 'Ausensias'
+        p = True
+
+    data = {
+        'titulo': titulo , 
+        'pass': p ,
+        'novedad' : novedad ,
+
+    }
+   
+    return render(request, './payroll/partials/vacation_modal_data.html', {
+        'data': data,
+        
+    })
+
+
+
+def vacation_days_calc(request):
+    fecha_inicio = request.POST.get('fecha_inicio')
+    fecha_fin = request.POST.get('fecha_fin')
+    incluir_sabados = request.POST.get('incluir_sabados')
+    contrato = request.POST.get('idc')
+    salario = Contratos.objects.get(idcontrato = contrato).salario
+    dias_c = ''
+    dias_v = ''
+
+    if incluir_sabados == 'true':
+        dias = 6
+    else :
+        dias = 5
+    
+    if fecha_inicio and fecha_fin:
+        try:
+            fi = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            ff = datetime.strptime(fecha_fin, '%Y-%m-%d')
+
+            # Días calendario
+            dias_c = (ff - fi).days + 1 if ff >= fi else 0
+
+            # Días hábiles (lunes a viernes o lunes a sábado)
+            delta = ff - fi
+            dias_v = sum(
+                1 for i in range(delta.days + 1)
+                if (fi + timedelta(days=i)).weekday() < (dias)
+            )
+
+            valor = round((salario / 30) * dias_c)
+            valor = format_value_float(valor)
+        except Exception:
+            dias_c = dias_v = 'Err'
+
+    return JsonResponse({
+            'dias_c': dias_c,
+            'dias_v': dias_v,
+            'salario':format_value_float(salario),
+            'valor':valor,
+        })

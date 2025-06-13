@@ -525,7 +525,7 @@ def concepts_edit(request,id):
         'tipoconcepto':concept.tipoconcepto ,
         'formula':concept.formula ,
         'codigo':concept.codigo ,
-        'grupo_dian':concept.grupo_dian.ne_id ,
+        'grupo_dian':concept.grupo_dian.ne_id  if concept.grupo_dian else  None ,
         'indicador': [i.id for i in concept.indicador.all()],
         }
     
