@@ -121,7 +121,7 @@ def bonus_p_settlement(request):
     context = {
         'contratos_empleados': contratos_empleados,
         'form': form,
-        'data':data,
+        
     }
     
     return render(request, './payroll/bonus_p_settlement.html', context)
@@ -146,7 +146,7 @@ def bonus_p_settlement_add(request):
 
 
     context = {
-        'form': form,
+        'form2': form,
     }
     return render(request, './payroll/partials/bonus_p_settlement_add.html', context)
 
@@ -166,20 +166,7 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
         salario = Decimal('0')
         aux_trans = Decimal('0')
 
-    # Variables: basesegsocial + auxtransporte
-    variables = Nomina.objects.filter(
-        idcontrato=idcontrato,
-        idnomina__in=Crearnomina.objects.filter(
-            fechainicial__gte=semestre_actual['inicio'],
-            fechafinal__lte=fin_calculo,
-            id_empresa=id_empresa
-        ).values_list('idnomina', flat=True),
-        estadonomina=2,
-        idconcepto__in=Conceptosdenomina.objects.filter(
-            Q(indicador__nombre='basesegsocial') | Q(indicador__nombre='auxtransporte'),
-            id_empresa=id_empresa
-        ).values_list('idconcepto', flat=True)
-    ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
+    
 
     # Variables: extras + comisiones
     value = Nomina.objects.filter(
@@ -198,34 +185,75 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
 
     # Base total de la prima
     base_variable = (value / Decimal(dias_prima)) * 30
-    total_base = salario + base_variable
+    total_base = salario + base_variable + aux_trans
     valor_prima = (total_base * Decimal(dias_prima)) / Decimal(360)
 
-    # Prima Promedio (PP)
+    # Prima Promedio (PP) : 
+    
+    # Variables: basesegsocial + auxtransporte
+    variables = Nomina.objects.filter(
+        idcontrato=idcontrato,
+        idnomina__in=Crearnomina.objects.filter(
+            fechainicial__gte=semestre_actual['inicio'],
+            fechafinal__lte=fin_calculo,
+            id_empresa=id_empresa
+        ).values_list('idnomina', flat=True),
+        estadonomina=2,
+        idconcepto__in=Conceptosdenomina.objects.filter(
+            Q(indicador__nombre='basesegsocial') | Q(indicador__nombre='auxtransporte'),
+            id_empresa=id_empresa
+        ).values_list('idconcepto', flat=True)
+    ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
+    
+    
+    print('----------')
+    print(variables)
+    print('----------')
+    #  Calculo Prima Promedio (PP)
     primapromedio = (variables / Decimal(dias_prima)) * 30
     pp = (primapromedio / Decimal(360)) * Decimal(dias_prima)
 
     return round(valor_prima, 2), round(pp, 2)
 
 
-def extra_auto(contrato, semestre_actual, fin_calculo , id ):
+def extra_auto(contrato, semestre_actual, fin_calculo, id):
     value = 0
     
     idcontrato = contrato['idcontrato']
     
-    value = Nomina.objects.filter(
+    # Obtener los IDs de las nóminas válidas
+    ids_nominas = Crearnomina.objects.filter(
+        fechainicial__gte=semestre_actual['inicio'],
+        fechafinal__lte=fin_calculo,
+        id_empresa=id
+    ).values_list('idnomina', flat=True)
+
+    print(f"IDs de nóminas: {list(ids_nominas)}")
+    
+    # Obtener los IDs de los conceptos válidos
+    ids_conceptos = Conceptosdenomina.objects.filter(
+        Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones'),
+        id_empresa=id
+    ).values_list('idconcepto', flat=True)
+
+    print(f"IDs de conceptos: {list(ids_conceptos)}")
+    
+    # Filtrar las líneas de nómina relevantes
+    registros = Nomina.objects.filter(
         idcontrato=idcontrato,
-        idnomina__in=Crearnomina.objects.filter(
-            fechainicial__gte=semestre_actual['inicio'],
-            fechafinal__lte=fin_calculo,
-            id_empresa=id
-        ).values_list('idnomina', flat=True),
+        idnomina__in=ids_nominas,
         estadonomina=2,
-        idconcepto__in=Conceptosdenomina.objects.filter(
-                        Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones'),
-                        id_empresa=id
-                    ).values_list('idconcepto', flat=True)
-    ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
+        idconcepto__in=ids_conceptos
+    )
+
+    print("Registros encontrados para la suma:")
+    for r in registros:
+        print(f" - ID: {r.idregistronom}, Concepto: {r.idconcepto}, Valor: {r.valor}")
+
+    # Realizar la agregación
+    value = registros.aggregate(total=Sum('valor'))['total'] or Decimal('0')
+    
+    print('valor de sumatoria' , value)
     
     return value
     

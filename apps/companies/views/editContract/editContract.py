@@ -71,7 +71,7 @@ def EditContracVisual(request,idempleado):
         'salaryType': contrato.tiposalario.idtiposalario,
         'paymentMethod': contrato.formapago,
         'salaryMode': contrato.salariovariable,
-        'bankAccount': contrato.bancocuenta.idbanco,
+        'bankAccount': contrato.bancocuenta.idbanco if contrato.bancocuenta else '',
         'accountType': contrato.tipocuentanomina,
         'payrollAccount': contrato.cuentanomina,
         'costCenter': contrato.idcosto.idcosto,

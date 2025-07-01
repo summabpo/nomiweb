@@ -62,7 +62,7 @@ def vacation_balance(request):
     idempresa = usuario['idempresa']
     acumulados= {} 
     
-    concepto = Conceptosfijos.objects.filter(idfijo=9).values_list('valorfijo', flat=True).first()
+    concepto = Conceptosfijos.objects.filter(idfijo=7).values_list('valorfijo', flat=True).first()
 
     valor_fijo = float(concepto)
     

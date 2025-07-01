@@ -85,7 +85,7 @@ class FixidForm(forms.Form):
             '<span class="fs-6 text-muted"> Máximo 35 caracteres. Describe brevemente la situación. </span> '
         )
 
-        self.fields['idconcepto'].choices = [('', '-------------')] + [(concepto.idconcepto, f"{concepto.nombreconcepto}") for concepto in Conceptosdenomina.objects.all()]
+        self.fields['idconcepto'].choices = [('', '-------------')] + [(concepto.idconcepto, f"{concepto.nombreconcepto}") for concepto in Conceptosdenomina.objects.filter(id_empresa = idempresa)]
         self.fields['idcontrato'].choices = [('', '-------------')] + [(contra.idcontrato, f"{contra.idempleado.papellido } {contra.idempleado.sapellido } {contra.idempleado.pnombre } -- {contra.cargo.nombrecargo } -- Contrato #{contra.idcontrato} ") for contra in Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa) .order_by('idempleado__papellido')]
         
 

@@ -232,24 +232,23 @@ def usercreate_edit(request,id):
                 passwordoriginal = generate_random_password()
                 user.password = make_password(passwordoriginal)
                 message += ' la contraseña cambiada sin dramas  ' 
+                
+                email_type = 'loginweb'
+                context = {
+                    'usuario': user.email,
+                    'contrasena': passwordoriginal,
+                }
+                subject = '¡Contraseña renovada en Nomiweb! Como cambiar de look... pero más seguro'
+                recipient_list = [user.email]
+                
+                if send_template_email(email_type, context, subject, recipient_list):
+                    message += 'y el correo voló directo a su bandeja. ¡Como magia… pero con teclas!' 
+                else:
+                    message = '¡Uy! El correo electrónico tropezó en el camino y no llegó a su destino.' 
+                    icon = 'error' 'success' 
             
             user.save() 
             user.id_empresa.set(company)
-            
-            
-            email_type = 'loginweb'
-            context = {
-                'usuario': user.email,
-                'contrasena': passwordoriginal,
-            }
-            subject = '¡Contraseña renovada en Nomiweb! Como cambiar de look... pero más seguro'
-            recipient_list = [user.email,'manuel.david.13.b@gmail.com']
-
-            if send_template_email(email_type, context, subject, recipient_list):
-                message += 'y el correo voló directo a su bandeja. ¡Como magia… pero con teclas!' 
-            else:
-                message = '¡Uy! El correo electrónico tropezó en el camino y no llegó a su destino.' 
-                icon = 'error' 'success' 
             
             
             response = HttpResponse()
@@ -257,6 +256,6 @@ def usercreate_edit(request,id):
             response['X-Up-icon'] = icon # URL para recargar la página principal   
             response['X-Up-message'] = urllib.parse.quote(message)    
             response['X-Up-Location'] = reverse('admin:user')           
-            return response
-    
+            return response      
+            
     return render(request, './admin/partials/editUserModal.html', {'form': form})

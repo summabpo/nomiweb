@@ -174,12 +174,13 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
 
     try:
         nomina = Crearnomina.objects.get(idnomina=idn)
+        print('llege aqui 1 ')
     except Crearnomina.DoesNotExist:
         return "Error de creación de nómina"
-
+    print(contratos)
     for contrato in contratos:
         diasnomina = nomina.diasnomina
-
+        print('llege aqui 2 ')
         if contrato.fechainiciocontrato > nomina.fechafinal:
             diasnomina = (nomina.fechafinal - contrato.fechainiciocontrato).days + 1
 
@@ -189,13 +190,13 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
             
         dias_vacaciones = calcular_vacaciones(contrato,nomina)
         dias_incapacidad = calculo_incapacidad(contrato, idn)
-
+        print('llege aqui 3 ')
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         
         
         calculo_prestamo(contrato, idn)
-        
+        print('llege aqui 4 ')
         calculo_novfija(contrato, idn)
         
         if contrato.tiposalario_id == 2:
@@ -207,13 +208,13 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
             
             
         concepto = Conceptosdenomina.objects.get(codigo=codigo_aux, id_empresa_id = idempresa)
-        
+        print('llege aqui 5 ')
         
         if diasnomina > 0:
             if diasnomina > 30:
                 diasnomina = 30
                 
-                
+            print('llege aqui 6 ')
             valorsalario = (contrato.salario / 30) * diasnomina
             
             aux_pass = Nomina.objects.filter(
@@ -231,7 +232,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
                     aux_pass.cantidad = diasnomina
                     aux_pass.valor = valorsalario
                     aux_pass.save()  
-                                
+                print('llege aqui 7 ')
             else:
                 Nomina.objects.create(
                     idconcepto = concepto ,#*
@@ -240,6 +241,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
                     idcontrato_id=contrato.idcontrato ,
                     idnomina_id = idn ,
                 )   
+                print('llege aqui 8 ')
     return True
 
 
@@ -477,18 +479,18 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
     """
     
     
-    EPS = Conceptosfijos.objects.get(idfijo = 10)
-    AFP = Conceptosfijos.objects.get(idfijo = 12)
-    tope_ibc = Conceptosfijos.objects.get(idfijo = 4)
-    factor_integral = Conceptosfijos.objects.get(idfijo = 3).valorfijo
+    EPS = Conceptosfijos.objects.get(idfijo = 8)
+    AFP = Conceptosfijos.objects.get(idfijo = 10)
+    tope_ibc = Conceptosfijos.objects.get(idfijo = 2)
+    factor_integral = Conceptosfijos.objects.get(idfijo = 1).valorfijo
     
     ## pruebas de valores 
-    fsp416 = Conceptosfijos.objects.get(idfijo = 14).valorfijo
-    fsp1617 = Conceptosfijos.objects.get(idfijo = 15).valorfijo
-    fsp1718 = Conceptosfijos.objects.get(idfijo = 16).valorfijo
-    fsp1819 = Conceptosfijos.objects.get(idfijo = 17).valorfijo
-    fsp1920 = Conceptosfijos.objects.get(idfijo = 18).valorfijo
-    fsp21 = Conceptosfijos.objects.get(idfijo = 19).valorfijo
+    fsp416 = Conceptosfijos.objects.get(idfijo = 12).valorfijo
+    fsp1617 = Conceptosfijos.objects.get(idfijo = 13).valorfijo
+    fsp1718 = Conceptosfijos.objects.get(idfijo = 14).valorfijo
+    fsp1819 = Conceptosfijos.objects.get(idfijo = 15).valorfijo
+    fsp1920 = Conceptosfijos.objects.get(idfijo = 16).valorfijo
+    fsp21 = Conceptosfijos.objects.get(idfijo = 17).valorfijo
 
     
     sal_min = Salariominimoanual.objects.get(ano = datetime.now().year).salariominimo

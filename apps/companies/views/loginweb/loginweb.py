@@ -118,7 +118,7 @@ def loginweb(request):
                 }
                 subject = '¡Bienvenido a Nomiweb! Tu nueva plataforma de nóminas... ¡y tu mejor amigo!'
                 #recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
-                recipient_list = [usertempo.email,'mikepruebas@yopmail.com']
+                recipient_list = [usertempo.email]
 
                 if send_template_email(email_type, context, subject, recipient_list):
                     messages.success(request, 'Los usuarios han sido enviados correctamente.')

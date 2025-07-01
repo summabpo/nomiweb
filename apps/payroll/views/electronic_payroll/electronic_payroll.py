@@ -262,10 +262,10 @@ def get_concept_details(month, ano_id):
 def classify_concepts(concept_details):
 
     #concepts static payroll
-    ces_percentage = int(Conceptosfijos.objects.get(idfijo=8).valorfijo)
-    eps_percentage = int(Conceptosfijos.objects.get(idfijo=10).valorfijo)
-    pension_percentage = int(Conceptosfijos.objects.get(idfijo=12).valorfijo)
-    fsp_percentage = int(Conceptosfijos.objects.get(idfijo=14).valorfijo)
+    ces_percentage = int(Conceptosfijos.objects.get(idfijo=6).valorfijo)
+    eps_percentage = int(Conceptosfijos.objects.get(idfijo=8).valorfijo)
+    pension_percentage = int(Conceptosfijos.objects.get(idfijo=10).valorfijo)
+    fsp_percentage = int(Conceptosfijos.objects.get(idfijo=12).valorfijo)
 
     """Classify concepts into earnings (Devengados) and deductions (Deducciones)."""
     devengados = {}

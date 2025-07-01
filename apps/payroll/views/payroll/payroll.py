@@ -310,7 +310,7 @@ def payroll_create(request):
         idnomina = request.POST.get('idnomina')
         id = request.POST.get('idempleado')
         
-        conceptfi = Conceptosfijos.objects.get(idfijo = 25) 
+        conceptfi = Conceptosfijos.objects.get(idfijo = 23) 
         nomina = Crearnomina.objects.get(idnomina=idnomina)
         concept1 = Conceptosdenomina.objects.get(idconcepto=mi_select)
         formula = str(concept1.formula).strip() in ['0', '1', '2']
@@ -837,7 +837,7 @@ def payroll_concept_info(request):
             return JsonResponse({'error': 'Faltan datos requeridos'}, status=400)
         # Dividir el string por '=' para obtener el valor (esto sirve si solo hay un valor)
         try:
-            conceptfi = Conceptosfijos.objects.get(idfijo = 25) 
+            conceptfi = Conceptosfijos.objects.get(idfijo = 23) 
             nomina = Crearnomina.objects.get(idnomina=idnomina)
             concept1 = Conceptosdenomina.objects.get(idconcepto=concept)
             formula = str(concept1.formula).strip() in ['0', '1', '2']
@@ -968,7 +968,7 @@ def payroll_info_edit(request):
         idn = body.get('idn') 
         
         concepto_obj = Nomina.objects.get(idregistronom=idn)
-        conceptfi = Conceptosfijos.objects.get(idfijo = 25) 
+        conceptfi = Conceptosfijos.objects.get(idfijo = 23) 
         nomina = Crearnomina.objects.get(idnomina=concepto_obj.idnomina.idnomina)
         concept1 = Conceptosdenomina.objects.get(idconcepto=concept)
         formula = str(concept1.formula).strip() in ['0', '1', '2']

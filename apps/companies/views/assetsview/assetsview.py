@@ -65,7 +65,7 @@ def contractview(request):
             'modalidadsalario': safe_get(contrato.salariovariable),
             'vivetrabajo': 'Si'if contrato.auxiliotransporte else 'No' ,
             'ciudadcontratacion': safe_get(contrato.ciudadcontratacion.ciudad),
-            'bancocuenta': safe_get(contrato.bancocuenta.nombanco),
+            'bancocuenta': contrato.bancocuenta.idbanco if contrato.bancocuenta else '',
             'tipocuentanomina': safe_get(contrato.tipocuentanomina),
             'formapago' : resultados.get(contrato.formapago, 'Ninguna opción'),
             'cuentanomina': safe_get(contrato.cuentanomina),

@@ -343,7 +343,7 @@ class Empresa(models.Model):
     direccionempresa = models.CharField(max_length=255)
     telefono = models.CharField(max_length=20 )
     email = models.CharField(max_length=30 )
-    codciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
+    idciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
     pais = models.ForeignKey(Paises, on_delete=models.DO_NOTHING)  
     
     # Detalles de ARL y códigos relacionados
@@ -602,7 +602,7 @@ class Contratos(models.Model):
     fechafincontrato = models.DateField(blank=True, null=True)
     tipocontrato = models.ForeignKey(Tipocontrato, on_delete=models.DO_NOTHING)
     tiponomina = models.ForeignKey(Tipodenomina, on_delete=models.DO_NOTHING)
-    bancocuenta = models.ForeignKey(Bancos, on_delete=models.DO_NOTHING) 
+    bancocuenta = models.ForeignKey(Bancos, on_delete=models.DO_NOTHING , blank=True, null=True) 
     cuentanomina = models.CharField(max_length=30, blank=True, null=True) 
     tipocuentanomina = models.CharField(max_length=15, blank=True, null=True) # choice agreagar deposito electronico 
     centrotrabajo = models.ForeignKey(Centrotrabajo, on_delete=models.DO_NOTHING)
