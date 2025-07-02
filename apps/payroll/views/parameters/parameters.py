@@ -564,8 +564,7 @@ def concepts_edit(request,id):
                 
             concept.save()  # IMPORTANTE: guardar primero el objeto antes de set()
             concept.indicador.set(indicadores_nuevos)
-            
-            
+
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
             response['X-Up-icon'] = 'success'  # URL para recargar la página principal   

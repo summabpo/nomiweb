@@ -145,27 +145,81 @@ tr.htmx-swapping td {
                     <td class="text-center align-middle">{{ family.nombre }}</td>
                     <td class="text-center align-middle">{{ family.descripcion }}</td>
                     <td class="text-center align-middle"> 
-                        <a  class="btn btn-icon btn-light-facebook me-2" 
-                            up-target="#concepto-{{ concepto.idn }}"
-                            up-emit="edit-concepto" 
-                            data-idn="{{ concepto.idn }}">
-                                <i class="fa-solid fa-pen-to-square fs-4"></i>
-                        </a>
 
-                        <button 
-                            class="btn btn-icon btn-light-youtube me-2"
                         
-                            
-                            >
-                                <i class="ki-duotone ki-trash fs-4">
-                                    <span class="path1"></span>
-                                    <span class="path2"></span>
-                                    <span class="path3"></span>
-                                    <span class="path4"></span>
-                                    <span class="path5"></span>
-                                </i>
-                        </button>
 
+                        <a
+                            class='btn btn-icon btn-light-info'
+
+                            data-bs-toggle="tooltip"
+                            data-bs-custom-class="tooltip-inverse"
+                            data-bs-placement="top" 
+                            title="Ver Detalle"
+
+                            up-layer='new modal'
+                            up-target=".modal-content1"
+                            up-size = "medium"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+
+                            href="{% url 'payroll:family_detail' family.id %}">
+                            <i class="fa-solid fa-eye fs-4"></i>
+                        </a> 
+
+
+                        <a
+                            class='btn btn-icon btn-light-facebook me-2'
+
+                            data-bs-toggle="tooltip"
+                            data-bs-custom-class="tooltip-inverse"
+                            data-bs-placement="top" 
+                            title="Editar"
+
+                            up-layer='new modal'
+                            up-target=".modal-content2"
+                            up-size = "medium"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+
+                            href="{% url 'payroll:family_edit' family.id %}">
+                            <i class="fa-solid fa-pen-to-square fs-4"></i>
+                        </a> 
+
+                        <a
+                            class='btn btn-icon btn-light-youtube me-2'
+
+                            data-bs-toggle="tooltip"
+                            data-bs-custom-class="tooltip-inverse"
+                            data-bs-placement="top" 
+                            title="Eliminar"
+
+                            up-layer='new modal'
+                            up-target=".modal-content3"
+                            up-size = "medium"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+
+                            href="">
+                            
+                            <i class="ki-duotone ki-trash fs-4">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                                <span class="path4"></span>
+                                <span class="path5"></span>
+                            </i>
+
+                        </a> 
+    
                     </td>
                 </tr>
             {% endfor %}
