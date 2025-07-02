@@ -9,7 +9,7 @@ from .views.pruebas import pruebas
 from .views.fixed import fixed
 from .views.select_company import select_company
 from .views.settlements import vacation_settlement , bonus_settlement
-
+from .views.family import family
 
 # afsa fsa asfad 
 
@@ -45,7 +45,8 @@ urlpatterns = [
     path('parameters/fixed', parameters.fixed, name='fixed'),
     path('parameters/annual', parameters.annual, name='annual'),
     path('parameters/concepts', parameters.concepts, name='concepts'),
-    
+    #family
+    path('parameters/family', family.family_list, name='family_list'),
 
     ## conceptos fijos 
     path('fixed', fixed.fixed, name='fixedconcepts'),
@@ -61,6 +62,8 @@ urlpatterns = [
     path('settlements/bonus/p/add', bonus_settlement.bonus_p_settlement_add, name='bonus_p_settlement_add'),
     
 
+    
+    
 ]
 
 
@@ -97,6 +100,8 @@ urlunpolypatterns =[
     path('parameters/concepts/detail/modal/<int:id>', parameters.concepts_detail, name='concepts_detail'),
     path('parameters/concepts/edit/modal/<int:id>', parameters.concepts_edit, name='concepts_edit'),
     
+    path('parameters/family/add/modal/', family.family_create, name='family_create'),
+    #path('parameters/family', family.family_list, name='family_list'),
     ## sitemas automaticos 
     
     path('payroll/automatic_systems/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
