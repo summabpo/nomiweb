@@ -103,6 +103,7 @@ urlunpolypatterns =[
     path('parameters/family/add/modal/', family.family_create, name='family_create'),
     path('parameters/family/detail/modal/<int:id>', family.family_detail, name='family_detail'),
     path('parameters/family/edit/modal/<int:id>', family.family_edit, name='family_edit'),
+    path('parameters/family/delete/modal/<int:id>', family.family_delete, name='family_delete'),
     
     #path('parameters/family', family.family_list, name='family_list'),
     ## sitemas automaticos 
