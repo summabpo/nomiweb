@@ -454,14 +454,12 @@ Listado de Empleados
 </script>
 
 <script>
-    const currentYear = moment().year();
-    const firstDayOfYear = moment(`${currentYear}-01-01`);
 
     $("#kt_daterangepicker_1").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
-        minYear: 2000,
-        maxYear: currentYear,
+        minYear: 2018,
+        maxYear: parseInt(moment().format("YYYY"), 12),
         minDate: '01/01/2020',
         autoApply: true,
         locale: {
@@ -476,7 +474,7 @@ Listado de Empleados
     $("#kt_daterangepicker_2").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
-        minYear: 2000,
+        minYear: 2018,
         maxYear: parseInt(moment().format("YYYY"), 12),
         minDate: '01/01/2020',
         autoApply: true,

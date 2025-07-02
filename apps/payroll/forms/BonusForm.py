@@ -20,6 +20,15 @@ class BonusForm(forms.Form):
             'id': 'kt_daterangepicker_2'
         })
     )
+    
+    estimated_bonus = forms.IntegerField(
+        label='Proyecion',
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': ''
+        })
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,8 +39,9 @@ class BonusForm(forms.Form):
         
         self.helper.layout = Layout(
             Row(
-                Column('init_Date', css_class='form-group col-md-6 mb-3'),
-                Column('end_date', css_class='form-group col-md-6 mb-3'),
+                Column('init_Date', css_class='form-group col-md-5 mb-3'),
+                Column('end_date', css_class='form-group col-md-5 mb-3'),
+                Column('estimated_bonus', css_class='form-group col-md-2 mb-3'),
                 css_class='row'
             ),
             Row(

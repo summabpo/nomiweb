@@ -38,6 +38,9 @@ def bonus_p_settlement(request):
             date_end = datetime.strptime(date_end_str, '%d-%m-%Y').date()
             año_actual = date_end.year
 
+            
+            proy = form.cleaned_data.get('estimated_bonus') or 0
+            
             if date_end.month <= 6:
                 semestre_inicio = date(date_end.year, 1, 1)
             else:
@@ -113,7 +116,18 @@ def bonus_p_settlement(request):
                     contrato['dias_prima'] = 0
 
                 
-                contrato['valor'],contrato['pp'] = prima(contrato=contrato, dias_prima=dias_prima, salario_minimo=salario_minimo,aux_transporte_val=aux_transporte_val,semestre_actual=semestre_actual,fin_calculo=date_end ,id_empresa = idempresa )
+                contrato['valor'], contrato['pp'] = prima(
+                        contrato=contrato,
+                        dias_prima=dias_prima,
+                        salario_minimo=salario_minimo,
+                        aux_transporte_val=aux_transporte_val,
+                        semestre_actual=semestre_actual,
+                        fin_calculo=date_end,
+                        id_empresa=idempresa,
+                        proy=proy
+                    )
+
+                
                 contrato['trans'] = aux_transporte(contrato['idcontrato'] , contrato['salario'], salario_minimo,aux_transporte_val)
                 contrato['extra'] = extra_auto( contrato=contrato, semestre_actual=semestre_actual , fin_calculo=date_end , id = idempresa )/dias_prima * 30
             
@@ -152,21 +166,25 @@ def bonus_p_settlement_add(request):
 
 
 
-def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_actual, fin_calculo, id_empresa):
+def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_actual, fin_calculo, id_empresa, proy=0):
     salario = contrato['salario'] or Decimal('0')
     tipo_contrato = contrato['tipocontrato']
     tipo_salario = contrato['tiposalario']
     idcontrato = contrato['idcontrato']
 
+    # Tope máximo de días reales: 180
+    dias_prima_real = min(Decimal(dias_prima), Decimal(180))
+
+    # Sumar proy y volver a limitar total a 180
+    dias_prima_total = min(dias_prima_real + Decimal(proy), Decimal(180))
+
     # Auxilio de transporte
     aux_trans = aux_transporte(idcontrato, salario, salario_minimo, aux_transporte_val)
 
-    # Reglas especiales
+    # Reglas especiales: contratos o salarios no válidos
     if tipo_contrato == 5 or tipo_salario == 2:
         salario = Decimal('0')
         aux_trans = Decimal('0')
-
-    
 
     # Variables: extras + comisiones
     value = Nomina.objects.filter(
@@ -183,14 +201,11 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
         ).values_list('idconcepto', flat=True)
     ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
 
-    # Base total de la prima
-    base_variable = (value / Decimal(dias_prima)) * 30
+    base_variable = (value / dias_prima_real) * Decimal(30) if dias_prima_real > 0 else Decimal('0')
     total_base = salario + base_variable + aux_trans
-    valor_prima = (total_base * Decimal(dias_prima)) / Decimal(360)
+    valor_prima = (total_base * dias_prima_total) / Decimal(360)
 
-    # Prima Promedio (PP) : 
-    
-    # Variables: basesegsocial + auxtransporte
+    # Prima Promedio (PP): basada solo en días reales
     variables = Nomina.objects.filter(
         idcontrato=idcontrato,
         idnomina__in=Crearnomina.objects.filter(
@@ -204,16 +219,13 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
             id_empresa=id_empresa
         ).values_list('idconcepto', flat=True)
     ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
-    
-    
-    print('----------')
-    print(variables)
-    print('----------')
-    #  Calculo Prima Promedio (PP)
-    primapromedio = (variables / Decimal(dias_prima)) * 30
-    pp = (primapromedio / Decimal(360)) * Decimal(dias_prima)
+
+    primapromedio = (variables / dias_prima_real) * Decimal(30) if dias_prima_real > 0 else Decimal('0')
+    pp = (primapromedio / Decimal(360)) * dias_prima_total
 
     return round(valor_prima, 2), round(pp, 2)
+
+
 
 
 def extra_auto(contrato, semestre_actual, fin_calculo, id):
@@ -227,16 +239,12 @@ def extra_auto(contrato, semestre_actual, fin_calculo, id):
         fechafinal__lte=fin_calculo,
         id_empresa=id
     ).values_list('idnomina', flat=True)
-
-    print(f"IDs de nóminas: {list(ids_nominas)}")
     
     # Obtener los IDs de los conceptos válidos
     ids_conceptos = Conceptosdenomina.objects.filter(
         Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones'),
         id_empresa=id
     ).values_list('idconcepto', flat=True)
-
-    print(f"IDs de conceptos: {list(ids_conceptos)}")
     
     # Filtrar las líneas de nómina relevantes
     registros = Nomina.objects.filter(
@@ -246,15 +254,9 @@ def extra_auto(contrato, semestre_actual, fin_calculo, id):
         idconcepto__in=ids_conceptos
     )
 
-    print("Registros encontrados para la suma:")
-    for r in registros:
-        print(f" - ID: {r.idregistronom}, Concepto: {r.idconcepto}, Valor: {r.valor}")
-
     # Realizar la agregación
     value = registros.aggregate(total=Sum('valor'))['total'] or Decimal('0')
-    
-    print('valor de sumatoria' , value)
-    
+
     return value
     
     
