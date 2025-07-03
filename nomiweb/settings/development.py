@@ -36,7 +36,7 @@ CSRF_TRUSTED_ORIGINS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'migra_003',
+        'NAME': 'NW_p4',
         'USER':  os.getenv('DB_USER_DEV'),
         'PASSWORD':  os.getenv('DB_PASSWORD_DEV'),  
         'HOST':  os.getenv('DB_HOST_DEV'),
