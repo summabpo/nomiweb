@@ -1,0 +1,360 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+{% load custom_filters %}
+
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}    
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}           
+{% endblock %}
+
+{% load static %} 
+
+
+{% block title %}
+    Nomiweb.co - Aplicacion Contable - Prestaciones - Liquidacion Empleados
+{% endblock %}
+
+{% block css %}
+
+    .daterangepicker {
+        z-index: 9999 !important;
+    }
+
+        up-modal[size=large] up-modal-box {
+            border-radius: 0.75rem;
+            width: 1500px;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+            
+        }
+
+        up-modal[size=full] up-modal-box {
+            border-radius: 0.75rem;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+            
+        }
+
+        up-modal[size=medium] up-modal-box {
+            border-radius: 0.75rem;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+            
+        }
+
+        up-modal[size=small] up-modal-box {
+            border-radius: 0.75rem;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+            
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            text-align: left;
+        }
+
+        .select2-container .select2-search--dropdown .select2-search__field {
+            height: 28px; /* Ajusta la altura según prefieras */
+            padding: 4px 8px; /* Ajusta el padding para hacerlo más delgado */
+            font-size: 14px; /* Si quieres un texto más pequeño */
+            border-radius: 8px; /* Bordes más suaves si te gusta */
+        }
+
+
+        .select2-container .select2-results__option {
+            text-align: left;
+        }
+
+
+        .swal2-container {
+            z-index: 9999 !important; /* Más alto que el z-index de los modales de Unpoly */
+        }
+
+
+        tr.htmx-swapping td {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+
+        table#items-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Prestaciones
+{% endblock %}
+
+{% block sub_titulo2 %} 
+Liquidacion Empleados
+{% endblock %}
+
+{% block titulo2 %} 
+Liquidacion Empleados
+{% endblock %}
+
+{% block actions %}
+    <!-- Button trigger modal -->
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        href="{% url 'payroll:settlement_create' %}">
+        <i class="fa-solid fa-plus"></i> Crear Liquidacion
+    </a> 
+
+{% endblock %}
+
+
+
+{%block content%} 
+<div class="container" >
+
+
+        
+     <div class="table-responsive">
+            <table id='tabla-bonus-p' class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Contrato</th>
+                        <th>Empleado</th>
+                        <th>Documento</th>
+                        <th>Empleado</th>
+                        <th>Dias</th>
+                        <th>Ingreso</th>
+                        <th>Retiro</th>
+                        <th>Cesantias</th>
+                        <th>Intereses</th>
+                        <th>Primas</th>
+                        <th>Vacaciones</th>
+                        <th>
+                            <div class="container d-flex justify-content-center align-items-center">
+                                <i class="ki-duotone ki-chart fs-1">
+                                    <i class="path1"></i>
+                                    <i class="path2"></i>
+                                </i>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in settlements %}
+                        <tr>
+                            <td>{{ item.idliquidacion }}</td>
+                            <td>{{ item.idcontrato.idcontrato }}</td>
+                            <td>{{ item.idcontrato.idcontrato.idempleado.papellido|none_to_empty }} {{ item.idcontrato.idcontrato.idempleado.sapellido|none_to_empty }} {{ item.idcontrato.idcontrato.idempleado.pnombre|none_to_empty }} {{ item.idcontrato.idcontrato.idempleado.snombre|none_to_empty }}</td>
+                            <td >{{ item.idcontrato.fechainiciocontrato |date:'d/m/Y' }}</td>
+                            <td >{{ item.idcontrato.fechafincontrato |date:'d/m/Y' }}</td>
+                            <td >{{ item.trans |format_currency }}</td>
+                            <td >{{ item.extra|format_currency }}</td>
+                            <td >{{ item.dias_prima |format_currency }}</td>
+                            <td >{{ item.valor |format_currency }}</td>
+                            <td >{{ item.pp |format_currency }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+</div>
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+{% block js %}
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
+
+        setTimeout(() => {
+            // Inicializar Select2
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            selectElements.forEach((select, index) => {
+                if (!select.id) {
+                    select.id = `select2-unique-${Date.now()}-${index}`;
+                }
+                if (!$(select).data('select2')) {
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
+                    }
+                    $(select).select2(options).on('change', checkAndPost);
+                }
+            });
+
+            // Inicializar DateRangePicker
+            const fechaInput = modalContent.querySelector('#kt_daterangepicker_2');
+            if (fechaInput) {
+                $(fechaInput).daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 2018,
+                    maxYear: parseInt(moment().format("YYYY"), 10),
+                    minDate: '01/01/2020',
+                    autoApply: true,
+                    locale: {
+                        format: 'DD-MM-YYYY',
+                        applyLabel: 'Aplicar',
+                        cancelLabel: 'Cancelar',
+                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                        monthNames: [
+                            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                        ]
+                    }
+                }).on('apply.daterangepicker', function(ev, picker) {
+                    $(this).val(picker.startDate.format('DD-MM-YYYY')).trigger('change');
+                    checkAndPost();
+                });
+            }
+
+            // Detectar cambios
+            const contract = modalContent.querySelector('select[name="contract"]');
+            const reason = modalContent.querySelector('select[name="reason_for_termination"]');
+            const end_date = modalContent.querySelector('input[name="end_date"]');
+
+            if (contract) contract.addEventListener('change', checkAndPost);
+            if (reason) reason.addEventListener('change', checkAndPost);
+            if (end_date) end_date.addEventListener('change', checkAndPost);
+
+            let alreadyPosted = false;
+
+            function checkAndPost() {
+                const contractVal = contract?.value?.trim();
+                const reasonVal = reason?.value?.trim();
+                const endDateVal = end_date?.value?.trim();
+
+                if (contractVal && reasonVal && endDateVal && !alreadyPosted) {
+                    alreadyPosted = true;
+
+                    up.request({
+                        url: "{% url 'payroll:settlement_calculate' %}",  // Asegúrate que esta URL esté bien
+                        method: "POST",
+                        params: {
+                            contract: contractVal,
+                            end_date: endDateVal,
+                            reason_for_termination: reasonVal,
+                            csrfmiddlewaretoken: modalContent.querySelector('[name=\"csrfmiddlewaretoken\"]').value
+                        }
+                    }).then(function(response) {
+                        const data = JSON.parse(response.text);
+                        const modalContent = up.layer?.current?.element;
+                        const resultsBox = modalContent.querySelector('#settlement-results');
+
+                        function setValue(id, value) {
+                            const input = modalContent.querySelector(`#${id}`);
+                            if (input) {
+                                input.value = value ?? '';
+                            }
+                        }
+
+                        function formatMoney(value) {
+                            return value ? parseFloat(value).toLocaleString('es-CO', { style: 'currency', currency: 'COP' }) : '';
+                        }
+
+                        if (resultsBox) {
+                            setValue('dias_trabajados', data.dias_trabajados);
+                            setValue('fecha_inicio', data.inicio_contrato);
+                            setValue('salario_base', formatMoney(data.salario));
+
+                            setValue('dias_cesantias', data.dias_cesantias);
+                            setValue('dias_primas', data.dias_prima);
+                            setValue('dias_vacaciones', data.dias_vacaciones);
+                            setValue('dias_susp_vac', data.dias_susp_vac);
+
+                            setValue('base_cesantias', formatMoney(data.base_cesantias));
+                            setValue('base_primas', formatMoney(data.base_prima));
+                            setValue('base_vacaciones', formatMoney(data.base_vacaciones));
+                            setValue('base_susp_vac', formatMoney(data.base_susp_vac));
+
+                            setValue('valor_cesantias', formatMoney(data.cesantias));
+                            setValue('valor_intereses', formatMoney(data.intereses));
+                            setValue('valor_vacaciones', formatMoney(data.vacaciones));
+                            setValue('valor_indemnizacion', formatMoney(data.indemnizacion));
+                            setValue('valor_prima', formatMoney(data.prima)); // en caso de que también venga
+
+                            setValue('total_liquidacion', formatMoney(data.total_liquidacion));
+                            resultsBox.style.display = 'block';
+                        }
+                    }).catch(function(err) {
+                        alreadyPosted = false;  // Permitir otro intento si falló
+                        console.error("Error al enviar datos:", err);
+                    });
+                }
+            }
+
+        }, 300);
+    });
+</script>
+
+
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-bonus-p').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 15,
+        });
+    });
+</script>
+
+
+
+{% endblock %}

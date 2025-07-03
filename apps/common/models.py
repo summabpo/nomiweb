@@ -343,7 +343,7 @@ class Empresa(models.Model):
     direccionempresa = models.CharField(max_length=255)
     telefono = models.CharField(max_length=20 )
     email = models.CharField(max_length=30 )
-    idciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
+    codciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
     pais = models.ForeignKey(Paises, on_delete=models.DO_NOTHING)  
     
     # Detalles de ARL y códigos relacionados

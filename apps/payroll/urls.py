@@ -8,8 +8,10 @@ from .views.parameters import parameters
 from .views.pruebas import pruebas
 from .views.fixed import fixed
 from .views.select_company import select_company
-from .views.settlements import vacation_settlement , bonus_settlement
+from .views.settlements import vacation_settlement , bonus_settlement , severance_settlement
 from .views.family import family
+
+
 
 # afsa fsa asfad 
 
@@ -61,7 +63,8 @@ urlpatterns = [
     path('settlements/bonus/p', bonus_settlement.bonus_p_settlement, name='bonus_p_settlement'),
     path('settlements/bonus/p/add', bonus_settlement.bonus_p_settlement_add, name='bonus_p_settlement_add'),
     
-
+    path('settlements/termination', severance_settlement.settlement_list, name='settlement_list'),
+    
     
     
 ]
@@ -104,6 +107,10 @@ urlunpolypatterns =[
     path('parameters/family/detail/modal/<int:id>', family.family_detail, name='family_detail'),
     path('parameters/family/edit/modal/<int:id>', family.family_edit, name='family_edit'),
     path('parameters/family/delete/modal/<int:id>', family.family_delete, name='family_delete'),
+    
+    
+    path('settlements/termination/add/modal/', severance_settlement.settlement_create, name='settlement_create'),
+    path('settlement/termination/calculate/', severance_settlement.settlement_calculate, name='settlement_calculate'),
     
     #path('parameters/family', family.family_list, name='family_list'),
     ## sitemas automaticos 
