@@ -2,6 +2,8 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Div, Submit
 from apps.common.models import Contratos , Crearnomina
+from django.urls import reverse
+
 
 class BonusForm(forms.Form):
     
@@ -58,30 +60,66 @@ class BonusForm(forms.Form):
         )
 
 
+TYPE_CHOICES = (
+    ('', '----------'),
+    ('1', 'Prima Regular'),
+    ('2', 'Prima PP'),
+)
+
 class BonusAddForm(forms.Form):
     
+    method_type = forms.ChoiceField(
+        label='Estado',
+        choices=TYPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
         super().__init__(*args, **kwargs)
         
         self.fields['Payroll'] = forms.ChoiceField(
             choices=[('', '----------')] + [(nomina.idnomina, f" {nomina.nombrenomina}" ) for nomina in Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')], 
-            label='Empleado' ,
+            label='Nomina' ,
             widget=forms.Select(attrs={
                 'data-control': 'select2',
                 'class': 'form-select',
                 'data-hide-search': 'true',
             }), 
-            required=False )
-                
+            )
+
+
+
+        for field_name in ['estado']:
+            if field_name in self.fields:
+                self.fields[field_name].widget.attrs.update({
+                    'data-control': 'select2',
+                    'class': 'form-select',
+                    'data-hide-search':"true",
+
+                })
+
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_bonus_add'
         self.helper.enctype = 'multipart/form-data'
 
+
+        # Atributos específicos para Unpoly
+        self.helper.attrs.update({
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',
+            'up-submit': reverse('payroll:fixed_modal'),
+            'up-accept-location': reverse('payroll:fixedconcepts'),
+            'up-on-accepted': ""
+        })
+
+
         self.helper.layout = Layout(
             Row(
-                Column('Payroll', css_class='form-group col-md-12 mb-3'),
+                Column('Payroll', css_class='form-group col-md-6 mb-3'),
+                Column('method_type', css_class='form-group col-md-6 mb-3'),
                 css_class='row'
             ),
             
