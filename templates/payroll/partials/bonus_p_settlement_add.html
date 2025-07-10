@@ -13,8 +13,10 @@
     <div class="separator my-5"></div> 
     <!--begin::Input group-->        
     <div class="modal-body">
-        {% csrf_token %}
-        {% crispy form2 %}
+       <div class="container">
+            {% csrf_token %}
+            {% crispy form %}
+        </div>
             
     </div>
     <div class="separator my-5"></div>

@@ -130,6 +130,7 @@ Listado de Empleados
     {% if contratos_empleados %}
         <a
             class='btn btn-light-info'
+
             up-layer='new modal'
             up-target=".modal-content"
             up-size = "medium"
@@ -138,6 +139,7 @@ Listado de Empleados
             up-history = "false"
             up-dismissable ="false"
             up-cache="false"
+
             href="{% url 'payroll:bonus_p_settlement_add' %}">
             <i class="fa-solid fa-plus"></i> Agregar
         </a> 
@@ -201,6 +203,53 @@ Listado de Empleados
 
 
 {% block js %}
+<script>
+    up.on('up:layer:accepted', function(event) {
+        console.log('llege aqui - 1 ')
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            console.log('llege aqui - 2 ')
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+            console.log('llege aqui - 3')
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+            console.log('llege aqui - 4 ')
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
+
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
         const modalContent = up.layer?.current?.element;

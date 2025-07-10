@@ -17,6 +17,23 @@ def dias_360(date1: date, date2: date) -> int:
         diff += 1
     return diff + 1
 
+
+def dias_360_2(date1: date, date2: date) -> int:
+    """Calcula los días entre dos fechas como si todos los meses tuvieran 30 días (regla 30/360)."""
+    
+    d1 = min(date1.day, 30)
+    d2 = date2.day
+    
+    if date1.day == 31 or (date1.day == 30 and date2.day == 31):
+        d2 = 30
+    
+    m1 = date1.month
+    m2 = date2.month
+    y1 = date1.year
+    y2 = date2.year
+
+    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)
+
 # --- Fechas base --- #
 
 def obtener_fecha_cesantias(fecha_inicio, fecha_ano_actual):
