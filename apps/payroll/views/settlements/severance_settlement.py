@@ -70,10 +70,10 @@ def settlement_calculate(request):
 
     dias_trabajados = dias_360(fecha_inicio, fecha_fin)
     fecha_cesantias = obtener_fecha_cesantias(fecha_inicio, fecha_fin)
-    dias_cesantias = dias_360(fecha_cesantias, fecha_fin)
+    dias_cesantias = dias_360_2(fecha_cesantias, fecha_fin)
 
     fecha_prima = obtener_fecha_prima(fecha_inicio, fecha_fin)
-    dias_prima = dias_360(fecha_prima, fecha_fin)
+    dias_prima = dias_360_2(fecha_prima, fecha_fin)
 
     # Conceptos
     extras_y_comisiones_qs = Conceptosdenomina.objects.filter(Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones') ,id_empresa = idempresa)

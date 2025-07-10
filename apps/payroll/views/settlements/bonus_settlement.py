@@ -109,7 +109,7 @@ def bonus_p_settlement(request):
                     dias_prima = anios * 360 + meses * 30 + dias
                     
                     if dias_prima > 0:
-                        contrato['dias_prima'] = dias_prima
+                        contrato['dias_prima'] = dias_prima + proy
                     else :
                         contrato['dias_prima'] = 0
                 else:
@@ -150,19 +150,29 @@ def bonus_p_settlement_add(request):
     if request.method == 'POST':
         form = BonusAddForm(request.POST,idempresa=idempresa)
         if form.is_valid():
-            print('Se hizo un post')
+            
+            method_type = form.cleaned_data['method_type']
+            payroll = form.cleaned_data['Payroll']
+
+            print('----------')
+            print(request.POST)
+            print(method_type)
+            print(payroll)
+            print('----------')
 
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
             response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
-            response['X-Up-message'] = 'ups algo salio mal'    
-            response['X-Up-Location'] = reverse('payroll:concepts')      
+            response['X-Up-message'] = 'Las primas fueron asociadas correctamente a la nómina seleccionada.'    
+            response['X-Up-Location'] = reverse('payroll:bonus_p_settlement')           
+            return response      
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")    
 
-
-    context = {
-        'form2': form,
-    }
-    return render(request, './payroll/partials/bonus_p_settlement_add.html', context)
+    return render(request, './payroll/partials/bonus_p_settlement_add.html', {'form': form})
 
 
 

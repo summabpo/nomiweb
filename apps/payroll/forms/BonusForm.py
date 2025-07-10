@@ -88,9 +88,10 @@ class BonusAddForm(forms.Form):
             }), 
             )
 
+    
 
 
-        for field_name in ['estado']:
+        for field_name in ['method_type']:
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
                     'data-control': 'select2',
@@ -104,15 +105,14 @@ class BonusAddForm(forms.Form):
         self.helper.form_id = 'form_bonus_add'
         self.helper.enctype = 'multipart/form-data'
 
-
         # Atributos específicos para Unpoly
         self.helper.attrs.update({
             'up-target': '#modal-content',
             'up-mode': 'replace',
-            'up-layer': 'current',
-            'up-submit': reverse('payroll:fixed_modal'),
-            'up-accept-location': reverse('payroll:fixedconcepts'),
-            'up-on-accepted': ""
+            'up-layer': 'current',  # Clave para resolver el error
+            'up-submit': reverse('payroll:bonus_p_settlement_add'),
+            'up-accept-location': reverse('payroll:bonus_p_settlement_add'),
+            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
         })
 
 
