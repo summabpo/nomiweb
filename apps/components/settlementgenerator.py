@@ -78,7 +78,7 @@ def settlementgenerator(idliqui, idempresa):
             'cc': str(liquidacion.idcontrato.idempleado.docidentidad),
             'cargo': str(liquidacion.idcontrato.cargo),
             'ingreso': liquidacion.idcontrato.fechainiciocontrato,
-            'terminación': liquidacion.idcontrato.fechafincontrato,
+            'terminación': liquidacion.idcontrato.fechafincontrato if liquidacion.idcontrato.fechafincontrato else '--' ,
             'tipoc': str(liquidacion.idcontrato.tipocontrato.tipocontrato),
             'causa': str(liquidacion.motivoretiro),
             'salario': str(format_value(liquidacion.salario)),
