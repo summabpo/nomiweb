@@ -10,19 +10,23 @@ from apps.components.humani import format_value
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
-
-
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.utils import ImageReader
 from reportlab.lib import colors
-from reportlab.platypus import Paragraph
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
-from datetime import datetime
 import os
-        
+
+
+
+
+
+
+
+
 @login_required
 @role_required('company','accountant')
 def settlementlist(request):
@@ -66,20 +70,14 @@ def settlementlist(request):
         'liquidaciones':liquidaciones,
     } )
 
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import Table, TableStyle, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
-from io import BytesIO
+
 
 def settlementlistdownload(request,idliqui):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
     context = settlementgenerator(idliqui,idempresa)
-    
+
     # Datos simulados (reemplazar por queryset)
     empleado = context['nombre_completo']
     documento =  context['cc']
@@ -92,10 +90,8 @@ def settlementlistdownload(request,idliqui):
     suspension = context['sus']
 
     conceptos = [
-        ["Cesantías", "1.700.000", "30", "991.667"],
-        ["Intereses sobre Cesantías", "991.667", "30", "69.417"],
-        ["Prima de Servicios", "1.700.000", "20.04", "141.666"],
-        ["Vacaciones", "1.500.000", "15", "1.002.000"],
+        [item["concepto"], item["base"], item["dias"], item["valor"]]
+        for item in context["data"]
     ]
     
     
@@ -108,7 +104,7 @@ def settlementlistdownload(request,idliqui):
         ["AFP", " ", "0.0", "-10.917"],
     ]
     
-    total = "2.204.751"
+    total = context['total']
 
     texto_legal = f"""
     <para align="justify">
@@ -137,7 +133,6 @@ def settlementlistdownload(request,idliqui):
     
     
     try:
-        
         logo = ImageReader(f"static/img/{context['logo']}")
         logo_width = 150
         logo_height = 50
@@ -155,7 +150,7 @@ def settlementlistdownload(request,idliqui):
 
 
     # Subtítulo
-    p.setFont("Helvetica-Bold", 15)
+    p.setFont("Helvetica-Bold", 12)
     p.drawCentredString(width / 2, height - 90, "Liquidación de Contrato de Trabajo")
 
     # Posiciones iniciales
@@ -216,28 +211,7 @@ def settlementlistdownload(request,idliqui):
     p.setFont("Courier-Bold", 10)
     p.drawString(320, y - 120, f"TOTAL PRESTACIONES:       ${total}")
 
-    
-    # Segunda tabla SIN encabezado
-    table_data = conceptos2  # Asegúrate de que esto NO incluye encabezados
-    table = Table(table_data, colWidths=[180, 100, 100, 140])
-    table.setStyle(TableStyle([
-        # Centrar columna BASE, DIAS, VALOR
-        ('ALIGN', (1, 0), (3, -1), 'RIGHT'),
-
-        # CONCEPTO a la izquierda (si lo deseas)
-        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-
-        # Fuente
-        ('FONT', (0, 0), (-1, -1), 'Courier'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9)
-    ]))
-    table.wrapOn(p, width, height)
-    table.drawOn(p, 45, y - 230 )
-    
-    p.setFont("Courier-Bold", 10)
-    p.drawString(320, y - 245, f"TOTAL A PAGAR:         ${total}")
-    
-    
+        
     p.setStrokeColor(colors.grey)
     p.setLineWidth(0.5)
     p.line(35, height - 530, width - 35, height - 530)
@@ -252,58 +226,67 @@ def settlementlistdownload(request,idliqui):
     paragraph.drawOn(p, 60, y - 400)
 
     # Firma del empleado
+    
+    p.setStrokeColor(colors.grey)
+    p.setLineWidth(0.5)
+    p.line(350, 65, width - 60 , 65)
+    
     p.setFont("Helvetica-Bold", 10)
-    p.drawString(370, 90, empleado)
+    p.drawString(370, 50, empleado)
 
     # Footer institucional
     p.setFont("Helvetica", 8)
     p.setFillColor(colors.grey)
-    p.drawCentredString(width / 2, 50, "Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS")
+    p.drawCentredString(width / 2, 15, "Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS")
 
     # Finalizar PDF
-    p.showPage()
-    p.save()
-
     
-    p.setTitle("Certificado de Liquidación - Manuel Berdugo")
+    
+
+    p.setTitle(f"Certificado de Liquidación - {empleado}")
     p.setAuthor("Nomiweb")
     p.setSubject("Liquidación de Contrato de Trabajo")
     p.setCreator("Sistema Nomiweb")
     
+    p.showPage()
+    p.save()
+    
+    nombre_archivo = f'Certificado_Liquidacion_{empleado}.pdf'
+    
     pdf = buffer.getvalue()
     buffer.close()
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="Certificado_Liquidacion_2025.pdf"'
+    response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
     response.write(pdf)
     return response
 
 
 
 
-@login_required
-@role_required('company','accountant')
-def settlementlistdownload2(request,idliqui):
+# @login_required
+# @role_required('company','accountant')
+# def settlementlistdownload2(request,idliqui):
 
-    usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
+#     usuario = request.session.get('usuario', {})
+#     idempresa = usuario['idempresa']
     
-    context = settlementgenerator(idliqui,idempresa)
+#     context = settlementgenerator(idliqui,idempresa)
 
-    html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')
+#     html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')
     
-    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+#     fecha_actual = datetime.now().strftime('%Y-%m-%d')
     
-    pdf = BytesIO()
-    pisa_status = pisa.CreatePDF(html_string, dest=pdf)
-    pdf.seek(0)
+#     pdf = BytesIO()
+#     pisa_status = pisa.CreatePDF(html_string, dest=pdf)
+#     pdf.seek(0)
 
-    if pisa_status.err:
-        return HttpResponse('Error al generar el PDF', status=400)
+#     if pisa_status.err:
+#         return HttpResponse('Error al generar el PDF', status=400)
     
-    nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
+#     nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
 
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
+#     response = HttpResponse(pdf, content_type='application/pdf')
+#     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
     
-    return response
+#     return response
     
