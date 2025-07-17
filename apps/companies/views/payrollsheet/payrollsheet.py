@@ -4,30 +4,23 @@ from apps.components.humani import format_value
 from io import BytesIO
 from xhtml2pdf import pisa
 from datetime import datetime
-from django.http import HttpResponse
 from apps.components.payrollgenerate import generate_summary
 from apps.components.payrollgenerate import genera_comprobante 
-from apps.components.mail import send_template_email2 ,send_template_email3
+from apps.components.mail import send_template_email3
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
-from PyPDF2 import PdfMerger
-from django.template.loader import render_to_string
-
 from django.http import HttpResponse
-from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
 from reportlab.lib.utils import ImageReader
-from reportlab.platypus import Table, TableStyle, Paragraph , SimpleDocTemplate, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Table, TableStyle
 from io import BytesIO
-import os
 from reportlab.lib import colors
 from reportlab.lib.units import cm
-from reportlab.lib.units import mm
 import time
+from reportlab.pdfgen import canvas
+
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -133,160 +126,6 @@ def payrollsheet(request):
     })
 
 
-
-# @login_required
-# @role_required('company','accountant')
-# def generatepayrollsummary(request,idnomina):
-#     usuario = request.session.get('usuario', {})
-#     idempresa = usuario['idempresa']
-#     context = generate_summary(idnomina,idempresa)
-    
-#     html_string = render(request, './html/payrollsummary.html', context).content.decode('utf-8')
-    
-#     fecha_actual = datetime.now().strftime('%Y-%m-%d')
-    
-#     pdf = BytesIO()
-#     pisa_status = pisa.CreatePDF(html_string, dest=pdf)
-#     pdf.seek(0)
-
-#     if pisa_status.err:
-#         return HttpResponse('Error al generar el PDF', status=400)
-    
-#     nombre_archivo = f'Certificado_{idnomina}_{fecha_actual}.pdf'
-
-#     response = HttpResponse(pdf, content_type='application/pdf')
-#     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
-    
-#     return response
-
-
-def build_payroll_certificate_pdf(context, logo=None):
-    buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
-
-    # ---------------- Encabezado ----------------
-    p.setFont("Helvetica-Bold", 8)
-    p.drawCentredString(width / 2, height - 25, context['empresa'])
-    p.setFont("Helvetica", 8)
-    p.drawCentredString(width / 2, height - 35, context['nit'])
-    p.drawCentredString(width / 2, height - 45, context['web'])
-    p.setStrokeColor(colors.grey)
-    p.setLineWidth(0.5)
-    p.line(35, height - 60, width - 35, height - 60)
-
-    if logo:
-        try:
-            p.drawImage(logo, 35, height - 55, width=150, height=50, preserveAspectRatio=True, mask='auto')
-        except:
-            pass
-
-    # ---------------- Subtítulo ----------------
-    p.setFont("Courier-Bold", 15)
-    p.drawCentredString(width / 2, height - 90, "Comprobante de Nómina")
-
-    y = height - 120
-
-    # ---------------- Datos generales ----------------
-    data = [
-        [["Empleado", "Identificación", "Contrato", "IdNomina"],
-         [context['nombre_completo'], context['cc'], context['idcon'], context['idnomi']]],
-        [["Fecha Ingreso", "Cargo", "Salario", "Cuenta"],
-         [context['fecha1'], context['cargo'], context['salario'], context['cuenta']]],
-        [["Centro de Costo", "Periodo de Pago", "Salud", "Pensión"],
-         [context['ccostos'], context['periodos'], str(context['eps']), str(context['pension'])]]
-    ]
-    
-    col_widths_list = [[8*cm, 4*cm, 4*cm, 4*cm],
-                       [4*cm, 8*cm, 4*cm, 4*cm],
-                       [5*cm, 8*cm, 3.5*cm, 3.5*cm]]
-
-    for i, (table_data, col_widths) in enumerate(zip(data, col_widths_list)):
-        t = Table(table_data, colWidths=col_widths, rowHeights=20)
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ]))
-        table_height = t.wrapOn(p, width, y)[1]
-        t.drawOn(p, 22, y - table_height)
-        y -= table_height + 10
-
-    # ---------------- Ingresos y Deducciones ----------------
-    def build_table(title, datos):
-        filas = [[title, '', '', '']]
-        for d in datos:
-            filas.append([
-                d.idconcepto.codigo,
-                d.nombreconcepto or '',
-                d.cantidad or '',
-                f"{str(d.valor).replace('.', ',')}" if d else ''
-            ])
-        while len(filas) < 16:
-            filas.append(['', '', '', ''])
-        t = Table(filas, colWidths=[1*cm, 6*cm, 1*cm, 2*cm])
-        t.setStyle(TableStyle([
-            ('SPAN', (0, 0), (-1, 0)),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
-            ('FONTNAME', (0, 0), (-1, 0), 'Courier-Bold'),
-            ('FONTNAME', (0, 1), (-1, -1), 'Courier'),
-            ('FONTSIZE', (0, 0), (-1, -1), 9),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ALIGN', (1, 1), (1, -1), 'LEFT'),
-            ('ALIGN', (2, 1), (2, -1), 'RIGHT'),
-            ('ALIGN', (3, 1), (3, -1), 'RIGHT'),
-            ('LINEBEFORE', (1, 0), (-1, -1), 0.5, colors.black),
-            ('LINEAFTER', (0, 0), (-2, -1), 0.5, colors.black),
-            ('BOX', (0, 0), (-1, -1), 0.5, colors.black),
-        ]))
-        return t
-
-    y_ing_desc = y - 20
-    ingresos = build_table("INGRESOS", context['dataDevengado'])
-    descuentos = build_table("DEDUCCIONES", context['dataDescuento'])
-
-    ingresos_height = ingresos.wrapOn(p, 284, y_ing_desc)[1]
-    descuentos.wrapOn(p, 284, y_ing_desc)
-    ingresos.drawOn(p, 22, y_ing_desc - ingresos_height)
-    descuentos.drawOn(p, 306, y_ing_desc - ingresos_height)
-
-    # ---------------- Totales ----------------
-    tabla5 = [
-        ['', 'Total Ingresos:', '', context['sumadataDevengado'], '', 'Total Deducciones:', '', context['sumadataDescuento']],
-        ['', 'Total a Pagar:', '', context['total'], '', '', '', '']
-    ]
-    totales = Table(tabla5, colWidths=[1*cm, 5*cm, 1*cm, 3*cm, 1*cm, 5*cm, 1*cm, 3*cm], rowHeights=18)
-    totales.setStyle(TableStyle([
-        ('BOX', (0, 0), (-1, -1), 0.8, colors.black),
-        ('BACKGROUND', (0, 0), (3, 0), colors.HexColor("#b9c1c4")),
-        ('BACKGROUND', (4, 0), (7, 0), colors.HexColor("#b9c1c4")),
-        ('BACKGROUND', (0, -1), (2, -1), colors.HexColor("#81DAF5")),
-        ('FONTNAME', (0, 0), (-1, 1), 'Courier-Bold'),
-        ('FONTSIZE', (0, 1), (-1, 1), 12),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('ALIGN', (3, 0), (3, 0), 'RIGHT'),
-        ('ALIGN', (7, 0), (7, 0), 'RIGHT'),
-        ('ALIGN', (3, 1), (3, 1), 'RIGHT'),
-    ]))
-    totales.wrapOn(p, width, y)
-    totales.drawOn(p, 22, y - 390)
-
-    # ---------------- Footer ----------------
-    p.setFont("Helvetica", 8)
-    p.setFillColor(colors.grey)
-    p.drawCentredString(width / 2, 15, "Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS")
-
-    # Metadata
-    p.setTitle(f"Certificado_{context['cc']}_{datetime.now().strftime('%Y-%m-%d')}")
-    p.setAuthor("Nomiweb")
-    p.setSubject(f"Comprobante de Nomina {context['cc']}")
-    p.setCreator("Sistema Nomiweb")
-
-    p.showPage()
-    p.save()
-    buffer.seek(0)
-    return buffer
 
 
 @login_required
@@ -399,67 +238,264 @@ def generatepayrollsummary(request, idnomina):
     return response
 
 
+
+def draw_table(pdf, data, col_widths, y_pos, width, x_pos=22, row_height=20):
+    tabla = Table(data, colWidths=col_widths, rowHeights=row_height)
+    tabla.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER')
+    ]))
+    tabla.wrapOn(pdf, width, y_pos)
+    tabla.drawOn(pdf, x_pos, y_pos - row_height)
+    return y_pos - row_height
+
+def build_payroll_certificate_pdf(pdf, context, logo=None):
+    width, height = letter
+    margin = 30
+        
+    # Logo y encabezado
+    if logo:
+        try:
+            logo_width = 150
+            logo_height = 50
+            pdf.drawImage(logo, 35, height - 55, width=logo_width, height=logo_height,preserveAspectRatio=True, mask='auto')
+            
+        except Exception as e:
+            print(f"[LOGO ERROR] No se pudo dibujar el logo: {e}")
+            
+
+    pdf.setFont("Helvetica-Bold", 8)
+    pdf.drawCentredString(width / 2, height - 25, context['empresa'])
+    pdf.setFont("Helvetica", 8)
+    pdf.drawCentredString(width / 2, height - 35, context['nit'])
+    pdf.drawCentredString(width / 2, height - 45, context['web'])
+
+    pdf.setStrokeColor(colors.grey)
+    pdf.setLineWidth(0.5)
+    pdf.line(35, height - 60, width - 35, height - 60)
+    
+    # Subtítulo
+    pdf.setFont("Courier-Bold", 15)
+    pdf.drawCentredString(width / 2, height - 90, "Comprobante de Nómina")
+    
+    y = height - 120
+    # ---------------------- Tabla 1: Empleado ----------------------
+    tabla1 = [
+        ["Empleado", "Identificación", "Contrato", "Nómina"],
+        [context['nombre_completo'], context['cc'], context['idcon'], context['idnomi']]
+    ]
+
+    tabla = Table(tabla1, colWidths=[8*cm, 4*cm, 4*cm, 4*cm], rowHeights=20)
+    tabla.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER')
+    ]))
+    tabla.wrapOn(pdf, width, y)
+    tabla.drawOn(pdf, 22, y - 40)
+    y -= 40
+
+    # ---------------------- Tabla 2: Cargo y salario ----------------------
+    tabla2 = [
+        ["Fecha Ingreso", "Cargo", "Salario", "Cuenta"],
+        [context['fecha1'], context['cargo'], context['salario'], context['cuenta']]
+    ]
+
+    tabla = Table(tabla2, colWidths=[4*cm, 8*cm, 4*cm, 4*cm], rowHeights=20)
+    tabla.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER')
+    ]))
+    tabla.wrapOn(pdf, width, y)
+    tabla.drawOn(pdf, 22, y - 40)
+    y -= 40
+
+    # # ---------------------- Tabla 3: Costos y entidades ----------------------
+    tabla3 = [
+        ["Centro de Costo", "Periodo de Pago", "Salud", "Pensión"],
+        [context['ccostos'], context['periodos'], str(context['eps']), str(context['pension'])]
+    ]
+
+    tabla = Table(tabla3, colWidths=[5*cm, 8*cm, 3.5*cm, 3.5*cm], rowHeights=20)
+    tabla.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER')
+    ]))
+    tabla.wrapOn(pdf, width, y)
+    tabla.drawOn(pdf, 22, y - 40)
+
+    
+    # # ---------------------- Tabla 4: Ingresos y Deducciones ----------------------
+    
+    encabezado_ingresos = [['INGRESOS', '', '', '']]
+    filas_ingresos = []
+
+    devengados = context['dataDevengado']
+    for ingreso in devengados:
+        fila = [
+            ingreso.idconcepto.codigo,
+            ingreso.nombreconcepto if ingreso else '',
+            ingreso.cantidad if ingreso else '',
+            f"{str(ingreso.valor).replace('.', ',')}" if ingreso else '',
+        ]
+        filas_ingresos.append(fila)
+
+    # Rellenar hasta 15 filas (sin contar el encabezado)
+    while len(filas_ingresos) < 15:
+        filas_ingresos.append(['', '', '', ''])
+
+    tabla_ingresos = encabezado_ingresos + filas_ingresos
+
+    # DEDUCCIONES
+    encabezado_descuentos = [['DEDUCCIONES', '', '', '']]
+    filas_descuentos = []
+
+    descuentos = context['dataDescuento']
+    for descuento in descuentos:
+        fila = [
+            descuento.idconcepto.codigo,
+            descuento.nombreconcepto if descuento else '',
+            descuento.cantidad if descuento else '',
+            f"{str(descuento.valor).replace('.', ',')}" if descuento else '',
+        ]
+        filas_descuentos.append(fila)
+
+    # Rellenar hasta 15 filas
+    while len(filas_descuentos) < 15:
+        filas_descuentos.append(['', '', '', ''])
+
+    tabla_descuentos = encabezado_descuentos + filas_descuentos
+
+    # Columnas
+    col_widths = [1*cm, 6*cm, 1*cm, 2*cm]
+
+    # Crear tablas
+    table_ingresos = Table(tabla_ingresos, colWidths=col_widths)
+    table_descuentos = Table(tabla_descuentos, colWidths=col_widths)
+
+    # Estilo común
+        
+    estilo_tabla = TableStyle([
+        ('SPAN', (0, 0), (-1, 0)),
+        # Encabezado gris claro sin colores si prefieres: eliminalo
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
+        
+        ('FONTNAME', (0, 0), (-1, 0), 'Courier-Bold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Courier'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        # Alineación general
+        ('ALIGN', (1, 1), (1, -1), 'LEFT'),# Alinear concepto a la izquierda
+        ('ALIGN', (2, 1), (2, -1), 'RIGHT'),# Alinear cantidad a la derecha
+        ('ALIGN', (3, 1), (3, -1), 'RIGHT'), # Alinear valor a la derecha
+
+        # Si no quieres ninguna línea ni color:
+        # (simplemente omite las siguientes líneas o comenta)
+        ('LINEBEFORE', (1, 0), (-1, -1), 0.5, colors.black),
+        ('LINEAFTER', (0, 0), (-2, -1), 0.5, colors.black),
+        ('BOX', (0, 0), (-1, -1), 0.5, colors.black),
+    ])
+    table_ingresos.setStyle(estilo_tabla)
+    table_descuentos.setStyle(estilo_tabla)
+
+    # Posiciones
+    w_i, h_i = table_ingresos.wrap(0, 0)
+    w_d, h_d = table_descuentos.wrap(0, 0)
+
+    bottom_y = height - 250
+    table_ingresos.drawOn(pdf, x=22, y=bottom_y - h_i)
+    table_descuentos.drawOn(pdf, x=306, y=bottom_y - h_d)
+
+    
+    
+    # ---------------------- Tabla 5: Totales ----------------------
+
+    tabla5 = [
+        ['', f"Total Ingresos:", '', context['sumadataDevengado'], '', f"Total Deducciones: ", '', context['sumadataDescuento']],
+        ['', 'Total a Pagar:', '', context['total'], '', '', '', '']
+    ]
+
+    col_widths = [1*cm, 5*cm, 1*cm, 3*cm, 1*cm, 5*cm, 1*cm, 3*cm]
+
+    tabla = Table(tabla5, colWidths=col_widths, rowHeights=18)
+
+    tabla.setStyle(TableStyle([
+        ('BOX', (0, 0), (-1, -1), 0.8, colors.black),
+
+        # Encabezado con spans bien colocado
+        # Colores
+        ('BACKGROUND', (0, 0), (3, 0), colors.HexColor("#b9c1c4")),
+        ('BACKGROUND', (4, 0), (7, 0), colors.HexColor("#b9c1c4")),
+        ('BACKGROUND', (0, -1), (2, -1), colors.HexColor("#81DAF5")),
+
+        ('FONTNAME', (0, 0), (-1, 1), 'Courier-Bold'),
+        ('FONTSIZE', (0, 1), (-1, 1), 12),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        
+        
+        ('ALIGN', (3, 0), (3, 0), 'RIGHT'),  # sumadataDevengado
+        ('ALIGN', (7, 0), (7, 0), 'RIGHT'),  # sumadataDescuento
+        ('ALIGN', (3, 1), (3, 1), 'RIGHT'),  # total
+    
+    ]))
+
+    tabla.wrapOn(pdf, width, y)
+    tabla.drawOn(pdf, 22, y - 390)
+    # Footer institucional
+    pdf.setFont("Helvetica", 8)
+    pdf.setFillColor(colors.grey)
+    pdf.drawCentredString(width / 2, 15, "Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS")
+
+
+
 @login_required
 @role_required('company', 'accountant')
 def generatepayrollsummary2(request, idnomina):
-    start_total = time.time()
+
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    
-    empresa_data = Empresa.objects.get(idempresa=idempresa)
-    # Obtener contratos únicos ordenados por apellido
-    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina)\
-        .order_by('idcontrato__idempleado__papellido')\
-        .values_list('idcontrato', flat=True)\
-        .distinct()
 
-    # Pre-cargar logo una vez
+    empresa_data = Empresa.objects.get(idempresa=idempresa)
+    
+    contratos = Nomina.objects.filter(idnomina=idnomina).order_by('idcontrato__idempleado__papellido').values_list('idcontrato', flat=True).distinct()
+
+    # Precargar logo solo una vez
     logo = None
     try:
-        # Puedes ajustar esto si el logo varía según empresa/contexto
-        logo = ImageReader(f"static/img/{empresa_data.logo}")
+        logo_path = f"static/img/{empresa_data.logo}"
+        logo = ImageReader(logo_path)
     except Exception as e:
         print(f"[LOGO ERROR] No se pudo cargar el logo: {e}")
 
-    # Inicializar merger
-    merger = PdfMerger()
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
 
-    for i, idcontrato in enumerate(idcontratos_unicos, start=1):
+    for i, idcontrato in enumerate(contratos, start=1):
         t0 = time.time()
+        context = genera_comprobante(idnomina, idcontrato)        # Generar la página individual
+        build_payroll_certificate_pdf(pdf, context, logo)
+        pdf.showPage()  # Agrega una nueva página
+    
+    nombre_archivo = f'Certificado_{idnomina}_{datetime.now().strftime("%Y-%m-%d")}.pdf'
+    
+    pdf.setTitle(nombre_archivo)
+    pdf.setAuthor("Nomiweb")
+    pdf.setSubject(f"Comprobante de Nomina_{idnomina}_{datetime.now().strftime('%Y-%m-%d')}")
+    pdf.setCreator("Sistema Nomiweb")
+    pdf.save()
+    buffer.seek(0)
 
-        # Obtener el contexto para ese contrato
-        context = genera_comprobante(idnomina, idcontrato)
-
-        # Generar PDF
-        pdf_bytes = build_payroll_certificate_pdf(context, logo)
-
-        # Asegurar tipo BytesIO
-        if isinstance(pdf_bytes, bytes):
-            pdf_stream = BytesIO(pdf_bytes)
-        else:
-            pdf_stream = pdf_bytes
-
-        pdf_stream.seek(0)
-        merger.append(pdf_stream)
-
-        print(f"[{i}] Contrato {idcontrato} generado en {round(time.time() - t0, 2)}s")
-
-    # Unir todos los PDFs
-    combined_pdf = BytesIO()
-    merger.write(combined_pdf)
-    combined_pdf.seek(0)
-    merger.close()
-
-    # Nombre del archivo
-    fecha_actual = datetime.now().strftime('%Y-%m-%d')
-    nombre_archivo = f'Certificado_{idnomina}_{fecha_actual}.pdf'
-
-    # Crear la respuesta HTTP
-    response = HttpResponse(combined_pdf, content_type='application/pdf')
+    response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
-
-    print(f"[TOTAL] Tiempo total: {round(time.time() - start_total, 2)}s")
-
     return response
 
 
@@ -499,7 +535,7 @@ def generatepayrollcertificate(request, idnomina, idcontrato):
     y = height - 120
 # ---------------------- Tabla 1: Empleado ----------------------
     tabla1 = [
-        ["Empleado", "Identificación", "Contrato", "IdNomina"],
+        ["Empleado", "Identificación", "Contrato", "Nómina"],
         [context['nombre_completo'], context['cc'], context['idcon'], context['idnomi']]
     ]
 
@@ -693,29 +729,6 @@ def generatepayrollcertificate(request, idnomina, idcontrato):
     return response
 
 
-# @login_required
-# @role_required('company','accountant')
-# def generatepayrollcertificate(request ,idnomina,idcontrato):
-#     context = genera_comprobante(idnomina,idcontrato)
-
-#     html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
-    
-#     fecha_actual = datetime.now().strftime('%Y-%m-%d')
-    
-#     pdf = BytesIO()
-#     pisa_status = pisa.CreatePDF(html_string, dest=pdf)
-#     pdf.seek(0)
-
-#     if pisa_status.err:
-#         return HttpResponse('Error al generar el PDF', status=400)
-    
-#     nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
-
-#     response = HttpResponse(pdf, content_type='application/pdf')
-#     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
-    
-#     return response
-
 
 """ 
 para el optimo funcionamiento del views , es requerido que se borre el icono 1 
@@ -897,114 +910,3 @@ def unique_mail(request,idnomina,idcontrato):
     
     return JsonResponse(response_data)
 
-
-
-
-
-"""     
-from django.shortcuts import render
-from apps.companies.models import Nomina
-from apps.components.humani import format_value
-
-
-
-
-def payrollsheet(request):
-    nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
-    compects = []  # Define compects here
-    acumulados = {}
-    
-    selected_nomina = request.GET.get('nomina')
-    if selected_nomina:
-        compectos = Nomina.objects.filter(idnomina = selected_nomina )
-        
-        
-
-        
-        
-        
-        for data in compectos:
-            docidentidad = data.idempleado.docidentidad
-            
-            if docidentidad not in acumulados:
-                
-                acumulados[docidentidad] = {
-                    'documento': docidentidad,
-                    'nombre': f"{data.idempleado.papellido} {data.idempleado.sapellido} {data.idempleado.pnombre} {data.idempleado.snombre}",
-                    'neto': data.valor,
-                    'ingresos':data.valor if data.valor > 0 else 0 ,
-                    'basico': data.valor if data.idconcepto.sueldobasico == 1 else 0 ,
-                    'tpte': data.valor if data.idconcepto.auxtransporte == 1 else 0 ,
-                    'extras': data.valor if data.idconcepto.extras == 1 else 0 ,
-                    'aportess':data.valor if data.idconcepto.aportess == 1 else 0 ,
-                    'prestamos': data.valor if data.idconcepto.idconcepto == 50 else 0 ,
-                }
-            else:
-                acumulados[docidentidad]['neto'] += data.valor
-                
-                # Sumar el valor al campo ingresos si la condición se cumple
-                if data.valor  > 0 :
-                    print("anterir:",acumulados[docidentidad]['ingresos'],"Datos:", data, "Valor:", data.valor)
-                    acumulados[docidentidad]['ingresos'] += data.valor
-                    
-
-                    
-                
-                # Sumar el valor al campo basico si la condición se cumple
-                if data.idconcepto.sueldobasico == 1:
-                    acumulados[docidentidad]['basico'] += data.valor
-                
-                
-                # Sumar el valor al campo tpte si la condición se cumple
-                if data.idconcepto.auxtransporte == 1:
-                    acumulados[docidentidad]['tpte'] += data.valor
-                
-                
-                # Sumar el valor al campo extras si la condición se cumple
-                if data.idconcepto.extras == 1:
-                    acumulados[docidentidad]['extras'] += data.valor
-                    
-                    
-                # Sumar el valor al campo extras si la condición se cumple
-                if data.idconcepto.aportess == 1:
-                    acumulados[docidentidad]['aportess'] += data.valor
-                    
-                # Sumar el valor al campo extras si la condición se cumple
-                if data.idconcepto.idconcepto == 50:
-                    acumulados[docidentidad]['prestamos'] += data.valor
-                    
-        # Convertir el diccionario acumulado en una lista de diccionarios
-        compects = list(acumulados.values())
-    
-    
-    
-    for compect in compects:
-        # descuentos = neto - ingresos
-        compect['descuentos'] = compect['neto'] - compect['ingresos']
-        # otrosing = ingresos - basico - extras - transporte
-        compect['otrosing'] = compect['ingresos'] - compect['basico'] - compect['extras'] - compect['tpte']
-        # descuentos - prestamos - aportes
-        compect['otrosdesc'] = compect['descuentos'] - compect['prestamos'] - compect['aportess']
-    
-    
-    for compect in compects:
-        compect['neto'] = format_value(compect['neto'])
-        compect['ingresos'] = format_value(compect['ingresos'])
-        compect['basico'] = format_value(compect['basico'])
-        compect['tpte'] = format_value(compect['tpte'])
-        compect['extras'] = format_value(compect['extras'])
-        compect['aportess'] = format_value(compect['aportess'])
-        compect['prestamos'] = format_value(compect['prestamos'])
-        compect['descuentos'] = format_value(compect['descuentos'])
-        compect['otrosing'] = format_value(compect['otrosing'])
-        compect['otrosdesc'] = format_value(compect['otrosdesc'])
-    
-    
-    # No need for else here, compects will be an empty list if it's not a POST request
-    
-    return render(request, 'companies/payrollsheet.html', {
-        'nominas': nominas,
-        'compects': compects,
-        'selected_nomina':selected_nomina,
-    })
-""" 

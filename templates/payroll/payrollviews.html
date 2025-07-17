@@ -159,7 +159,7 @@ tr.htmx-swapping td {
 
 {% block content %}
 
-<div class="btn-group" role="group" aria-label="Payroll options">
+<div class="d-flex flex-wrap gap-2 justify-content-start" role="group" aria-label="Payroll options">
 
     <a 
         up-layer="new modal"
@@ -176,7 +176,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina básica" 
 
-        href="{% url 'payroll:automatic_systems' 0  nombre.idnomina %}"
+        href="{% url 'payroll:automatic_systems' 0 nombre.idnomina %}"
         class="btn btn-light-info">
         Nómina Básica
     </a>
@@ -196,7 +196,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina con incapacidades" 
 
-        href="{% url 'payroll:automatic_systems' 1  nombre.idnomina %}"
+        href="{% url 'payroll:automatic_systems' 1 nombre.idnomina %}"
         class="btn btn-light-info">
         Incapacidades
     </a>
@@ -216,7 +216,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina con aportes" 
 
-        href="{% url 'payroll:automatic_systems' 2  nombre.idnomina %}"
+        href="{% url 'payroll:automatic_systems' 2 nombre.idnomina %}"
         class="btn btn-light-info">
         Aportes
     </a>
@@ -236,7 +236,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina con transporte"
 
-        href="{% url 'payroll:automatic_systems' 3  nombre.idnomina %}"
+        href="{% url 'payroll:automatic_systems' 3 nombre.idnomina %}"
         class="btn btn-light-info">
         Transporte
     </a>
@@ -245,14 +245,14 @@ tr.htmx-swapping td {
         target="_blank" 
         href="{% url 'companies:generatepayrollsummary' idnomina=nombre.idnomina %}"
         class="btn btn-light-info">
-        Resumen de Nomina 
+        Resumen de Nómina 
     </a>
 
     <a 
         target="_blank" 
         href="{% url 'companies:generatepayrollsummary2' idnomina=nombre.idnomina %}"
         class="btn btn-light-info">
-        comprobantes de Nominas 
+        Comprobantes de Nómina 
     </a>
 
     <a 
@@ -270,7 +270,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Reinicio de datos dentro de la nómina"
 
-        href="{% url 'payroll:automatic_systems' 4  nombre.idnomina %}"
+        href="{% url 'payroll:automatic_systems' 4 nombre.idnomina %}"
         class="btn btn-light-info">
         Reiniciar
     </a>
