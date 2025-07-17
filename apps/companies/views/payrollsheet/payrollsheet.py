@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from apps.common.models import Nomina , NominaComprobantes ,Crearnomina , Contratos
+from apps.common.models import Nomina , NominaComprobantes ,Crearnomina , Contratos ,Empresa
 from apps.components.humani import format_value
 from io import BytesIO
 from xhtml2pdf import pisa
@@ -27,7 +27,7 @@ import os
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.lib.units import mm
-
+import time
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -160,6 +160,135 @@ def payrollsheet(request):
 #     return response
 
 
+def build_payroll_certificate_pdf(context, logo=None):
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # ---------------- Encabezado ----------------
+    p.setFont("Helvetica-Bold", 8)
+    p.drawCentredString(width / 2, height - 25, context['empresa'])
+    p.setFont("Helvetica", 8)
+    p.drawCentredString(width / 2, height - 35, context['nit'])
+    p.drawCentredString(width / 2, height - 45, context['web'])
+    p.setStrokeColor(colors.grey)
+    p.setLineWidth(0.5)
+    p.line(35, height - 60, width - 35, height - 60)
+
+    if logo:
+        try:
+            p.drawImage(logo, 35, height - 55, width=150, height=50, preserveAspectRatio=True, mask='auto')
+        except:
+            pass
+
+    # ---------------- Subtítulo ----------------
+    p.setFont("Courier-Bold", 15)
+    p.drawCentredString(width / 2, height - 90, "Comprobante de Nómina")
+
+    y = height - 120
+
+    # ---------------- Datos generales ----------------
+    data = [
+        [["Empleado", "Identificación", "Contrato", "IdNomina"],
+         [context['nombre_completo'], context['cc'], context['idcon'], context['idnomi']]],
+        [["Fecha Ingreso", "Cargo", "Salario", "Cuenta"],
+         [context['fecha1'], context['cargo'], context['salario'], context['cuenta']]],
+        [["Centro de Costo", "Periodo de Pago", "Salud", "Pensión"],
+         [context['ccostos'], context['periodos'], str(context['eps']), str(context['pension'])]]
+    ]
+    
+    col_widths_list = [[8*cm, 4*cm, 4*cm, 4*cm],
+                       [4*cm, 8*cm, 4*cm, 4*cm],
+                       [5*cm, 8*cm, 3.5*cm, 3.5*cm]]
+
+    for i, (table_data, col_widths) in enumerate(zip(data, col_widths_list)):
+        t = Table(table_data, colWidths=col_widths, rowHeights=20)
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ]))
+        table_height = t.wrapOn(p, width, y)[1]
+        t.drawOn(p, 22, y - table_height)
+        y -= table_height + 10
+
+    # ---------------- Ingresos y Deducciones ----------------
+    def build_table(title, datos):
+        filas = [[title, '', '', '']]
+        for d in datos:
+            filas.append([
+                d.idconcepto.codigo,
+                d.nombreconcepto or '',
+                d.cantidad or '',
+                f"{str(d.valor).replace('.', ',')}" if d else ''
+            ])
+        while len(filas) < 16:
+            filas.append(['', '', '', ''])
+        t = Table(filas, colWidths=[1*cm, 6*cm, 1*cm, 2*cm])
+        t.setStyle(TableStyle([
+            ('SPAN', (0, 0), (-1, 0)),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#b9c1c4")),
+            ('FONTNAME', (0, 0), (-1, 0), 'Courier-Bold'),
+            ('FONTNAME', (0, 1), (-1, -1), 'Courier'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ALIGN', (1, 1), (1, -1), 'LEFT'),
+            ('ALIGN', (2, 1), (2, -1), 'RIGHT'),
+            ('ALIGN', (3, 1), (3, -1), 'RIGHT'),
+            ('LINEBEFORE', (1, 0), (-1, -1), 0.5, colors.black),
+            ('LINEAFTER', (0, 0), (-2, -1), 0.5, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.5, colors.black),
+        ]))
+        return t
+
+    y_ing_desc = y - 20
+    ingresos = build_table("INGRESOS", context['dataDevengado'])
+    descuentos = build_table("DEDUCCIONES", context['dataDescuento'])
+
+    ingresos_height = ingresos.wrapOn(p, 284, y_ing_desc)[1]
+    descuentos.wrapOn(p, 284, y_ing_desc)
+    ingresos.drawOn(p, 22, y_ing_desc - ingresos_height)
+    descuentos.drawOn(p, 306, y_ing_desc - ingresos_height)
+
+    # ---------------- Totales ----------------
+    tabla5 = [
+        ['', 'Total Ingresos:', '', context['sumadataDevengado'], '', 'Total Deducciones:', '', context['sumadataDescuento']],
+        ['', 'Total a Pagar:', '', context['total'], '', '', '', '']
+    ]
+    totales = Table(tabla5, colWidths=[1*cm, 5*cm, 1*cm, 3*cm, 1*cm, 5*cm, 1*cm, 3*cm], rowHeights=18)
+    totales.setStyle(TableStyle([
+        ('BOX', (0, 0), (-1, -1), 0.8, colors.black),
+        ('BACKGROUND', (0, 0), (3, 0), colors.HexColor("#b9c1c4")),
+        ('BACKGROUND', (4, 0), (7, 0), colors.HexColor("#b9c1c4")),
+        ('BACKGROUND', (0, -1), (2, -1), colors.HexColor("#81DAF5")),
+        ('FONTNAME', (0, 0), (-1, 1), 'Courier-Bold'),
+        ('FONTSIZE', (0, 1), (-1, 1), 12),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('ALIGN', (3, 0), (3, 0), 'RIGHT'),
+        ('ALIGN', (7, 0), (7, 0), 'RIGHT'),
+        ('ALIGN', (3, 1), (3, 1), 'RIGHT'),
+    ]))
+    totales.wrapOn(p, width, y)
+    totales.drawOn(p, 22, y - 390)
+
+    # ---------------- Footer ----------------
+    p.setFont("Helvetica", 8)
+    p.setFillColor(colors.grey)
+    p.drawCentredString(width / 2, 15, "Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS")
+
+    # Metadata
+    p.setTitle(f"Certificado_{context['cc']}_{datetime.now().strftime('%Y-%m-%d')}")
+    p.setAuthor("Nomiweb")
+    p.setSubject(f"Comprobante de Nomina {context['cc']}")
+    p.setCreator("Sistema Nomiweb")
+
+    p.showPage()
+    p.save()
+    buffer.seek(0)
+    return buffer
+
+
 @login_required
 @role_required('company','accountant')
 def generatepayrollsummary(request, idnomina):
@@ -247,13 +376,6 @@ def generatepayrollsummary(request, idnomina):
     tabla2.wrapOn(p, width, y)
     tabla2.drawOn(p, 65, y -135 - len(tabla_datos))
     
-    #y_totales = y - 20 * len(tabla_datos) - 30
-
-    # p.setFont("Helvetica-Bold", 9)
-    # p.drawString(40, y_totales, f"Total Ingresos: {context['total_ingresos']}")
-    # p.drawString(220, y_totales, f"Total Deducciones: {context['total_descuentos']}")
-    # p.drawString(420, y_totales, f"Neto a Pagar: {context['neto']}")
-
     # Footer institucional
     p.setFont("Helvetica", 8)
     p.setFillColor(colors.grey)
@@ -277,47 +399,67 @@ def generatepayrollsummary(request, idnomina):
     return response
 
 
-
 @login_required
-@role_required('company','accountant')
+@role_required('company', 'accountant')
 def generatepayrollsummary2(request, idnomina):
-    # Obtener los contratos únicos ordenados por apellido
-    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina).order_by('idcontrato__idempleado__papellido').values_list('idcontrato', flat=True).distinct()
+    start_total = time.time()
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     
-    # Crear un objeto para combinar PDFs
-    merger = PdfMerger()
-    
-    for idcontrato in idcontratos_unicos:
-        # Generar el contexto para cada contrato
-        context = genera_comprobante(idnomina, idcontrato)
-        
-        # Renderizar el template a una cadena HTML
-        html_string = render_to_string('./html/payrollcertificate.html', context)
-        
-        # Crear el PDF para cada documento
-        pdf = BytesIO()
-        pisa_status = pisa.CreatePDF(html_string, dest=pdf)
-        pdf.seek(0)
+    empresa_data = Empresa.objects.get(idempresa=idempresa)
+    # Obtener contratos únicos ordenados por apellido
+    idcontratos_unicos = Nomina.objects.filter(idnomina=idnomina)\
+        .order_by('idcontrato__idempleado__papellido')\
+        .values_list('idcontrato', flat=True)\
+        .distinct()
 
-        if pisa_status.err:
-            return HttpResponse('Error al generar uno de los PDFs', status=400)
-        
-        # Agregar el PDF al merger
-        merger.append(pdf)
-    
-    # Crear un archivo PDF final combinando todos los PDFs
+    # Pre-cargar logo una vez
+    logo = None
+    try:
+        # Puedes ajustar esto si el logo varía según empresa/contexto
+        logo = ImageReader(f"static/img/{empresa_data.logo}")
+    except Exception as e:
+        print(f"[LOGO ERROR] No se pudo cargar el logo: {e}")
+
+    # Inicializar merger
+    merger = PdfMerger()
+
+    for i, idcontrato in enumerate(idcontratos_unicos, start=1):
+        t0 = time.time()
+
+        # Obtener el contexto para ese contrato
+        context = genera_comprobante(idnomina, idcontrato)
+
+        # Generar PDF
+        pdf_bytes = build_payroll_certificate_pdf(context, logo)
+
+        # Asegurar tipo BytesIO
+        if isinstance(pdf_bytes, bytes):
+            pdf_stream = BytesIO(pdf_bytes)
+        else:
+            pdf_stream = pdf_bytes
+
+        pdf_stream.seek(0)
+        merger.append(pdf_stream)
+
+        print(f"[{i}] Contrato {idcontrato} generado en {round(time.time() - t0, 2)}s")
+
+    # Unir todos los PDFs
     combined_pdf = BytesIO()
     merger.write(combined_pdf)
     combined_pdf.seek(0)
-    
-    # Crear el nombre del archivo con la fecha actual
+    merger.close()
+
+    # Nombre del archivo
     fecha_actual = datetime.now().strftime('%Y-%m-%d')
     nombre_archivo = f'Certificado_{idnomina}_{fecha_actual}.pdf'
 
-    # Preparar la respuesta HTTP con el PDF final
+    # Crear la respuesta HTTP
     response = HttpResponse(combined_pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
-    
+
+    print(f"[TOTAL] Tiempo total: {round(time.time() - start_total, 2)}s")
+
     return response
 
 
