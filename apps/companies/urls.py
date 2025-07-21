@@ -98,6 +98,8 @@ urlpatterns = [
     # ## Payroll URLs
     # path('payroll/labor/certification/', laborcertification.laborcertification, name='laborcertification'),
     path('payroll/sheet/', payrollsheet.payrollsheet, name='payrollsheet'),
+    path('payroll/sheet/record/', payrollsheet.payrollsheet_record, name='payrollsheet_record'),
+    path('payroll/sheet/record/<str:id>', payrollsheet.payrollsheet_record_date, name='payrollsheet_record_date'),
     path('payroll/sheet/download/<int:idnomina>/<int:idcontrato>/', payrollsheet.generatepayrollcertificate, name='generatepayrollcertificate'),
     path('payroll/sheet/send/<int:idnomina>/<int:idcontrato>/', payrollsheet.unique_mail, name='unique_mail'),
     path('payroll/summary/download/<int:idnomina>/', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
