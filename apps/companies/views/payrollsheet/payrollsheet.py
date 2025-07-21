@@ -33,6 +33,50 @@ def get_email_status(estado_email):
     return envio_email
 
 
+
+@login_required
+@role_required('company','accountant')
+def payrollsheet_record(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    nominas = Crearnomina.objects.filter(estadonomina=False, id_empresa_id=idempresa).order_by('-idnomina')
+
+    return render(request, 'companies/payrollsheetrecord.html', {
+        'nominas': nominas,
+    })
+
+
+@login_required
+@role_required('company','accountant')
+def payrollsheet_record_date(request, id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+
+    empleados = Nomina.objects \
+        .select_related('idcontrato') \
+        .filter(idnomina=id) \
+        .values(
+            'idcontrato__idempleado__docidentidad', 'idcontrato__idempleado__papellido',
+            'idcontrato__idempleado__pnombre', 'idcontrato__idempleado__snombre',
+            'idcontrato__salario', 'idcontrato__idempleado__idempleado', 
+            'idcontrato__idempleado__sapellido', 'idcontrato'
+        ) \
+        .order_by('idcontrato__idempleado__papellido') \
+        .distinct()
+
+    nombre = Crearnomina.objects.get(idnomina=id)
+    # Inicializamos 'nomina' para cuando no se filtra
+    nomina = Nomina.objects.filter(idnomina_id=id).order_by('idregistronom')
+    
+    return render(request, './companies/payrollsheet_record_date.html', {
+        'nomina': nomina,
+        'nombre':nombre,
+        'empleados': empleados,
+        'id': id
+    })
+
+
+
 @login_required
 @role_required('company','accountant')
 def payrollsheet(request):
