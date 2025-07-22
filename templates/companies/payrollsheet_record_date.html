@@ -27,7 +27,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 {% endblock %}
 
 {% block titulo2 %} 
-    {{ nombre.nombrenomina }}
+    Nomina : {{ nombre.nombrenomina }}
 {% endblock %}
 
 
@@ -85,7 +85,7 @@ tr.htmx-swapping td {
 
 {% block actions %}
     
-     <!-- Separación entre grupos -->
+    <!-- Separación entre grupos -->
     <!-- Botón para activar modal -->
     <a href="{% url 'companies:payrollsheet_record' %}"  class="btn btn-light-primary"   >
         <i class="ki-duotone ki-exit-left fs-2 ">             
@@ -101,6 +101,23 @@ tr.htmx-swapping td {
 
 {% block content %}
 
+<div class="d-flex flex-wrap gap-2 justify-content-start" role="group" aria-label="Payroll options">
+
+    <a 
+        target="_blank" 
+        href="{% url 'companies:generatepayrollsummary' idnomina=nombre.idnomina %}"
+        class="btn btn-light-info">
+        Resumen de Nómina 
+    </a>
+
+    <a 
+        target="_blank" 
+        href="{% url 'companies:generatepayrollsummary2' idnomina=nombre.idnomina %}"
+        class="btn btn-light-info">
+        Comprobantes de Nómina 
+    </a>
+
+</div>
 
 
 

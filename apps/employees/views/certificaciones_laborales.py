@@ -13,6 +13,16 @@ from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Table, TableStyle, Paragraph
+from io import BytesIO
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+import time
+from reportlab.pdfgen import canvas
+from datetime import datetime
+from reportlab.lib.styles import getSampleStyleSheet
 
 def get_empleado_name(empleado):
     papellido = empleado.get('idempleado__papellido', '') if empleado.get('idempleado__papellido') is not None else ""
@@ -218,59 +228,124 @@ def generateworkcertificate(request):
         print(e)
         return redirect('employees:certificaciones')
 
+
+def draw_paragraph(p, text, style, x, y, width):
+    paragraph = Paragraph(text, style)
+    paragraph.wrapOn(p, width, 200)
+    paragraph.drawOn(p, x, y)
+
+
+
+
 @login_required
 @role_required('employee')
-def certificatedownload(request,idcert):
-    """
-    Descarga un certificado laboral previamente generado según su ID.
-
-    Esta vista recupera los datos de un certificado ya existente y genera un PDF desde una plantilla HTML. 
-    El archivo PDF se abre en el navegador.
-
-    Parameters
-    ----------
-    request : HttpRequest
-        Solicitud del navegador para descargar el certificado.
-
-    idcert : int
-        ID del certificado que se desea visualizar en PDF.
-
-    Returns
-    -------
-    HttpResponse
-        PDF renderizado del certificado laboral.
-
-    See Also
-    --------
-    workcertificatedownload : Función que prepara el contexto del certificado según su ID.
-
-    Notes
-    -----
-    - Solo accesible para empleados autenticados.
-    - En caso de error, se muestra un mensaje y se redirige al listado de certificados.
-    - Utiliza la plantilla HTML 'workcertificatework.html'.
-    """
-
+def certificatedownload(request, idcert):
     try:
         context = workcertificatedownload(idcert)
-        html_string = render(request, './html/workcertificatework.html', context).content.decode('utf-8')
-        
-        pdf = BytesIO()
-        pisa_status = pisa.CreatePDF(html_string, dest=pdf)
-        pdf.seek(0)
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
 
-        if pisa_status.err:
-            return HttpResponse('Error al generar el PDF', status=400)
+        # Encabezado
+        p.setFont("Helvetica-Bold", 8)
+        p.drawCentredString(width / 2, height - 25, context['empresa'])
+        p.setFont("Helvetica", 8)
+        p.drawCentredString(width / 2, height - 35, context['nit'])
+        p.drawCentredString(width / 2, height - 45, context['web'])
 
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="Certificado.pdf"'
-        
+        # Línea horizontal
+        p.setStrokeColor(colors.grey)
+        p.setLineWidth(0.5)
+        p.line(35, height - 60, width - 35, height - 60)
+
+        # Logo
+        try:
+            logo = ImageReader(f"static/img/{context['logo']}")
+            p.drawImage(logo, 35, height - 55, width=150, height=50, preserveAspectRatio=True, mask='auto')
+        except:
+            pass
+
+        # Título
+        p.setFont("Helvetica-Bold", 15)
+        p.drawCentredString(width / 2, height - 90, "Certificación Laboral")
+
+        # Info de certificado
+        p.setFont("Helvetica", 10)
+        p.drawCentredString(width - 95, height - 140, f"Certificado #: {context['idcert']} - {context['idempresa']}")
+        p.drawCentredString(width - 90, height - 150, f"Código de validación: {context['codigo_confirmacion']}")
+
+        # Estilo párrafos
+        styles = getSampleStyleSheet()
+        style = styles["Normal"]
+        style.fontSize = 10
+        style.leading = 14
+
+        # Cuerpo de la certificación
+        texts = [
+            f"""<para>Certificamos que, <strong>{context["nombre"]}</strong>, identificado(a) con documento de identidad No. {context["identificacion"]}, trabaja en {context["empresa"]}, desde el {context["fecha"]}, desempeñando el cargo de <strong>{context["cargo"]}</strong></para>""",
+            f"""<para>Tiene un sueldo básico mensual de <strong>${context["sueldo"]}</strong> y el tipo de contrato laboral es: <strong>{context["tipoc"]}</strong></para>""",
+            f"""<para>La presente certificación se expide con destino a : {context["destino"]}</para>""",
+            f"""<para>Puede verificar la validez de esta certificación en el email {context["emailrrhh"]}, en los teléfonos que aparecen al pie de este certificado o en este <a href="https://empresas.nomiweb.co/validacion" color="blue"><u>aquí</u></a> usando los códigos de esta certificación.</para>""",
+            f"""<para>Fecha de expedición de esta certificación: {context["fecha_certificacion"]}</para>"""
+        ]
+
+        y_positions = [height - 200, height - 240, height - 270, height - 310, height - 350]
+        for text, y in zip(texts, y_positions):
+            draw_paragraph(p, text, style, 35, y, width - 65)
+
+        # Firma
+        try:
+            firma = ImageReader(f"static/img/{context['firma']}")
+            p.drawImage(firma, 35, height - 500, width=150, height=50, preserveAspectRatio=True, mask='auto')
+        except:
+            pass
+
+        p.setFont("Helvetica", 7)
+        p.drawString(35, height - 515, f"{context['rrhh']} - {context['cargo_certificaciones']}")
+
+    
+    
+        p.setFont("Helvetica", 8)
+        p.setFillColor(colors.grey)
+        p.drawCentredString(width / 2, 35, f"N.I.T. {context['nit']} - Dirección: Cra.  {context['direccion']} , {context['ciudad']}  - Teléfono: {context['telefono']} - email: {context['emailrrhh']}")
+
+
+        # Footer
+        p.setFont("Helvetica", 8)
+        p.setFillColor(colors.grey)
+        p.drawCentredString(width / 2, 15, "Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS")
+
+        # Metadata y finalizar PDF
+        fecha_actual = datetime.now().strftime('%Y-%m-%d')
+        nombre_archivo = f'Certificado_{context["identificacion"]}_{fecha_actual}.pdf'
+
+        p.setTitle(nombre_archivo)
+        p.setAuthor("Nomiweb")
+        p.setSubject(f"Comprobante de Nómina {context['identificacion']}")
+        p.setCreator("Sistema Nomiweb")
+        p.showPage()
+        p.save()
+
+        pdf = buffer.getvalue()
+        buffer.close()
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
+        response.write(pdf)
         return response
-    
+
     except Exception as e:
-        messages.error(request, 'Ocurrio un error inesperado')
         print(e)
-        return redirect('employees:workcertificate')
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+        p.showPage()
+        p.save()
+        pdf = buffer.getvalue()
+        buffer.close()
+        return HttpResponse(pdf, content_type='application/pdf')
     
 
 
+#def render_certificate(context):
+    
+    

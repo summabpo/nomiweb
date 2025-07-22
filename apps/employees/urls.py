@@ -13,9 +13,9 @@ from apps.employees.views.viewdian import viewdian
 
 urlpatterns = [
     # Certificaciones Laborales
-    path('Certificate/labor', certificaciones_laborales.vista_certificaciones, name='certificaciones'),
-    path('Certificate/labor/download/<int:idcert>/', certificaciones_laborales.certificatedownload, name='certificatedownload'),
-    path('Certificate/labor/download/create/', certificaciones_laborales.generateworkcertificate, name='generateworkcertificate'),
+    path('certificate/labor', certificaciones_laborales.vista_certificaciones, name='certificaciones'),
+    path('certificate/labor/download/<int:idcert>/', certificaciones_laborales.certificatedownload, name='certificatedownload'),
+    path('certificate/labor/download/create/', certificaciones_laborales.generateworkcertificate, name='generateworkcertificate'),
 
     # Comprobantes de Nómina
     path('vouchers/payroll/', comprobantes_nomina.listaNomina, name='comprobantes_all'),
@@ -31,15 +31,15 @@ urlpatterns = [
     path('vacation/request/', vacation_request.vacation_request_function, name='form_vac'),
 
     # DIAN
-    path('Certificate/DIAN/', viewdian.viewdian, name='viewdian'),
-    path('Certificate/DIAN/download/<str:idingret>/', viewdian.viewdian_empleado, name='viewdiandownload'),
+    path('certificate/DIAN/', viewdian.viewdian, name='viewdian'),
+    path('certificate/DIAN/download/<str:idingret>/', viewdian.viewdian_empleado, name='viewdiandownload'),
 
     # Usuario
     path('user/', edituser.user_employees, name='user'),
     path('edit/user/', edituser.edit_user_employees, name='edituser'),
 
     # Generación de Certificados de Nómina
-    path('Certificate/payroll/<str:idnomina>/<str:idcontrato>/', comprobantes_nomina.generatepayrollcertificate, name='generatepayrollcertificate'),
+    path('certificate/payroll/<str:idnomina>/<str:idcontrato>/', comprobantes_nomina.generatepayrollcertificate, name='generatepayrollcertificate'),
 
     # Cambiar Contraseña
     path('user/new/password/', newpassword.newpassword_employees, name='newpassword'),
@@ -47,3 +47,11 @@ urlpatterns = [
     # AJAX
     path('ajax/my_get_view/', vacation_request.my_get_view, name='my_get_view'),
 ]
+
+
+urlunpolypatterns =[
+    
+    path('vacation/request/add', vacation_request.vacation_request_add, name='vacation_request_add'),
+]
+
+urlpatterns += urlunpolypatterns  

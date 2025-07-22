@@ -140,7 +140,7 @@ def genera_comprobante(idnomina, idcontrato):
             'web':datac['website'],
             'logo':datac['logo'],        
             # nomina y empleado 
-            'nombre_completo': nombre_completo,
+            'nombre_completo':(nombre_completo[:32] + '...') if len(nombre_completo) > 32 else nombre_completo,
             'cc': contrato.idempleado.docidentidad,
             'idcon': idcontrato,
             'idnomi': idnomina,
@@ -150,8 +150,8 @@ def genera_comprobante(idnomina, idcontrato):
             'cuenta': contrato.cuentanomina,
             'ccostos': centro,
             'periodos': periodo,
-            'eps': contrato.codeps,#!
-            'pension': contrato.codafp,#!
+            'eps': (contrato.codeps.entidad[:12] + '...') if len(contrato.codeps.entidad) > 15 else contrato.codeps.entidad,
+            'pension': (contrato.codafp.entidad[:12] + '...') if len(contrato.codafp.entidad) > 15 else contrato.codafp.entidad,
             'dataDevengado': dataDevengado,
             'dataDescuento': dataDescuento,
             'sumadataDevengado': format_value(sumadataDevengado), # Formatear la suma con separador de miles

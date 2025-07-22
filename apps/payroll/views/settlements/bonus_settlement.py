@@ -154,12 +154,6 @@ def bonus_p_settlement_add(request):
             method_type = form.cleaned_data['method_type']
             payroll = form.cleaned_data['Payroll']
 
-            print('----------')
-            print(request.POST)
-            print(method_type)
-            print(payroll)
-            print('----------')
-
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
             response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
