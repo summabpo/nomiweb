@@ -74,6 +74,8 @@ def payrollsheet_record_date(request, id):
         'empleados': empleados,
         'id': id
     })
+    
+    
 
 
 
@@ -211,53 +213,48 @@ def generatepayrollsummary(request, idnomina):
 
     # ------------------ Tabla de grouped_nominas ------------------
     y = height - 140
-
-    tabla_datos = [["Código", "Concepto", "Cantidad", "Ingresos", "Descuentos","Neto"]]
+    tabla_datos = [["Código", "Concepto", "Cantidad", "Ingresos", "Descuentos", "Neto"]]
     for item in context["grouped_nominas"]:
         fila = [
             item["idconcepto__codigo"],
             item["idconcepto__nombreconcepto"],
             str(item["cantidad_total"]),
             item["ingresos"],
-            item["descuentos"] ,
+            item["descuentos"],
             ' '
         ]
         tabla_datos.append(fila)
 
-    tabla = Table(tabla_datos, colWidths=[1*cm, 5*cm, 2*cm, 3*cm, 3*cm , 3*cm])
+    tabla = Table(tabla_datos, colWidths=[1 * cm, 5 * cm, 2 * cm, 3 * cm, 3 * cm, 3 * cm])
     tabla.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Courier'),
         ('FONTNAME', (0, 0), (-1, 0), 'Courier-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),                    # Tamaño para encabezado
-        ('FONTSIZE', (0, 1), (-1, -1), 9),   
-        # Alineaciones específicas
-        ('ALIGN', (0, 0), (0, -1), 'CENTER'),   # Código
-        ('ALIGN', (1, 0), (1, -1), 'LEFT'),     # Concepto
-        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),   # Cantidad, Ingresos, Descuentos
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
     ]))
-    tabla.wrapOn(p, width, y)
-    tabla.drawOn(p, 65, y - 20 * len(tabla_datos))  # Ajuste dinámico según cantidad
+    tabla_width, tabla_height = tabla.wrap(width, height)
+    tabla.drawOn(p, 65, y - tabla_height)
 
-    # ------------------ Tabla  Totales al pie ------------------
-    
-    tabla_datos2 = [["", f"Total Empleados: {context['cantidad_empleados']} ", "", context['total_ingresos'], context['total_descuentos'] ,context['neto']]]
-    
-    
-    
-    tabla2 = Table(tabla_datos2, colWidths=[1*cm, 5*cm, 2*cm, 3*cm, 3*cm , 3*cm])
+    # ------------------ Tabla Totales al pie ------------------
+    tabla_datos2 = [["", f"Total Empleados: {context['cantidad_empleados']}", "", context['total_ingresos'],
+                     context['total_descuentos'], context['neto']]]
+
+    tabla2 = Table(tabla_datos2, colWidths=[1 * cm, 5 * cm, 2 * cm, 3 * cm, 3 * cm, 3 * cm])
     tabla2.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Courier'),
         ('FONTNAME', (0, 0), (-1, 0), 'Courier-Bold'),
-        # Alineaciones específicas
-        ('FONTSIZE', (0, 0), (-1, 0), 10),                    # Tamaño para encabezado
-        ('FONTSIZE', (0, 1), (-1, -1), 9),     
-        
-        ('ALIGN', (0, 0), (0, -1), 'CENTER'),   # Código
-        ('ALIGN', (1, 0), (1, -1), 'LEFT'),     # Concepto
-        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),   # Cantidad, Ingresos, Descuentos
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
     ]))
-    tabla2.wrapOn(p, width, y)
-    tabla2.drawOn(p, 65, y -135 - len(tabla_datos))
+    tabla2_width, tabla2_height = tabla2.wrap(width, height)
+    tabla2_y = y - tabla_height - 20  # 20px espacio entre tablas
+    tabla2.drawOn(p, 65, tabla2_y - tabla2_height)
     
     # Footer institucional
     p.setFont("Helvetica", 8)
@@ -418,7 +415,7 @@ def build_payroll_certificate_pdf(pdf, context, logo=None):
     tabla_descuentos = encabezado_descuentos + filas_descuentos
 
     # Columnas
-    col_widths = [1*cm, 6*cm, 1*cm, 2*cm]
+    col_widths = [1*cm, 5*cm, 2*cm, 2*cm]
 
     # Crear tablas
     table_ingresos = Table(tabla_ingresos, colWidths=col_widths)
@@ -671,7 +668,7 @@ def generatepayrollcertificate(request, idnomina, idcontrato):
     tabla_descuentos = encabezado_descuentos + filas_descuentos
 
     # Columnas
-    col_widths = [1*cm, 6*cm, 1*cm, 2*cm]
+    col_widths = [1*cm, 5*cm, 2*cm, 2*cm]
 
     # Crear tablas
     table_ingresos = Table(tabla_ingresos, colWidths=col_widths)

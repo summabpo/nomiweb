@@ -170,6 +170,17 @@ def vacation_request_function(request):
     return render(request, 'employees/vacations_request.html', context)
 
 
+@login_required
+@role_required('employee')
+def vacation_request_add(request):
+    usuario = request.session.get('usuario', {})
+    ide = usuario['idempleado']
+    form = EmpVacacionesForm(idempleado=ide)
+    
+    return render(request, 'employees/partials/vacations_request_add.html',{'form': form,} )
+
+
+
 global_dato = None 
 
 @csrf_exempt
