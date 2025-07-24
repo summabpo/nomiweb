@@ -9,10 +9,12 @@ from django.contrib import messages
 from apps.components.mail import send_template_email
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from django.urls import reverse
+from django.http import HttpResponse
 from apps.components.decorators import  role_required
 from apps.components.humani import format_decimal
 from django.utils.timezone import now
+from datetime import date
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
     """
@@ -76,75 +78,75 @@ def vacation_request_function(request):
         inicio_contrato = inicio_contrato.strftime('%Y-%m-%d')
 
 
-    form = EmpVacacionesForm(idempleado=ide)
-    form2 = EmpVacacionesForm(idempleado=ide,dropdown_parent='#kt_modal_3')
+    # form = EmpVacacionesForm(idempleado=ide)
+    # form2 = EmpVacacionesForm(idempleado=ide,dropdown_parent='#kt_modal_3')
 
-    if request.method == 'POST' :
-        form = EmpVacacionesForm(request.POST,idempleado=ide)
-        if form.is_valid() :
+    # if request.method == 'POST' :
+    #     form = EmpVacacionesForm(request.POST,idempleado=ide)
+    #     if form.is_valid() :
             
-            tipovac = form.cleaned_data.get('tipovac')
-            tipovac2 = Tipoavacaus.objects.get(idvac = tipovac )
-            cuentasabados = form.cleaned_data.get('cuentasabados')
-            comentarios = form.cleaned_data.get('comentarios')
-            fechainicialvac = form.cleaned_data.get('fechainicialvac')
-            fechafinalvac = form.cleaned_data.get('fechafinalvac')
-            contrato = Contratos.objects.get(idcontrato= form.cleaned_data.get('idcontrato') )
-            if tipovac == 2:
-                diasvac = form.cleaned_data.get('diasvac')
-                diascalendario = diasvac
-            else:
-                fechainicialvac = form.cleaned_data.get('fechainicialvac')
-                fechafinalvac = form.cleaned_data.get('fechafinalvac')
-                cuentasabados = form.cleaned_data.get('cuentasabados')
+    #         tipovac = form.cleaned_data.get('tipovac')
+    #         tipovac2 = Tipoavacaus.objects.get(idvac = tipovac )
+    #         cuentasabados = form.cleaned_data.get('cuentasabados')
+    #         comentarios = form.cleaned_data.get('comentarios')
+    #         fechainicialvac = form.cleaned_data.get('fechainicialvac')
+    #         fechafinalvac = form.cleaned_data.get('fechafinalvac')
+    #         contrato = Contratos.objects.get(idcontrato= form.cleaned_data.get('idcontrato') )
+    #         if tipovac == 2:
+    #             diasvac = form.cleaned_data.get('diasvac')
+    #             diascalendario = diasvac
+    #         else:
+    #             fechainicialvac = form.cleaned_data.get('fechainicialvac')
+    #             fechafinalvac = form.cleaned_data.get('fechafinalvac')
+    #             cuentasabados = form.cleaned_data.get('cuentasabados')
 
-                if fechainicialvac and fechafinalvac:
-                    diascalendario = (fechafinalvac - fechainicialvac).days + 1
-                    dias_festivos = Festivos.objects.values_list('dia', flat=True)
-                    cuentasabados = int(cuentasabados)
-                    diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos)
+    #             if fechainicialvac and fechafinalvac:
+    #                 diascalendario = (fechafinalvac - fechainicialvac).days + 1
+    #                 dias_festivos = Festivos.objects.values_list('dia', flat=True)
+    #                 cuentasabados = int(cuentasabados)
+    #                 diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos)
                 
-                EmpVacaciones 
+    #             EmpVacaciones 
             
-            solicitud = EmpVacaciones(
-                idcontrato_id = form.cleaned_data.get('idcontrato'),
-                tipovac_id = tipovac,
-                fechainicialvac=fechainicialvac,
-                fechafinalvac=fechafinalvac,
-                comentarios = comentarios,
-                diascalendario = diascalendario,
-                diasvac = diasvac,
-                estado = 1 ,  # Estado inicial: pendiente
-                estadovac = 1,  # Estado inicial: activo
-                ip_usuario= get_client_ip(request) ,  # IP del usuario
-                fecha_hora= datetime.now() 
-            )
-            solicitud.save()
+    #         solicitud = EmpVacaciones(
+    #             idcontrato_id = form.cleaned_data.get('idcontrato'),
+    #             tipovac_id = tipovac,
+    #             fechainicialvac=fechainicialvac,
+    #             fechafinalvac=fechafinalvac,
+    #             comentarios = comentarios,
+    #             diascalendario = diascalendario,
+    #             diasvac = diasvac,
+    #             estado = 1 ,  # Estado inicial: pendiente
+    #             estadovac = 1,  # Estado inicial: activo
+    #             ip_usuario= get_client_ip(request) ,  # IP del usuario
+    #             fecha_hora= datetime.now() 
+    #         )
+    #         solicitud.save()
         
-        email_type = 'vacations'
-        context = {
-            'nombre_empleado': nombre_empleado,
-            'tipovac_obj': tipovac,
-            'diasvac': diasvac,
-            'comentarios': comentarios,
-            'tipovac': tipovac,
-        }
-        if fechainicialvac:
-            context['fechainicialvac'] = fechainicialvac
-        if fechafinalvac:
-            context['fechafinalvac'] = fechafinalvac
+    #     email_type = 'vacations'
+    #     context = {
+    #         'nombre_empleado': nombre_empleado,
+    #         'tipovac_obj': tipovac,
+    #         'diasvac': diasvac,
+    #         'comentarios': comentarios,
+    #         'tipovac': tipovac,
+    #     }
+    #     if fechainicialvac:
+    #         context['fechainicialvac'] = fechainicialvac
+    #     if fechafinalvac:
+    #         context['fechafinalvac'] = fechafinalvac
 
-        subject = 'Solicitud de Vacaciones / Licencias'
-        recipient_list = ['manuel.david.13.b@gmail.com'] ## cambiar este correo por una variable que contenga el email del empleado y con copia a gghh
+    #     subject = 'Solicitud de Vacaciones / Licencias'
+    #     recipient_list = ['manuel.david.13.b@gmail.com'] ## cambiar este correo por una variable que contenga el email del empleado y con copia a gghh
 
-        if send_template_email(email_type, context, subject, recipient_list):
-            pass
-        else:
-            messages.error(request, 'Error en el procesamiento de la solicitud')
+    #     if send_template_email(email_type, context, subject, recipient_list):
+    #         pass
+    #     else:
+    #         messages.error(request, 'Error en el procesamiento de la solicitud')
 
-        messages.success(request, 'La solicitud de Vacaciones/Licencias ha sido enviada correctamente.')
+    #     messages.success(request, 'La solicitud de Vacaciones/Licencias ha sido enviada correctamente.')
 
-        return redirect('employees:form_vac')
+    #     return redirect('employees:form_vac')
 
     dias_vacaciones = Vacaciones.objects.filter(idcontrato=idc).filter(Q(tipovac='1') | Q(tipovac='2')).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
     dias_licencia = Vacaciones.objects.filter(idcontrato=idc).filter(Q(tipovac='3') | Q(tipovac='4')).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
@@ -157,8 +159,6 @@ def vacation_request_function(request):
     vacation_list = EmpVacaciones.objects.filter(idcontrato=idc).order_by('-id_sol_vac')
     
     context = {
-        'form': form,
-        'form2':form2,
         'dias_vacaciones': dias_vacaciones,
         'dias_licencia': dias_licencia,
         'vacation_list': vacation_list,
@@ -176,8 +176,145 @@ def vacation_request_add(request):
     usuario = request.session.get('usuario', {})
     ide = usuario['idempleado']
     form = EmpVacacionesForm(idempleado=ide)
+    if request.method == 'POST' :
+        form = EmpVacacionesForm(request.POST,idempleado=ide)
+        if form.is_valid() :
+            tipovac = form.cleaned_data.get('tipovac')
+            cuentasabados = form.cleaned_data.get('cuentasabados')
+            comentarios = form.cleaned_data.get('comentarios')
+            fechainicialvac = form.cleaned_data.get('fechainicialvac')
+            fechafinalvac = form.cleaned_data.get('fechafinalvac')
+            
+            if tipovac == 2:
+                diasvac = form.cleaned_data.get('diasvac')
+                diascalendario = diasvac
+            else:
+                fechainicialvac = form.cleaned_data.get('fechainicialvac')
+                fechafinalvac = form.cleaned_data.get('fechafinalvac')
+                cuentasabados = form.cleaned_data.get('cuentasabados')
+
+                if fechainicialvac and fechafinalvac:
+                    diascalendario = (fechafinalvac - fechainicialvac).days + 1
+                    dias_festivos = Festivos.objects.values_list('dia', flat=True)
+                    cuentasabados = int(cuentasabados)
+                    diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos)
+                    
+                
+            solicitud = EmpVacaciones(
+                idcontrato_id = form.cleaned_data.get('idcontrato'),
+                tipovac_id = tipovac,
+                fechainicialvac=fechainicialvac,
+                fechafinalvac=fechafinalvac,
+                comentarios = comentarios,
+                diascalendario = diascalendario,
+                diasvac = diasvac,
+                estado = 1 ,  # Estado inicial: pendiente
+                estadovac = 1,  # Estado inicial: activo
+                ip_usuario= get_client_ip(request) ,  # IP del usuario
+                fecha_hora= datetime.now() 
+            )
+            solicitud.save()
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'La solicitud de Vacaciones/Licencias ha sido enviada correctamente.'    
+            response['X-Up-Location'] = reverse('employees:form_vac')           
+            return response
     
     return render(request, 'employees/partials/vacations_request_add.html',{'form': form,} )
+
+
+
+@login_required
+@role_required('employee')
+def vacation_request_detail(request,id):
+    usuario = request.session.get('usuario', {})
+    
+    data = EmpVacaciones.objects.get(id_sol_vac = id )
+    
+    
+    return render(request, 'employees/partials/vacations_request_detail.html',{'data': data,} )
+
+@login_required
+@role_required('employee')
+def vacation_request_edit(request,id):
+    usuario = request.session.get('usuario', {})
+    ide = usuario['idempleado']
+    solicitud = EmpVacaciones.objects.get(id_sol_vac = id )
+    
+    
+    data = {
+        'idcontrato': str(solicitud.idcontrato.idcontrato),
+        'tipovac': solicitud.tipovac.idvac,
+        'fechainicialvac': solicitud.fechainicialvac.isoformat() if solicitud.fechainicialvac else '',
+        'fechafinalvac': solicitud.fechafinalvac.isoformat() if solicitud.fechafinalvac else '' ,
+        'cuentasabados': '1' if solicitud.cuentasabados else '0',
+        'diasvac': solicitud.diasvac,
+        'comentarios': solicitud.comentarios,
+    }
+    
+    if request.method == 'POST' :
+        form = EmpVacacionesForm(request.POST,idempleado=ide , edit = True ,algun_id =id )
+        if form.is_valid() :
+            
+            tipovac = form.cleaned_data.get('tipovac')
+            cuentasabados = form.cleaned_data.get('cuentasabados')
+            comentarios = form.cleaned_data.get('comentarios')
+            fechainicialvac = form.cleaned_data.get('fechainicialvac')
+            fechafinalvac = form.cleaned_data.get('fechafinalvac')
+            
+            if tipovac == 2:
+                diasvac = form.cleaned_data.get('diasvac')
+                diascalendario = diasvac
+            else:
+                fechainicialvac = form.cleaned_data.get('fechainicialvac')
+                fechafinalvac = form.cleaned_data.get('fechafinalvac')
+                cuentasabados = form.cleaned_data.get('cuentasabados')
+
+                if fechainicialvac and fechafinalvac:
+                    diascalendario = (fechafinalvac - fechainicialvac).days + 1
+                    dias_festivos = Festivos.objects.values_list('dia', flat=True)
+                    cuentasabados = int(cuentasabados)
+                    diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos)
+                    
+                    
+            
+            if solicitud.idcontrato_id != form.cleaned_data.get('idcontrato'):
+                solicitud.idcontrato_id = form.cleaned_data.get('idcontrato')
+                
+            if solicitud.tipovac_id != tipovac:
+                solicitud.tipovac_id = tipovac
+            
+            if solicitud.fechainicialvac != fechainicialvac:
+                solicitud.fechainicialvac = fechainicialvac
+            
+            if solicitud.fechafinalvac != fechafinalvac:
+                solicitud.fechafinalvac = fechafinalvac
+            
+            if solicitud.comentarios != comentarios:
+                solicitud.comentarios = comentarios
+            
+            if solicitud.diascalendario != diascalendario:
+                solicitud.diascalendario = diascalendario
+            
+            if solicitud.diasvac != diasvac:
+                solicitud.diasvac = diasvac
+                
+            if solicitud.diascalendario != diascalendario:
+                solicitud.diascalendario = diascalendario
+            
+            solicitud.save()
+            
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'La solicitud de Vacaciones/Licencias ha sido Actualizada correctamente.'    
+            response['X-Up-Location'] = reverse('employees:form_vac')           
+            return response
+
+    form = EmpVacacionesForm(idempleado=ide , initial = data , edit = True ,algun_id =id )
+    
+    return render(request, 'employees/partials/vacations_request_edit.html',{'form': form})
 
 
 

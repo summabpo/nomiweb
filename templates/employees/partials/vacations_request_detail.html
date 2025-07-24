@@ -1,0 +1,102 @@
+{% load crispy_forms_tags %}
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content2"  id="modal-content2">
+    <div class="modal-header">
+        <h3 class="modal-title">Crear Solicitud de Vacaciones / Licencias</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+
+        <div class="container">
+            <table class="table table-bordered table-striped">
+                <tbody>
+                    <tr>
+                        <th>Tipo de Vacaciones:</th>
+                        <td>{{ data.tipovac }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Fecha:</th>
+                        <td>{{ data.fecha_hora|date:"d-m-y / H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Días Hábiles:</th>
+                        <td>{{ data.diasvac }}</td>
+                    </tr>
+                    <tr>
+                        <th>Días Calendario:</th>
+                        <td>{{ data.diascalendario }}</td>
+                    </tr>
+                        {% if data.tipovac.idvac != 2 %}
+                            <tr>
+                                <th>Fecha Inicial:</th>
+                                <td>{{ data.fechainicialvac|date:"d-m-y" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha Final:</th>
+                                <td>{{ data.fechafinalvac|date:"d-m-y" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Cuenta Sabados:</th>
+                                
+                                <td>
+                                    {% if data.cuentasabados %}
+                                        <p>Si </p> 
+                                    {% elif data.cuentasabados == False %}
+                                        <p>No</p> 
+                                    {% else  %}
+                                        <p>Desconocido</p> 
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    <tr>
+                        <th>Estado:</th>
+                        <td>
+                            {% if data.estado == 1 %}
+                                <p>Pendiente </p> 
+                            {% elif data.estado == 2 %}
+                                <p>Aprobado</p> 
+                            {% elif data.estado == 3 %}
+                                <p>Rechazado</p> 
+                            {% else  %}
+                                <p>Desconocido</p> 
+                            {% endif %}
+                            
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Comentarios Empleado:</th>
+                        <td>{{ data.comentarios|default:"— Sin comentarios —" }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Comentarios Empresa:</th>
+                        <td>{{ data.comentarios2|default:"— Sin comentarios —" }}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>.
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-light-danger w-100 text-center" up-dismiss>
+            Cerrar
+        </button>
+    </div>
+</div>
+
+
+
+
