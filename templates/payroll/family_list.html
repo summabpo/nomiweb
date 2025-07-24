@@ -81,6 +81,15 @@ tr.htmx-swapping td {
     transition: opacity 1s ease-out;
 }
 
+:root[data-bs-theme=dark] up-modal[size=large] up-modal-box,
+    :root[data-bs-theme=dark] up-modal[size=medium] up-modal-box,
+    :root[data-bs-theme=dark] up-modal[size=small] up-modal-box {
+        background-color: var(--greeva-secondary-bg, #1e1f27);
+        color: var(--greeva-body-color, #aab8c5);
+        border: 1px solid var(--greeva-border-color, #37394d);
+        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.3);
+}
+
 {% endblock %}
 
 {% block actions %}

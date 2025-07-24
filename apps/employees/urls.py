@@ -52,6 +52,8 @@ urlpatterns = [
 urlunpolypatterns =[
     
     path('vacation/request/add', vacation_request.vacation_request_add, name='vacation_request_add'),
+    path('vacation/request/detail/<str:id>/', vacation_request.vacation_request_detail, name='vacation_request_detail'),
+    path('vacation/request/edit/<str:id>/', vacation_request.vacation_request_edit, name='vacation_request_edit'),
 ]
 
 urlpatterns += urlunpolypatterns  

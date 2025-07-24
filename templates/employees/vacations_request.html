@@ -114,7 +114,7 @@ Solicitudes
         class='btn btn-light-info'
         up-layer='new modal'
         up-target=".modal-content"
-        up-size = "large"
+        up-size = "medium"
         up-align = "center"
         up-backdrop = "true"
         up-history = "false"
@@ -134,7 +134,7 @@ Solicitudes
     <h3 class="text-center"> Historial de Solicitudes de Vacaciones / Licencias </h3>
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered">
+                    <table class="table table-striped table-bordered" id="tabla-vacaciones">
                         <thead>
                             <tr class="fw-bold fs-6 text-gray-800 text-align: center">
                             <th width="20"><b></b></th>
@@ -154,9 +154,25 @@ Solicitudes
                                 <td>
                                     {% if e.estado == 1 %}
                                     
-                                        <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="modal" data-bs-target="#kt_modal_3" data-whatever="{{ e.id_sol_vac }}">
-                                            <i class="bi bi-pencil-square fs-2 ms-0"></i>
-                                        </button>
+                                        <a
+                                            class='btn btn-icon btn-light-info'
+                                            up-layer='new modal'
+                                            up-target=".modal-content3"
+                                            up-size = "medium"
+                                            up-align = "center"
+                                            up-backdrop = "true"
+                                            up-history = "false"
+                                            up-dismissable ="false"
+                                            up-cache="false"
+
+                                            data-bs-toggle="tooltip"
+                                            data-bs-dismiss="click"
+                                            title="Edítala rápido antes que alguien lo note."
+
+                                            href="{% url 'employees:vacation_request_edit' e.id_sol_vac %}">
+                                        <i class="bi bi-pencil-square fs-2 ms-0"></i>
+                                    </a> 
+
                                     {% elif e.estado == 2 %}
                                         <button type="button" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-dismiss="click" title="Solicitud aprobada y sellada. No se pueden realizar más cambios.">
                                             <i class="bi bi-pencil-square fs-2 ms-0"></i>
@@ -203,14 +219,14 @@ Solicitudes
                                     <a
                                         class='btn btn-outline btn-outline-dashed btn-outline-warning btn-active-light-warning'
                                         up-layer='new modal'
-                                        up-target=".modal-content"
-                                        up-size = "large"
+                                        up-target=".modal-content2"
+                                        up-size = "medium"
                                         up-align = "center"
                                         up-backdrop = "true"
                                         up-history = "false"
                                         up-dismissable ="false"
                                         up-cache="false"
-                                        href="{% url 'employees:vacation_request_add' %}">
+                                        href="{% url 'employees:vacation_request_detail' e.id_sol_vac %}">
                                         <i class="bi bi-chat-square-text-fill fs-4 me-2"></i>Ver Detalle
                                     </a> 
                                     
@@ -221,346 +237,153 @@ Solicitudes
                     </table>
                 </div>
 
-                <div class="modal fade" tabindex="-1" id="kt_modal_1">
-                    <div class="modal-dialog modal-lg ">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3 class="modal-title">Solicitud de Vacaciones / Licencias</h3>
-                
-                                <!--begin::Close-->
-                                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                                </div>
-                                <!--end::Close-->
-                            </div>
-                
-                            <div class="modal-body">
-                                <form id="vacation-form" method="post" action="{% url 'employees:form_vac' %}">
-                                    {% crispy form %}
-                                </form>
-                            </div>
-                
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-light-danger" data-bs-dismiss="modal">Cerrar</button>
-                                <button type="submit" form="vacation-form" class="btn btn-light-info">Enviar Solicitud</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" tabindex="-1" id="kt_modal_2">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3 class="modal-title">Detalle de Vacaciones/Licencias</h3>
-
-                                <!--begin::Close-->
-                                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                                </div>
-                                <!--end::Close-->
-                            </div>
-
-                            <div class="modal-body">
-                                <p id="nombre_tipovac"><strong>Tipo de Vacaciones:</strong></p>
-                                <p id="fecha"><strong>Fecha:</strong></p>
-                                <p id="dias_habiles"><strong>Días Hábiles:</strong></p>
-                                <p id="dias_calendario"><strong>Días Calendario:</strong></p>
-                                
-                                <p id="fecha_inicial" style="display: none;"><strong>Fecha Inicial:</strong></p>
-                                <p id="fecha_final" style="display: none;"><strong>Fecha Final:</strong></p>
-                                <p id="cuentasabados" style="display: none;"><strong>Cuenta Sabados:</strong></p>
-                                
-                                <p id="estado"><strong>Estado:</strong></p>
-                                <p><strong>Comentarios Empleado:</strong></p>
-                                <textarea id="comentarios" class="form-control" readonly></textarea>
-                                <p><strong>Comentarios Empresa:</strong></p>
-                                <textarea id="comentarios2" class="form-control" readonly></textarea>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" tabindex="-1" id="kt_modal_3">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3 class="modal-title">Edicion de Solicitud</h3>
-
-                                <!--begin::Close-->
-                                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                                </div>
-                                <!--end::Close-->
-                            </div>
-
-                            <div class="modal-body">
-                                <form id="vacation-form-edit" method="post" action="{% url 'employees:my_get_view' %}">
-                                    {% crispy form2 %}
-                                </form>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="submit" form="vacation-form-edit"  class="btn btn-primary">Actualizar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
 
 
 
 {% endblock content %}
 
 {% block js %}
+        
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
 
-    <script>
-    $('#kt_modal_3').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget)
-        var recipient = button.data('whatever')
-        var modal = $(this)
+        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+        const diasvacField = modalContent.querySelector('#diasvac-column');
+        const fechainicialvacField = modalContent.querySelector('#fechainicialvac-column');
+        const fechafinalvacField = modalContent.querySelector('#fechafinalvac-column');
+        const cuentasabadosField = modalContent.querySelector('#cuentasabados-column');
+        const tipovacSelect = modalContent.querySelector('#tipovac');
 
-        $.ajax({
-                    url: '/employees/ajax/my_get_view/',
-                    type: 'GET',
-                    data: {
-                        'dato': recipient
-                    },
-
-                    success: function(response) {
-                        console.log(response.data);
-                        modal.find('.modal-title').text('Editar solicitud #' + recipient)
-                        modal.find('.modal-body #fechainicialvac-field').val(response.data.fechainicialvac)
-                        modal.find('.modal-body #fechafinalvac-field').val(response.data.fechafinalvac)
-
-                        var $select1 = modal.find('.modal-body #idcontrato_kt_modal_3');
-                        $select1.val(response.data.idcontrato).trigger('change').prop('disabled', true); // Establece el valor y deshabilita el select
-
-                        var $select2 = modal.find('.modal-body #tipovac_kt_modal_3');
-                        $select2.val(response.data.tipovac).trigger('change'); // Establece el valor y deshabilita el select
-
-                        modal.find('.modal-body #diasvac-field').val(response.data.diasvac)
-                        modal.find('.modal-body #id_comentarios').val(response.data.comentarios)
-
-                        var $select3 = modal.find('.modal-body #cuentasabados_kt_modal_3');
-                        $select3.val(response.data.si).trigger('change'); 
-                        
-                    },
-                    error: function(response) {
-                        console.log(response.error);
-                    }
-                });
-    })
-    </script>
-
-    <script>
-    $('#kt_modal_2').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget)
-        var recipient = button.data('edits')
-        var modal = $(this)
-
-        $.ajax({
-                    url: '/employees/ajax/my_get_view/',
-                    type: 'GET',
-                    data: {
-                        'dato': recipient
-                    },
-                    success: function(response) {
-                        // Actualiza el contenido del modal con los datos recibidos
-                        modal.find('p#nombre_tipovac').text('Tipo de Vacaciones: ' + response.data.nombre_tipovac);
-                        modal.find('p#fecha').text('Fecha: ' + response.data.fecha);
-                        modal.find('p#dias_habiles').text('Días Hábiles: ' + response.data.dias_habiles);
-                        modal.find('p#dias_calendario').text('Días Calendario: ' + response.data.dias_calendario);
-                        
-
-
-                        if (response.data.tipovac != '2') {
-                            modal.find('p#fecha_inicial').text('Fecha Inicial: ' + response.data.fechainicialvac).show();
-                            modal.find('p#fecha_final').text('Fecha Final: ' + response.data.fechafinalvac).show();
-                            modal.find('p#cuentasabados').text('Cuenta Sabados: ' + response.data.cuentasabados).show();
-                        } else {
-                            modal.find('p#fecha_inicial').hide();
-                            modal.find('p#fecha_final').hide();
-                            modal.find('p#cuentasabados').hide();
-                        }
-                        
-                        var estadoText = '';
-                        switch(response.data.estado) {
-                            case 1:
-                                estadoText = 'Pendiente';
-                                break;
-                            case 2:
-                                estadoText = 'Aprobado';
-                                break;
-                            case 3:
-                                estadoText = 'Rechazado';
-                                break;
-                            default:
-                                estadoText = 'Desconocido';
-                        }
-                        modal.find('p#estado').text('Estado: ' + estadoText);
-                        modal.find('textarea#comentarios').text(response.data.comentarios);
-                        modal.find('textarea#comentarios2').text(response.data.comentarios2);
-                    },
-                    error: function(response) {
-                        console.log(response.error);
-                    }
-                });
-
-                
-    })
-    </script>
-    
-    
-
-    <!-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tipovacSelect = document.querySelectorAll('#tipovac_kt_modal_1')[1];
-            const diasvacField = document.querySelectorAll('#diasvac-column')[1];
-            const fechainicialvacField = document.querySelectorAll('#fechainicialvac-column')[1];
-            const fechafinalvacField = document.querySelectorAll('#fechafinalvac-column')[1];
-            const cuentasabadosField = document.querySelectorAll('#cuentasabados-column')[1];
-
-            const selectedValue = tipovacSelect;
-            console.log('prueba de datos')
-
-                if (selectedValue !== '2') {
-                    
-                    diasvacField.style.display = 'none';
-                    fechainicialvacField.style.display = 'block';
-                    fechafinalvacField.style.display = 'block';
-                    cuentasabadosField.style.display = 'block';
-                } else {
-                    
-                    diasvacField.style.display = 'block';
-                    fechainicialvacField.style.display = 'none';
-                    fechafinalvacField.style.display = 'none';
-                    cuentasabadosField.style.display = 'none';
-                }
-
-
-
-            function toggleFields2() {
-                const selectedValue = tipovacSelect.value;
-                
-
-                if (selectedValue !== '2') {
-                    
-                    diasvacField.style.display = 'none';
-                    fechainicialvacField.style.display = 'block';
-                    fechafinalvacField.style.display = 'block';
-                    cuentasabadosField.style.display = 'block';
-                } else {
-                    
-                    diasvacField.style.display = 'block';
-                    fechainicialvacField.style.display = 'none';
-                    fechafinalvacField.style.display = 'none';
-                    cuentasabadosField.style.display = 'none';
-                }
+        function toggleFields2(value) {
+            if (value === '3') {
+                diasvacField?.classList.remove('d-none');
+                fechainicialvacField?.classList.add('d-none');
+                fechafinalvacField?.classList.add('d-none');
+                cuentasabadosField?.classList.add('d-none');
+            } else {
+                diasvacField?.classList.add('d-none');
+                fechainicialvacField?.classList.remove('d-none');
+                fechafinalvacField?.classList.remove('d-none');
+                cuentasabadosField?.classList.remove('d-none');
             }
+        }
 
+        setTimeout(() => {
+            // Inicializar todos los select2
+            selectElements.forEach((select, index) => {
+                if (!select.id) {
+                    select.id = `select2-unique-${Date.now()}-${index}`;
+                }
+
+                if (!$(select).data('select2')) {
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
+                    }
+
+                    $(select).select2(options);
+                }
+            });
+
+            // Obtener y aplicar valor inicial de tipovac
+            if (tipovacSelect && $(tipovacSelect).hasClass('select2-hidden-accessible')) {
+                toggleFields2($(tipovacSelect).val());
+                // Escuchar cambios con el evento de Select2
+                $(tipovacSelect).on('change.select2', function () {
+                    const selectedValue = $(this).val();
+                    toggleFields2(selectedValue);
+                });
+            }
+        }, 100);
+    });
+</script>
+
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-vacaciones').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 10,
+            autoWidth: false,
             
-            if (tipovacSelect) {
-                tipovacSelect.addEventListener('change', toggleFields2);
-            }
         });
 
-    </script> -->
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Seleccionar el elemento base del select2
-            const tipovacSelect = $('#tipovac_kt_modal_1'); // Usamos jQuery porque Select2 lo requiere
-    
-            const diasvacField = document.querySelector('#diasvac-column');
-            const fechainicialvacField = document.querySelector('#fechainicialvac-column');
-            const fechafinalvacField = document.querySelector('#fechafinalvac-column');
-            const cuentasabadosField = document.querySelector('#cuentasabados-column');
-    
-            if (!tipovacSelect.length) {
-                console.error('El select tipovac no fue encontrado.');
-                return;
-            }
-    
-            // Función para alternar la visibilidad
-            function toggleFields2(selectedValue) {
-                console.log('Valor seleccionado:', selectedValue);
-    
-                if (selectedValue === '2') {
-                    diasvacField.style.display = 'block';
-                    fechainicialvacField.style.display = 'none';
-                    fechafinalvacField.style.display = 'none';
-                    cuentasabadosField.style.display = 'none';
-                } else {
-                    diasvacField.style.display = 'none';
-                    fechainicialvacField.style.display = 'block';
-                    fechafinalvacField.style.display = 'block';
-                    cuentasabadosField.style.display = 'block';
-                }
-            }
-    
-            // Inicializa el estado de los campos al cargar la página
-            toggleFields2(tipovacSelect.val());
-    
-            // Agrega el evento 'change' al Select2
-            tipovacSelect.on('change', function () {
-                const selectedValue = $(this).val(); // Obtener el valor seleccionado con jQuery
-                toggleFields2(selectedValue);
-            });
-        });
-    </script>
-    
-    
-    
+    });
+</script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Inicializa el elemento Select2
-            const tipovacSelect = $('#tipovac_kt_modal_3'); // Select del modal 3 con Select2
-    
-            const diasvacField = document.querySelectorAll('#diasvac-column')[1];
-            const fechainicialvacField = document.querySelectorAll('#fechainicialvac-column')[1];
-            const fechafinalvacField = document.querySelectorAll('#fechafinalvac-column')[1];
-            const cuentasabadosField = document.querySelectorAll('#cuentasabados-column')[1];
-    
-            if (!tipovacSelect.length) {
-                console.error('El select tipovac_kt_modal_3 no fue encontrado.');
-                return;
-            }
-    
-            // Función para alternar los campos según el valor seleccionado
-            function toggleFields(selectedValue) {
-                console.log('Valor seleccionado:', selectedValue);
-    
-                if (selectedValue === '2') {
-                    diasvacField.style.display = 'block';
-                    fechainicialvacField.style.display = 'none';
-                    fechafinalvacField.style.display = 'none';
-                    cuentasabadosField.style.display = 'none';
-                } else {
-                    diasvacField.style.display = 'none';
-                    fechainicialvacField.style.display = 'block';
-                    fechafinalvacField.style.display = 'block';
-                    cuentasabadosField.style.display = 'block';
-                }
-            }
-    
-            // Inicializa los campos al cargar la página con el valor actual
-            toggleFields(tipovacSelect.val());
-    
-            // Escucha el evento 'change' del Select2
-            tipovacSelect.on('change', function () {
-                const selectedValue = $(this).val(); // Obtener el valor del Select2
-                toggleFields(selectedValue);
-            });
-        });
-    </script>
-    
 {% endblock %}
