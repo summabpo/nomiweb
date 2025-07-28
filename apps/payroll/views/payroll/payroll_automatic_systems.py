@@ -168,19 +168,16 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa)
+    contratos = Contratos.objects.filter(estadocontrato=2, id_empresa =  idempresa)
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
 
     try:
         nomina = Crearnomina.objects.get(idnomina=idn)
-        print('llege aqui 1 ')
     except Crearnomina.DoesNotExist:
         return "Error de creación de nómina"
-    print(contratos)
     for contrato in contratos:
         diasnomina = nomina.diasnomina
-        print('llege aqui 2 ')
         if contrato.fechainiciocontrato > nomina.fechafinal:
             diasnomina = (nomina.fechafinal - contrato.fechainiciocontrato).days + 1
 
@@ -190,13 +187,11 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
             
         dias_vacaciones = calcular_vacaciones(contrato,nomina)
         dias_incapacidad = calculo_incapacidad(contrato, idn)
-        print('llege aqui 3 ')
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         
         
         calculo_prestamo(contrato, idn)
-        print('llege aqui 4 ')
         calculo_novfija(contrato, idn)
         
         if contrato.tiposalario_id == 2:
@@ -208,13 +203,11 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
             
             
         concepto = Conceptosdenomina.objects.get(codigo=codigo_aux, id_empresa_id = idempresa)
-        print('llege aqui 5 ')
         
         if diasnomina > 0:
             if diasnomina > 30:
                 diasnomina = 30
                 
-            print('llege aqui 6 ')
             valorsalario = (contrato.salario / 30) * diasnomina
             
             aux_pass = Nomina.objects.filter(
@@ -232,7 +225,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
                     aux_pass.cantidad = diasnomina
                     aux_pass.valor = valorsalario
                     aux_pass.save()  
-                print('llege aqui 7 ')
             else:
                 Nomina.objects.create(
                     idconcepto = concepto ,#*
@@ -241,7 +233,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
                     idcontrato_id=contrato.idcontrato ,
                     idnomina_id = idn ,
                 )   
-                print('llege aqui 8 ')
     return True
 
 
@@ -498,7 +489,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa)
+    contratos = Contratos.objects.filter(estadocontrato=2, id_empresa =  idempresa)
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
     
@@ -512,13 +503,12 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
         total_base_ss = Nomina.objects.filter(
             idcontrato=contrato,
             idnomina_id=idn,
-            idconcepto__indicador__id=7
+            idconcepto__indicador__nombre='basesegsocial'
         ).exclude(
             idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
         ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
                 
-        
-        
+            
         if total_base_ss > 0:
             
             concepto1 = Conceptosdenomina.objects.get(codigo = 60 , id_empresa_id = idempresa)
@@ -700,7 +690,8 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa)
+    contratos = Contratos.objects.filter(estadocontrato=2, id_empresa =  idempresa)
+
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
 
@@ -715,8 +706,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
     
     for contrato in contratos:
         diasnomina = nomina.diasnomina
-        
-        
+    
         if contrato.fechainiciocontrato > nomina.fechafinal:
             diasnomina = (nomina.fechafinal - contrato.fechainiciocontrato).days + 1
         
@@ -751,7 +741,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
             total_base_trans = Nomina.objects.filter(
                 idcontrato=contrato,
                 idnomina_id=idn,
-                idconcepto__indicador__id=25  
+                idconcepto__indicador__nombre='auxtransporte'  
             ).exclude(
                 idconcepto__codigo=2
             ).distinct().aggregate(total=Sum('valor'))['total'] or 0# Reemplaza 'monto' con el nombre correcto de la columna
@@ -764,18 +754,22 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
         
             concepto = Conceptosdenomina.objects.get(codigo= 2 , id_empresa_id = idempresa)
             
+            
             if contrato.tipocontrato.idtipocontrato not in [5, 6]:
                 if diasnomina > 0 and transporte > 0 :
                     
                     if diasnomina > 30:
                         diasnomina = 30
                         
+                        
+                
                     
                     aux_pass = Nomina.objects.filter(
                         idconcepto=concepto,
                         idcontrato=contrato,
                         idnomina_id=idn
                     ).first()
+                    
                     
                     
                     if aux_pass:
@@ -796,7 +790,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
                             idcontrato_id=contrato.idcontrato ,
                             idnomina_id = idn ,
                         )  
-            
     return True
         
 

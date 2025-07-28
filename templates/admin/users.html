@@ -123,6 +123,7 @@ tr.htmx-swapping td {
                 <th class="text-center" >Nombre</th>
                 <th class="text-center" >Admin</th>
                 <th class="text-center" >Activo</th>
+                <th class="text-center" >Tipo User</th>
                 <th class="text-center" >rol</th>
                 <th class="text-center" >Acciones</th>
                 <th class="text-center" >
@@ -165,6 +166,7 @@ tr.htmx-swapping td {
                             <i class="fa-solid fa-x text-danger fs-1" ></i>
                         {% endif %}
                     </td>
+                    <td class="text-center" >{{ user.tipo_user }}</td>
                     <td class="text-center" >{{ user.rol }}</td>
                     <td class="text-center" >
                         {% if user.is_active %}
