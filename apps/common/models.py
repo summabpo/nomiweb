@@ -343,7 +343,8 @@ class Empresa(models.Model):
     direccionempresa = models.CharField(max_length=255)
     telefono = models.CharField(max_length=20 )
     email = models.CharField(max_length=30 )
-    codciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
+    idciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
+    #idciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
     pais = models.ForeignKey(Paises, on_delete=models.DO_NOTHING)  
     
     # Detalles de ARL y códigos relacionados
@@ -620,7 +621,7 @@ class Contratos(models.Model):
     pensionado = models.CharField(max_length=25, blank=True, null=True)
     estadoliquidacion = models.CharField(max_length=25,blank=True, null=True)#choice Estadoliquidacion  
     estadosegsocial = models.CharField(max_length=25,blank=True, null=True)#choice Estadosegsocial 
-    motivoretiro = models.CharField(max_length=25, blank=True, null=True)#unificar con choice 
+    #motivoretiro = models.CharField(max_length=25, blank=True, null=True)#unificar con choice 
     tiposalario = models.ForeignKey(Tiposalario, models.DO_NOTHING, blank=True, null=True)#Posible choice
     
     idcosto = models.ForeignKey(Costos, models.DO_NOTHING, blank=True, null=True)
