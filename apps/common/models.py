@@ -823,7 +823,7 @@ class Crearnomina(models.Model):
     usar donde requiera 
     """
     idnomina = models.AutoField(primary_key=True)#models.AutoField(primary_key=True) 
-    nombrenomina = models.CharField(max_length=40, blank=True, null=True)## tipo ( liquidacion o nomina ) mes  - año = nomina - enero - 2024 - 1 o 2
+    nombrenomina = models.CharField(max_length=80, blank=True, null=True)## tipo ( liquidacion o nomina ) mes  - año = nomina - enero - 2024 - 1 o 2
     fechainicial = models.DateField(blank=True, null=True)
     fechafinal = models.DateField(blank=True, null=True)
     fechapago = models.DateField(blank=True, null=True)

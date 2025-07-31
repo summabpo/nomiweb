@@ -105,8 +105,8 @@ def genera_comprobante(idnomina, idcontrato):
         ]))
 
         # Obtener datos de devengados y descuentos
-        dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina, valor__gt=0).order_by('idconcepto__codigo')
-        dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina, valor__lt=0).order_by('idconcepto__codigo')
+        dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 1, valor__gt=0).order_by('idconcepto__codigo')
+        dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 1, valor__lt=0).order_by('idconcepto__codigo')
 
         # Formatear valores con puntos para los miles en dataDevengado
         for item in dataDevengado:
@@ -181,8 +181,8 @@ def generate_summary(idnomina,idempresa):
     
     # Obtener la nómina y la información de creación de la nómina
     try:
-        nominas = Nomina.objects.filter(idnomina=idnomina)
-        nominas2 = Crearnomina.objects.get(idnomina=idnomina)
+        nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 1 )
+        nominas2 = Crearnomina.objects.get(idnomina=idnomina ,estadonomina = 1)
         nombre_nomina = nominas2.nombrenomina
     except Nomina.DoesNotExist or Crearnomina.DoesNotExist:
         # Manejar el caso de que no existan las nóminas
