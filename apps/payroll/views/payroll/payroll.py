@@ -149,7 +149,7 @@ def payrollview(request, id):
 
     empleados = Nomina.objects \
         .select_related('idcontrato') \
-        .filter(idnomina=id) \
+        .filter(idnomina=id ,  estadonomina = 1) \
         .values(
             'idcontrato__idempleado__docidentidad', 'idcontrato__idempleado__papellido',
             'idcontrato__idempleado__pnombre', 'idcontrato__idempleado__snombre',
@@ -161,7 +161,7 @@ def payrollview(request, id):
 
     nombre = Crearnomina.objects.get(idnomina=id)
     # Inicializamos 'nomina' para cuando no se filtra
-    nomina = Nomina.objects.filter(idnomina_id=id).order_by('idregistronom')
+    nomina = Nomina.objects.filter(idnomina_id=id , estadonomina = 1).order_by('idregistronom')
     
     return render(request, './payroll/payrollviews.html', {
         'nomina': nomina,

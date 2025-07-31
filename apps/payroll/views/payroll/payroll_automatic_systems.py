@@ -81,7 +81,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
         need_comment = need_comment == 'on'
         
         ne = costo if need_comment else 0
-        
+                
         if type_payroll == 0:
             if procesar_nomina_basica(idnomina,ne, idempresa):
                 messages.success(request, "Proceso Basico realizado correctamente")
@@ -114,15 +114,31 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
             else :
                 messages.error(request, "Error al realizar procesar la nómina")
                 return redirect('payroll:payrollview', id=idnomina)
+        
+        elif type_payroll == 4:
+            if procesar_nomina_reset(idnomina, ne, idempresa):
+                messages.success(request, "Reinicio de nómina realizado correctamente.")
+                return redirect('payroll:payrollview', id=idnomina)
+            else:
+                messages.error(request, "Error al procesar el reinicio de la nómina.")
+                return redirect('payroll:payrollview', id=idnomina)
         else:
-            messages.error(request, "Error #13 al procesar la nómina")
+            messages.error(request, "Error #13 al procesar la nómina.")
             return redirect('payroll:payrollview', id=idnomina)
+
     
     return render(request, 'payroll/partials/payroll_automatic_systems.html', {'titulo': titulo, 'centros': centros, 'type_payroll': type_payroll , 'idnomina':idnomina})
 
 
-
-
+def procesar_nomina_reset(idn, parte_nomina,idempresa):
+    
+    data_nomina = Nomina.objects.filter(
+            idnomina_id=idn
+        )
+    for data in data_nomina:
+        data.estadonomina = 2
+        data.save()
+    return True
 
 
 def procesar_nomina_basica(idn, parte_nomina,idempresa):
@@ -168,9 +184,10 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadocontrato=2, id_empresa =  idempresa)
+    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa) 
+    
     if parte_nomina != 0:
-        contratos = contratos.filter(idcosto = parte_nomina)
+        contratos = contratos.filter(idcosto=parte_nomina)
 
     try:
         nomina = Crearnomina.objects.get(idnomina=idn)
@@ -213,6 +230,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto,
                 idcontrato=contrato,
+                estadonomina = 1,
                 idnomina_id=idn
             ).first()
             
@@ -230,6 +248,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
                     idconcepto = concepto ,#*
                     cantidad=diasnomina ,#*
                     valor=valorsalario , #*
+                    estadonomina = 1,
                     idcontrato_id=contrato.idcontrato ,
                     idnomina_id = idn ,
                 )   
@@ -290,8 +309,16 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
     
     contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa)
     
+    
+    print('----------------')
+    print(parte_nomina)
+    print('----------------')
+    
+    
     if parte_nomina != 0:
+        print(contratos)
         contratos = contratos.filter(idcosto = parte_nomina)
+        print(contratos)
     
     incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, fechainicial__range=(inicio_nomina, fin_nomina) )
     
@@ -371,6 +398,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoa,
                     idcontrato = incapacidad.idcontrato , 
+                    estadonomina = 1,
                     idnomina_id=idn
                 ).first()
                 
@@ -390,6 +418,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
                         cantidad = horas_asumidas/8,
                         idconcepto = idconceptoa , 
                         idnomina = nomina , 
+                        estadonomina = 1,
                         idcontrato = incapacidad.idcontrato , 
                         control = incapacidad.idincapacidad,
                     ) 
@@ -419,6 +448,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
                         cantidad = horas_incapacidad/8,
                         idconcepto = idconceptoi, 
                         idnomina = nomina, 
+                        estadonomina = 1,
                         idcontrato = incapacidad.idcontrato, 
                         control = incapacidad.idincapacidad,
                     )  
@@ -489,7 +519,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadocontrato=2, id_empresa =  idempresa)
+    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa)
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
     
@@ -561,6 +591,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto1,
                 idcontrato=contrato,
+                estadonomina = 1,
                 idnomina_id=idn
             ).first()
             
@@ -577,6 +608,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
                 Nomina.objects.create(
                         idconcepto = concepto1 ,#*
                         cantidad= 0 ,#*
+                        estadonomina = 1,
                         valor=-1*valoreps , #*
                         idcontrato_id=contrato.idcontrato ,
                         idnomina_id = idn ,
@@ -588,6 +620,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto2,
                 idcontrato=contrato,
+                estadonomina = 1,
                 idnomina_id=idn
             ).first()
             
@@ -605,6 +638,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
                 Nomina.objects.create(
                         idconcepto = concepto2 ,#*
                         cantidad= 0 ,#*
+                        estadonomina = 1,
                         valor=-1*valorafp , #*
                         idcontrato_id=contrato.idcontrato ,
                         idnomina_id = idn ,
@@ -616,6 +650,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
                 aux_pass = Nomina.objects.filter(
                     idconcepto=concepto3,
                     idcontrato=contrato,
+                    estadonomina = 1,
                     idnomina_id=idn
                 ).first()
                 
@@ -633,6 +668,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
                     Nomina.objects.create(
                             idconcepto = concepto3 ,#*
                             cantidad= 0 ,#*
+                            estadonomina = 1,
                             valor=-1*valorfsp , #*
                             idcontrato_id=contrato.idcontrato ,
                             idnomina_id = idn ,
@@ -690,7 +726,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadocontrato=2, id_empresa =  idempresa)
+    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa)
 
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
@@ -705,6 +741,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
     
     
     for contrato in contratos:
+        
         diasnomina = nomina.diasnomina
     
         if contrato.fechainiciocontrato > nomina.fechafinal:
@@ -736,6 +773,12 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
         if not contrato.auxiliotransporte :
             transporte = 0
             diasnomina = 0
+            
+            print('-----------')
+            print(contrato.idcontrato)
+            print(transporte)
+            print('-----------')
+                
         elif contrato.salario <= (sal_min * 2):
             # Obtener la suma de las deducciones de la eps 
             total_base_trans = Nomina.objects.filter(
@@ -756,18 +799,21 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
             
             
             if contrato.tipocontrato.idtipocontrato not in [5, 6]:
+                
                 if diasnomina > 0 and transporte > 0 :
                     
                     if diasnomina > 30:
                         diasnomina = 30
                         
                         
-                
+
                     
                     aux_pass = Nomina.objects.filter(
                         idconcepto=concepto,
                         idcontrato=contrato,
+                        estadonomina = 1,
                         idnomina_id=idn
+                        
                     ).first()
                     
                     
@@ -783,10 +829,12 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
                             aux_pass.save()                  
                     else:
                         
+                        
                         Nomina.objects.create(
                             idconcepto = concepto ,#*
                             cantidad=diasnomina ,#*
                             valor=transporte , #*
+                            estadonomina = 1,
                             idcontrato_id=contrato.idcontrato ,
                             idnomina_id = idn ,
                         )  
@@ -934,6 +982,7 @@ def calculo_prestamo(contrato, idn):
                 Nomina.objects.create(
                     idconcepto = conceptosdenomina ,
                     cantidad = 1,
+                    estadonomina = 1,
                     valor = -1*valor,
                     idcontrato = contrato,
                     idnomina_id = idn,
@@ -947,6 +996,7 @@ def calculo_prestamo(contrato, idn):
                 idconcepto = conceptosdenomina ,
                 cantidad = 1,
                 valor = -1*valor,
+                estadonomina = 1,
                 idcontrato = contrato,
                 idnomina_id = idn,
                 control = load.idprestamo
@@ -1005,6 +1055,7 @@ def calculo_novfija(contrato, idn):
                 idconcepto=nov.idconcepto,
                 cantidad=cantidad,
                 valor=nov.valor,
+                estadonomina = 1,
                 idcontrato=contrato,
                 idnomina_id=idn,
                 control=nov.idnovfija
