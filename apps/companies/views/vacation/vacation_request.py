@@ -100,6 +100,25 @@ def vacation_request(request):
     return render(request, './companies/vacation_request.html', context)
 
 
+@login_required
+@role_required('company','accountant')
+def vacation_request_file_upload(request):
+    # Diccionario para almacenar los errores por fila
+    errors = [] 
+    general_error = []
+    
+    if request.method == 'POST' and request.FILES.get('file'):
+        file = request.FILES['file']
+
+        if request.method == 'POST' and request.FILES.get('file'):
+            file = request.FILES['file']
+            
+            if not file.name.endswith('.csv'):
+                errors.append({'general': 'Solo se aceptan archivos con extensión .csv.'})
+                return render(request, './payroll/plane.html', {'id': id, 'errors': errors})
+
+    return render(request, './companies/partials/vacation_request_file_upload.html')
+
 
 @login_required
 @role_required('company','accountant')
