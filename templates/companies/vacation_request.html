@@ -37,6 +37,27 @@ Listado de Solicitudes
 }
 {% endblock %}
 
+
+{% block actions %}
+<!-- Button trigger modal -->
+    
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        href="{% url 'companies:vacation_request_file_upload' %}">
+        <i class="fa-solid fa-plus"></i> Cargar Vacaciones
+    </a> 
+{% endblock %}
+
 {% block content %}
 
     <div class="table-responsive">
@@ -429,7 +450,7 @@ function sendAction(element) {
         $('#tabla-lista-vacation').DataTable({
             language: {
                 "decimal":        "",
-                "emptyTable":     "No se encontraron Certificados para este empleado",
+                "emptyTable":     "No se encontraron registros",
                 "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
                 "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
                 "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
