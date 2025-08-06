@@ -1,0 +1,25 @@
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Detalle de Concepto</h3>
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body" >
+        <div class="container">
+            <p class="">Se encontraron los siguientes errores:</p>
+            <ul class="text-danger">
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+</div>
+
+
+
+

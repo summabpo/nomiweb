@@ -118,6 +118,7 @@ urlpatterns = [
     path('payroll/new/disabilities/', disabilities.disabilities, name='disabilities'),
     path('payroll/new/disabilities/edit/', disabilities.edit_disabilities, name='edit_disabilities'),
     path('payroll/new/disabilities/entity/', disabilities.get_entity, name='get_entity'),
+    path('payroll/new/disabilities/upload/', disabilities.disability_upload_view, name='disability_upload_view'),
     path('payroll/vacation/historical', vacation.vacation, name='vacation'),
     path('payroll/vacation/general/', vacation_general.vacation_general, name='vacation_general'),
     path('payroll/vacation/general/data/', vacation_general.get_novedades, name='get_novedades'),

@@ -71,82 +71,11 @@ def vacation_request_function(request):
     nombre_empleado = Contratosemp.objects.get(idempleado=ide).pnombre
     contrato = Contratos.objects.filter(idempleado=ide, estadocontrato=1 , fechainiciocontrato__lte=now().date() ).order_by('-fechainiciocontrato').first()
     idc = contrato.idcontrato if contrato else None
-
     inicio_contrato = Contratos.objects.filter(idcontrato=idc).values_list('fechainiciocontrato', flat=True).first()
 
     if inicio_contrato:
         inicio_contrato = inicio_contrato.strftime('%Y-%m-%d')
 
-
-    # form = EmpVacacionesForm(idempleado=ide)
-    # form2 = EmpVacacionesForm(idempleado=ide,dropdown_parent='#kt_modal_3')
-
-    # if request.method == 'POST' :
-    #     form = EmpVacacionesForm(request.POST,idempleado=ide)
-    #     if form.is_valid() :
-            
-    #         tipovac = form.cleaned_data.get('tipovac')
-    #         tipovac2 = Tipoavacaus.objects.get(idvac = tipovac )
-    #         cuentasabados = form.cleaned_data.get('cuentasabados')
-    #         comentarios = form.cleaned_data.get('comentarios')
-    #         fechainicialvac = form.cleaned_data.get('fechainicialvac')
-    #         fechafinalvac = form.cleaned_data.get('fechafinalvac')
-    #         contrato = Contratos.objects.get(idcontrato= form.cleaned_data.get('idcontrato') )
-    #         if tipovac == 2:
-    #             diasvac = form.cleaned_data.get('diasvac')
-    #             diascalendario = diasvac
-    #         else:
-    #             fechainicialvac = form.cleaned_data.get('fechainicialvac')
-    #             fechafinalvac = form.cleaned_data.get('fechafinalvac')
-    #             cuentasabados = form.cleaned_data.get('cuentasabados')
-
-    #             if fechainicialvac and fechafinalvac:
-    #                 diascalendario = (fechafinalvac - fechainicialvac).days + 1
-    #                 dias_festivos = Festivos.objects.values_list('dia', flat=True)
-    #                 cuentasabados = int(cuentasabados)
-    #                 diasvac = calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos)
-                
-    #             EmpVacaciones 
-            
-    #         solicitud = EmpVacaciones(
-    #             idcontrato_id = form.cleaned_data.get('idcontrato'),
-    #             tipovac_id = tipovac,
-    #             fechainicialvac=fechainicialvac,
-    #             fechafinalvac=fechafinalvac,
-    #             comentarios = comentarios,
-    #             diascalendario = diascalendario,
-    #             diasvac = diasvac,
-    #             estado = 1 ,  # Estado inicial: pendiente
-    #             estadovac = 1,  # Estado inicial: activo
-    #             ip_usuario= get_client_ip(request) ,  # IP del usuario
-    #             fecha_hora= datetime.now() 
-    #         )
-    #         solicitud.save()
-        
-    #     email_type = 'vacations'
-    #     context = {
-    #         'nombre_empleado': nombre_empleado,
-    #         'tipovac_obj': tipovac,
-    #         'diasvac': diasvac,
-    #         'comentarios': comentarios,
-    #         'tipovac': tipovac,
-    #     }
-    #     if fechainicialvac:
-    #         context['fechainicialvac'] = fechainicialvac
-    #     if fechafinalvac:
-    #         context['fechafinalvac'] = fechafinalvac
-
-    #     subject = 'Solicitud de Vacaciones / Licencias'
-    #     recipient_list = ['manuel.david.13.b@gmail.com'] ## cambiar este correo por una variable que contenga el email del empleado y con copia a gghh
-
-    #     if send_template_email(email_type, context, subject, recipient_list):
-    #         pass
-    #     else:
-    #         messages.error(request, 'Error en el procesamiento de la solicitud')
-
-    #     messages.success(request, 'La solicitud de Vacaciones/Licencias ha sido enviada correctamente.')
-
-    #     return redirect('employees:form_vac')
 
     dias_vacaciones = Vacaciones.objects.filter(idcontrato=idc).filter(Q(tipovac='1') | Q(tipovac='2')).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
     dias_licencia = Vacaciones.objects.filter(idcontrato=idc).filter(Q(tipovac='3') | Q(tipovac='4')).aggregate(Sum('diasvac'))['diasvac__sum'] or 0
