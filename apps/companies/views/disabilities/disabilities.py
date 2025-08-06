@@ -20,7 +20,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.urls import reverse
 from django.http import HttpResponse
-
+import pandas as pd
 
 def generate_random_filename(extension="pdf"):
     """Genera un nombre aleatorio de 80 caracteres con la extensión adecuada."""
@@ -192,6 +192,7 @@ def disabilities_modal(request):
       return response
         
   return render (request, './companies/partials/create_disabilities_modal.html',{'form' :form,})
+
 
 
 
@@ -535,13 +536,96 @@ def get_entity(request):
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+def intentar_fecha(valor):
+    if isinstance(valor, str) and '/' in valor:
+        try:
+            return datetime.strptime(valor, '%d/%m/%Y').date()
+        except:
+            return valor
+    return valor
+
+
+@login_required
+@role_required('company', 'accountant')
+def disability_upload_view(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        errors = []
+        file = request.FILES['file']
+
+        try:
+            df = pd.read_csv(file, sep=';', encoding='utf-8', header=None)
+            for idx, fila in df.iterrows():
+                fila_errors = []
+
+                try:
+                    idcontrato = fila[0]
+                    tipoentidad = fila[1]
+                    prefijo = fila[2]
+                    enferme = fila[3]
+                    prorrog = fila[4]
+                    fechain = intentar_fecha(fila[5])
+                    diasval = fila[6]
+                except Exception as e:
+                    errors.append(f"Fila {idx+1}: Error al leer datos → {str(e)}")
+                    continue
+                
+                
+                if not idcontrato:
+                    errors.append("ID contrato vacío")
+                if not tipoentidad:
+                    errors.append("Tipo de entidad vacío")
+                if not prefijo:
+                    errors.append("Prefijo vacío")
+                if not enferme:
+                    errors.append("Código de diagnóstico vacío")
+                if not fechain:
+                    errors.append("Fecha inválida o vacía")
+                if not diasval:
+                    errors.append("Número de días vacío")
+                
+                try:
+                    contrato = Contratos.objects.get(idcontrato=idcontrato)
+                except Exception:
+                    fila_errors.append("Contrato no encontrado.")
+
+                try:
+                    entidad = Entidadessegsocial.objects.get(identidad=contrato.codeps.identidad)
+                except Exception:
+                    fila_errors.append("Entidad no encontrada.")
+
+                try:
+                    diasnotico = Diagnosticosenfermedades.objects.get(coddiagnostico=enferme)
+                except Exception:
+                    fila_errors.append("Diagnóstico no encontrado.")
+
+                if fila_errors:
+                    errors.append(f"Fila {idx+1}: " + "; ".join(fila_errors))
+                    continue
+
+                try:
+                    Incapacidades.objects.create(
+                        entidad=entidad,
+                        coddiagnostico=diasnotico,
+                        fechainicial=fechain,
+                        dias=diasval,
+                        idcontrato=contrato,
+                        prorroga=True if prorrog == 1 else False,
+                        ibc=0,
+                        origenincap=prefijo,
+                    )
+                except Exception as e:
+                    errors.append(f"Fila {idx+1}: Error al guardar la incapacidad → {str(e)}")
+        except Exception as e:
+            errors.append(f"Error general al procesar el archivo → {str(e)}")
+
+        # Si hay errores, retornar partial con lista de errores
+        if errors:
+            return render(request, './companies/partials/disability_upload_errors.html', {
+                'errors': errors
+            })
+
+        # Si no hay errores, mostrar mensaje de éxito
+        messages.success(request, "Archivo cargado exitosamente. Las incapacidades fueron registradas.")
+        return redirect('companies:disabilities')
+
+    return render(request, './companies/partials/disability_upload_view.html')

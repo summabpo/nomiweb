@@ -3,7 +3,7 @@ from django.contrib import messages
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
 from apps.common.models  import Contratosemp , Vacaciones ,Contratos 
-from apps.common.models  import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus
+from apps.common.models  import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus , Crearnomina
 from django.db.models.functions import Coalesce
 from django.db.models import Value
 from django.db.models import CharField, DateField
@@ -15,6 +15,7 @@ from django.db.models.functions import Coalesce
 from apps.components.mail import send_template_email
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
+import pandas as pd
 
 def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
     """
@@ -100,22 +101,75 @@ def vacation_request(request):
     return render(request, './companies/vacation_request.html', context)
 
 
+def intentar_fecha(valor):
+    if isinstance(valor, str) and '/' in valor:
+        try:
+            return datetime.strptime(valor, '%d/%m/%Y').date()
+        except:
+            return valor
+    return valor
+
+def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
+    """
+    Calcula los días hábiles entre dos fechas.
+    Si cuentasabados es 1, incluye los sábados. Los domingos nunca se cuentan.
+    Los días festivos también se excluyen.
+    """
+    total_dias = 0
+    dia_actual = fechainicialvac
+
+    while dia_actual <= fechafinalvac:
+        if (dia_actual.weekday() != 6) and (dia_actual not in dias_festivos) and (dia_actual.weekday() != 5 or cuentasabados == 1):
+            total_dias += 1
+        dia_actual += timedelta(days=1)
+    return total_dias
+
+
 @login_required
 @role_required('company','accountant')
 def vacation_request_file_upload(request):
     # Diccionario para almacenar los errores por fila
-    errors = [] 
-    general_error = []
-    
     if request.method == 'POST' and request.FILES.get('file'):
+        errors = []
         file = request.FILES['file']
-
-        if request.method == 'POST' and request.FILES.get('file'):
-            file = request.FILES['file']
-            
-            if not file.name.endswith('.csv'):
-                errors.append({'general': 'Solo se aceptan archivos con extensión .csv.'})
-                return render(request, './payroll/plane.html', {'id': id, 'errors': errors})
+        try:
+            df = pd.read_csv(file, sep=';', encoding='utf-8')
+            for idx, fila in df.iterrows():
+                fila_errors = []
+                
+                valorID_CONTRATO     = fila['ID_CONTRATO']
+                valorCOD_CONCEPTO    = fila['COD_CONCEPTO']
+                valorF_INICIO        = intentar_fecha(fila['F_INICIO'])
+                valorF_FIN           = intentar_fecha(fila['F_FIN'])
+                valorTRABAJA_SABADO  = fila['TRABAJA_SABADO']
+                valorPER_INICIO      = intentar_fecha(fila['PER_INICIO'])
+                valorPER_FINAL       = intentar_fecha(fila['PER_FINAL'])
+                valorTIPO_VAC        = fila['TIPO_VAC']
+                valorFECHA_PAGO      = intentar_fecha(fila['FECHA_PAGO'])
+                valorID_NOMINA       = fila['ID_NOMINA']
+                
+    
+                contrato = Contratos.objects.get()
+                nomina = Crearnomina.objects.get()
+                tipo = Tipoavacaus.objects.get()
+                
+                
+                vacaciones = Vacaciones.objects.create(
+                    
+                    idcontrato = contrato,
+                    fechainicialvac =  valorF_INICIO,
+                    idnomina = nomina , 
+                    cuentasabados = valorTRABAJA_SABADO , 
+                    tipovac = tipo , 
+                    perinicio = valorPER_INICIO , 
+                    perfinal = valorPER_FINAL,
+                    fechapago = valorFECHA_PAGO , 
+                    
+                )
+                
+                
+        except Exception as e:
+            errors.append(f"Error general al procesar el archivo → {str(e)}")
 
     return render(request, './companies/partials/vacation_request_file_upload.html')
 

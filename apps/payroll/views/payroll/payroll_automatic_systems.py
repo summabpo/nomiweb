@@ -773,11 +773,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
         if not contrato.auxiliotransporte :
             transporte = 0
             diasnomina = 0
-            
-            print('-----------')
-            print(contrato.idcontrato)
-            print(transporte)
-            print('-----------')
                 
         elif contrato.salario <= (sal_min * 2):
             # Obtener la suma de las deducciones de la eps 

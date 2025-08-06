@@ -111,6 +111,23 @@ Incapacidades
         <i class="fa-solid fa-plus"></i> Nueva Incapacidad
 
     </a> 
+    <div style="width: 10px;"></div>
+    <a
+        class='btn btn-light-info'
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "medium"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+        href="{% url 'companies:disability_upload_view' %}">
+        <i class="fa-solid fa-upload"></i> Cargar incapacidades
+
+    </a> 
+
+
     {% comment %} {% url 'payroll:flat_modal' %} {% endcomment %}
 {% endblock %}
 
