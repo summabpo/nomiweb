@@ -134,6 +134,23 @@ tr.htmx-swapping td {
             <i class="fa-solid fa-download fs-2"></i>
     </a>  {% endcomment %}
 
+
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "medium"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        href="{% url 'companies:vacation_request_file_upload' %}">
+        <i class="fa-solid fa-plus"></i> Cargar Vacaciones
+    </a> 
+
     <div style="width: 10px;"></div>
 
     <a

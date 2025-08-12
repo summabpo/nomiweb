@@ -41,7 +41,7 @@ Listado de Solicitudes
 {% block actions %}
 <!-- Button trigger modal -->
     
-    <a
+    {% comment %} <a
         class='btn btn-light-info'
 
         up-layer='new modal'
@@ -55,7 +55,7 @@ Listado de Solicitudes
 
         href="{% url 'companies:vacation_request_file_upload' %}">
         <i class="fa-solid fa-plus"></i> Cargar Vacaciones
-    </a> 
+    </a>  {% endcomment %}
 {% endblock %}
 
 {% block content %}

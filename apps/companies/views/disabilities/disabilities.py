@@ -167,8 +167,15 @@ def disabilities_modal(request):
             for chunk in pdf_file.chunks():
                 destination.write(chunk)
               
-              
       ibc = NominaComprobantes.objects.filter(idcontrato_id=contract).order_by('-idhistorico').first()
+
+      if not ibc:
+          ibc = Contratos.objects.get(idcontrato=contract)
+          print('--------')
+          print(ibc.salario)
+          print('--------')
+      
+      
 
       # Guardar en la base de datos
       Incapacidades.objects.create(
@@ -554,6 +561,8 @@ def disability_upload_view(request):
 
         try:
             df = pd.read_csv(file, sep=';', encoding='utf-8', header=None)
+            df = df.dropna()
+            print(df)
             for idx, fila in df.iterrows():
                 fila_errors = []
 
@@ -561,10 +570,10 @@ def disability_upload_view(request):
                     idcontrato = fila[0]
                     tipoentidad = fila[1]
                     prefijo = fila[2]
-                    enferme = fila[3]
-                    prorrog = fila[4]
-                    fechain = intentar_fecha(fila[5])
-                    diasval = fila[6]
+                    enferme = fila[4]
+                    prorrog = fila[5]
+                    fechain = intentar_fecha(fila[6])
+                    diasval = fila[7]
                 except Exception as e:
                     errors.append(f"Fila {idx+1}: Error al leer datos → {str(e)}")
                     continue
@@ -594,6 +603,7 @@ def disability_upload_view(request):
                     fila_errors.append("Entidad no encontrada.")
 
                 try:
+                    print(enferme)
                     diasnotico = Diagnosticosenfermedades.objects.get(coddiagnostico=enferme)
                 except Exception:
                     fila_errors.append("Diagnóstico no encontrado.")
@@ -602,19 +612,18 @@ def disability_upload_view(request):
                     errors.append(f"Fila {idx+1}: " + "; ".join(fila_errors))
                     continue
 
-                try:
-                    Incapacidades.objects.create(
-                        entidad=entidad,
-                        coddiagnostico=diasnotico,
-                        fechainicial=fechain,
-                        dias=diasval,
-                        idcontrato=contrato,
-                        prorroga=True if prorrog == 1 else False,
-                        ibc=0,
-                        origenincap=prefijo,
-                    )
-                except Exception as e:
-                    errors.append(f"Fila {idx+1}: Error al guardar la incapacidad → {str(e)}")
+              
+                Incapacidades.objects.create(
+                    entidad=entidad,
+                    coddiagnostico=diasnotico,
+                    fechainicial=fechain,
+                    dias=diasval,
+                    idcontrato=contrato,
+                    prorroga=True if prorrog == 1 else False,
+                    ibc=0,
+                    origenincap=prefijo,
+                )
+                
         except Exception as e:
             errors.append(f"Error general al procesar el archivo → {str(e)}")
 

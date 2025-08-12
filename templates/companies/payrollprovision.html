@@ -7,6 +7,20 @@
 {% endblock %}
 
 
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}   
+    {% elif user.is_employee %}
+        {% include 'base/navbar_employees.html' %}   
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}               
+{% endblock %}
+
 {% block css %}
     .btn-light-info {
         margin-right: 10px; /* Ajusta el valor según sea necesario */

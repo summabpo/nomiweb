@@ -17,14 +17,20 @@
     <!-- Body -->
     <div class="modal-body">
         <div class="container">
-            <form id="upload-form" name="upload-form" method="POST" action="" enctype="multipart/form-data">
+            <form id="upload-form" 
+                name="upload-form"              
+                method="POST" 
+                action="{% url 'companies:vacation_request_file_upload' %}" 
+                enctype="multipart/form-data"
+                up-target="body" 
+                up-layer="new">
+
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="file-upload" class="form-label fw-bold">Selecciona el archivo CSV</label>
                     <input class="form-control form-control-sm" id="file-upload" name="file" type="file" accept=".csv" />
                     <small id="fileHelp" class="form-text text-muted">
                         Solo se aceptan archivos en formato <strong>CSV (.csv)</strong>. <br>
-                        <a href="" download>Haz clic aquí para descargar la plantilla CSV</a>.
                     </small>
                 </div>
                 <input type="hidden" id="hidden-field" name="hidden_field" value="valor_secreto" />

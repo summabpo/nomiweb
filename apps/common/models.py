@@ -344,7 +344,7 @@ class Empresa(models.Model):
     telefono = models.CharField(max_length=20 )
     email = models.CharField(max_length=30 )
     idciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
-    #idciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
+    #codciudad = models.ForeignKey(Ciudades, on_delete=models.DO_NOTHING) 
     pais = models.ForeignKey(Paises, on_delete=models.DO_NOTHING)  
     
     # Detalles de ARL y códigos relacionados
@@ -1656,11 +1656,11 @@ class Vacaciones(models.Model):
     ultimodiavac = models.DateField(blank=True, null=True)
     diascalendario = models.SmallIntegerField(blank=True, null=True)
     diasvac = models.SmallIntegerField(blank=True, null=True)
-    diaspendientes = models.SmallIntegerField(blank=True, null=True)
+    #diaspendientes = models.SmallIntegerField(blank=True, null=True)
     pagovac = models.IntegerField(blank=True, null=True)
-    totaldiastomados = models.SmallIntegerField(blank=True, null=True)
+    #totaldiastomados = models.SmallIntegerField(blank=True, null=True)
     basepago = models.IntegerField(blank=True, null=True)
-    estadovac = models.SmallIntegerField(blank=True, null=True)
+    #estadovac = models.SmallIntegerField(blank=True, null=True)
     idnomina = models.ForeignKey(Crearnomina, models.DO_NOTHING,blank=True, null=True ) 
     cuentasabados = models.SmallIntegerField(blank=True, null=True)
     tipovac = models.ForeignKey(Tipoavacaus, models.DO_NOTHING )

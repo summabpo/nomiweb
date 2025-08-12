@@ -184,7 +184,12 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa) 
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
+    
+    print('-----------------')
+    print(contratos)
+    print('-----------------')
+    
     
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto=parte_nomina)
@@ -309,23 +314,17 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
     
     contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa)
     
-    
-    print('----------------')
-    print(parte_nomina)
-    print('----------------')
-    
-    
     if parte_nomina != 0:
-        print(contratos)
         contratos = contratos.filter(idcosto = parte_nomina)
-        print(contratos)
     
     incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, fechainicial__range=(inicio_nomina, fin_nomina) )
+    
     
     if parte_nomina != 0:
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
     
     for incapacidad in incapacidades:
+        
         ini = incapacidad.fechainicial
         fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
         
@@ -431,7 +430,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
                     idcontrato = incapacidad.idcontrato , 
                     idnomina_id=idn
                 ).first()
-                
+                print(aux_pass)
                 if aux_pass:
                     if not EditHistory.objects.filter(
                         id_empresa_id=idempresa,

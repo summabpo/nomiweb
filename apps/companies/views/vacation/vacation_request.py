@@ -126,52 +126,114 @@ def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_fe
 
 
 @login_required
-@role_required('company','accountant')
+@role_required('company', 'accountant')
 def vacation_request_file_upload(request):
-    # Diccionario para almacenar los errores por fila
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
     if request.method == 'POST' and request.FILES.get('file'):
         errors = []
         file = request.FILES['file']
+
         try:
             df = pd.read_csv(file, sep=';', encoding='utf-8')
+
+            registros_validados = []  # aquí guardaremos las filas validadas para luego insertarlas
+
+            # FASE 1: Validación
             for idx, fila in df.iterrows():
                 fila_errors = []
-                
-                valorID_CONTRATO     = fila['ID_CONTRATO']
-                valorCOD_CONCEPTO    = fila['COD_CONCEPTO']
-                valorF_INICIO        = intentar_fecha(fila['F_INICIO'])
-                valorF_FIN           = intentar_fecha(fila['F_FIN'])
-                valorTRABAJA_SABADO  = fila['TRABAJA_SABADO']
-                valorPER_INICIO      = intentar_fecha(fila['PER_INICIO'])
-                valorPER_FINAL       = intentar_fecha(fila['PER_FINAL'])
-                valorTIPO_VAC        = fila['TIPO_VAC']
-                valorFECHA_PAGO      = intentar_fecha(fila['FECHA_PAGO'])
-                valorID_NOMINA       = fila['ID_NOMINA']
-                
-    
-                contrato = Contratos.objects.get()
-                nomina = Crearnomina.objects.get()
-                tipo = Tipoavacaus.objects.get()
-                
-                
-                vacaciones = Vacaciones.objects.create(
-                    
-                    idcontrato = contrato,
-                    fechainicialvac =  valorF_INICIO,
-                    idnomina = nomina , 
-                    cuentasabados = valorTRABAJA_SABADO , 
-                    tipovac = tipo , 
-                    perinicio = valorPER_INICIO , 
-                    perfinal = valorPER_FINAL,
-                    fechapago = valorFECHA_PAGO , 
-                    
+
+                try:
+                    ID_CONTRATO     = fila['ID_CONTRATO']
+                    COD_CONCEPTO    = fila['COD_CONCEPTO']
+                    F_INICIO        = intentar_fecha(fila['F_INICIO'])
+                    F_FIN           = intentar_fecha(fila['F_FIN'])
+                    TRABAJA_SABADO  = fila['TRABAJA_SABADO']
+                    PER_INICIO      = intentar_fecha(fila['PER_INICIO'])
+                    PER_FINAL       = intentar_fecha(fila['PER_FINAL'])
+                    TIPO_VAC        = fila['TIPO_VAC']
+                    FECHA_PAGO      = intentar_fecha(fila['FECHA_PAGO'])
+                    ID_NOMINA       = fila['ID_NOMINA']
+                except Exception as e:
+                    fila_errors.append(f"Error al leer datos → {str(e)}")
+
+                if not ID_CONTRATO:
+                    fila_errors.append("ID_CONTRATO vacío")
+                if COD_CONCEPTO not in [24, 32, 81, 80, 82, 83, 31, 30]:
+                    fila_errors.append("Código de concepto inválido")
+                if not F_INICIO or not F_FIN:
+                    fila_errors.append("Fecha de inicio o fin inválida")
+                if TRABAJA_SABADO not in [0, 1]:
+                    fila_errors.append("Valor de trabaja_sabado inválido (solo 0 o 1)")
+                if not PER_INICIO or not PER_FINAL:
+                    fila_errors.append("Periodo inicio o final inválido")
+                if TIPO_VAC not in [1, 2, 3, 4, 5]:
+                    fila_errors.append("Tipo de vacaciones inválido")
+
+                try:
+                    contrato = Contratos.objects.get(idcontrato=ID_CONTRATO, id_empresa=idempresa)
+                except Contratos.DoesNotExist:
+                    fila_errors.append(f"Contrato {ID_CONTRATO} no encontrado")
+
+                try:
+                    nomina = Crearnomina.objects.get(idnomina=ID_NOMINA)
+                except Crearnomina.DoesNotExist:
+                    fila_errors.append(f"Nómina {ID_NOMINA} no encontrada")
+
+                try:
+                    tipo = Tipoavacaus.objects.get(idvac=TIPO_VAC)
+                except Tipoavacaus.DoesNotExist:
+                    fila_errors.append(f"Tipo de vacaciones {TIPO_VAC} no encontrado")
+
+                if fila_errors:
+                    errors.append(f"Fila {idx+1}: " + "; ".join(fila_errors))
+                else:
+                    registros_validados.append({
+                        'contrato': contrato,
+                        'F_INICIO': F_INICIO,
+                        'nomina': nomina,
+                        'TRABAJA_SABADO': TRABAJA_SABADO,
+                        'tipo': tipo,
+                        'PER_INICIO': PER_INICIO,
+                        'PER_FINAL': PER_FINAL,
+                        'FECHA_PAGO': FECHA_PAGO
+                    })
+
+            # Si hubo errores, mostrar y no guardar nada
+            if errors:
+                return render(request, './companies/partials/disability_upload_errors.html', {
+                    'errors': errors
+                })
+
+            # FASE 2: Guardado (solo si no hubo errores)
+            for reg in registros_validados:
+                Vacaciones.objects.create(
+                    idcontrato=reg['contrato'],
+                    fechainicialvac=reg['F_INICIO'],
+                    idnomina=reg['nomina'],
+                    cuentasabados=reg['TRABAJA_SABADO'],
+                    tipovac=reg['tipo'],
+                    perinicio=reg['PER_INICIO'],
+                    perfinal=reg['PER_FINAL'],
+                    fechapago=reg['FECHA_PAGO'],
                 )
-                
-                
+
         except Exception as e:
-            errors.append(f"Error general al procesar el archivo → {str(e)}")
+            errors.append(f"Error general al procesar el archivo")
+
+        if errors:
+            return render(request, './companies/partials/disability_upload_errors.html', {
+                'errors': errors
+            })
+
+        messages.success(request, "Archivo cargado exitosamente. Las vacaciones fueron registradas.")
+        return redirect('companies:vacations')
 
     return render(request, './companies/partials/vacation_request_file_upload.html')
+
+
+
 
 
 @login_required
