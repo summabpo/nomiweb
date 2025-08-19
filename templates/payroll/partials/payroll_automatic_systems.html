@@ -34,8 +34,17 @@
                         <option value="{{ centro.idcosto }}">{{ centro.nomcosto }}</option>
                       {% endfor %}
                     </select>
+
                   </div>
                 </div>
+                <br>
+                <select class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un empleado"  data-allow-clear="true" multiple="multiple" >
+                      <option value="" ></option>
+                      {% for empleado in empleados %}
+                        <option value="{{ empleado.idempleado}}">{{ empleado.idempleado.pnombre }} {{ empleado.idempleado.papellido }} {{ empleado.idempleado.sapellido }}</option>
+                      {% endfor %}
+                  </select>
+
               </form>
             </div>
         </div>

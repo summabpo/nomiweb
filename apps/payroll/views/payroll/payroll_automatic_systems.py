@@ -71,6 +71,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
     titulo = titles.get(type_payroll, 'Sistemas Automáticos')
     centros = Costos.objects.filter(id_empresa_id=idempresa)
+    empleados = Contratos.objects.filter(id_empresa_id=idempresa).order_by('idempleado__papellido')
     
     
     
@@ -127,7 +128,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
             return redirect('payroll:payrollview', id=idnomina)
 
     
-    return render(request, 'payroll/partials/payroll_automatic_systems.html', {'titulo': titulo, 'centros': centros, 'type_payroll': type_payroll , 'idnomina':idnomina})
+    return render(request, 'payroll/partials/payroll_automatic_systems.html', {'titulo': titulo,'empleados':empleados, 'centros': centros, 'type_payroll': type_payroll , 'idnomina':idnomina})
 
 
 def procesar_nomina_reset(idn, parte_nomina,idempresa):
