@@ -10,7 +10,7 @@ from .views.fixed import fixed
 from .views.select_company import select_company
 from .views.settlements import vacation_settlement , bonus_settlement , severance_settlement
 from .views.family import family
-
+from .views.time import time
 
 
 # afsa fsa asfad 
@@ -65,6 +65,9 @@ urlpatterns = [
     
     path('settlements/termination', severance_settlement.settlement_list, name='settlement_list'),
     
+    
+    ### time 
+    path('time/list', time.time_list, name='time_list'),
     
     
 ]
@@ -128,6 +131,10 @@ urlunpolypatterns =[
     ### pruebas 
     path('payroll/modal/pruebas', pruebas.prueba, name='prueba'),
     path('payroll/modal/pruebas/modal', pruebas.prueba_modal, name='prueba_modal'),
+    
+    
+    ## Time
+    path('time/list/add', time.time_add, name='time_add'),
     
     
 ]
