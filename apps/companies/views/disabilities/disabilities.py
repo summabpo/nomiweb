@@ -171,9 +171,7 @@ def disabilities_modal(request):
 
       if not ibc:
           ibc = Contratos.objects.get(idcontrato=contract)
-          print('--------')
-          print(ibc.salario)
-          print('--------')
+          
       
       
 

@@ -43,7 +43,7 @@
                       {% for empleado in empleados %}
                         <option value="{{ empleado.idempleado}}">{{ empleado.idempleado.pnombre }} {{ empleado.idempleado.papellido }} {{ empleado.idempleado.sapellido }}</option>
                       {% endfor %}
-                  </select>
+                </select>
 
               </form>
             </div>
@@ -53,8 +53,8 @@
     </div>
     <div class="separator my-5"></div>
     <div class="modal-footer btn-group">
-        <button type="submit" class="btn btn-light-primary" form="form_automatic"  >Enviar</button>
-        <div style="width: 10px;"></div>
         <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" class="btn btn-light-primary" form="form_automatic"  >Enviar</button>
     </div>
 </div>
