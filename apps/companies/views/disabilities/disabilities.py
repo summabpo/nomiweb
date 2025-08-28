@@ -553,6 +553,8 @@ def intentar_fecha(valor):
 @login_required
 @role_required('company', 'accountant')
 def disability_upload_view(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     if request.method == 'POST' and request.FILES.get('file'):
         errors = []
         file = request.FILES['file']
@@ -560,7 +562,6 @@ def disability_upload_view(request):
         try:
             df = pd.read_csv(file, sep=';', encoding='utf-8', header=None)
             df = df.dropna()
-            print(df)
             for idx, fila in df.iterrows():
                 fila_errors = []
 
@@ -591,17 +592,16 @@ def disability_upload_view(request):
                     errors.append("Número de días vacío")
                 
                 try:
-                    contrato = Contratos.objects.get(idcontrato=idcontrato)
+                    contrato = Contratos.objects.get(idcontrato=idcontrato , id_empresa=idempresa)
                 except Exception:
                     fila_errors.append("Contrato no encontrado.")
 
                 try:
-                    entidad = Entidadessegsocial.objects.get(identidad=contrato.codeps.identidad)
+                    entidad = Entidadessegsocial.objects.get(identidad = contrato.codeps.identidad)
                 except Exception:
                     fila_errors.append("Entidad no encontrada.")
 
                 try:
-                    print(enferme)
                     diasnotico = Diagnosticosenfermedades.objects.get(coddiagnostico=enferme)
                 except Exception:
                     fila_errors.append("Diagnóstico no encontrado.")
@@ -632,7 +632,7 @@ def disability_upload_view(request):
             })
 
         # Si no hay errores, mostrar mensaje de éxito
-        messages.success(request, "Archivo cargado exitosamente. Las incapacidades fueron registradas.")
-        return redirect('companies:disabilities')
+        return render(request, 'companies/partials/success_disability.html')
+        
 
     return render(request, './companies/partials/disability_upload_view.html')
