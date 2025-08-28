@@ -135,7 +135,7 @@ urlunpolypatterns =[
     
     ## Time
     path('time/list/add', time.time_add, name='time_add'),
-    
+    path('time/list/data/<int:id>', time.time_data, name='time_data'),
     
 ]
 

@@ -103,7 +103,7 @@ def generate_contract_excel(idempresa):
             data.centrotrabajo.tarifaarl  , #* 
             data.fechafincontrato  , #* 
             data.tiponomina.tipodenomina  , #* 
-            data.bancocuenta.nombanco  , #* 
+            data.bancocuenta.nombanco if data.bancocuenta else '' , #* 
             data.cuentanomina  , #* 
             data.tipocuentanomina  , #* 
             data.codeps.entidad  , #*

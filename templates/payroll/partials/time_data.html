@@ -1,0 +1,58 @@
+
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Visualizacion de data</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+            
+            <div class="table-responsive">
+                <table id='tabla-time-list' class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Fecha/Hora ingreso</th>
+                            <th>Fecha/Hora salida</th>
+                            <th>Nomina</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in times %}
+                            <tr>
+                                <td>{{ item.idmarcacion }}</td>
+                                <td>
+                                    <i class="fa fa-calendar"></i> {{ item.fechaingreso|date:"d-m-Y" }}
+                                    &nbsp;
+                                    <i class="fa fa-clock"></i> {{ item.horaingreso }}
+                                </td>
+                                <td>
+                                    <i class="fa fa-calendar"></i> {{ item.fechasalida|date:'d-m-Y' }}
+                                    &nbsp;
+                                    <i class="fa fa-clock"></i> {{ item.horasalida }}
+                                <td>{{ item.idnomina }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+    </div>
+</div>
+
+
+
+

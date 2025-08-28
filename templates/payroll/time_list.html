@@ -139,10 +139,10 @@ Listados de Tiempos
             </tr>
         </thead>
         <tbody>
-            {% for item in times %}
+            {% for item in empleados %}
                 <tr>
-                    <td>{{ item.idcontrato__idempleado__docidentidad }}</td>
-                    <td>{{ item.idcontrato__idempleado__papellido }} {{ item.idcontrato__idempleado__sapellido }} {{ item.idcontrato__idempleado__pnombre }} {{ item.idcontrato__idempleado__snombre }}</td>
+                    <td>{{ item.documento }}</td>
+                    <td>{{ item.nombre }}</td>
                     <td>{{ item.idcontrato }}</td>
                     <td>
                         <div class="d-flex justify-content-center">
@@ -151,28 +151,14 @@ Listados de Tiempos
                                 class='btn btn-icon btn-sm btn-light-facebook me-2 btn-novedad'
                                 up-layer='new modal'
                                 up-target=".modal-content"
-                                up-size = "medium"
+                                up-size = "large"
                                 up-align = "center"
                                 up-backdrop = "true"
                                 up-history = "false"
                                 up-dismissable ="false"
                                 up-cache="false"
-                                href="">
-                                <i class="fa-solid fa-plane-departure fs-3"></i>
-                            </a> 
-
-                            <a
-                                class='btn btn-icon btn-sm btn-light-instagram me-2 btn-novedad'
-                                up-layer='new modal'
-                                up-target=".modal-content"
-                                up-size = "medium"
-                                up-align = "center"
-                                up-backdrop = "true"
-                                up-history = "false"
-                                up-dismissable ="false"
-                                up-cache="false"
-                                href="">
-                                <i class="fa-solid fa-calendar-xmark fs-3"></i>
+                                href="{% url 'payroll:time_data' item.idcontrato %}">
+                                <i class="fa-solid fa-calendar-days fs-3"></i>
                             </a> 
                             
                         </div>
@@ -202,7 +188,7 @@ document.addEventListener('up:fragment:inserted', function(event) {
     const fecha1 = modalContent.querySelector('#fecha_inicio-1');
     const fecha2 = modalContent.querySelector('#fecha_fin-1');
 
-    const tabla = modalContent.querySelector('#tabla-lista-novedad');
+    const tabla = modalContent.querySelector('#tabla-time-list');
 
     if (tabla) {
         if ($.fn.dataTable.isDataTable(tabla)) {
@@ -230,7 +216,7 @@ document.addEventListener('up:fragment:inserted', function(event) {
         },
         dom: 'frtip',
         order: [],
-        pageLength: 10
+        pageLength: 5
         });
     }
     

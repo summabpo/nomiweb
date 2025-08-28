@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Tiempos , Crearnomina
+from apps.common.models import Tiempos , Crearnomina , Contratos , Empresa
 from django.http import HttpResponse
 from django.urls import reverse
 from apps.payroll.forms.SettlementForm import SettlementForm
@@ -18,9 +18,32 @@ def time_list(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    times = Tiempos.objects.filter(idempresa = idempresa) 
+    contratos_empleados = Contratos.objects\
+        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
+        .order_by('idempleado__papellido') \
+        .filter(estadocontrato=1, id_empresa=idempresa) \
+        .values(
+            'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
+            'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario', 
+            'idcosto__nomcosto', 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl',
+            'idempleado__idempleado','idempleado__sapellido', 'idcontrato'
+        )
     
-    return render(request, './payroll/time_list.html',{'times': times})
+    empleados = [
+    {
+        'documento': contrato['idempleado__docidentidad'],
+        'nombre': ' '.join(filter(None, [
+            contrato['idempleado__papellido'] if contrato['idempleado__papellido'] != 'no data' else '',
+            contrato['idempleado__sapellido'] if contrato['idempleado__sapellido'] != 'no data' else '',
+            contrato['idempleado__pnombre'] if contrato['idempleado__pnombre'] != 'no data' else '' ,
+            contrato['idempleado__snombre'] if contrato['idempleado__snombre'] != 'no data' else ''
+        ])),
+        'idcontrato': contrato['idcontrato'],
+    }
+    for contrato in contratos_empleados
+    ]
+    
+    return render(request, './payroll/time_list.html',{'empleados': empleados})
 
 
 def formatear_fecha(valor):
@@ -35,55 +58,95 @@ def formatear_fecha(valor):
 
 def time_add(request):
     usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
-    
-    nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
-    
-    
+    idempresa = usuario.get('idempresa')
+
+    nominas = Crearnomina.objects.filter(
+        estadonomina=True,
+        id_empresa_id=idempresa
+    ).order_by('-idnomina')
+
     if request.method == 'POST' and request.FILES.get('file'):
         errors = []
         file = request.FILES['file']
         idnomina = request.POST.get('idnomina')
-        df = pd.read_excel(file, header=None)
-        
-        registros_validados = [] 
-        
-        print(df)
-        print('---------')
-        print(idnomina)
-        
+
+        try:
+            df = pd.read_excel(file, header=None)
+        except Exception as e:
+            errors.append(f"Error al leer el archivo: {str(e)}")
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        registros_validados = []
+
         for idx, fila in df.iterrows():
-            print(f"\n🔹 Fila {idx + 1}\n")
+            try:
+                contrato      = fila[0]
+                fecha_ingreso = formatear_fecha(fila[1])
+                fecha_salida  = formatear_fecha(fila[2])
+                hora_ingreso  = fila[3]
+                hora_salida   = fila[4]
+                horas_extras  = fila[5]
 
-            contrato         = fila[0]
-            fecha_ingreso    = formatear_fecha(fila[1])
-            fecha_salida     = formatear_fecha(fila[2])
-            hora_ingreso     = fila[3]
-            hora_salida      = fila[4]
-            horas_extras     = fila[5]
+                # --- Validaciones ---
+                if not contrato:
+                    errors.append(f"Fila {idx+1}: El contrato es obligatorio.")
+                    continue
 
-            print(f"{'contrato'         :<18}: {contrato}")
-            print(f"{'fecha_ingreso'    :<18}: {fecha_ingreso}")
-            print(f"{'fecha_salida'     :<18}: {fecha_salida}")
-            print(f"{'hora_ingreso'     :<18}: {hora_ingreso}")
-            print(f"{'hora_salida'      :<18}: {hora_salida}")
-            print(f"{'horas_extras'     :<18}: {horas_extras}")
-    
-        # try:
-            
-            
-        #     if errors:
-        #         return render(request, './companies/partials/disability_upload_errors.html', {
-        #             'errors': errors
-        #         })
+                if not fecha_ingreso:
+                    errors.append(f"Fila {idx+1}: La fecha de ingreso no es válida.")
+                    continue
+
+                if fecha_salida and fecha_salida < fecha_ingreso:
+                    errors.append(f"Fila {idx+1}: La fecha de salida no puede ser menor que la de ingreso.")
+                    continue
+
+                if not hora_ingreso or not hora_salida:
+                    errors.append(f"Fila {idx+1}: Hora de ingreso y salida son obligatorias.")
+                    continue
                 
-        # except Exception as e:
-        #     errors.append(f"Error general al procesar el archivo")
+                empresa = Empresa.objects.get(idempresa =  idempresa )
+                
+                # Verificar que el contrato exista
+                if not Contratos.objects.filter(idcontrato=contrato, id_empresa=idempresa).exists():
+                    errors.append(f"Fila {idx+1}: El contrato {contrato} no existe en la empresa {empresa.nombreempresa}.")
+                    continue
+                
+                
+                
+                # Si pasa todas las validaciones, lo guardamos en la lista
+                registros_validados.append(
+                    Tiempos(
+                        fechaingreso=fecha_ingreso,
+                        horaingreso=hora_ingreso,
+                        idcontrato_id=contrato,
+                        idnomina_id=idnomina,
+                        fechasalida=fecha_salida,
+                        horasalida=hora_salida,
+                        idempresa_id=idempresa,
+                    )
+                )
+            except Exception as e:
+                errors.append(f"Fila {idx+1}: Error inesperado -> {str(e)}")
 
-        # if errors:
-        #     return render(request, './companies/partials/disability_upload_errors.html', {
-        #         'errors': errors
-        #     })
-            
-            
-    return render(request, './payroll/partials/time_add.html',{'nominas':nominas})
+        # Si hubo errores en cualquier fila: no se guarda nada
+        if errors:
+            return render(request, './companies/partials/disability_upload_errors.html', {
+                'errors': errors
+            })
+
+        #  Si no hubo errores en ninguna fila, insertamos todo
+        if registros_validados:
+            Tiempos.objects.bulk_create(registros_validados)
+
+    return render(request, './payroll/partials/time_add.html', {'nominas': nominas})
+
+
+
+
+def time_data(request,id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    times = Tiempos.objects.filter(idempresa = idempresa ,idcontrato = id ).order_by('-fechaingreso') 
+    
+    return render(request, './payroll/partials/time_data.html', {'times': times})
