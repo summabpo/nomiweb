@@ -130,6 +130,8 @@ def calcular_dias_habiles(fechainicialvac, fechafinalvac, cuentasabados, dias_fe
 def vacation_request_file_upload(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
+    #nomina = Crearnomina.objects.get( idnomina = id)
+    
     
     if request.method == 'POST' and request.FILES.get('file'):
         errors = []
@@ -139,7 +141,8 @@ def vacation_request_file_upload(request):
             df = pd.read_csv(file, sep=';', encoding='utf-8')
 
             registros_validados = []  # aquí guardaremos las filas validadas para luego insertarlas
-
+            df = df.dropna(how='all')
+            
             # FASE 1: Validación
             for idx, fila in df.iterrows():
                 fila_errors = []
@@ -211,7 +214,7 @@ def vacation_request_file_upload(request):
                 Vacaciones.objects.create(
                     idcontrato=reg['contrato'],
                     fechainicialvac=reg['F_INICIO'],
-                    idnomina=reg['nomina'],
+                    #idnomina=reg['nomina'],
                     cuentasabados=reg['TRABAJA_SABADO'],
                     tipovac=reg['tipo'],
                     perinicio=reg['PER_INICIO'],
@@ -220,6 +223,7 @@ def vacation_request_file_upload(request):
                 )
 
         except Exception as e:
+            print(e)
             errors.append(f"Error general al procesar el archivo")
 
         if errors:
@@ -227,8 +231,8 @@ def vacation_request_file_upload(request):
                 'errors': errors
             })
 
-        messages.success(request, "Archivo cargado exitosamente. Las vacaciones fueron registradas.")
-        return redirect('companies:vacations')
+        return render(request, 'companies/partials/success_vacation.html')
+
 
     return render(request, './companies/partials/vacation_request_file_upload.html')
 

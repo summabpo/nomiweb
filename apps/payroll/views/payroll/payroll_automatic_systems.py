@@ -78,13 +78,17 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
     if request.method == 'POST':
         need_comment = request.POST.get('need_comment', False)  # Devuelve 'on' si está marcado, None si no
         costo = request.POST.get('costos', False)
-        # Convertirlo a True/False
+        empleados_ids = request.POST.getlist('empleados', False)
+        # Convertir a enteros
+        empleados_ids = [int(e) for e in empleados_ids if e.isdigit()]
+
+        
         need_comment = need_comment == 'on'
         
         ne = costo if need_comment else 0
                 
         if type_payroll == 0:
-            if procesar_nomina_basica(idnomina,ne, idempresa):
+            if procesar_nomina_basica(idnomina,ne,idempresa,empleados_ids):
                 messages.success(request, "Proceso Basico realizado correctamente")
                 return redirect('payroll:payrollview', id=idnomina)
             else :
@@ -93,7 +97,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
             
         
         elif  type_payroll == 1:
-            if procesar_nomina_incapacidad(idnomina, ne , idempresa):
+            if procesar_nomina_incapacidad(idnomina, ne , idempresa,empleados_ids):
                 messages.success(request, "Proceso de Incapacidades realizado correctamente")
                 return redirect('payroll:payrollview', id=idnomina)
             else :
@@ -101,7 +105,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
                 return redirect('payroll:payrollview', id=idnomina)
         
         elif  type_payroll == 2:
-            if procesar_nomina_aportes(idnomina, ne , idempresa):
+            if procesar_nomina_aportes(idnomina, ne , idempresa,empleados_ids):
                 messages.success(request, "Proceso de Aportes realizado correctamente")
                 return redirect('payroll:payrollview', id=idnomina)
             else :
@@ -109,7 +113,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
                 return redirect('payroll:payrollview', id=idnomina)
             
         elif  type_payroll == 3:
-            if procesar_nomina_transporte(idnomina, ne , idempresa):
+            if procesar_nomina_transporte(idnomina, ne , idempresa,empleados_ids):
                 messages.success(request, "Proceso de Transporte realizado correctamente")
                 return redirect('payroll:payrollview', id=idnomina)
             else :
@@ -117,7 +121,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
                 return redirect('payroll:payrollview', id=idnomina)
         
         elif type_payroll == 4:
-            if procesar_nomina_reset(idnomina, ne, idempresa):
+            if procesar_nomina_reset(idnomina, ne, idempresa,empleados_ids):
                 messages.success(request, "Reinicio de nómina realizado correctamente.")
                 return redirect('payroll:payrollview', id=idnomina)
             else:
@@ -131,7 +135,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
     return render(request, 'payroll/partials/payroll_automatic_systems.html', {'titulo': titulo,'empleados':empleados, 'centros': centros, 'type_payroll': type_payroll , 'idnomina':idnomina})
 
 
-def procesar_nomina_reset(idn, parte_nomina,idempresa):
+def procesar_nomina_reset(idn, parte_nomina,idempresa,empleados):
     
     data_nomina = Nomina.objects.filter(
             idnomina_id=idn
@@ -142,7 +146,7 @@ def procesar_nomina_reset(idn, parte_nomina,idempresa):
     return True
 
 
-def procesar_nomina_basica(idn, parte_nomina,idempresa):
+def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     """
     Procesa la nómina básica para todos los contratos activos de una empresa en un periodo determinado.
 
@@ -187,14 +191,13 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
 
     contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
     
-    print('-----------------')
-    print(contratos)
-    print('-----------------')
-    
-    
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto=parte_nomina)
 
+    if empleados: 
+        contratos = contratos.filter(idcontrato__in = empleados)
+        
+    
     try:
         nomina = Crearnomina.objects.get(idnomina=idn)
     except Crearnomina.DoesNotExist:
@@ -261,7 +264,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa):
     return True
 
 
-def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
+def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     """
     Procesa las incapacidades médicas reportadas dentro del rango de fechas de una nómina.
 
@@ -305,6 +308,10 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
     
     if not parte_nomina:
         parte_nomina = 0
+        
+    if empleados: 
+        contratos = contratos.filter(idcontrato__in = empleados)
+        
         
     nomina = Crearnomina.objects.get(idnomina=idn)
     inicio_nomina, fin_nomina = nomina.fechainicial, nomina.fechafinal
@@ -456,7 +463,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa):
     return True
 
 
-def procesar_nomina_aportes(idn, parte_nomina,idempresa):
+def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
     """
     Procesa los aportes obligatorios a seguridad social (EPS, AFP y FSP) para los contratos activos en una nómina.
 
@@ -522,6 +529,9 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
     contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa)
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
+    
+    if empleados: 
+        contratos = contratos.filter(idcontrato__in = empleados)
     
     for contrato in contratos:
         
@@ -678,7 +688,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa):
 
 
 
-def procesar_nomina_transporte(idn, parte_nomina,idempresa):
+def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
     """
     Procesa el auxilio de transporte para los contratos activos dentro de una nómina.
 
@@ -714,7 +724,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
     Notes
     -----
     - Solo se liquida el auxilio si el salario es igual o inferior a dos salarios mínimos y 
-      si el contrato tiene activado el beneficio (`auxiliotransporte`).
+        si el contrato tiene activado el beneficio (`auxiliotransporte`).
     - No se liquida auxilio durante días de vacaciones o incapacidades.
     - El cálculo es proporcional a los días efectivamente laborados, con un tope de 30 días.
     - Si ya existe un registro del auxilio y no ha sido editado, se actualiza; si no, se crea uno nuevo.
@@ -731,6 +741,9 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa):
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
 
+    if empleados: 
+        contratos = contratos.filter(idcontrato__in = empleados)
+        
     try:
         nomina = Crearnomina.objects.get(idnomina=idn)
     except Crearnomina.DoesNotExist:

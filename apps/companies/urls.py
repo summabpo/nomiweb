@@ -126,7 +126,7 @@ urlpatterns = [
     
     path('payroll/vacation/balance/download/', vacation_balance.vacation_balance_download, name='vacation_balance_download'),
     path('payroll/vacation/request/', vacation_request.vacation_request, name='vacation_request'),
-    path('payroll/vacation/balance/upload', vacation_request.vacation_request_file_upload, name='vacation_request_file_upload'),
+    path('payroll/vacation/balance/upload/', vacation_request.vacation_request_file_upload, name='vacation_request_file_upload'),
     path('payroll/vacation/request/get/', vacation_request.get_vacation_details, name='get_vacation_details'),
     path('payroll/vacation/request/acction/', vacation_request.get_vacation_acction, name='get_vacation_acction'),
 
