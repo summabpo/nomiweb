@@ -71,7 +71,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
     titulo = titles.get(type_payroll, 'Sistemas Automáticos')
     centros = Costos.objects.filter(id_empresa_id=idempresa)
-    empleados = Contratos.objects.filter(id_empresa_id=idempresa).order_by('idempleado__papellido')
+    empleados = Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa).order_by('idempleado__papellido')
     
     
     

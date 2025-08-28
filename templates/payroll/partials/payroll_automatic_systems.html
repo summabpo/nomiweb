@@ -38,7 +38,13 @@
                   </div>
                 </div>
                 <br>
-                <select class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un empleado"  data-allow-clear="true" multiple="multiple" >
+                <select class="form-select form-select-sm" 
+                data-control="select2" 
+                data-placeholder="Seleccione un empleado"  
+                data-allow-clear="true" 
+                multiple="multiple" 
+                data-minimum-results-for-search="0" 
+                >
                       <option value="" ></option>
                       {% for empleado in empleados %}
                         <option value="{{ empleado.idempleado}}">{{ empleado.idempleado.pnombre }} {{ empleado.idempleado.papellido }} {{ empleado.idempleado.sapellido }}</option>

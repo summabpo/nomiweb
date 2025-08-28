@@ -11,6 +11,8 @@ from django.views.decorators.http import require_POST
 from datetime import datetime , date
 from django.db.models import Q
 import pandas as pd
+from django.db import transaction
+
 
 @login_required
 @role_required('accountant')
@@ -55,6 +57,7 @@ def formatear_fecha(valor):
         except:
             return valor
     return valor
+
 
 def time_add(request):
     usuario = request.session.get('usuario', {})
@@ -103,17 +106,20 @@ def time_add(request):
                 if not hora_ingreso or not hora_salida:
                     errors.append(f"Fila {idx+1}: Hora de ingreso y salida son obligatorias.")
                     continue
-                
+
                 empresa = Empresa.objects.get(idempresa =  idempresa )
                 
                 # Verificar que el contrato exista
                 if not Contratos.objects.filter(idcontrato=contrato, id_empresa=idempresa).exists():
                     errors.append(f"Fila {idx+1}: El contrato {contrato} no existe en la empresa {empresa.nombreempresa}.")
                     continue
-                
-                
-                
-                # Si pasa todas las validaciones, lo guardamos en la lista
+
+                # Evitar duplicados: contrato + fecha ingreso ya existente
+                if Tiempos.objects.filter(idcontrato_id=contrato, fechaingreso=fecha_ingreso, idempresa_id=idempresa).exists():
+                    errors.append(f"Fila {idx+1}: Ya existe un registro de tiempo para contrato {contrato} en la fecha {fecha_ingreso}.")
+                    continue
+
+                # Si pasa todas las validaciones, lo agregamos a lista
                 registros_validados.append(
                     Tiempos(
                         fechaingreso=fecha_ingreso,
@@ -128,17 +134,19 @@ def time_add(request):
             except Exception as e:
                 errors.append(f"Fila {idx+1}: Error inesperado -> {str(e)}")
 
-        # Si hubo errores en cualquier fila: no se guarda nada
+        # Si hubo errores: no se guarda nada
         if errors:
             return render(request, './companies/partials/disability_upload_errors.html', {
                 'errors': errors
             })
 
-        #  Si no hubo errores en ninguna fila, insertamos todo
+        # Guardamos en bloque, asegurando atomicidad
         if registros_validados:
-            Tiempos.objects.bulk_create(registros_validados)
+            with transaction.atomic():
+                Tiempos.objects.bulk_create(registros_validados)
+                return render(request, 'payroll/partials/success_time.html')
 
-    return render(request, './payroll/partials/time_add.html', {'nominas': nominas})
+    return render(request, 'payroll/partials/time_add.html', {'nominas': nominas})
 
 
 
