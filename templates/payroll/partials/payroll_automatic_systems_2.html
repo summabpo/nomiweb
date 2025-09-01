@@ -1,0 +1,31 @@
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title"> {{titulo}} </h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        
+        <div class="d-flex justify-content-center">
+            <div class="col-md-12">
+                <p>
+                El empleado autoriza y acepta que la nómina sea generada de manera automática exclusivamente para su perfil, 
+                aplicando únicamente a este trabajador sin extenderse a otros casos.
+                </p>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" class="btn btn-light-primary" form="form_automatic"  >Aceptar</button>
+    </div>
+</div>

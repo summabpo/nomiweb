@@ -80,7 +80,8 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
         costo = request.POST.get('costos', False)
         empleados_ids = request.POST.getlist('empleados', False)
         # Convertir a enteros
-        empleados_ids = [int(e) for e in empleados_ids if e.isdigit()]
+        if empleados_ids :
+            empleados_ids = [int(e) for e in empleados_ids if e.isdigit()]
 
         
         need_comment = need_comment == 'on'
@@ -133,6 +134,16 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
     
     return render(request, 'payroll/partials/payroll_automatic_systems.html', {'titulo': titulo,'empleados':empleados, 'centros': centros, 'type_payroll': type_payroll , 'idnomina':idnomina})
+
+
+@login_required
+@role_required('accountant')
+def automatic_systems_2(request, type_payroll=0,idnomina=0):
+    
+    print('llege aqui - 1 ')
+    
+    return render(request, 'payroll/partials/payroll_automatic_systems_2.html')
+
 
 
 def procesar_nomina_reset(idn, parte_nomina,idempresa,empleados):
@@ -752,7 +763,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
     sal_min = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).salariominimo
     aux_tra = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).auxtransporte
     
-    
     for contrato in contratos:
         
         diasnomina = nomina.diasnomina
@@ -777,12 +787,8 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         horas_basico_quincena = Nomina.objects.filter(idconcepto=1, idcontrato=contrato.idcontrato, 
                                                        idnomina_id=idn).aggregate(Sum('cantidad'))['cantidad__sum'] or 0
         
-        
-        
         total_mes = horas_basico_mes + horas_basico_quincena
 
-        
-        
         if not contrato.auxiliotransporte :
             transporte = 0
             diasnomina = 0
@@ -792,10 +798,12 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             total_base_trans = Nomina.objects.filter(
                 idcontrato=contrato,
                 idnomina_id=idn,
-                idconcepto__indicador__nombre='auxtransporte'  
+                idconcepto__indicador__nombre='basetransporte'  
             ).exclude(
                 idconcepto__codigo=2
             ).distinct().aggregate(total=Sum('valor'))['total'] or 0# Reemplaza 'monto' con el nombre correcto de la columna
+            
+            print(total_base_trans)
             
             if total_base_trans < (sal_min * 2):
                 transporte = diasnomina * (aux_tra / 30)

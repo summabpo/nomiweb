@@ -119,7 +119,7 @@ urlunpolypatterns =[
     ## sitemas automaticos 
     
     path('payroll/automatic_systems/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
-    
+    path('payroll/automatic_systems_2/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems_2, name='automatic_systems_2'),
     
     ## flat
     path('flat/modal', flat.flat_modal, name='flat_modal'),

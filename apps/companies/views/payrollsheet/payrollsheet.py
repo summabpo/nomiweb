@@ -560,6 +560,7 @@ def generatepayrollcertificate(request, idnomina, idcontrato):
     p.line(35, height - 60, width - 35, height - 60)
 
     # Logo
+    print({context['logo']})
     try:
         logo = ImageReader(f"static/img/{context['logo']}")
         logo_width = 150
