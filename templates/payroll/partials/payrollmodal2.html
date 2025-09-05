@@ -32,7 +32,7 @@
                     data-bs-placement="top"
                     title="Generación automática de nómina básica" 
 
-                    href="{% url 'payroll:automatic_systems_2' 0 data.id %}"
+                    href="{% url 'payroll:automatic_systems_2' 0 data.idnomina data.id %}"
                     class="btn btn-light-info">
                     Nómina Básica
                 </a>
@@ -52,7 +52,7 @@
                     data-bs-placement="top"
                     title="Generación automática de nómina con incapacidades" 
 
-                    href=""
+                    href="{% url 'payroll:automatic_systems_2' 1 data.idnomina data.id %}"
                     class="btn btn-light-info">
                     Incapacidades
                 </a>
@@ -72,7 +72,7 @@
                     data-bs-placement="top"
                     title="Generación automática de nómina con aportes" 
 
-                    href=""
+                    href="{% url 'payroll:automatic_systems_2' 2 data.idnomina data.id %}"
                     class="btn btn-light-info">
                     Aportes
                 </a>
@@ -92,7 +92,7 @@
                     data-bs-placement="top"
                     title="Generación automática de nómina con transporte"
 
-                    href=""
+                    href="{% url 'payroll:automatic_systems_2' 3 data.idnomina data.id %}"
                     class="btn btn-light-info">
                     Transporte
                 </a>

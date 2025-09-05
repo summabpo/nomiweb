@@ -1,6 +1,6 @@
 from django.urls import path
 from .views.index import index
-from .views.payroll import payroll , payroll_automatic_systems
+from .views.payroll import payroll , payroll_automatic_systems , payroll_automatic_c
 from .views.flat  import flat 
 from .views.electronic_payroll import electronic_payroll
 from .views.loans import loans
@@ -119,7 +119,7 @@ urlunpolypatterns =[
     ## sitemas automaticos 
     
     path('payroll/automatic_systems/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
-    path('payroll/automatic_systems_2/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems_2, name='automatic_systems_2'),
+    path('payroll/automatic_systems_2/<int:type_payroll>/<int:idnomina>/<int:idcontrato>/modal', payroll_automatic_c.automatic_systems_2, name='automatic_systems_2'),
     
     ## flat
     path('flat/modal', flat.flat_modal, name='flat_modal'),

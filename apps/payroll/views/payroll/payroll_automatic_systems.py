@@ -7,8 +7,8 @@ from django.db import transaction, models
 from datetime import datetime
 from django.db.models import Sum
 from datetime import timedelta
-
-
+from apps.components.humani import format_value
+from django.http import JsonResponse
 
 #prueba git
 @login_required
@@ -136,13 +136,6 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
     return render(request, 'payroll/partials/payroll_automatic_systems.html', {'titulo': titulo,'empleados':empleados, 'centros': centros, 'type_payroll': type_payroll , 'idnomina':idnomina})
 
 
-@login_required
-@role_required('accountant')
-def automatic_systems_2(request, type_payroll=0,idnomina=0):
-    
-    print('llege aqui - 1 ')
-    
-    return render(request, 'payroll/partials/payroll_automatic_systems_2.html')
 
 
 
@@ -803,8 +796,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
                 idconcepto__codigo=2
             ).distinct().aggregate(total=Sum('valor'))['total'] or 0# Reemplaza 'monto' con el nombre correcto de la columna
             
-            print(total_base_trans)
-            
+                        
             if total_base_trans < (sal_min * 2):
                 transporte = diasnomina * (aux_tra / 30)
             else:
@@ -1076,3 +1068,6 @@ def calculo_novfija(contrato, idn):
                 idnomina_id=idn,
                 control=nov.idnovfija
             )
+
+
+
