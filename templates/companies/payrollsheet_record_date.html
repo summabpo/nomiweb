@@ -115,14 +115,14 @@ tr.htmx-swapping td {
 
     <a 
         target="_blank" 
-        href="{% url 'companies:generatepayrollsummary' idnomina=nombre.idnomina %}"
+        href="{% url 'companies:generatepayrollsummary' idnomina=nombre.idnomina data=10 %}"
         class="btn btn-light-info">
         Resumen de Nómina 
     </a>
 
     <a 
         target="_blank" 
-        href="{% url 'companies:generatepayrollsummary2' idnomina=nombre.idnomina %}"
+        href="{% url 'companies:generatepayrollsummary2' idnomina=nombre.idnomina  data=10  %}"
         class="btn btn-light-info">
         Comprobantes de Nómina 
     </a>
@@ -154,7 +154,7 @@ tr.htmx-swapping td {
                             data-bs-custom-class="tooltip-inverse" 
                             data-bs-placement="bottom" 
                             title="Ver comprobante de nómina actual" 
-                            href="{% url 'companies:generatepayrollcertificate' nombre.idnomina empleado.idcontrato  %}" 
+                            href="{% url 'companies:generatepayrollcertificate' nombre.idnomina empleado.idcontrato  10 %}" 
                             target="_blank" 
                             class="btn btn-icon btn-sm btn-light-info">
                                 <i class="fa-solid fa-file fs-3"></i>

@@ -176,10 +176,10 @@ def payrollsheet(request):
 
 @login_required
 @role_required('company','accountant')
-def generatepayrollsummary(request, idnomina):
+def generatepayrollsummary(request, idnomina, data):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    context = generate_summary(idnomina, idempresa)
+    context = generate_summary(idnomina, idempresa , data )
 
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
@@ -499,7 +499,7 @@ def build_payroll_certificate_pdf(pdf, context, logo=None):
 
 @login_required
 @role_required('company', 'accountant')
-def generatepayrollsummary2(request, idnomina):
+def generatepayrollsummary2(request, idnomina,data=None):
 
 
     usuario = request.session.get('usuario', {})
@@ -522,7 +522,7 @@ def generatepayrollsummary2(request, idnomina):
 
     for i, idcontrato in enumerate(contratos, start=1):
         t0 = time.time()
-        context = genera_comprobante(idnomina, idcontrato)        # Generar la página individual
+        context = genera_comprobante(idnomina, idcontrato,data)        # Generar la página individual
         build_payroll_certificate_pdf(pdf, context, logo)
         pdf.showPage()  # Agrega una nueva página
     
@@ -542,8 +542,8 @@ def generatepayrollsummary2(request, idnomina):
 
 @login_required
 @role_required('company', 'accountant')
-def generatepayrollcertificate(request, idnomina, idcontrato):
-    context = genera_comprobante(idnomina, idcontrato)
+def generatepayrollcertificate(request, idnomina, idcontrato,data=None):
+    context = genera_comprobante(idnomina, idcontrato,data)
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter

@@ -547,6 +547,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
         total_base_ss = Nomina.objects.filter(
             idcontrato=contrato,
             idnomina_id=idn,
+            estadonomina = 1 ,
             idconcepto__indicador__nombre='basesegsocial'
         ).exclude(
             idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
@@ -782,15 +783,16 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         
         total_mes = horas_basico_mes + horas_basico_quincena
 
-        if not contrato.auxiliotransporte :
+        if contrato.auxiliotransporte :
             transporte = 0
             diasnomina = 0
                 
-        elif contrato.salario <= (sal_min * 2):
+        if contrato.salario <= (sal_min * 2):
             # Obtener la suma de las deducciones de la eps 
             total_base_trans = Nomina.objects.filter(
                 idcontrato=contrato,
                 idnomina_id=idn,
+                estadonomina = 1 ,
                 idconcepto__indicador__nombre='basetransporte'  
             ).exclude(
                 idconcepto__codigo=2
@@ -812,9 +814,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
                     
                     if diasnomina > 30:
                         diasnomina = 30
-                        
-                        
-
                     
                     aux_pass = Nomina.objects.filter(
                         idconcepto=concepto,

@@ -87,7 +87,7 @@ def limitar_cadena(cadena, max_length=25):
     return cadena
 
 
-def genera_comprobante(idnomina, idcontrato):
+def genera_comprobante(idnomina, idcontrato,date = 0 ):
     
     contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
     crear = Crearnomina.objects.filter(idnomina=idnomina).first()
@@ -105,8 +105,14 @@ def genera_comprobante(idnomina, idcontrato):
         ]))
 
         # Obtener datos de devengados y descuentos
-        dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 1, valor__gt=0).order_by('idconcepto__codigo')
-        dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 1, valor__lt=0).order_by('idconcepto__codigo')
+
+        if date == 0 : 
+            dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 1, valor__gt=0).order_by('idconcepto__codigo')
+            dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 1, valor__lt=0).order_by('idconcepto__codigo')
+        else :
+            
+            dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 2, valor__gt=0).order_by('idconcepto__codigo')
+            dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 2, valor__lt=0).order_by('idconcepto__codigo')
 
         # Formatear valores con puntos para los miles en dataDevengado
         for item in dataDevengado:
@@ -175,15 +181,21 @@ def genera_comprobante(idnomina, idcontrato):
     return context
 
 
-def generate_summary(idnomina,idempresa):
+def generate_summary(idnomina,idempresa , data = 0):
     # Obtener datos del cliente
     datac = datos_cliente(idempresa)
     
     # Obtener la nómina y la información de creación de la nómina
     try:
-        nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 1 )
-        nominas2 = Crearnomina.objects.get(idnomina=idnomina ,estadonomina = 1)
-        nombre_nomina = nominas2.nombrenomina
+        if data == 0 :
+            nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 1 )
+            nominas2 = Crearnomina.objects.get(idnomina=idnomina ,estadonomina = 1)
+            nombre_nomina = nominas2.nombrenomina
+        else : 
+            nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 2 )
+            nominas2 = Crearnomina.objects.get(idnomina=idnomina ,estadonomina = 0)
+            nombre_nomina = nominas2.nombrenomina
+            
     except Nomina.DoesNotExist or Crearnomina.DoesNotExist:
         # Manejar el caso de que no existan las nóminas
         return None  # O manejar el error de otra manera

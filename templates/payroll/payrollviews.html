@@ -167,7 +167,7 @@ tr.htmx-swapping td {
         data-bs-custom-class="tooltip-inverse" 
         data-bs-placement="bottom" 
         title="Cargar Novedades general" 
-        href="{% url 'payroll:payroll_general' nombre.idnomina %}">
+        href="{% url 'payroll:payroll_general' nombre.idnomina  %}">
         <i class="fa-solid fa-file-circle-plus fs-3"></i>
 
     </a>
@@ -193,7 +193,7 @@ tr.htmx-swapping td {
         data-bs-placement="top"
         title="Generación automática de nómina básica" 
 
-        href="{% url 'payroll:automatic_systems' 0 nombre.idnomina %}"
+        href="{% url 'payroll:automatic_systems' 0 nombre.idnomina  %}"
         class="btn btn-light-info">
         Nómina Básica
     </a>
@@ -260,14 +260,14 @@ tr.htmx-swapping td {
 
     <a 
         target="_blank" 
-        href="{% url 'companies:generatepayrollsummary' idnomina=nombre.idnomina %}"
+        href="{% url 'companies:generatepayrollsummary' idnomina=nombre.idnomina data=0%}"
         class="btn btn-light-info">
         Resumen de Nómina 
     </a>
 
     <a 
         target="_blank" 
-        href="{% url 'companies:generatepayrollsummary2' idnomina=nombre.idnomina %}"
+        href="{% url 'companies:generatepayrollsummary2' idnomina=nombre.idnomina data=0 %}"
         class="btn btn-light-info">
         Comprobantes de Nómina 
     </a>
@@ -343,7 +343,7 @@ tr.htmx-swapping td {
                             data-bs-custom-class="tooltip-inverse" 
                             data-bs-placement="bottom" 
                             title="Ver comprobante de nómina actual" 
-                            href="{% url 'companies:generatepayrollcertificate' nombre.idnomina empleado.idcontrato  %}" 
+                            href="{% url 'companies:generatepayrollcertificate' nombre.idnomina empleado.idcontrato 0 %}" 
                             target="_blank" 
                             class="btn btn-icon btn-sm btn-light-info">
                                 <i class="fa-solid fa-file fs-3"></i>

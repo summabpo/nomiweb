@@ -297,6 +297,7 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
     total_base_ss = Nomina.objects.filter(
         idcontrato=contrato,
         idnomina_id=idnomina,
+        estadonomina = 1 ,
         idconcepto__indicador__nombre='basesegsocial'
     ).exclude(
         idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
@@ -477,21 +478,22 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
     
     total_mes = horas_basico_mes + horas_basico_quincena
 
-    if not contrato.auxiliotransporte :
+    if contrato.auxiliotransporte :
         transporte = 0
         diasnomina = 0
             
-    elif contrato.salario <= (sal_min * 2):
+    
+    if contrato.salario <= (sal_min * 2):
         # Obtener la suma de las deducciones de la eps 
         total_base_trans = Nomina.objects.filter(
             idcontrato=contrato,
             idnomina_id=idnomina,
+            estadonomina = 1 ,
             idconcepto__indicador__nombre='basetransporte'  
         ).exclude(
             idconcepto__codigo=2
         ).distinct().aggregate(total=Sum('valor'))['total'] or 0# Reemplaza 'monto' con el nombre correcto de la columna
-        
-                    
+                            
         if total_base_trans < (sal_min * 2):
             transporte = diasnomina * (aux_tra / 30)
         else:
@@ -502,15 +504,12 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
         
         
         if contrato.tipocontrato.idtipocontrato not in [5, 6]:
-            
+
             if diasnomina > 0 and transporte > 0 :
                 
                 if diasnomina > 30:
                     diasnomina = 30
-                    
-                    
 
-                
                 aux_pass = Nomina.objects.filter(
                     idconcepto=concepto,
                     idcontrato=contrato,
@@ -553,7 +552,8 @@ def data_visua(idcontrato ,idempresa, idnomina):
     
     conceptos = Nomina.objects.filter(
                     idnomina__idnomina= idnomina ,
-                    idcontrato__idcontrato=idcontrato 
+                    idcontrato__idcontrato=idcontrato ,
+                    estadonomina = 1 
                 ).select_related('idcontrato').order_by('idconcepto__codigo')
         
     for concepto1 in conceptos:

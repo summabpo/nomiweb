@@ -210,7 +210,8 @@ def payroll_modal(request,id,idnomina):
 
     conceptos = Nomina.objects.filter(
         idnomina__idnomina=idnomina,
-        idcontrato__idcontrato=id
+        idcontrato__idcontrato=id,
+        estadonomina = 1 
     ).select_related('idcontrato').order_by('idconcepto__codigo')
     
     
@@ -357,7 +358,8 @@ def payroll_create(request):
         
         conceptos = Nomina.objects.filter(
                 idnomina__idnomina=idnomina,
-                idcontrato__idcontrato=id
+                idcontrato__idcontrato=id,
+                estadonomina = 1 
             ).select_related('idcontrato').order_by('idconcepto__codigo')
             
         
@@ -563,7 +565,8 @@ def payroll_delete(request):
         
         conceptos = Nomina.objects.filter(
                     idnomina__idnomina=concepto.idnomina.idnomina,
-                    idcontrato__idcontrato=concepto.idcontrato.idcontrato
+                    idcontrato__idcontrato=concepto.idcontrato.idcontrato,
+                    estadonomina = 1 
                 ).select_related('idcontrato').order_by('idconcepto__codigo')
         
         for concepto1 in conceptos:
@@ -731,7 +734,8 @@ def payroll_general_data(request,idnomina):
         
         conceptos = Nomina.objects.filter(
             idnomina__idnomina=idnomina,
-            idcontrato__idcontrato=idcontrato
+            idcontrato__idcontrato=idcontrato ,
+            estadonomina = 1 
         ).select_related('idcontrato').order_by('idconcepto__codigo')
             
         # Estructurar los datos para la respuesta
