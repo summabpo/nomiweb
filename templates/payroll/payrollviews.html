@@ -607,6 +607,52 @@ tr.htmx-swapping td {
     
 </script>
 
+
+
+    
+<script>
+    function confirmautomatic(data, idnomina, id) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Se generará el valor automáticamente',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, generar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var selectedValue = $('#contrato_empleado').val();
+
+            // Construyes la URL manualmente
+            let url = `/payroll/payroll/automatic_systems_2/${data}/${idnomina}/${id}/modal`;
+
+            up.request(url, {
+                method: 'GET',
+                fail: false
+            }).then((response) => {
+                up.reload().then(() => {
+                    setTimeout(() => {
+                        if (selectedValue) {
+                            $('#contrato_empleado').val(selectedValue).trigger('change');
+                        }
+                    }, 500);
+                });
+
+                toastr.success("Valor generado automáticamente", "Éxito");
+            }).catch((response) => {
+                toastr.error("Ocurrió un error inesperado", "Error");
+                console.error('Error en la solicitud:', response);
+            });
+        }
+    });
+}
+
+</script>
+
+    
+
+
 <script>
     toastr.options = {
         "closeButton": false,
