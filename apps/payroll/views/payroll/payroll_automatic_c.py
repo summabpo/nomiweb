@@ -174,11 +174,11 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
             ibc = salario_minimo
         
         #Tipo de incapacidad
-        if tipo == 'EPS1':
+        if tipo == '1':
             idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
             idconceptoa = Conceptosdenomina.objects.get(codigo=26, id_empresa_id = idempresa) 
             
-        elif tipo == 'ARL':
+        elif tipo == '2':
             
             dias_asumidos = dia_asumido_1
             ibc = incapacidad.ibc
@@ -186,7 +186,7 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
             idconceptoi = Conceptosdenomina.objects.get(codigo=27, id_empresa_id = idempresa)
             idconceptoa = Conceptosdenomina.objects.get(codigo=28, id_empresa_id = idempresa) 
             
-        elif tipo == 'EPS2':
+        elif tipo == '3':
             dias_asumidos = 0
             idconceptoi = Conceptosdenomina.objects.get(codigo=29, id_empresa_id = idempresa)
         

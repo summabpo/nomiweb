@@ -244,7 +244,7 @@ class DisabilitiesEditForm(forms.Form):
             # Convertir dias a entero si es necesario
             fechafinal = fechainicial + timedelta(days=int(dias))
 
-             # Ampliar el rango de búsqueda a un mes antes y un mes después
+            # Ampliar el rango de búsqueda a un mes antes y un mes después
             fecha_inicio_busqueda = fechainicial - relativedelta(months=1)
             fecha_fin_busqueda = fechainicial + relativedelta(months=1)
 
@@ -268,7 +268,7 @@ class DisabilitiesEditForm(forms.Form):
     
     
         
-    origin = forms.ChoiceField(choices=[('', '----------'),('EPS1', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS2', 'Maternidad - Paternidad')], label="Origen",required=False , widget=forms.Select(attrs={'class': 'form-select'}))
+    origin = forms.ChoiceField(choices=[('', '----------'),('1', 'Enfermedad General - Común'), ('2', 'Profesional - Acc. Trabajo'), ('3', 'Maternidad - Paternidad')], label="Origen",required=False , widget=forms.Select(attrs={'class': 'form-select'}))
     #entity = forms.ModelChoiceField(queryset=Entidadessegsocial.objects.none(), label="Entidad", widget=forms.Select(attrs={'class': 'form-select'}))
     
     extension = forms.ChoiceField(choices=[('1', 'Sí'), ('0', 'No')],initial='0', label="Prórroga",required=False , widget=forms.Select(attrs={'class': 'form-select'}))

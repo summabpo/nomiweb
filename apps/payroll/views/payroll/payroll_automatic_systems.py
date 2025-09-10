@@ -331,7 +331,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     
     incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, fechainicial__range=(inicio_nomina, fin_nomina) )
     
-    
     if parte_nomina != 0:
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
     
@@ -369,12 +368,13 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         if ibc < salario_minimo:
             ibc = salario_minimo
         
+       
         #Tipo de incapacidad
-        if tipo == 'EPS1':
+        if tipo == '1':
             idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
             idconceptoa = Conceptosdenomina.objects.get(codigo=26, id_empresa_id = idempresa) 
             
-        elif tipo == 'ARL':
+        elif tipo == '2':
             
             dias_asumidos = dia_asumido_1
             ibc = incapacidad.ibc
@@ -382,7 +382,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
             idconceptoi = Conceptosdenomina.objects.get(codigo=27, id_empresa_id = idempresa)
             idconceptoa = Conceptosdenomina.objects.get(codigo=28, id_empresa_id = idempresa) 
             
-        elif tipo == 'EPS2':
+        elif tipo == '3':
             dias_asumidos = 0
             idconceptoi = Conceptosdenomina.objects.get(codigo=29, id_empresa_id = idempresa)
         
@@ -401,11 +401,11 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         horas_asumidas = dias_asumidos * 8
         valor_asumido = ibc / 240 * horas_asumidas
         
-        ## division de conceptos     
-        
+
 
         if dias_asumidos > 0 :
             if idconceptoa :
+                
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoa,
                     idcontrato = incapacidad.idcontrato , 
@@ -442,7 +442,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
                     idcontrato = incapacidad.idcontrato , 
                     idnomina_id=idn
                 ).first()
-                print(aux_pass)
+
                 if aux_pass:
                     if not EditHistory.objects.filter(
                         id_empresa_id=idempresa,
