@@ -316,7 +316,7 @@ def payroll_create(request):
         concept1 = Conceptosdenomina.objects.get(idconcepto=mi_select)
         formula = str(concept1.formula).strip() in ['0', '1', '2']
         
-        
+        print(conceptfi.conceptofijo)
         
         if formula:
             if concept1.formula == '1':
@@ -341,8 +341,7 @@ def payroll_create(request):
             cantidad = 0
             valor=int(valor.replace(',', ''))
             
-            
-
+    
         
         # Optimizar consulta del contrato
         contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
@@ -351,6 +350,7 @@ def payroll_create(request):
             idconcepto_id=mi_select,
             cantidad=cantidad,
             valor=valor,
+            estadonomina = 1,
             idcontrato_id=id,
             idnomina_id=idnomina,
         )
@@ -855,7 +855,11 @@ def payroll_concept_info(request):
                         multiplier = (multiplier/30) * float(concept1.multiplicadorconcepto)
                 elif concept1.formula == '2':
                     multiplier = Contratos.objects.get(idcontrato=idempleado).salario
-                    multiplier = (float(multiplier) / float(conceptfi.valorfijo)) * float(concept1.multiplicadorconcepto)
+                    salariohoras = (float(multiplier) / float(conceptfi.valorfijo))
+                    multiplier =  salariohoras * float(concept1.multiplicadorconcepto)
+                
+                
+
                 else:
                     multiplier = 0
             else:
@@ -868,6 +872,7 @@ def payroll_concept_info(request):
             
         if not concept:
             return JsonResponse({'error': 'No se seleccionó ningún concepto'}, status=400)
+        
         
         return JsonResponse({'message': 'Datos recibidos correctamente', 'concept': concept , 'formula': formula , 'multiplier': multiplier})
     return JsonResponse({'error': 'Método no permitido'}, status=405)
@@ -999,51 +1004,4 @@ def payroll_info_edit(request):
         return JsonResponse({'message': 'Datos recibidos correctamente', 'concept': concept , 'idn': idn , 'formula': formula , 'multiplier': multiplier})
     return JsonResponse({'error': 'Método no permitido'}, status=405)
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
+    
