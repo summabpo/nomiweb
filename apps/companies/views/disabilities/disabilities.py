@@ -408,11 +408,11 @@ def edit_disabilities(request):
     global_id = incapacidad.idincapacidad
     if entidad.tipoentidad == 'EPS':
         if incapacidad.dias >= 100:
-            origin = 'EPS2'
+            origin = '3'
         else:
-            origin = 'EPS1'
+            origin = '1'
     else:
-        origin = 'ARL'
+        origin = '2'
 
     
     data ={ 

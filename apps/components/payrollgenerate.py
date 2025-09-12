@@ -97,12 +97,12 @@ def genera_comprobante(idnomina, idcontrato,date = 0 ):
         
         
         
-        nombre_completo = " ".join(filter(None, [
-            contrato.idempleado.papellido,
-            contrato.idempleado.sapellido,
-            contrato.idempleado.pnombre,
-            contrato.idempleado.snombre
-        ]))
+        nombre_completo = " ".join([
+            contrato.idempleado.papellido or "",
+            contrato.idempleado.sapellido or "",
+            contrato.idempleado.pnombre or "",
+            contrato.idempleado.snombre or ""
+        ]).strip()
 
         # Obtener datos de devengados y descuentos
 
@@ -213,14 +213,21 @@ def generate_summary(idnomina,idempresa , data = 0):
             default=Value(0),
             output_field=IntegerField()
         )),
-    ).order_by('idconcepto__codigo')
+    ).order_by('-idconcepto__codigo')
+    
+    
+    
     
     # Separar ingresos y descuentos, y ordenar por idconcepto
     ingresos = [compect for compect in grouped_nominas if compect['ingresos'] > 0]
     descuentos = [compect for compect in grouped_nominas if compect['descuentos'] < 0]
     
-    ingresos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
-    descuentos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
+    ingresos = sorted(ingresos, key=lambda x: x['idconcepto__codigo'])
+    descuentos = sorted(descuentos, key=lambda x: x['idconcepto__codigo'])
+    
+    
+    # ingresos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
+    # descuentos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
     
     # Combinar ingresos y descuentos
     grouped_nominas = ingresos + descuentos

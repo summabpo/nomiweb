@@ -192,6 +192,7 @@ def generatepayrollsummary(request, idnomina, data):
     p.drawCentredString(width / 2, height - 35, context['nit'])
     p.drawCentredString(width / 2, height - 45, context['web'])
 
+    
     p.setStrokeColor(colors.grey)
     p.setLineWidth(0.5)
     p.line(35, height - 60, width - 35, height - 60)
@@ -506,10 +507,12 @@ def generatepayrollsummary2(request, idnomina,data=None):
     idempresa = usuario['idempresa']
 
     empresa_data = Empresa.objects.get(idempresa=idempresa)
-    
-    contratos = Nomina.objects.filter(idnomina=idnomina).order_by('idcontrato__idempleado__papellido').values_list('idcontrato', flat=True).distinct()
-
+    if data == 0 : 
+        contratos = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 1).order_by('idcontrato__idempleado__papellido').values_list('idcontrato', flat=True).distinct()
+    else:
+        contratos = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 2).order_by('idcontrato__idempleado__papellido').values_list('idcontrato', flat=True).distinct()
     # Precargar logo solo una vez
+    
     logo = None
     try:
         logo_path = f"static/img/{empresa_data.logo}"

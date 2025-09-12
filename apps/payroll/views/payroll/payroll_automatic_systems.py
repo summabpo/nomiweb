@@ -329,7 +329,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
     
-    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, fechainicial__range=(inicio_nomina, fin_nomina) )
+    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3, fechainicial__range=(inicio_nomina, fin_nomina) )
     
     if parte_nomina != 0:
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
