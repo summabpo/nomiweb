@@ -195,8 +195,19 @@ class FixedForm(forms.Form):
         # Configuración de Crispy Forms
         self.helper = FormHelper()
         self.helper.form_method = 'post'
+        self.helper.form_id = 'form_fixed'
         self.helper.enctype = 'multipart/form-data'
 
+        self.helper.attrs.update({
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',  # Clave para resolver el error
+            'up-submit': reverse('payroll:fixed_add'),
+            'up-accept-location': reverse('payroll:fixed'),
+            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
+        })
+        
+        
         # Diseño del formulario con Crispy Forms
         self.helper.layout = Layout(
             Row(

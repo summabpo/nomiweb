@@ -111,6 +111,8 @@ urlunpolypatterns =[
     path('parameters/family/edit/modal/<int:id>', family.family_edit, name='family_edit'),
     path('parameters/family/delete/modal/<int:id>', family.family_delete, name='family_delete'),
     
+    path('parameters/fixed/add', parameters.fixed_add, name='fixed_add'),
+    path('parameters/fixed/edit/<str:id>', parameters.fixed_edit, name='fixed_edit'),
     
     path('settlements/termination/add/modal/', severance_settlement.settlement_create, name='settlement_create'),
     path('settlement/termination/calculate/', severance_settlement.settlement_calculate, name='settlement_calculate'),

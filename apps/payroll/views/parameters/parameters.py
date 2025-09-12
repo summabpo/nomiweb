@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 import json
 from django.urls import reverse
-
+from decimal import Decimal 
 @login_required
 @role_required('company','admin','accountant')
 def banks(request):
@@ -258,6 +258,90 @@ def fixed(request):
     
     
     return render(request, './payroll/fixed.html',{'fixeds': fixeds, 'form': form, 'error': error})
+
+
+@login_required
+@role_required('company','admin','accountant')
+def fixed_add(request):
+    print('---1---')
+    form = FixedForm()
+    
+    if request.method == 'POST':
+        print('---2---')
+        form = FixedForm(request.POST)
+        if form.is_valid():
+            print('---3---')
+            try:
+                # Crear instancia de Crearnomina
+                Conceptosfijos.objects.create(
+                    conceptofijo=form.cleaned_data['conceptofijo'],
+                    valorfijo  = form.cleaned_data['valorfijo']
+                )
+                
+                response = HttpResponse()
+                response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+                response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+                response['X-Up-message'] = 'Concepto guardado exitosamente'    
+                response['X-Up-Location'] = reverse('payroll:fixed')           
+                return response
+            except Exception as e:
+                # Captura cualquier otro error no contemplado
+                print("Ocurrió un error inesperado:", e)
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")
+    else:
+        form = FixedForm()
+    
+    return render(request, './payroll/partials/fixed_create.html',{'form': form})
+
+
+@login_required
+@role_required('company','admin','accountant')
+def fixed_edit(request,id):
+    concept = Conceptosfijos.objects.get(idfijo =  id)
+
+    data = {
+        'conceptofijo': concept.conceptofijo,
+        'valorfijo': concept.valorfijo.quantize(Decimal('0.00'))
+    }
+    
+    
+    if request.method == 'POST':
+        form = FixedForm(request.POST)
+        if form.is_valid():
+            try:
+                
+                if concept.conceptofijo != form.cleaned_data['conceptofijo']:
+                    concept.conceptofijo = form.cleaned_data['conceptofijo']
+                
+                if concept.valorfijo != form.cleaned_data['valorfijo']:
+                    concept.valorfijo = form.cleaned_data['valorfijo']
+                
+                
+                concept.save()
+                
+                response = HttpResponse()
+                response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+                response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+                response['X-Up-message'] = 'Concepto actualizado exitosamente'    
+                response['X-Up-Location'] = reverse('payroll:fixed')           
+                return response
+            
+            except Exception as e:
+                # Captura cualquier otro error no contemplado
+                print("Ocurrió un error inesperado:", e)
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")
+    else:
+        form = FixedForm(initial = data)
+    
+    return render(request, './payroll/partials/fixed_create.html',{'form': form})
 
 
 @login_required
