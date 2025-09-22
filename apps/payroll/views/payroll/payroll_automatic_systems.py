@@ -9,6 +9,7 @@ from django.db.models import Sum
 from datetime import timedelta
 from apps.components.humani import format_value
 from django.http import JsonResponse
+from django.utils import timezone
 
 #prueba git
 @login_required
@@ -122,7 +123,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
                 return redirect('payroll:payrollview', id=idnomina)
         
         elif type_payroll == 4:
-            if procesar_nomina_reset(idnomina, ne, idempresa,empleados_ids):
+            if procesar_nomina_reset(idnomina, ne, idempresa,empleados_ids,usuario):
                 messages.success(request, "Reinicio de nómina realizado correctamente.")
                 return redirect('payroll:payrollview', id=idnomina)
             else:
@@ -139,14 +140,41 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
 
 
-def procesar_nomina_reset(idn, parte_nomina,idempresa,empleados):
-    
-    data_nomina = Nomina.objects.filter(
-            idnomina_id=idn
+def procesar_nomina_reset(idn, parte_nomina, idempresa, empleados, iduser):
+    # Buscar registros de la nómina
+    qs = Nomina.objects.filter(idnomina_id=idn)
+
+    if qs.exists():
+        # Eliminar registros
+        count = qs.count()
+        qs.delete()
+        
+        # Fecha y hora del reset
+        fecha_reset = timezone.now().strftime("%d-%m-%Y %H:%M:%S")
+        
+        # Construir descripción detallada
+        text = (
+            f"Reset de nómina ID {idn} | "
+            f"Empresa: {idempresa} | "
+            f"Parte: {parte_nomina} | "
+            f"Empleados afectados: {len(empleados) if empleados else 0} | "
+            f"Registros eliminados: {count} | "
+            f"Usuario: {iduser['id']} | "
+            f"Fecha: {fecha_reset}"
         )
-    for data in data_nomina:
-        data.estadonomina = 2
-        data.save()
+        
+        # Guardar historial
+        EditHistory.objects.create(
+            modified_model="Nomina-all",
+            modified_object_id=idn,
+            user_id=iduser["id"],
+            operation_type="delete",
+            field_name="data",
+            description=text,
+            id_empresa_id=iduser["idempresa"],
+        )
+
+    # Si no existía nada, no se guarda nada en histórico
     return True
 
 
@@ -330,6 +358,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         contratos = contratos.filter(idcosto = parte_nomina)
     
     incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3, fechainicial__range=(inicio_nomina, fin_nomina) )
+    
     
     if parte_nomina != 0:
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)

@@ -36,10 +36,13 @@ def fixed(request):
     -----
     El usuario debe tener el rol `'accountant'` para acceder a esta vista.
     """
-     
+    
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     novfijos = NovFijos.objects.filter(idcontrato__id_empresa = idempresa).order_by('-idnovfija')
+
+
+    
     return render(request, './payroll/fixedconcepts.html',{'novfijos': novfijos})
     
 

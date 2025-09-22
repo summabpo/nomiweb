@@ -49,6 +49,44 @@ def vacation_general(request):
     
     return render(request, './companies/vacation_general.html', context)
 
+
+
+@login_required
+@role_required('company','accountant')
+def vacation_resumen(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    vacaciones = Vacaciones.objects.filter(idcontrato__id_empresa=idempresa, tipovac__idvac__in=[1,2]).values(
+        "idcontrato__idempleado__docidentidad",
+        "idcontrato__idempleado__papellido",
+        "idcontrato__idempleado__sapellido",
+        "idcontrato__idempleado__pnombre",
+        "idcontrato__idempleado__snombre",
+        "idcontrato",
+        "idvacaciones",
+    )
+    
+    context = {
+        'vacaciones' : vacaciones
+    }
+    
+    return render(request, './companies/vacation_resumen.html', context)
+
+@login_required
+@role_required('company','accountant')
+def vacation_resumen_data(request,id):
+    
+    
+    vacaciones = Vacaciones.objects.get(idvacaciones=id)
+        
+    context = {
+        'vacaciones' : vacaciones
+    }
+    
+    return render(request, './companies/partials/vacation_resumen_data.html', context)
+
+
 @login_required
 @role_required('company','accountant')
 def get_novedades(request):

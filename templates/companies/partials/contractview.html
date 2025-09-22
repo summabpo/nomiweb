@@ -1,0 +1,190 @@
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Datos de Contrato #{{contrato.idcontrato}}</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="fechainiciocontrato">Fecha Inicial del Contrato</label>
+                        <input class="form-control" type="text" id="fechainiciocontrato"  disabled value='{{contrato.dateinit}}' />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="fechafincontrato">Fecha de Terminación</label>
+                        <input class="form-control" type="text" id="fechafincontrato"  disabled value='{{contrato.dateend}}'  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="cargo">Cargo</label>
+                        <input class="form-control" type="text" id="cargo" disabled value='{{contrato.cargo}}' />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="lugartrabajo">Lugar de trabajo</label>
+                        <input class="form-control" type="text" id="lugartrabajo" disabled value='{{contrato.lugartrabajo}}' />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipocontrato">Tipo de Contrato</label>
+                        <input class="form-control" type="text" id="tipocontrato" disabled value='{{contrato.tipocontrato}}' />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="modelocontrato">Modelo de Contrato</label>
+                        <input class="form-control" type="text" id="modelocontrato" disabled value='{{contrato.modelo}}' />
+                    </div>
+                </div>
+                
+                <div class="separator border-2 my-10">Datos de Compensación</div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="salario">Salario</label>
+                        <input class="form-control" type="text" id="salario" disabled value='{{contrato.salario}}'/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="tiposalario">Tipo Salario</label>
+                        <input class="form-control" type="text" id="tiposalario" disabled value='{{contrato.tiposalario}}' />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="modalidadsalario">Modalidad Salario</label>
+                        <input class="form-control" type="text" id="modalidadsalario" disabled value='{{contrato.modalidadsalario}}'  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="vivetrabajo">Vive en el lugar de trabajo</label>
+                        <input class="form-control" type="text" id="vivetrabajo" disabled value='{{contrato.vivetrabajo}}'  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="formapago">Forma de pago</label>
+                        <input class="form-control" type="text" id="formapago" disabled value='{{contrato.ciudadcontratacion}}'  />
+
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="bancocuenta">Banco de la Cuenta</label>
+                        <input class="form-control" type="text" id="bancocuenta" disabled value='{{contrato.bancocuenta}}'  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipocuenta">Tipo de Cuenta</label>
+                        <input class="form-control" type="text" id="tipocuenta" disabled value='{{contrato.tipocuentanomina}}'  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="cuentanomina">Cuenta de Nómina</label>
+                        <input class="form-control" type="text" id="cuentanomina" disabled value='{{contrato.cuentanomina}}'  />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="centrocosto">Centro de Costos</label>
+                        <input class="form-control" type="text" id="centrocosto" disabled value='{{contrato.cuentannomcostoomina}}'  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="subcentrocosto">Sub centro de Costos</label>
+                        <input class="form-control" type="text" id="subcentrocosto"  disabled value='{{contrato.nomsubcosto}}' />
+                    </div>
+                </div>
+                
+                <div class="separator border-2 my-10">Seguridad Social</div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="eps">Eps</label>
+                        <input class="form-control" type="text" id="eps" disabled value='{{contrato.eps}}'  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="fondocesantias">Fondo Cesantias</label>
+                        <input class="form-control" type="text" id="fondocesantias"  disabled value='{{contrato.fondocesantias}}' />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="pension">Pensión</label>
+                        <input class="form-control" type="text" id="pension" disabled value='{{contrato.idcontrato}}'  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="centrotrabajo">Centro de Trabajo ARL</label>
+                        <input class="form-control" type="text" id="centrotrabajo" disabled value='{{contrato.pension}}' />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="sede">Sede de Trabajo</label>
+                        <input class="form-control" type="text" id="sede" disabled value='{{contrato.nombresede}}'  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="tarifaarl">Tarifa ARL</label>
+                        <input class="form-control" type="text" id="tarifaarl"  disabled value='{{contrato.tarifaarl}}' />
+                    </div>
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="form-label" for="cajacompensacion">Caja de Compensación Familiar</label>
+                        <input class="form-control" type="text" id="cajacompensacion" disabled value='{{contrato.cajacompensacion}}'  />
+                    </div>
+                   
+                </div>
+                
+                <div class="separator border-0 my-10"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="tipocotizante">Tipo de cotizante</label>
+                        <input class="form-control" type="text" id="tipocotizante" disabled value='{{contrato.tipocotizante}}'  />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="subtipocotizante">Subtipo de cotizante</label>
+                        <input class="form-control" type="text" id="subtipocotizante" disabled value='{{contrato.subtipocotizante}}'  />
+                    </div>
+                </div>
+
+                
+
+            </div>
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+</div>
+<!--end::Modal-->

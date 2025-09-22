@@ -9,7 +9,7 @@ from django.http import JsonResponse
 
 @login_required
 @role_required('company','accountant')
-def contractview(request): 
+def contractview(request,id): 
     """
     Muestra los detalles de un contrato específico de un empleado.
 
@@ -44,10 +44,8 @@ def contractview(request):
         '4': 'Falla'
     }
     
-    
-    dato = request.GET.get('dato')
     try:
-        contrato = Contratos.objects.get(idcontrato = dato)  # Cambia la lógica según tu modelo
+        contrato = Contratos.objects.get(idcontrato = id)  # Cambia la lógica según tu modelo
         # Usamos una función auxiliar para devolver '' si el campo es None
         def safe_get(value):
             return value if value is not None else ''
@@ -65,7 +63,7 @@ def contractview(request):
             'modalidadsalario': safe_get(contrato.salariovariable),
             'vivetrabajo': 'Si'if contrato.auxiliotransporte else 'No' ,
             'ciudadcontratacion': safe_get(contrato.ciudadcontratacion.ciudad),
-            'bancocuenta': contrato.bancocuenta.idbanco if contrato.bancocuenta else '',
+            'bancocuenta': contrato.bancocuenta.nombanco if contrato.bancocuenta else '',
             'tipocuentanomina': safe_get(contrato.tipocuentanomina),
             'formapago' : resultados.get(contrato.formapago, 'Ninguna opción'),
             'cuentanomina': safe_get(contrato.cuentanomina),
@@ -82,8 +80,11 @@ def contractview(request):
             'subtipocotizante': safe_get(contrato.subtipocotizante.subtipocotizante),
             'pensionado': safe_get(contrato.riesgo_pension),
         }
-        return JsonResponse({'data': response_data})
+        
+        return render(request, './companies/partials/contractview.html',{'contrato': response_data })
+    
     except Exception as e:
+        
         return JsonResponse({'error': 'Falla de sistema'}, status=404)
     
     
@@ -93,7 +94,7 @@ def contractview(request):
 
 @login_required
 @role_required('company','accountant')
-def resumeview(request):
+def resumeview(request,id): 
     """
     Muestra el resumen de un empleado específico.
 
@@ -120,9 +121,9 @@ def resumeview(request):
     -----
     El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
     """
-    dato = request.GET.get('dato')
+    
     try:
-        empleado = Contratosemp.objects.get(idempleado=dato)
+        empleado = Contratosemp.objects.get(idempleado=id)
         response_data = {
             'docidentidad': empleado.docidentidad or '',
             'tipodocident': empleado.tipodocident.codigo or '',
@@ -158,7 +159,9 @@ def resumeview(request):
             'estadocontrato': empleado.estadocontrato or '',
             'formatohv': empleado.formatohv or ''
         }
-        return JsonResponse({'data': response_data})
+        
+        return render(request, './companies/partials/resumenview.html',{'empleados': response_data })
+        
         
     except Exception as e:
         return JsonResponse({'error': 'Falla de sistema'}, status=404)

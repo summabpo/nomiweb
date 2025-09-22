@@ -34,7 +34,7 @@ Novedades de Nomina
 
 
 {% block sub_titulo2 %} 
-Vacaciones 
+Resumen de vacaciones 
 {% endblock %}
 
 {% block actions %}
@@ -42,7 +42,7 @@ Vacaciones
 {% endblock %}
 
 {% block titulo2 %} 
-Resumen de vacaciones/ausencias
+Resumen de vacaciones 
 {% endblock %}
 
 
@@ -59,20 +59,38 @@ Resumen de vacaciones/ausencias
             </tr>
         </thead>
         <tbody>
-            {% for item in contratos_empleados %}
+            {% for item in vacaciones %}
                 <tr>
-                    <td>{{ item.idempleado__docidentidad }}</td>
-                    <td>{{ item.idempleado__papellido }} {{ item.idempleado__sapellido }} {{ item.idempleado__pnombre }} {{ item.idempleado__snombre }}</td>
-                    <td >{{ item.idcontrato }}</td>
+                    <td>{{ item.idcontrato__idempleado__docidentidad|default:"" }}</td>
+                    <td>
+                        {{ item.idcontrato__idempleado__papellido|default:"" }}
+                        {{ item.idcontrato__idempleado__sapellido|default:"" }}
+                        {{ item.idcontrato__idempleado__pnombre|default:"" }}
+                        {{ item.idcontrato__idempleado__snombre|default:"" }}
+                    </td>
+                    <td>{{ item.idcontrato|default:"" }}</td>
                     <td>
                         <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-icon btn-sm btn-light-facebook me-2 btn-novedad" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-tipo="Vacaciones" data-contrato="{{ item.idcontrato }}">
+                            <a
+                                class='btn btn-icon btn-sm btn-light-facebook me-2 btn-novedad'
+
+                                data-bs-toggle="tooltip"
+                                data-bs-custom-class="tooltip-inverse"
+                                data-bs-placement="top" 
+                                title="Ver detalles"
+
+                                up-layer='new modal'
+                                up-target=".modal-content"
+                                up-size = "medium"
+                                up-align = "center"
+                                up-backdrop = "true"
+                                up-history = "false"
+                                up-dismissable ="false"
+                                up-cache="false"
+
+                                href="{% url 'companies:vacation_resumen_data'  item.idvacaciones %}">
                                 <i class="fa-solid fa-plane-departure fs-3"></i>
-                            </button>
-                            
-                            <button type="button" class="btn btn-icon btn-sm btn-light-instagram me-2 btn-novedad" data-bs-toggle="modal" data-bs-target="#kt_modal_1" data-tipo="Ausencias" data-contrato="{{ item.idcontrato }}" >
-                                <i class="fa-solid fa-calendar-xmark fs-3"></i>
-                            </button>
+                            </a> 
                         </div>
                     </td>
                 </tr>

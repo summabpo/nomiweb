@@ -174,7 +174,7 @@ Listado de Incapacidades
                             {% endif %}
 
                         </td>
-                        <td>{{ item.fechainicial | date:"d/m/Y"  }}</td>
+                        <td>{{ item.fechainicial | date:"d-m-Y"  }}</td>
                         <td>{{ item.dias }}</td>
                         
                         <td>
@@ -324,6 +324,22 @@ Listado de Incapacidades
             },
             dom: 'frtip',
             order: [],
+            columnDefs: [
+                    { targets: [0], orderable: false }, // la 1ª columna sin orden
+                    {
+                        targets: 7, // 👈 columna de fecha (recuerda: índices empiezan en 0)
+                        render: function (data, type, row) {
+                            if (type === 'sort' || type === 'type') {
+                                // data = "08-05-2003"
+                                var parts = data.split('-'); // [dd, mm, yyyy]
+                                // convertir a formato comparable: yyyy-mm-dd
+                                return new Date(parts[2], parts[1] - 1, parts[0]);
+                            }
+                            return data; // mostrar como viene
+                        }
+                    },
+                    
+                ],
             pageLength: 20
         });
     });

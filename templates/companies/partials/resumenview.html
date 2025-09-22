@@ -1,0 +1,204 @@
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Datos de Contrato #{{contrato.idcontrato}}</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+            <div class="modal-body">
+                
+                
+                <div class="separator border-2 my-10"> Identificación</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Tipo de documento de identidad </label>
+                        <input id="tipodocident" class="form-control" type="text" value='{{empleados.tipodocident}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Documento de identidad </label>
+                        <input id="docidentidad" class="form-control" type="text" value='{{empleados.docidentidad}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Fecha de expedición </label>
+                        <input id="fechaexpedicion" class="form-control" type="text" value='{{empleados.fechaexpedicion}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Ciudad de expedición </label>
+                        <input id="ciudadexpedicion" class="form-control" type="text" value='{{empleados.ciudadexpedicion}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Primer Nombre </label>
+                        <input id="pnombre" class="form-control" type="text" value='{{empleados.pnombre}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Segundo Nombre </label>
+                        <input id="snombre" class="form-control" type="text" value='{{empleados.snombre}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Primer Apellido </label>
+                        <input id="papellido" class="form-control" type="text" value='{{empleados.papellido}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Segundo Apellido </label>
+                        <input id="sapellido" class="form-control" type="text" value='{{empleados.sapellido}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-2 my-10"> Datos Personales </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Sexo </label>
+                        <input id="sexo" class="form-control" type="text" value='{{empleados.sexo}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Estatura (Mts) </label>
+                        <input id="estatura" class="form-control" type="text" value='{{empleados.estatura}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Estado Civil </label>
+                        <input id="estadocivil" class="form-control" type="text" value='{{empleados.estadocivil}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Peso (Kg) </label>
+                        <input id="peso" class="form-control" type="text" value='{{empleados.peso}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Fecha de Nacimiento </label>
+                        <input id="fechanac" class="form-control" type="text" value='{{empleados.fechanac}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Nivel Educativo </label>
+                        <input id="niveleducativo" class="form-control" type="text" value='{{empleados.niveleducativo}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Ciudad de Nacimiento </label>
+                        <input id="ciudadnacimiento" class="form-control" type="text" value='{{empleados.ciudadnacimiento}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Estrato </label>
+                        <input id="estrato" class="form-control" type="text" value='{{empleados.estrato}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Pais de nacimiento </label>
+                        <input id="paisnacimiento" class="form-control" type="text" value='{{empleados.paisnacimiento}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Libreta Militar </label>
+                        <input id="numlibretamil" class="form-control" type="text" value='{{empleados.numlibretamil}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Grupo Sanguineo </label>
+                        <input id="gruposanguineo" class="form-control" type="text" value='{{empleados.gruposanguineo}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Profesión </label>
+                        <input id="profesion" class="form-control" type="text" value='{{empleados.profesion}}' disabled />
+                    </div>
+                </div>
+                <div class="separator border-0 my-10"></div>
+
+                <div class="separator border-2 my-10"> Datos de Residencia </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Direccion de Residencia </label>
+                        <input id="direccionempleado" class="form-control" type="text" value='{{empleados.direccionempleado}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> E - mail </label>
+                        <input id="email" class="form-control" type="text" value='{{empleados.email}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Ciudad de Residencia </label>
+                        <input id="ciudadresidencia" class="form-control" type="text" value='{{empleados.ciudadresidencia}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Celular </label>
+                        <input id="celular" class="form-control" type="text" value='{{empleados.celular}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-0 my-10"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label"> Pais de residencia </label>
+                        <input id="paisresidencia" class="form-control" type="text" value='{{empleados.paisresidencia}}' disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"> Telefono del Empleado </label>
+                        <input id="telefonoempleado" class="form-control" type="text" value='{{empleados.telefonoempleado}}' disabled />
+                    </div>
+                </div>
+
+                <div class="separator border-2 my-10"> Dotación</div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label"> Talla Pantalón </label>
+                        <input id="dotpantalon" class="form-control" type="text" value='{{empleados.dotpantalon}}' disabled />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"> Talla Camisa </label>
+                        <input id="dotcamisa" class="form-control" type="text" value='{{empleados.dotcamisa}}' disabled />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label"> Talla Zapatos </label>
+                        <input id="dotzapatos" class="form-control" type="text" value='{{empleados.dotzapatos}}' disabled />
+                    </div>
+                </div>
+
+                
+                
+        
+            </div>
+        </div>
+    </div>
+    <div class="separator my-5"></div>
+    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+</div>
+<!--end::Modal-->
