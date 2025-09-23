@@ -122,7 +122,8 @@ urlpatterns = [
     path('payroll/vacation/historical', vacation.vacation, name='vacation'),
     path('payroll/vacation/general/', vacation_general.vacation_general, name='vacation_general'),
     path('payroll/vacation/resumen/', vacation_general.vacation_resumen, name='vacation_resumen'),
-    path('payroll/vacation/resumen/<int:id>/', vacation_general.vacation_resumen_data, name='vacation_resumen_data'),
+    path('payroll/absences/resumen/', vacation_general.absences_resumen, name='absences_resumen'),
+    path('payroll/vacation/resumen/<int:id>/items/', vacation_general.vacation_resumen_data, name='vacation_resumen_data'),
     path('payroll/vacation/general/data/', vacation_general.get_novedades, name='get_novedades'),
     path('payroll/vacation/balance/', vacation_balance.vacation_balance, name='vacation_balance'),
     

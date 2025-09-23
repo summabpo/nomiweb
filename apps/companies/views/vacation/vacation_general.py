@@ -89,6 +89,45 @@ def vacation_resumen_data(request,id):
 
 @login_required
 @role_required('company','accountant')
+def absences_resumen(request):
+    
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    vacaciones = Vacaciones.objects.filter(idcontrato__id_empresa=idempresa, tipovac__idvac__in=[3,4,5]).values(
+        "idcontrato__idempleado__docidentidad",
+        "idcontrato__idempleado__papellido",
+        "idcontrato__idempleado__sapellido",
+        "idcontrato__idempleado__pnombre",
+        "idcontrato__idempleado__snombre",
+        "idcontrato",
+        "idvacaciones",
+    )
+    
+    context = {
+        'vacaciones' : vacaciones
+    }
+    
+    return render(request, './companies/absences_resumen.html', context)
+
+@login_required
+@role_required('company','accountant')
+def absences_resumen_data(request,id):
+    
+    
+    vacaciones = Vacaciones.objects.get(idvacaciones=id)
+        
+    context = {
+        'vacaciones' : vacaciones
+    }
+    
+    return render(request, './companies/partials/vacation_resumen_data.html', context)
+
+
+
+
+@login_required
+@role_required('company','accountant')
 def get_novedades(request):
     """
     API View que retorna las novedades de tipo 'Vacaciones' o 'Ausencias/licencias no remuneradas'

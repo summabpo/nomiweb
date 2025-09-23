@@ -1,64 +1,67 @@
-{% load crispy_forms_tags %}
 {% load custom_filters %}
-<!-- Bootstrap-styled modal -->
-<div class="modal-content"  id="modal-content">
-    <div class="modal-header">
-        <h3 class="modal-title">Detalle de Concepto</h3>
-        <!--begin::Close-->
-        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
-            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-        </div>
-        <!--end::Close-->
-    </div>   
-    <div class="separator my-5"></div> 
-    <!--begin::Input group-->        
-    <div class="modal-body">
-        <div class="container">
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Novedad</th>
+            <th>Fecha inicial</th>
+            <th>Ultimo dia</th>
+            <th>Dias Cal</th>
+            <th>Dias Vac</th>
+            <th>Pago</th>
+            <th>Periodo Ini</th>
+            <th>Periodo Fin</th>
+            <th>Id</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ vacaciones.tipovac }}</td>
+            <td>{{ vacaciones.fechainicialvac|date:"d-m-Y" }}</td>
+            <td>{{ vacaciones.ultimodiavac|date:"d-m-Y" }}</td>
+            <td>{{ vacaciones.diascalendario }}</td>
+            <td>{{ vacaciones.diasvac }}</td>
+            <td>{{ vacaciones.basepago|format_currency }}</td>
+            <td>{{ vacaciones.perinicio|date:"d-m-Y" }}</td>
+            <td>{{ vacaciones.perfinal|date:"d-m-Y" }}</td>
+            <td>{{ vacaciones.idvacaciones }}</td>
+        </tr>
+    </tbody>
 
-            <table class="table table-bordered table-striped">
-                <tbody>
-                    <tr>
-                        <th>Fecha de inicio:</th>
-                        <td>{{ vacaciones.fechainicialvac|date:"d-m-Y" }}</td>
-                    </tr>
-                    <tr>
-                        <th>Fecha de fin:</th>
-                        <td>{{ vacaciones.ultimodiavac|date:"d-m-Y" }}</td>
-                    </tr>
-                    <tr>
-                        <th>Días calendario:</th>
-                        <td>{{ vacaciones.diascalendario }}</td>
-                    </tr>
-                    <tr>
-                        <th>Días de vacaciones:</th>
-                        <td>{{ vacaciones.diasvac }}</td>
-                    </tr>
-                    <tr>
-                        <th>Pago de vacaciones:</th>
-                        <td>{{ vacaciones.basepago|format_currency }}</td>
-                    </tr>
-                    <tr>
-                        <th>Cuenta sabados</th>
-                        <td>{{ vacaciones.cuentasabados }}</td>
-                    </tr>
-                    <tr>
-                        <th>Tipo vacaciones :</th>
-                        <td>{{ vacaciones.tipovac }}</td>
-                    </tr>
-                    <tr>
-                        <th>Pago de vacaciones:</th>
-                        <td>{{ vacaciones.perinicio }}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-        </div>
-
-    </div>
-    <div class="separator my-5"></div>
-    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
-</div>
-
+    {% comment %} <tbody>
+        <tr>
+            <th>Fecha de inicio:</th>
+            <td>{{ vacaciones.fechainicialvac|date:"d-m-Y" }}</td>
+        </tr>
+        <tr>
+            <th>Fecha de fin:</th>
+            <td>{{ vacaciones.ultimodiavac|date:"d-m-Y" }}</td>
+        </tr>
+        <tr>
+            <th>Días calendario:</th>
+            <td>{{ vacaciones.diascalendario }}</td>
+        </tr>
+        <tr>
+            <th>Días de vacaciones:</th>
+            <td>{{ vacaciones.diasvac }}</td>
+        </tr>
+        <tr>
+            <th>Pago de vacaciones:</th>
+            <td>{{ vacaciones.basepago|format_currency }}</td>
+        </tr>
+        <tr>
+            <th>Cuenta sabados</th>
+            <td>{{ vacaciones.cuentasabados }}</td>
+        </tr>
+        <tr>
+            <th>Tipo vacaciones :</th>
+            <td>{{ vacaciones.tipovac }}</td>
+        </tr>
+        <tr>
+            <th>Pago de vacaciones:</th>
+            <td>{{ vacaciones.perinicio |date:"d-m-Y"  }}</td>
+        </tr>
+    </tbody> {% endcomment %}
+</table>
 
 
 
