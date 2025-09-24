@@ -144,6 +144,7 @@ Listado de Incapacidades
         <table class="table table-striped table-bordered" id="table-disabilities" >
             <thead class="fw-bold fs-6 text-gray-800">
                 <tr> 
+                    <th>Id incapacidad</th>
                     <th>Id Contrato</th>
                     <th>Documento</th>
                     <th>Apellidos y Nombre</th>
@@ -159,6 +160,7 @@ Listado de Incapacidades
             <tbody>
                 {% for item in incapacidades %}
                     <tr>
+                        <td>{{ item.idincapacidad }}</td>
                         <td>{{ item.idcontrato__idcontrato }}</td>
                         <td>{{ item.idcontrato__idempleado__docidentidad }}</td>
                         <td> {{ item.idcontrato__idempleado__papellido }} {{ item.idcontrato__idempleado__sapellido }} {{ item.idcontrato__idempleado__pnombre }} {{ item.idcontrato__idempleado__snombre }} </td>
@@ -327,7 +329,7 @@ Listado de Incapacidades
             columnDefs: [
                     { targets: [0], orderable: false }, // la 1ª columna sin orden
                     {
-                        targets: 7, // 👈 columna de fecha (recuerda: índices empiezan en 0)
+                        targets: 8, // 👈 columna de fecha (recuerda: índices empiezan en 0)
                         render: function (data, type, row) {
                             if (type === 'sort' || type === 'type') {
                                 // data = "08-05-2003"

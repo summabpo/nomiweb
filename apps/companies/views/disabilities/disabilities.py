@@ -81,8 +81,9 @@ def disabilities(request):
       'idincapacidad',
       'imagenincapacidad',
       'idcontrato__id_empresa_id'
-  ).order_by('-idincapacidad')
+  ).order_by('-fechainicial')
 
+  
   # Reemplazar None por cadena vacía en los campos especificados
   for inc in incapacidades:
       for campo in [

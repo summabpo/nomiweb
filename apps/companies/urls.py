@@ -36,6 +36,7 @@ from .views.index import index
 
 from .views.accountinggroup import accountinggroup
 
+from .views.update_salary import update_salary 
 
 
 urlpatterns = [
@@ -133,6 +134,10 @@ urlpatterns = [
     path('payroll/vacation/request/get/', vacation_request.get_vacation_details, name='get_vacation_details'),
     path('payroll/vacation/request/acction/', vacation_request.get_vacation_acction, name='get_vacation_acction'),
 
+    
+    path('payroll/update/salary', update_salary.update_salary, name='update_salary'),
+    path('payroll/update/salary/add', update_salary.update_salary_add, name='update_salary_add'),
+    
     # ## Mass Email URL
     path('payroll/sheet/massive/mail/', payrollsheet.massive_mail, name='massivemail'),
 
