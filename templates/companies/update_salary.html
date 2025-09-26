@@ -153,48 +153,91 @@ Cambio de Salario
 
 
 <script>
-    document.addEventListener('up:fragment:inserted', function(event) {
-
+    document.addEventListener('up:fragment:inserted', function (event) {
         const modalContent = up.layer?.current?.element;
         if (!modalContent) return;
-        
-        if (modalContent) {
-            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
-            
-    
-            // selector de tipo de 
-            // Usamos un pequeño retraso para asegurar el renderizado completo
-            setTimeout(() => {
-                selectElements.forEach((select, index) => {
-                    if (!select.id) {
-                        select.id = `select2-unique-${Date.now()}-${index}`;
+
+        // Inicializar todos los selects con data-control="select2"
+        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+
+        setTimeout(() => {
+            selectElements.forEach((select, index) => {
+                if (!select.id) {
+                    select.id = `select2-unique-${Date.now()}-${index}`;
+                }
+
+                if (!$(select).data('select2')) {
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
                     }
-    
-                    if (!$(select).data('select2')) {
-                        const options = {
-                            dropdownParent: $(modalContent),
-                            width: '100%'
-                        };
-    
-                        // Si tiene el atributo data-hide-search, desactiva el buscador
-                        if (select.hasAttribute('data-hide-search')) {
-                            options.minimumResultsForSearch = Infinity;
-                            
-                        }
-    
-                        $(select).select2(options);
-                    }
+
+                    $(select).select2(options);
+                }
+            });
+
+            // Select específico de contrato
+            const $contractSelect = $(modalContent).find('#contract-select');
+
+            if ($contractSelect.length) {
+                // Remover handlers previos para evitar duplicados
+                $contractSelect.off('select2:select');
+
+                // Nuevo handler para cambio de contrato
+                $contractSelect.on('select2:select', function (e) {
+                    handleContractChange(e.params.data.id);
                 });
-            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
-        }
-        else 
-        {
-            console.log('Contenido completo del fragmento:', event.target.innerHTML);
-        }
+            }
+        }, 300); // retraso para asegurar render completo
     });
 
+    function handleContractChange(contractId) {
+        const salaryField = document.getElementById('id_Salario_Actual');
 
+        if (!contractId) {
+            if (salaryField) salaryField.value = '';
+            return;
+        }
+
+        if (salaryField) {
+            salaryField.value = 'Cargando...';
+            salaryField.disabled = true;
+        }
+
+        fetch(`/companies/payroll/update/salary/get-contract-salary/?contract_id=${contractId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (salaryField) {
+                        salaryField.value = data.salary;
+                        salaryField.disabled = false;
+                    }
+                } else {
+                    console.error('Error al obtener el salario:', data.error);
+                    if (salaryField) {
+                        salaryField.value = '';
+                        salaryField.disabled = false;
+                    }
+                    alert('Error al obtener el salario del contrato: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error en la petición:', error);
+                if (salaryField) {
+                    salaryField.value = '';
+                    salaryField.disabled = false;
+                }
+                alert('Error al conectar con el servidor');
+            });
+    }
 </script>
+
+
+
 
 <script>
     $(document).ready(function() {

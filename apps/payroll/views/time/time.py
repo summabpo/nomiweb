@@ -20,6 +20,8 @@ def time_list(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
+    nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
+    
     contratos_empleados = Contratos.objects\
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
         .order_by('idempleado__papellido') \
@@ -30,6 +32,7 @@ def time_list(request):
             'idcosto__nomcosto', 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl',
             'idempleado__idempleado','idempleado__sapellido', 'idcontrato'
         )
+    
     
     empleados = [
     {
@@ -45,7 +48,9 @@ def time_list(request):
     for contrato in contratos_empleados
     ]
     
-    return render(request, './payroll/time_list.html',{'empleados': empleados})
+    
+    
+    return render(request, './payroll/time_list.html',{'empleados': empleados , 'nominas':nominas})
 
 
 def formatear_fecha(valor):
@@ -58,6 +63,9 @@ def formatear_fecha(valor):
             return valor
     return valor
 
+def es_domingo(fecha_str):
+    fecha = datetime.datetime.strptime(fecha_str, "%Y-%m-%d").date()
+    return fecha.weekday() == 6  # En Python, lunes=0, domingo=6
 
 def time_add(request):
     usuario = request.session.get('usuario', {})

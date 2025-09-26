@@ -32,6 +32,8 @@ class updatesalaryForm(forms.Form):
 
         self.fields['contract'] = forms.ChoiceField(
             choices=[
+                ('', 'Seleccione un contrato')
+            ] + [
                 (
                     item['idcontrato'],
                     f"{item['idempleado__papellido']} {item['idempleado__pnombre']} - "
@@ -50,11 +52,13 @@ class updatesalaryForm(forms.Form):
                 )
             ],
             label="Contrato",
-            widget=forms.SelectMultiple(attrs={
+            widget=forms.Select(attrs={
                 'data-control': 'select2',
                 'data-placeholder': 'Seleccione un contrato',
                 'data-allow-clear': "true",
-            })
+                'id': 'contract-select'
+            }),
+            required=True
         )
 
         self.fields['contractType'] = forms.ChoiceField(

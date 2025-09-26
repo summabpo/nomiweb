@@ -137,6 +137,7 @@ urlpatterns = [
     
     path('payroll/update/salary', update_salary.update_salary, name='update_salary'),
     path('payroll/update/salary/add', update_salary.update_salary_add, name='update_salary_add'),
+    path('payroll/update/salary/get-contract-salary/', update_salary.get_contract_salary, name='get_contract_salary'),
     
     # ## Mass Email URL
     path('payroll/sheet/massive/mail/', payrollsheet.massive_mail, name='massivemail'),
