@@ -12,6 +12,7 @@ from datetime import datetime , date
 from django.db.models import Q
 import pandas as pd
 from django.db import transaction
+from django.db.models import Sum
 
 
 @login_required
@@ -30,10 +31,11 @@ def time_list(request):
             'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
             'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario', 
             'idcosto__nomcosto', 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl',
-            'idempleado__idempleado','idempleado__sapellido', 'idcontrato'
+            'idempleado__idempleado','idempleado__sapellido', 'idcontrato', 'idsede__nombresede'
         )
     
-    
+    selected_nomina_id = request.GET.get('datatipo')
+
     empleados = [
     {
         'documento': contrato['idempleado__docidentidad'],
@@ -44,13 +46,64 @@ def time_list(request):
             contrato['idempleado__snombre'] if contrato['idempleado__snombre'] != 'no data' else ''
         ])),
         'idcontrato': contrato['idcontrato'],
+        'sede': contrato.get('idsede__nombresede')
     }
     for contrato in contratos_empleados
     ]
-    
-    
-    
-    return render(request, './payroll/time_list.html',{'empleados': empleados , 'nominas':nominas})
+
+    # Si se seleccionó una nómina, filtrar tiempos por rango de fechas de la nómina
+    if selected_nomina_id:
+        try:
+            nomina_sel = Crearnomina.objects.get(idnomina=selected_nomina_id, id_empresa_id=idempresa)
+            if nomina_sel.fechainicial and nomina_sel.fechafinal:
+                
+                tiempos_agregados = (
+                    Tiempos.objects
+                    .filter(
+                        idempresa_id=idempresa,
+                        fechaingreso__gte=nomina_sel.fechainicial,
+                        fechaingreso__lte=nomina_sel.fechafinal
+                    )
+                    .values('idcontrato_id')
+                    .annotate(
+                        horasord_sum=Sum('horasord'),
+                        horastrab_sum=Sum('horastrab'),
+                        horasdomfes_sum=Sum('horasdomfes'),
+                        hed_sum=Sum('hed'),
+                        hen_sum=Sum('hen'),
+                        hedf_sum=Sum('hedf'),
+                        henf_sum=Sum('henf'),
+                        rn_sum=Sum('rn'),
+                        rnf_sum=Sum('rnf'),
+                        dyf_sum=Sum('dyf'),
+                    )
+                )
+
+                
+                print('-----------')
+                print(tiempos_agregados)
+                print('-----------')
+                
+                mapa_tiempos = {t['idcontrato_id']: t for t in tiempos_agregados}
+
+                for emp in empleados:
+                    t = mapa_tiempos.get(emp['idcontrato'])
+                    if t:
+                        emp['horasord'] = t['horasord_sum']
+                        emp['horastrab'] = t['horastrab_sum']
+                        emp['horasdomfes'] = t['horasdomfes_sum']
+                        emp['hed'] = t['hed_sum']
+                        emp['hen'] = t['hen_sum']
+                        emp['hedf'] = t['hedf_sum']
+                        emp['henf'] = t['henf_sum']
+                        emp['rn'] = t['rn_sum']
+                        emp['rnf'] = t['rnf_sum']
+                        emp['dyf'] = t['dyf_sum']
+                print(emp)
+        except Crearnomina.DoesNotExist:
+            pass
+
+    return render(request, './payroll/time_list.html',{'empleados': empleados , 'nominas':nominas, 'selected_nomina_id': selected_nomina_id})
 
 
 def formatear_fecha(valor):
@@ -82,11 +135,13 @@ def time_add(request):
         idnomina = request.POST.get('idnomina')
 
         try:
-            df = pd.read_excel(file, header=None)
+            df = pd.read_csv(file, header=None,sep=";", encoding="utf-8")
         except Exception as e:
             errors.append(f"Error al leer el archivo: {str(e)}")
             return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
-
+        df = df.dropna(how="all")
+        
+        
         registros_validados = []
 
         for idx, fila in df.iterrows():
