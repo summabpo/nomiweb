@@ -8,55 +8,105 @@ from apps.payroll.forms.SettlementForm import SettlementForm
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from datetime import datetime , date
+from datetime import datetime, date, time, timedelta
 from django.db.models import Q
 import pandas as pd
 from django.db import transaction
 from django.db.models import Sum
-
 
 @login_required
 @role_required('accountant')
 def time_list(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    
-    nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
-    
-    contratos_empleados = Contratos.objects\
-        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
-        .order_by('idempleado__papellido') \
-        .filter(estadocontrato=1, id_empresa=idempresa) \
+    nominas = Crearnomina.objects.filter(
+        estadonomina=True,
+        id_empresa_id=idempresa
+    ).order_by('-idnomina')
+
+    contratos_empleados = (
+        Contratos.objects
+        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede')
+        .order_by('idempleado__papellido')
+        .filter(estadocontrato=1, id_empresa=idempresa)
         .values(
             'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-            'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario', 
+            'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario',
             'idcosto__nomcosto', 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl',
-            'idempleado__idempleado','idempleado__sapellido', 'idcontrato', 'idsede__nombresede'
+            'idempleado__idempleado', 'idempleado__sapellido',
+            'idcontrato', 'idsede__nombresede'
         )
-    
+    )
+
     selected_nomina_id = request.GET.get('datatipo')
 
     empleados = [
-    {
-        'documento': contrato['idempleado__docidentidad'],
-        'nombre': ' '.join(filter(None, [
-            contrato['idempleado__papellido'] if contrato['idempleado__papellido'] != 'no data' else '',
-            contrato['idempleado__sapellido'] if contrato['idempleado__sapellido'] != 'no data' else '',
-            contrato['idempleado__pnombre'] if contrato['idempleado__pnombre'] != 'no data' else '' ,
-            contrato['idempleado__snombre'] if contrato['idempleado__snombre'] != 'no data' else ''
-        ])),
-        'idcontrato': contrato['idcontrato'],
-        'sede': contrato.get('idsede__nombresede')
-    }
-    for contrato in contratos_empleados
+        {
+            'documento': contrato['idempleado__docidentidad'],
+            'nombre': ' '.join(filter(None, [
+                contrato['idempleado__papellido'] if contrato['idempleado__papellido'] != 'no data' else '',
+                contrato['idempleado__sapellido'] if contrato['idempleado__sapellido'] != 'no data' else '',
+                contrato['idempleado__pnombre'] if contrato['idempleado__pnombre'] != 'no data' else '' ,
+                contrato['idempleado__snombre'] if contrato['idempleado__snombre'] != 'no data' else ''
+            ])),
+            'idcontrato': contrato['idcontrato'],
+            'sede': contrato.get('idsede__nombresede')
+        }
+        for contrato in contratos_empleados
     ]
 
-    # Si se seleccionó una nómina, filtrar tiempos por rango de fechas de la nómina
+    # ---------- Helpers ----------
+    def parse_time_obj(t):
+        if t is None:
+            return None
+        if isinstance(t, time):
+            return t
+        if isinstance(t, datetime):
+            return t.time()
+        if isinstance(t, str):
+            for fmt in ("%H:%M:%S", "%H:%M"):
+                try:
+                    return datetime.strptime(t, fmt).time()
+                except Exception:
+                    continue
+        return None
+
+    def parse_date_obj(d):
+        if d is None:
+            return None
+        if isinstance(d, date) and not isinstance(d, datetime):
+            return d
+        if isinstance(d, datetime):
+            return d.date()
+        if isinstance(d, str):
+            try:
+                return datetime.strptime(d, "%Y-%m-%d").date()
+            except Exception:
+                pass
+        return None
+
+    def horasdescuento_to_timedelta(hd):
+        if hd is None:
+            return timedelta()
+        if isinstance(hd, timedelta):
+            return hd
+        if isinstance(hd, time):
+            return timedelta(hours=hd.hour, minutes=hd.minute, seconds=hd.second)
+        if isinstance(hd, datetime):
+            return timedelta(hours=hd.hour, minutes=hd.minute, seconds=hd.second)
+        try:
+            return timedelta(hours=float(hd))
+        except Exception:
+            return timedelta()
+
+    # ---------- Lógica principal ----------
     if selected_nomina_id:
         try:
-            nomina_sel = Crearnomina.objects.get(idnomina=selected_nomina_id, id_empresa_id=idempresa)
+            nomina_sel = Crearnomina.objects.get(
+                idnomina=selected_nomina_id,
+                id_empresa_id=idempresa
+            )
             if nomina_sel.fechainicial and nomina_sel.fechafinal:
-                
                 tiempos_agregados = (
                     Tiempos.objects
                     .filter(
@@ -64,48 +114,70 @@ def time_list(request):
                         fechaingreso__gte=nomina_sel.fechainicial,
                         fechaingreso__lte=nomina_sel.fechafinal
                     )
-                    .values('idcontrato_id')
-                    .annotate(
-                        horasord_sum=Sum('horasord'),
-                        horastrab_sum=Sum('horastrab'),
-                        horasdomfes_sum=Sum('horasdomfes'),
-                        hed_sum=Sum('hed'),
-                        hen_sum=Sum('hen'),
-                        hedf_sum=Sum('hedf'),
-                        henf_sum=Sum('henf'),
-                        rn_sum=Sum('rn'),
-                        rnf_sum=Sum('rnf'),
-                        dyf_sum=Sum('dyf'),
+                    .values(
+                        'idcontrato_id','horaingreso','horasalida',
+                        'horasdescuentos','fechaingreso','fechasalida'
                     )
                 )
 
-                
-                print('-----------')
-                print(tiempos_agregados)
-                print('-----------')
-                
-                mapa_tiempos = {t['idcontrato_id']: t for t in tiempos_agregados}
+                horas_por_contrato = {}
+                for t in tiempos_agregados:
+                    raw_id = t.get('idcontrato_id')
+                    try:
+                        id_contrato = int(raw_id)
+                    except Exception:
+                        id_contrato = str(raw_id)
 
+                    fecha = parse_date_obj(t.get('fechaingreso')) or parse_date_obj(t.get('fechasalida')) or date.today()
+                    hora_ingreso = parse_time_obj(t.get('horaingreso'))
+                    hora_salida = parse_time_obj(t.get('horasalida'))
+                    horas_descuentos = horasdescuento_to_timedelta(t.get('horasdescuentos'))
+
+                    if hora_ingreso and hora_salida:
+                        dt_ingreso = datetime.combine(fecha, hora_ingreso)
+                        dt_salida = datetime.combine(fecha, hora_salida)
+
+                        if dt_salida < dt_ingreso:
+                            dt_salida += timedelta(days=1)
+
+                        worked = dt_salida - dt_ingreso - horas_descuentos
+                        if worked < timedelta():
+                            worked = timedelta()
+
+                        horas_por_contrato[id_contrato] = horas_por_contrato.get(id_contrato, timedelta()) + worked
+
+                # normalizamos a horas decimales (keys normalmente int)
+                horas_por_contrato_decimal = {
+                    k: round(v.total_seconds() / 3600, 2) for k, v in horas_por_contrato.items()
+                }
+
+                # asignar horas y filtrar solo empleados con horas > 0 (horas extras)
+                empleados_con_horas = []
                 for emp in empleados:
-                    t = mapa_tiempos.get(emp['idcontrato'])
-                    if t:
-                        emp['horasord'] = t['horasord_sum']
-                        emp['horastrab'] = t['horastrab_sum']
-                        emp['horasdomfes'] = t['horasdomfes_sum']
-                        emp['hed'] = t['hed_sum']
-                        emp['hen'] = t['hen_sum']
-                        emp['hedf'] = t['hedf_sum']
-                        emp['henf'] = t['henf_sum']
-                        emp['rn'] = t['rn_sum']
-                        emp['rnf'] = t['rnf_sum']
-                        emp['dyf'] = t['dyf_sum']
-                print(emp)
+                    try:
+                        emp_id = int(emp['idcontrato'])
+                    except Exception:
+                        emp_id = str(emp['idcontrato'])
+                    horas = horas_por_contrato_decimal.get(emp_id, 0)
+                    emp['horas_trabajadas'] = horas
+                    if horas > 0:
+                        empleados_con_horas.append(emp)
+
+                # reemplazamos la lista original por la filtrada
+                empleados = empleados_con_horas
+                print(empleados)
         except Crearnomina.DoesNotExist:
             pass
 
-    return render(request, './payroll/time_list.html',{'empleados': empleados , 'nominas':nominas, 'selected_nomina_id': selected_nomina_id})
-
-
+    return render(
+        request,
+        './payroll/time_list.html',
+        {
+            'empleados': empleados,
+            'nominas': nominas,
+            'selected_nomina_id': selected_nomina_id
+        }
+    )
 def formatear_fecha(valor):
     if isinstance(valor, datetime):   # Si ya es datetime
         return valor.date()

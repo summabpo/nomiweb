@@ -77,7 +77,7 @@ def employee_loans(request):
     loans_list = Prestamos.objects.select_related(
         'idcontrato__idempleado'
     ).filter(
-        idcontrato__id_empresa=idempresa
+        idcontrato__id_empresa=idempresa , estadoprestamo = 1
     ).values(
         contract_id=F('idcontrato__idcontrato'),
         employee_document=F('idcontrato__idempleado__docidentidad'),
@@ -87,7 +87,7 @@ def employee_loans(request):
         employee_second_last_name=F('idcontrato__idempleado__sapellido'),
     ).annotate(
         loan_count=Count('idprestamo')
-    ).order_by('idcontrato__idempleado__papellido')
+    ).order_by('-idprestamo')
 
     # Construcción del nombre sin None ni espacios extra
     for loan in loans_list:

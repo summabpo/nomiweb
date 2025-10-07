@@ -65,7 +65,7 @@ def disabilities(request):
   usuario = request.session.get('usuario', {})
   idempresa = usuario['idempresa']
   
-  incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa = idempresa ).values(
+  incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa = idempresa ,idcontrato__estadocontrato=1).values(
       'idcontrato__idcontrato',
       'idcontrato__idempleado__docidentidad',
       'idcontrato__idempleado__pnombre',
@@ -82,7 +82,7 @@ def disabilities(request):
       'imagenincapacidad',
       'idcontrato__id_empresa_id'
   ).order_by('-fechainicial')
-
+  
   
   # Reemplazar None por cadena vacía en los campos especificados
   for inc in incapacidades:

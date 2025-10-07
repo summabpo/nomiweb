@@ -144,7 +144,6 @@ Listado de Incapacidades
         <table class="table table-striped table-bordered" id="table-disabilities" >
             <thead class="fw-bold fs-6 text-gray-800">
                 <tr> 
-                    <th>Id incapacidad</th>
                     <th>Id Contrato</th>
                     <th>Documento</th>
                     <th>Apellidos y Nombre</th>
@@ -160,7 +159,6 @@ Listado de Incapacidades
             <tbody>
                 {% for item in incapacidades %}
                     <tr>
-                        <td>{{ item.idincapacidad }}</td>
                         <td>{{ item.idcontrato__idcontrato }}</td>
                         <td>{{ item.idcontrato__idempleado__docidentidad }}</td>
                         <td> {{ item.idcontrato__idempleado__papellido }} {{ item.idcontrato__idempleado__sapellido }} {{ item.idcontrato__idempleado__pnombre }} {{ item.idcontrato__idempleado__snombre }} </td>

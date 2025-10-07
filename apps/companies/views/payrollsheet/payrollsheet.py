@@ -416,7 +416,8 @@ def build_payroll_certificate_pdf(pdf, context, logo=None):
     tabla_descuentos = encabezado_descuentos + filas_descuentos
 
     # Columnas
-    col_widths = [1*cm, 5*cm, 2*cm, 2*cm]
+    col_widths = [1*cm, 5*cm, 1.5*cm, 2.5*cm]
+    
 
     # Crear tablas
     table_ingresos = Table(tabla_ingresos, colWidths=col_widths)
@@ -466,6 +467,7 @@ def build_payroll_certificate_pdf(pdf, context, logo=None):
     ]
 
     col_widths = [1*cm, 5*cm, 1*cm, 3*cm, 1*cm, 5*cm, 1*cm, 3*cm]
+    
 
     tabla = Table(tabla5, colWidths=col_widths, rowHeights=18)
 
