@@ -13,12 +13,15 @@ from django.db.models import Q
 import pandas as pd
 from django.db import transaction
 from django.db.models import Sum
+import holidays
 
 @login_required
 @role_required('accountant')
 def time_list(request):
+    value = False
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
+
     nominas = Crearnomina.objects.filter(
         estadonomina=True,
         id_empresa_id=idempresa
@@ -46,10 +49,11 @@ def time_list(request):
             'nombre': ' '.join(filter(None, [
                 contrato['idempleado__papellido'] if contrato['idempleado__papellido'] != 'no data' else '',
                 contrato['idempleado__sapellido'] if contrato['idempleado__sapellido'] != 'no data' else '',
-                contrato['idempleado__pnombre'] if contrato['idempleado__pnombre'] != 'no data' else '' ,
+                contrato['idempleado__pnombre'] if contrato['idempleado__pnombre'] != 'no data' else '',
                 contrato['idempleado__snombre'] if contrato['idempleado__snombre'] != 'no data' else ''
             ])),
             'idcontrato': contrato['idcontrato'],
+            'salario':contrato['salario'], 
             'sede': contrato.get('idsede__nombresede')
         }
         for contrato in contratos_empleados
@@ -99,6 +103,101 @@ def time_list(request):
         except Exception:
             return timedelta()
 
+    # ---------- Función auxiliar para calcular extras ----------
+    def calcular_horas_extras(tiempos_queryset, idempresa):
+        CO_HOLIDAYS = holidays.CO()
+        horas_por_contrato = {}
+
+        for t in tiempos_queryset:
+            id_contrato = t.get('idcontrato_id')
+            fecha = parse_date_obj(t.get('fechaingreso')) or parse_date_obj(t.get('fechasalida'))
+            hora_ingreso = parse_time_obj(t.get('horaingreso'))
+            hora_salida = parse_time_obj(t.get('horasalida'))
+            horas_descuentos = horasdescuento_to_timedelta(t.get('horasdescuentos'))
+
+            if not (hora_ingreso and hora_salida and fecha):
+                continue
+
+            dt_ingreso = datetime.combine(fecha, hora_ingreso)
+            dt_salida = datetime.combine(fecha, hora_salida)
+            if dt_salida < dt_ingreso:
+                dt_salida += timedelta(days=1)
+
+            worked = dt_salida - dt_ingreso - horas_descuentos
+            if worked < timedelta():
+                worked = timedelta()
+
+            total_hours = round(worked.total_seconds() / 3600, 2)
+
+            # Inicializar contadores
+            hed = hen = hedf = henf = rn = 0.0
+            is_festivo = fecha in CO_HOLIDAYS or fecha.weekday() == 6  # domingo = 6
+            base_hours = 8.0
+            hora_actual = dt_ingreso
+            end_time = dt_salida
+
+            while hora_actual < end_time:
+                siguiente = min(hora_actual + timedelta(hours=1), end_time)
+                hora = hora_actual.time()
+
+                # tramo diurna/nocturna
+                tipo = "diurna" if time(6, 0) <= hora < time(21, 0) else "nocturna"
+                dur = (siguiente - hora_actual).total_seconds() / 3600
+
+                # Clasificación
+                if is_festivo:
+                    if tipo == "diurna":
+                        hedf += dur
+                    else:
+                        henf += dur
+                else:
+                    if total_hours > base_hours:
+                        if tipo == "diurna":
+                            hed += dur
+                        else:
+                            hen += dur
+                    else:
+                        if tipo == "nocturna":
+                            rn += dur
+
+                hora_actual = siguiente
+
+            # Acumular resultado por contrato
+            if id_contrato not in horas_por_contrato:
+                horas_por_contrato[id_contrato] = {
+                    'horas_trabajadas': 0,
+                    'hed': 0,
+                    'hen': 0,
+                    'hedf': 0,
+                    'henf': 0,
+                    'rn': 0,
+                }
+
+            # Suma las horas trabajadas y las clasifica por tipo para cada contrato
+            horas_por_contrato[id_contrato]['horas_trabajadas'] += total_hours  # Total de horas normales trabajadas (sin recargos)
+            horas_por_contrato[id_contrato]['hed'] += hed      # Horas Extras Diurnas (recargo por trabajar más allá de la jornada en el día)
+            horas_por_contrato[id_contrato]['hen'] += hen      # Horas Extras Nocturnas (recargo por trabajar más allá de la jornada durante la noche)
+            horas_por_contrato[id_contrato]['hedf'] += hedf    # Horas Extras Diurnas Festivas (trabajo extra durante el día en festivos)
+            horas_por_contrato[id_contrato]['henf'] += henf    # Horas Extras Nocturnas Festivas (trabajo extra durante la noche en festivos)
+            horas_por_contrato[id_contrato]['rn'] += rn      
+
+            # Guardar en la base de datos
+            t_obj = Tiempos.objects.filter(
+                idcontrato_id=id_contrato,
+                idempresa_id=idempresa,
+                fechaingreso=fecha
+            ).first()
+            if t_obj:
+                t_obj.horastrab = total_hours
+                t_obj.hed = round(hed, 2)
+                t_obj.hen = round(hen, 2)
+                t_obj.hedf = round(hedf, 2)
+                t_obj.henf = round(henf, 2)
+                t_obj.rn = round(rn, 2)
+                t_obj.save(update_fields=['horastrab', 'hed', 'hen', 'hedf', 'henf', 'rn'])
+
+        return horas_por_contrato
+
     # ---------- Lógica principal ----------
     if selected_nomina_id:
         try:
@@ -115,57 +214,36 @@ def time_list(request):
                         fechaingreso__lte=nomina_sel.fechafinal
                     )
                     .values(
-                        'idcontrato_id','horaingreso','horasalida',
-                        'horasdescuentos','fechaingreso','fechasalida'
+                        'idcontrato_id', 'horaingreso', 'horasalida',
+                        'horasdescuentos', 'fechaingreso', 'fechasalida'
                     )
                 )
 
-                horas_por_contrato = {}
-                for t in tiempos_agregados:
-                    raw_id = t.get('idcontrato_id')
-                    try:
-                        id_contrato = int(raw_id)
-                    except Exception:
-                        id_contrato = str(raw_id)
+                # Calculamos todas las horas
+                horas_por_contrato = calcular_horas_extras(tiempos_agregados, idempresa)
 
-                    fecha = parse_date_obj(t.get('fechaingreso')) or parse_date_obj(t.get('fechasalida')) or date.today()
-                    hora_ingreso = parse_time_obj(t.get('horaingreso'))
-                    hora_salida = parse_time_obj(t.get('horasalida'))
-                    horas_descuentos = horasdescuento_to_timedelta(t.get('horasdescuentos'))
-
-                    if hora_ingreso and hora_salida:
-                        dt_ingreso = datetime.combine(fecha, hora_ingreso)
-                        dt_salida = datetime.combine(fecha, hora_salida)
-
-                        if dt_salida < dt_ingreso:
-                            dt_salida += timedelta(days=1)
-
-                        worked = dt_salida - dt_ingreso - horas_descuentos
-                        if worked < timedelta():
-                            worked = timedelta()
-
-                        horas_por_contrato[id_contrato] = horas_por_contrato.get(id_contrato, timedelta()) + worked
-
-                # normalizamos a horas decimales (keys normalmente int)
-                horas_por_contrato_decimal = {
-                    k: round(v.total_seconds() / 3600, 2) for k, v in horas_por_contrato.items()
-                }
-
-                # asignar horas y filtrar solo empleados con horas > 0 (horas extras)
+                # Normalizamos a formato decimal
                 empleados_con_horas = []
                 for emp in empleados:
                     try:
                         emp_id = int(emp['idcontrato'])
                     except Exception:
                         emp_id = str(emp['idcontrato'])
-                    horas = horas_por_contrato_decimal.get(emp_id, 0)
-                    emp['horas_trabajadas'] = horas
-                    if horas > 0:
+
+                    data = horas_por_contrato.get(emp_id, {})
+                    emp['horas_trabajadas'] = data.get('horas_trabajadas', 0)
+                    emp['hed'] = data.get('hed', 0)
+                    emp['hen'] = data.get('hen', 0)
+                    emp['hedf'] = data.get('hedf', 0)
+                    emp['henf'] = data.get('henf', 0)
+                    emp['rn'] = data.get('rn', 0)
+
+                    if emp['horas_trabajadas'] > 0:
                         empleados_con_horas.append(emp)
 
-                # reemplazamos la lista original por la filtrada
                 empleados = empleados_con_horas
-                print(empleados)
+                value = True
+
         except Crearnomina.DoesNotExist:
             pass
 
@@ -175,9 +253,12 @@ def time_list(request):
         {
             'empleados': empleados,
             'nominas': nominas,
+            'true': value,
             'selected_nomina_id': selected_nomina_id
         }
     )
+    
+    
 def formatear_fecha(valor):
     if isinstance(valor, datetime):   # Si ya es datetime
         return valor.date()

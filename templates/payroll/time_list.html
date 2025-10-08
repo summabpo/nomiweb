@@ -1,5 +1,7 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
+{% load custom_filters %}
+
 
 {% block navbar %}
     {% if user.is_admin %}
@@ -148,6 +150,7 @@ Listados de Tiempos
     <br>
     <div class="separator  border-0 my-10"></div>
 
+{% if true %}
 <div class="table-responsive">
     <table id='tabla-lista-vacation' class="table table-striped table-bordered">
         <thead>
@@ -172,9 +175,7 @@ Listados de Tiempos
                 <th>Vrnf</th>
                 <th>Dyf</th>
                 <th>Vdyf</th>
-                <th>Dyf</th>
                 <th>Valor Extras</th>
-                <th>Saldo</th>
                 <th>Sede</th>
             </tr>
         </thead>
@@ -182,34 +183,37 @@ Listados de Tiempos
             {% for item in empleados %}
                 <tr>
                     <td>{{ item.nombre }}</td>
-                    <td>{{ item.horasord|default:'' }}</td>
-                    <td>{{ item.horastrab|default:'' }}</td>
-                    <td>{{ item.horasdomfes|default:'' }}</td>
-                    <td></td>
-                    <td></td>
-                    <td>{{ item.hed|default:'' }}</td>
-                    <td></td>
-                    <td>{{ item.hen|default:'' }}</td>
-                    <td></td>
-                    <td>{{ item.hedf|default:'' }}</td>
-                    <td></td>
-                    <td>{{ item.henf|default:'' }}</td>
-                    <td></td>
-                    <td>{{ item.rn|default:'' }}</td>
-                    <td></td>
-                    <td>{{ item.rnf|default:'' }}</td>
-                    <td></td>
-                    <td>{{ item.dyf|default:'' }}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ item.horasord|default:0 }}</td>
+                    <td>{{ item.horas_trabajadas|default:0 }}</td>
+                    <td>{{ item.horasdomfes|default:0 }}</td>
+                    <td>{{ item.salario|format_currency|default:0 }}</td>
+                    <td> 0 </td>
+                    <td>{{ item.hed|default:0 }}</td>
+                    <td> 0 </td>
+                    <td>{{ item.hen|default:0 }}</td>
+                    <td> 0 </td>
+                    <td>{{ item.hedf|default:0 }}</td>
+                    <td> 0 </td>
+                    <td>{{ item.henf|default:0 }}</td>
+                    <td> 0 </td>
+                    <td>{{ item.rn|default:0 }}</td>
+                    <td> 0 </td>
+                    <td>{{ item.rnf|default:0 }}</td>
+                    <td> 0 </td>
+                    <td>{{ item.dyf|default:0 }}</td>
+                    <td> 0 </td>
+                    <td> 0 </td>
                     <td>{{ item.sede|default:'' }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+
+{% endif %}
+
+
 
 
 {% endblock content %}

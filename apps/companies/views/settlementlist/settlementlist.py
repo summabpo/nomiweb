@@ -55,16 +55,7 @@ def settlementlist(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-fechafincontrato')
-    
-    
-    for compect in liquidaciones:
-        # Accede a los atributos del modelo usando la notación de punto
-        compect.cesantias = format_value(compect.cesantias)
-        compect.intereses = format_value(compect.intereses)
-        compect.prima = format_value(compect.prima)
-        compect.vacaciones = format_value(compect.vacaciones)
-        compect.totalliq = format_value(compect.totalliq)
+    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-fechafincontrato')[:10]
     
     return render(request, 'companies/settlementlist.html',{
         'liquidaciones':liquidaciones,
