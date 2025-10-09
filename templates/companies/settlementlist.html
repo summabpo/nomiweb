@@ -58,12 +58,12 @@
         <tbody>
             {% for liquidacion in liquidaciones %}
                 <tr>
-                    <td>{{ liquidacion.idcontrato.idcontrato }}</td>
-                    <td>{{ liquidacion.idcontrato.idempleado.docidentidad }}</td>
-                    <td>{{ liquidacion.idcontrato.idempleado.papellido }} {{ liquidacion.idcontrato.idempleado.sapellido }} {{ liquidacion.idcontrato.idempleado.pnombre }} {{ liquidacion.idcontrato.idempleado.snombre }} </td>
+                    <td>{{ liquidacion.idcontrato }}</td>
+                    <td>{{ liquidacion.docidentidad }}</td>
+                    <td>{{ liquidacion.full_name }}</td>
                     <td>{{ liquidacion.diastrabajados }}</td>
-                    <td>{{ liquidacion.fechainiciocontrato |date:'d-m-Y' }}</td>
-                    <td>{{ liquidacion.fechafincontrato |date:'d-m-Y' }}</td>
+                    <td>{{ liquidacion.fechainicio |date:'d-m-Y' }}</td>
+                    <td>{{ liquidacion.fechafin |date:'d-m-Y' }}</td>
                     <td>{{ liquidacion.cesantias|format_currency|default:0  }}</td>
                     <td>{{ liquidacion.intereses|format_currency|default:0  }}</td>
                     <td>{{ liquidacion.prima|format_currency|default:0  }}</td>

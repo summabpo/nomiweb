@@ -60,45 +60,64 @@ def vacation_balance(request):
 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    acumulados= {} 
-    
-    concepto = Conceptosfijos.objects.filter(idfijo=7).values_list('valorfijo', flat=True).first()
+    acumulados = {}
 
+    concepto = Conceptosfijos.objects.filter(idfijo=7).values_list('valorfijo', flat=True).first()
     valor_fijo = float(concepto)
-    
+
     fecha_param = request.GET.get('fecha')
     if fecha_param:
-        date = datetime.strptime(fecha_param, "%Y-%m-%d").date()  # Convertir la fecha a formato 'datetime.date'
+        date = datetime.strptime(fecha_param, "%Y-%m-%d").date()
         visual = True
     else:
-        date = timezone.now().date() 
+        date = timezone.now().date()
         visual = False
-    
-    
+
+    # 🔹 Función para limpiar y construir el nombre completo sin "no data"
     def construir_nombre_completo(data):
+        def limpiar(valor):
+            if valor is None:
+                return ''
+            valor_str = str(valor).strip()
+            return '' if valor_str.lower() == 'no data' else valor_str
+
         nombre_completo = [
-            data.get('idempleado__papellido', '').strip() if data.get('idempleado__papellido') else '',
-            data.get('idempleado__sapellido', '').strip() if data.get('idempleado__sapellido') else '',
-            data.get('idempleado__pnombre', '').strip() if data.get('idempleado__pnombre') else '',
-            data.get('idempleado__snombre', '').strip() if data.get('idempleado__snombre') else ''
+            limpiar(data.get('idempleado__papellido')),
+            limpiar(data.get('idempleado__sapellido')),
+            limpiar(data.get('idempleado__pnombre')),
+            limpiar(data.get('idempleado__snombre')),
         ]
-        # Filtrar elementos vacíos y unir con espacio
         return " ".join(filter(None, nombre_completo))
-    
+
     fecha_actual = timezone.now().date() if fecha_param is None else datetime.strptime(fecha_param, "%Y-%m-%d").date()
 
-    if fecha_param :
-        contratos_empleados = Contratos.objects.prefetch_related('idempleado') \
-            .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] ,id_empresa__idempresa = idempresa ) \
-            .values('idempleado__docidentidad', 'idempleado__sapellido', 'idempleado__papellido',
-                    'idempleado__pnombre', 'idempleado__snombre', 'idempleado__idempleado',
-                    'idcontrato', 'fechainiciocontrato','salario').order_by('idempleado__papellido')
+    if fecha_param:
+        contratos_empleados = (
+            Contratos.objects.prefetch_related('idempleado')
+            .filter(
+                estadocontrato=1,
+                tipocontrato__idtipocontrato__in=[1, 2, 3, 4],
+                id_empresa__idempresa=idempresa
+            )
+            .values(
+                'idempleado__docidentidad',
+                'idempleado__sapellido',
+                'idempleado__papellido',
+                'idempleado__pnombre',
+                'idempleado__snombre',
+                'idempleado__idempleado',
+                'idcontrato',
+                'fechainiciocontrato',
+                'salario'
+            )
+            .order_by('idempleado__papellido')
+        )
 
         acumulados = {
             data['idcontrato']: {
                 'contrato': data['idcontrato'],
                 'documento': data['idempleado__docidentidad'],
-                'empleado':construir_nombre_completo(data),
+                'empleado': construir_nombre_completo(data),
                 'fechacontrato': data['fechainiciocontrato'],
                 'salario': data['salario'],
                 'parcial': round(float(data['salario']) / 30, 2),
@@ -106,19 +125,17 @@ def vacation_balance(request):
             for data in contratos_empleados
         }
 
-
         for contrato_id in acumulados.keys():
             contrato = Contratos.objects.get(idcontrato=contrato_id)
-            vacaciones_data = calcular_vacaciones(contrato, valor_fijo ,fecha_actual)
-
-            # Agrega la información de vacaciones al diccionario acumulados
+            vacaciones_data = calcular_vacaciones(contrato, valor_fijo, fecha_actual)
             acumulados[contrato_id].update(vacaciones_data)
 
     context = {
         'contratos_empleados': list(acumulados.values()),
         'date': date,
-        'visual':visual,
+        'visual': visual,
     }
+
     return render(request, './companies/vacation_balance.html', context)
 
 

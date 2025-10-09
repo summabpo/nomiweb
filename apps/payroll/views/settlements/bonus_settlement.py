@@ -22,12 +22,12 @@ def bonus_p_settlement(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form = BonusForm()
-    
+
     data = Conceptosdenomina.objects.filter(
-                    Q(indicador__nombre='basesegsocial'),
-                    id_empresa=idempresa
-                )
-    
+        Q(indicador__nombre='basesegsocial'),
+        id_empresa=idempresa
+    )
+
     if request.method == 'POST':
         form = BonusForm(request.POST)
         if form.is_valid():
@@ -38,18 +38,10 @@ def bonus_p_settlement(request):
             date_end = datetime.strptime(date_end_str, '%d-%m-%Y').date()
             año_actual = date_end.year
 
-            
             proy = form.cleaned_data.get('estimated_bonus') or 0
             
-            if date_end.month <= 6:
-                semestre_inicio = date(date_end.year, 1, 1)
-            else:
-                semestre_inicio = date(date_end.year, 7, 1)
-
-            semestre_actual = {
-                'inicio': semestre_inicio,
-                'fin': date_end
-            }
+            semestre_inicio = date(date_end.year, 1, 1) if date_end.month <= 6 else date(date_end.year, 7, 1)
+            semestre_actual = {'inicio': semestre_inicio, 'fin': date_end}
 
             try:
                 sm = Salariominimoanual.objects.get(ano=año_actual)
@@ -60,7 +52,11 @@ def bonus_p_settlement(request):
                 aux_transporte_val = 0
                 
             contratos_empleados = Contratos.objects.select_related('idempleado') \
-                .filter(estadocontrato=1, tipocontrato__idtipocontrato__in=[1,2,3,4], id_empresa_id=idempresa) \
+                .filter(
+                    estadocontrato=1,
+                    tipocontrato__idtipocontrato__in=[1,2,3,4],
+                    id_empresa_id=idempresa
+                ) \
                 .values(
                     'idempleado__docidentidad', 'idempleado__sapellido', 'idempleado__papellido',
                     'idempleado__pnombre', 'idempleado__snombre', 'idempleado__idempleado',
@@ -69,7 +65,16 @@ def bonus_p_settlement(request):
                 ).exclude(
                     tiposalario__idtiposalario=2
                 )
+
+            # Limpiar None y "no data" en nombres
             for contrato in contratos_empleados:
+                for field in ['idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido']:
+                    value = contrato.get(field, '')
+                    if value is None or (isinstance(value, str) and value.strip().lower() == 'no data'):
+                        contrato[field] = ''
+                    else:
+                        contrato[field] = value
+
                 fecha_inicio = contrato['fechainiciocontrato']
                 fecha_fin = date_end
                 validar = 0
@@ -92,52 +97,41 @@ def bonus_p_settlement(request):
                     elif fecha_fin < limite_prima and fecha_inicio < limite_prima:
                         fp_base = inicio_ano
                         fp = fecha_inicio
-                    else:  # fecha_fin < limite_prima and fecha_inicio > limite_prima
+                    else:
                         fp_base = inicio_ano
                         fp = fecha_inicio
                         validar = 1
 
-                # Si no hay que invalidar el cálculo, calcular los días con base 360
+                # Calcular días prima
                 if validar == 0:
                     fecha_fin_mas_uno = fecha_fin + timedelta(days=1)
                     diferencia = relativedelta(fecha_fin_mas_uno, fp)
-
-                    anios = diferencia.years
-                    meses = diferencia.months
-                    dias = diferencia.days
-
+                    anios, meses, dias = diferencia.years, diferencia.months, diferencia.days
                     dias_prima = anios * 360 + meses * 30 + dias
-                    
-                    if dias_prima > 0:
-                        contrato['dias_prima'] = dias_prima + proy
-                    else :
-                        contrato['dias_prima'] = 0
+                    contrato['dias_prima'] = dias_prima + proy if dias_prima > 0 else 0
                 else:
                     contrato['dias_prima'] = 0
 
-                
+                # Calcular valores
                 contrato['valor'], contrato['pp'] = prima(
-                        contrato=contrato,
-                        dias_prima=dias_prima,
-                        salario_minimo=salario_minimo,
-                        aux_transporte_val=aux_transporte_val,
-                        semestre_actual=semestre_actual,
-                        fin_calculo=date_end,
-                        id_empresa=idempresa,
-                        proy=proy
-                    )
+                    contrato=contrato,
+                    dias_prima=contrato['dias_prima'],
+                    salario_minimo=salario_minimo,
+                    aux_transporte_val=aux_transporte_val,
+                    semestre_actual=semestre_actual,
+                    fin_calculo=date_end,
+                    id_empresa=idempresa,
+                    proy=proy
+                )
 
-                
-                contrato['trans'] = aux_transporte(contrato['idcontrato'] , contrato['salario'], salario_minimo,aux_transporte_val)
-                contrato['extra'] = extra_auto( contrato=contrato, semestre_actual=semestre_actual , fin_calculo=date_end , id = idempresa )/dias_prima * 30
-            
+                contrato['trans'] = aux_transporte(contrato['idcontrato'], contrato['salario'], salario_minimo, aux_transporte_val)
+                contrato['extra'] = extra_auto(contrato=contrato, semestre_actual=semestre_actual, fin_calculo=date_end, id=idempresa) / contrato['dias_prima'] * 30 if contrato['dias_prima'] else 0
 
     context = {
         'contratos_empleados': contratos_empleados,
         'form': form,
-        
     }
-    
+
     return render(request, './payroll/bonus_p_settlement.html', context)
 
 @login_required

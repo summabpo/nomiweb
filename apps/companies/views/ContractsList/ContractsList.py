@@ -11,10 +11,9 @@ from django.contrib.auth.decorators import login_required
 from .generate_docu import generate_contract_excel,generate_contract_start_excel
 
 
-
 @login_required
-@role_required('company','accountant')
-def startCompanies(request): 
+@role_required('company', 'accountant')
+def startCompanies(request):
     """
     Muestra la lista de empleados activos con sus respectivos contratos.
 
@@ -35,49 +34,66 @@ def startCompanies(request):
     See Also
     --------
     Contratos : Modelo que representa los contratos de los empleados.
-    
+
     Notes
     -----
     El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
     """
- 
+
+    # --- Función auxiliar de limpieza ---
+    def clean_value(value):
+        """
+        Limpia valores tipo texto que indiquen falta de datos.
+        Ejemplo: 'no data', 'sin dato', 'n/a', 'none', 'ninguno'
+        """
+        if isinstance(value, str):
+            if value.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"]:
+                return ""
+        return value
 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    
-    contratos_empleados = Contratos.objects\
-        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede') \
-        .order_by('idempleado__papellido') \
-        .filter(estadocontrato=1, id_empresa=idempresa) \
+
+    contratos_empleados = (
+        Contratos.objects
+        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede', 'centrotrabajo')
+        .order_by('idempleado__papellido')
+        .filter(estadocontrato=1, id_empresa=idempresa)
         .values(
             'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-            'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario', 
+            'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario',
             'idcosto__nomcosto', 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl',
-            'idempleado__idempleado','idempleado__sapellido', 'idcontrato'
+            'idempleado__idempleado', 'idempleado__sapellido', 'idcontrato'
         )
-    
-    empleados = [
-    {
-        'documento': contrato['idempleado__docidentidad'],
-        'nombre': ' '.join(filter(None, [
-            contrato['idempleado__papellido'],
-            contrato['idempleado__sapellido'],
-            contrato['idempleado__pnombre'],
-            contrato['idempleado__snombre']
-        ])),
-        'fechainiciocontrato': contrato['fechainiciocontrato'],
-        'cargo': contrato['cargo__nombrecargo'],
-        'salario': f"{contrato['salario'] if contrato['salario'] is not None else 0:,.0f}".replace(',', '.'),  # Formato de salario
-        'centrocostos': contrato['idcosto__nomcosto'],
-        'tipocontrato': contrato['tipocontrato__tipocontrato'],
-        'tarifaARL': contrato['centrotrabajo__tarifaarl'],
-        'idempleado': contrato['idempleado__idempleado'],
-        'idcontrato': contrato['idcontrato'],
-    }
-    for contrato in contratos_empleados
-]
-    
-    return render(request, './companies/ActiveList.html', {'empleados': empleados,'user': request.user})
+    )
+
+    empleados = []
+    for contrato in contratos_empleados:
+        empleado_data = {
+            'documento': clean_value(contrato.get('idempleado__docidentidad', '')),
+            'nombre': ' '.join(filter(None, map(clean_value, [
+                contrato.get('idempleado__papellido', ''),
+                contrato.get('idempleado__sapellido', ''),
+                contrato.get('idempleado__pnombre', ''),
+                contrato.get('idempleado__snombre', '')
+            ]))),
+            'fechainiciocontrato': clean_value(contrato.get('fechainiciocontrato', '')),
+            'cargo': clean_value(contrato.get('cargo__nombrecargo', '')),
+            'salario': f"{contrato['salario'] if contrato['salario'] is not None else 0:,.0f}".replace(',', '.'),
+            'centrocostos': clean_value(contrato.get('idcosto__nomcosto', '')),
+            'tipocontrato': clean_value(contrato.get('tipocontrato__tipocontrato', '')),
+            'tarifaARL': clean_value(contrato.get('centrotrabajo__tarifaarl', '')),
+            'idempleado': contrato.get('idempleado__idempleado', ''),
+            'idcontrato': contrato.get('idcontrato', ''),
+        }
+
+        empleados.append(empleado_data)
+
+    return render(request, './companies/ActiveList.html', {
+        'empleados': empleados,
+        'user': request.user
+    })
+
 
 
 
@@ -164,152 +180,136 @@ def exportar_excel1(request):
 
 
 @login_required
-@role_required('company','accountant')
+@role_required('company', 'accountant')
 def exportar_excel2(request):
     """
     Exporta la información de las hojas de vida de los empleados activos en formato Excel.
 
-    Esta vista genera un archivo Excel con información detallada sobre los empleados activos de la empresa,
-    incluyendo datos personales como nombre, fecha de nacimiento, ciudad de residencia, y más. La información
-    se obtiene de los contratos de los empleados y se organiza en una hoja de Excel.
-
-    Parameters
-    ----------
-    request : HttpRequest
-        Objeto de solicitud HTTP que contiene la sesión del usuario.
-
-    Returns
-    -------
-    HttpResponse
-        Respuesta HTTP que contiene el archivo Excel generado.
-
-    See Also
-    --------
-    Contratosemp : Modelo que representa los contratos de los empleados en la empresa.
-    Ciudades : Modelo que representa las ciudades y sus datos.
-
-    Notes
-    -----
-    El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
+    - Elimina cualquier texto 'no data' (sin importar mayúsculas/minúsculas).
+    - Los campos sin información se dejan en blanco.
+    - Incluye información básica y laboral de cada empleado activo.
     """
 
     usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
-    
-    
-    citys = Ciudades.objects.all()
-    contratosemp_empleados = Contratosemp.objects.filter(estadocontrato=1 , id_empresa_id = idempresa).values_list(
-        'docidentidad', 'tipodocident__codigo', 'pnombre', 'snombre', 'papellido', 'sapellido', 'fechanac',
-        'ciudadnacimiento', 'telefonoempleado', 'direccionempleado', 'sexo', 'email', 
-        'ciudadresidencia', 'estadocivil', 'idempleado', 'paisnacimiento', 'paisresidencia', 
-        'celular', 'profesion', 'niveleducativo', 'gruposanguineo', 'estatura', 'peso', 
-        'fechaexpedicion', 'ciudadexpedicion', 'dotpantalon', 'dotcamisa', 'dotzapatos', 
-        'estrato', 'numlibretamil', 'estadocontrato', 'formatohv'
+    idempresa = usuario.get('idempresa')
+
+    # Cachear las ciudades en un diccionario
+    city_map = {c.idciudad: c.ciudad for c in Ciudades.objects.all()}
+
+    # Consultar empleados activos
+    empleados = Contratosemp.objects.filter(
+        estadocontrato=1, id_empresa_id=idempresa
+    ).values_list(
+        'docidentidad', 'tipodocident__codigo', 'pnombre', 'snombre',
+        'papellido', 'sapellido', 'fechanac', 'ciudadnacimiento',
+        'telefonoempleado', 'direccionempleado', 'sexo', 'email',
+        'ciudadresidencia', 'estadocivil', 'idempleado', 'paisnacimiento',
+        'paisresidencia', 'celular', 'profesion', 'niveleducativo',
+        'gruposanguineo', 'estatura', 'peso', 'fechaexpedicion',
+        'ciudadexpedicion', 'dotpantalon', 'dotcamisa', 'dotzapatos',
+        'estrato', 'numlibretamil', 'estadocontrato'
     )
 
-    workbook = Workbook()
-    hoja = workbook.active
-    hoja.title = "Informe Hojas de vida"
+    # Función de limpieza para cada valor
+    def clean_value(value):
+        if not value:
+            return ""
+        if isinstance(value, str) and value.strip().lower() == "no data":
+            return ""
+        return value
 
-    # Escribir los encabezados
-    hoja.append([
-        'Documento', 'Tipo de Documento', 'Nombre Completo', 'Fecha de Nacimiento', 'Ciudad de Nacimiento', 
-        'Teléfono', 'Dirección', 'Sexo', 'Email', 'Ciudad de Residencia', 'Estado Civil', 'ID Empleado',
-        'País de Nacimiento', 'País de Residencia', 'Celular', 'Profesión', 'Nivel Educativo', 
-        'Grupo Sanguíneo', 'Estatura', 'Peso', 'Fecha de Expedición', 'Ciudad de Expedición', 
-        'Talla Pantalón', 'Talla Camisa', 'Talla Zapatos', 'Estrato', 'Número de Libreta Militar', 
-        'Estado del Contrato'
-    ])
+    # Crear libro de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Hojas de Vida"
 
-    # Escribir los datos
-    for contrato in contratosemp_empleados:
-        nombre_empleado = f"{contrato[2] or ''} {contrato[3] or ''} {contrato[4] or ''} {contrato[5] or ''}"
+    # Encabezados
+    headers = [
+        'Documento', 'Tipo Documento', 'Nombre Completo', 'Fecha Nacimiento', 'Ciudad Nacimiento',
+        'Teléfono', 'Dirección', 'Sexo', 'Email', 'Ciudad Residencia', 'Estado Civil', 'ID Empleado',
+        'País Nacimiento', 'País Residencia', 'Celular', 'Profesión', 'Nivel Educativo',
+        'Grupo Sanguíneo', 'Estatura', 'Peso', 'Fecha Expedición', 'Ciudad Expedición',
+        'Talla Pantalón', 'Talla Camisa', 'Talla Zapatos', 'Estrato', 'Libreta Militar',
+        'Estado Contrato'
+    ]
+    ws.append(headers)
 
-        
-        # Convertir y formatear las fechas
-        fechanac = contrato[6]
-        fechaexpedicion = contrato[23]
-        
-        if isinstance(fechanac, str):
-            try:
-                fechanac = datetime.strptime(fechanac, '%Y-%m-%d').date()
-            except ValueError:
-                fechanac = None
-                
-        if isinstance(fechaexpedicion, str):
-            try:
-                fechaexpedicion = datetime.strptime(fechaexpedicion, '%Y-%m-%d').date()
-            except ValueError:
-                fechaexpedicion = None
-        
-        fechanac = fechanac.strftime('%Y-%m-%d') if fechanac else ''
-        fechaexpedicion = fechaexpedicion.strftime('%Y-%m-%d') if fechaexpedicion else ''
+    # Procesar datos
+    for emp in empleados:
+        (
+            doc, tipo_doc, pnom, snom, pap, sap, fechanac, ciudad_nac, tel,
+            dir_emp, sexo, email, ciudad_res, estado_civil, idemp, pais_nac,
+            pais_res, cel, profesion, nivel, grupo, estatura, peso,
+            fechaexp, ciudad_exp, pant, cam, zap, estrato, libreta, estado_cto
+        ) = emp
 
         
-        # ciudades 
+        def limpiar_texto(valor):
+            if isinstance(valor, str) and valor.strip().lower() == "no data":
+                return ""
+            return valor or ""
+
+        nombre = " ".join(filter(None, [
+            limpiar_texto(pap),
+            limpiar_texto(sap),
+            limpiar_texto(pnom),
+            limpiar_texto(snom)
+        ])).strip()
+
+
+        # Función para formatear fechas
+        def format_date(value):
+            if isinstance(value, datetime):
+                return value.strftime('%Y-%m-%d')
+            elif isinstance(value, str):
+                try:
+                    return datetime.strptime(value, '%Y-%m-%d').strftime('%Y-%m-%d')
+                except ValueError:
+                    return ''
+            return ''
+
+        fechanac_fmt = format_date(fechanac)
+        fechaexp_fmt = format_date(fechaexp)
+
+        # Resolver ciudades
+        ciudad_nac_nom = city_map.get(ciudad_nac, '') if ciudad_nac else ''
+        ciudad_res_nom = city_map.get(ciudad_res, '') if ciudad_res else ''
+        ciudad_exp_nom = city_map.get(ciudad_exp, '') if ciudad_exp else ''
+
+        # Construir fila con limpieza
+        row = [clean_value(x) for x in [
+            doc, tipo_doc, nombre, fechanac_fmt, ciudad_nac_nom,
+            tel, dir_emp, sexo, email, ciudad_res_nom, estado_civil,
+            idemp, pais_nac, pais_res, cel, profesion, nivel, grupo,
+            estatura, peso, fechaexp_fmt, ciudad_exp_nom, pant, cam,
+            zap, estrato, libreta, estado_cto
+        ]]
+        if nombre == "CUERVO MARTINEZ HENRY no data" : 
+            print('aqui ando perra ')
         
-        try:
-            if contrato[7] :  # Verifica si ambos campos no están vacíos
-                ciudad = next((ciudad for ciudad in citys if ciudad.idciudad == contrato[7] ), None)
-                if ciudad:
-                    ciudad1 = ciudad.ciudad
-                else:
-                    ciudad1 = ""
-        except ValueError as e:
-            ciudad1 = ""
-        except IndexError:
-            ciudad1 = ""
-        
-        
-        try:
-            if contrato[12] :  # Verifica si ambos campos no están vacíos
-                ciudad = next((ciudad for ciudad in citys if ciudad.idciudad == contrato[12] ), None)
-                if ciudad:
-                    ciudad2 = ciudad.ciudad
-                else:
-                    ciudad2 = ""
-        except ValueError as e:
-            ciudad2 = ""
-        except IndexError:
-            ciudad2 = ""
-        
-        
-        try:
-            if contrato[24] :  # Verifica si ambos campos no están vacíos
-                ciudad = next((ciudad for ciudad in citys if ciudad.idciudad == contrato[24] ), None)
-                if ciudad:
-                    ciudad3 = ciudad.ciudad
-                else:
-                    ciudad3 = ""
-        except ValueError as e:
-            ciudad3 = ""
-        except IndexError:
-            ciudad3 = ""
-            
-        # Agregar datos a la hoja
-        
-        
-        
-        hoja.append([
-            contrato[0], contrato[1], nombre_empleado, fechanac, ciudad1, contrato[8], contrato[9], 
-            contrato[10], contrato[11], ciudad2, contrato[13], contrato[14], contrato[15], 
-            contrato[16], contrato[17], contrato[18], contrato[19], contrato[20], contrato[21], 
-            contrato[22], fechaexpedicion, ciudad3, contrato[25], contrato[26], 
-            contrato[27], contrato[28], contrato[29],contrato[30]
-        ])
-        
-    # Guardar el libro de trabajo en memoria
+        ws.append(row)
+
+    # Ajustar ancho de columnas automáticamente
+    for column_cells in ws.columns:
+        max_length = max(len(str(cell.value or "")) for cell in column_cells)
+        ws.column_dimensions[column_cells[0].column_letter].width = max_length + 2
+
+    # Guardar en memoria y devolver como descarga
     output = BytesIO()
-    workbook.save(output)
+    wb.save(output)
     output.seek(0)
 
-    # Crear la respuesta HTTP
     response = HttpResponse(
+        output.getvalue(),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename=hojas de vida.xlsx'
-    response.write(output.getvalue())
+    response['Content-Disposition'] = 'attachment; filename="hojas_de_vida.xlsx"'
     return response
+
+
+
+
+
 
 
 

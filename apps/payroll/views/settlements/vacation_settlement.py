@@ -16,26 +16,39 @@ vacaciones_list = []
 def vacation_settlement(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    # Obtener la lista de empleados
-    contratos_empleados = Contratos.objects\
-        .select_related('idempleado') \
-        .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] , id_empresa_id = idempresa ) \
-        .values('idempleado__docidentidad','idempleado__sapellido', 'idempleado__papellido', 'idempleado__pnombre',
-                'idempleado__snombre','idempleado__idempleado','idcontrato') 
-    
-    for emp in contratos_empleados:
-        emp['idempleado__pnombre'] = '' if emp['idempleado__pnombre'] is None else emp['idempleado__pnombre']  
-        emp['idempleado__snombre'] = '' if emp['idempleado__snombre'] is None else emp['idempleado__snombre']  
-        emp['idempleado__papellido'] = '' if emp['idempleado__papellido'] is None else emp['idempleado__papellido']  
-        emp['idempleado__sapellido'] = '' if emp['idempleado__sapellido'] is None else emp['idempleado__sapellido']  
 
-    
+    # Obtener la lista de empleados
+    contratos_empleados = Contratos.objects \
+        .select_related('idempleado') \
+        .filter(
+            estadocontrato=1,
+            tipocontrato__idtipocontrato__in=[1, 2, 3, 4],
+            id_empresa_id=idempresa
+        ) \
+        .values(
+            'idempleado__docidentidad',
+            'idempleado__sapellido',
+            'idempleado__papellido',
+            'idempleado__pnombre',
+            'idempleado__snombre',
+            'idempleado__idempleado',
+            'idcontrato'
+        )
+
+    # Limpiar None y 'no data' de los campos de nombre
+    for emp in contratos_empleados:
+        for field in ['idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido']:
+            value = emp.get(field, '')
+            if value is None or (isinstance(value, str) and value.strip().lower() == 'no data'):
+                emp[field] = ''
+            else:
+                emp[field] = value
+
     context = {
         'contratos_empleados': contratos_empleados,
     }
 
     return render(request, './payroll/vacation_settlement.html', context)
-    
 
 @login_required
 @role_required('accountant')

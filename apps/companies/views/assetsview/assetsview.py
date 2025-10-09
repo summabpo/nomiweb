@@ -61,17 +61,17 @@ def contractview(request,id):
             'salario': safe_get(contrato.salario),
             'tiposalario': safe_get(contrato.tiposalario.tiposalario),
             'modalidadsalario': safe_get(contrato.salariovariable),
-            'vivetrabajo': 'Si'if contrato.auxiliotransporte else 'No' ,
+            'vivetrabajo': 'Si' if contrato.auxiliotransporte else 'No',
             'ciudadcontratacion': safe_get(contrato.ciudadcontratacion.ciudad),
             'bancocuenta': contrato.bancocuenta.nombanco if contrato.bancocuenta else '',
             'tipocuentanomina': safe_get(contrato.tipocuentanomina),
-            'formapago' : resultados.get(contrato.formapago, 'Ninguna opción'),
+            'formapago': resultados.get(contrato.formapago, 'Ninguna opción'),
             'cuentanomina': safe_get(contrato.cuentanomina),
             'nomcosto': safe_get(contrato.idcosto.nomcosto),
-            'nomsubcosto': contrato.idsubcosto.nomsubcosto if contrato.idsubcosto else ' ' ,
-            'eps': contrato.codeps.entidad if contrato.codeps else ' ' ,
-            'fondocesantias': contrato.codafp.entidad if contrato.codafp else ' ' ,
-            'pension': contrato.codccf.entidad if contrato.codccf.entidad else ' ',
+            'nomsubcosto': contrato.idsubcosto.nomsubcosto if contrato.idsubcosto else '',
+            'eps': contrato.codeps.entidad if contrato.codeps else '',
+            'fondocesantias': contrato.codafp.entidad if contrato.codafp else '',
+            'pension': contrato.codccf.entidad if contrato.codccf and contrato.codccf.entidad else '',
             'nombrecentrotrabajo': safe_get(contrato.centrotrabajo.nombrecentrotrabajo),
             'nombresede': safe_get(contrato.idsede.nombresede),
             'tarifaarl': safe_get(contrato.centrotrabajo.tarifaarl),
@@ -79,6 +79,12 @@ def contractview(request,id):
             'tipocotizante': safe_get(contrato.tipocotizante.tipocotizante),
             'subtipocotizante': safe_get(contrato.subtipocotizante.subtipocotizante),
             'pensionado': safe_get(contrato.riesgo_pension),
+        }
+
+        # ✅ Limpieza de valores "no data" (o equivalentes)
+        response_data = {
+            k: ("" if isinstance(v, str) and v.strip().lower() in ["no data", "sin dato", "n/a"] else v)
+            for k, v in response_data.items()
         }
         
         return render(request, './companies/partials/contractview.html',{'contrato': response_data })
@@ -141,8 +147,8 @@ def resumeview(request,id):
             'ciudadresidencia': (empleado.ciudadresidencia.ciudad if empleado.ciudadresidencia else '') or '',
             'estadocivil': empleado.estadocivil or '',
             'idempleado': empleado.idempleado or '',
-            'paisnacimiento': (empleado.paisnacimiento.pais if empleado.paisnacimiento else '') or '' ,
-            'paisresidencia': (empleado.paisresidencia.pais if empleado.paisresidencia else '') or '' ,
+            'paisnacimiento': (empleado.paisnacimiento.pais if empleado.paisnacimiento else '') or '',
+            'paisresidencia': (empleado.paisresidencia.pais if empleado.paisresidencia else '') or '',
             'celular': empleado.celular or '',
             'profesion': empleado.profesion or '',
             'niveleducativo': empleado.niveleducativo or '',
@@ -158,6 +164,12 @@ def resumeview(request,id):
             'numlibretamil': empleado.numlibretamil or '',
             'estadocontrato': empleado.estadocontrato or '',
             'formatohv': empleado.formatohv or ''
+        }
+
+        # ✅ Limpieza de valores "no data" o equivalentes
+        response_data = {
+            k: ("" if isinstance(v, str) and v.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"] else v)
+            for k, v in response_data.items()
         }
         
         return render(request, './companies/partials/resumenview.html',{'empleados': response_data })

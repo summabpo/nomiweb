@@ -85,7 +85,29 @@ class AbstractConceptForm(forms.Form):
         # Actualizar choices dinámicamente
         self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.filter(idnomina__id_empresa = idempresa ).values_list('idconcepto__nombreconcepto', flat=True).distinct().order_by('idconcepto__nombreconcepto') ]
         self.fields['payroll'].choices = [('', '----------')] + [(idnomina, nombrenomina) for nombrenomina, idnomina in Nomina.objects.filter(idnomina__id_empresa = idempresa ).select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')]
-        self.fields['employee'].choices = [('', '----------')] + [(idempleado, f"{papellido} {sapellido} {pnombre} {snombre} ") for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.filter(id_empresa = idempresa ).values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').distinct().order_by('papellido')]
+        
+        
+        self.fields['employee'].choices = [('', '----------')] + [
+            (
+                idempleado,
+                " ".join(
+                    filter(
+                        None,
+                        [
+                            str(papellido or "").replace("no data", "").strip(),
+                            str(sapellido or "").replace("no data", "").strip(),
+                            str(pnombre or "").replace("no data", "").strip(),
+                            str(snombre or "").replace("no data", "").strip(),
+                        ]
+                    )
+                )
+            )
+            for idempleado, pnombre, snombre, papellido, sapellido in Contratosemp.objects.filter(
+                id_empresa=idempresa
+            ).values_list('idempleado', 'pnombre', 'snombre', 'papellido', 'sapellido').distinct().order_by('papellido')
+        ]
+
+        
         #self.fields['month'].choices = [('', '----------')] + [(mes, mes) for mes in range(1, 13)]
         #self.fields['year'].choices = [('', '----------')] + [(ano, ano) for ano in Nomina.objects.values_list('idnomina__anoacumular__ano', flat=True).distinct().order_by('-idnomina__anoacumular__ano')]
         

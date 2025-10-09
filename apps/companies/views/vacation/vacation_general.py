@@ -29,19 +29,38 @@ def vacation_general(request):
     """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    # Obtener la lista de empleados
-    contratos_empleados = Contratos.objects\
-        .select_related('idempleado') \
-        .filter(estadocontrato=1 ,tipocontrato__idtipocontrato__in =[1,2,3,4] , id_empresa_id = idempresa ) \
-        .values('idempleado__docidentidad','idempleado__sapellido', 'idempleado__papellido', 'idempleado__pnombre',
-                'idempleado__snombre','idempleado__idempleado','idcontrato') 
-    
-    for emp in contratos_empleados:
-        emp['idempleado__pnombre'] = '' if emp['idempleado__pnombre'] is None else emp['idempleado__pnombre']  
-        emp['idempleado__snombre'] = '' if emp['idempleado__snombre'] is None else emp['idempleado__snombre']  
-        emp['idempleado__papellido'] = '' if emp['idempleado__papellido'] is None else emp['idempleado__papellido']  
-        emp['idempleado__sapellido'] = '' if emp['idempleado__sapellido'] is None else emp['idempleado__sapellido']  
 
+    # Obtener la lista de empleados activos
+    contratos_empleados = (
+        Contratos.objects
+        .select_related('idempleado')
+        .filter(
+            estadocontrato=1,
+            tipocontrato__idtipocontrato__in=[1, 2, 3, 4],
+            id_empresa_id=idempresa
+        )
+        .values(
+            'idempleado__docidentidad',
+            'idempleado__sapellido',
+            'idempleado__papellido',
+            'idempleado__pnombre',
+            'idempleado__snombre',
+            'idempleado__idempleado',
+            'idcontrato'
+        )
+    )
+
+    # Limpiar nombres: eliminar None y "no data"
+    for emp in contratos_empleados:
+        for campo in [
+            'idempleado__pnombre',
+            'idempleado__snombre',
+            'idempleado__papellido',
+            'idempleado__sapellido'
+        ]:
+            valor = emp.get(campo)
+            if valor is None or str(valor).strip().lower() == 'no data':
+                emp[campo] = ''
     
     context = {
         'contratos_empleados': contratos_empleados,
@@ -52,12 +71,15 @@ def vacation_general(request):
 
 
 @login_required
-@role_required('company','accountant')
+@role_required('company', 'accountant')
 def vacation_resumen(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    vacaciones = Vacaciones.objects.filter(idcontrato__id_empresa=idempresa, tipovac__idvac__in=[1,2]).values(
+    vacaciones = Vacaciones.objects.filter(
+        idcontrato__id_empresa=idempresa, 
+        tipovac__idvac__in=[1, 2]
+    ).values(
         "idcontrato__idempleado__docidentidad",
         "idcontrato__idempleado__papellido",
         "idcontrato__idempleado__sapellido",
@@ -68,11 +90,24 @@ def vacation_resumen(request):
         "idvacaciones",
     ).order_by('-fechainicialvac')
     
+    # Limpiar los valores "no data" y None
+    vacaciones = [
+        {
+            k: (
+                "" if (v is None or str(v).strip().lower() == "no data") 
+                else v
+            )
+            for k, v in vac.items()
+        }
+        for vac in vacaciones
+    ]
+    
     context = {
-        'vacaciones' : vacaciones
+        'vacaciones': vacaciones
     }
     
     return render(request, './companies/vacation_resumen.html', context)
+
 
 @login_required
 @role_required('company','accountant')
@@ -89,13 +124,15 @@ def vacation_resumen_data(request,id):
 
 
 @login_required
-@role_required('company','accountant')
+@role_required('company', 'accountant')
 def absences_resumen(request):
-    
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    vacaciones = Vacaciones.objects.filter(idcontrato__id_empresa=idempresa, tipovac__idvac__in=[3,4,5]).values(
+    vacaciones = Vacaciones.objects.filter(
+        idcontrato__id_empresa=idempresa, 
+        tipovac__idvac__in=[3, 4, 5]
+    ).values(
         "idcontrato__idempleado__docidentidad",
         "idcontrato__idempleado__papellido",
         "idcontrato__idempleado__sapellido",
@@ -105,8 +142,20 @@ def absences_resumen(request):
         "idvacaciones",
     ).order_by('-idvacaciones')
     
+    # Limpiar "no data" y valores nulos
+    vacaciones = [
+        {
+            k: (
+                "" if (v is None or str(v).strip().lower() == "no data")
+                else v
+            )
+            for k, v in vac.items()
+        }
+        for vac in vacaciones
+    ]
+    
     context = {
-        'vacaciones' : vacaciones
+        'vacaciones': vacaciones
     }
     
     return render(request, './companies/absences_resumen.html', context)

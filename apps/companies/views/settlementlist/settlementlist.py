@@ -55,11 +55,39 @@ def settlementlist(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-fechafincontrato')[:10]
-    
-    return render(request, 'companies/settlementlist.html',{
-        'liquidaciones':liquidaciones,
-    } )
+    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa=idempresa).order_by('-fechafincontrato')
+
+    # Limpiar None y 'no data' y formatear valores
+    cleaned_liquidaciones = []
+    for liq in liquidaciones:
+        def clean_text(value):
+            if value is None or (isinstance(value, str) and value.strip().lower() == 'no data'):
+                return ''
+            return value
+
+        cleaned_liquidaciones.append({
+            'idcontrato': liq.idcontrato.idcontrato if liq.idcontrato else '',
+            'docidentidad': clean_text(getattr(liq.idcontrato.idempleado, 'docidentidad', '')),
+            'full_name': " ".join(filter(None, [
+                clean_text(getattr(liq.idcontrato.idempleado, 'papellido', '')),
+                clean_text(getattr(liq.idcontrato.idempleado, 'sapellido', '')),
+                clean_text(getattr(liq.idcontrato.idempleado, 'pnombre', '')),
+                clean_text(getattr(liq.idcontrato.idempleado, 'snombre', ''))
+            ])),
+            'diastrabajados': liq.diastrabajados or 0,
+            'fechainicio': liq.fechainiciocontrato,
+            'fechafin': liq.fechafincontrato,
+            'cesantias': format_value(liq.cesantias or 0),
+            'intereses': format_value(liq.intereses or 0),
+            'prima': format_value(liq.prima or 0),
+            'vacaciones': format_value(liq.vacaciones or 0),
+            'totalliq': format_value(liq.totalliq or 0),
+            'idliquidacion': liq.idliquidacion,
+        })
+
+    return render(request, 'companies/settlementlist.html', {
+        'liquidaciones': cleaned_liquidaciones,
+    })
 
 
 

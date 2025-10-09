@@ -43,94 +43,94 @@ def payrollaccumulations(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form = ReportFilterForm(idempresa=idempresa)
+
+    # --- Función auxiliar para limpiar valores ---
+    def clean_value(value):
+        if not value:
+            return ''
+        return str(value).replace('no data', '').strip()
+
     if request.method == 'POST':
-        form = ReportFilterForm(request.POST , idempresa=idempresa)
+        form = ReportFilterForm(request.POST, idempresa=idempresa)
         if form.is_valid():
-            #try:
-                # Obtener los parámetros de búsqueda del formulario
             employee = form.cleaned_data['employee']
             cost_center = form.cleaned_data['cost_center']
             city = form.cleaned_data['city']
-            
             year_init = form.cleaned_data.get('year_init')
             mst_init = form.cleaned_data.get('mst_init')
             year_end = form.cleaned_data.get('year_end')
             mst_end = form.cleaned_data.get('mst_end')
-            
-    
-            # Aplicar filtros a la consulta de Nomina
-            nominas = Nomina.objects.filter(idnomina__id_empresa_id = idempresa).order_by('idconcepto__idconcepto')
+
+            nominas = Nomina.objects.filter(
+                idnomina__id_empresa_id=idempresa
+            ).order_by('idconcepto__idconcepto')
+
             if employee:
                 nominas = nominas.filter(idcontrato__idempleado__idempleado=employee)
             if cost_center:
                 nominas = nominas.filter(idcontrato__idcosto=cost_center)
             if city:
                 nominas = nominas.filter(idcontrato__idsede=city)
-            
+
             if year_init and mst_init and year_end and mst_end:
-                # Filtrar por mes y año iniciales
                 nominas = nominas.filter(
-                    #idnomina__anoacumular__gte=year_init, 
-                    idnomina__mesacumular__gte=mst_init
+                    idnomina__mesacumular__gte=mst_init,
+                    idnomina__mesacumular__lte=mst_end,
                 )
 
-                # Filtrar por mes y año finales
-                nominas = nominas.filter(
-                    #idnomina__anoacumular__ano__lte=year_end, 
-                    idnomina__mesacumular__lte=mst_end
-                )    
-            
-                    
-            # Acumular los datos
+            # --- Construcción de acumulados ---
             for data in nominas:
-                docidentidad = data.idcontrato.idempleado.docidentidad
+                empleado = data.idcontrato.idempleado
+                docidentidad = empleado.docidentidad
+
+                papellido = clean_value(empleado.papellido)
+                sapellido = clean_value(empleado.sapellido)
+                pnombre = clean_value(empleado.pnombre)
+                snombre = clean_value(empleado.snombre)
+                nombre_completo = " ".join(filter(None, [papellido, sapellido, pnombre, snombre]))
+
                 if docidentidad not in acumulados:
                     acumulados[docidentidad] = {
                         'documento': docidentidad,
-                        'empleado': f"{(data.idcontrato.idempleado.papellido or '')} {(data.idcontrato.idempleado.sapellido or '')} {(data.idcontrato.idempleado.pnombre or '')} {(data.idcontrato.idempleado.snombre or '')}",
+                        'empleado': nombre_completo,
                         'contrato': data.idcontrato.idcontrato,
-                        'data': [
-                            {"idconcepto": data.idconcepto.idconcepto,
-                                "nombreconcepto": data.idconcepto.nombreconcepto,
-                                "cantidad": data.cantidad,
-                                "valor": data.valor,},
-                        ]
+                        'data': [{
+                            "idconcepto": data.idconcepto.idconcepto,
+                            "nombreconcepto": clean_value(data.idconcepto.nombreconcepto),
+                            "cantidad": data.cantidad or 0,
+                            "valor": data.valor or 0,
+                        }]
                     }
                 else:
-                    concepto_existente = next((concepto for concepto in acumulados[docidentidad]["data"] if concepto["idconcepto"] == data.idconcepto.idconcepto), None)
-                    
+                    concepto_existente = next(
+                        (concepto for concepto in acumulados[docidentidad]["data"]
+                         if concepto["idconcepto"] == data.idconcepto.idconcepto),
+                        None
+                    )
+
                     if concepto_existente:
-                        # Si existe, sumar la cantidad y el valor
-                        concepto_existente["cantidad"] += data.cantidad
-                        concepto_existente["valor"] += data.valor
+                        concepto_existente["cantidad"] += data.cantidad or 0
+                        concepto_existente["valor"] += data.valor or 0
                     else:
-                        # Si no existe, añadir el nuevo concepto
                         nuevo_concepto = {
                             "idconcepto": data.idconcepto.idconcepto,
-                            "nombreconcepto": data.idconcepto.nombreconcepto,
-                            "cantidad": data.cantidad,
-                            "valor": data.valor,
+                            "nombreconcepto": clean_value(data.idconcepto.nombreconcepto),
+                            "cantidad": data.cantidad or 0,
+                            "valor": data.valor or 0,
                         }
                         acumulados[docidentidad]["data"].append(nuevo_concepto)
-            
+
+            # --- Formatear valores finales ---
             for docidentidad, datos in acumulados.items():
                 for concepto in datos['data']:
                     concepto['valor'] = format_value(concepto['valor'])
-            
-            # Procesar los datos acumulados
+
             compects = list(acumulados.values())
-            
-            form = ReportFilterForm(request.POST,idempresa=idempresa)
-            # except Exception as e:
-            #     print(f"Tipo de excepción: {type(e).__name__}") 
-            #     messages.error(request, "Algo salió mal. Por favor, intenta nuevamente.")
-            #     return  redirect('companies:payrollaccumulations')
+            form = ReportFilterForm(request.POST, idempresa=idempresa)
         else:
-            # Si el formulario no es válido, mostrar los errores
             for error in form.errors.values():
                 for e in error:
                     messages.error(request, e)
-
 
     return render(request, 'companies/payrollaccumulations.html', {
         'compects': compects,

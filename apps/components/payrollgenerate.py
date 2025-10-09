@@ -87,85 +87,94 @@ def limitar_cadena(cadena, max_length=25):
     return cadena
 
 
-def genera_comprobante(idnomina, idcontrato,date = 0 ):
-    
+
+def genera_comprobante(idnomina, idcontrato, date=0):
     contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
     crear = Crearnomina.objects.filter(idnomina=idnomina).first()
     datac = datos_cliente(contrato.id_empresa.idempresa)
-    
+
     if contrato:
-        
-        
-        
-        nombre_completo = " ".join([
-            contrato.idempleado.papellido or "",
-            contrato.idempleado.sapellido or "",
-            contrato.idempleado.pnombre or "",
-            contrato.idempleado.snombre or ""
-        ]).strip()
+        # Limpieza directa del texto "no data" en los nombres del empleado
+        nombres = [
+            (contrato.idempleado.papellido or '').replace('no data', '').strip(),
+            (contrato.idempleado.sapellido or '').replace('no data', '').strip(),
+            (contrato.idempleado.pnombre or '').replace('no data', '').strip(),
+            (contrato.idempleado.snombre or '').replace('no data', '').strip(),
+        ]
+        nombre_completo = ' '.join(n for n in nombres if n)
 
         # Obtener datos de devengados y descuentos
+        if date == 0:
+            dataDevengado = Nomina.objects.filter(
+                idcontrato=idcontrato, idnomina=idnomina, estadonomina=1, valor__gt=0
+            ).order_by('idconcepto__codigo')
+            dataDescuento = Nomina.objects.filter(
+                idcontrato=idcontrato, idnomina=idnomina, estadonomina=1, valor__lt=0
+            ).order_by('idconcepto__codigo')
+        else:
+            dataDevengado = Nomina.objects.filter(
+                idcontrato=idcontrato, idnomina=idnomina, estadonomina=2, valor__gt=0
+            ).order_by('idconcepto__codigo')
+            dataDescuento = Nomina.objects.filter(
+                idcontrato=idcontrato, idnomina=idnomina, estadonomina=2, valor__lt=0
+            ).order_by('idconcepto__codigo')
 
-        if date == 0 : 
-            dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 1, valor__gt=0).order_by('idconcepto__codigo')
-            dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 1, valor__lt=0).order_by('idconcepto__codigo')
-        else :
-            
-            dataDevengado = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 2, valor__gt=0).order_by('idconcepto__codigo')
-            dataDescuento = Nomina.objects.filter(idcontrato=idcontrato, idnomina=idnomina,estadonomina = 2, valor__lt=0).order_by('idconcepto__codigo')
-
-        # Formatear valores con puntos para los miles en dataDevengado
+        # Formatear valores con separadores y limpiar “no data”
         for item in dataDevengado:
-            item.valor = format_value(item.valor) # Aplica formato de separador de mil
+            item.valor = format_value(item.valor)
             item.cantidad = format_value_float(item.cantidad)
-            item.nombreconcepto = limitar_cadena(item.idconcepto.nombreconcepto)
-            
-        for item in dataDescuento:
-            item.valor = format_value(item.valor) # Aplica formato de separador de miles
-            item.cantidad = format_value_float(item.cantidad)
-            item.nombreconcepto = limitar_cadena(item.idconcepto.nombreconcepto)
+            item.nombreconcepto = limitar_cadena(
+                (item.idconcepto.nombreconcepto or '').replace('no data', '').strip()
+            )
 
-        # Calcular la suma de todos los valores en dataDevengado
+        for item in dataDescuento:
+            item.valor = format_value(item.valor)
+            item.cantidad = format_value_float(item.cantidad)
+            item.nombreconcepto = limitar_cadena(
+                (item.idconcepto.nombreconcepto or '').replace('no data', '').strip()
+            )
+
+        # Totales
         sumadataDevengado = dataDevengado.aggregate(total=Sum('valor'))['total'] or 0
-        
         sumadataDescuento = dataDescuento.aggregate(total=Sum('valor'))['total'] or 0
-        
         total = sumadataDevengado + sumadataDescuento
-        
-        
-        
-        periodo = f" {crear.fechainicial} hasta: {crear.fechafinal}"
+
+        # Periodo y otros datos
+        periodo = f"{crear.fechainicial} hasta: {crear.fechafinal}"
         name = crear.nombrenomina
-        centro = f"{contrato.idcosto.idcosto} - {contrato.idcosto.nomcosto}"
-    
-        
+        centro = f"{contrato.idcosto.idcosto} - {(contrato.idcosto.nomcosto or '').replace('no data', '').strip()}"
+
+        # Limpiar “no data” también en campos de cargo, EPS y pensión
+        cargo = (contrato.cargo.nombrecargo or '').replace('no data', '').strip()
+        eps = (contrato.codeps.entidad or '').replace('no data', '').strip()
+        pension = (contrato.codafp.entidad or '').replace('no data', '').strip()
+
         context = {
-            #empresa
-            'empresa':datac['nombreempresa'],
+            'empresa': datac['nombreempresa'],
             'nit': datac['nit'],
-            'web':datac['website'],
-            'logo':datac['logo'],        
-            # nomina y empleado 
-            'nombre_completo':(nombre_completo[:32] + '...') if len(nombre_completo) > 32 else nombre_completo,
+            'web': datac['website'],
+            'logo': datac['logo'],
+            'nombre_completo': (nombre_completo[:32] + '...') if len(nombre_completo) > 32 else nombre_completo,
             'cc': contrato.idempleado.docidentidad,
             'idcon': idcontrato,
             'idnomi': idnomina,
             'fecha1': str(contrato.fechainiciocontrato),
-            'cargo': (contrato.cargo.nombrecargo[:32] + '...') if len(contrato.cargo.nombrecargo) > 32 else contrato.cargo.nombrecargo,
+            'cargo': (cargo[:32] + '...') if len(cargo) > 32 else cargo,
             'salario': format_value(contrato.salario),
             'cuenta': contrato.cuentanomina,
             'ccostos': centro,
             'periodos': periodo,
-            'eps': (contrato.codeps.entidad[:12] + '...') if len(contrato.codeps.entidad) > 15 else contrato.codeps.entidad,
-            'pension': (contrato.codafp.entidad[:12] + '...') if len(contrato.codafp.entidad) > 15 else contrato.codafp.entidad,
+            'eps': (eps[:12] + '...') if len(eps) > 15 else eps,
+            'pension': (pension[:12] + '...') if len(pension) > 15 else pension,
             'dataDevengado': dataDevengado,
             'dataDescuento': dataDescuento,
-            'sumadataDevengado': format_value(sumadataDevengado), # Formatear la suma con separador de miles
-            'sumadataDescuento': format_value(sumadataDescuento), 
-            'total':format_value(total),
-            'mail':str(contrato.idempleado.email),
-            'name':name,
+            'sumadataDevengado': format_value(sumadataDevengado),
+            'sumadataDescuento': format_value(sumadataDescuento),
+            'total': format_value(total),
+            'mail': str((contrato.idempleado.email or '').replace('no data', '').strip()),
+            'name': name,
         }
+
     else:
         context = {
             'nombre_completo': None,

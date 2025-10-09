@@ -75,29 +75,44 @@ def vacation_request(request):
 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    
-    # Obtener la lista de empleados
-    vacaciones = EmpVacaciones.objects.filter(
-        idcontrato__id_empresa__idempresa=idempresa
-    ).order_by('-id_sol_vac').values(
-        'idcontrato__idempleado__docidentidad',
-        'idcontrato__idempleado__sapellido',
-        'idcontrato__idempleado__papellido',
-        'idcontrato__idempleado__pnombre',
-        'idcontrato__idempleado__snombre',
-        'idcontrato__idempleado__idempleado',
-        'tipovac__nombrevacaus',
-        'fechainicialvac',
-        'fechafinalvac',
-        'estado',
-        'idcontrato__idcontrato',
-        'id_sol_vac'
+
+    # Obtener la lista de solicitudes de vacaciones
+    vacaciones = (
+        EmpVacaciones.objects
+        .filter(idcontrato__id_empresa__idempresa=idempresa)
+        .order_by('-id_sol_vac')
+        .values(
+            'idcontrato__idempleado__docidentidad',
+            'idcontrato__idempleado__sapellido',
+            'idcontrato__idempleado__papellido',
+            'idcontrato__idempleado__pnombre',
+            'idcontrato__idempleado__snombre',
+            'idcontrato__idempleado__idempleado',
+            'tipovac__nombrevacaus',
+            'fechainicialvac',
+            'fechafinalvac',
+            'estado',
+            'idcontrato__idcontrato',
+            'id_sol_vac'
+        )
     )
 
-    context ={ 
-            'vacaciones' : vacaciones,
-        }
-    
+    # Limpiar los campos de texto (evita mostrar "no data" o None)
+    for vac in vacaciones:
+        for campo in [
+            'idcontrato__idempleado__pnombre',
+            'idcontrato__idempleado__snombre',
+            'idcontrato__idempleado__papellido',
+            'idcontrato__idempleado__sapellido'
+        ]:
+            valor = vac.get(campo)
+            if valor is None or str(valor).strip().lower() == 'no data':
+                vac[campo] = ''
+
+    context = {
+        'vacaciones': vacaciones,
+    }
+
     return render(request, './companies/vacation_request.html', context)
 
 

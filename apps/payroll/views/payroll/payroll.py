@@ -146,26 +146,55 @@ def payrollview(request, id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
 
-
-    empleados = Nomina.objects \
+    empleados_raw = Nomina.objects \
         .select_related('idcontrato') \
-        .filter(idnomina=id ,  estadonomina = 1) \
+        .filter(idnomina=id, estadonomina=1) \
         .values(
-            'idcontrato__idempleado__docidentidad', 'idcontrato__idempleado__papellido',
-            'idcontrato__idempleado__pnombre', 'idcontrato__idempleado__snombre',
-            'idcontrato__salario', 'idcontrato__idempleado__idempleado', 
-            'idcontrato__idempleado__sapellido', 'idcontrato'
+            'idcontrato__idempleado__docidentidad',
+            'idcontrato__idempleado__papellido',
+            'idcontrato__idempleado__sapellido',
+            'idcontrato__idempleado__pnombre',
+            'idcontrato__idempleado__snombre',
+            'idcontrato__salario',
+            'idcontrato__idempleado__idempleado',
+            'idcontrato'
         ) \
         .order_by('idcontrato__idempleado__papellido') \
         .distinct()
 
+    # Limpieza de datos (quita "no data", None, vacíos y espacios extra)
+    empleados = []
+    for e in empleados_raw:
+        doc = e.get('idcontrato__idempleado__docidentidad')
+        if not doc or str(doc).strip().lower() == "no data":
+            doc = ""
+
+        nombres = [
+            e.get('idcontrato__idempleado__pnombre'),
+            e.get('idcontrato__idempleado__snombre'),
+            e.get('idcontrato__idempleado__papellido'),
+            e.get('idcontrato__idempleado__sapellido'),
+        ]
+        full_name = " ".join([
+            n.strip() for n in nombres
+            if n and n.strip().lower() != "no data"
+        ])
+
+        empleados.append({
+            'documento': doc,
+            'nombre_completo': full_name,
+            'salario': e.get('idcontrato__salario'),
+            'idempleado': e.get('idcontrato__idempleado__idempleado'),
+            'idcontrato': e.get('idcontrato'),
+        })
+
     nombre = Crearnomina.objects.get(idnomina=id)
-    # Inicializamos 'nomina' para cuando no se filtra
-    nomina = Nomina.objects.filter(idnomina_id=id , estadonomina = 1).order_by('idregistronom')
-    
+
+    nomina = Nomina.objects.filter(idnomina_id=id, estadonomina=1).order_by('idregistronom')
+
     return render(request, './payroll/payrollviews.html', {
         'nomina': nomina,
-        'nombre':nombre,
+        'nombre': nombre,
         'empleados': empleados,
         'id': id
     })
@@ -201,71 +230,68 @@ def payroll_modal(request,id,idnomina):
 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    ingreso = 0  # Inicializamos la variable ingreso
-    egreso = 0   # Inicializamos la variable egreso
+    ingreso = 0
+    egreso = 0
     conceptos_data = []
     
     contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
 
-
     conceptos = Nomina.objects.filter(
         idnomina__idnomina=idnomina,
         idcontrato__idcontrato=id,
-        estadonomina = 1 
+        estadonomina=1
     ).select_related('idcontrato').order_by('idconcepto__codigo')
     
-    
-    # Verificar si hay conceptos encontrados
     if not conceptos.exists():
         conceptos = []
 
-    
-    # Optimizar consulta del contrato
-    contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
-    # Estructurar los datos para la respuesta
     for concepto in conceptos:
-        # Crear el diccionario con los datos del concepto
         concepto_info = {
             'idn': concepto.idregistronom,
             "id": concepto.idconcepto.idconcepto,
             "amount": concepto.cantidad,
             "value": concepto.valor,
         }
-        
-        # Agregar el concepto al arreglo
         conceptos_data.append(concepto_info)
         
-        # Revisar si el valor es mayor que 0 (ingreso) o negativo (egreso)
         if concepto.valor > 0:
-            ingreso += concepto.valor  # Agregar a ingreso si es positivo
+            ingreso += concepto.valor
         elif concepto.valor < 0:
             egreso += concepto.valor 
 
-    
-    # Construir el nombre completo
+    # 🔹 Construcción limpia del nombre completo sin "no data", None ni vacíos
     empleado = contrato.idempleado
-    nombre_completo = " ".join(filter(None, [empleado.papellido, empleado.sapellido, empleado.pnombre, empleado.snombre]))
+    partes_nombre = [
+        empleado.papellido,
+        empleado.sapellido,
+        empleado.pnombre,
+        empleado.snombre
+    ]
+    nombre_completo = " ".join([
+        p.strip() for p in partes_nombre
+        if p and p.strip().lower() != "no data"
+    ])
 
     total = ingreso + egreso
         
     data = {
-        "idnomina":idnomina,
-        "idempleado" :id,
+        "idnomina": idnomina,
+        "idempleado": id,
         "nombre": nombre_completo,
         "cargo": contrato.cargo,
         "salario": f"{format_value(contrato.salario)}$",
         "ingresos": f"{format_value(ingreso)}$",
         "egresos": f"{format_value(egreso)}$",
         "total": f"{format_value(total)}$",
-        "idnomina": idnomina,
-        "id":id , 
+        "id": id,
         "conceptos": conceptos_data,
-        "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
-        
+        "conceptors": [
+            (item.idconcepto, f"{item.codigo} - {item.nombreconcepto}")
+            for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo')
+        ]
     }
     
-    return render(request, './payroll/partials/payrollmodal2.html',{'data': data})
-
+    return render(request, './payroll/partials/payrollmodal2.html', {'data': data})
 
 
 
@@ -298,11 +324,12 @@ def payroll_create(request):
     Salariominimoanual : Se usa en el cálculo de auxilio de transporte u otros conceptos relacionados.
     """
 
-    ingreso = 0  # Inicializamos la variable ingreso
-    egreso = 0   # Inicializamos la variable egreso
+    ingreso = 0
+    egreso = 0
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     conceptos_data = []
+
     if request.method == 'POST':
         # Procesar los datos del formulario
         mi_select = request.POST.get('concept')
@@ -311,87 +338,93 @@ def payroll_create(request):
         idnomina = request.POST.get('idnomina')
         id = request.POST.get('idempleado')
         
-        conceptfi = Conceptosfijos.objects.get(idfijo = 23) 
+        conceptfi = Conceptosfijos.objects.get(idfijo=23)
         nomina = Crearnomina.objects.get(idnomina=idnomina)
         concept1 = Conceptosdenomina.objects.get(idconcepto=mi_select)
         formula = str(concept1.formula).strip() in ['0', '1', '2']
-        
-        print(conceptfi.conceptofijo)
-        
+
         if formula:
             if concept1.formula == '1':
                 if concept1.codigo == 2:                    
-                    aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
-                    multiplier = aux/30
+                    aux = Salariominimoanual.objects.get(ano=nomina.anoacumular.ano).auxtransporte
+                    multiplier = aux / 30
                     valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
-                else :
+                else:
                     multiplier = Contratos.objects.get(idcontrato=id).salario
-                    multiplier = multiplier/30
+                    multiplier = multiplier / 30
                     valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
-                    
             elif concept1.formula == '2':
                 multiplier = Contratos.objects.get(idcontrato=id).salario
                 multiplier = (float(multiplier) / float(conceptfi.valorfijo))
                 valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
-            
             else:
                 cantidad = 0
-                valor=int(valor.replace(',', ''))
+                valor = int(valor.replace(',', ''))
         else:
             cantidad = 0
-            valor=int(valor.replace(',', ''))
-            
-    
-        
-        # Optimizar consulta del contrato
+            valor = int(valor.replace(',', ''))
+
+        # 🔹 Limpieza del nombre del empleado (sin "no data", None, ni vacíos)
         contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
-        
+        empleado = contrato.idempleado
+        partes_nombre = [
+            empleado.papellido,
+            empleado.sapellido,
+            empleado.pnombre,
+            empleado.snombre
+        ]
+        nombre_completo = " ".join([
+            p.strip() for p in partes_nombre
+            if p and p.strip().lower() != "no data"
+        ])
+
+        # Crear registro de nómina
         Nomina.objects.create(
             idconcepto_id=mi_select,
             cantidad=cantidad,
             valor=valor,
-            estadonomina = 1,
+            estadonomina=1,
             idcontrato_id=id,
             idnomina_id=idnomina,
         )
         
-        
+        # Obtener conceptos asociados a la nómina del empleado
         conceptos = Nomina.objects.filter(
-                idnomina__idnomina=idnomina,
-                idcontrato__idcontrato=id,
-                estadonomina = 1 
-            ).select_related('idcontrato').order_by('idconcepto__codigo')
+            idnomina__idnomina=idnomina,
+            idcontrato__idcontrato=id,
+            estadonomina=1
+        ).select_related('idcontrato').order_by('idconcepto__codigo')
             
-        
         for concepto in conceptos:
-            # Crear el diccionario con los datos del concepto
             concepto_info = {
                 'idn': concepto.idregistronom,
                 "id": concepto.idconcepto.idconcepto,
                 "amount": concepto.cantidad,
                 "value": concepto.valor,
             }
-            
-            # Agregar el concepto al arreglo
             conceptos_data.append(concepto_info)
             
-            # Revisar si el valor es mayor que 0 (ingreso) o negativo (egreso)
             if concepto.valor > 0:
-                ingreso += concepto.valor  # Agregar a ingreso si es positivo
+                ingreso += concepto.valor
             elif concepto.valor < 0:
                 egreso += concepto.valor 
-    
+
     total = ingreso + egreso
     
     data = {    
+        "nombre_empleado": nombre_completo,  # ✅ Nombre limpio
         "salario": f"{format_value(contrato.salario)}$",
         "ingresos": f"{format_value(ingreso)}$",
         "egresos": f"{format_value(egreso)}$",
         "total": f"{format_value(total)}$",
         "conceptos": conceptos_data,
         "value": True,
-        "conceptors": [(item.idconcepto, f"{item.codigo} - {item.nombreconcepto}") for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo') ]
+        "conceptors": [
+            (item.idconcepto, f"{item.codigo} - {item.nombreconcepto}")
+            for item in Conceptosdenomina.objects.filter(id_empresa_id=idempresa).order_by('codigo')
+        ]
     }
+
     return render(request, './payroll/partials/concepts_list.html', {'data': data})
 
 
@@ -657,15 +690,32 @@ def payroll_general(request, idnomina):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
 
-    contratos_empleados = list(Contratos.objects
+    # Consulta de contratos activos
+    contratos_empleados = list(
+        Contratos.objects
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede')
         .filter(estadocontrato=1, id_empresa_id=idempresa)
-        .values('idempleado__docidentidad', 'idempleado__papellido', 'idempleado__sapellido',
-                'idempleado__pnombre', 'idempleado__snombre', 'cargo__nombrecargo', 'idcontrato'))
+        .values(
+            'idempleado__docidentidad',
+            'idempleado__papellido',
+            'idempleado__sapellido',
+            'idempleado__pnombre',
+            'idempleado__snombre',
+            'cargo__nombrecargo',
+            'idcontrato'
+        )
+    )
 
-    # Agregar el nombre completo a cada empleado
+    # Crear nombre completo y eliminar “no data”
     for empleado in contratos_empleados:
-        empleado['nombre_completo'] = get_empleado_name(empleado)
+        nombres = [
+            (empleado.get('idempleado__pnombre') or '').replace('no data', '').strip(),
+            (empleado.get('idempleado__snombre') or '').replace('no data', '').strip(),
+            (empleado.get('idempleado__papellido') or '').replace('no data', '').strip(),
+            (empleado.get('idempleado__sapellido') or '').replace('no data', '').strip(),
+        ]
+        # Une solo los nombres válidos
+        empleado['nombre_completo'] = ' '.join(n for n in nombres if n)
 
     dato = {
         'contratos_empleados': contratos_empleados,

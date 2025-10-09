@@ -54,39 +54,42 @@ def EditEmployeeVisual(request,idempleado):
     }
 
     initial_data = {
-        'identification_type':empleado.tipodocident.codigo,
-        'identification_number':empleado.docidentidad,
-        'expedition_date':str(empleado.fechaexpedicion),
-        'expedition_city':empleado.ciudadexpedicion.idciudad,
-        'first_name':empleado.pnombre,
-        'second_name':empleado.snombre,
-        'first_last_name':empleado.papellido,
-        'second_last_name':empleado.sapellido,
-        'sex':empleado.sexo,
-        'height': str(empleado.estatura) if empleado.estatura not in [None,'None', ''] else "0",
-        'marital_status':empleado.estadocivil,
-        'weight': empleado.peso if empleado.peso not in [None,'None', ''] else 0,
-        'first_name':empleado.pnombre,
-        'second_name':empleado.snombre,
-        'birthdate':str(empleado.fechanac),
-        'education_level':empleado.niveleducativo,
-        'birth_city':empleado.ciudadexpedicion.idciudad,
-        'stratum':empleado.estrato,
-        'birth_country':empleado.paisnacimiento.idpais,
-        'military_id':empleado.numlibretamil,
-        'blood_group':empleado.gruposanguineo,
-        'profession':empleado.estrato,
-        'residence_address':empleado.direccionempleado,
-        'email':empleado.email,
-        'residence_city':empleado.ciudadresidencia.idciudad,
-        'cell_phone':empleado.celular,
-        'residence_country':empleado.paisresidencia.idpais,
-        'employee_phone':empleado.telefonoempleado,
-        'pants_size':empleado.dotpantalon,
-        'shirt_size':empleado.dotcamisa,
-        'shoes_size':empleado.dotzapatos,
+        'identification_type': empleado.tipodocident.codigo,
+        'identification_number': empleado.docidentidad,
+        'expedition_date': str(empleado.fechaexpedicion),
+        'expedition_city': empleado.ciudadexpedicion.idciudad,
+        'first_name': empleado.pnombre,
+        'second_name': empleado.snombre,
+        'first_last_name': empleado.papellido,
+        'second_last_name': empleado.sapellido,
+        'sex': empleado.sexo,
+        'height': str(empleado.estatura) if empleado.estatura not in [None, 'None', ''] else "0",
+        'marital_status': empleado.estadocivil,
+        'weight': empleado.peso if empleado.peso not in [None, 'None', ''] else 0,
+        'birthdate': str(empleado.fechanac),
+        'education_level': empleado.niveleducativo,
+        'birth_city': empleado.ciudadexpedicion.idciudad,
+        'stratum': empleado.estrato,
+        'birth_country': empleado.paisnacimiento.idpais,
+        'military_id': empleado.numlibretamil,
+        'blood_group': empleado.gruposanguineo,
+        'profession': empleado.estrato,
+        'residence_address': empleado.direccionempleado,
+        'email': empleado.email,
+        'residence_city': empleado.ciudadresidencia.idciudad,
+        'cell_phone': empleado.celular,
+        'residence_country': empleado.paisresidencia.idpais,
+        'employee_phone': empleado.telefonoempleado,
+        'pants_size': empleado.dotpantalon,
+        'shirt_size': empleado.dotcamisa,
+        'shoes_size': empleado.dotzapatos,
+    }
 
-            }
+    # ✅ Reemplazar cualquier valor "no data" (sin importar mayúsculas/minúsculas) por cadena vacía
+    initial_data = {
+        k: ("" if isinstance(v, str) and v.strip().lower() == "no data" else v)
+        for k, v in initial_data.items()
+    }
     
     if request.method == 'POST':
         form = EmployeeForm(request.POST)     

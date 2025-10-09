@@ -313,9 +313,9 @@ tr.htmx-swapping td {
         <tbody>
             {% for empleado in empleados %}
                 <tr >
-                    <td class="text-center">{{ empleado.idcontrato__idempleado__docidentidad }}</td>
-                    <td>{{ empleado.idcontrato__idempleado__papellido }} {{ empleado.idcontrato__idempleado__sapellido }} {{ empleado.idcontrato__idempleado__pnombre }}</td>
-                    <td class="text-center">{{ empleado.idcontrato__salario|format_currency }} </td>
+                    <td class="text-center">{{ empleado.documento }}</td>
+                    <td>{{empleado.nombre_completo}}</td>
+                    <td class="text-center">{{ empleado.salario|format_currency }} </td>
                     <td class="text-center">
                         <div class="btn-group" >
                             <a

@@ -47,29 +47,24 @@ def employee_loans(request):
     #variables
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-
     form_errors = False
-    
 
     if request.method == 'POST':
         form = LoansForm(request.POST, id_empresa=idempresa)
         if form.is_valid():
-            
             Prestamos.objects.create(
                 idcontrato=Contratos.objects.get(idcontrato=form.cleaned_data['contract']),
                 valorprestamo=form.cleaned_data['loan_amount'],
                 fechaprestamo=form.cleaned_data['loan_date'],
                 cuotasprestamo=form.cleaned_data['installments_number'],
                 valorcuota=form.cleaned_data['installment_value'],
-                estadoprestamo = 1
+                estadoprestamo=1
             )
-
-            messages.success(request, 'Prestamo creado exitosamente')
+            messages.success(request, 'Préstamo creado exitosamente')
             return redirect('payroll:loans_list')
         else:
             form_errors = True
             messages.error(request, 'Error al crear el préstamo')
-            
     else:
         form = LoansForm(id_empresa=idempresa)
 
@@ -77,7 +72,8 @@ def employee_loans(request):
     loans_list = Prestamos.objects.select_related(
         'idcontrato__idempleado'
     ).filter(
-        idcontrato__id_empresa=idempresa , estadoprestamo = 1
+        idcontrato__id_empresa=idempresa, 
+        estadoprestamo=1
     ).values(
         contract_id=F('idcontrato__idcontrato'),
         employee_document=F('idcontrato__idempleado__docidentidad'),
@@ -89,14 +85,19 @@ def employee_loans(request):
         loan_count=Count('idprestamo')
     ).order_by('-idprestamo')
 
-    # Construcción del nombre sin None ni espacios extra
+    # Construcción del nombre completo limpio (sin "no data" ni None)
     for loan in loans_list:
-        loan["full_name"] = " ".join(filter(None, [
-            loan["employee_first_name"],
-            loan["employee_second_name"],
-            loan["employee_first_last_name"],
-            loan["employee_second_last_name"]
-        ]))
+        name_parts = [
+            loan.get("employee_first_name"),
+            loan.get("employee_second_name"),
+            loan.get("employee_first_last_name"),
+            loan.get("employee_second_last_name")
+        ]
+        # eliminar None, espacios vacíos y texto "no data"
+        loan["full_name"] = " ".join([
+            part.strip() for part in name_parts
+            if part and part.strip().lower() != "no data"
+        ])
 
     context = {
         'loans_list': loans_list,
@@ -138,26 +139,33 @@ def detail_employee_loans(request, pk=None):
     # Verificar si el usuario tiene el rol de 'employee'
     usuario = request.session.get('usuario', {})
     rol = usuario['rol']
-    
+
     if rol == 'employee':
         employee_info = Contratos.objects.select_related('idempleado').filter(idempleado=pk).latest('-idcontrato')
     else:
         employee_info = Contratos.objects.select_related('idempleado').get(idcontrato=pk)
-    
+
     contrato_id = employee_info.idcontrato
-    
-    
-    full_name = " ".join(filter(None, [
+
+    # Construcción del nombre completo sin "no data", None o vacíos
+    name_parts = [
         employee_info.idempleado.pnombre,
         employee_info.idempleado.snombre,
         employee_info.idempleado.papellido,
         employee_info.idempleado.sapellido
-    ]))
+    ]
+    full_name = " ".join([
+        part.strip() for part in name_parts
+        if part and part.strip().lower() != "no data"
+    ])
 
-    document_id = employee_info.idempleado.docidentidad
+    # Documento limpio: si dice "no data", se deja vacío
+    doc_id = employee_info.idempleado.docidentidad
+    document_id = "" if not doc_id or str(doc_id).strip().lower() == "no data" else doc_id
+
     # position = employee_info.idempleado.cargo
     loans_detail = Prestamos.objects.filter(idcontrato=contrato_id).order_by('-idprestamo')
-    
+
     context = {
         'employee_info': {
             'full_name': full_name,

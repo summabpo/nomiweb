@@ -59,28 +59,34 @@ def EditContracVisual(request,idempleado):
     }
     
     initial_data = {
-        'name' : contrato.idempleado.idempleado , 
+        'name': contrato.idempleado.idempleado,
         'endDate': str(contrato.fechafincontrato),
-        'payrollType': contrato.tiponomina.idtiponomina,
-        'position': contrato.cargo.idcargo,
-        'workLocation': contrato.ciudadcontratacion.idciudad,
+        'payrollType': contrato.tiponomina.idtiponomina if contrato.tiponomina else '',
+        'position': contrato.cargo.idcargo if contrato.cargo else '',
+        'workLocation': contrato.ciudadcontratacion.idciudad if contrato.ciudadcontratacion else '',
         'contractStartDate': str(contrato.fechainiciocontrato),
-        'contractType': contrato.tipocontrato.idtipocontrato,
-        'contractModel': contrato.idmodelo.idmodelo,
-        'salary': "{:,.0f}".format(contrato.salario).replace(',', '.'),
-        'salaryType': contrato.tiposalario.idtiposalario,
-        'paymentMethod': contrato.formapago,
-        'salaryMode': contrato.salariovariable,
+        'contractType': contrato.tipocontrato.idtipocontrato if contrato.tipocontrato else '',
+        'contractModel': contrato.idmodelo.idmodelo if contrato.idmodelo else '',
+        'salary': "{:,.0f}".format(contrato.salario).replace(',', '.') if contrato.salario else '',
+        'salaryType': contrato.tiposalario.idtiposalario if contrato.tiposalario else '',
+        'paymentMethod': contrato.formapago or '',
+        'salaryMode': contrato.salariovariable or '',
         'bankAccount': contrato.bancocuenta.idbanco if contrato.bancocuenta else '',
-        'accountType': contrato.tipocuentanomina,
-        'payrollAccount': contrato.cuentanomina,
-        'costCenter': contrato.idcosto.idcosto,
+        'accountType': contrato.tipocuentanomina or '',
+        'payrollAccount': contrato.cuentanomina or '',
+        'costCenter': contrato.idcosto.idcosto if contrato.idcosto else '',
         'subCostCenter': contrato.idsubcosto.idsubcosto if contrato.idsubcosto else '',
-        'eps': contrato.codeps.identidad,
-        'pensionFund': contrato.codafp.identidad,
-        'CesanFund': contrato.codccf.identidad,
-        'arlWorkCenter': contrato.centrotrabajo.centrotrabajo,
-        'workPlace': contrato.idsede.idsede,
+        'eps': contrato.codeps.identidad if contrato.codeps else '',
+        'pensionFund': contrato.codafp.identidad if contrato.codafp else '',
+        'CesanFund': contrato.codccf.identidad if contrato.codccf else '',
+        'arlWorkCenter': contrato.centrotrabajo.centrotrabajo if contrato.centrotrabajo else '',
+        'workPlace': contrato.idsede.idsede if contrato.idsede else '',
+    }
+
+    # ✅ Limpieza de valores tipo "no data", "sin dato", "n/a", etc.
+    initial_data = {
+        k: ("" if isinstance(v, str) and v.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"] else v)
+        for k, v in initial_data.items()
     }
 
     

@@ -86,8 +86,29 @@ class FixidForm(forms.Form):
         )
 
         self.fields['idconcepto'].choices = [('', '-------------')] + [(concepto.idconcepto, f"{concepto.nombreconcepto}") for concepto in Conceptosdenomina.objects.filter(id_empresa = idempresa)]
-        self.fields['idcontrato'].choices = [('', '-------------')] + [(contra.idcontrato, f"{contra.idempleado.papellido } {contra.idempleado.sapellido } {contra.idempleado.pnombre } -- {contra.cargo.nombrecargo } -- Contrato #{contra.idcontrato} ") for contra in Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa) .order_by('idempleado__papellido')]
         
+        
+        def clean_text(value):
+            """Limpia 'no data', None o cadenas vacías."""
+            if isinstance(value, str) and value.strip().lower() == "no data":
+                return ""
+            return value or ""
+
+        # Choices para contratos
+        self.fields['idcontrato'].choices = [('', '-------------')] + [
+            (
+                contra.idcontrato,
+                f"{clean_text(contra.idempleado.papellido)} "
+                f"{clean_text(contra.idempleado.sapellido)} "
+                f"{clean_text(contra.idempleado.pnombre)} "
+                f"-- {clean_text(contra.cargo.nombrecargo)} "
+                f"-- Contrato #{contra.idcontrato}"
+            )
+            for contra in Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa)
+            .select_related('idempleado', 'cargo')
+            .order_by('idempleado__papellido')
+        ]
+
 
         self.helper = FormHelper()
         self.helper.form_method = 'post'

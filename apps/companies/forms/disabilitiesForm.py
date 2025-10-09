@@ -97,12 +97,13 @@ class DisabilitiesForm(forms.Form):
         })
     )
     
-    incapacity_days = forms.DecimalField(label="Días de Incapacidad", 
-                                        max_digits=10, 
-                                        decimal_places=2, 
-                                        initial=0, 
-                                        min_value=0,   
-                                        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    incapacity_days = forms.IntegerField(
+            label="Días de Incapacidad",
+            initial=0,
+            min_value=0,
+            widget=forms.NumberInput(attrs={'class': 'form-control'})
+        )
+    
     end_date  = forms.CharField(
         label="Fin de la Incapacidad",
         required=False ,
@@ -283,13 +284,13 @@ class DisabilitiesEditForm(forms.Form):
         })
     )
     
-    incapacity_days = forms.DecimalField(label="Días de Incapacidad", 
-                                        max_digits=10, 
-                                        decimal_places=2, 
-                                        initial=0, 
-                                        required=False ,
-                                        min_value=0,   
-                                        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    incapacity_days = forms.IntegerField(
+            label="Días de Incapacidad",
+            initial=0,
+            min_value=0,
+            widget=forms.NumberInput(attrs={'class': 'form-control'})
+        )
+    
     end_date  = forms.CharField(
         label="Fin de la Incapacidad",
         required=False ,

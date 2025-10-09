@@ -33,7 +33,7 @@ def generate_random_filename(extension="pdf"):
 @login_required
 @role_required('company','accountant')
 def disabilities(request):
-  """
+    """
     Genera un nombre de archivo aleatorio con una extensión especificada.
 
     Esta función genera un nombre de archivo único utilizando una cadena aleatoria de 80 caracteres 
@@ -61,41 +61,46 @@ def disabilities(request):
     'A3fG6kjB7hF29xCzL1yP0mQsA1aPdf6A9Pq5Ym3s.txt'
     """
 
-  
-  usuario = request.session.get('usuario', {})
-  idempresa = usuario['idempresa']
-  
-  incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa = idempresa ,idcontrato__estadocontrato=1).values(
-      'idcontrato__idcontrato',
-      'idcontrato__idempleado__docidentidad',
-      'idcontrato__idempleado__pnombre',
-      'idcontrato__idempleado__snombre',
-      'idcontrato__idempleado__papellido',
-      'idcontrato__idempleado__sapellido',
-      'entidad__entidad',
-      'coddiagnostico__coddiagnostico',
-      'coddiagnostico__diagnostico',
-      'prorroga',
-      'fechainicial',
-      'dias',
-      'idincapacidad',
-      'imagenincapacidad',
-      'idcontrato__id_empresa_id'
-  ).order_by('-fechainicial')
-  
-  
-  # Reemplazar None por cadena vacía en los campos especificados
-  for inc in incapacidades:
-      for campo in [
-          'idcontrato__idempleado__pnombre',
-          'idcontrato__idempleado__snombre',
-          'idcontrato__idempleado__papellido',
-          'idcontrato__idempleado__sapellido'
-      ]:
-          if inc[campo] is None:
-              inc[campo] = ""
-  
-  return render (request, './companies/disabilities.html', {'incapacidades' :incapacidades})
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario.get('idempresa')
+
+    incapacidades = Incapacidades.objects.filter(
+        idcontrato__id_empresa=idempresa,
+        idcontrato__estadocontrato=1
+    ).values(
+        'idcontrato__idcontrato',
+        'idcontrato__idempleado__docidentidad',
+        'idcontrato__idempleado__pnombre',
+        'idcontrato__idempleado__snombre',
+        'idcontrato__idempleado__papellido',
+        'idcontrato__idempleado__sapellido',
+        'entidad__entidad',
+        'coddiagnostico__coddiagnostico',
+        'coddiagnostico__diagnostico',
+        'prorroga',
+        'fechainicial',
+        'dias',
+        'idincapacidad',
+        'imagenincapacidad',
+        'idcontrato__id_empresa_id'
+    ).order_by('-fechainicial')
+
+    def clean_value(value):
+        """Elimina 'no data' literal y reemplaza None por vacío."""
+        if isinstance(value, str) and value.strip().lower() == "no data":
+            return ""
+        return value or ""
+
+    # Limpieza de todos los campos del queryset
+    cleaned_incapacidades = []
+    for inc in incapacidades:
+        cleaned_inc = {k: clean_value(v) for k, v in inc.items()}
+        cleaned_incapacidades.append(cleaned_inc)
+
+    return render(request, './companies/disabilities.html', {
+        'incapacidades': cleaned_incapacidades
+    })
+
 
 
 

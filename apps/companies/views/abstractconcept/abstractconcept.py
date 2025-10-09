@@ -41,15 +41,23 @@ def abstractconcept(request):
     """
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
+
     if request.method == 'POST':
-        form = AbstractConceptForm(request.POST,idempresa=idempresa)
+        form = AbstractConceptForm(request.POST, idempresa=idempresa)
         if form.is_valid():
-            # Obtener los datos del formulario
-            sconcept = form.cleaned_data.get('sconcept')
-            payroll = form.cleaned_data.get('payroll')
-            employee = form.cleaned_data.get('employee')
-            month = form.cleaned_data.get('month')
-            year = form.cleaned_data.get('year')
+            # Obtener y limpiar los datos del formulario
+            def clean_value(v):
+                if v is None:
+                    return None
+                if isinstance(v, str) and v.strip().lower() == "no data":
+                    return None
+                return v.strip() if isinstance(v, str) else v
+
+            sconcept = clean_value(form.cleaned_data.get('sconcept'))
+            payroll = clean_value(form.cleaned_data.get('payroll'))
+            employee = clean_value(form.cleaned_data.get('employee'))
+            month = clean_value(form.cleaned_data.get('month'))
+            year = clean_value(form.cleaned_data.get('year'))
 
             # Construir los filtros dinámicamente
             filters = {
@@ -59,33 +67,28 @@ def abstractconcept(request):
                 'idnomina__mesacumular': month,
                 'idnomina__anoacumular__ano': year,
             }
-            
-            
-            # Eliminar filtros con valores vacíos
-            filters = {k: v for k, v in filters.items() if v}
-            
-            
-            
+
+            # Eliminar filtros vacíos o con valores None
+            filters = {k: v for k, v in filters.items() if v not in [None, '', 'no data']}
+
             # Filtrar los datos
             nominas = Nomina.objects.filter(**filters).order_by('-idnomina')
             nomina = nominas if nominas.exists() else None
-            
-            
+
             return render(request, 'companies/abstractconcept.html', {
                 'liquidaciones': nominas,
                 'form': form,
             })
-            
+
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{error}")
             return redirect('companies:abstractconcept')
-    else :
+    else:
         nomina = {}
-    #Crear una instancia del formulario de filtro para enviar al template
-    
-    
+
+    # Crear una instancia del formulario de filtro para enviar al template
     form = AbstractConceptForm(idempresa=idempresa)
 
     # Renderizar el template con los resultados filtrados y el formulario
