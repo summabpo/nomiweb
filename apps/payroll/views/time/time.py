@@ -13,7 +13,7 @@ from django.db.models import Q
 import pandas as pd
 from django.db import transaction
 from django.db.models import Sum
-import holidays
+#import holidays
 
 from django.db.models import F, Value, CharField
 from django.db.models.functions import Concat
