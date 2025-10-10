@@ -8,6 +8,7 @@ from apps.common.models import Entidadessegsocial, Contratos , Tipocontrato
 class TimeForm(forms.Form):
     fechaingreso = forms.DateField(
         label='Fecha de ingreso',
+        required=False,
         widget=forms.DateInput(
             attrs={
                 'placeholder': 'dd-mm-aaaa',
@@ -20,6 +21,7 @@ class TimeForm(forms.Form):
     )
     fechasalida = forms.DateField(
         label='Fecha de salida',
+        required=False,
         widget=forms.DateInput(
             attrs={
                 'placeholder': 'dd-mm-aaaa',
@@ -33,6 +35,7 @@ class TimeForm(forms.Form):
 
     horaingreso = forms.TimeField(
         label='Hora de ingreso',
+        required=False,
         widget=forms.TimeInput(
             attrs={
                 'placeholder': 'hh:mm',
@@ -46,6 +49,7 @@ class TimeForm(forms.Form):
 
     horasalida = forms.TimeField(
         label='Hora de salida',
+        required=False,
         widget=forms.TimeInput(
             attrs={
                 'placeholder': 'hh:mm',
@@ -57,10 +61,9 @@ class TimeForm(forms.Form):
         input_formats=['%H:%M', '%H:%M:%S'],
     )
 
-    horasdescuentos = forms.DecimalField(
+    horasdescuentos = forms.IntegerField(
         label='Horas de descuento',
-        max_digits=5,
-        decimal_places=2,
+        required=False,
         initial=0,
         min_value=0,
         widget=forms.NumberInput(attrs={
@@ -71,6 +74,8 @@ class TimeForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
+        id = kwargs.pop('id', None)
+        
         super().__init__(*args, **kwargs)
 
         self.fields['contract'] = forms.ChoiceField(
@@ -100,7 +105,7 @@ class TimeForm(forms.Form):
                 'data-allow-clear': "true",
                 'id': 'contract-select'
             }),
-            required=True
+            required=False
         )
         
         self.helper = FormHelper()
@@ -112,8 +117,8 @@ class TimeForm(forms.Form):
             'up-target': '#modal-content',
             'up-mode': 'replace',
             'up-layer': 'current',
-            # 'up-submit': reverse('payroll:time_edit'),
-            # 'up-accept-location': reverse('payroll:time_edit'),
+            'up-submit': reverse('payroll:time_edit', kwargs={'id': id}),
+            'up-accept-location': reverse('payroll:time_edit', kwargs={'id': id}),
             'up-on-accepted': 'up.modal.close()',
         })
 

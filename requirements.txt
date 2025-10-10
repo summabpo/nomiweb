@@ -177,3 +177,4 @@ websocket-client==1.8.0
 wkhtmltopdf==0.2
 xhtml2pdf==0.2.15
 zope.interface==6.4.post2
+holidays==0.82
