@@ -152,75 +152,95 @@ Listados de Tiempos
 
 
 {% if true1 %}
+    <form method="get" action="{% url 'payroll:time_list' %}">
+        <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
+        <input type="hidden" name="accion" value="calcular">
+        <button type="submit" class="btn btn-light-info">Calcular Valores</button>
+    </form>
 
-<form method="get" action="{% url 'payroll:time_list' %}">
-    <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
-    <input type="hidden" name="accion" value="calcular">
-    <button type="submit" class="btn btn-light-info">Calcular Valores</button>
-</form>
-
-<div class="table-responsive">
-    <table id='tabla-lista-vacation' class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Empleado</th>
-                <th>Fecha Ingreso</th>
-                <th>Hora Ingreso</th>
-                <th>Fecha Salida</th>
-                <th>Hora Salida</th>
-                <th>H.Dscto.</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in tiempos %}
+    <div class="table-responsive">
+        <table id='tabla-lista-vacation' class="table table-striped table-bordered">
+            <thead>
                 <tr>
-                    <!-- Nombre completo del empleado basado en idcontrato -->
-                    <td>{{ item.nombre_completo|default:'Sin nombre' }}</td>
-
-                    <!-- Fechas y horas -->
-                    <td>{{ item.fechaingreso|date:'d-m-Y' }}</td>
-                    <td>{{ item.horaingreso|default:'00:00' }}</td>
-                    <td>{{ item.fechasalida|date:'d-m-Y' }}</td>
-                    <td>{{ item.horasalida|default:0 }}</td>
-                    <td>{{ item.horasdescuentos|default:0 }}</td>
-
-                    <!-- Botón de acción -->
-                    <td>
-                        <a
-                            class='btn btn-icon btn-sm btn-light-success'
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Editar Tiempo"
-                            up-layer='new modal'
-                            up-target=".modal-content1"
-                            up-size="medium"
-                            up-align="center"
-                            up-backdrop="true"
-                            up-history="false"
-                            up-dismissable="false"
-                            up-cache="false"
-                            href="{% url 'payroll:time_edit' item.idmarcacion %}">
-                            <i class="fa-solid fa-pen-to-square fs-3"></i>
-                        </a>
-                    </td>
+                    <th>Empleado</th>
+                    <th>Fecha Ingreso</th>
+                    <th>Hora Ingreso</th>
+                    <th>Fecha Salida</th>
+                    <th>Hora Salida</th>
+                    <th>H.Dscto.</th>
+                    <th></th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center">No hay registros de tiempos para esta nómina.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                {% for item in tiempos %}
+                    <tr>
+                        <!-- Nombre completo del empleado basado en idcontrato -->
+                        <td>{{ item.nombre_completo|default:'Sin nombre' }}</td>
+
+                        <!-- Fechas y horas -->
+                        <td>{{ item.fechaingreso|date:'d-m-Y' }}</td>
+                        <td>{{ item.horaingreso|default:'00:00' }}</td>
+                        <td>{{ item.fechasalida|date:'d-m-Y' }}</td>
+                        <td>{{ item.horasalida|default:0 }}</td>
+                        <td>{{ item.horasdescuentos|default:0 }}</td>
+
+                        <!-- Botón de acción -->
+                        <td>
+                            <a
+                                class='btn btn-icon btn-sm btn-light-success'
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Editar Tiempo"
+                                up-layer='new modal'
+                                up-target=".modal-content1"
+                                up-size="medium"
+                                up-align="center"
+                                up-backdrop="true"
+                                up-history="false"
+                                up-dismissable="false"
+                                up-cache="false"
+                                href="{% url 'payroll:time_edit' item.idmarcacion %}">
+                                <i class="fa-solid fa-pen-to-square fs-3"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay registros de tiempos para esta nómina.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endif %}
 
 
 {% if true2 %}
-<form method="get" action="{% url 'payroll:time_list' %}">
-    <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
-    <button type="submit" class="btn btn-secondary"><i class="fa-solid fa-circle-left"></i> Atrás</button>
-</form>
+<div class="btn-group" role="group" aria-label="Basic example">
+    <form method="get" action="{% url 'payroll:time_list' %}">
+        <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
+        <button type="submit" class="btn btn-secondary"><i class="fa-solid fa-circle-left"></i> Atrás</button>
+    </form>
+
+    {% if true3 %}
+        <form method="get" action="{% url 'payroll:time_list' %}">
+            <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
+            <input type="hidden" name="accion" value="calcular">
+            <input type="hidden" name="accion2" value="grabar2">
+            <button type="submit" class="btn btn-light-info"><i class="fa-solid fa-circle-left"></i> Grabar en nomina</button>
+        </form>
+    {% else %}
+        <form method="get" action="{% url 'payroll:time_list' %}">
+            <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
+            <input type="hidden" name="accion" value="calcular">
+            <input type="hidden" name="accion2" value="grabar">
+            <button type="submit" class="btn btn-light-info"><i class="fa-solid fa-circle-left"></i> Grabar Calculos</button>
+        </form>
+    {% endif %}
+
+    
+
+</div>
 <div class="table-responsive">
     <table id='tabla-lista-vacation' class="table table-striped table-bordered">
         <thead>
@@ -259,20 +279,20 @@ Listados de Tiempos
                     <td>{{ item.salario|format_currency|default:0 }}</td>
                     <td> 0 </td>
                     <td>{{ item.hed|default:0 }}</td>
-                    <td> 0 </td>
+                    <td>{{ item.Vhed|format_currency|default:0 }} </td>
                     <td>{{ item.hen|default:0 }}</td>
-                    <td> 0 </td>
+                    <td>{{ item.Vhen|format_currency|default:0 }} </td>
                     <td>{{ item.hedf|default:0 }}</td>
-                    <td> 0 </td>
+                    <td>{{ item.Vhedf|format_currency|default:0 }}</td>
                     <td>{{ item.henf|default:0 }}</td>
-                    <td> 0 </td>
+                    <td>{{ item.Vhenf|format_currency|default:0 }}</td>
                     <td>{{ item.rn|default:0 }}</td>
-                    <td> 0 </td>
+                    <td>{{ item.Vrn|format_currency|default:0 }}</td>
                     <td>{{ item.rnf|default:0 }}</td>
                     <td> 0 </td>
                     <td>{{ item.dyf|default:0 }}</td>
-                    <td> 0 </td>
-                    <td> 0 </td>
+                    <td>{{ item.Vdyf|format_currency|default:0 }}</td>
+                    <td>{{ item.ValorExtras|format_currency|default:0 }}</td>
                     <td>{{ item.sede|default:'' }}</td>
                 </tr>
             {% endfor %}

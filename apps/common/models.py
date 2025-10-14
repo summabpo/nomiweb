@@ -1617,7 +1617,7 @@ class Tiempos(models.Model):
 
 
 class TiemposTotales(models.Model):
-    idtiempostotales = models.IntegerField(primary_key=True)
+    idtiempostotales = models.AutoField(primary_key=True)
     idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING) 
     horasord = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
     horastrab = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)

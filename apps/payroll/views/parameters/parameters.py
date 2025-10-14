@@ -263,14 +263,11 @@ def fixed(request):
 @login_required
 @role_required('company','admin','accountant')
 def fixed_add(request):
-    print('---1---')
     form = FixedForm()
     
     if request.method == 'POST':
-        print('---2---')
         form = FixedForm(request.POST)
         if form.is_valid():
-            print('---3---')
             try:
                 # Crear instancia de Crearnomina
                 Conceptosfijos.objects.create(
