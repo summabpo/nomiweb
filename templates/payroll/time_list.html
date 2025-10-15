@@ -140,7 +140,6 @@ Listados de Tiempos
                         {% for nomina in nominas %}
                             <option value="{{nomina.idnomina}}" {% if selected_nomina_id and nomina.idnomina|stringformat:'s' == selected_nomina_id %}selected{% endif %}>{{nomina.nombrenomina}} </option>
                         {% endfor %}
-                        
                     </select>
                 </div>
             </form>
@@ -152,11 +151,21 @@ Listados de Tiempos
 
 
 {% if true1 %}
-    <form method="get" action="{% url 'payroll:time_list' %}">
-        <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
-        <input type="hidden" name="accion" value="calcular">
-        <button type="submit" class="btn btn-light-info">Calcular Valores</button>
-    </form>
+    <div class="btn-group" role="group" aria-label="Acciones de nómina">
+        <form method="get" action="{% url 'payroll:time_list' %}">
+            <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
+            <input type="hidden" name="accion" value="calcular">
+            <button type="submit" class="btn btn-light-info">Calcular Valores</button>
+        </form>
+
+        <a 
+            
+            href="{% url 'payroll:time_doc' selected_nomina_id  %}"
+            class="btn btn-light-info">
+            Descargar resumen de tiempos
+        </a>
+    </div>
+
 
     <div class="table-responsive">
         <table id='tabla-lista-vacation' class="table table-striped table-bordered">
@@ -227,14 +236,14 @@ Listados de Tiempos
             <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
             <input type="hidden" name="accion" value="calcular">
             <input type="hidden" name="accion2" value="grabar2">
-            <button type="submit" class="btn btn-light-info"><i class="fa-solid fa-circle-left"></i> Grabar en nomina</button>
+            <button type="submit" class="btn btn-light-info"><i class="fa-solid fa-file-invoice"></i> Grabar en nomina</button>
         </form>
     {% else %}
         <form method="get" action="{% url 'payroll:time_list' %}">
             <input type="hidden" name="datatipo" value="{{ selected_nomina_id }}">
             <input type="hidden" name="accion" value="calcular">
             <input type="hidden" name="accion2" value="grabar">
-            <button type="submit" class="btn btn-light-info"><i class="fa-solid fa-circle-left"></i> Grabar Calculos</button>
+            <button type="submit" class="btn btn-light-info"><i class="fa-solid fa-floppy-disk"></i> Grabar Calculos</button>
         </form>
     {% endif %}
 

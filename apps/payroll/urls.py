@@ -68,7 +68,7 @@ urlpatterns = [
     
     ### time 
     path('time/list', time.time_list, name='time_list'),
-    
+    path('time/list/doc/<str:id>', time.time_doc, name='time_doc'),
     
 ]
 

@@ -284,8 +284,7 @@ def exportar_excel2(request):
             estatura, peso, fechaexp_fmt, ciudad_exp_nom, pant, cam,
             zap, estrato, libreta, estado_cto
         ]]
-        if nombre == "CUERVO MARTINEZ HENRY no data" : 
-            print('aqui ando perra ')
+        
         
         ws.append(row)
 

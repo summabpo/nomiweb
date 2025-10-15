@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from django.contrib import messages
-from apps.common.models import Tiempos , Crearnomina , Contratos , Empresa ,Conceptosfijos ,TiemposTotales ,Sedes, Costos, Subcostos, Empresa
+from apps.common.models import Tiempos , Crearnomina , Contratos ,Nomina,Conceptosdenomina, Empresa ,Conceptosfijos ,TiemposTotales ,Sedes, Costos, Subcostos, Empresa
 from django.http import HttpResponse
 from django.urls import reverse
 from apps.payroll.forms.SettlementForm import SettlementForm
@@ -16,12 +16,13 @@ import pandas as pd
 from django.db import transaction
 from django.db.models import Sum
 import holidays
-
+from openpyxl import Workbook
+from io import BytesIO
 from django.db.models import F, Value, CharField
 from django.db.models.functions import Concat
 from apps.payroll.forms.TimeForm import TimeForm
 from urllib.parse import urlencode
-
+from openpyxl.styles import PatternFill
 
 @login_required
 @role_required('accountant')
@@ -172,7 +173,7 @@ def time_list(request):
                 worked = timedelta()
 
             total_hours = round(worked.total_seconds() / 3600, 2)
-            horas_normales = hed = hen = hedf = henf = rn = 0.0
+            horas_normales = hed = hen = hedf = henf = rn = dyf = 0.0
             base_hours = 8.0
             hora_actual = dt_ingreso
             end_time = dt_salida_adj
@@ -190,6 +191,7 @@ def time_list(request):
                 remaining_regular = max(0.0, base_hours - used_regular)
 
                 if is_festivo:
+                    dyf += dur
                     if tipo == "diurna":
                         hedf += dur
                     else:
@@ -228,6 +230,7 @@ def time_list(request):
                     'hedf': 0.0,
                     'henf': 0.0,
                     'rn': 0.0,
+                    'dyf': 0.0,
                 }
 
             horas_por_contrato[id_contrato]['horas_trabajadas'] += total_hours
@@ -237,29 +240,31 @@ def time_list(request):
             horas_por_contrato[id_contrato]['hedf'] += hedf
             horas_por_contrato[id_contrato]['henf'] += henf
             horas_por_contrato[id_contrato]['rn'] += rn
+            horas_por_contrato[id_contrato]['dyf'] += dyf 
 
         # 🔹 Calcular valores de pago por tipo de hora
         for contrato_id, valores in horas_por_contrato.items():
             salario = valores['salario']
             valor_hora = salario / jmm
 
-            valores['Vhed']  = round(valores['hed']  * valor_hora * hed_factor, 2)
-            valores['Vhen']  = round(valores['hen']  * valor_hora * hen_factor, 2)
-            valores['Vhedf'] = round(valores['hedf'] * valor_hora * hedf_factor, 2)
-            valores['Vhenf'] = round(valores['henf'] * valor_hora * henf_factor, 2)
-            valores['Vrn']   = round(valores['rn']   * valor_hora * rn_factor, 2)
-            valores['Vdyf']  = round(valores['horas_normales'] * valor_hora * rdf_factor, 2)  # recargo dominical opcional
-
+            valores['Vhed']  = round(valores['hed']  * valor_hora * hed_factor, 1)
+            valores['Vhen']  = round(valores['hen']  * valor_hora * hen_factor, 1)
+            valores['Vhedf'] = round(valores['hedf'] * valor_hora * hedf_factor, 1)
+            valores['Vhenf'] = round(valores['henf'] * valor_hora * henf_factor, 1)
+            valores['Vrn']   = round(valores['rn']   * valor_hora * rn_factor, 1)
+            valores['Vdyf']  = round(valores['horas_normales'] * valor_hora * rdf_factor, 1)  # recargo dominical opcional
+            valores['dyf']  = round(valores['dyf'], 1)
+            
             # 🔸 Total de valor de horas extras
             valores['ValorExtras'] = round(
                 valores['Vhed'] + valores['Vhen'] + valores['Vhedf'] +
-                valores['Vhenf'] + valores['Vrn'] + valores['Vdyf'], 2
+                valores['Vhenf'] + valores['Vrn'] + valores['Vdyf'], 1
             )
 
             # 🔹 Redondear
             for k, v in valores.items():
                 if isinstance(v, (int, float)):
-                    valores[k] = round(v, 2)
+                    valores[k] = round(v, 1)
 
         return horas_por_contrato
 
@@ -316,7 +321,6 @@ def time_list(request):
                     # Calculamos todas las horas
                     horas_por_contrato = calcular_horas_extras(tiempos_agregados)
                     
-                    
                     # Normalizamos a formato decimal
                     empleados_con_horas = []
                     for emp in empleados:
@@ -342,6 +346,7 @@ def time_list(request):
                         emp['Vhenf'] = data.get('Vhenf', 0)
                         emp['Vrn'] = data.get('Vrn', 0)
                         emp['Vdyf'] = data.get('Vdyf', 0)
+                        emp['dyf'] = data.get('dyf', 0)
                         emp['ValorExtras'] = data.get('ValorExtras', 0)
 
                         if emp['horas_trabajadas'] > 0:
@@ -360,34 +365,101 @@ def time_list(request):
         value3 = True
         
         for data in empleados:
-            
             contrato = Contratos.objects.get(idcontrato=data['idcontrato'])
-    
-            # 🔹 Crear registro de TiemposTotales
-            TiemposTotales.objects.create(
+            nomina = Crearnomina.objects.get(pk=selected_nomina_id)
+            costo = Costos.objects.get(pk=contrato.idcosto.idcosto)
+            empresa = Empresa.objects.get(pk=idempresa)
+
+            print(data)
+            # 🔹 Buscar o crear el registro
+            obj, created = TiemposTotales.objects.update_or_create(
                 idcontrato=contrato,
-                horasord=Decimal(data.get('horas_normales', 0)),
-                horastrab=Decimal(data.get('horas_trabajadas', 0)),
-                hed=Decimal(data.get('hed', 0)),
-                vhed=Decimal(data.get('Vhed', 0)),
-                hen=Decimal(data.get('hen', 0)),
-                vhen=Decimal(data.get('Vhen', 0)),
-                hedf=Decimal(data.get('hedf', 0)),
-                vhedf=Decimal(data.get('Vhedf', 0)),
-                henf=Decimal(data.get('henf', 0)),
-                vhenf=Decimal(data.get('Vhenf', 0)),
-                rn=Decimal(data.get('rn', 0)),
-                vrn=Decimal(data.get('Vrn', 0)),
-                dyf=Decimal(data.get('Vdyf', 0)),  # si quieres guardar el valor o las horas depende de tu estructura
-                vdyf=Decimal(data.get('Vdyf', 0)),
-                valorextras=Decimal(data.get('ValorExtras', 0)),
-                # 🔹 Llaves foráneas: ajusta según tu contexto actual
-                idnomina=Crearnomina.objects.get(pk=selected_nomina_id),  # ← reemplaza con la nómina actual
-                idcosto=Costos.objects.get(pk = contrato.idcosto.idcosto ),         # ← ajusta
-                idempresa=Empresa.objects.get(pk=idempresa),      # ← ajusta
+                idnomina=nomina,
+                defaults={
+                    'horasord':data.get('horas_normales', 0),
+                    'horastrab':data.get('horas_trabajadas', 0),
+                    'hed':data.get('hed', 0),
+                    'vhed':data.get('Vhed', 0),
+                    'hen':data.get('hen', 0),
+                    'vhen':data.get('Vhen', 0),
+                    'hedf':data.get('hedf', 0),
+                    'vhedf':data.get('Vhedf', 0),
+                    'henf':data.get('henf', 0),
+                    'vhenf': data.get('Vhenf', 0),
+                    'rn': data.get('rn', 0),
+                    'vrn': data.get('Vrn', 0),
+                    'dyf': data.get('dyf', 0),  
+                    'vdyf': data.get('Vdyf', 0),
+                    'valorextras': data.get('ValorExtras', 0),
+                    'idcosto': costo,
+                    'idempresa': empresa,
+                }
             )
+            print("Creado:", created, "→", obj)
+
+        messages.success(request, 'Tiempos guardados correctamente')
+
+        
+    if accion2 == 'grabar2':
+        value1 = value2 = value3 = False
+        nomina = Crearnomina.objects.get(pk=selected_nomina_id)
+
+        # 🔹 Cargar conceptos masivamente
+        codigos = [3, 5, 6, 7, 8, 9, 16]
+        conceptos = {
+            c.codigo: c for c in Conceptosdenomina.objects.filter(codigo__in=codigos, id_empresa=idempresa)
+        }
+
+        faltantes = [c for c in codigos if c not in conceptos]
+        if faltantes:
+            messages.error(request, f"Faltan conceptos en la empresa: {faltantes}")
+            return redirect(request.path)
+
+        # 🔹 Relación campo ↔ concepto
+        campos_a_concepto = {
+            'hed': conceptos[5],
+            'hen': conceptos[6],
+            'dyf': conceptos[7],
+            'hedf': conceptos[8],
+            'henf': conceptos[9],
+            'rn': conceptos[3],
+            'rn_festivo': conceptos[16],
+        }
+
+        tiempos = TiemposTotales.objects.filter(idnomina_id=selected_nomina_id)
+
+        for data in tiempos:
+            for campo, concepto in campos_a_concepto.items():
+                cantidad = getattr(data, campo, 0)
+                valor_campo = f"v{campo}" if hasattr(data, f"v{campo}") else None
+                valor = getattr(data, valor_campo, 0) if valor_campo else 0
+
+                try:
+                    # 🔸 Convertir y redondear a 2 decimales
+                    cantidad = Decimal(cantidad).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                    valor = Decimal(valor).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                    # 🔸 Validar valores dentro de rango razonable
+                    if cantidad > 0 and valor < Decimal('9999999999.99'):
+                        Nomina.objects.update_or_create(
+                            idcontrato=data.idcontrato,
+                            idnomina=nomina,
+                            idconcepto=concepto,
+                            defaults={
+                                'cantidad': cantidad,
+                                'valor': valor,
+                                'estadonomina': 1,
+                            },
+                        )
+                        
+                except (InvalidOperation, OverflowError) as e:
+                    print(f"❌ Error numérico en contrato {data.idcontrato}: {e}")
+
+        messages.success(request, "Tiempos aplicados correctamente a la nómina.")
+        return redirect(reverse('payroll:payrollview', args=[selected_nomina_id]))
+
             
-            messages.success(request, 'Tiempos guardados correctamente')
+            
         
     return render(
         request,
@@ -397,7 +469,7 @@ def time_list(request):
             'nominas': nominas,
             'true1': value1,
             'true2': value2,
-            'true3':value3,
+            'true3': value3,
             'empleados': empleados,
             'selected_nomina_id': selected_nomina_id
         }
@@ -472,249 +544,94 @@ def time_edit(request,id):
     )
 
 
-#@login_required
-# @role_required('accountant')
-# def time_list(request):
-#     value = False
-#     usuario = request.session.get('usuario', {})
-#     idempresa = usuario['idempresa']
 
-#     nominas = Crearnomina.objects.filter(
-#         estadonomina=True,
-#         id_empresa_id=idempresa
-#     ).order_by('-idnomina')
+@login_required
+@role_required('accountant')
+def time_doc(request, id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
 
-#     contratos_empleados = (
-#         Contratos.objects
-#         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede')
-#         .order_by('idempleado__papellido')
-#         .filter(estadocontrato=1, id_empresa=idempresa)
-#         .values(
-#             'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
-#             'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario',
-#             'idcosto__nomcosto', 'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl',
-#             'idempleado__idempleado', 'idempleado__sapellido',
-#             'idcontrato', 'idsede__nombresede'
-#         )
-#     )
+    tiempos = Tiempos.objects.filter(idnomina=id).select_related('idcontrato__idsede')
 
-#     selected_nomina_id = request.GET.get('datatipo')
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Tiempo Marcados"
 
-#     empleados = [
-#         {
-#             'documento': contrato['idempleado__docidentidad'],
-#             'nombre': ' '.join(filter(None, [
-#                 contrato['idempleado__papellido'] if contrato['idempleado__papellido'] != 'no data' else '',
-#                 contrato['idempleado__sapellido'] if contrato['idempleado__sapellido'] != 'no data' else '',
-#                 contrato['idempleado__pnombre'] if contrato['idempleado__pnombre'] != 'no data' else '',
-#                 contrato['idempleado__snombre'] if contrato['idempleado__snombre'] != 'no data' else ''
-#             ])),
-#             'idcontrato': contrato['idcontrato'],
-#             'salario':contrato['salario'], 
-#             'sede': contrato.get('idsede__nombresede')
-#         }
-#         for contrato in contratos_empleados
-#     ]
+    headers = [
+        'Idcontrato', 'empleado', 'Fechaingreso', 'Horaingreso', 'Fechasalida', 'Horasalida',
+        'Horasdescuentos', 'Horastrab', 'Horasord', 'Saldo', 'Horasdomfes',
+        'Hed', 'Hen', 'Hedf', 'Henf', 'Rn', 'Rnf', 'Dyf', 'Sede'
+    ]
+    ws.append(headers)
 
-#     # ---------- Helpers ----------
-#     def parse_time_obj(t):
-#         if t is None:
-#             return None
-#         if isinstance(t, time):
-#             return t
-#         if isinstance(t, datetime):
-#             return t.time()
-#         if isinstance(t, str):
-#             for fmt in ("%H:%M:%S", "%H:%M"):
-#                 try:
-#                     return datetime.strptime(t, fmt).time()
-#                 except Exception:
-#                     continue
-#         return None
+    # 🎨 Colores que se irán alternando (puedes añadir más)
+    colors = [
+        "FFF9C4",  # Amarillo claro
+        "C8E6C9",  # Verde claro
+        "BBDEFB",  # Azul claro
+        "FFCDD2",  # Rojo rosado claro
+        "D1C4E9",  # Lila claro
+    ]
 
-#     def parse_date_obj(d):
-#         if d is None:
-#             return None
-#         if isinstance(d, date) and not isinstance(d, datetime):
-#             return d
-#         if isinstance(d, datetime):
-#             return d.date()
-#         if isinstance(d, str):
-#             try:
-#                 return datetime.strptime(d, "%Y-%m-%d").date()
-#             except Exception:
-#                 pass
-#         return None
+    current_contract = None
+    color_index = 0
 
-#     def horasdescuento_to_timedelta(hd):
-#         if hd is None:
-#             return timedelta()
-#         if isinstance(hd, timedelta):
-#             return hd
-#         if isinstance(hd, time):
-#             return timedelta(hours=hd.hour, minutes=hd.minute, seconds=hd.second)
-#         if isinstance(hd, datetime):
-#             return timedelta(hours=hd.hour, minutes=hd.minute, seconds=hd.second)
-#         try:
-#             return timedelta(hours=float(hd))
-#         except Exception:
-#             return timedelta()
+    # Recorremos los tiempos ordenados por contrato para que los bloques estén juntos
+    for time in tiempos.order_by('idcontrato__idcontrato'):
+        contrato_id = time.idcontrato.idcontrato
 
-#     # ---------- Función auxiliar para calcular extras ----------
-#     def calcular_horas_extras(tiempos_queryset, idempresa):
-#         CO_HOLIDAYS = holidays.CO()
-#         horas_por_contrato = {}
+        # Si cambia de contrato, se cambia el color
+        if contrato_id != current_contract:
+            current_contract = contrato_id
+            color_index = (color_index + 1) % len(colors)
+            fill = PatternFill(start_color=colors[color_index], end_color=colors[color_index], fill_type="solid")
 
-#         for t in tiempos_queryset:
-#             id_contrato = t.get('idcontrato_id')
-#             fecha = parse_date_obj(t.get('fechaingreso')) or parse_date_obj(t.get('fechasalida'))
-#             hora_ingreso = parse_time_obj(t.get('horaingreso'))
-#             hora_salida = parse_time_obj(t.get('horasalida'))
-#             horas_descuentos = horasdescuento_to_timedelta(t.get('horasdescuentos'))
+        # Escribimos la fila
+        row = [
+            contrato_id,
+            'EMP Prueba',
+            time.fechaingreso,
+            time.horaingreso,
+            time.fechasalida,
+            time.horasalida,
+            time.horasdescuentos,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.horasalida,
+            time.idcontrato.idsede.nombresede if time.idcontrato.idsede else "",
+        ]
+        ws.append(row)
 
-#             if not (hora_ingreso and hora_salida and fecha):
-#                 continue
+        # Aplicar color de fondo a toda la fila
+        for cell in ws[ws.max_row]:
+            cell.fill = fill
 
-#             dt_ingreso = datetime.combine(fecha, hora_ingreso)
-#             dt_salida = datetime.combine(fecha, hora_salida)
-#             if dt_salida < dt_ingreso:
-#                 dt_salida += timedelta(days=1)
+        # 🎯 Aplicar formato de fecha dd/mm/yyyy
+        fecha_ingreso_cell = ws.cell(row=ws.max_row, column=3)
+        fecha_salida_cell = ws.cell(row=ws.max_row, column=5)
+        fecha_ingreso_cell.number_format = 'DD/MM/YYYY'
+        fecha_salida_cell.number_format = 'DD/MM/YYYY'
 
-#             worked = dt_salida - dt_ingreso - horas_descuentos
-#             if worked < timedelta():
-#                 worked = timedelta()
+    # Guardar en memoria y devolver como descarga
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
 
-#             total_hours = round(worked.total_seconds() / 3600, 2)
-
-#             # Inicializar contadores
-#             hed = hen = hedf = henf = rn = 0.0
-#             is_festivo = fecha in CO_HOLIDAYS or fecha.weekday() == 6  # domingo = 6
-#             base_hours = 8.0
-#             hora_actual = dt_ingreso
-#             end_time = dt_salida
-
-#             while hora_actual < end_time:
-#                 siguiente = min(hora_actual + timedelta(hours=1), end_time)
-#                 hora = hora_actual.time()
-
-#                 # tramo diurna/nocturna
-#                 tipo = "diurna" if time(6, 0) <= hora < time(21, 0) else "nocturna"
-#                 dur = (siguiente - hora_actual).total_seconds() / 3600
-
-#                 # Clasificación
-#                 if is_festivo:
-#                     if tipo == "diurna":
-#                         hedf += dur
-#                     else:
-#                         henf += dur
-#                 else:
-#                     if total_hours > base_hours:
-#                         if tipo == "diurna":
-#                             hed += dur
-#                         else:
-#                             hen += dur
-#                     else:
-#                         if tipo == "nocturna":
-#                             rn += dur
-
-#                 hora_actual = siguiente
-
-#             # Acumular resultado por contrato
-#             if id_contrato not in horas_por_contrato:
-#                 horas_por_contrato[id_contrato] = {
-#                     'horas_trabajadas': 0,
-#                     'hed': 0,
-#                     'hen': 0,
-#                     'hedf': 0,
-#                     'henf': 0,
-#                     'rn': 0,
-#                 }
-
-#             # Suma las horas trabajadas y las clasifica por tipo para cada contrato
-#             horas_por_contrato[id_contrato]['horas_trabajadas'] += total_hours  # Total de horas normales trabajadas (sin recargos)
-#             horas_por_contrato[id_contrato]['hed'] += hed      # Horas Extras Diurnas (recargo por trabajar más allá de la jornada en el día)
-#             horas_por_contrato[id_contrato]['hen'] += hen      # Horas Extras Nocturnas (recargo por trabajar más allá de la jornada durante la noche)
-#             horas_por_contrato[id_contrato]['hedf'] += hedf    # Horas Extras Diurnas Festivas (trabajo extra durante el día en festivos)
-#             horas_por_contrato[id_contrato]['henf'] += henf    # Horas Extras Nocturnas Festivas (trabajo extra durante la noche en festivos)
-#             horas_por_contrato[id_contrato]['rn'] += rn      
-
-#             # Guardar en la base de datos
-#             t_obj = Tiempos.objects.filter(
-#                 idcontrato_id=id_contrato,
-#                 idempresa_id=idempresa,
-#                 fechaingreso=fecha
-#             ).first()
-#             if t_obj:
-#                 t_obj.horastrab = total_hours
-#                 t_obj.hed = round(hed, 2)
-#                 t_obj.hen = round(hen, 2)
-#                 t_obj.hedf = round(hedf, 2)
-#                 t_obj.henf = round(henf, 2)
-#                 t_obj.rn = round(rn, 2)
-#                 t_obj.save(update_fields=['horastrab', 'hed', 'hen', 'hedf', 'henf', 'rn'])
-
-#         return horas_por_contrato
-
-#     # ---------- Lógica principal ----------
-#     if selected_nomina_id:
-#         try:
-#             nomina_sel = Crearnomina.objects.get(
-#                 idnomina=selected_nomina_id,
-#                 id_empresa_id=idempresa
-#             )
-#             if nomina_sel.fechainicial and nomina_sel.fechafinal:
-#                 tiempos_agregados = (
-#                     Tiempos.objects
-#                     .filter(
-#                         idempresa_id=idempresa,
-#                         fechaingreso__gte=nomina_sel.fechainicial,
-#                         fechaingreso__lte=nomina_sel.fechafinal
-#                     )
-#                     .values(
-#                         'idcontrato_id', 'horaingreso', 'horasalida',
-#                         'horasdescuentos', 'fechaingreso', 'fechasalida'
-#                     )
-#                 )
-
-#                 # Calculamos todas las horas
-#                 horas_por_contrato = calcular_horas_extras(tiempos_agregados, idempresa)
-
-#                 # Normalizamos a formato decimal
-#                 empleados_con_horas = []
-#                 for emp in empleados:
-#                     try:
-#                         emp_id = int(emp['idcontrato'])
-#                     except Exception:
-#                         emp_id = str(emp['idcontrato'])
-
-#                     data = horas_por_contrato.get(emp_id, {})
-#                     emp['horas_trabajadas'] = data.get('horas_trabajadas', 0)
-#                     emp['hed'] = data.get('hed', 0)
-#                     emp['hen'] = data.get('hen', 0)
-#                     emp['hedf'] = data.get('hedf', 0)
-#                     emp['henf'] = data.get('henf', 0)
-#                     emp['rn'] = data.get('rn', 0)
-
-#                     if emp['horas_trabajadas'] > 0:
-#                         empleados_con_horas.append(emp)
-
-#                 empleados = empleados_con_horas
-#                 value = True
-
-#         except Crearnomina.DoesNotExist:
-#             pass
-
-#     return render(
-#         request,
-#         './payroll/time_list.html',
-#         {
-#             'empleados': empleados,
-#             'nominas': nominas,
-#             'true': value,
-#             'selected_nomina_id': selected_nomina_id
-#         }
-#     )
-
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename=\"Tiempo_Marcados.xlsx\"'
+    return response
+    
 
 
 def formatear_fecha(valor):
@@ -727,9 +644,7 @@ def formatear_fecha(valor):
             return valor
     return valor
 
-def es_domingo(fecha_str):
-    fecha = datetime.datetime.strptime(fecha_str, "%Y-%m-%d").date()
-    return fecha.weekday() == 6  # En Python, lunes=0, domingo=6
+
 
 def time_add(request):
     usuario = request.session.get('usuario', {})
