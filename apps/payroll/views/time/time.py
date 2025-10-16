@@ -22,7 +22,7 @@ from django.db.models import F, Value, CharField
 from django.db.models.functions import Concat
 from apps.payroll.forms.TimeForm import TimeForm
 from urllib.parse import urlencode
-from openpyxl.styles import PatternFill
+from openpyxl.styles import PatternFill, Font
 
 @login_required
 @role_required('accountant')
@@ -135,6 +135,8 @@ def time_list(request):
         ).values('conceptofijo', 'valorfijo')
 
         factores = {c['conceptofijo']: float(c['valorfijo']) for c in conceptos}
+        
+        
 
         jmm = factores.get('JORNADA MAXIMA MENSUAL', 1.0)
         hed_factor  = factores.get('HORA EXTRA DIURNA FACTOR', 1.0)
@@ -544,12 +546,11 @@ def time_edit(request,id):
     )
 
 
-
 @login_required
 @role_required('accountant')
 def time_doc(request, id):
     usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
+    idempresa = usuario.get('idempresa')
 
     tiempos = Tiempos.objects.filter(idnomina=id).select_related('idcontrato__idsede')
 
@@ -558,69 +559,173 @@ def time_doc(request, id):
     ws.title = "Tiempo Marcados"
 
     headers = [
-        'Idcontrato', 'empleado', 'Fechaingreso', 'Horaingreso', 'Fechasalida', 'Horasalida',
-        'Horasdescuentos', 'Horastrab', 'Horasord', 'Saldo', 'Horasdomfes',
+        'Idcontrato', 'Empleado', 'FechaIngreso', 'HoraIngreso', 'FechaSalida', 'HoraSalida',
+        'HorasDescuentos', 'HorasTraba', 'HorasOrdi', 'Saldo', 'HorasDomFes',
         'Hed', 'Hen', 'Hedf', 'Henf', 'Rn', 'Rnf', 'Dyf', 'Sede'
     ]
     ws.append(headers)
 
-    # 🎨 Colores que se irán alternando (puedes añadir más)
-    colors = [
-        "FFF9C4",  # Amarillo claro
-        "C8E6C9",  # Verde claro
-        "BBDEFB",  # Azul claro
-        "FFCDD2",  # Rojo rosado claro
-        "D1C4E9",  # Lila claro
-    ]
+    colors = ["FFF9C4", "C8E6C9", "BBDEFB", "FFCDD2", "D1C4E9"]
+    total_fill = PatternFill(start_color="E0E0E0", end_color="E0E0E0", fill_type="solid")
+    total_font = Font(bold=True)
 
     current_contract = None
     color_index = 0
 
-    # Recorremos los tiempos ordenados por contrato para que los bloques estén juntos
-    for time in tiempos.order_by('idcontrato__idcontrato'):
-        contrato_id = time.idcontrato.idcontrato
+    CO_HOLIDAYS = holidays.CO(years=2025)
 
-        # Si cambia de contrato, se cambia el color
+    # Inicializar acumuladores
+    acumulados = {
+        'HorasTraba': 0,
+        'HorasOrdi': 0,
+        'HorasDomFes': 0,
+        'Hed': 0,
+        'Hen': 0,
+        'Hedf': 0,
+        'Henf': 0,
+        'Rn': 0,
+        'Rnf': 0,
+        'Dyf': 0
+    }
+
+    def convertir_a_horas_decimal(hora_obj):
+        if isinstance(hora_obj, time):
+            return hora_obj.hour + hora_obj.minute / 60 + hora_obj.second / 3600
+        elif isinstance(hora_obj, str):
+            hora_obj = hora_obj.strip().lower().replace('.', '')
+            hora_obj = hora_obj.replace('a m', 'am').replace('p m', 'pm')
+            hora_24 = datetime.strptime(hora_obj, "%I:%M:%S %p").time()
+            return hora_24.hour + hora_24.minute / 60 + hora_24.second / 3600
+        else:
+            return float(hora_obj or 0)
+
+    def agregar_totales_contrato(contrato_id):
+        """Agrega una fila con los totales acumulados del contrato actual."""
+        if contrato_id is None:
+            return
+        total_row = [
+            contrato_id,
+            "TOTAL CONTRATO",
+            "", "", "", "",
+            "",
+            acumulados['HorasTraba'],
+            acumulados['HorasOrdi'],
+            "",
+            acumulados['HorasDomFes'],
+            acumulados['Hed'], acumulados['Hen'], acumulados['Hedf'], acumulados['Henf'],
+            acumulados['Rn'], acumulados['Rnf'], acumulados['Dyf'],
+            "",
+        ]
+        ws.append(total_row)
+
+        # Estilos
+        for cell in ws[ws.max_row]:
+            cell.fill = total_fill
+            cell.font = total_font
+
+        # Reiniciar acumuladores
+        for k in acumulados.keys():
+            acumulados[k] = 0
+
+    # 🔁 Recorrer registros
+    for registro in tiempos.order_by('idcontrato__idcontrato'):
+        contrato_id = registro.idcontrato.idcontrato
+
+        # Si cambia el contrato, agregamos totales del anterior
+        if current_contract is not None and contrato_id != current_contract:
+            agregar_totales_contrato(current_contract)
+
+        # Cambiar color del bloque
         if contrato_id != current_contract:
             current_contract = contrato_id
             color_index = (color_index + 1) % len(colors)
-            fill = PatternFill(start_color=colors[color_index], end_color=colors[color_index], fill_type="solid")
+            fill = PatternFill(start_color=colors[color_index],
+                               end_color=colors[color_index],
+                               fill_type="solid")
 
-        # Escribimos la fila
+        horas_trabajadas = horas_ordinarias = 0
+        hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = 0
+
+        if registro.horaingreso and registro.horasalida:
+            try:
+                hora_ingreso = convertir_a_horas_decimal(registro.horaingreso)
+                hora_salida = convertir_a_horas_decimal(registro.horasalida)
+                hora_descuento = convertir_a_horas_decimal(registro.horasdescuentos) if registro.horasdescuentos else 0
+
+                if hora_salida < hora_ingreso:
+                    hora_salida += 24
+
+                horas_trabajadas = round(hora_salida - hora_ingreso - hora_descuento, 2)
+                horas_ordinarias = min(horas_trabajadas, 8)
+
+                fecha = registro.fechaingreso
+                es_domingo = fecha.weekday() == 6
+                es_festivo = fecha in CO_HOLIDAYS
+
+                for h in range(int(hora_ingreso), int(hora_salida)):
+                    hora_actual = (hora_ingreso + (h - hora_ingreso))
+                    if 6 <= hora_actual < 21:
+                        if es_domingo or es_festivo:
+                            hedf += 1
+                        elif h >= 8:
+                            hed += 1
+                    else:
+                        if es_domingo or es_festivo:
+                            henf += 1
+                        elif h >= 8:
+                            hen += 1
+
+                    if hora_actual >= 21 or hora_actual < 6:
+                        rn += 1
+                        if es_domingo or es_festivo:
+                            rnf += 1
+
+                if es_domingo or es_festivo:
+                    horas_domfes = horas_trabajadas
+                    dyf = horas_domfes
+
+            except Exception as e:
+                print(f"Error calculando horas para contrato {contrato_id}: {e}")
+
+        # Acumular totales
+        acumulados['HorasTraba'] += horas_trabajadas
+        acumulados['HorasOrdi'] += horas_ordinarias
+        acumulados['HorasDomFes'] += horas_domfes
+        acumulados['Hed'] += hed
+        acumulados['Hen'] += hen
+        acumulados['Hedf'] += hedf
+        acumulados['Henf'] += henf
+        acumulados['Rn'] += rn
+        acumulados['Rnf'] += rnf
+        acumulados['Dyf'] += dyf
+
+        # Agregar fila
         row = [
             contrato_id,
-            'EMP Prueba',
-            time.fechaingreso,
-            time.horaingreso,
-            time.fechasalida,
-            time.horasalida,
-            time.horasdescuentos,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.horasalida,
-            time.idcontrato.idsede.nombresede if time.idcontrato.idsede else "",
+            getattr(registro.idcontrato, 'empleado', 'N/A'),
+            registro.fechaingreso,
+            registro.horaingreso,
+            registro.fechasalida,
+            registro.horasalida,
+            registro.horasdescuentos,
+            horas_trabajadas,
+            horas_ordinarias,
+            '0.0',
+            horas_domfes,
+            hed, hen, hedf, henf, rn, rnf, dyf,
+            registro.idcontrato.idsede.nombresede if registro.idcontrato.idsede else "",
         ]
         ws.append(row)
 
-        # Aplicar color de fondo a toda la fila
         for cell in ws[ws.max_row]:
             cell.fill = fill
 
-        # 🎯 Aplicar formato de fecha dd/mm/yyyy
-        fecha_ingreso_cell = ws.cell(row=ws.max_row, column=3)
-        fecha_salida_cell = ws.cell(row=ws.max_row, column=5)
-        fecha_ingreso_cell.number_format = 'DD/MM/YYYY'
-        fecha_salida_cell.number_format = 'DD/MM/YYYY'
+        ws.cell(row=ws.max_row, column=3).number_format = 'DD/MM/YYYY'
+        ws.cell(row=ws.max_row, column=5).number_format = 'DD/MM/YYYY'
 
-    # Guardar en memoria y devolver como descarga
+    # 🔚 Totales del último contrato
+    agregar_totales_contrato(current_contract)
+
     output = BytesIO()
     wb.save(output)
     output.seek(0)
@@ -629,7 +734,7 @@ def time_doc(request, id):
         output.getvalue(),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename=\"Tiempo_Marcados.xlsx\"'
+    response['Content-Disposition'] = 'attachment; filename="Tiempo_Marcados.xlsx"'
     return response
     
 
