@@ -2,14 +2,11 @@ from django.shortcuts import render
 from apps.common.models  import Liquidacion
 from io import BytesIO
 from xhtml2pdf import pisa
-from django.http import HttpResponse, HttpResponseRedirect
-from datetime import datetime
+from django.http import HttpResponse
 from apps.components.settlementgenerator import settlementgenerator
 from apps.components.humani import format_value
-
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
-
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -18,12 +15,8 @@ from reportlab.lib.utils import ImageReader
 from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
-import os
-
-
-
-
-
+from django.urls import reverse
+from apps.companies.forms.SettlementlistForm import SettlementlistForm
 
 
 
@@ -55,7 +48,7 @@ def settlementlist(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa=idempresa).order_by('-fechafincontrato')
+    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa=idempresa).order_by('-fechafincontrato')[:10]
 
     # Limpiar None y 'no data' y formatear valores
     cleaned_liquidaciones = []
@@ -83,6 +76,7 @@ def settlementlist(request):
             'vacaciones': format_value(liq.vacaciones or 0),
             'totalliq': format_value(liq.totalliq or 0),
             'idliquidacion': liq.idliquidacion,
+            'estadoliquidacion': liq.estadoliquidacion or '1',
         })
 
     return render(request, 'companies/settlementlist.html', {
@@ -280,7 +274,36 @@ def settlementlistdownload(request,idliqui):
     return response
 
 
+@login_required
+@role_required('company','accountant')
+def settlementliststate(request,id):
 
+
+    if request.method == "POST":
+        nuevo_estado = request.POST.get("nuevo_estado")
+        liquidacion = Liquidacion.objects.get(idliquidacion=id)
+        print(id)
+        liquidacion.estadoliquidacion = nuevo_estado
+        liquidacion.save()
+        response = HttpResponse()
+        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+        response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+        response['X-Up-message'] = 'Estado actualizado con éxito'  # Mensaje de éxito
+        response['X-Up-Location'] = reverse('companies:settlementlist')    
+        return response
+    return render(request, 'companies/partials/state_liquidacion.html', {
+        'id': id,
+    })
+    
+
+@login_required
+@role_required('company','accountant')
+def settlementlistedit(request,id):
+    form = SettlementlistForm()
+    return render(request, 'companies/partials/edit_liquidacion.html', {
+        'id': id,
+        'form': form
+    })
 
 # @login_required
 # @role_required('company','accountant')

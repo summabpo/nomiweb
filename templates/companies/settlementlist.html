@@ -52,6 +52,7 @@
             <th>Prima</th>
             <th>Vacaciones</th>
             <th>Total</th>
+            <th>Estado</th>
             <th>Ver</th>
             </tr>
         </thead>
@@ -69,6 +70,15 @@
                     <td>{{ liquidacion.prima|format_currency|default:0  }}</td>
                     <td>{{ liquidacion.vacaciones|format_currency|default:0  }}</td>
                     <td>{{ liquidacion.totalliq|format_currency|default:0  }}</td>
+                    
+                    
+                    {% if liquidacion.estadoliquidacion == '1' %}
+                        <td class="text-center"><span class="badge badge-light-success">En proceso</span></td>
+                    {% else %}
+                        <td class="text-center"><span class="badge badge-light-danger">Grabada</span> </td>
+                    {% endif %}
+
+    
 
                     <td class="text-center">
                         <div class="d-flex justify-content-center align-items-center gap-2">
@@ -84,14 +94,14 @@
 
                                 up-layer='new modal'
                                 up-target=".modal-content"
-                                up-size = "small"
+                                up-size = "large"
                                 up-align = "center"
                                 up-backdrop = "true"
                                 up-history = "false"
                                 up-dismissable ="false"
                                 up-cache="false"
 
-                                href="">
+                                href="{% url 'companies:settlementlistedit' id=liquidacion.idliquidacion %}">
                                 <i class="fa-solid fa-pen-to-square fs-3"></i>
                             </a> 
 
@@ -112,25 +122,40 @@
 
 
                             <!-- Grabar -->
-                            <a
-                                class='btn btn-icon btn-sm btn-light-danger'
+                            {% if liquidacion.estadoliquidacion == '1' %}
+                                <a
+                                
+                                    class='btn btn-icon btn-sm btn-light-danger'
 
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Grabar"
+
+                                    up-layer='new modal'
+                                    up-target=".modal-content"
+                                    up-size = "medium"
+                                    up-align = "center"
+                                    up-backdrop = "true"
+                                    up-history = "false"
+                                    up-dismissable ="false"
+                                    up-cache="false"
+
+                                    href="{% url 'companies:settlementliststate' id=liquidacion.idliquidacion %}">
+                                    <i class="fa-solid fa-circle-up fs-3"></i>
+                                </a> 
+
+                            {% else %}
+                                <button 
+                                type="button" 
+                                class="btn btn-icon btn-sm btn-light-danger" 
+                                disabled
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 title="Grabar"
-
-                                up-layer='new modal'
-                                up-target=".modal-content"
-                                up-size = "small"
-                                up-align = "center"
-                                up-backdrop = "true"
-                                up-history = "false"
-                                up-dismissable ="false"
-                                up-cache="false"
-
-                                href="">
-                                <i class="fa-solid fa-circle-up fs-3"></i>
-                            </a> 
+                                
+                                > <i class="fa-solid fa-circle-up fs-3"></i> </button>
+                            {% endif %}
+                            
 
                             <!-- Enviar a nomina -->
                             <a
@@ -168,6 +193,97 @@
 {% endblock %}
 
 {% block js %}
+
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
+        
+        if (modalContent) {
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            
+    
+            // selector de tipo de 
+            // Usamos un pequeño retraso para asegurar el renderizado completo
+            setTimeout(() => {
+                selectElements.forEach((select, index) => {
+                    if (!select.id) {
+                        select.id = `select2-unique-${Date.now()}-${index}`;
+                    }
+    
+                    if (!$(select).data('select2')) {
+                        const options = {
+                            dropdownParent: $(modalContent),
+                            width: '100%'
+                        };
+    
+                        // Si tiene el atributo data-hide-search, desactiva el buscador
+                        if (select.hasAttribute('data-hide-search')) {
+                            options.minimumResultsForSearch = Infinity;
+                            
+                        }
+    
+                        $(select).select2(options);
+                    }
+                });
+            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
+        }
+        else 
+        {
+            console.log('Contenido completo del fragmento:', event.target.innerHTML);
+        }
+    });
+
+
+</script>
+
 <script>
     $(document).ready(function() {
         $('#tabla-liquidacion').DataTable({

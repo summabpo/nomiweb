@@ -1,0 +1,57 @@
+<!-- Modal: Cambiar Estado de Liquidación -->
+<div class="modal-content" id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Cambiar Estado de Liquidación</h3>
+        <!--begin::Close-->
+        <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Cerrar">
+            <i class="ki-duotone ki-cross fs-1">
+                <span class="path1"></span><span class="path2"></span>
+            </i>
+        </button>
+        <!--end::Close-->
+    </div>
+
+    <div class="separator my-5"></div>
+
+    <!--begin::Body-->
+    <div class="modal-body text-center">
+        <p>
+            El proceso de liquidación del empleado se ha cargado correctamente. <br>
+            ¿Desea confirmar el cambio de estado?
+        </p>
+
+        <!-- 🔹 Formulario Unpoly para cambio de estado -->
+        <form id="change-status-form"
+                method="POST"
+                action="{% url 'companies:settlementliststate' id=id %}"
+                up-target="#modal-content"
+                up-mode="replace"
+                up-layer="current"
+                up-submit="{% url 'companies:settlementliststate' id=id %}"
+                up-accept-location="{% url 'companies:settlementliststate' id=id %}"
+                up-on-accepted="up.modal.close()">
+            
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="nuevo_estado" class="form-label fw-semibold">Nuevo estado</label>
+                <select id="nuevo_estado" data-control="select2" name="nuevo_estado" class="form-select" required>
+                    <option value="" selected disabled>Seleccione una opción...</option>
+                    <option value="1">En proceso</option>
+                    <option value="2">Grabada</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <!--end::Body-->
+
+    <div class="separator my-5"></div>
+
+    <!--begin::Footer-->
+    <div class="modal-footer btn-group justify-content-center">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Cancelar</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" form="change-status-form" class="btn btn-primary">Confirmar Cambio</button>
+    </div>
+    <!--end::Footer-->
+</div>

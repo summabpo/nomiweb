@@ -1055,7 +1055,7 @@ class Liquidacion(models.Model):
     fechafincontrato = models.DateField()
     salario = models.IntegerField()
     motivoretiro = models.CharField(max_length=100)# choice 
-    #estadoliquidacion = models.BooleanField(default=False)# boleano 
+    estadoliquidacion = models.CharField(max_length=4 ,blank=True, null=True)# boleano 
     diassusp = models.SmallIntegerField(blank=True, null=True)
     indemnizacion = models.IntegerField(blank=True, null=True)
     diassuspv = models.SmallIntegerField(blank=True, null=True)

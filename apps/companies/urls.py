@@ -108,6 +108,7 @@ urlpatterns = [
     path('payroll/bank/list/get/', bank_list.bank_list_get, name='bank_list_get'),
     path('payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
     path('payroll/settlement/list/', settlementlist.settlementlist, name='settlementlist'),
+    
     path('payroll/settlement/download/<int:idliqui>.pdf/', settlementlist.settlementlistdownload, name='settlementlistdownload'),
     path('payroll/payroll/accumulations/', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
     path('payroll/payroll/accumulations/download/', payrollaccumulations.descargar_excel_empleados, name='descargar_excel_empleados'),
@@ -170,7 +171,8 @@ urlunpolypatterns =[
     path('payroll/new/disabilities/modal/detail/<str:id>', disabilities.disabilities_modal_detail, name='disabilities_modal_detail'),
     
     ### 
-    
+    path('payroll/settlement/state/<str:id>', settlementlist.settlementliststate, name='settlementliststate'),
+    path('payroll/settlement/edit/<str:id>', settlementlist.settlementlistedit, name='settlementlistedit'),
     
     
 
