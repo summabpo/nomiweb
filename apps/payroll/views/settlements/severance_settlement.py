@@ -18,7 +18,7 @@ def settlement_list(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-idliquidacion')[:20]
+    settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-idliquidacion')
     return render(request, './payroll/settlement_list.html',{'settlements': settlements})
 
 @login_required
