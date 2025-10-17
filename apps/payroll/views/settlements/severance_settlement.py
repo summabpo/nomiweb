@@ -31,18 +31,9 @@ def settlement_create(request):
     if request.method == 'POST':
         form = SettlementForm(request.POST , idempresa=idempresa )
         if form.is_valid():
-            print(id)
             contract_id = request.POST.get('contract')
             end_date_str = request.POST.get('end_date')
             reason = request.POST.get('reason_for_termination')
-            
-            
-            print('---------------------')
-            print(contract_id)
-            print(end_date_str)
-            print(reason)
-            print('---------------------')
-            
             if not (contract_id and end_date_str and reason):
                 return JsonResponse({'error': 'Datos incompletos'}, status=400)
 

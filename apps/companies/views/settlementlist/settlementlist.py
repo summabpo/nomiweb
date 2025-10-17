@@ -282,7 +282,6 @@ def settlementliststate(request,id):
     if request.method == "POST":
         nuevo_estado = request.POST.get("nuevo_estado")
         liquidacion = Liquidacion.objects.get(idliquidacion=id)
-        print(id)
         liquidacion.estadoliquidacion = nuevo_estado
         liquidacion.save()
         response = HttpResponse()
