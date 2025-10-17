@@ -17,9 +17,117 @@
         <div class="container">
             {% csrf_token %}
             {% crispy form %}
+
+
         </div>
 
+        <div id="settlement-results" class="mt-5" style="display: none;">
+        <h4 class="mb-3">Resumen de Liquidación</h4>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Días trabajados</span>
+                    <input type="text" readonly class="form-control" id="dias_trabajados">
+                </div>
+            </div>  
+            <div class="col-md-4">
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Fecha Inicio Contrato</span>
+                    <input type="text" readonly class="form-control" id="fecha_inicio">
+                </div>
+            </div> 
+            <div class="col-md-4">
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Salario base</span>
+                    <input type="text" readonly class="form-control" id="salario_base">
+                </div>
+            </div> 
+        </div>
+
+        <div class="separator separator-content border-dark my-15"><span class="w-250px fw-bold">Resumen Completo</span></div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Días Cesantías</span>
+                    <input type="text" readonly class="form-control" id="dias_cesantias">
+                </div>
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Días Primas</span>
+                    <input type="text" readonly class="form-control" id="dias_primas">
+                </div>
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Días Vacaciones</span>
+                    <input type="text" readonly class="form-control" id="dias_vacaciones">
+                </div>
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Días Susp. Vac.</span>
+                    <input type="text" readonly class="form-control" id="dias_susp_vac">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Base Cesantías</span>
+                    <input type="text" readonly class="form-control" id="base_cesantias">
+                </div>
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Base Primas</span>
+                    <input type="text" readonly class="form-control" id="base_primas">
+                </div>
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Base Vacaciones</span>
+                    <input type="text" readonly class="form-control" id="base_vacaciones">
+                </div>
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Base Susp. Vac.</span>
+                    <input type="text" readonly class="form-control" id="base_susp_vac">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Cesantías</span>
+                    <input type="text" readonly class="form-control" id="valor_cesantias">
+                </div>
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Intereses</span>
+                    <input type="text" readonly class="form-control" id="valor_intereses">
+                </div>
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Vacaciones</span>
+                    <input type="text" readonly class="form-control" id="valor_vacaciones">
+                </div>
+
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Indemnización</span>
+                    <input type="text" readonly class="form-control" id="valor_indemnizacion">
+                </div>
+
+            </div>
+        </div>
+
+        <div class="separator separator-content border-dark my-15"><span class="w-250px fw-bold">Total</span></div>
+
+        <div class="row">
+            <div class="col-md-4">
+                
+            </div>
+
+            <div class="col-md-4">
+            </div>
+
+            <div class="col-md-4">
+                <div class="input-group input-group-sm mb-5">
+                    <span class="input-group-text">Total Liquidación</span>
+                    <input type="text" readonly class="form-control fw-bold text-success" id="total_liquidacion">
+                </div> 
+            </div>
+
+        </div>
     </div>
+
     <div class="separator my-5"></div>.
 
     <div class="modal-footer btn-group">

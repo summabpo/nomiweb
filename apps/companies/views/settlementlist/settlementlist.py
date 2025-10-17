@@ -17,7 +17,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
 from django.urls import reverse
 from apps.companies.forms.SettlementlistForm import SettlementlistForm
-
+from apps.payroll.forms.SettlementForm import SettlementForm
 
 
 @login_required
@@ -297,13 +297,34 @@ def settlementliststate(request,id):
     
 
 @login_required
-@role_required('company','accountant')
-def settlementlistedit(request,id):
-    form = SettlementlistForm()
-    return render(request, 'companies/partials/edit_liquidacion.html', {
+@role_required('company', 'accountant')
+def settlementlistedit(request, id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario.get('idempresa')
+
+    try:
+        liquidacion = (
+            Liquidacion.objects
+            .select_related('idcontrato')
+            .get(idliquidacion=id)
+        )
+    except Liquidacion.DoesNotExist:
+        return render(request, 'common/404.html', status=404)
+
+    # Prepara datos iniciales para el formulario
+    initial_data = {
+        'end_date': liquidacion.fechafincontrato.strftime('%d-%m-%Y') if liquidacion.fechafincontrato else '',
+        'reason_for_termination': liquidacion.motivoretiro,
+        'contract': liquidacion.idcontrato_id,  # acceso directo al id
+    }
+
+    form = SettlementForm(idempresa=idempresa, initial=initial_data,recibida="edit")
+
+    context = {
         'id': id,
-        'form': form
-    })
+        'form': form,
+    }
+    return render(request, 'companies/partials/edit_liquidacion.html', context)
 
 # @login_required
 # @role_required('company','accountant')
