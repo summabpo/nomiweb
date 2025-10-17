@@ -172,16 +172,23 @@ def settlement_calculate(request):
     salario_min_obj = Salariominimoanual.objects.filter(ano=fecha_fin.year).first()
     if not salario_min_obj:
         return JsonResponse({'error': 'No hay salario mínimo definido para ese año'}, status=400)
-
+    
+    dias_susp_vac = Nomina.objects.filter(
+        idcontrato=contrato.idcontrato,
+        estadonomina=2,
+        idconcepto__id_empresa = idempresa,
+        idconcepto__indicador__nombre='suspcontrato'
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+    
     salario_minimo = salario_min_obj.salariominimo
     aux_transporte = 0 if salario > (2 * salario_minimo) else salario_min_obj.auxtransporte
 
     dias_trabajados = dias_360(fecha_inicio, fecha_fin)
     fecha_cesantias = obtener_fecha_cesantias(fecha_inicio, fecha_fin)
-    dias_cesantias = dias_360_2(fecha_cesantias, fecha_fin)
+    dias_cesantias = dias_360_2(fecha_cesantias, fecha_fin) + 1
 
     fecha_prima = obtener_fecha_prima(fecha_inicio, fecha_fin)
-    dias_prima = dias_360_2(fecha_prima, fecha_fin)
+    dias_prima = dias_360_2(fecha_prima, fecha_fin) + 1 
 
     # Conceptos
     extras_y_comisiones_qs = Conceptosdenomina.objects.filter(Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones') ,id_empresa = idempresa)
@@ -195,8 +202,10 @@ def settlement_calculate(request):
     acum_recargos = acumular_por_mes(Nomina, recargos_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
 
     # Días efectivos
-    dias_efectivos_cesantias = dias_cesantias - acum_susp
-    dias_efectivos_prima = dias_prima - acum_susp
+    dias_efectivos_cesantias = dias_cesantias - dias_susp_vac + 1
+    
+    
+    dias_efectivos_prima = dias_prima - dias_susp_vac + 1 
 
     # Bases
     base_cesantias = calcular_base_promedio(acum_cesantias, dias_efectivos_cesantias, salario, aux_transporte)
@@ -204,12 +213,7 @@ def settlement_calculate(request):
     base_vacaciones = calcular_base_vacaciones(acum_recargos, dias_cesantias, salario)
 
     # Vacaciones
-    dias_susp_vac = Nomina.objects.filter(
-        idcontrato=contrato.idcontrato,
-        estadonomina=2,
-        idconcepto__id_empresa = idempresa,
-        idconcepto__indicador__nombre='suspcontrato'
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
+    
 
     dias_vac_generados = (dias_trabajados - dias_susp_vac) * 15 / 360
     dias_vac_tomados = Vacaciones.objects.filter(idcontrato=contrato.idcontrato).aggregate(total=Sum('diasvac'))['total'] or 0
@@ -219,11 +223,11 @@ def settlement_calculate(request):
     prima = calcular_prima(dias_prima, base_prima)
     cesantias = calcular_cesantias(dias_efectivos_cesantias, base_cesantias)
     vacaciones = calcular_vacaciones(dias_vacaciones, base_vacaciones)
-    intereses = calcular_intereses_cesantias(dias_cesantias, cesantias)
+    intereses = calcular_intereses_cesantias(dias_cesantias + acum_susp, cesantias)
     indemnizacion = calcular_indemnizacion(salario, dias_trabajados, reason)
 
     total_liquidacion = prima + cesantias + vacaciones + intereses + indemnizacion
-
+    
     return JsonResponse({
         'dias_trabajados': safe_value(dias_trabajados),
         'dias_prima': safe_value(dias_prima),

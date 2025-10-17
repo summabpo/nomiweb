@@ -133,14 +133,14 @@ Liquidacion Empleados
                 <th>Contrato</th>
                 <th>Documento</th>
                 <th>Empleado</th>
-                {% comment %} <th>Dias</th>
+                <th>Dias</th>
                 <th>Ingreso</th>
                 <th>Retiro</th>
                 <th>Cesantias</th>
                 <th>Intereses</th>
                 <th>Primas</th>
                 <th>Vacaciones</th>
-                <th>Total</th> {% endcomment %}
+                <th>Total</th>
                 <th>Estado</th>
                 <th>
                     <div class="container d-flex justify-content-center align-items-center">
@@ -158,15 +158,15 @@ Liquidacion Empleados
                     <td>{{ item.idcontrato.idcontrato }}</td>
                     <td>{{ item.idcontrato.idempleado.docidentidad }}</td>
                     <td>{{ item.idcontrato.idempleado.papellido|none_to_empty }} {{ item.idcontrato.idempleado.sapellido|none_to_empty }} {{ item.idcontrato.idempleado.pnombre|none_to_empty }} {{ item.idcontrato.idempleado.snombre|none_to_empty }}</td>
-                    {% comment %} <td >{{ item.diastrabajados}}</td>
+                    <td >{{ item.diastrabajados}}</td>
                     <td >{{ item.idcontrato.fechainiciocontrato |date:'d/m/Y' }}</td>
-                    <td >{{ item.idcontrato.fechafincontrato |date:'d/m/Y' }}</td>
+                    <td >{{ item.fechafincontrato |date:'d/m/Y' }}</td>
                     <td >{{ item.cesantias|format_currency }}</td>
                     <td >{{ item.intereses |format_currency }}</td>
                     <td >{{ item.prima |format_currency }}</td>
                     <td >{{ item.vacaciones |format_currency }}</td>
-                    <td >{{ item.vacaciones |format_currency }}</td> {% endcomment %}
-                    {% if liquidacion.estadoliquidacion == '1' %}
+                    <td >{{ item.vacaciones |format_currency }}</td>
+                    {% if item.estadoliquidacion == '1' %}
                         <td class="text-center"><span class="badge badge-light-success">En proceso</span></td>
                     {% else %}
                         <td class="text-center"><span class="badge badge-light-danger">Grabada</span> </td>
@@ -174,25 +174,39 @@ Liquidacion Empleados
                     <td class="text-center" >
                         <div class="d-flex justify-content-center align-items-center gap-2">
                             <!-- Editar -->
-                            <a
-                                class='btn btn-icon btn-sm btn-light-success'
+                            
+                            {% if item.estadoliquidacion == '1' %}
+                                <a
+                                    class='btn btn-icon btn-sm btn-light-success'
 
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Editar liquidacion"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Editar liquidacion"
 
-                                up-layer='new modal'
-                                up-target=".modal-content"
-                                up-size = "large"
-                                up-align = "center"
-                                up-backdrop = "true"
-                                up-history = "false"
-                                up-dismissable ="false"
-                                up-cache="false"
+                                    up-layer='new modal'
+                                    up-target=".modal-content"
+                                    up-size = "large"
+                                    up-align = "center"
+                                    up-backdrop = "true"
+                                    up-history = "false"
+                                    up-dismissable ="false"
+                                    up-cache="false"
 
-                                href="{% url 'companies:settlementlistedit' id=item.idliquidacion %}">
-                                <i class="fa-solid fa-pen-to-square fs-3"></i>
-                            </a> 
+                                    href="{% url 'companies:settlementlistedit' id=item.idliquidacion %}">
+                                    <i class="fa-solid fa-pen-to-square fs-3"></i>
+                                </a> 
+
+
+                            {% else %}
+                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="La liquidación ya fue grabada">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-icon btn-sm btn-light-success" 
+                                        disabled> 
+                                        <i class="fa-solid fa-pen-to-square fs-3"></i>
+                                    </button>
+                                </span>
+                            {% endif %}
 
 
                             <!-- Ver PDF -->
@@ -211,7 +225,7 @@ Liquidacion Empleados
 
 
                             <!-- Grabar -->
-                            {% if liquidacion.estadoliquidacion == '1' %}
+                            {% if item.estadoliquidacion == '1' %}
                                 <a
                                 
                                     class='btn btn-icon btn-sm btn-light-danger'
@@ -234,15 +248,14 @@ Liquidacion Empleados
                                 </a> 
 
                             {% else %}
-                                <button 
-                                type="button" 
-                                class="btn btn-icon btn-sm btn-light-danger" 
-                                disabled
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Grabar"
-                                
-                                > <i class="fa-solid fa-circle-up fs-3"></i> </button>
+                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="La liquidación ya fue grabada">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-icon btn-sm btn-light-danger" 
+                                        disabled> 
+                                        <i class="fa-solid fa-circle-up fs-3"></i> 
+                                    </button>
+                                </span>
                             {% endif %}
                             
 

@@ -288,7 +288,7 @@ def settlementliststate(request,id):
         response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
         response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
         response['X-Up-message'] = 'Estado actualizado con éxito'  # Mensaje de éxito
-        response['X-Up-Location'] = reverse('companies:settlementlist')    
+        response['X-Up-Location'] = reverse('payroll:settlement_list')    
         return response
     return render(request, 'companies/partials/state_liquidacion.html', {
         'id': id,
