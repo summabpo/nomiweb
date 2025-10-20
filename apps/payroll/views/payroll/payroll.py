@@ -23,7 +23,7 @@ from decimal import Decimal
 from django.views.decorators.http import require_GET
 import json
 from django.http import QueryDict
-
+from django.urls import reverse
 
 def get_empleado_name(empleado):
     papellido = empleado.get('idempleado__papellido', '') if empleado.get('idempleado__papellido') is not None else ""
@@ -137,8 +137,27 @@ def payroll(request):
     
     
     
+@login_required
+@role_required('accountant')
+def payroll_closet(request,id):
+    if request.method == 'POST':
+        nomina = Crearnomina.objects.get(idnomina = id)
+        novedades = Nomina.objects.filter(idnomina_id = id )
+        nomina.estadonomina = False
+        for data in novedades:
+            data.estadonomina = 2 
+            data.save()
+        nomina.save()
+        
+        # 2750
+        response = HttpResponse()
+        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+        response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+        response['X-Up-Message'] = 'Nómina cerrada exitosamente'  
+        response['X-Up-Location'] = reverse('payroll:payroll')           
+        return response
     
-
+    return render(request, './payroll/partials/payroll_closet.html',{'id':id})
 
 @login_required
 @role_required('accountant')

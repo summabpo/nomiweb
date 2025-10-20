@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import NovFijos , Conceptosdenomina , Contratos , Indicador, Liquidacion , Salariominimoanual , Nomina,Vacaciones
+from apps.common.models import NovFijos , Conceptosdenomina , Crearnomina , Contratos , Indicador, Liquidacion , Salariominimoanual , Nomina,Vacaciones
 from django.http import HttpResponse
 from django.urls import reverse
 from apps.payroll.forms.SettlementForm import SettlementForm
@@ -17,9 +17,32 @@ from django.db.models import Q
 def settlement_list(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    
-    settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-idliquidacion')
+    settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-idliquidacion')[:10]
     return render(request, './payroll/settlement_list.html',{'settlements': settlements})
+
+
+@login_required
+@role_required('accountant')
+def settlement_list_payroll(request,id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
+    if request.method == 'POST':
+        print('llege aqui ')
+        
+        id_nomina = request.POST.get('nomina')
+        nomina = Crearnomina.objects.get(idnomina = id_nomina)
+        
+        
+        response = HttpResponse()
+        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+        response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+        response['X-Up-Message'] = 'La liquidación se envió correctamente a la nómina correspondiente'
+        response['X-Up-Location'] = reverse('payroll:settlement_list')           
+        return response
+    
+    return render(request, './payroll/partials/settlement_payroll.html',{'nominas':nominas, 'id':id })
+
 
 @login_required
 @role_required('accountant')

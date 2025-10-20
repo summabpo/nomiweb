@@ -1,0 +1,64 @@
+<!-- Modal: Enviar Liquidación a Nómina -->
+<div class="modal-content" id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Enviar Liquidación a Nómina</h3>
+        <!--begin::Close-->
+        <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Cerrar">
+            <i class="ki-duotone ki-cross fs-1">
+                <span class="path1"></span><span class="path2"></span>
+            </i>
+        </button>
+        <!--end::Close-->
+    </div>
+
+    <div class="separator my-5"></div>
+
+    <!--begin::Body-->
+    <div class="modal-body text-center">
+        <p>
+            La liquidación del empleado se ha generado correctamente. <br>
+            Para continuar, seleccione la nómina a la cual desea enviar esta liquidación.
+        </p>
+
+        <!-- 🔹 Formulario Unpoly para envío de liquidación -->
+        <form id="change-status-form"
+                method="POST"
+                action="{% url 'payroll:settlement_list_payroll' id=id %}"
+                up-target="#modal-content"
+                up-mode="replace"
+                up-layer="current"
+                up-submit="{% url 'payroll:settlement_list_payroll' id=id %}"
+                up-accept-location="{% url 'payroll:settlement_list_payroll' id=id %}"
+                up-on-accepted="up.modal.close()">
+            
+            {% csrf_token %}
+
+            <div class="mb-3 text-start">
+                <label for="nomina" class="form-label fw-semibold">Seleccione una nómina</label>
+                <select id="nomina" 
+                        name="nomina" 
+                        class="form-select" 
+                        data-control="select2" 
+                        required>
+                    <option value="" selected disabled>Seleccione una nómina...</option>
+                    {% for nomina in nominas %}
+                        <option value="{{ nomina.idnomina }}">{{ nomina.nombrenomina }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+    <!--end::Body-->
+
+    <div class="separator my-5"></div>
+
+    <!--begin::Footer-->
+    <div class="modal-footer btn-group justify-content-center">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Cancelar</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" form="change-status-form" class="btn btn-primary">
+            <i class="fa-solid fa-paper-plane me-2"></i> Enviar Liquidación
+        </button>
+    </div>
+    <!--end::Footer-->
+</div>

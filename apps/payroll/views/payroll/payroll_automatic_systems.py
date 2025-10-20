@@ -364,7 +364,8 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
     
     for incapacidad in incapacidades:
-        
+        dias_incapacidad = 0 
+        dias_asumidos = 0
         ini = incapacidad.fechainicial
         fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
         
@@ -378,18 +379,31 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         dia_asumido_1 = int(inicio_nomina <= ini <= fin_nomina)
         dia_asumido_2 = int(inicio_nomina <= segundo_dia <= fin_nomina)
         dias_asumidos = dia_asumido_1 + dia_asumido_2 if dias != 1 else dia_asumido_1
-
+        
+        
         if ini <= inicio_nomina <= fin <= fin_nomina:
-            dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
+            # Incapacidad empieza antes de la nómina y termina dentro de ella
+            dias_incapacidad = (fin - inicio_nomina).days + 1   # ✅ antes estaba (fin_nomina - inicio_nomina)
+            print('------v--------', dias_incapacidad)
+
         elif ini <= inicio_nomina <= fin_nomina <= fin:
+            # Incapacidad cubre toda la nómina
             dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
+            print('------2--------', dias_incapacidad)
+
         elif inicio_nomina <= ini <= fin <= fin_nomina:
+            # Incapacidad completamente dentro de la nómina
             dias_incapacidad = (fin - ini).days + 1
+            print('------c--------', dias_incapacidad)
+
         elif ini >= inicio_nomina and fin >= fin_nomina:
+            # Incapacidad empieza en la nómina y sigue después
             dias_incapacidad = (fin_nomina - ini).days + 1
+            print('------p--------', dias_incapacidad)
+
         else:
             dias_incapacidad = 0
-
+                
         #Calculo del IBC
         if pago_incapacidad == "NO":
             ibc = round(ibc * 2 / 3, 0)
@@ -397,7 +411,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         if ibc < salario_minimo:
             ibc = salario_minimo
         
-       
+
         #Tipo de incapacidad
         if tipo == '1':
             idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
@@ -422,15 +436,21 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
             
         if prorroga:
             dias_asumidos = 0
-
+        
+        
+        
         dias_incapacidad -= dias_asumidos
 
+        print('--------------')
+        print(dias_incapacidad)
+        
         horas_incapacidad = dias_incapacidad * 8
         valor_incapacidad = ibc / 240 * horas_incapacidad
         horas_asumidas = dias_asumidos * 8
         valor_asumido = ibc / 240 * horas_asumidas
         
-
+        
+        
 
         if dias_asumidos > 0 :
             if idconceptoa :

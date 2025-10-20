@@ -4,17 +4,17 @@
 
 {% block navbar %}
     {% if user.is_admin %}
-        {% include 'base/navbar_administrator.html' %} 
+        {% include 'base/navbar_administrator.html' %}
     {% elif user.is_company %}
-        {% include 'base/navbar_companies.html' %}    
+        {% include 'base/navbar_companies.html' %}
     {% elif user.is_accountant %}
-        {% include 'base/navbar_payroll.html' %}    
+        {% include 'base/navbar_payroll.html' %}
     {% else %}
         <p>No tienes un rol asignado.</p>
-    {% endif %}           
+    {% endif %}
 {% endblock %}
 
-{% load static %} 
+{% load static %}
 
 
 {% block title %}
@@ -31,25 +31,25 @@
             border-radius: 0.75rem;
             width: 1500px;
             box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-            
+
         }
 
         up-modal[size=full] up-modal-box {
             border-radius: 0.75rem;
             box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-            
+
         }
 
         up-modal[size=medium] up-modal-box {
             border-radius: 0.75rem;
             box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-            
+
         }
 
         up-modal[size=small] up-modal-box {
             border-radius: 0.75rem;
             box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-            
+
         }
 
         .select2-container .select2-selection--single .select2-selection__rendered {
@@ -90,15 +90,15 @@
 
 {% endblock %}
 
-{% block sub_titulo1 %} 
+{% block sub_titulo1 %}
 Prestaciones
 {% endblock %}
 
-{% block sub_titulo2 %} 
+{% block sub_titulo2 %}
 Liquidacion Empleados
 {% endblock %}
 
-{% block titulo2 %} 
+{% block titulo2 %}
 Liquidacion Empleados
 {% endblock %}
 
@@ -118,13 +118,13 @@ Liquidacion Empleados
 
         href="{% url 'payroll:settlement_create' %}">
         <i class="fa-solid fa-plus"></i> Crear Liquidacion
-    </a> 
+    </a>
 
 {% endblock %}
 
 
 
-{%block content%} 
+{%block content%}
 
 <div class="table-responsive">
     <table id='tabla-settlement' class="table table-striped table-bordered">
@@ -133,14 +133,14 @@ Liquidacion Empleados
                 <th>Contrato</th>
                 <th>Documento</th>
                 <th>Empleado</th>
-                <th>Dias</th>
+                {% comment %} <th>Dias</th>
                 <th>Ingreso</th>
                 <th>Retiro</th>
                 <th>Cesantias</th>
                 <th>Intereses</th>
                 <th>Primas</th>
                 <th>Vacaciones</th>
-                <th>Total</th>
+                <th>Total</th> {% endcomment %}
                 <th>Estado</th>
                 <th>
                     <div class="container d-flex justify-content-center align-items-center">
@@ -158,14 +158,14 @@ Liquidacion Empleados
                     <td>{{ item.idcontrato.idcontrato }}</td>
                     <td>{{ item.idcontrato.idempleado.docidentidad }}</td>
                     <td>{{ item.idcontrato.idempleado.papellido|none_to_empty }} {{ item.idcontrato.idempleado.sapellido|none_to_empty }} {{ item.idcontrato.idempleado.pnombre|none_to_empty }} {{ item.idcontrato.idempleado.snombre|none_to_empty }}</td>
-                    <td >{{ item.diastrabajados}}</td>
+                    {% comment %} <td >{{ item.diastrabajados}}</td>
                     <td >{{ item.idcontrato.fechainiciocontrato |date:'d/m/Y' }}</td>
                     <td >{{ item.fechafincontrato |date:'d/m/Y' }}</td>
                     <td >{{ item.cesantias|format_currency }}</td>
                     <td >{{ item.intereses |format_currency }}</td>
                     <td >{{ item.prima |format_currency }}</td>
                     <td >{{ item.vacaciones |format_currency }}</td>
-                    <td >{{ item.vacaciones |format_currency }}</td>
+                    <td >{{ item.vacaciones |format_currency }}</td> {% endcomment %}
                     {% if item.estadoliquidacion == '1' %}
                         <td class="text-center"><span class="badge badge-light-success">En proceso</span></td>
                     {% else %}
@@ -174,7 +174,7 @@ Liquidacion Empleados
                     <td class="text-center" >
                         <div class="d-flex justify-content-center align-items-center gap-2">
                             <!-- Editar -->
-                            
+
                             {% if item.estadoliquidacion == '1' %}
                                 <a
                                     class='btn btn-icon btn-sm btn-light-success'
@@ -194,15 +194,15 @@ Liquidacion Empleados
 
                                     href="{% url 'companies:settlementlistedit' id=item.idliquidacion %}">
                                     <i class="fa-solid fa-pen-to-square fs-3"></i>
-                                </a> 
+                                </a>
 
 
                             {% else %}
                                 <span data-bs-toggle="tooltip" data-bs-placement="top" title="La liquidación ya fue grabada">
-                                    <button 
-                                        type="button" 
-                                        class="btn btn-icon btn-sm btn-light-success" 
-                                        disabled> 
+                                    <button
+                                        type="button"
+                                        class="btn btn-icon btn-sm btn-light-success"
+                                        disabled>
                                         <i class="fa-solid fa-pen-to-square fs-3"></i>
                                     </button>
                                 </span>
@@ -227,7 +227,7 @@ Liquidacion Empleados
                             <!-- Grabar -->
                             {% if item.estadoliquidacion == '1' %}
                                 <a
-                                
+
                                     class='btn btn-icon btn-sm btn-light-danger'
 
                                     data-bs-toggle="tooltip"
@@ -245,19 +245,19 @@ Liquidacion Empleados
 
                                     href="{% url 'companies:settlementliststate' id=item.idliquidacion %}">
                                     <i class="fa-solid fa-circle-up fs-3"></i>
-                                </a> 
+                                </a>
 
                             {% else %}
                                 <span data-bs-toggle="tooltip" data-bs-placement="top" title="La liquidación ya fue grabada">
-                                    <button 
-                                        type="button" 
-                                        class="btn btn-icon btn-sm btn-light-danger" 
-                                        disabled> 
-                                        <i class="fa-solid fa-circle-up fs-3"></i> 
+                                    <button
+                                        type="button"
+                                        class="btn btn-icon btn-sm btn-light-danger"
+                                        disabled>
+                                        <i class="fa-solid fa-circle-up fs-3"></i>
                                     </button>
                                 </span>
                             {% endif %}
-                            
+
 
                             <!-- Enviar a nomina -->
                             <a
@@ -269,16 +269,16 @@ Liquidacion Empleados
 
                                 up-layer='new modal'
                                 up-target=".modal-content"
-                                up-size = "small"
+                                up-size = "medium"
                                 up-align = "center"
                                 up-backdrop = "true"
                                 up-history = "false"
                                 up-dismissable ="false"
                                 up-cache="false"
 
-                                href="">
+                                href="{% url 'payroll:settlement_list_payroll' id=item.idliquidacion %}">
                                 <i class="fa-solid fa-file-import fs-3"></i>
-                            </a> 
+                            </a>
 
                         </div>
                     </td>

@@ -20,6 +20,7 @@ urlpatterns = [
     path('home/', index.index_payroll, name='index_payroll'),
     path('payroll/', payroll.payroll, name='payroll'),
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),
+    path('payroll/closet/<str:id>', payroll.payroll_closet, name='payroll_closet'),
 
 
     #electronic_payroll
@@ -64,7 +65,7 @@ urlpatterns = [
     path('settlements/bonus/p/add', bonus_settlement.bonus_p_settlement_add, name='bonus_p_settlement_add'),
     
     path('settlements/termination', severance_settlement.settlement_list, name='settlement_list'),
-    
+    path('settlements/termination/payroll/<str:id>/', severance_settlement.settlement_list_payroll, name='settlement_list_payroll'),
     
     ### time 
     path('time/list', time.time_list, name='time_list'),

@@ -92,15 +92,20 @@ def genera_comprobante(idnomina, idcontrato, date=0):
     contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
     crear = Crearnomina.objects.filter(idnomina=idnomina).first()
     datac = datos_cliente(contrato.id_empresa.idempresa)
-
     if contrato:
-        # Limpieza directa del texto "no data" en los nombres del empleado
+        def limpiar(valor):
+            """Limpia el valor solo si existe y es string."""
+            if isinstance(valor, str):
+                return valor.replace('no data', '').strip()
+            return ''
+
         nombres = [
-            (contrato.idempleado.papellido or '').replace('no data', '').strip(),
-            (contrato.idempleado.sapellido or '').replace('no data', '').strip(),
-            (contrato.idempleado.pnombre or '').replace('no data', '').strip(),
-            (contrato.idempleado.snombre or '').replace('no data', '').strip(),
+            limpiar(getattr(contrato.idempleado, 'papellido', None)),
+            limpiar(getattr(contrato.idempleado, 'sapellido', None)),
+            limpiar(getattr(contrato.idempleado, 'pnombre', None)),
+            limpiar(getattr(contrato.idempleado, 'snombre', None)),
         ]
+
         nombre_completo = ' '.join(n for n in nombres if n)
 
         # Obtener datos de devengados y descuentos
@@ -155,7 +160,7 @@ def genera_comprobante(idnomina, idcontrato, date=0):
             'web': datac['website'],
             'logo': datac['logo'],
             'nombre_completo': (nombre_completo[:32] + '...') if len(nombre_completo) > 32 else nombre_completo,
-            'cc': contrato.idempleado.docidentidad,
+            'cc': contrato.idempleado.docidentidad if contrato.idempleado.docidentidad else ' ',
             'idcon': idcontrato,
             'idnomi': idnomina,
             'fecha1': str(contrato.fechainiciocontrato),
@@ -197,18 +202,19 @@ def generate_summary(idnomina,idempresa , data = 0):
     # Obtener la nómina y la información de creación de la nómina
     try:
         if data == 0 :
-            nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 1 )
-            nominas2 = Crearnomina.objects.get(idnomina=idnomina ,estadonomina = 1)
+            nominas = Nomina.objects.filter(idnomina=idnomina , estadonomina = 1  ,idnomina__id_empresa = 1 )
+            nominas2 = Crearnomina.objects.get(idnomina=idnomina , estadonomina = 1 )
             nombre_nomina = nominas2.nombrenomina
         else : 
-            nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 2 )
-            nominas2 = Crearnomina.objects.get(idnomina=idnomina ,estadonomina = 0)
+            nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 2 ,idnomina__id_empresa = 1 )
+            nominas2 = Crearnomina.objects.get(idnomina=idnomina ,estadonomina = 0 )
             nombre_nomina = nominas2.nombrenomina
             
     except Nomina.DoesNotExist or Crearnomina.DoesNotExist:
         # Manejar el caso de que no existan las nóminas
         return None  # O manejar el error de otra manera
     
+
     # Agregar un campo calculado para ingresos, descuentos y neto
     grouped_nominas = nominas.values('idconcepto__nombreconcepto','idconcepto__codigo').annotate(
         cantidad_total=Sum('cantidad'),
@@ -224,7 +230,14 @@ def generate_summary(idnomina,idempresa , data = 0):
         )),
     ).order_by('-idconcepto__codigo')
     
-    
+    incapacidades = nominas.filter(idconcepto__nombreconcepto__icontains='Incapacidad').values(
+        'idconcepto__nombreconcepto',
+        'idconcepto__codigo'
+    ).annotate(
+        cantidad_total=Sum('cantidad'),
+        valor_total=Sum('valor')
+    ).order_by('idconcepto__codigo')
+
     
     
     # Separar ingresos y descuentos, y ordenar por idconcepto
