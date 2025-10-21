@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import NovFijos , Conceptosdenomina , Crearnomina , Contratos , Indicador, Liquidacion , Salariominimoanual , Nomina,Vacaciones
+from apps.common.models import NovFijos , Conceptosdenomina ,Nomina, Crearnomina , Contratos , Indicador, Liquidacion , Salariominimoanual , Nomina,Vacaciones
 from django.http import HttpResponse
 from django.urls import reverse
 from apps.payroll.forms.SettlementForm import SettlementForm
@@ -20,28 +20,94 @@ def settlement_list(request):
     settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-idliquidacion')[:10]
     return render(request, './payroll/settlement_list.html',{'settlements': settlements})
 
-
 @login_required
 @role_required('accountant')
-def settlement_list_payroll(request,id):
+def settlement_list_payroll(request, id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
+
+    # 🔧 Función auxiliar para convertir a número de forma segura
+    def to_float(value):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0
+        
+    def safe_decimal(value, max_value=999.99):
+        """Convierte a decimal y limita al rango permitido por el modelo"""
+        try:
+            val = float(value)
+            if val > max_value:
+                return max_value
+            if val < 0:
+                return 0
+            return val
+        except (TypeError, ValueError):
+            return 0
+
     if request.method == 'POST':
-        print('llege aqui ')
-        
         id_nomina = request.POST.get('nomina')
-        nomina = Crearnomina.objects.get(idnomina = id_nomina)
-        
-        
+        nomina_creada = get_object_or_404(Crearnomina, idnomina=id_nomina)
+        liquidacion = get_object_or_404(Liquidacion, idliquidacion=id)
+
+        conceptos = {
+            'prima': 23,
+            'vacaciones': 32,
+            'cesantias': 20,
+            'intereses': 21,
+            'indemnizacion': 35,
+        }
+
+        # 🔹 Cargamos todos los conceptos de una sola vez (menos queries)
+        conceptos_qs = Conceptosdenomina.objects.filter(
+            codigo__in=conceptos.values(),
+            id_empresa_id=idempresa
+        )
+        conceptos_dict = {c.codigo: c for c in conceptos_qs}
+
+        # 🔹 Mapeo automático de campos a crear en nómina
+        campos = [
+            ('prima', 'diasprimas', 23),
+            ('vacaciones', 'diasvacaciones', 32),
+            ('cesantias', 'basecesantias', 20),
+            ('intereses', 'basecesantias', 21),
+            ('indemnizacion', None, 35),
+        ]
+
+        # 🔹 Generación de registros dinámica
+        for attr_valor, attr_cantidad, codigo in campos:
+            valor = to_float(getattr(liquidacion, attr_valor, 0))
+            if valor <= 0:
+                continue
+
+            cantidad = safe_decimal(getattr(liquidacion, attr_cantidad, 0)) if attr_cantidad else Decimal('0')
+            Nomina.objects.create(
+                valor=valor,
+                cantidad=cantidad,
+                idconcepto=conceptos_dict.get(codigo),
+                idnomina=nomina_creada,
+                estadonomina=1,
+                idcontrato=liquidacion.idcontrato,
+            )
+
+        # 🔹 Actualiza el estado de la liquidación
+        liquidacion.estadoliquidacion = 3
+        liquidacion.save(update_fields=['estadoliquidacion'])
+
+        # 🔹 Respuesta Unpoly
         response = HttpResponse()
-        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
-        response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+        response['X-Up-Accept-Layer'] = 'true'
+        response['X-Up-icon'] = 'success'
         response['X-Up-Message'] = 'La liquidación se envió correctamente a la nómina correspondiente'
-        response['X-Up-Location'] = reverse('payroll:settlement_list')           
+        response['X-Up-Location'] = reverse('payroll:settlement_list')
         return response
-    
-    return render(request, './payroll/partials/settlement_payroll.html',{'nominas':nominas, 'id':id })
+
+    return render(request, './payroll/partials/settlement_payroll.html', {
+        'nominas': nominas,
+        'id': id
+    })
+
 
 
 @login_required

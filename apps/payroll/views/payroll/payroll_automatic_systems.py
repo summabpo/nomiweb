@@ -384,22 +384,15 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         if ini <= inicio_nomina <= fin <= fin_nomina:
             # Incapacidad empieza antes de la nómina y termina dentro de ella
             dias_incapacidad = (fin - inicio_nomina).days + 1   # ✅ antes estaba (fin_nomina - inicio_nomina)
-            print('------v--------', dias_incapacidad)
-
         elif ini <= inicio_nomina <= fin_nomina <= fin:
             # Incapacidad cubre toda la nómina
             dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
-            print('------2--------', dias_incapacidad)
-
         elif inicio_nomina <= ini <= fin <= fin_nomina:
             # Incapacidad completamente dentro de la nómina
             dias_incapacidad = (fin - ini).days + 1
-            print('------c--------', dias_incapacidad)
-
         elif ini >= inicio_nomina and fin >= fin_nomina:
             # Incapacidad empieza en la nómina y sigue después
             dias_incapacidad = (fin_nomina - ini).days + 1
-            print('------p--------', dias_incapacidad)
 
         else:
             dias_incapacidad = 0
@@ -441,17 +434,12 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         
         dias_incapacidad -= dias_asumidos
 
-        print('--------------')
-        print(dias_incapacidad)
         
         horas_incapacidad = dias_incapacidad * 8
         valor_incapacidad = ibc / 240 * horas_incapacidad
         horas_asumidas = dias_asumidos * 8
         valor_asumido = ibc / 240 * horas_asumidas
         
-        
-        
-
         if dias_asumidos > 0 :
             if idconceptoa :
                 
@@ -461,7 +449,8 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
                     estadonomina = 1,
                     idnomina_id=idn
                 ).first()
-                
+
+
                 if aux_pass:
                     if not EditHistory.objects.filter(
                         id_empresa_id=idempresa,
@@ -470,8 +459,8 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
                     ).exists():
                         aux_pass.cantidad = horas_asumidas/8
                         aux_pass.valor =  valor_asumido
-                        aux_pass.save()  
-                                    
+                        aux_pass.save() 
+                        
                 else:
                     Nomina.objects.create(
                         valor = valor_asumido,
@@ -491,7 +480,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
                     idcontrato = incapacidad.idcontrato , 
                     idnomina_id=idn
                 ).first()
-
+                
                 if aux_pass:
                     if not EditHistory.objects.filter(
                         id_empresa_id=idempresa,
@@ -1086,6 +1075,8 @@ def calculo_novfija(contrato, idn):
     nomina = Crearnomina.objects.get(pk=idn)
     novs = NovFijos.objects.filter(idcontrato=contrato, estado_novfija=True).order_by('-idnovfija')
 
+    print(novs)
+    
     for nov in novs:
         if Nomina.objects.filter(idnomina=idn, idconcepto=nov.idconcepto, control=nov.idnovfija).exists():
             continue  # Ya existe, saltar

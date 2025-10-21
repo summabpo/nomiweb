@@ -133,14 +133,14 @@ Liquidacion Empleados
                 <th>Contrato</th>
                 <th>Documento</th>
                 <th>Empleado</th>
-                {% comment %} <th>Dias</th>
+                <th>Dias</th>
                 <th>Ingreso</th>
                 <th>Retiro</th>
                 <th>Cesantias</th>
                 <th>Intereses</th>
                 <th>Primas</th>
                 <th>Vacaciones</th>
-                <th>Total</th> {% endcomment %}
+                <th>Total</th>
                 <th>Estado</th>
                 <th>
                     <div class="container d-flex justify-content-center align-items-center">
@@ -158,14 +158,14 @@ Liquidacion Empleados
                     <td>{{ item.idcontrato.idcontrato }}</td>
                     <td>{{ item.idcontrato.idempleado.docidentidad }}</td>
                     <td>{{ item.idcontrato.idempleado.papellido|none_to_empty }} {{ item.idcontrato.idempleado.sapellido|none_to_empty }} {{ item.idcontrato.idempleado.pnombre|none_to_empty }} {{ item.idcontrato.idempleado.snombre|none_to_empty }}</td>
-                    {% comment %} <td >{{ item.diastrabajados}}</td>
+                    <td >{{ item.diastrabajados}}</td>
                     <td >{{ item.idcontrato.fechainiciocontrato |date:'d/m/Y' }}</td>
                     <td >{{ item.fechafincontrato |date:'d/m/Y' }}</td>
                     <td >{{ item.cesantias|format_currency }}</td>
                     <td >{{ item.intereses |format_currency }}</td>
                     <td >{{ item.prima |format_currency }}</td>
                     <td >{{ item.vacaciones |format_currency }}</td>
-                    <td >{{ item.vacaciones |format_currency }}</td> {% endcomment %}
+                    <td >{{ item.vacaciones |format_currency }}</td> 
                     {% if item.estadoliquidacion == '1' %}
                         <td class="text-center"><span class="badge badge-light-success">En proceso</span></td>
                     {% else %}
@@ -260,25 +260,41 @@ Liquidacion Empleados
 
 
                             <!-- Enviar a nomina -->
-                            <a
-                                class='btn btn-icon btn-sm btn-light-warning'
+                            {% if item.estadoliquidacion != '3' %}
+                                <a
+                                    class='btn btn-icon btn-sm btn-light-warning'
 
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Envio Nomina"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Envio Nomina"
 
-                                up-layer='new modal'
-                                up-target=".modal-content"
-                                up-size = "medium"
-                                up-align = "center"
-                                up-backdrop = "true"
-                                up-history = "false"
-                                up-dismissable ="false"
-                                up-cache="false"
+                                    up-layer='new modal'
+                                    up-target=".modal-content"
+                                    up-size = "medium"
+                                    up-align = "center"
+                                    up-backdrop = "true"
+                                    up-history = "false"
+                                    up-dismissable ="false"
+                                    up-cache="false"
 
-                                href="{% url 'payroll:settlement_list_payroll' id=item.idliquidacion %}">
-                                <i class="fa-solid fa-file-import fs-3"></i>
-                            </a>
+                                    href="{% url 'payroll:settlement_list_payroll' id=item.idliquidacion %}">
+                                    <i class="fa-solid fa-file-import fs-3"></i>
+                                </a>
+
+
+                            {% else %}
+                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="La liquidación ya fue enviada a Nómina">
+                                    <button
+                                        type="button"
+                                        class="btn btn-icon btn-sm btn-light-warning"
+                                        disabled>
+                                        <i class="fa-solid fa-file-import fs-3"></i>
+                                    </button>
+                                </span>
+                            {% endif %}
+
+
+                            
 
                         </div>
                     </td>

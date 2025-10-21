@@ -87,6 +87,8 @@ def vacation_resumen(request):
         "idcontrato__idempleado__snombre",
         "idcontrato",
         "fechainicialvac",
+        "fechapago",
+        "tipovac__nombrevacaus",
         "idvacaciones",
     ).order_by('-fechainicialvac')
     
@@ -115,7 +117,8 @@ def vacation_resumen_data(request,id):
     
     
     vacaciones = Vacaciones.objects.get(idvacaciones=id)
-        
+    
+    
     context = {
         'vacaciones' : vacaciones
     }

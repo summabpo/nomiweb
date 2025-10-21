@@ -1,5 +1,5 @@
 {% load crispy_forms_tags %}
-
+{% load custom_filters %}
 <!-- Bootstrap-styled modal -->
 <div class="modal-content"  id="modal-content">
     <div class="modal-header">
@@ -34,7 +34,7 @@
                             <td>{{ item.fechainicialvac }}</td>
                             <td>{{ item.ultimodiavac }}</td>
                             <td>{{ item.diasvac }}</td>
-                            <td>{{ item.pagovac }}</td>
+                            <td>{{ item.pagovac|format_currency  }}</td>
                             <td>{{ item.idvacaciones }}</td>
                         </tr>
                     {% endfor %}

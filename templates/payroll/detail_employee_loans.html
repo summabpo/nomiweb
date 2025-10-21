@@ -1,5 +1,7 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
+{% load custom_filters %}
+
 {% block navbar %}
     {% if user.is_admin %}
         {% include 'base/navbar_administrator.html' %} 
@@ -75,8 +77,8 @@ Información Empleado: {{ employee_info.full_name }}
         {% for loan in loans_detail %}
         <tr>
             <td class="text-center align-middle">{{ loan.idprestamo }}</td>
-            <td class="text-center align-middle">{{ loan.fechaprestamo|date:"d-M-Y" }}</td>
-            <td class="text-center align-middle">{{ loan.valorprestamo }}</td>
+            <td class="text-center align-middle">{{ loan.fechaprestamo|date:"d-m-Y" }}</td>
+            <td class="text-center align-middle">{{ loan.valorprestamo|format_currency  }}</td>
             <td class="text-center align-middle ">{{ loan.cuotasprestamo }}</td>
             <td class="text-center align-middle">
                 {% if loan.estadoprestamo %}
@@ -211,7 +213,21 @@ Información Empleado: {{ employee_info.full_name }}
                 "previous": "Anterior"
             },
         },
-        "ordering": false,
+        columnDefs: [
+                    {
+                        targets: 1, // 👈 columna de fecha (recuerda: índices empiezan en 0)
+                        render: function (data, type, row) {
+                            if (type === 'sort' || type === 'type') {
+                                // data = "08-05-2003"
+                                var parts = data.split('-'); // [dd, mm, yyyy]
+                                // convertir a formato comparable: yyyy-mm-dd
+                                return new Date(parts[2], parts[1] - 1, parts[0]);
+                            }
+                            return data; // mostrar como viene
+                        }
+                    },
+                ],
+        order: [],
         dom: 'frtip',
         "pageLength": 10, 
         

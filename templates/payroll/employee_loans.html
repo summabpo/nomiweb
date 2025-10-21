@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
+{% load custom_filters %}
 {% block navbar %}
     {% if user.is_admin %}
         {% include 'base/navbar_administrator.html' %} 
@@ -99,6 +100,7 @@ Préstamos Empleados
             <th  class="text-center align-middle">Documento</th>
             <th  class="text-center align-middle">Nombre</th>
             <th  class="text-center align-middle">Cantidad Préstamos</th>
+            <th  class="text-center align-middle">Fecha Préstamo</th>
             <th  class="text-center align-middle">
                 <div class="container d-flex justify-content-center align-items-center">
                 <i class="ki-duotone ki-chart fs-1">
@@ -117,6 +119,7 @@ Préstamos Empleados
             <td  class="text-center align-middle">{{ loan.employee_document }}</td>
             <td  class="text-center align-middle">{{ loan.full_name }}</td>
             <td  class="text-center align-middle">{{ loan.loan_count }}</td>
+            <td  class="text-center align-middle">{{ loan.fechaprestamo }}</td>
             <td  class="text-center align-middle">
                 <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                     <a href="{% url 'payroll:loans_detail' loan.contract_id   %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
@@ -177,7 +180,7 @@ Préstamos Empleados
             },
             dom: 'Bfrtip',
             columnDefs: [
-                { targets: [0, 2, 3], orderable: false }
+                
             ],
             order: [],
             "pageLength": 10,     

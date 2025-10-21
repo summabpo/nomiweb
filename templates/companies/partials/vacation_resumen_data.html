@@ -3,8 +3,12 @@
     <thead>
         <tr>
             <th>Novedad</th>
-            <th>Fecha inicial</th>
-            <th>Ultimo dia</th>
+            {% if vacaciones.tipovac.nombrevacaus == 'Vacaciones Compensadas' %}
+                <th>Fecha de Pago</th>
+            {% else %}
+                <th>Fecha inicial</th>
+                <th>Ultimo dia</th>
+            {% endif %}
             <th>Dias Cal</th>
             <th>Dias Vac</th>
             <th>Pago</th>
@@ -16,8 +20,12 @@
     <tbody>
         <tr>
             <td>{{ vacaciones.tipovac }}</td>
-            <td>{{ vacaciones.fechainicialvac|date:"d-m-Y" }}</td>
-            <td>{{ vacaciones.ultimodiavac|date:"d-m-Y" }}</td>
+            {% if vacaciones.tipovac.nombrevacaus == 'Vacaciones Compensadas' %}
+                <td>{{ vacaciones.fechapago|date:"d-m-Y" }}</td>
+            {% else %}
+                <td>{{ vacaciones.fechainicialvac|date:"d-m-Y" }}</td>
+                <td>{{ vacaciones.ultimodiavac|date:"d-m-Y" }}</td>
+            {% endif %}
             <td>{{ vacaciones.diascalendario }}</td>
             <td>{{ vacaciones.diasvac }}</td>
             <td>{{ vacaciones.basepago|format_currency }}</td>
@@ -26,41 +34,6 @@
             <td>{{ vacaciones.idvacaciones }}</td>
         </tr>
     </tbody>
-
-    {% comment %} <tbody>
-        <tr>
-            <th>Fecha de inicio:</th>
-            <td>{{ vacaciones.fechainicialvac|date:"d-m-Y" }}</td>
-        </tr>
-        <tr>
-            <th>Fecha de fin:</th>
-            <td>{{ vacaciones.ultimodiavac|date:"d-m-Y" }}</td>
-        </tr>
-        <tr>
-            <th>Días calendario:</th>
-            <td>{{ vacaciones.diascalendario }}</td>
-        </tr>
-        <tr>
-            <th>Días de vacaciones:</th>
-            <td>{{ vacaciones.diasvac }}</td>
-        </tr>
-        <tr>
-            <th>Pago de vacaciones:</th>
-            <td>{{ vacaciones.basepago|format_currency }}</td>
-        </tr>
-        <tr>
-            <th>Cuenta sabados</th>
-            <td>{{ vacaciones.cuentasabados }}</td>
-        </tr>
-        <tr>
-            <th>Tipo vacaciones :</th>
-            <td>{{ vacaciones.tipovac }}</td>
-        </tr>
-        <tr>
-            <th>Pago de vacaciones:</th>
-            <td>{{ vacaciones.perinicio |date:"d-m-Y"  }}</td>
-        </tr>
-    </tbody> {% endcomment %}
 </table>
 
 
