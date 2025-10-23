@@ -248,8 +248,12 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         
+        print('---------------')
+        print(dias_vacaciones)
+        print('---------------')
         
         calculo_prestamo(contrato, idn)
+        Calculo_vacaciones(contrato, idn)
         calculo_novfija(contrato, idn)
         
         if contrato.tiposalario_id == 2:
@@ -806,6 +810,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             diasnomina -= (nomina.fechafinal - contrato.fechafincontrato).days
             
         dias_vacaciones = calcular_vacaciones(contrato,nomina)
+        print(dias_vacaciones)
         dias_incapacidad = calculo_incapacidad(contrato, idn)
 
         diasnomina -= dias_vacaciones 
@@ -914,16 +919,18 @@ def calcular_vacaciones(contrato,nomina ):
     """
 
     dias_vacaciones = 0
-    vacaciones = EmpVacaciones.objects.filter(idcontrato=contrato ,estado = 2 ,tipovac='1' )
+
+    # 🔹 Filtrar solo vacaciones legales (ajustar si Tipoavacaus usa 'codigo' en lugar de 'id')
+    vacaciones = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac=1)
+
     for vac in vacaciones:
-        data = Vacaciones.objects.filter(idcontrato=contrato, tipovac='1', idvacmaster = vac.id_sol_vac).first() 
-        if data:
-            if data.fechainicialvac <= nomina.fechafinal and data.ultimodiavac >= nomina.fechainicial:
-                inicio = max(data.fechainicialvac, nomina.fechainicial)
-                fin = min(data.ultimodiavac, nomina.fechafinal)
-                dias_vacaciones = (fin - inicio).days + 1
-        else:
-            dias_vacaciones = 0
+        # Solo si hay cruce entre vacaciones y periodo de nómina
+        if vac.fechainicialvac and vac.ultimodiavac:
+            if vac.fechainicialvac <= nomina.fechafinal and vac.ultimodiavac >= nomina.fechainicial:
+                inicio = max(vac.fechainicialvac, nomina.fechainicial)
+                fin = min(vac.ultimodiavac, nomina.fechafinal)
+                dias_vacaciones += (fin - inicio).days + 1
+
     return dias_vacaciones
 
 
@@ -968,6 +975,80 @@ def calculo_incapacidad(contrato, idn ):
     
     return int(dias_incapacidad)
 
+def Calculo_vacaciones(contrato, idn):
+    
+    # Conceptos asociados
+    conp_vaca_dis = Conceptosdenomina.objects.get(codigo=24, id_empresa=contrato.id_empresa_id)
+    conp_vaca_con = Conceptosdenomina.objects.get(codigo=32, id_empresa=contrato.id_empresa_id)
+
+    # Nómina actual
+    nomina_actual = Crearnomina.objects.get(idnomina=idn)
+
+    # Vacaciones según tipo
+    vacaciones_dis = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac=1)
+    vacaciones_con = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac=2)
+
+    def procesar_vacaciones(vacaciones, concepto, tipo):
+        for vaca in vacaciones:
+            existe = Nomina.objects.filter(
+                idnomina=idn,
+                idconcepto=concepto,
+                control=vaca.idvacaciones
+            ).exists()
+
+            if existe:
+                print(f'Vacación {vaca.idvacaciones} ya está en la nómina.')
+                continue
+
+            # 🟦 Tipo 1: Vacaciones disfrutadas → se comparan fechas de disfrute
+            if tipo == 1 and vaca.fechainicialvac and vaca.ultimodiavac:
+                if vaca.fechainicialvac <= nomina_actual.fechafinal and vaca.ultimodiavac >= nomina_actual.fechainicial:
+                    inicio = max(vaca.fechainicialvac, nomina_actual.fechainicial)
+                    fin = min(vaca.ultimodiavac, nomina_actual.fechafinal)
+                    dias_vacaciones = (fin - inicio).days + 1
+                    valor = (contrato.salario / 30) * dias_vacaciones
+                    cantidad = calcular_vacaciones(contrato,nomina_actual)
+                else:
+                    print(f'Vacación {vaca.idvacaciones} fuera del rango de nómina.')
+                    continue
+
+            # 🟩 Tipo 2: Vacaciones compensadas → se usan fecha de pago y días pagados
+            elif tipo == 2 and vaca.fechapago:
+                if nomina_actual.fechainicial <= vaca.fechapago <= nomina_actual.fechafinal:
+                    dias_vacaciones = vaca.diasvac or 0
+                    base = vaca.basepago or contrato.salario
+                    valor = (base / 30) * dias_vacaciones
+                    cantidad = 1
+                    # Si el pago ya está registrado como valor fijo
+                    if vaca.pagovac:
+                        valor = vaca.pagovac
+                else:
+                    print(f'Vacación {vaca.idvacaciones} (tipo 2) con fecha de pago fuera del rango de nómina.')
+                    continue
+
+            else:
+                print(f'Vacación {vaca.idvacaciones} sin datos válidos.')
+                continue
+
+            # Crear registro en la nómina
+            Nomina.objects.create(
+                idconcepto=concepto,
+                cantidad= cantidad,
+                estadonomina=1,
+                valor=valor,
+                idcontrato=contrato,
+                idnomina_id=idn,
+                control=vaca.idvacaciones
+            )
+
+            print(f'Vacación {vaca.idvacaciones} registrada en nómina con valor {valor}')
+
+    # Procesar vacaciones disfrutadas (tipo 1)
+    procesar_vacaciones(vacaciones_dis, conp_vaca_dis, tipo=1)
+
+    # Procesar vacaciones compensadas (tipo 2)
+    procesar_vacaciones(vacaciones_con, conp_vaca_con, tipo=2)
+    
 
 
 
@@ -996,57 +1077,74 @@ def calculo_prestamo(contrato, idn):
     Nomina : Modelo donde se registran los descuentos de los préstamos.
     """
 
-    loans = Prestamos.objects.filter(idcontrato=contrato , estadoprestamo = True ).order_by('-idprestamo')
-    conceptosdenomina = Conceptosdenomina.objects.get(codigo = 50 , id_empresa = contrato.id_empresa_id)
-    
-    
-    
+    loans = Prestamos.objects.filter(idcontrato=contrato, estadoprestamo=True).order_by('-idprestamo')
+    conceptosdenomina = Conceptosdenomina.objects.get(codigo=50, id_empresa=contrato.id_empresa_id)
+
     for load in loans:
-        nominactual = Nomina.objects.filter(idnomina=idn , idconcepto=conceptosdenomina,control=load.idprestamo).exists()
-        # Obtener deducciones de nómina relacionadas al préstamo
-        deducciones = Nomina.objects.filter(
-            idconcepto=conceptosdenomina,  # Asegúrate que este es el id correcto para "deducción de préstamo"
+        nominactual = Nomina.objects.filter(
+            idnomina=idn,
+            idconcepto=conceptosdenomina,
             control=load.idprestamo
-        ).order_by('-idnomina') 
-        
-        # Obtener la suma de las deducciones del préstamo
+        ).exists()
+
+        # Obtener deducciones previas del préstamo
+        deducciones = Nomina.objects.filter(
+            idconcepto=conceptosdenomina,
+            control=load.idprestamo
+        ).order_by('-idnomina')
+
         suma_deducciones = Nomina.objects.filter(
             idconcepto=conceptosdenomina,
             control=load.idprestamo
-        ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
+        ).aggregate(total=Sum('valor'))['total'] or 0
 
-        
-        if deducciones :
-            if not nominactual : 
-                
-                if (load.valorprestamo + suma_deducciones ) > load.valorcuota :
+        if deducciones:
+            if not nominactual:
+                # 🔹 Si no está en la nómina actual, crear nuevo registro
+                if (load.valorprestamo + suma_deducciones) > load.valorcuota:
                     valor = load.valorprestamo / load.cuotasprestamo
-                else :
+                else:
                     valor = load.valorprestamo + suma_deducciones
-                
-                Nomina.objects.create(
-                    idconcepto = conceptosdenomina ,
-                    cantidad = 1,
-                    estadonomina = 1,
-                    valor = -1*valor,
-                    idcontrato = contrato,
-                    idnomina_id = idn,
-                    control = load.idprestamo
+                    
+                if valor != 0 :
+                    Nomina.objects.create(
+                        idconcepto=conceptosdenomina,
+                        cantidad=1,
+                        estadonomina=1,
+                        valor=-1 * valor,
+                        idcontrato=contrato,
+                        idnomina_id=idn,
+                        control=load.idprestamo
+                    )
+                    
+            else:
+                # 🔹 Si ya existe en la nómina actual, actualizar valor (recalcular)
+                registro = Nomina.objects.get(
+                    idnomina=idn,
+                    idconcepto=conceptosdenomina,
+                    control=load.idprestamo
                 )
-                
+
+                if (load.valorprestamo + suma_deducciones) > load.valorcuota:
+                    valor = load.valorprestamo / load.cuotasprestamo
+                else:
+                    valor = load.valorprestamo + suma_deducciones
+                if valor != 0 :
+                    registro.valor = -1 * valor
+                    registro.save()
+
         else:
             valor = load.valorprestamo / load.cuotasprestamo
-
-            Nomina.objects.create(
-                idconcepto = conceptosdenomina ,
-                cantidad = 1,
-                valor = -1*valor,
-                estadonomina = 1,
-                idcontrato = contrato,
-                idnomina_id = idn,
-                control = load.idprestamo
-            )
-    
+            if valor != 0 :
+                Nomina.objects.create(
+                    idconcepto=conceptosdenomina,
+                    cantidad=1,
+                    valor=-1 * valor,
+                    estadonomina=1,
+                    idcontrato=contrato,
+                    idnomina_id=idn,
+                    control=load.idprestamo
+                )
     
     
 def calculo_novfija(contrato, idn):
@@ -1075,15 +1173,20 @@ def calculo_novfija(contrato, idn):
     nomina = Crearnomina.objects.get(pk=idn)
     novs = NovFijos.objects.filter(idcontrato=contrato, estado_novfija=True).order_by('-idnovfija')
 
-    print(novs)
+    
+    #novs = NovFijos.objects.filter(idcontrato=contrato, estado_novfija=True).order_by('-idnovfija')
+    
     
     for nov in novs:
         if Nomina.objects.filter(idnomina=idn, idconcepto=nov.idconcepto, control=nov.idnovfija).exists():
             continue  # Ya existe, saltar
 
-        cantidad = 1  # Valor por defecto
+        cantidad = 0  # Valor por defecto
         crear = False
 
+        if nomina.diasnomina < 16 : 
+            valor = nov.valor / 2 
+        
         if nov.fechafinnovedad:
             if nomina.fechainicial <= nov.fechafinnovedad <= nomina.fechafinal:
                 cantidad = 0
@@ -1094,14 +1197,13 @@ def calculo_novfija(contrato, idn):
                 nov.save()
         else:
             crear = True
-            nov.estado_novfija = False
-            nov.save()
+
 
         if crear:
             Nomina.objects.create(
                 idconcepto=nov.idconcepto,
                 cantidad=cantidad,
-                valor=nov.valor,
+                valor = valor,
                 estadonomina = 1,
                 idcontrato=contrato,
                 idnomina_id=idn,

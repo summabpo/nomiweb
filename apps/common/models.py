@@ -1308,7 +1308,7 @@ class NovFijos(models.Model):
     idconcepto = models.ForeignKey(Conceptosdenomina, models.DO_NOTHING)  
     valor = models.IntegerField(blank=True, null=True)
     idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING)  #fk principal 
-    estado_novfija = models.BooleanField(default=False) #boleano 
+    estado_novfija = models.BooleanField(default=True) #boleano 
     pago = models.CharField(max_length=40, blank=True, null=True)
     diapago = models.SmallIntegerField(blank=True, null=True)
     descripcion = models.CharField(max_length=40, blank=True, null=True)

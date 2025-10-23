@@ -85,25 +85,38 @@
 
                             <!-- Editar -->
 
-                            <a
-                                class='btn btn-icon btn-sm btn-light-success'
+                            {% if liquidacion.estadoliquidacion == '1' %}
+                                <a
+                                    class='btn btn-icon btn-sm btn-light-success'
 
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Editar liquidacion"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Editar liquidacion"
 
-                                up-layer='new modal'
-                                up-target=".modal-content"
-                                up-size = "large"
-                                up-align = "center"
-                                up-backdrop = "true"
-                                up-history = "false"
-                                up-dismissable ="false"
-                                up-cache="false"
+                                    up-layer='new modal'
+                                    up-target=".modal-content"
+                                    up-size = "large"
+                                    up-align = "center"
+                                    up-backdrop = "true"
+                                    up-history = "false"
+                                    up-dismissable ="false"
+                                    up-cache="false"
 
-                                href="{% url 'companies:settlementlistedit' id=liquidacion.idliquidacion %}">
-                                <i class="fa-solid fa-pen-to-square fs-3"></i>
-                            </a> 
+                                    href="{% url 'companies:settlementlistedit' id=liquidacion.idliquidacion %}">
+                                    <i class="fa-solid fa-pen-to-square fs-3"></i>
+                                </a>
+
+
+                            {% else %}
+                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="La liquidación ya fue grabada">
+                                    <button
+                                        type="button"
+                                        class="btn btn-icon btn-sm btn-light-success"
+                                        disabled>
+                                        <i class="fa-solid fa-pen-to-square fs-3"></i>
+                                    </button>
+                                </span>
+                            {% endif %}
 
 
                             <!-- Ver PDF -->
@@ -158,25 +171,38 @@
                             
 
                             <!-- Enviar a nomina -->
-                            <a
-                                class='btn btn-icon btn-sm btn-light-warning'
+                            {% if liquidacion.estadoliquidacion != '3' %}
+                                <a
+                                    class='btn btn-icon btn-sm btn-light-warning'
 
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Envio Nomina"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Envio Nomina"
 
-                                up-layer='new modal'
-                                up-target=".modal-content"
-                                up-size = "small"
-                                up-align = "center"
-                                up-backdrop = "true"
-                                up-history = "false"
-                                up-dismissable ="false"
-                                up-cache="false"
+                                    up-layer='new modal'
+                                    up-target=".modal-content"
+                                    up-size = "medium"
+                                    up-align = "center"
+                                    up-backdrop = "true"
+                                    up-history = "false"
+                                    up-dismissable ="false"
+                                    up-cache="false"
 
-                                href="">
-                                <i class="fa-solid fa-file-import fs-3"></i>
-                            </a> 
+                                    href="{% url 'payroll:settlement_list_payroll' id=liquidacion.idliquidacion %}">
+                                    <i class="fa-solid fa-file-import fs-3"></i>
+                                </a>
+
+
+                            {% else %}
+                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="La liquidación ya fue enviada a Nómina">
+                                    <button
+                                        type="button"
+                                        class="btn btn-icon btn-sm btn-light-warning"
+                                        disabled>
+                                        <i class="fa-solid fa-file-import fs-3"></i>
+                                    </button>
+                                </span>
+                            {% endif %}
 
                         </div>
                     </td>

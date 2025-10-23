@@ -106,6 +106,7 @@ tr.htmx-swapping td {
         <thead>
             <tr class="fw-bold fs-6 text-gray-800">
                 <th class="text-center">Empleado</th>
+                <th class="text-center">Empleado</th>
                 <th class="text-center">Contrato</th>
                 <th class="text-center">Concepto</th>
                 <th class="text-center">valor</th>
@@ -116,7 +117,8 @@ tr.htmx-swapping td {
         <tbody>
             {% for novfijo in novfijos %}
                 <tr>
-                    <td class="text-center align-middle">{{ novfijo.idcontrato.idempleado.pnombre }} {{ novfijo.idcontrato.idempleado.papellido }}</td>
+                    <td class="align-middle">{{ novfijo.idnovfija }}</td>
+                    <td class="text-center align-middle">{{ novfijo.idcontrato.idempleado.pnombre }} {{ novfijo.idcontrato.idempleado.papellido }} {{ novfijo.idcontrato.idempleado.sapellido }}</td>
                     <td class="text-center align-middle">{{ novfijo.idcontrato.idcontrato }}</td>
                     <td class="align-middle">{{ novfijo.idconcepto }}</td>
                     <td class="text-center align-middle">{{ novfijo.valor|intcomma }}$</td>

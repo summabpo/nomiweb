@@ -237,7 +237,7 @@ def api_detail_payroll_loan(request, pk=None):
         idconcepto__codigo = 50,  # Asegúrate que este es el id correcto para "deducción de préstamo"
         control=pk
     ).order_by('idnomina__fechapago')  # Orden ascendente para cálculo progresivo
-
+    
     # Preparar datos y calcular saldos
     detalles = []
     saldo_actual = saldo_inicial

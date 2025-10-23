@@ -39,7 +39,7 @@ def fixed(request):
     
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    novfijos = NovFijos.objects.filter(idcontrato__id_empresa = idempresa).order_by('-idnovfija')
+    novfijos = NovFijos.objects.filter(idcontrato__id_empresa = idempresa , estado_novfija=True ).order_by('-idnovfija')
 
 
     
