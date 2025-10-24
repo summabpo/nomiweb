@@ -248,12 +248,9 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         
-        print('---------------')
-        print(dias_vacaciones)
-        print('---------------')
         
         calculo_prestamo(contrato, idn)
-        Calculo_vacaciones(contrato, idn)
+        #Calculo_vacaciones(contrato, idn)
         calculo_novfija(contrato, idn)
         
         if contrato.tiposalario_id == 2:

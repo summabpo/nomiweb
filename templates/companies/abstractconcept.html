@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
+{% load custom_filters %}
 
 {% block navbar %}
     {% if user.is_admin %}
@@ -68,7 +69,7 @@
                         <td>{{ liquidacion.idconcepto.codigo }}</td>
                         <td>{{ liquidacion.idconcepto.nombreconcepto }}</td>
                         <td>{{ liquidacion.cantidad }}</td>
-                        <td>{{ liquidacion.valor }}</td>
+                        <td>{{ liquidacion.valor|format_currency  }}</td>
                         <td>{{ liquidacion.idnomina.nombrenomina }}</td>
                         <td>{{ liquidacion.idcontrato.idcontrato }}</td>
                         <td>{{ liquidacion.idcontrato.idempleado.papellido }} {{ liquidacion.idcontrato.idempleado.sapellido }} {{ liquidacion.idcontrato.idempleado.pnombre }} {{ liquidacion.idcontrato.idempleado.snombre }} </td>
