@@ -154,13 +154,14 @@ class AbstractConceptForm(forms.Form):
             ),
             Row(
                 Column(
-                    Submit('submit', 'Filtrar', css_class='btn btn-light-info w-100'),  # Botón de envío
-                    css_class='col-md-6'
-                ),
-                Column(
                     Button('button', 'Limpiar filtrado', css_class='btn btn-light-primary w-100', id='my-custom-button'),  # Botón sin acción de envío
                     css_class='col-md-6'
                 ),
+                Column(
+                    Submit('submit', 'Filtrar', css_class='btn btn-light-info w-100'),  # Botón de envío
+                    css_class='col-md-6'
+                ),
+                
                 css_class='row'
             ),
             

@@ -59,6 +59,7 @@ def abstractconcept(request):
             month = clean_value(form.cleaned_data.get('month'))
             year = clean_value(form.cleaned_data.get('year'))
 
+            
             # Construir los filtros dinámicamente
             filters = {
                 'idconcepto__nombreconcepto': sconcept,

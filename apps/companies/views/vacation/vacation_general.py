@@ -2,10 +2,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
-from apps.common.models  import Contratosemp , Vacaciones ,Contratos 
+from apps.common.models  import Contratosemp , Vacaciones ,Contratos ,Crearnomina ,Nomina , Conceptosdenomina
 from django.http import JsonResponse
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
+from io import BytesIO
+from xhtml2pdf import pisa
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Table, TableStyle
+from apps.components.datacompanies import datos_cliente
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+from django.urls import reverse
+from django.http import HttpResponse
+from apps.payroll.views.payroll.payroll_automatic_systems import calcular_vacaciones
+
 
 @login_required
 @role_required('company','accountant')
@@ -109,6 +122,269 @@ def vacation_resumen(request):
     }
     
     return render(request, './companies/vacation_resumen.html', context)
+
+
+@login_required
+@role_required('company', 'accountant')
+def vacation_resumen_send(request, id):
+    
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
+    if request.method == 'POST':
+        id_nomina = request.POST.get('nomina')
+                
+        Calculo_vacaciones_por_id(idnomina=id_nomina, idvacaciones=id)
+        
+        response = HttpResponse()
+        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+        response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+        response['X-Up-Message'] = 'Vacaciones enviadas correctamente a la nómina.'
+        response['X-Up-Location'] = reverse('companies:vacation_resumen')           
+        return response
+    
+    return render(request, './companies/partials/vacation_resumen_send.html',{'id':id , 'nominas':nominas})
+
+
+def Calculo_vacaciones_por_id(idnomina, idvacaciones):
+    # Obtiene la nómina y la vacación
+    nomina_actual = Crearnomina.objects.get(idnomina=idnomina)
+    vaca = Vacaciones.objects.get(idvacaciones=idvacaciones)
+    contrato = vaca.idcontrato
+
+    # Determinar tipo de vacaciones y conceptos asociados
+    tipo = vaca.tipovac.idvac  # 1: disfrutadas, 2: compensadas
+    if tipo == 1:
+        concepto = Conceptosdenomina.objects.get(codigo=24, id_empresa=contrato.id_empresa_id)
+    elif tipo == 2:
+        concepto = Conceptosdenomina.objects.get(codigo=32, id_empresa=contrato.id_empresa_id)
+    else:
+        print(f'Tipo de vacaciones no reconocido para {vaca.idvacaciones}')
+        return
+
+    # Verificar si ya existe en la nómina
+    if Nomina.objects.filter(
+        idnomina=idnomina,
+        idconcepto=concepto,
+        control=vaca.idvacaciones
+    ).exists():
+        print(f'Vacación {vaca.idvacaciones} ya está en la nómina.')
+        return
+
+    # 🟦 Tipo 1: Disfrutadas
+    if tipo == 1 and vaca.fechainicialvac and vaca.ultimodiavac:
+        if vaca.fechainicialvac <= nomina_actual.fechafinal and vaca.ultimodiavac >= nomina_actual.fechainicial:
+            inicio = max(vaca.fechainicialvac, nomina_actual.fechainicial)
+            fin = min(vaca.ultimodiavac, nomina_actual.fechafinal)
+            dias_vacaciones = (fin - inicio).days + 1
+            valor = (contrato.salario / 30) * dias_vacaciones
+            cantidad = calcular_vacaciones(contrato, nomina_actual)
+        else:
+            print(f'Vacación {vaca.idvacaciones} fuera del rango de nómina.')
+            return
+
+    # 🟩 Tipo 2: Compensadas
+    elif tipo == 2 and vaca.fechapago:
+        if nomina_actual.fechainicial <= vaca.fechapago <= nomina_actual.fechafinal:
+            dias_vacaciones = vaca.diasvac or 0
+            base = vaca.basepago or contrato.salario
+            valor = (base / 30) * dias_vacaciones
+            cantidad = 1
+            if vaca.pagovac:
+                valor = vaca.pagovac
+        else:
+            print(f'Vacación {vaca.idvacaciones} (tipo 2) con fecha de pago fuera del rango de nómina.')
+            return
+    else:
+        print(f'Vacación {vaca.idvacaciones} sin datos válidos.')
+        return
+
+    # Crear registro en la nómina
+    Nomina.objects.create(
+        idconcepto=concepto,
+        cantidad=cantidad,
+        estadonomina=1,
+        valor=valor,
+        idcontrato=contrato,
+        idnomina_id=idnomina,
+        control=vaca.idvacaciones
+    )
+
+    return 0
+
+@login_required
+@role_required('company', 'accountant')
+def vacation_resumen_doc(request, id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    context = generate_vacation_doc(idempresa, id)
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # --- Encabezado empresa ---
+    p.setFont("Helvetica-Bold", 8)
+    p.drawCentredString(width / 2, height - 25, context['empresa'])
+    p.setFont("Helvetica", 8)
+    p.drawCentredString(width / 2, height - 35, context['nit'])
+    p.drawCentredString(width / 2, height - 45, context['web'])
+
+    p.setStrokeColor(colors.grey)
+    p.setLineWidth(0.5)
+    p.line(35, height - 60, width - 35, height - 60)
+
+    try:
+        logo = ImageReader(f"static/img/{context['logo']}")
+        p.drawImage(logo, 35, height - 55, width=150, height=50, preserveAspectRatio=True, mask='auto')
+    except:
+        pass
+
+    # --- Subtítulo ---
+    p.setFont("Helvetica-Bold", 15)
+    p.drawCentredString(width / 2, height - 90, "Liquidación de Vacaciones")
+
+    # --- Bloque de datos del empleado ---
+    y = height - 120
+    x_label = 60
+    x_value = 240
+    line_height = 15
+
+    
+    # 'documento': empleado_doc,
+    # 'cargo': cargo,
+    # 'fechacontrato': fechacontrato,
+    # 'pago': pago,
+    
+    datos = [
+        ("Empleado:", context['empleado']),
+        ("Documento de Id.:", context['documento']),
+        ("Cargo:", context['documento']),
+        ("Fecha de Ingreso:", context['fechacontrato']),
+        ("Fecha de Pago:", context['pago']),
+    ]
+
+    for label, value in datos:
+        p.setFont("Courier", 12)
+        p.drawString(x_label, y, label)
+
+        p.setFont("Courier-Bold", 10)
+        p.drawString(x_value, y, str(value))
+        y -= line_height
+
+    # Línea separadora
+    p.setStrokeColor(colors.grey)
+    p.line(35, y - 10, width - 35, y - 10)
+    y -= 40  # espacio antes de tabla
+
+    # --- Construcción de tabla ---
+    vaca = [
+        [
+            item.tipovac.nombrevacaus if item.tipovac else '',
+            item.fechainicialvac.strftime('%Y-%m-%d') if item.fechainicialvac else '',
+            item.ultimodiavac.strftime('%Y-%m-%d') if item.ultimodiavac else '',
+            item.diascalendario,
+            item.diasvac,
+            f"${item.pagovac:,.0f}" if item.pagovac else '',
+            item.perinicio or ''
+        ]
+        for item in context["vacaciones"]
+    ]
+
+    table_data = [
+        ["Tipo", "F. Inicial", "F. Final", "Días Cal", "Días Vac", "Valor Vac", "Periodo"]
+    ] + vaca
+
+    table = Table(table_data, colWidths=[115, 77, 77, 60, 60, 80, 65])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('FONT', (0, 0), (-1, 0), 'Courier-Bold'),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('ALIGN', (0, 1), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+        ('FONT', (0, 1), (-1, -1), 'Courier'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+    ]))
+
+    # Medir altura de la tabla antes de dibujarla
+    table_width, table_height = table.wrapOn(p, width, height)
+
+    # Si no cabe en la página, crea una nueva
+    if y - table_height < 50:
+        p.showPage()
+        y = height - 100
+
+    table.drawOn(p, 35, y - table_height)
+
+    # --- Footer institucional ---
+    p.setFont("Helvetica", 8)
+    p.setFillColor(colors.grey)
+    p.drawCentredString(width / 2, 20, "Outsourcing de Nómina ::: www.nomiweb.co ::: Summa BPO SAS")
+
+    # --- Finalizar documento ---
+    p.setAuthor("Nomiweb")
+    p.setSubject("Resumen general de nómina")
+    p.setCreator("Sistema Nomiweb")
+    p.showPage()
+    p.save()
+
+    # --- Retornar respuesta ---
+    pdf = buffer.getvalue()
+    buffer.close()
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="liquidacion_de_vacaciones_{id}.pdf"'
+    response.write(pdf)
+    return response
+
+
+
+
+
+def generate_vacation_doc(idempresa, id):
+    # Obtener datos del cliente
+    datac = datos_cliente(idempresa)
+    vaca_qs = Vacaciones.objects.filter(idvacmaster=id)
+
+    # Tomar el primer registro de vacaciones (si existe)
+    vaca_obj = vaca_qs.first()
+
+    empleado_nombre = ""
+    empleado_doc = ""
+    cargo = ""
+    fechacontrato = ""
+    pago = ""
+
+    if vaca_obj and vaca_obj.idcontrato:
+        contrato = vaca_obj.idcontrato
+
+        # Datos del empleado
+        if contrato.idempleado:
+            empleado = contrato.idempleado
+            empleado_nombre = f"{empleado.pnombre or ''} {empleado.papellido or ''}".strip()
+            empleado_doc = empleado.docidentidad or ""
+
+        # Datos del contrato
+        cargo = getattr(contrato.cargo, 'nombrecargo', '') or ''
+        fechacontrato = getattr(contrato, 'fechainiciocontrato', '') or ''
+        pago = getattr(contrato, 'fechafincontrato', '') or ''  # o el campo que uses como fecha de pago
+
+    context = {
+        'empresa': datac.get('nombreempresa', ''),
+        'nit': datac.get('nit', ''),
+        'web': datac.get('website', ''),
+        'logo': datac.get('logo', ''),
+        'vacaciones': vaca_qs,
+        'empleado': empleado_nombre,
+        'documento': empleado_doc,
+        'cargo': cargo,
+        'fechacontrato': fechacontrato,
+        'pago': pago,
+    }
+
+    return context
+
 
 
 @login_required

@@ -1,0 +1,64 @@
+<!-- Modal: Enviar Vacaciones a Nómina -->
+<div class="modal-content" id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Enviar Vacaciones a la Nómina</h3>
+        <!--begin::Close-->
+        <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Cerrar">
+            <i class="ki-duotone ki-cross fs-1">
+                <span class="path1"></span><span class="path2"></span>
+            </i>
+        </button>
+        <!--end::Close-->
+    </div>
+
+    <div class="separator my-5"></div>
+
+    <!--begin::Body-->
+    <div class="modal-body text-center">
+        <p>
+            Está a punto de <strong>enviar las vacaciones registradas</strong> a la nómina seleccionada. <br>
+            Una vez enviadas, <strong>no podrá volver a enviarlas ni realizar cambios en esta información</strong>. <br><br>
+            Seleccione la nómina a la que desea enviar las vacaciones:
+        </p>
+
+        <!-- 🔹 Formulario Unpoly para envío de vacaciones -->
+        <form id="change-status-form"
+                method="POST"
+                action="{% url 'companies:vacation_resumen_send' id=id %}"
+                up-target="#modal-content"
+                up-mode="replace"
+                up-layer="current"
+                up-submit="{% url 'companies:vacation_resumen_send' id=id %}"
+                up-accept-location="{% url 'companies:vacation_resumen_send' id=id %}"
+                up-on-accepted="up.modal.close()">
+            
+            {% csrf_token %}
+
+            <div class="mb-5 text-start">
+                <label for="nomina" class="form-label fw-bold">Seleccione Nómina</label>
+                <select id="nomina" name="nomina" class="form-select" data-control="select2" data-placeholder="-- Seleccione una nómina --" required>
+                    <option value=""></option>
+                    {% for n in nominas %}
+                        <option value="{{ n.idnomina }}">
+                            {{ n.nombrenomina }} - {{ n.idnomina }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+        </form>
+    </div>
+    <!--end::Body-->
+
+    <div class="separator my-5"></div>
+
+    <!--begin::Footer-->
+    <div class="modal-footer btn-group justify-content-center">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Cancelar</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" form="change-status-form" class="btn btn-light-info">
+            <i class="fa-solid fa-paper-plane me-2"></i> Enviar Vacaciones
+        </button>
+    </div>
+    <!--end::Footer-->
+</div>
