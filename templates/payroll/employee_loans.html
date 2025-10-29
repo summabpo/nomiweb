@@ -115,20 +115,19 @@ Préstamos Empleados
         
         {% for loan in loans_list %}
             <tr>
-            <td  class="text-center align-middle">{{ loan.contract_id }}</td>
-            <td  class="text-center align-middle">{{ loan.employee_document }}</td>
-            <td  class="text-center align-middle">{{ loan.full_name }}</td>
-            <td  class="text-center align-middle">{{ loan.loan_count }}</td>
-            <td  class="text-center align-middle">{{ loan.fechaprestamo }}</td>
-            <td  class="text-center align-middle">
-                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                    <a href="{% url 'payroll:loans_detail' loan.contract_id   %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
-                        <i class="fa-regular fa-eye fs-2"></i>
-                    </a>
-                </div>
-            </td>
+                <td  class="text-center align-middle">{{ loan.contract_id }}</td>
+                <td  class="text-center align-middle">{{ loan.employee_document }}</td>
+                <td  class="text-center align-middle">{{ loan.full_name }}</td>
+                <td  class="text-center align-middle">{{ loan.loan_count }}</td>
+                <td class="text-center align-middle">{{ loan.loan_date|date:"d-m-Y" }}</td>
+                <td  class="text-center align-middle">
+                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                        <a href="{% url 'payroll:loans_detail' loan.contract_id   %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
+                            <i class="fa-regular fa-eye fs-2"></i>
+                        </a>
+                    </div>
+                </td>
             </tr>
-            
         {% endfor %}
     </tbody>
 </table>
@@ -179,9 +178,21 @@ Préstamos Empleados
                 }
             },
             dom: 'Bfrtip',
-            columnDefs: [
-                
-            ],
+            // 👇 Aquí está la corrección del columnDefs
+                columnDefs: [
+                    {
+                        targets: 4, // índice de la columna "Fecha"
+                        render: function (data, type, row) {
+                            if (!data) return '';
+                            if (type === 'sort' || type === 'type') {
+                                // convertir "dd-mm-yyyy" → "yyyymmdd"
+                                var parts = data.split('-');
+                                return parts[2] + parts[1] + parts[0];
+                            }
+                            return data;
+                        }
+                    }
+                ],
             order: [],
             "pageLength": 10,     
             buttons: [

@@ -48,9 +48,9 @@ def settlementlist(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
+
     liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa=idempresa).order_by('-fechafincontrato')
 
-    # Limpiar None y 'no data' y formatear valores
     cleaned_liquidaciones = []
     for liq in liquidaciones:
         def clean_text(value):

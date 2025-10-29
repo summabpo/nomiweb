@@ -69,21 +69,28 @@ def employee_loans(request):
         form = LoansForm(id_empresa=idempresa)
 
     # Agrupación por contrato con conteo de préstamos
-    loans_list = Prestamos.objects.select_related(
-        'idcontrato__idempleado'
-    ).filter(
-        idcontrato__id_empresa=idempresa, 
-        estadoprestamo=1
-    ).values(
-        contract_id=F('idcontrato__idcontrato'),
-        employee_document=F('idcontrato__idempleado__docidentidad'),
-        employee_first_name=F('idcontrato__idempleado__pnombre'),
-        employee_second_name=F('idcontrato__idempleado__snombre'),
-        employee_first_last_name=F('idcontrato__idempleado__papellido'),
-        employee_second_last_name=F('idcontrato__idempleado__sapellido'),
-    ).annotate(
-        loan_count=Count('idprestamo')
-    ).order_by('-idprestamo')
+    loans_list = (
+        Prestamos.objects.select_related('idcontrato__idempleado')
+        .filter(
+            idcontrato__id_empresa=idempresa,
+            estadoprestamo=1
+        )
+        .values(
+            contract_id=F('idcontrato__idcontrato'),
+            employee_document=F('idcontrato__idempleado__docidentidad'),
+            employee_first_name=F('idcontrato__idempleado__pnombre'),
+            employee_second_name=F('idcontrato__idempleado__snombre'),
+            employee_first_last_name=F('idcontrato__idempleado__papellido'),
+            employee_second_last_name=F('idcontrato__idempleado__sapellido'),
+            loan_date=F('fechaprestamo'), 
+        )
+        .annotate(
+            loan_count=Count('idprestamo')
+        )
+        .order_by('-fechaprestamo')
+    )
+    
+    
 
     # Construcción del nombre completo limpio (sin "no data" ni None)
     for loan in loans_list:

@@ -244,10 +244,24 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             
             
         dias_vacaciones = calcular_vacaciones(contrato,nomina)
-        dias_incapacidad = calculo_incapacidad(contrato, idn)
+        dias_incapacidad = calculo_incapacidad(contrato,nomina)
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         
+        if dias_vacaciones > 0 :
+            print('-------------------')
+            print(contrato.idempleado.papellido)
+            print(dias_vacaciones)
+            print(diasnomina)
+            print('-------------------')
+            
+        # if dias_incapacidad > 0 :
+        #     print('-------------------')
+        #     print(contrato)
+        #     print(dias_incapacidad)
+        #     print(diasnomina)
+        #     print('-------------------')
+            
         
         calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
@@ -594,51 +608,42 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                 
             
         if total_base_ss > 0:
-            
-            concepto1 = Conceptosdenomina.objects.get(codigo = 60 , id_empresa_id = idempresa)
-            concepto2 = Conceptosdenomina.objects.get(codigo = 70 , id_empresa_id = idempresa)
-            concepto3 = Conceptosdenomina.objects.get(codigo = 90 , id_empresa_id = idempresa)
+                    
+            concepto1 = Conceptosdenomina.objects.get(codigo=60, id_empresa_id=idempresa)
+            concepto2 = Conceptosdenomina.objects.get(codigo=70, id_empresa_id=idempresa)
+            concepto3 = Conceptosdenomina.objects.get(codigo=90, id_empresa_id=idempresa)
             
             base_max = sal_min * tope_ibc.valorfijo
-        
-            if tipo_salario == 2 :
+
+            if tipo_salario == 2:
                 total_base_ss *= (factor_integral / 100)
+                total_base_ss = round(total_base_ss, 2)
             
-                
             base_ss = min(total_base_ss, base_max)
-            
+            base_ss = round(base_ss, 2)
             
             if (base_ss > (sal_min * 4)) and (base_ss < (sal_min * 16)):
                 FSP = fsp416
-                
             elif (base_ss > (sal_min * 16)) and (base_ss < (sal_min * 17)):
                 FSP = fsp1617
-                
             elif (base_ss > (sal_min * 17)) and (base_ss < (sal_min * 18)):
                 FSP = fsp1718
-                
             elif (base_ss > (sal_min * 18)) and (base_ss < (sal_min * 19)):
                 FSP = fsp1819
-                
             elif (base_ss > (sal_min * 19)) and (base_ss < (sal_min * 20)):
                 FSP = fsp1920
-                
             elif base_ss > (sal_min * 20):
                 FSP = fsp21
-                
             else:
                 FSP = 0
-                
 
-            
-            valoreps = (total_base_ss * EPS.valorfijo ) / 100
-            valorafp = (total_base_ss * AFP.valorfijo ) / 100
-            valorfsp = (total_base_ss * FSP) / 100 if total_base_ss >= (sal_min * 4) else 0
-            
-            
+            valoreps = round((total_base_ss * EPS.valorfijo) / 100, 2)
+            valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
+            valorfsp = round((total_base_ss * FSP) / 100, 2) if total_base_ss >= (sal_min * 4) else 0.00
+
             if contrato.pensionado == '2':
-                valorafp = 0
-                valorfsp = 0
+                valorafp = 0.00
+                valorfsp = 0.00
             
             
             # Crear o actualizar el registro de la EPS
@@ -807,11 +812,12 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             diasnomina -= (nomina.fechafinal - contrato.fechafincontrato).days
             
         dias_vacaciones = calcular_vacaciones(contrato,nomina)
-        print(dias_vacaciones)
-        dias_incapacidad = calculo_incapacidad(contrato, idn)
+        
+        dias_incapacidad = calculo_incapacidad(contrato,nomina)
 
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
+        
         
         
         horas_basico_mes = Nomina.objects.filter(idconcepto__codigo = 1, idcontrato=contrato.idcontrato, 
@@ -933,7 +939,7 @@ def calcular_vacaciones(contrato,nomina ):
 
 
 
-def calculo_incapacidad(contrato, idn ):   
+def calculo_incapacidad(contrato,nomina):  
     """
     Calcula los días de incapacidad registrados en la nómina para un contrato.
 
@@ -959,18 +965,25 @@ def calculo_incapacidad(contrato, idn ):
     """
 
     dias_incapacidad = 0
-    
-    dias_incapacidad_tempo = Nomina.objects.filter(
-        idnomina=idn,
-        idcontrato=contrato,
-        idconcepto__codigo__in=[25, 26, 27, 28, 29]
-    ).aggregate(total_dias_incapacidad=Sum('cantidad'))['total_dias_incapacidad']
-    
-    
-    if dias_incapacidad_tempo:
-        dias_incapacidad = dias_incapacidad_tempo
-    
-    return int(dias_incapacidad)
+
+    # 🔹 Obtener incapacidades del contrato actual
+    incapacidades = Incapacidades.objects.filter(idcontrato=contrato)
+
+    for inc in incapacidades:
+        if inc.fechainicial and inc.dias:
+            fechaini = inc.fechainicial
+            fechafin = fechaini + timedelta(days=inc.dias - 1)
+
+            # Solo si hay cruce entre incapacidad y periodo de nómina
+            if fechaini <= nomina.fechafinal and fechafin >= nomina.fechainicial:
+                inicio = max(fechaini, nomina.fechainicial)
+                fin = min(fechafin, nomina.fechafinal)
+                dias_incapacidad += (fin - inicio).days + 1
+
+    return dias_incapacidad
+
+
+
 
 def Calculo_vacaciones(contrato, idn):
     
@@ -1099,7 +1112,7 @@ def calculo_prestamo(contrato, idn):
             if not nominactual:
                 # 🔹 Si no está en la nómina actual, crear nuevo registro
                 if (load.valorprestamo + suma_deducciones) > load.valorcuota:
-                    valor = load.valorprestamo / load.cuotasprestamo
+                    valor = load.valorcuota
                 else:
                     valor = load.valorprestamo + suma_deducciones
                     
@@ -1123,7 +1136,7 @@ def calculo_prestamo(contrato, idn):
                 )
 
                 if (load.valorprestamo + suma_deducciones) > load.valorcuota:
-                    valor = load.valorprestamo / load.cuotasprestamo
+                    valor = load.valorcuota
                 else:
                     valor = load.valorprestamo + suma_deducciones
                 if valor != 0 :
@@ -1131,7 +1144,7 @@ def calculo_prestamo(contrato, idn):
                     registro.save()
 
         else:
-            valor = load.valorprestamo / load.cuotasprestamo
+            valor = load.valorcuota
             if valor != 0 :
                 Nomina.objects.create(
                     idconcepto=conceptosdenomina,
@@ -1143,69 +1156,81 @@ def calculo_prestamo(contrato, idn):
                     control=load.idprestamo
                 )
     
-    
 def calculo_novfija(contrato, idn):
     """
-    Procesa las novedades fijas activas para un contrato en la nómina actual.
+    Regenera las novedades fijas para un contrato en la nómina dada.
 
-    Esta función verifica si una novedad fija ya ha sido registrada en la nómina. 
-    Si no lo ha sido, la registra con su valor correspondiente. Si la novedad tiene fecha de finalización 
-    dentro del período de la nómina, se registra con cantidad cero y se marca como inactiva.
-
-    Parameters
-    ----------
-    contrato : Contratos
-        Objeto de contrato al que se aplican las novedades fijas.
-
-    idn : int
-        ID de la nómina actual en la que se deben registrar las novedades.
-
-    See Also
-    --------
-    NovFijos : Modelo que contiene las novedades fijas asociadas a un contrato.
-    Conceptosdenomina : Catálogo de conceptos de nómina.
-    Nomina : Modelo donde se registran las novedades.
+    Flujo:
+      1) Trae NovFijos activas del contrato.
+      2) Construye lista de ids (idnovfija).
+      3) Elimina en Nomina únicamente los registros con control en esos ids para la nómina y contrato.
+      4) Recrea las filas en Nomina según la lógica de días/fechas.
     """
-
+    # Obtener la nómina
     nomina = Crearnomina.objects.get(pk=idn)
-    novs = NovFijos.objects.filter(idcontrato=contrato, estado_novfija=True).order_by('-idnovfija')
 
-    
-    #novs = NovFijos.objects.filter(idcontrato=contrato, estado_novfija=True).order_by('-idnovfija')
-    
-    
-    for nov in novs:
-        if Nomina.objects.filter(idnomina=idn, idconcepto=nov.idconcepto, control=nov.idnovfija).exists():
-            continue  # Ya existe, saltar
+    # 1) Traer las novedades fijas activas del contrato
+    novs = list(NovFijos.objects.filter(idcontrato=contrato, estado_novfija=True).order_by('-idnovfija'))
 
-        cantidad = 0  # Valor por defecto
-        crear = False
+    if not novs:
+        # No hay novedades fijas activas -> nada que recrear
+        return 0
 
-        if nomina.diasnomina < 16 : 
-            valor = nov.valor / 2 
+    # 2) lista de ids de novedad (control)
+    nov_ids = [nov.idnovfija for nov in novs]
+
+    created_count = 0
+
+    # 3) Transacción: eliminar y recrear
+    with transaction.atomic():
+        # Eliminar solamente los registros de Nomina asociados a esas novedades, esa nómina y ese contrato
+        Nomina.objects.filter(
+            idcontrato=contrato,
+            idnomina_id=idn,
+            control__in=nov_ids
+        ).delete()
         
-        if nov.fechafinnovedad:
-            if nomina.fechainicial <= nov.fechafinnovedad <= nomina.fechafinal:
-                cantidad = 0
-                crear = True
-            else:
-                crear = True
-                nov.estado_novfija = False
-                nov.save()
-        else:
-            crear = True
 
+        # Preparar instancias para bulk_create
+        objetos_a_crear = []
 
-        if crear:
-            Nomina.objects.create(
+        for nov in novs:
+            # Determinar valor base (asegúrate que nov.valor está definido)
+            valor = getattr(nov, 'valor', 0) or 0
+            if nomina.diasnomina < 16:
+                valor = valor / 2
+
+            cantidad = 1
+
+            # Lógica de fecha fin de novedad
+            if nov.fechafinnovedad:
+                # Si la fecha fin cae dentro del periodo de la nómina => cantidad 0
+                if nomina.fechainicial <= nov.fechafinnovedad <= nomina.fechafinal:
+                    cantidad = 0
+                else:
+                    # Si la fecha fin ya pasó (o no está en el periodo) marcamos la novedad como inactiva
+                    # (según tu lógica previa)
+                    nov.estado_novfija = False
+                    nov.save()
+
+            # Construir instancia Nomina (sin .save())
+            nuevo = Nomina(
                 idconcepto=nov.idconcepto,
                 cantidad=cantidad,
-                valor = valor,
-                estadonomina = 1,
+                valor=valor,
+                estadonomina=1,
                 idcontrato=contrato,
                 idnomina_id=idn,
                 control=nov.idnovfija
             )
+            objetos_a_crear.append(nuevo)
+
+        # Bulk create para eficiencia
+        if objetos_a_crear:
+            created_objs = Nomina.objects.bulk_create(objetos_a_crear)
+            created_count = len(created_objs)
+
+    return created_count
 
 
 
