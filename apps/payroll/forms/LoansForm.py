@@ -2,6 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column
 from apps.common.models import Contratos
+from django.urls import reverse
 
 class LoansForm(forms.Form):
     loan_amount = forms.CharField(
@@ -31,8 +32,9 @@ class LoansForm(forms.Form):
         label="Valor de la Cuota",
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'x-model': 'installmentValue',
-            'placeholder': '0.0000'
+            'x-model': 'installmentsNumber',
+            '@input': 'calculateInstallmentValue',
+            'x-mask:dynamic': "$money($input, '.', ',', 0)"
         })
     )
 
@@ -52,21 +54,45 @@ class LoansForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_loans'
         self.helper.enctype = 'multipart/form-data'
+        
+        self.helper.attrs.update({
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',  # Clave para resolver el error
+            'up-submit': reverse('payroll:employee_loans_modal_add'),
+            'up-accept-location': reverse('payroll:employee_loans_modal_add'),
+            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
+        })
 
         self.fields['contract'] = forms.ChoiceField(
-            choices=[('', '----------')] + [
-                (idcontrato, f"{(idempleado__papellido or '').strip()} {(idempleado__sapellido or '').strip()} "
-                            f"{(idempleado__pnombre or '').strip()} {(idempleado__snombre or '').strip()} - {idcontrato}")
-                for idempleado__pnombre, idempleado__snombre, idempleado__papellido, idempleado__sapellido, idcontrato 
+            choices = [('', '----------')] + [
+                (
+                    idcontrato,
+                    f"{str(idempleado__papellido or '').strip()} "
+                    f"{str(idempleado__sapellido or '').strip()} "
+                    f"{str(idempleado__pnombre or '').strip()} "
+                    f"{str(idempleado__snombre or '').strip()} "
+                    f"- {idcontrato} - {str(idempleado__docidentidad or '').strip()}"
+                )
+                for idempleado__docidentidad, idempleado__pnombre, idempleado__snombre,
+                    idempleado__papellido, idempleado__sapellido, idcontrato
                 in Contratos.objects.filter(estadocontrato=1, id_empresa=id_empresa)
                 .order_by('idempleado__papellido')
-                .values_list('idempleado__pnombre', 'idempleado__snombre', 'idempleado__papellido', 'idempleado__sapellido', 'idcontrato')
+                .values_list(
+                    'idempleado__docidentidad',
+                    'idempleado__pnombre',
+                    'idempleado__snombre',
+                    'idempleado__papellido',
+                    'idempleado__sapellido',
+                    'idcontrato'
+                )
             ],
             label="Contrato",
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-dropdown-parent': "#kt_modal_loans",
+                'data-placeholder': 'Seleccione un Contrato',
                 'class': 'form-select'
+                
             })
         )
 

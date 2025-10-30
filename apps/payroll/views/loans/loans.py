@@ -1,14 +1,13 @@
 import datetime
 from django.shortcuts import redirect, render
 import requests
-
 from django.http import JsonResponse
 from django.contrib import messages
-from django.db.models import F, Q, Case, When, Value, CharField, Sum, Count
-
+from django.db.models import F, Q, Case, When, Value, CharField, Sum, Count , OuterRef, Subquery
+from django.db.models.functions import Coalesce
 #models
-from apps.common.models import Prestamos, Contratos, Nomina
-
+from apps.common.models import Prestamos, Contratos, Nomina , Conceptosdenomina
+from django.http import HttpResponse
 #forms
 from apps.payroll.forms.LoansForm import LoansForm
 
@@ -68,6 +67,38 @@ def employee_loans(request):
     else:
         form = LoansForm(id_empresa=idempresa)
 
+    
+    conceptosdenomina = Conceptosdenomina.objects.get( codigo=50 , id_empresa = idempresa)
+    
+    nomina_sum_subquery = Nomina.objects.filter(
+        control=OuterRef('idprestamo'),
+        idconcepto=conceptosdenomina,
+    ).values('control').annotate(
+        total_pagado=Coalesce(Sum('valor'), 0)
+    ).values('total_pagado')[:1]
+
+    loans = (
+        Prestamos.objects
+        .select_related('idcontrato__idempleado')
+        .filter(idcontrato__id_empresa=idempresa, estadoprestamo=1)
+        .annotate(
+            papellido_clean=Coalesce(F('idcontrato__idempleado__papellido'), Value('')),
+            sapellido_clean=Coalesce(F('idcontrato__idempleado__sapellido'), Value('')),
+            pnombre_clean=Coalesce(F('idcontrato__idempleado__pnombre'), Value('')),
+            snombre_clean=Coalesce(F('idcontrato__idempleado__snombre'), Value('')),
+            monto_pagado=Coalesce(Subquery(nomina_sum_subquery), Value(0)),
+            saldo_pendiente=F('valorprestamo') + Coalesce(Subquery(nomina_sum_subquery), Value(0)),
+        )
+        .order_by('-fechaprestamo')
+    )
+
+    # --- Limpieza de texto “no data” en memoria ---
+    for loan in loans:
+        for attr in ['papellido_clean', 'sapellido_clean', 'pnombre_clean', 'snombre_clean']:
+            val = getattr(loan, attr)
+            if val and val.strip().lower() == 'no data':
+                setattr(loan, attr, '')
+                
     # Agrupación por contrato con conteo de préstamos
     loans_list = (
         Prestamos.objects.select_related('idcontrato__idempleado')
@@ -107,12 +138,118 @@ def employee_loans(request):
         ])
 
     context = {
+        'loans':loans,
         'loans_list': loans_list,
         'form': form,
         'form_errors': form_errors,
     }
 
     return render(request, 'payroll/employee_loans.html', context)
+
+
+
+@login_required
+@role_required('accountant', 'company', 'employee')
+def detail_employee_loans_modal(request, id=None):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+
+    # Obtén el concepto de préstamos (usa get_object_or_404 para seguridad)
+    conceptosdenomina = Conceptosdenomina.objects.get( codigo=50 , id_empresa = idempresa)
+
+    # Subquery: total pagado desde la nómina para este préstamo
+    nomina_sum_subquery = Nomina.objects.filter(
+        control=OuterRef('idprestamo'),
+        idconcepto=conceptosdenomina,
+    ).values('control').annotate(
+        total_pagado=Coalesce(Sum('valor'), 0)
+    ).values('total_pagado')[:1]
+
+    # Consulta principal: solo un préstamo
+    loan = (
+        Prestamos.objects
+        .select_related('idcontrato__idempleado')
+        .filter(idcontrato__id_empresa=idempresa, estadoprestamo=1, idprestamo=id)
+        .annotate(
+            papellido_clean=Coalesce(F('idcontrato__idempleado__papellido'), Value('')),
+            sapellido_clean=Coalesce(F('idcontrato__idempleado__sapellido'), Value('')),
+            pnombre_clean=Coalesce(F('idcontrato__idempleado__pnombre'), Value('')),
+            snombre_clean=Coalesce(F('idcontrato__idempleado__snombre'), Value('')),
+            monto_pagado= - Coalesce(Subquery(nomina_sum_subquery), Value(0)),
+            saldo_pendiente=F('valorprestamo') + Coalesce(Subquery(nomina_sum_subquery), Value(0)),
+        )
+        .first()  # ← solo uno, más rápido y directo
+    )
+
+    # Limpieza del texto “no data”
+    for attr in ['papellido_clean', 'sapellido_clean', 'pnombre_clean', 'snombre_clean']:
+        val = getattr(loan, attr)
+        if val and val.strip().lower() == 'no data':
+            setattr(loan, attr, '')
+
+    return render(request, 'payroll/partials/loans_max_date.html', {
+        'id': id,
+        'loan': loan
+    })
+
+@login_required
+@role_required('accountant', 'company', 'employee')
+def employee_loans_modal_add(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+
+    if request.method == 'POST':
+        form = LoansForm(request.POST, id_empresa=idempresa)
+        if form.is_valid():
+            print('-------------')
+            print(request.POST)
+            valor_prestamo = form.cleaned_data['loan_amount']
+            valor_cuota = form.cleaned_data['installment_value']
+            num_cuotas = form.cleaned_data.get('installments_number')
+
+            # Si no hay número de cuotas, calcularlo automáticamente
+            if not num_cuotas:
+                if valor_cuota and valor_cuota > 0:
+                    num_cuotas = int(valor_prestamo / valor_cuota)
+                else:
+                    num_cuotas = 0  # o podrías lanzar un error si prefieres
+
+            Prestamos.objects.create(
+                idcontrato=Contratos.objects.get(idcontrato=form.cleaned_data['contract']),
+                valorprestamo=valor_prestamo,
+                fechaprestamo=form.cleaned_data['loan_date'],
+                cuotasprestamo=num_cuotas,
+                valorcuota=valor_cuota,
+                estadoprestamo=1
+            )
+            
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'Familia guardada exitosamente'    
+            response['X-Up-Location'] = reverse('payroll:family_list')           
+            return response
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")    
+            
+            
+            
+        #     messages.success(request, 'Préstamo creado exitosamente')
+        #     return redirect('payroll:loans_list')
+        # else:
+        #     form_errors = True
+        #     messages.error(request, 'Error al crear el préstamo')
+    else:
+        form = LoansForm(id_empresa=idempresa)
+        
+    return render(request, 'payroll/partials/loans_modal_add.html', {
+        'form': form,
+    })
+
+
 
 # view loans detail employee
 @login_required

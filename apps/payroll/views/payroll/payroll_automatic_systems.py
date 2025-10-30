@@ -248,12 +248,12 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         
-        if dias_vacaciones > 0 :
-            print('-------------------')
-            print(contrato.idempleado.papellido)
-            print(dias_vacaciones)
-            print(diasnomina)
-            print('-------------------')
+        # if dias_vacaciones > 0 :
+        #     print('-------------------')
+        #     print(contrato.idempleado.papellido)
+        #     print(dias_vacaciones)
+        #     print(diasnomina)
+        #     print('-------------------')
             
         # if dias_incapacidad > 0 :
         #     print('-------------------')

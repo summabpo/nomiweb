@@ -141,6 +141,9 @@ urlunpolypatterns =[
     path('time/list/data/<int:id>', time.time_data, name='time_data'),
     path('time/list/edit/<int:id>', time.time_edit, name='time_edit'),
     
+    ## loans 
+    path('payroll/loans/add', loans.employee_loans_modal_add, name='employee_loans_modal_add'),
+    path('payroll/loans/data/<int:id>', loans.detail_employee_loans_modal, name='detail_employee_loans_modal'),
 ]
 
 urlpatterns += urlunpolypatterns  

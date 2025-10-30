@@ -38,9 +38,22 @@ Préstamos Empleados
 
 {% block actions %}
 <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-    <button type="button"  class="btn btn-light-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_loans" >
+    <a 
+        up-layer="new modal"
+        up-target=".modal-content"
+        up-size="medium"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false"
+
+
+        href="{% url 'payroll:employee_loans_modal_add' %}" 
+        class="btn btn-light-info" >
         <i class="fa-solid fa-square-plus fs-2"></i>Crear Préstamo
-    </button>
+    </a>
+
 </div>
 
 
@@ -48,7 +61,7 @@ Préstamos Empleados
 
 
 {%block content%} 
-<div class="modal fade" tabindex="-1" id="kt_modal_loans">
+{% comment %} <div class="modal fade" tabindex="-1" id="kt_modal_loans">
     <div class="modal-dialog  modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -130,11 +143,308 @@ Préstamos Empleados
             </tr>
         {% endfor %}
     </tbody>
-</table>
+</table> {% endcomment %}
+
+
+<div class="container text-center">
+    <ul class="nav nav-tabs nav-line-tabs justify-content-center mb-5 fs-5">
+        <li class="nav-item">
+            <a class="nav-link active fw-semibold px-4" data-bs-toggle="tab" href="#kt_tab_pane_1">
+                Listado de préstamos individuales
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link fw-semibold px-4" data-bs-toggle="tab" href="#kt_tab_pane_2">
+                Listado de préstamos agrupados
+            </a>
+        </li>
+    </ul>
+
+
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="kt_tab_pane_1" role="tabpanel">
+            {% include './loans_max.html' %}  
+        </div>
+        <div class="tab-pane fade" id="kt_tab_pane_2" role="tabpanel">
+            {% include './loans_unique.html' %}  
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 
 {% block js %}
+
+
+
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
+
+
+<script>
+document.addEventListener('up:fragment:inserted', function(event) {
+    const modalContent = up.layer?.current?.element;
+    if (!modalContent) return;
+
+    // --- Inicializar select2 ---
+    const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+    setTimeout(() => {
+        selectElements.forEach((select, index) => {
+            if (!select.id) select.id = `select2-unique-${Date.now()}-${index}`;
+            if (!$(select).data('select2')) {
+                const options = {
+                    dropdownParent: $(modalContent),
+                    width: '100%'
+                };
+                if (select.hasAttribute('data-hide-search')) {
+                    options.minimumResultsForSearch = Infinity;
+                }
+                $(select).select2(options);
+            }
+        });
+    }, 300);
+
+    // --- Inicializar daterangepicker ---
+    const dateInput = modalContent.querySelector('#kt_daterangepicker_1');
+    if (dateInput && !$(dateInput).data('daterangepicker')) {
+        $(dateInput).daterangepicker({
+            singleDatePicker: true,
+            showDropdowns: true,
+            minYear: 2000,
+            maxYear: parseInt(moment().format("YYYY"), 12),
+            endDate: moment(),
+            minDate: '01/01/2020',
+            maxDate: moment(),
+            autoApply: true,
+            locale: {
+                format: 'YYYY-MM-DD',
+                applyLabel: 'Aplicar',
+                cancelLabel: 'Cancelar',
+                daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                monthNames: [
+                    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                ],
+            }
+        });
+
+        setTimeout(() => {
+            $('.daterangepicker').css('z-index', 9999);
+        }, 200);
+    }
+
+    // --- Cálculo automático editable del Valor de la Cuota ---
+    const loanAmountInput = modalContent.querySelector('[name="loan_amount"]');
+    const installmentsInput = modalContent.querySelector('[name="installments_number"]');
+    const installmentValueInput = modalContent.querySelector('[name="installment_value"]');
+
+    if (loanAmountInput && installmentsInput && installmentValueInput) {
+        let userEditedInstallment = false;
+
+        // Determina preferencia de separador de miles según lo que el usuario ha usado en el campo préstamo
+        function detectThousandsSeparator(sample) {
+            if (!sample) return '.'; // fallback
+            const hasComma = sample.indexOf(',') !== -1;
+            const hasDot = sample.indexOf('.') !== -1;
+            if (hasComma && !hasDot) return ',';    // e.g. 600,000  -> coma como separador de miles
+            if (hasDot && !hasComma) return '.';    // e.g. 600.000  -> punto como separador de miles
+            // Si tiene ambos o ninguno, preferimos ',' si el grupo tras último separador es 3 (ej. 1.234,56 o 1,234.56)
+            const lastComma = sample.lastIndexOf(',');
+            const lastDot = sample.lastIndexOf('.');
+            if (lastComma > -1 && (sample.length - lastComma - 1) === 3 && lastDot === -1) return ',';
+            if (lastDot > -1 && (sample.length - lastDot - 1) === 3 && lastComma === -1) return '.';
+            // por defecto usar ',' porque lo solicitaste
+            return ',';
+        }
+
+        // Parse robusto que detecta si la separación es miles o decimal
+        function parseMoney(value) {
+            if (!value && value !== 0) return 0;
+            let s = String(value).trim();
+            if (!s) return 0;
+            // eliminar espacios y símbolo de moneda
+            s = s.replace(/\s/g, '').replace(/\$/g, '').replace(/₩|€|£|¥/g, '');
+            // keep only digits, dot and comma and minus
+            s = s.replace(/[^0-9\.,-]/g, '');
+
+            // identificar posiciones
+            const lastComma = s.lastIndexOf(',');
+            const lastDot = s.lastIndexOf('.');
+
+            // helper: cantidad de caracteres luego de separador
+            const charsAfter = (pos) => (pos === -1 ? 0 : s.length - pos - 1);
+
+            // caso: ambos separadores presentes
+            if (lastComma > -1 && lastDot > -1) {
+                // determina cuál es decimal según longitud después (si tiene 2 o <3 chars -> decimal)
+                if (charsAfter(lastComma) === 3 && charsAfter(lastDot) !== 3) {
+                    // coma = miles, punto = decimal
+                    s = s.replace(/,/g, '');        // eliminar miles (comas)
+                    s = s.replace('.', '.');       // punto decimal (ya está)
+                } else if (charsAfter(lastDot) === 3 && charsAfter(lastComma) !== 3) {
+                    // punto = miles, coma = decimal
+                    s = s.replace(/\./g, '');
+                    s = s.replace(',', '.');
+                } else {
+                    // ambigüo: eliminar todos los separadores (se asume sin decimales)
+                    s = s.replace(/[.,]/g, '');
+                }
+                return parseFloat(s) || 0;
+            }
+
+            // caso: solo coma presente
+            if (lastComma > -1 && lastDot === -1) {
+                // si hay 3 chars luego => probablemente miles -> eliminar comas
+                if (charsAfter(lastComma) === 3) {
+                    s = s.replace(/,/g, '');
+                    return parseFloat(s) || 0;
+                }
+                // si tiene 2 o 1 chars luego -> decimal (reemplazar coma por punto)
+                s = s.replace(/,/g, '.');
+                return parseFloat(s) || 0;
+            }
+
+            // caso: solo punto presente
+            if (lastDot > -1 && lastComma === -1) {
+                if (charsAfter(lastDot) === 3) {
+                    s = s.replace(/\./g, '');
+                    return parseFloat(s) || 0;
+                }
+                // punto decimal
+                return parseFloat(s) || 0;
+            }
+
+            // sin separadores
+            return parseFloat(s) || 0;
+        }
+
+        // Formatea el entero con separador de miles preferido (',' o '.')
+        function formatMoneyWithSeparator(value, thousandsSeparator) {
+            const intVal = Math.round(Number(value) || 0);
+            const abs = Math.abs(intVal);
+            const sign = intVal < 0 ? '-' : '';
+            const parts = String(abs).split('').reverse().reduce((acc, ch, i) => {
+                acc.push(ch);
+                if ((i + 1) % 3 === 0 && i + 1 !== String(abs).length) acc.push(thousandsSeparator);
+                return acc;
+            }, []).reverse().join('');
+            return sign + parts;
+        }
+
+        function calculateInstallment() {
+            if (userEditedInstallment) return;
+            const sample = loanAmountInput.value || installmentsInput.value || '';
+            const preferredSeparator = detectThousandsSeparator(sample);
+
+            const loan = parseMoney(loanAmountInput.value);
+            const installments = Math.abs(Math.round(parseMoney(installmentsInput.value))) || 0;
+
+            if (loan > 0 && installments > 0) {
+                const raw = loan / installments;
+                const rounded = Math.round(raw); // entero
+                const formatted = formatMoneyWithSeparator(rounded, preferredSeparator);
+                installmentValueInput.value = formatted;
+                // trigger input para sincronizar con x-model / x-mask
+                installmentValueInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+
+        // Eventos
+        // cuando cambian préstamo o cuotas: reactivar cálculo (a menos que el usuario haya editado)
+        const onLoanOrInstallmentsChange = () => {
+            // si el usuario ya editó manualmente, forzamos que vuelva a calcular sólo si borra manualmente el campo de cuota
+            userEditedInstallment = false;
+            calculateInstallment();
+        };
+
+        loanAmountInput.addEventListener('input', onLoanOrInstallmentsChange);
+        installmentsInput.addEventListener('input', onLoanOrInstallmentsChange);
+
+        // si el usuario escribe manualmente la cuota => bandera, no recalcular
+        installmentValueInput.addEventListener('input', () => {
+            userEditedInstallment = true;
+        });
+
+        // disparar cálculo inicial si había valores al cargar (edición)
+        setTimeout(() => calculateInstallment(), 350);
+    }
+});
+
+
+// --- 🔄 LIMPIAR DATOS AL CERRAR EL MODAL ---
+document.addEventListener('up:layer:dismissed', function(event) {
+    // Busca el formulario dentro del modal que se va a cerrar
+    const form = document.querySelector('#form_loans');
+    if (!form) return;
+
+    // Reinicia completamente el formulario
+    form.reset();
+
+    // Limpia los select2 (porque no se resetean con form.reset)
+    $(form).find('[data-control="select2"]').each(function() {
+        $(this).val(null).trigger('change');
+    });
+
+    // Limpia daterangepicker (si existe)
+    const drpInput = $(form).find('#kt_daterangepicker_1');
+    if (drpInput.data('daterangepicker')) {
+        drpInput.data('daterangepicker').setStartDate(moment());
+        drpInput.data('daterangepicker').setEndDate(moment());
+        drpInput.val(''); // opcional si quieres dejarlo vacío
+    }
+});
+
+
+</script>
+
+
+
+
+
+
 
 <script>
     $(document).ready(function() {
@@ -152,7 +462,7 @@ Préstamos Empleados
 
 <script>
     $(document).ready(function() {
-        $('#table_loans').DataTable({
+        $('#table_loans_unique').DataTable({
             language: {
                 "decimal": "",
                 "emptyTable": "No hay datos disponibles en la tabla",
@@ -202,6 +512,59 @@ Préstamos Empleados
     
 </script>
 
+
+
+<script>
+    $(document).ready(function() {
+        $('#table_loans_max').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'Bfrtip',
+            // 👇 Aquí está la corrección del columnDefs
+                columnDefs: [
+                    {
+                        targets: 3, // índice de la columna "Fecha"
+                        render: function (data, type, row) {
+                            if (!data) return '';
+                            if (type === 'sort' || type === 'type') {
+                                // convertir "dd-mm-yyyy" → "yyyymmdd"
+                                var parts = data.split('-');
+                                return parts[2] + parts[1] + parts[0];
+                            }
+                            return data;
+                        }
+                    }
+                ],
+            order: [],
+            "pageLength": 10,     
+            buttons: [
+            ]
+        });
+    });
+    
+</script>
 
 <script>
     $("#kt_daterangepicker_1").daterangepicker({

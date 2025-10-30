@@ -1,0 +1,71 @@
+<!-- Bootstrap-styled modal -->
+{% load custom_filters %}
+<div class="modal-content" id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Detalle del Préstamo #{{ loan.idprestamo }}</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Cerrar">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+
+    <div class="separator my-5"></div> 
+
+    <!--begin::Modal Body-->        
+    <div class="modal-body">
+        <div class="container">
+
+            <table class="table table-bordered table-striped align-middle">
+                <tbody>
+                    <tr>
+                        <th>Empleado:</th>
+                        <td>{{ loan.papellido_clean }} {{ loan.sapellido_clean }} {{ loan.pnombre_clean }} {{ loan.snombre_clean }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fecha del préstamo:</th>
+                        <td>{{ loan.fechaprestamo|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Valor del préstamo:</th>
+                        <td>{{ loan.valorprestamo|format_currency }}</td>
+                    </tr>
+                    <tr>
+                        <th>Total pagado:</th>
+                        <td>{{ loan.monto_pagado|format_currency }}</td>
+                    </tr>
+                    <tr>
+                        <th>Saldo pendiente:</th>
+                        <td class="text-center fw-semibold"
+                            style="color:
+                                {% if loan.saldo_pendiente < 50000 %}
+                                    #16a34a;   /* verde */
+                                {% elif loan.saldo_pendiente < 200000 %}
+                                    #eab308;   /* amarillo/naranja */
+                                {% else %}
+                                    #dc2626;   /* rojo */
+                                {% endif %}
+                            ">
+                            {{ loan.saldo_pendiente|format_currency }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Número de cuotas:</th>
+                        <td>{{ loan.cuotasprestamo }}</td>
+                    </tr>
+                    <tr>
+                        <th>Valor por cuota:</th>
+                        <td>{{ loan.valorcuota|format_currency }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="separator my-5"></div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Cerrar</button>
+    </div>
+</div>

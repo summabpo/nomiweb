@@ -1,0 +1,71 @@
+{% load custom_filters %}
+<table id="table_loans_max" class="table table-striped table-row-bordered gy-5 gs-7 border rounded">
+    <thead>
+        <tr class="fw-bold fs-6 text-gray-800 px-7">
+            <th class="text-center align-middle">ID Contrato</th>
+            <th class="text-center align-middle">Documento</th>
+            <th class="text-center align-middle">Nombre del empleado</th>
+            <th class="text-center align-middle">Fecha del préstamo</th>
+            <th class="text-center align-middle">Saldo pendiente</th>
+            <th class="text-center align-middle">Valor total</th>
+            <th  class="text-center align-middle">
+                <div class="container d-flex justify-content-center align-items-center">
+                <i class="ki-duotone ki-chart fs-1">
+                    <i class="path1"></i>
+                    <i class="path2"></i>
+                </i>
+                </div>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        
+        {% for loan in loans %}
+            <tr>
+                <td  class="text-center align-middle">{{ loan.idcontrato.idcontrato }}</td>
+                <td  class="text-center align-middle">{{ loan.idcontrato.idempleado.docidentidad }}</td>
+                <td  class=""> {{ loan.papellido_clean }} {{ loan.sapellido_clean }} {{ loan.pnombre_clean }} {{ loan.snombre_clean }}</td>
+                <td class="text-center align-middle">{{ loan.fechaprestamo|date:"d-m-Y" }}</td>
+                <td class="text-center align-middle"
+                    style="color:
+                        {% if loan.saldo_pendiente < 50000 %}
+                            green
+                        {% elif loan.saldo_pendiente < 200000 %}
+                            orange
+                        {% else %}
+                            red
+                        {% endif %}
+                    ; font-weight: 600;">
+                    {{ loan.saldo_pendiente|format_currency }}
+                </td>
+
+                <td class="text-center align-middle fw-bold">
+                    {{ loan.valorprestamo|format_currency }}
+                </td>
+                <td  class="text-center align-middle">
+                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                        <a 
+                            up-layer="new modal"
+                            up-target=".modal-content"
+                            up-size="medium"
+                            up-align="center"
+                            up-backdrop="true"
+                            up-history="false"
+                            up-dismissable="false"
+                            up-cache="false"
+
+                            data-bs-toggle="tooltip" 
+                            data-bs-custom-class="tooltip-inverse" 
+                            data-bs-placement="top" 
+                            title="Ver datos del préstamo"
+
+                            href="{% url 'payroll:detail_employee_loans_modal' loan.idprestamo %}" 
+                            class="btn btn-icon btn-light-info" >
+                            <i class="fa-regular fa-eye fs-3"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table> 
