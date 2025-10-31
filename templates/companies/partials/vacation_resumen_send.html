@@ -1,64 +1,73 @@
 <!-- Modal: Enviar Vacaciones a Nómina -->
 <div class="modal-content" id="modal-content">
-    <div class="modal-header">
-        <h3 class="modal-title">Enviar Vacaciones a la Nómina</h3>
-        <!--begin::Close-->
-        <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Cerrar">
-            <i class="ki-duotone ki-cross fs-1">
-                <span class="path1"></span><span class="path2"></span>
-            </i>
-        </button>
-        <!--end::Close-->
-    </div>
+  <div class="modal-header">
+    <h3 class="modal-title">Enviar Vacaciones a la Nómina</h3>
+    <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Cerrar">
+      <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+    </button>
+  </div>
 
-    <div class="separator my-5"></div>
+  <div class="separator my-5"></div>
 
-    <!--begin::Body-->
-    <div class="modal-body text-center">
-        <p>
-            Está a punto de <strong>enviar las vacaciones registradas</strong> a la nómina seleccionada. <br>
-            Una vez enviadas, <strong>no podrá volver a enviarlas ni realizar cambios en esta información</strong>. <br><br>
-            Seleccione la nómina a la que desea enviar las vacaciones:
-        </p>
+  <div class="modal-body text-center">
+    <p>
+      Está a punto de <strong>enviar las vacaciones registradas</strong> a la nómina seleccionada. <br>
+      Una vez enviadas, <strong>no podrá volver a enviarlas ni realizar cambios en esta información</strong>. <br><br>
+      Seleccione la nómina a la que desea enviar las vacaciones:
+    </p>
 
-        <!-- 🔹 Formulario Unpoly para envío de vacaciones -->
-        <form id="change-status-form"
-                method="POST"
-                action="{% url 'companies:vacation_resumen_send' id=id %}"
-                up-target="#modal-content"
-                up-mode="replace"
-                up-layer="current"
-                up-submit="{% url 'companies:vacation_resumen_send' id=id %}"
-                up-accept-location="{% url 'companies:vacation_resumen_send' id=id %}"
-                up-on-accepted="up.modal.close()">
-            
-            {% csrf_token %}
+    <!-- 🔹 Formulario principal -->
+    <form id="change-status-form"
+          method="POST"
+          action="{% url 'companies:vacation_resumen_send' id=id %}"
+          up-submit
+          up-target="#modal-content"
+          up-layer="current"
+          up-mode="replace">
 
-            <div class="mb-5 text-start">
-                <label for="nomina" class="form-label fw-bold">Seleccione Nómina</label>
-                <select id="nomina" name="nomina" class="form-select" data-control="select2" data-placeholder="-- Seleccione una nómina --" required>
-                    <option value=""></option>
-                    {% for n in nominas %}
-                        <option value="{{ n.idnomina }}">
-                            {{ n.nombrenomina }} - {{ n.idnomina }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+      {% csrf_token %}
 
-        </form>
-    </div>
-    <!--end::Body-->
+      <div class="mb-5 text-start">
+        <label for="nomina" class="form-label fw-bold">Seleccione Nómina</label>
+        <div class="mb-5 d-flex gap-2 align-items-center">
 
-    <div class="separator my-5"></div>
+          <!-- Select dinámico -->
+          <div class="flex-grow-1" id="nomina-container" up-target="#nomina-container">
+            <select id="nomina" name="nomina" class="form-select" data-control="select2" data-placeholder="-- Seleccione una nómina --" required>
+              <option value=""></option>
+              {% for n in nominas %}
+                <option value="{{ n.idnomina }}">{{ n.nombrenomina }} - {{ n.idnomina }}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-    <!--begin::Footer-->
-    <div class="modal-footer btn-group justify-content-center">
-        <button type="button" class="btn btn-light-danger" up-dismiss>Cancelar</button>
-        <div style="width: 10px;"></div>
-        <button type="submit" form="change-status-form" class="btn btn-light-info">
-            <i class="fa-solid fa-paper-plane me-2"></i> Enviar Vacaciones
-        </button>
-    </div>
-    <!--end::Footer-->
+          <!-- Botón para abrir el modal de creación de nómina -->
+          <a href="{% url 'companies:vacation_send_nomina'%}"
+             class="btn btn-icon btn-light-success"
+             title="Crear nueva nómina"
+             up-layer="new modal"
+             up-target=".modal-content1"
+             up-size="medium"
+             up-align="center"
+             up-backdrop="true"
+             up-history="false"
+             up-dismissable="true"
+             up-cache="false"
+             up-on="nomina:created: up.reload('#nomina-container')">
+            <i class="fa-solid fa-square-plus"></i>
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="separator my-5"></div>
+
+  <div class="modal-footer btn-group justify-content-center">
+    <button type="button" class="btn btn-light-danger" up-dismiss>Cancelar</button>
+    <div style="width: 10px;"></div>
+    <button type="submit" form="change-status-form" class="btn btn-light-info">
+      <i class="fa-solid fa-paper-plane me-2"></i> Enviar Vacaciones
+    </button>
+  </div>
 </div>

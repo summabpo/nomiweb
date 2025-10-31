@@ -94,6 +94,7 @@ urlunpolypatterns =[
     path('payroll/<int:id>/<int:idnomina>/modals/add', payroll.payroll_modal, name='payroll_modal'),
     path('payroll/modals/edit', payroll.payroll_edit, name='payroll_edit'),
     path('payroll/form/modals/create', payroll.payroll_create, name='payroll_create'),
+    path('payroll/form/modals/create-nomina', payroll.payroll_create_nomina_modal, name='create_nomina_modal'),
     path('payroll/form/modals/delete', payroll.payroll_delete, name='payroll_delete'),
     path('payroll/form/calculate/<int:id>', payroll.payroll_calculate, name='payroll_calculate'),
     path('payroll/form/concept/', payroll.payroll_concept_info, name='payroll_concept_info'),

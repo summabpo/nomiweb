@@ -138,6 +138,35 @@ Listado de vacaciones
 
 {% block js %}
 
+<script>
+    up.on('up:layer:accepted', function(event) {
+        try {
+            const location = event.response.header('X-Up-Location');
+            const message  = event.response.header('X-Up-Message');
+            const icon     = event.response.header('X-Up-Icon');
+
+            console.log('🧩 up:layer:accepted event fired');
+            console.log('Headers:', {
+                location,
+                message,
+                icon
+            });
+            console.log('Full response object:', event.response);
+
+            if (location) {
+                sessionStorage.setItem('showSuccessAlert', 'true');
+                sessionStorage.setItem('swalMessage', message || 'Operación exitosa.');
+                sessionStorage.setItem('swalIcon', icon || 'success');
+                window.location.href = location;
+            } else {
+                console.warn('⚠️ No se recibió X-Up-Location');
+            }
+        } catch (e) {
+            console.error('❌ Error procesando evento up:layer:accepted:', e);
+        }
+    });
+</script>
+
 
 <script>
     up.on('up:layer:accepted', function(event) {

@@ -1074,3 +1074,55 @@ def payroll_info_edit(request):
     return JsonResponse({'error': 'Método no permitido'}, status=405)
         
     
+
+# Nueva vista: crear nómina desde un modal Unpoly
+@login_required
+@role_required('accountant')
+def payroll_create_nomina_modal(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario.get('idempresa')
+    form = PayrollForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            try:
+                tiponomina_id = form.cleaned_data['tiponomina']
+                tiponomina = Tipodenomina.objects.get(idtiponomina=tiponomina_id)
+
+                fechainicial = form.cleaned_data['fechainicial']
+                fechafinal = form.cleaned_data['fechafinal']
+
+                if tiponomina.tipodenomina == 'Mensual':
+                    dias_nomina = min(30, (fechafinal - fechainicial).days + 1)
+                elif tiponomina.tipodenomina == 'Quincenal':
+                    dias_nomina = max(15, (fechafinal - fechainicial).days + 1)
+                else:
+                    dias_nomina = (fechafinal - fechainicial).days + 1
+
+                mes_numero = fechainicial.month
+                mes_acumular = MES_CHOICES[mes_numero][0] if mes_numero else ''
+                ano_acumular = Anos.objects.get(ano=fechainicial.year)
+                empresa = Empresa.objects.get(idempresa=idempresa)
+
+                Crearnomina.objects.create(
+                    nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'], idempresa),
+                    fechainicial=fechainicial,
+                    fechafinal=fechafinal,
+                    fechapago=form.cleaned_data['fechapago'],
+                    tiponomina=tiponomina,
+                    mesacumular=mes_acumular,
+                    anoacumular=ano_acumular,
+                    estadonomina=True,
+                    diasnomina=dias_nomina,
+                    id_empresa=empresa,
+                )
+
+                response = HttpResponse()
+                response['X-Up-Accept-Layer'] = 'true'
+                response['X-Up-Icon'] = 'success'
+                response['X-Up-Message'] = 'Nómina creada exitosamente.'
+                return response
+            except (Tipodenomina.DoesNotExist, Empresa.DoesNotExist, Anos.DoesNotExist):
+                pass
+
+    return render(request, './payroll/partials/create_nomina_modal.html', {'form': form})

@@ -10,7 +10,7 @@ from apps.common.models import Prestamos, Contratos, Nomina , Conceptosdenomina
 from django.http import HttpResponse
 #forms
 from apps.payroll.forms.LoansForm import LoansForm
-
+from django.urls import reverse
 #
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
@@ -201,8 +201,7 @@ def employee_loans_modal_add(request):
     if request.method == 'POST':
         form = LoansForm(request.POST, id_empresa=idempresa)
         if form.is_valid():
-            print('-------------')
-            print(request.POST)
+            
             valor_prestamo = form.cleaned_data['loan_amount']
             valor_cuota = form.cleaned_data['installment_value']
             num_cuotas = form.cleaned_data.get('installments_number')
@@ -226,8 +225,8 @@ def employee_loans_modal_add(request):
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
             response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
-            response['X-Up-message'] = 'Familia guardada exitosamente'    
-            response['X-Up-Location'] = reverse('payroll:family_list')           
+            response['X-Up-message'] = 'Prestamo guardada exitosamente'    
+            response['X-Up-Location'] = reverse('payroll:loans_list')           
             return response
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario

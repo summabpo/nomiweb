@@ -1,0 +1,27 @@
+<!-- templates/companies/partials/vacation_send_nomina.html -->
+<div class="modal-content1">
+    <div class="modal-header">
+        <h3 class="modal-title">Crear nueva nómina automática</h3>
+        <button type="button" class="btn btn-icon btn-sm btn-active-light-primary" up-dismiss>
+            <i class="ki-duotone ki-cross fs-1"></i>
+        </button>
+    </div>
+
+    <div class="modal-body text-center">
+        <p>
+            ¿Desea crear una nueva nómina automática para vacaciones?
+        </p>
+        <form method="POST"
+            up-submit
+            up-layer="current"
+            up-target=".modal-content1">
+            {% csrf_token %}
+            <div class="d-flex justify-content-center mt-4">
+                <button type="button" class="btn btn-light-danger me-2" up-dismiss>Cancelar</button>
+                <button type="submit" class="btn btn-light-success">
+                    <i class="fa-solid fa-square-plus me-2"></i> Crear Nómina
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -136,11 +136,11 @@ def vacation_resumen_send(request, id):
                 
         Calculo_vacaciones_por_id(idnomina=id_nomina, idvacaciones=id)
         
-        response = HttpResponse()
-        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
-        response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+        response = HttpResponse('', content_type='text/html; charset=utf-8')
+        response['X-Up-Accept-Layer'] = 'true'
+        response['X-Up-Location'] = reverse('companies:vacation_resumen')
         response['X-Up-Message'] = 'Vacaciones enviadas correctamente a la nómina.'
-        response['X-Up-Location'] = reverse('companies:vacation_resumen')           
+        response['X-Up-Icon'] = 'success'       
         return response
     
     return render(request, './companies/partials/vacation_resumen_send.html',{'id':id , 'nominas':nominas})
