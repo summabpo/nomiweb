@@ -65,7 +65,7 @@ urlpatterns = [
     path('settlements/bonus/p/add', bonus_settlement.bonus_p_settlement_add, name='bonus_p_settlement_add'),
     
     path('settlements/termination', severance_settlement.settlement_list, name='settlement_list'),
-    path('settlements/termination/payroll/<str:id>/', severance_settlement.settlement_list_payroll, name='settlement_list_payroll'),
+    path('settlements/termination/payroll/<str:id>/<int:url>', severance_settlement.settlement_list_payroll, name='settlement_list_payroll'),
     
     ### time 
     path('time/list', time.time_list, name='time_list'),

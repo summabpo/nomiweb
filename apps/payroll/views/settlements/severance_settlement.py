@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import NovFijos , Conceptosdenomina ,Nomina, Crearnomina , Contratos , Indicador, Liquidacion , Salariominimoanual , Nomina,Vacaciones
+from apps.common.models import Tipodenomina , Conceptosdenomina ,Nomina, Crearnomina , Contratos , Anos, Liquidacion , Salariominimoanual , Nomina,Vacaciones
 from django.http import HttpResponse
 from django.urls import reverse
 from apps.payroll.forms.SettlementForm import SettlementForm
@@ -11,18 +11,38 @@ from django.views.decorators.http import require_POST
 from datetime import datetime , date
 from .liquidacion_utils import *
 from django.db.models import Q
+from django.utils import timezone
+from datetime import date
+
+
+MES_CHOICES = [
+    ('', '--------------'),
+    ('ENERO', 'Enero'),
+    ('FEBRERO', 'Febrero'),
+    ('MARZO', 'Marzo'),
+    ('ABRIL', 'Abril'),
+    ('MAYO', 'Mayo'),
+    ('JUNIO', 'Junio'),
+    ('JULIO', 'Julio'),
+    ('AGOSTO', 'Agosto'),
+    ('SEPTIEMBRE', 'Septiembre'),
+    ('OCTUBRE', 'Octubre'),
+    ('NOVIEMBRE', 'Noviembre'),
+    ('DICIEMBRE', 'Diciembre')
+]
+
 
 @login_required
 @role_required('accountant')
 def settlement_list(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-idliquidacion')[:10]
+    settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-idliquidacion')
     return render(request, './payroll/settlement_list.html',{'settlements': settlements})
 
 @login_required
 @role_required('accountant')
-def settlement_list_payroll(request, id):
+def settlement_list_payroll(request, id,url):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
@@ -47,8 +67,51 @@ def settlement_list_payroll(request, id):
             return 0
 
     if request.method == 'POST':
+        ahora = timezone.localtime(timezone.now())
+        hoy = date.today()
+        
         id_nomina = request.POST.get('nomina')
-        nomina_creada = get_object_or_404(Crearnomina, idnomina=id_nomina)
+        nueva_nomina_flag = request.POST.get('nueva_nomina') == 'on'
+        
+        nomina_final = None
+        
+        # 🔹 Caso 1: crear nueva nómina automática
+        if nueva_nomina_flag:
+            nomina_final = Crearnomina.objects.create(
+                nombrenomina=f"Nomina Aut. Liqui - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
+                fechainicial=hoy,
+                fechafinal=hoy,
+                fechapago=ahora.date(),
+                tiponomina=Tipodenomina.objects.get(tipodenomina='Liquidación'),
+                mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
+                anoacumular=Anos.objects.get(ano=ahora.year),
+                estadonomina=True,
+                diasnomina=1,
+                id_empresa_id=idempresa,
+            )
+        
+        else:
+            if id_nomina:
+                nomina_final = Crearnomina.objects.filter(
+                    idnomina=id_nomina, id_empresa_id=idempresa
+                ).first()
+
+            # Validar: si no existe la nómina seleccionada → crear una nueva automática
+            if not nomina_final:
+                nomina_final = Crearnomina.objects.create(
+                    nombrenomina=f"Nomina Aut. Liqui - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
+                    fechainicial=hoy,
+                    fechafinal=hoy,
+                    fechapago=ahora.date(),
+                    tiponomina=Tipodenomina.objects.get(tipodenomina='Liquidación'),
+                    mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
+                    anoacumular=Anos.objects.get(ano=ahora.year),
+                    estadonomina=True,
+                    diasnomina=1,
+                    id_empresa_id=idempresa,
+                )
+
+        #nomina_creada = get_object_or_404(Crearnomina, idnomina=id_nomina)
         liquidacion = get_object_or_404(Liquidacion, idliquidacion=id)
 
         conceptos = {
@@ -86,7 +149,7 @@ def settlement_list_payroll(request, id):
                 valor=valor,
                 cantidad=cantidad,
                 idconcepto=conceptos_dict.get(codigo),
-                idnomina=nomina_creada,
+                idnomina=nomina_final,
                 estadonomina=1,
                 idcontrato=liquidacion.idcontrato,
             )
@@ -100,12 +163,19 @@ def settlement_list_payroll(request, id):
         response['X-Up-Accept-Layer'] = 'true'
         response['X-Up-icon'] = 'success'
         response['X-Up-Message'] = 'La liquidación se envió correctamente a la nómina correspondiente'
-        response['X-Up-Location'] = reverse('payroll:settlement_list')
+        
+        
+        if url == 0:
+            response['X-Up-Location'] = reverse('payroll:settlement_list')
+        else:
+            response['X-Up-Location'] = reverse('companies:settlementlist')
+            
         return response
 
     return render(request, './payroll/partials/settlement_payroll.html', {
         'nominas': nominas,
-        'id': id
+        'id': id,
+        'url':url,
     })
 
 

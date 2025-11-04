@@ -210,7 +210,7 @@ Liquidacion Empleados
 
 
                             <!-- Ver PDF -->
-                            <a href="{% url 'companies:settlementlistdownload' idliqui=item.idliquidacion %}"
+                            <a href="{% url 'companies:settlementlistdownload' idliqui=item.idliquidacion  %}"
                             class="btn btn-icon btn-sm btn-light-primary"
                             data-bs-toggle="tooltip"
                             data-bs-placement="top"
@@ -277,7 +277,7 @@ Liquidacion Empleados
                                     up-dismissable ="false"
                                     up-cache="false"
 
-                                    href="{% url 'payroll:settlement_list_payroll' id=item.idliquidacion %}">
+                                    href="{% url 'payroll:settlement_list_payroll' id=item.idliquidacion url=0  %}">
                                     <i class="fa-solid fa-file-import fs-3"></i>
                                 </a>
 

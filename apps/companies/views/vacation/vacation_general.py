@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
-from apps.common.models  import Contratosemp , Vacaciones ,Contratos ,Crearnomina ,Nomina , Conceptosdenomina
+from apps.common.models  import Anos ,Tipodenomina, Vacaciones ,Contratos ,Crearnomina ,Nomina , Conceptosdenomina
 from django.http import JsonResponse
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
@@ -18,6 +16,26 @@ from reportlab.lib.units import cm
 from django.urls import reverse
 from django.http import HttpResponse
 from apps.payroll.views.payroll.payroll_automatic_systems import calcular_vacaciones
+from django.utils import timezone
+from datetime import date
+from django.db.models import F, Case, When, Value, DateField
+
+MES_CHOICES = [
+    ('', '--------------'),
+    ('ENERO', 'Enero'),
+    ('FEBRERO', 'Febrero'),
+    ('MARZO', 'Marzo'),
+    ('ABRIL', 'Abril'),
+    ('MAYO', 'Mayo'),
+    ('JUNIO', 'Junio'),
+    ('JULIO', 'Julio'),
+    ('AGOSTO', 'Agosto'),
+    ('SEPTIEMBRE', 'Septiembre'),
+    ('OCTUBRE', 'Octubre'),
+    ('NOVIEMBRE', 'Noviembre'),
+    ('DICIEMBRE', 'Diciembre')
+]
+
 
 
 @login_required
@@ -89,21 +107,34 @@ def vacation_resumen(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    vacaciones = Vacaciones.objects.filter(
-        idcontrato__id_empresa=idempresa, 
-        tipovac__idvac__in=[1, 2]
-    ).values(
-        "idcontrato__idempleado__docidentidad",
-        "idcontrato__idempleado__papellido",
-        "idcontrato__idempleado__sapellido",
-        "idcontrato__idempleado__pnombre",
-        "idcontrato__idempleado__snombre",
-        "idcontrato",
-        "fechainicialvac",
-        "fechapago",
-        "tipovac__nombrevacaus",
-        "idvacaciones",
-    ).order_by('-fechainicialvac')
+    vacaciones = (
+        Vacaciones.objects.filter(
+            idcontrato__id_empresa=idempresa,
+            tipovac__idvac__in=[1, 2]
+        )
+        .annotate(
+            fecha_orden=Case(
+                When(fechainicialvac__isnull=False, then=F('fechainicialvac')),
+                When(fechapago__isnull=False, then=F('fechapago')),
+                default=Value(None),
+                output_field=DateField()
+            )
+        )
+        .values(
+            "idcontrato__idempleado__docidentidad",
+            "idcontrato__idempleado__papellido",
+            "idcontrato__idempleado__sapellido",
+            "idcontrato__idempleado__pnombre",
+            "idcontrato__idempleado__snombre",
+            "idcontrato",
+            "fechainicialvac",
+            "fechapago",
+            "tipovac__nombrevacaus",
+            "idvacaciones",
+            "fecha_orden",
+        )
+        .order_by('-fecha_orden')
+    )
     
     # Limpiar los valores "no data" y None
     vacaciones = [
@@ -132,9 +163,54 @@ def vacation_resumen_send(request, id):
     idempresa = usuario['idempresa']
     nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
     if request.method == 'POST':
+        ahora = timezone.localtime(timezone.now())
+        hoy = date.today()
+        
+        # 🔹 Recuperar valores del formulario
+        nueva_nomina_flag = request.POST.get('nueva_nomina') == 'on'
         id_nomina = request.POST.get('nomina')
-                
-        Calculo_vacaciones_por_id(idnomina=id_nomina, idvacaciones=id)
+
+        nomina_final = None
+
+        # 🔹 Caso 1: crear nueva nómina automática
+        if nueva_nomina_flag:
+            nomina_final = Crearnomina.objects.create(
+                nombrenomina=f"Nomina Aut. Vacas - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
+                fechainicial=hoy,
+                fechafinal=hoy,
+                fechapago=ahora.date(),
+                tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
+                mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
+                anoacumular=Anos.objects.get(ano=ahora.year),
+                estadonomina=True,
+                diasnomina=1,
+                id_empresa_id=idempresa,
+            )
+
+        # 🔹 Caso 2: si no se marca crear nueva nómina
+        else:
+            if id_nomina:
+                nomina_final = Crearnomina.objects.filter(
+                    idnomina=id_nomina, id_empresa_id=idempresa
+                ).first()
+
+            # Validar: si no existe la nómina seleccionada → crear una nueva automática
+            if not nomina_final:
+                nomina_final = Crearnomina.objects.create(
+                    nombrenomina=f"Nomina Aut. Vacas - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
+                    fechainicial=hoy,
+                    fechafinal=hoy,
+                    fechapago=ahora.date(),
+                    tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
+                    mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
+                    anoacumular=Anos.objects.get(ano=ahora.year),
+                    estadonomina=True,
+                    diasnomina=1,
+                    id_empresa_id=idempresa,
+                )
+
+        Calculo_vacaciones_por_id(idnomina=nomina_final.idnomina, idvacaciones=id )
+
         
         response = HttpResponse('', content_type='text/html; charset=utf-8')
         response['X-Up-Accept-Layer'] = 'true'
@@ -146,13 +222,14 @@ def vacation_resumen_send(request, id):
     return render(request, './companies/partials/vacation_resumen_send.html',{'id':id , 'nominas':nominas})
 
 
+
 def Calculo_vacaciones_por_id(idnomina, idvacaciones):
-    # Obtiene la nómina y la vacación
+    # 🔹 Obtener nómina y datos base
     nomina_actual = Crearnomina.objects.get(idnomina=idnomina)
     vaca = Vacaciones.objects.get(idvacaciones=idvacaciones)
     contrato = vaca.idcontrato
 
-    # Determinar tipo de vacaciones y conceptos asociados
+    # 🔹 Determinar tipo de vacaciones
     tipo = vaca.tipovac.idvac  # 1: disfrutadas, 2: compensadas
     if tipo == 1:
         concepto = Conceptosdenomina.objects.get(codigo=24, id_empresa=contrato.id_empresa_id)
@@ -162,7 +239,7 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
         print(f'Tipo de vacaciones no reconocido para {vaca.idvacaciones}')
         return
 
-    # Verificar si ya existe en la nómina
+    # 🔹 Evitar duplicados
     if Nomina.objects.filter(
         idnomina=idnomina,
         idconcepto=concepto,
@@ -171,7 +248,39 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
         print(f'Vacación {vaca.idvacaciones} ya está en la nómina.')
         return
 
-    # 🟦 Tipo 1: Disfrutadas
+    # ==========================================================
+    # 🟨 CASO ESPECIAL: NÓMINA AUTOMÁTICA DE VACACIONES
+    # ==========================================================
+    if nomina_actual.nombrenomina.startswith('Nomina Aut. Vacas'):
+        print(f"Procesando vacación {vaca.idvacaciones} en nómina automática (sin validación de rango).")
+
+        if tipo == 1:  # Disfrutadas
+            dias_vacaciones = (vaca.ultimodiavac - vaca.fechainicialvac).days + 1
+            valor = (contrato.salario / 30) * dias_vacaciones
+            cantidad = dias_vacaciones
+
+        elif tipo == 2:  # Compensadas
+            dias_vacaciones = vaca.diasvac or 0
+            base = vaca.basepago or contrato.salario
+            valor = (base / 30) * dias_vacaciones
+            cantidad = dias_vacaciones
+            if vaca.pagovac:
+                valor = vaca.pagovac
+
+        Nomina.objects.create(
+            idconcepto=concepto,
+            cantidad=cantidad,
+            estadonomina=1,
+            valor=valor,
+            idcontrato=contrato,
+            idnomina_id=idnomina,
+            control=vaca.idvacaciones
+        )
+        return 0
+
+    # ==========================================================
+    # 🟦 CASO NORMAL: NÓMINAS REGULARES (VALIDAR RANGO)
+    # ==========================================================
     if tipo == 1 and vaca.fechainicialvac and vaca.ultimodiavac:
         if vaca.fechainicialvac <= nomina_actual.fechafinal and vaca.ultimodiavac >= nomina_actual.fechainicial:
             inicio = max(vaca.fechainicialvac, nomina_actual.fechainicial)
@@ -183,7 +292,6 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
             print(f'Vacación {vaca.idvacaciones} fuera del rango de nómina.')
             return
 
-    # 🟩 Tipo 2: Compensadas
     elif tipo == 2 and vaca.fechapago:
         if nomina_actual.fechainicial <= vaca.fechapago <= nomina_actual.fechafinal:
             dias_vacaciones = vaca.diasvac or 0
@@ -193,13 +301,13 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
             if vaca.pagovac:
                 valor = vaca.pagovac
         else:
-            print(f'Vacación {vaca.idvacaciones} (tipo 2) con fecha de pago fuera del rango de nómina.')
+            print(f'Vacación {vaca.idvacaciones} (tipo 2) fuera del rango de nómina.')
             return
     else:
         print(f'Vacación {vaca.idvacaciones} sin datos válidos.')
         return
 
-    # Crear registro en la nómina
+    # Crear registro
     Nomina.objects.create(
         idconcepto=concepto,
         cantidad=cantidad,
@@ -209,8 +317,11 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
         idnomina_id=idnomina,
         control=vaca.idvacaciones
     )
-
+    
+    
     return 0
+
+
 
 @login_required
 @role_required('company', 'accountant')

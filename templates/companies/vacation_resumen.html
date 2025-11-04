@@ -56,7 +56,14 @@ Listado de vacaciones
                 <th>Nombre</th>
                 <th>Contrato</th>
                 <th>Fecha</th>
-                <th>Acción</th>
+                <th>
+                    <div class="container d-flex justify-content-center align-items-center">
+                        <i class="ki-duotone ki-chart fs-3">
+                            <i class="path1"></i>
+                            <i class="path2"></i>
+                        </i>
+                    </div>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -112,8 +119,8 @@ Listado de vacaciones
                                 data-bs-placement="top" 
                                 title="Enviar a la nomina"
 
-                                href="{% url 'companies:vacation_resumen_send' id=item.idvacaciones %}" 
-                                class="btn btn-icon btn-light-danger" >
+                                href="{% url 'companies:vacation_resumen_send' id=item.idvacaciones  %}" 
+                                class="btn btn-icon btn-light-warning" >
                                 <i class="fa-solid fa-file-import fs-3"></i>
                             </a>
 
@@ -137,36 +144,6 @@ Listado de vacaciones
 
 
 {% block js %}
-
-<script>
-    up.on('up:layer:accepted', function(event) {
-        try {
-            const location = event.response.header('X-Up-Location');
-            const message  = event.response.header('X-Up-Message');
-            const icon     = event.response.header('X-Up-Icon');
-
-            console.log('🧩 up:layer:accepted event fired');
-            console.log('Headers:', {
-                location,
-                message,
-                icon
-            });
-            console.log('Full response object:', event.response);
-
-            if (location) {
-                sessionStorage.setItem('showSuccessAlert', 'true');
-                sessionStorage.setItem('swalMessage', message || 'Operación exitosa.');
-                sessionStorage.setItem('swalIcon', icon || 'success');
-                window.location.href = location;
-            } else {
-                console.warn('⚠️ No se recibió X-Up-Location');
-            }
-        } catch (e) {
-            console.error('❌ Error procesando evento up:layer:accepted:', e);
-        }
-    });
-</script>
-
 
 <script>
     up.on('up:layer:accepted', function(event) {
@@ -212,6 +189,24 @@ Listado de vacaciones
     });
 </script>
 
+<script>
+  // 👇 Controlar la visibilidad del selector según el checkbox
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'nueva_nomina') {
+      const selectDiv = document.getElementById('selector_nomina');
+      const select = document.getElementById('nomina');
+
+      if (e.target.checked) {
+        selectDiv.style.display = 'none';
+        select.removeAttribute('required');
+        select.value = ''; // Limpia selección previa
+      } else {
+        selectDiv.style.display = 'block';
+        select.setAttribute('required', 'required');
+      }
+    }
+  });
+</script>
 
 
 <script>
@@ -284,7 +279,7 @@ $(document).ready(function() {
             }
         },
         dom: 'frtip',
-        order: [], 
+        order: [[3, 'desc']], 
         pageLength: 20,
 
         // 👇 Aquí está la corrección del columnDefs

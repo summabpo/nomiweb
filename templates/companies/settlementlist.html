@@ -35,6 +35,8 @@
     Liquidaciones 
 {% endblock %}
 
+
+
 {% block content %}
 
 <div  class="table-responsive">
@@ -52,8 +54,15 @@
             <th>Prima</th>
             <th>Vacaciones</th>
             <th>Total</th>
-            <th>Estado</th>
-            <th>Ver</th>
+            <th>Estado</th> 
+            <th>
+                <div class="container d-flex justify-content-center align-items-center">
+                    <i class="ki-duotone ki-chart fs-3">
+                        <i class="path1"></i>
+                        <i class="path2"></i>
+                    </i>
+                </div>
+            </th>
             </tr>
         </thead>
         <tbody>
@@ -69,7 +78,7 @@
                     <td>{{ liquidacion.intereses|format_currency|default:0  }}</td>
                     <td>{{ liquidacion.prima|format_currency|default:0  }}</td>
                     <td>{{ liquidacion.vacaciones|format_currency|default:0  }}</td>
-                    <td>{{ liquidacion.totalliq|format_currency|default:0  }}</td>
+                    <td>{{ liquidacion.totalliq|format_currency|default:0  }}</td> 
                     
                     
                     {% if liquidacion.estadoliquidacion == '1' %}
@@ -188,7 +197,7 @@
                                     up-dismissable ="false"
                                     up-cache="false"
 
-                                    href="{% url 'payroll:settlement_list_payroll' id=liquidacion.idliquidacion %}">
+                                    href="{% url 'payroll:settlement_list_payroll' id=liquidacion.idliquidacion  url=1 %}">
                                     <i class="fa-solid fa-file-import fs-3"></i>
                                 </a>
 
@@ -214,11 +223,31 @@
 
     </table>
 </div>
-<div class="separator  border-0 my-10"></div>
 
 {% endblock %}
 
 {% block js %}
+
+
+
+<script>
+  // 👇 Controlar la visibilidad del selector según el checkbox
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'nueva_nomina') {
+      const selectDiv = document.getElementById('selector_nomina');
+      const select = document.getElementById('nomina');
+
+      if (e.target.checked) {
+        selectDiv.style.display = 'none';
+        select.removeAttribute('required');
+        select.value = ''; // Limpia selección previa
+      } else {
+        selectDiv.style.display = 'block';
+        select.setAttribute('required', 'required');
+      }
+    }
+  });
+</script>
 
 <script>
     up.on('up:layer:accepted', function(event) {

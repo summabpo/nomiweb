@@ -23,28 +23,38 @@
         <!-- 🔹 Formulario Unpoly para envío de liquidación -->
         <form id="change-status-form"
                 method="POST"
-                action="{% url 'payroll:settlement_list_payroll' id=id %}"
+                action="{% url 'payroll:settlement_list_payroll' id=id url=url  %}"
                 up-target="#modal-content"
                 up-mode="replace"
                 up-layer="current"
-                up-submit="{% url 'payroll:settlement_list_payroll' id=id %}"
-                up-accept-location="{% url 'payroll:settlement_list_payroll' id=id %}"
+                up-submit="{% url 'payroll:settlement_list_payroll' id=id url=url %}"
+                up-accept-location="{% url 'payroll:settlement_list_payroll' id=id url=url %}"
                 up-on-accepted="up.modal.close()">
             
             {% csrf_token %}
 
-            <div class="mb-3 text-start">
-                <label for="nomina" class="form-label fw-semibold">Seleccione una nómina</label>
-                <select id="nomina" 
-                        name="nomina" 
-                        class="form-select" 
-                        data-control="select2" 
-                        required>
-                    <option value="" selected disabled>Seleccione una nómina...</option>
-                    {% for nomina in nominas %}
-                        <option value="{{ nomina.idnomina }}">{{ nomina.nombrenomina }}</option>
+            <!-- ✅ Opción de nueva nómina -->
+            <div class="d-flex align-items-center justify-content-center mb-4">
+                <div class="form-check form-switch d-flex align-items-center" style="gap: 10px;">
+                    <input class="form-check-input" type="checkbox" id="nueva_nomina" name="nueva_nomina" >
+                    <label class="form-check-label fw-bold ms-2 mb-0" for="nueva_nomina" style="cursor: pointer;">
+                        Crear una nueva nómina automática
+                    </label>
+                </div>
+            </div>
+
+            <div id="selector_nomina">
+                <label for="nomina" class="form-label fw-bold">Seleccione Nómina</label>
+                <div class="mb-5 d-flex gap-2 align-items-center">
+                <div class="flex-grow-1" id="nomina-container" up-target="#nomina-container">
+                    <select id="nomina" name="nomina" class="form-select" data-control="select2" data-placeholder="-- Seleccione una nómina --" required>
+                    <option value=""></option>
+                    {% for n in nominas %}
+                        <option value="{{ n.idnomina }}">{{ n.nombrenomina }} - {{ n.idnomina }}</option>
                     {% endfor %}
-                </select>
+                    </select>
+                </div>
+                </div>
             </div>
         </form>
     </div>

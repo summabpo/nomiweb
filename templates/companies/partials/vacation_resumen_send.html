@@ -13,7 +13,7 @@
     <p>
       Está a punto de <strong>enviar las vacaciones registradas</strong> a la nómina seleccionada. <br>
       Una vez enviadas, <strong>no podrá volver a enviarlas ni realizar cambios en esta información</strong>. <br><br>
-      Seleccione la nómina a la que desea enviar las vacaciones:
+      Seleccione la opción que desea:
     </p>
 
     <!-- 🔹 Formulario principal -->
@@ -27,11 +27,20 @@
 
       {% csrf_token %}
 
-      <div class="mb-5 text-start">
+      <!-- ✅ Opción de nueva nómina -->
+      <div class="d-flex align-items-center justify-content-center mb-4">
+            <div class="form-check form-switch d-flex align-items-center" style="gap: 10px;">
+                <input class="form-check-input" type="checkbox" id="nueva_nomina" name="nueva_nomina" >
+                <label class="form-check-label fw-bold ms-2 mb-0" for="nueva_nomina" style="cursor: pointer;">
+                    Crear una nueva nómina automática
+                </label>
+            </div>
+        </div>
+
+      <!-- ✅ Selector visible solo si NO se crea nueva nómina -->
+      <div id="selector_nomina">
         <label for="nomina" class="form-label fw-bold">Seleccione Nómina</label>
         <div class="mb-5 d-flex gap-2 align-items-center">
-
-          <!-- Select dinámico -->
           <div class="flex-grow-1" id="nomina-container" up-target="#nomina-container">
             <select id="nomina" name="nomina" class="form-select" data-control="select2" data-placeholder="-- Seleccione una nómina --" required>
               <option value=""></option>
@@ -40,24 +49,9 @@
               {% endfor %}
             </select>
           </div>
-
-          <!-- Botón para abrir el modal de creación de nómina -->
-          <a href="{% url 'companies:vacation_send_nomina'%}"
-             class="btn btn-icon btn-light-success"
-             title="Crear nueva nómina"
-             up-layer="new modal"
-             up-target=".modal-content1"
-             up-size="medium"
-             up-align="center"
-             up-backdrop="true"
-             up-history="false"
-             up-dismissable="true"
-             up-cache="false"
-             up-on="nomina:created: up.reload('#nomina-container')">
-            <i class="fa-solid fa-square-plus"></i>
-          </a>
         </div>
       </div>
+
     </form>
   </div>
 
@@ -71,3 +65,5 @@
     </button>
   </div>
 </div>
+
+

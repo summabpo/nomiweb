@@ -49,7 +49,7 @@ def settlementlist(request):
     idempresa = usuario['idempresa']
     
 
-    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa=idempresa).order_by('-fechafincontrato')
+    liquidaciones = Liquidacion.objects.filter(idcontrato__id_empresa=idempresa).order_by('-fechafincontrato')[:10]
 
     cleaned_liquidaciones = []
     for liq in liquidaciones:
