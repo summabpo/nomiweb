@@ -83,7 +83,7 @@ class DisabilitiesForm(forms.Form):
     
     
         
-    origin = forms.ChoiceField(choices=[('', '----------'),('EPS1', 'Enfermedad General - Común'), ('ARL', 'Profesional - Acc. Trabajo'), ('EPS2', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
+    origin = forms.ChoiceField(choices=[('', '----------'),('1', 'Enfermedad General - Común'), ('2', 'Profesional - Acc. Trabajo'), ('3', 'Maternidad - Paternidad')], label="Origen", widget=forms.Select(attrs={'class': 'form-select'}))
     #entity = forms.ModelChoiceField(queryset=Entidadessegsocial.objects.none(), label="Entidad", widget=forms.Select(attrs={'class': 'form-select'}))
     
     extension = forms.ChoiceField(choices=[('1', 'Sí'), ('0', 'No')],initial='0', label="Prórroga", widget=forms.Select(attrs={'class': 'form-select'}))

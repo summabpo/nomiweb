@@ -159,8 +159,8 @@ Liquidacion Empleados
                     <td>{{ item.idcontrato.idempleado.docidentidad }}</td>
                     <td>{{ item.idcontrato.idempleado.papellido|none_to_empty }} {{ item.idcontrato.idempleado.sapellido|none_to_empty }} {{ item.idcontrato.idempleado.pnombre|none_to_empty }} {{ item.idcontrato.idempleado.snombre|none_to_empty }}</td>
                     <td >{{ item.diastrabajados}}</td>
-                    <td >{{ item.idcontrato.fechainiciocontrato |date:'d/m/Y' }}</td>
-                    <td >{{ item.fechafincontrato |date:'d/m/Y' }}</td>
+                    <td >{{ item.idcontrato.fechainiciocontrato |date:'d-m-Y' }}</td>
+                    <td >{{ item.fechafincontrato |date:'d-m-Y' }}</td>
                     <td >{{ item.cesantias|format_currency }}</td>
                     <td >{{ item.intereses |format_currency }}</td>
                     <td >{{ item.prima |format_currency }}</td>
@@ -563,6 +563,35 @@ document.addEventListener('up:fragment:inserted', function(event) {
             },
             dom: 'frtip',
             order: [],
+            columnDefs: [
+
+                    {
+                        targets: 4, // 👈 columna de fecha (recuerda: índices empiezan en 0)
+                        render: function (data, type, row) {
+                            if (type === 'sort' || type === 'type') {
+                                // data = "08-05-2003"
+                                var parts = data.split('-'); // [dd, mm, yyyy]
+                                // convertir a formato comparable: yyyy-mm-dd
+                                return new Date(parts[2], parts[1] - 1, parts[0]);
+                            }
+                            return data; // mostrar como viene
+                        }
+                    },
+                    {
+                        targets: 5, // 👈 columna de fecha (recuerda: índices empiezan en 0)
+                        render: function (data, type, row) {
+                            if (type === 'sort' || type === 'type') {
+                                // data = "08-05-2003"
+                                var parts = data.split('-'); // [dd, mm, yyyy]
+                                // convertir a formato comparable: yyyy-mm-dd
+                                return new Date(parts[2], parts[1] - 1, parts[0]);
+                            }
+                            return data; // mostrar como viene
+                        }
+                    },
+
+
+                ],
             pageLength: 15,
         });
     });

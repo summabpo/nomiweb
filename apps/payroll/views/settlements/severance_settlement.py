@@ -253,9 +253,12 @@ def settlement_create(request):
             ).aggregate(total=Sum('cantidad'))['total'] or 0
 
             dias_vac_generados = (dias_trabajados - dias_susp_vac) * 15 / 360
+            
             dias_vac_tomados = Vacaciones.objects.filter(idcontrato=contrato.idcontrato).aggregate(total=Sum('diasvac'))['total'] or 0
             dias_vacaciones = round(dias_vac_generados - (dias_vac_tomados or 0), 2)
 
+            
+            
             # Componentes de liquidación
             prima = calcular_prima(dias_prima, base_prima)
             cesantias = calcular_cesantias(dias_efectivos_cesantias, base_cesantias)
@@ -331,13 +334,15 @@ def settlement_calculate(request):
     salario_min_obj = Salariominimoanual.objects.filter(ano=fecha_fin.year).first()
     if not salario_min_obj:
         return JsonResponse({'error': 'No hay salario mínimo definido para ese año'}, status=400)
-    
+        
     dias_susp_vac = Nomina.objects.filter(
         idcontrato=contrato.idcontrato,
         estadonomina=2,
         idconcepto__id_empresa = idempresa,
         idconcepto__indicador__nombre='suspcontrato'
     ).aggregate(total=Sum('cantidad'))['total'] or 0
+    
+    
     
     salario_minimo = salario_min_obj.salariominimo
     aux_transporte = 0 if salario > (2 * salario_minimo) else salario_min_obj.auxtransporte
@@ -361,7 +366,7 @@ def settlement_calculate(request):
     acum_recargos = acumular_por_mes(Nomina, recargos_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
 
     # Días efectivos
-    dias_efectivos_cesantias = dias_cesantias - dias_susp_vac + 1
+    dias_efectivos_cesantias = dias_cesantias - dias_susp_vac
     
     
     dias_efectivos_prima = dias_prima - dias_susp_vac + 1 

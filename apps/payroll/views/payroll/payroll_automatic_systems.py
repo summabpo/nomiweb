@@ -248,6 +248,15 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         
+        if contrato.idcontrato == 8036 :
+            if dias_incapacidad > 0 :
+                print('-------------------')
+                print(contrato)
+                print(dias_incapacidad)
+                print(diasnomina)
+                print('-------------------')
+        
+        
         # if dias_vacaciones > 0 :
         #     print('-------------------')
         #     print(contrato.idempleado.papellido)
@@ -255,12 +264,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         #     print(diasnomina)
         #     print('-------------------')
             
-        # if dias_incapacidad > 0 :
-        #     print('-------------------')
-        #     print(contrato)
-        #     print(dias_incapacidad)
-        #     print(diasnomina)
-        #     print('-------------------')
+
             
         
         calculo_prestamo(contrato, idn)
@@ -810,7 +814,12 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         
         if contrato.fechafincontrato and nomina.fechafinal <= contrato.fechafincontrato <= nomina.fechafinal:
             diasnomina -= (nomina.fechafinal - contrato.fechafincontrato).days
-            
+        
+        print('-----------')
+        print(contrato)
+        print(nomina)
+        print('-----------')
+        
         dias_vacaciones = calcular_vacaciones(contrato,nomina)
         
         dias_incapacidad = calculo_incapacidad(contrato,nomina)
@@ -819,6 +828,10 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_incapacidad 
         
         
+        print('-----------')
+        print(dias_vacaciones)
+        print(dias_incapacidad)
+        print('-----------')
         
         horas_basico_mes = Nomina.objects.filter(idconcepto__codigo = 1, idcontrato=contrato.idcontrato, 
                                                  idnomina__mesacumular = nomina.mesacumular , idnomina__anoacumular = nomina.anoacumular ,
@@ -968,12 +981,12 @@ def calculo_incapacidad(contrato,nomina):
 
     # 🔹 Obtener incapacidades del contrato actual
     incapacidades = Incapacidades.objects.filter(idcontrato=contrato)
-
+    
     for inc in incapacidades:
         if inc.fechainicial and inc.dias:
             fechaini = inc.fechainicial
             fechafin = fechaini + timedelta(days=inc.dias - 1)
-
+            
             # Solo si hay cruce entre incapacidad y periodo de nómina
             if fechaini <= nomina.fechafinal and fechafin >= nomina.fechainicial:
                 inicio = max(fechaini, nomina.fechainicial)

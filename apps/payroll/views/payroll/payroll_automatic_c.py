@@ -72,11 +72,12 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
     if contrato.fechafincontrato and nomina.fechafinal <= contrato.fechafincontrato <= nomina.fechafinal:
         diasnomina -= (nomina.fechafinal - contrato.fechafincontrato).days
         
-        
+
     dias_vacaciones = calcular_vacaciones(contrato,nomina)
-    dias_incapacidad = calculo_incapacidad(contrato, idnomina)
+    dias_incapacidad = calculo_incapacidad(contrato,nomina)
     diasnomina -= dias_vacaciones 
     diasnomina -= dias_incapacidad 
+    
     
     
     calculo_prestamo(contrato, idnomina)
@@ -463,7 +464,7 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
         diasnomina -= (nomina.fechafinal - contrato.fechafincontrato).days
         
     dias_vacaciones = calcular_vacaciones(contrato,nomina)
-    dias_incapacidad = calculo_incapacidad(contrato, idnomina)
+    dias_incapacidad = calculo_incapacidad(contrato,nomina)
 
     diasnomina -= dias_vacaciones 
     diasnomina -= dias_incapacidad 

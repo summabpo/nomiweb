@@ -79,6 +79,8 @@ def calcular_base_promedio(acumulado: float, dias: int, salario: float, transpor
     promedio = acumulado / dias * 30
     return ceil(promedio + salario + transporte)
 
+
+
 def calcular_base_vacaciones(acum_recargos: float, dias_cesantias: int, salario: float) -> int:
     if dias_cesantias <= 0:
         return ceil(salario)

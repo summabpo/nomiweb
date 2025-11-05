@@ -132,6 +132,7 @@ def vacation_resumen(request):
             "tipovac__nombrevacaus",
             "idvacaciones",
             "fecha_orden",
+            "idvacmaster",
         )
         .order_by('-fecha_orden')
     )
@@ -368,11 +369,11 @@ def vacation_resumen_doc(request, id):
     # 'pago': pago,
     
     datos = [
-        ("Empleado:", context['empleado']),
-        ("Documento de Id.:", context['documento']),
-        ("Cargo:", context['documento']),
-        ("Fecha de Ingreso:", context['fechacontrato']),
-        ("Fecha de Pago:", context['pago']),
+        ("Empleado:", context.get('empleado') or "---"),
+        ("Documento de Id.:", context.get('documento') or "---"),
+        ("Cargo:", context.get('cargo') or "---"),
+        ("Fecha de Ingreso:", context.get('fechacontrato') or "---"),
+        ("Fecha de Pago:", context.get('pago') or "---"),
     ]
 
     for label, value in datos:
@@ -401,7 +402,8 @@ def vacation_resumen_doc(request, id):
         ]
         for item in context["vacaciones"]
     ]
-
+    
+    
     table_data = [
         ["Tipo", "F. Inicial", "F. Final", "Días Cal", "Días Vac", "Valor Vac", "Periodo"]
     ] + vaca
@@ -456,7 +458,7 @@ def vacation_resumen_doc(request, id):
 def generate_vacation_doc(idempresa, id):
     # Obtener datos del cliente
     datac = datos_cliente(idempresa)
-    vaca_qs = Vacaciones.objects.filter(idvacmaster=id)
+    vaca_qs = Vacaciones.objects.filter(idvacmaster=id , tipovac__idvac__in=[1, 2])
 
     # Tomar el primer registro de vacaciones (si existe)
     vaca_obj = vaca_qs.first()
@@ -467,6 +469,7 @@ def generate_vacation_doc(idempresa, id):
     fechacontrato = ""
     pago = ""
 
+    
     if vaca_obj and vaca_obj.idcontrato:
         contrato = vaca_obj.idcontrato
 
@@ -481,6 +484,7 @@ def generate_vacation_doc(idempresa, id):
         fechacontrato = getattr(contrato, 'fechainiciocontrato', '') or ''
         pago = getattr(contrato, 'fechafincontrato', '') or ''  # o el campo que uses como fecha de pago
 
+        
     context = {
         'empresa': datac.get('nombreempresa', ''),
         'nit': datac.get('nit', ''),
@@ -493,7 +497,7 @@ def generate_vacation_doc(idempresa, id):
         'fechacontrato': fechacontrato,
         'pago': pago,
     }
-
+    
     return context
 
 

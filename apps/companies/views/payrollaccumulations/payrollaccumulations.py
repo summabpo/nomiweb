@@ -61,22 +61,58 @@ def payrollaccumulations(request):
             year_end = form.cleaned_data.get('year_end')
             mst_end = form.cleaned_data.get('mst_end')
 
+            
+            
             nominas = Nomina.objects.filter(
                 idnomina__id_empresa_id=idempresa
-            ).order_by('idconcepto__idconcepto')
+            ).order_by('idconcepto__codigo')
 
+            
             if employee:
                 nominas = nominas.filter(idcontrato__idempleado__idempleado=employee)
+            
+            
             if cost_center:
                 nominas = nominas.filter(idcontrato__idcosto=cost_center)
+
             if city:
                 nominas = nominas.filter(idcontrato__idsede=city)
-
+                
+            
+            
+            
+            MES_ORDER = {
+                'ENERO': 1,
+                'FEBRERO': 2,
+                'MARZO': 3,
+                'ABRIL': 4,
+                'MAYO': 5,
+                'JUNIO': 6,
+                'JULIO': 7,
+                'AGOSTO': 8,
+                'SEPTIEMBRE': 9,
+                'OCTUBRE': 10,
+                'NOVIEMBRE': 11,
+                'DICIEMBRE': 12
+            }
+            
             if year_init and mst_init and year_end and mst_end:
-                nominas = nominas.filter(
-                    idnomina__mesacumular__gte=mst_init,
-                    idnomina__mesacumular__lte=mst_end,
-                )
+                inicio_num = MES_ORDER.get(mst_init)
+                fin_num = MES_ORDER.get(mst_end)
+
+                # Validar que ambos existan en el diccionario
+                if inicio_num and fin_num:
+                    # Si están en el mismo año:
+                    if year_init == year_end:
+                        meses_rango = [
+                            mes for mes, num in MES_ORDER.items() if inicio_num <= num <= fin_num
+                        ]
+                    else:
+                        # Si cambia el año (por ejemplo, noviembre 2024 → febrero 2025)
+                        meses_rango = list(MES_ORDER.keys())  # todos los meses
+
+
+                    nominas = nominas.filter(idnomina__mesacumular__in=meses_rango)
 
             # --- Construcción de acumulados ---
             for data in nominas:
@@ -89,13 +125,15 @@ def payrollaccumulations(request):
                 snombre = clean_value(empleado.snombre)
                 nombre_completo = " ".join(filter(None, [papellido, sapellido, pnombre, snombre]))
 
+                
+                
                 if docidentidad not in acumulados:
                     acumulados[docidentidad] = {
                         'documento': docidentidad,
                         'empleado': nombre_completo,
                         'contrato': data.idcontrato.idcontrato,
                         'data': [{
-                            "idconcepto": data.idconcepto.idconcepto,
+                            "idconcepto": data.idconcepto.codigo,
                             "nombreconcepto": clean_value(data.idconcepto.nombreconcepto),
                             "cantidad": data.cantidad or 0,
                             "valor": data.valor or 0,
@@ -104,7 +142,7 @@ def payrollaccumulations(request):
                 else:
                     concepto_existente = next(
                         (concepto for concepto in acumulados[docidentidad]["data"]
-                         if concepto["idconcepto"] == data.idconcepto.idconcepto),
+                         if concepto["idconcepto"] == data.idconcepto.codigo),
                         None
                     )
 
@@ -113,7 +151,7 @@ def payrollaccumulations(request):
                         concepto_existente["valor"] += data.valor or 0
                     else:
                         nuevo_concepto = {
-                            "idconcepto": data.idconcepto.idconcepto,
+                            "idconcepto": data.idconcepto.codigo,
                             "nombreconcepto": clean_value(data.idconcepto.nombreconcepto),
                             "cantidad": data.cantidad or 0,
                             "valor": data.valor or 0,

@@ -485,7 +485,7 @@ def edit_disabilities(request):
 
 @csrf_exempt
 def get_entity(request):
-  """
+    """
     Vista para obtener las entidades de salud disponibles basadas en un tipo de entidad.
 
     Esta vista permite obtener una lista de entidades de salud basadas en el tipo de entidad (EPS o ARL). 
@@ -514,34 +514,32 @@ def get_entity(request):
     El usuario debe estar autenticado para acceder a esta vista.
     """
 
-  entidad_select = ''
-  if request.method == 'GET':
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
     dato = request.GET.get('dato')
-    id = request.GET.get('id')
-    
-    
-    
-    dato_sin_numeros = ''.join([char for char in dato if not char.isdigit()])
-    
-    
-    if dato_sin_numeros.upper() == "EPS":
-      # Filtrar tanto ARL como EPS
-      entidad_select = Contratos.objects.get(idcontrato = id ).codeps.codigo
-      entidad = Entidadessegsocial.objects.filter(tipoentidad__in=['ARL', 'EPS']).order_by('codigo').values('codigo', 'entidad')
-    else:
+    contrato_id = request.GET.get('id')
 
-      entidad_select = Contratos.objects.get(idcontrato = id ).id_empresa.arl.codigo
-      # Filtrar por tipoentidad específico
-      entidad = Entidadessegsocial.objects.filter(tipoentidad=dato_sin_numeros).order_by('codigo').values('codigo', 'entidad')
-          
-    entidad_list = list(entidad)
+    # Determinar la entidad seleccionada
+    entidad_select = ''
+    if contrato_id:
+        contrato = Contratos.objects.filter(idcontrato=contrato_id).select_related('id_empresa__arl').first()
+        entidad_select = getattr(getattr(contrato, 'id_empresa', None), 'arl', None)
+        entidad_select = getattr(entidad_select, 'codigo', '') if entidad_select else ''
 
-    data = {
-      'entidad_list' : entidad_list,
-      'entidad_select' : entidad_select 
-    }
-    # Devolver la respuesta JSON
-    return JsonResponse(data ,safe=False)
+    # Filtrar entidades según el tipo (2=ARL, otro=EPS)
+    tipo = 'ARL' if dato == '2' else 'EPS'
+    entidad_list = list(
+        Entidadessegsocial.objects
+        .filter(tipoentidad=tipo)
+        .order_by('codigo')
+        .values('codigo', 'entidad')
+    )
+    
+    return JsonResponse({
+        'entidad_list': entidad_list,
+        'entidad_select': entidad_select or '-'
+    })
 
 
   

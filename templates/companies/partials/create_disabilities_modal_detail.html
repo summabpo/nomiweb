@@ -35,7 +35,7 @@
                     </tr>
                     <tr>
                         <th>Contrato</th>
-                        <td>Contrato #{{ incapacidad.idcontrato.idcontrato|default:"—" }} -  {{ incapacidad.idcontrato.cargo.nombrecargo|default:"—" }}</td>
+                        <td class="fw-bold fs-5 mb-0" >Contrato #{{ incapacidad.idcontrato.idcontrato|default:"—" }} -  {{ incapacidad.idcontrato.cargo.nombrecargo|default:"—" }}</td>
                     </tr>
                     <tr>
                         <th>¿Prórroga?</th>
@@ -47,7 +47,22 @@
                     </tr>
                     <tr>
                         <th>Origen</th>
-                        <td>{{ incapacidad.origenincap|default:"—" }}</td>
+                        <td>
+
+                            {% with origen=incapacidad.origenincap|stringformat:"s" %}
+                                {% if origen == "1" %}
+                                    <p class="fw-bold fs-5 mb-0">Enfermedad General - Común</p>
+                                {% elif origen == "2" %}
+                                    <p class="fw-bold fs-5 mb-0">Profesional - Acc. Trabajo</p>
+                                {% elif origen == "3" %}
+                                    <p class="fw-bold fs-5 mb-0">Maternidad - Paternidad</p>
+                                {% else %}
+                                    <p class="fw-bold text-danger mb-0">Error</p>
+                                {% endif %}
+                            {% endwith %}
+                            
+                        
+                        </td>
                     </tr>
                 </tbody>
             </table>
