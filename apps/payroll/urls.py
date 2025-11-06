@@ -11,6 +11,8 @@ from .views.select_company import select_company
 from .views.settlements import vacation_settlement , bonus_settlement , severance_settlement
 from .views.family import family
 from .views.time import time
+from .views.accounting import benefits_provision 
+from .views.accounting import security_provision
 
 
 # afsa fsa asfad 
@@ -71,6 +73,9 @@ urlpatterns = [
     path('time/list', time.time_list, name='time_list'),
     path('time/list/doc/<str:id>', time.time_doc, name='time_doc'),
     
+    # Accounting Module
+    path('provisions/employee-benefits/', benefits_provision.employee_benefits_provision, name='employee_benefits_provision'),
+    path('provisions/social-security/', security_provision.social_security_provision, name='social_security_provision'),
 ]
 
 

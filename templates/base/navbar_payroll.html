@@ -680,7 +680,7 @@
     
 
 
-                    <!--begin:Menu item-->
+                    {% comment %} <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
                         <a class="menu-link" href="">
@@ -691,7 +691,7 @@
                         </a>
                         <!--end:Menu link-->
                     </div>
-                    <!--end:Menu item-->
+                    <!--end:Menu item--> {% endcomment %}
                     
 
                 </div>
@@ -719,11 +719,11 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="">
+                        <a class="menu-link" href="{% url 'payroll:employee_benefits_provision'  %}">
                             <span class="menu-icon">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Importar Tiempos</span>
+                            <span class="menu-title">Provisión de Prestaciones Sociales</span>
                         </a>
                         <!--end:Menu link-->
                     </div>
@@ -736,11 +736,11 @@
                     <!--begin:Menu item-->
                     <div class="menu-item">
                         <!--begin:Menu link-->
-                        <a class="menu-link" href="">
+                        <a class="menu-link" href="{% url 'payroll:social_security_provision'  %}">
                             <span class="menu-icon">
                                 <span class="bullet bullet-dot"></span>
                             </span>
-                            <span class="menu-title">Liquidar Tiempos</span>
+                            <span class="menu-title">Provisión de Aportes a Seguridad Social</span>
                         </a>
                         <!--end:Menu link-->
                     </div>

@@ -398,17 +398,18 @@ def vacation_resumen_doc(request, id):
             item.diascalendario,
             item.diasvac,
             f"${item.pagovac:,.0f}" if item.pagovac else '',
-            item.perinicio or ''
+            item.perinicio or '',
+            item.perfinal or ''
         ]
         for item in context["vacaciones"]
     ]
     
     
     table_data = [
-        ["Tipo", "F. Inicial", "F. Final", "Días Cal", "Días Vac", "Valor Vac", "Periodo"]
+        ["Tipo", "Inicio", "Fin", "Días Cal.", "Días Vac.", "Valor Vac.", "Per. Inicio", "Per. Fin"]
     ] + vaca
 
-    table = Table(table_data, colWidths=[115, 77, 77, 60, 60, 80, 65])
+    table = Table(table_data, colWidths=[115, 65, 65, 60, 60, 80, 65,65])
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
@@ -429,7 +430,7 @@ def vacation_resumen_doc(request, id):
         p.showPage()
         y = height - 100
 
-    table.drawOn(p, 35, y - table_height)
+    table.drawOn(p, 20, y - table_height)
 
     # --- Footer institucional ---
     p.setFont("Helvetica", 8)
@@ -476,7 +477,11 @@ def generate_vacation_doc(idempresa, id):
         # Datos del empleado
         if contrato.idempleado:
             empleado = contrato.idempleado
-            empleado_nombre = f"{empleado.pnombre or ''} {empleado.papellido or ''}".strip()
+            empleado_nombre = " ".join(
+                part.strip()
+                for part in [empleado.pnombre, empleado.snombre, empleado.papellido, empleado.sapellido]
+                if part and part.strip().lower() != "no data"
+            ).strip()
             empleado_doc = empleado.docidentidad or ""
 
         # Datos del contrato

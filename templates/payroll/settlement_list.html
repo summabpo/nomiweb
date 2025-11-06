@@ -320,6 +320,26 @@ Liquidacion Empleados
 
 {% block js %}
 
+
+<script>
+  // 👇 Controlar la visibilidad del selector según el checkbox
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'nueva_nomina') {
+        const selectDiv = document.getElementById('selector_nomina');
+        const select = document.getElementById('nomina');
+
+        if (e.target.checked) {
+            selectDiv.style.display = 'none';
+            select.removeAttribute('required');
+            select.value = ''; // Limpia selección previa
+        } else {
+            selectDiv.style.display = 'block';
+            select.setAttribute('required', 'required');
+        }
+        }
+    });
+</script>
+
 <script>
     up.on('up:layer:accepted', function(event) {
         const location = event.response.header('X-Up-Location');

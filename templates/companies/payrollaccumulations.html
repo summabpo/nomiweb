@@ -21,46 +21,7 @@
 {% endblock %}
 
 {% block css %}
-/* Estilo para el botón con indicador */
-.btn-light-info {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
 
-/* Estilo para el indicador de carga */
-[data-kt-indicator="on"] .indicator-label {
-    opacity: 0;
-}
-
-[data-kt-indicator="on"] .indicator-progress {
-    display: flex;
-}
-
-.indicator-label {
-    display: inline-block;
-    transition: opacity 0.3s ease;
-}
-
-.indicator-progress {
-    display: none;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    align-items: center;
-    justify-content: center;
-}
-
-.spinner-border {
-    width: 1rem;
-    height: 1rem;
-    border-width: 0.2em;
-}
-
-.asteriskField {
-    color: red !important;
-}
 {% endblock %}
 
 {% block sub_titulo1 %} 

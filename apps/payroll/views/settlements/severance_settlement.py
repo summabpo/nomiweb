@@ -133,18 +133,20 @@ def settlement_list_payroll(request, id,url):
         campos = [
             ('prima', 'diasprimas', 23),
             ('vacaciones', 'diasvacaciones', 32),
-            ('cesantias', 'basecesantias', 20),
-            ('intereses', 'basecesantias', 21),
+            ('cesantias', 'diascesantias', 20),
+            ('intereses', 'diascesantias', 21),
             ('indemnizacion', None, 35),
         ]
 
         # 🔹 Generación de registros dinámica
         for attr_valor, attr_cantidad, codigo in campos:
             valor = to_float(getattr(liquidacion, attr_valor, 0))
+            
             if valor <= 0:
                 continue
 
             cantidad = safe_decimal(getattr(liquidacion, attr_cantidad, 0)) if attr_cantidad else Decimal('0')
+            
             Nomina.objects.create(
                 valor=valor,
                 cantidad=cantidad,
