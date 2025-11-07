@@ -7,7 +7,7 @@ from apps.components.generate_employee_excel import generate_employee_excel
 from apps.components.humani import format_value
 from django.http import JsonResponse
 from .parse_dates import parse_dates
-
+from django.db.models import Q
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
@@ -97,23 +97,53 @@ def payrollaccumulations(request):
             }
             
             if year_init and mst_init and year_end and mst_end:
-                inicio_num = MES_ORDER.get(mst_init)
-                fin_num = MES_ORDER.get(mst_end)
+                # Convertir años a enteros
+                try:
+                    year_init = int(year_init)
+                    year_end = int(year_end)
+                except ValueError:
+                    messages.error(request, "Los años deben ser números válidos.")
+                    year_init = year_end = None
 
-                # Validar que ambos existan en el diccionario
-                if inicio_num and fin_num:
-                    # Si están en el mismo año:
+                inicio_num = MES_ORDER.get(mst_init.upper())
+                fin_num = MES_ORDER.get(mst_end.upper())
+
+                if inicio_num and fin_num and year_init and year_end:
                     if year_init == year_end:
                         meses_rango = [
                             mes for mes, num in MES_ORDER.items() if inicio_num <= num <= fin_num
                         ]
+                        nominas = nominas.filter(
+                            idnomina__anoacumular__ano=year_init,
+                            idnomina__mesacumular__in=meses_rango
+                        )
                     else:
-                        # Si cambia el año (por ejemplo, noviembre 2024 → febrero 2025)
-                        meses_rango = list(MES_ORDER.keys())  # todos los meses
+                        # Año inicial
+                        meses_inicio = [mes for mes, num in MES_ORDER.items() if inicio_num <= num <= 12]
+                        nominas_inicio = nominas.filter(
+                            idnomina__anoacumular__ano=year_init,
+                            idnomina__mesacumular__in=meses_inicio
+                        )
 
+                        # Años intermedios
+                        if year_end - year_init > 1:
+                            nominas_intermedios = nominas.filter(
+                                idnomina__anoacumular__ano__gt=year_init,
+                                idnomina__anoacumular__ano__lt=year_end
+                            )
+                        else:
+                            nominas_intermedios = nominas.none()
 
-                    nominas = nominas.filter(idnomina__mesacumular__in=meses_rango)
+                        # Año final
+                        meses_fin = [mes for mes, num in MES_ORDER.items() if 1 <= num <= fin_num]
+                        nominas_fin = nominas.filter(
+                            idnomina__anoacumular__ano=year_end,
+                            idnomina__mesacumular__in=meses_fin
+                        )
 
+                        # Unir todo
+                        nominas = (nominas_inicio | nominas_intermedios | nominas_fin).distinct()
+                                            
             # --- Construcción de acumulados ---
             for data in nominas:
                 empleado = data.idcontrato.idempleado

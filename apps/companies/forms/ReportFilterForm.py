@@ -209,13 +209,14 @@ class ReportFilterForm(forms.Form):
             # ),
             Row(
                 Column(
-                    Submit('submit', 'Filtrar', css_class='btn btn-light-info w-100'),  # 100% ancho de la columna
-                    css_class='col-md-6'  # Ancho especificado
-                ),
-                Column(
                     Button('button', 'Limpiar filtrado', css_class='btn btn-light-primary w-100', id='my-custom-button'), # 100% ancho de la columna
                     css_class='col-md-6'  # Ancho especificado
                 ),
+                Column(
+                    Submit('submit', 'Filtrar', css_class='btn btn-light-info w-100'),  # 100% ancho de la columna
+                    css_class='col-md-6'  # Ancho especificado
+                ),
+                
                 css_class='row'
             ),
             

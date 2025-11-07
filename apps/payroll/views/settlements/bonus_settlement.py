@@ -125,6 +125,10 @@ def bonus_p_settlement(request):
                 )
 
                 contrato['trans'] = aux_transporte(contrato['idcontrato'], contrato['salario'], salario_minimo, aux_transporte_val)
+                
+                
+                    
+                
                 contrato['extra'] = extra_auto(contrato=contrato, semestre_actual=semestre_actual, fin_calculo=date_end, id=idempresa) / contrato['dias_prima'] * 30 if contrato['dias_prima'] else 0
 
     context = {
@@ -213,14 +217,49 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
         ).values_list('idnomina', flat=True),
         estadonomina=2,
         idconcepto__in=Conceptosdenomina.objects.filter(
-            Q(indicador__nombre='basesegsocial') | Q(indicador__nombre='auxtransporte'),
+            Q(indicador__nombre='basePP'),
             id_empresa=id_empresa
         ).values_list('idconcepto', flat=True)
     ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
 
+    
+    
+    
     primapromedio = (variables / dias_prima_real) * Decimal(30) if dias_prima_real > 0 else Decimal('0')
     pp = (primapromedio / Decimal(360)) * dias_prima_total
 
+    if idcontrato == 8113:
+        
+        variables_detalle = Nomina.objects.filter(
+            idcontrato=idcontrato,
+            idnomina__in=Crearnomina.objects.filter(
+                fechainicial__gte=semestre_actual['inicio'],
+                fechafinal__lte=fin_calculo,
+                id_empresa=id_empresa
+            ).values_list('idnomina', flat=True),
+            estadonomina=2,
+            idconcepto__in=Conceptosdenomina.objects.filter(
+                Q(indicador__nombre='basePP'),
+                id_empresa=id_empresa
+            ).values_list('idconcepto', flat=True)
+        ).values(
+            'idnomina__idnomina',
+            'idconcepto__nombreconcepto',
+            'valor'
+        )
+
+        # --- Mostrar resultados ---
+        print("🔹 Conceptos encontrados:")
+        for v in variables_detalle:
+            print(f"ID Nómina: {v['idnomina__idnomina']} | Concepto: {v['idconcepto__nombreconcepto']} valor: {v['valor']}")
+            
+        print('----------')
+        print(dias_prima_real)
+        print(variables)
+        print(primapromedio)
+        print(pp)
+        print('----------')
+    
     return round(valor_prima, 2), round(pp, 2)
 
 
@@ -230,6 +269,8 @@ def extra_auto(contrato, semestre_actual, fin_calculo, id):
     value = 0
     
     idcontrato = contrato['idcontrato']
+    
+    
     
     # Obtener los IDs de las nóminas válidas
     ids_nominas = Crearnomina.objects.filter(
@@ -251,7 +292,9 @@ def extra_auto(contrato, semestre_actual, fin_calculo, id):
         estadonomina=2,
         idconcepto__in=ids_conceptos
     )
-
+ 
+    
+    
     # Realizar la agregación
     value = registros.aggregate(total=Sum('valor'))['total'] or Decimal('0')
 
