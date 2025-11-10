@@ -60,7 +60,19 @@ Asegúrate de que los idliqui y idempresa proporcionados sean válidos y existan
 
 """
 
+TIPE_CHOICES = [
+    
+    ('1', 'Renuncia Voluntaria'),
+    ('2', 'Despido sin justa causa'),
+    ('3', 'Despido con justa causa'),
+    ('4', 'Finalización del contrato'),
+    ('5', 'Cambio a salario integral'),
+    ('6', 'Muerte del trabajador'),
+    ('7', 'Despido en periodo de prueba'),
+]
+
 def settlementgenerator(idliqui, idempresa):
+    TIPE_DICT = dict(TIPE_CHOICES)
     datac = datos_cliente(idempresa)
     liquidacion = Liquidacion.objects.filter(idliquidacion = idliqui ).first()
     nombre_completo = f"{liquidacion.idcontrato.idempleado.papellido} {liquidacion.idcontrato.idempleado.sapellido} {liquidacion.idcontrato.idempleado.pnombre} {liquidacion.idcontrato.idempleado.snombre}"
@@ -72,7 +84,7 @@ def settlementgenerator(idliqui, idempresa):
             'web': str(datac['website']),
             'logo': str(datac['logo']),   
             'rrhh': str(datac['contactorrhh']),   
-
+            
             # empleado
             'nombre_completo': str(nombre_completo), 
             'cc': str(liquidacion.idcontrato.idempleado.docidentidad),
@@ -80,7 +92,7 @@ def settlementgenerator(idliqui, idempresa):
             'ingreso': liquidacion.idcontrato.fechainiciocontrato,
             'terminación': liquidacion.idcontrato.fechafincontrato if liquidacion.idcontrato.fechafincontrato else '--' ,
             'tipoc': str(liquidacion.idcontrato.tipocontrato.tipocontrato),
-            'causa': str(liquidacion.motivoretiro),
+            'causa':TIPE_DICT.get(str(liquidacion.motivoretiro), 'Desconocido'),
             'salario': str(format_value(liquidacion.salario)),
             'sus': str(liquidacion.diassuspv),
 
@@ -108,7 +120,7 @@ def settlementgenerator(idliqui, idempresa):
                     "concepto": 'Vacaciones', 
                     "base": format_value_float(liquidacion.basevacaciones),
                     "dias": str(liquidacion.diasvacaciones),  
-                    "valor": str(liquidacion.vacaciones),
+                    "valor": format_value_float(liquidacion.vacaciones),
                 },
             ],
             

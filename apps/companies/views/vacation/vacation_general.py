@@ -323,7 +323,6 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
     return 0
 
 
-
 @login_required
 @role_required('company', 'accountant')
 def vacation_resumen_doc(request, id):
@@ -487,7 +486,8 @@ def generate_vacation_doc(idempresa, id):
         # Datos del contrato
         cargo = getattr(contrato.cargo, 'nombrecargo', '') or ''
         fechacontrato = getattr(contrato, 'fechainiciocontrato', '') or ''
-        pago = getattr(contrato, 'fechafincontrato', '') or ''  # o el campo que uses como fecha de pago
+        
+        pago = vaca_obj.fechapago  or '---'  # o el campo que uses como fecha de pago
 
         
     context = {

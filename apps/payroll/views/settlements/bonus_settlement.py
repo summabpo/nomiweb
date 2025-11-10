@@ -7,7 +7,7 @@ from datetime import datetime, timedelta ,date
 from django.http import JsonResponse
 from apps.components.humani import format_value_float
 from django.db.models import Sum, Q
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime, timedelta
 from apps.payroll.forms.BonusForm import BonusForm , BonusAddForm
 from dateutil.relativedelta import relativedelta
@@ -125,10 +125,6 @@ def bonus_p_settlement(request):
                 )
 
                 contrato['trans'] = aux_transporte(contrato['idcontrato'], contrato['salario'], salario_minimo, aux_transporte_val)
-                
-                
-                    
-                
                 contrato['extra'] = extra_auto(contrato=contrato, semestre_actual=semestre_actual, fin_calculo=date_end, id=idempresa) / contrato['dias_prima'] * 30 if contrato['dias_prima'] else 0
 
     context = {
@@ -168,11 +164,19 @@ def bonus_p_settlement_add(request):
 
 
 
+def months_between(start_date, end_date):
+    """Devuelve número aproximado de meses entre dos fechas."""
+    return (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month) + 1
+
+def _round(d):
+    """Redondeo a 2 decimales."""
+    return d.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
 def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_actual, fin_calculo, id_empresa, proy=0):
-    salario = contrato['salario'] or Decimal('0')
-    tipo_contrato = contrato['tipocontrato']
-    tipo_salario = contrato['tiposalario']
-    idcontrato = contrato['idcontrato']
+    salario = contrato.get('salario') or Decimal('0')
+    tipo_contrato = contrato.get('tipocontrato')
+    tipo_salario = contrato.get('tiposalario')
+    idcontrato = contrato.get('idcontrato')
 
     # Tope máximo de días reales: 180
     dias_prima_real = min(Decimal(dias_prima), Decimal(180))
@@ -188,55 +192,99 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
         salario = Decimal('0')
         aux_trans = Decimal('0')
 
-    # Variables: extras + comisiones
-    value = Nomina.objects.filter(
+    # --- Base para cálculos ---
+    crearnomina_qs = Crearnomina.objects.filter(
+        fechainicial__gte=semestre_actual['inicio'],
+        fechafinal__lte=fin_calculo,
+        id_empresa=id_empresa
+    )
+
+    # Estimar cuántas nóminas debería haber (suponiendo quincenal)
+    meses = months_between(semestre_actual['inicio'], fin_calculo)
+    expected_nominas = max(1, meses * 2)  # entero
+
+    # ----------------- EXTRAS / COMISIONES (value) -----------------
+    value_agg = Nomina.objects.filter(
         idcontrato=idcontrato,
-        idnomina__in=Crearnomina.objects.filter(
-            fechainicial__gte=semestre_actual['inicio'],
-            fechafinal__lte=fin_calculo,
-            id_empresa=id_empresa
-        ).values_list('idnomina', flat=True),
+        idnomina__in=crearnomina_qs.values_list('idnomina', flat=True),
         estadonomina=2,
         idconcepto__in=Conceptosdenomina.objects.filter(
             Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones'),
             id_empresa=id_empresa
         ).values_list('idconcepto', flat=True)
-    ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
+    ).aggregate(total=Sum('valor'))
+
+    value = value_agg.get('total') or Decimal('0')
+
+    value_count = Nomina.objects.filter(
+        idcontrato=idcontrato,
+        idnomina__in=crearnomina_qs.values_list('idnomina', flat=True),
+        estadonomina=2,
+        idconcepto__in=Conceptosdenomina.objects.filter(
+            Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones'),
+            id_empresa=id_empresa
+        ).values_list('idconcepto', flat=True)
+    ).values('idnomina').distinct().count()
+
+    # Si hay datos, calculamos avg por nómina y proyectamos sobre expected_nominas.
+    if value_count > 0:
+        avg_value_per_nomina = (value / Decimal(value_count))
+        # proyectar la suma completa del periodo como promedio_existente * expected_nominas
+        value = avg_value_per_nomina * Decimal(expected_nominas)
+    else:
+        # si no hay datos, dejamos value = 0 (o podrías usar salario como proxy)
+        value = Decimal('0')
 
     base_variable = (value / dias_prima_real) * Decimal(30) if dias_prima_real > 0 else Decimal('0')
     total_base = salario + base_variable + aux_trans
     valor_prima = (total_base * dias_prima_total) / Decimal(360)
 
-    # Prima Promedio (PP): basada solo en días reales
-    variables = Nomina.objects.filter(
+    # ----------------- PRIMA PROMEDIO (PP) -----------------
+    variables_agg = Nomina.objects.filter(
         idcontrato=idcontrato,
-        idnomina__in=Crearnomina.objects.filter(
-            fechainicial__gte=semestre_actual['inicio'],
-            fechafinal__lte=fin_calculo,
-            id_empresa=id_empresa
-        ).values_list('idnomina', flat=True),
+        idnomina__in=crearnomina_qs.values_list('idnomina', flat=True),
         estadonomina=2,
         idconcepto__in=Conceptosdenomina.objects.filter(
             Q(indicador__nombre='basePP'),
             id_empresa=id_empresa
         ).values_list('idconcepto', flat=True)
-    ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
+    ).aggregate(total=Sum('valor'))
 
-    
-    
-    
-    primapromedio = (variables / dias_prima_real) * Decimal(30) if dias_prima_real > 0 else Decimal('0')
-    pp = (primapromedio / Decimal(360)) * dias_prima_total
+    variables = variables_agg.get('total') or Decimal('0')
 
+    variables_count = Nomina.objects.filter(
+        idcontrato=idcontrato,
+        idnomina__in=crearnomina_qs.values_list('idnomina', flat=True),
+        estadonomina=2,
+        idconcepto__in=Conceptosdenomina.objects.filter(
+            Q(indicador__nombre='basePP'),
+            id_empresa=id_empresa
+        ).values_list('idconcepto', flat=True)
+    ).values('idnomina').distinct().count()
+
+    # CORRECCIÓN CLAVE: usar el promedio **de las nóminas existentes** y proyectar con expected_nominas.
+    if variables_count > 0:
+        avg_var_per_nomina_existente = variables / Decimal(variables_count)
+        # total proyectado para el periodo:
+        variables_total = avg_var_per_nomina_existente * Decimal(expected_nominas)
+        # frecuencia detectada por expected_nominas (si esperas >=5-6 nóminas -> quincenal)
+        is_quincenal = expected_nominas >= 5
+        # primapromedio: si quincenal, mensual = avg_quincenal * 2; si no, usar avg directamente
+        primapromedio = avg_var_per_nomina_existente * (Decimal(2) if is_quincenal else Decimal(1))
+    else:
+        # sin registros: asumimos salario mensual como primapromedio
+        variables_total = Decimal('0')
+        primapromedio = salario
+        is_quincenal = True if expected_nominas >= 5 else False
+
+    # Calculamos pp en proporción a los días de prima
+    pp = (primapromedio / Decimal(180)) * dias_prima_total
+
+    # --- DEPURACIÓN ---
     if idcontrato == 8113:
-        
         variables_detalle = Nomina.objects.filter(
             idcontrato=idcontrato,
-            idnomina__in=Crearnomina.objects.filter(
-                fechainicial__gte=semestre_actual['inicio'],
-                fechafinal__lte=fin_calculo,
-                id_empresa=id_empresa
-            ).values_list('idnomina', flat=True),
+            idnomina__in=crearnomina_qs.values_list('idnomina', flat=True),
             estadonomina=2,
             idconcepto__in=Conceptosdenomina.objects.filter(
                 Q(indicador__nombre='basePP'),
@@ -245,22 +293,28 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
         ).values(
             'idnomina__idnomina',
             'idconcepto__nombreconcepto',
+            'idnomina__nombrenomina',
             'valor'
-        )
+        ).order_by('idnomina__idnomina')
 
-        # --- Mostrar resultados ---
         print("🔹 Conceptos encontrados:")
         for v in variables_detalle:
-            print(f"ID Nómina: {v['idnomina__idnomina']} | Concepto: {v['idconcepto__nombreconcepto']} valor: {v['valor']}")
-            
+            print(f"ID Nómina: {v['idnomina__idnomina']} | Concepto: {v['idconcepto__nombreconcepto']} valor: {v['valor']} nomina : {v['idnomina__nombrenomina']}")
         print('----------')
-        print(dias_prima_real)
-        print(variables)
-        print(primapromedio)
-        print(pp)
+        print("dias_prima_real:", dias_prima_real)
+        print("value (extras+comisiones) proyectado:", value)
+        print("value_count:", value_count, "expected_nominas:", expected_nominas)
+        print("variables (basePP) sum original:", variables)
+        print("variables_count:", variables_count, "expected_nominas:", expected_nominas)
+        print("variables_total (proyectado):", variables_total)
+        print("avg_var_per_nomina_existente (si aplica):", (variables / Decimal(variables_count)) if variables_count > 0 else None)
+        print("is_quincenal:", is_quincenal)
+        print("primapromedio:", primapromedio)
+        print("pp:", pp/2)
+        print("valor_prima:", valor_prima)
         print('----------')
-    
-    return round(valor_prima, 2), round(pp, 2)
+
+    return _round(valor_prima), _round(pp/2)
 
 
 

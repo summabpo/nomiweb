@@ -180,7 +180,7 @@ def settlementlistdownload(request,idliqui):
         ("Fecha de Ingreso:", fecha_ingreso),
         ("Fecha de Terminación:", fecha_terminacion),
         ("Tipo de Contrato:", tipo_contrato),
-        ("Causa de Liquidación:", causa),
+        ("Motivo de retiro:", causa),
         ("Salario:", salario),
         ("Suspensión/Lic. N. R.:", suspension),
     ]
