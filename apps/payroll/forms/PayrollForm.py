@@ -2,6 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from apps.common.models import Empresa
+from django.urls import reverse
 
 TIPE_CHOICES = (
     ('', '-------------'),
@@ -31,11 +32,7 @@ class PayrollForm(forms.Form):
         label='Fecha de Pago',
         widget=forms.TextInput(attrs={'type': 'date', 'placeholder': 'Seleccione la fecha de pago'})
     )
-    tiponomina = forms.ChoiceField(
-        label='Tipo de Nómina',
-        choices=TIPE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
+
     diasnomina = forms.IntegerField(
         label='Días de Nómina',
         required=False,
@@ -47,24 +44,36 @@ class PayrollForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'placeholder': ''})
     )
- 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['tiponomina'].widget.attrs.update({
-            'data-control': 'select2',
-            'data-tags': 'true',
-            'class': 'form-select',
-            'data-hide-search': "true",
-            'data-dropdown-parent':"#kt_modal_maintenance",
-        })
+        
+        self.fields['tiponomina'] = forms.ChoiceField(
+            choices=TIPE_CHOICES,
+            label='Tipo de Nómina',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'data-placeholder': 'Seleccione un tipo',
+                'data-hide-search': "true",
+            })
+        )
 
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_payroll'
         self.helper.enctype = 'multipart/form-data'
 
+
+        self.helper.attrs.update({
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',  # Clave para resolver el error
+            'up-submit': reverse('payroll:payroll_create_add'),
+            'up-accept-location': reverse('payroll:payroll_create_add'),
+            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
+        })
+        
         self.helper.layout = Layout(
             
             Row(

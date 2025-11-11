@@ -135,8 +135,89 @@ def payroll(request):
     
     return render(request, './payroll/payroll.html', {'nominas': nominas, 'form': form, 'error': error})
     
+
+@login_required
+@role_required('accountant')
+def payroll_create_add(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    form = PayrollForm()
     
-    
+    if request.method == 'POST':
+        form = PayrollForm(request.POST)
+        if form.is_valid():
+            
+            print(request.POST)
+            try:
+                # Obtener datos del formulario
+                tiponomina_id = form.cleaned_data['tiponomina']
+
+                # Buscar los objetos relacionados
+                tiponomina = Tipodenomina.objects.get(idtiponomina=tiponomina_id)
+
+                # Calcular mes y año acumulados a partir de fechainicial
+                fechainicial = form.cleaned_data['fechainicial']
+                fechafinal = form.cleaned_data['fechafinal']
+
+                # Calcular días de nómina, asegurando que nunca sea mayor a 30
+                if tiponomina.tipodenomina == 'Mensual':
+                    dias_nomina = min(30, (fechafinal - fechainicial).days + 1)
+                    
+                elif tiponomina.tipodenomina == 'Quincenal':
+                    dias_nomina = max(15, (fechafinal - fechainicial).days + 1)
+                else:
+                    dias_nomina = (fechafinal - fechainicial).days + 1  # Incluir día inicial
+                
+                mes_numero = fechainicial.month  # Obtener el número del mes (1-12)
+                mes_acumular = MES_CHOICES[mes_numero][0] if mes_numero else ''
+                
+                ano_acumular = Anos.objects.get(ano=fechainicial.year)  # Año de la fecha
+                
+                empresa = Empresa.objects.get(idempresa=idempresa)
+
+                # Crear instancia de Crearnomina
+                name = generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa)
+                Crearnomina.objects.create(
+                    nombrenomina=name,
+                    fechainicial=fechainicial,
+                    fechafinal=fechafinal,
+                    fechapago=form.cleaned_data['fechapago'],
+                    tiponomina=tiponomina,
+                    mesacumular=mes_acumular,
+                    anoacumular=ano_acumular,
+                    estadonomina=True, 
+                    diasnomina=dias_nomina,  #Usamos el cálculo aquí
+                    id_empresa=empresa,
+                )
+                
+                
+                response = HttpResponse()
+                response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+                response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+                response['X-Up-message'] = 'Familia guardada exitosamente'    
+                response['X-Up-Location'] = reverse('payroll:payroll')           
+                return response
+                
+            except (Tipodenomina.DoesNotExist, Empresa.DoesNotExist):
+                response = HttpResponse()
+                response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+                response['X-Up-icon'] = 'error'  # URL para recargar la página principal   
+                response['X-Up-message'] = 'Hubo un problema al procesar la información.'    
+                response['X-Up-Location'] = reverse('payroll:payroll')           
+                return response
+                #messages.error(request, "Hubo un problema al procesar la información.")
+                
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")    
+            
+            
+    return render(request, './payroll/partials/payroll_create.html', {'form': form})
+
+
+
 @login_required
 @role_required('accountant')
 def payroll_closet(request,id):

@@ -21,7 +21,7 @@ MES_CHOICES = [
 def generar_nombre_nomina(name , idempresa):
     
     if "Quincenal" in name:
-        if Crearnomina.objects.filter(nombrenomina=name, id_empresa=idempresa).exists():
+        if Crearnomina.objects.filter(nombrenomina = f"{name} - #1", id_empresa=idempresa).exists():
             mensaje = f"{name} - #2"
         else:
             mensaje = f"{name} - #1"

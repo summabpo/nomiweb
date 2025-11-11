@@ -202,11 +202,11 @@ def generate_summary(idnomina,idempresa , data = 0):
     # Obtener la nómina y la información de creación de la nómina
     try:
         if data == 0 :
-            nominas = Nomina.objects.filter(idnomina=idnomina , estadonomina = 1  ,idnomina__id_empresa = 1 )
+            nominas = Nomina.objects.filter(idnomina=idnomina , estadonomina = 1  ,idnomina__id_empresa = idempresa )
             nominas2 = Crearnomina.objects.get(idnomina=idnomina , estadonomina = 1 )
             nombre_nomina = nominas2.nombrenomina
         else : 
-            nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 2 ,idnomina__id_empresa = 1 )
+            nominas = Nomina.objects.filter(idnomina=idnomina ,estadonomina = 2 ,idnomina__id_empresa = idempresa )
             nominas2 = Crearnomina.objects.get(idnomina=idnomina ,estadonomina = 0 )
             nombre_nomina = nominas2.nombrenomina
             
@@ -214,7 +214,8 @@ def generate_summary(idnomina,idempresa , data = 0):
         # Manejar el caso de que no existan las nóminas
         return None  # O manejar el error de otra manera
     
-
+    
+    
     # Agregar un campo calculado para ingresos, descuentos y neto
     grouped_nominas = nominas.values('idconcepto__nombreconcepto','idconcepto__codigo').annotate(
         cantidad_total=Sum('cantidad'),

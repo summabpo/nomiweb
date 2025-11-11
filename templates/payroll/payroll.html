@@ -27,9 +27,24 @@ Plantilla de Nóminas
 
 {% block actions %}
 <!-- Button trigger modal -->
-    <button type="button"  class="btn btn-light-info"  data-bs-toggle="modal" data-bs-target="#kt_modal_maintenance" >
+    
+
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        href="{% url 'payroll:payroll_create_add' %}">
         <i class="fa-solid fa-square-plus fs-3"></i>Crear Nómina
-    </button>  
+    </a> 
+    
 {% endblock %}
 
 
@@ -52,7 +67,7 @@ Plantilla de Nóminas
 
 
 <!-- Modal -->
-<div class="modal fade" tabindex="-1" id="kt_modal_maintenance">
+{% comment %} <div class="modal fade" tabindex="-1" id="kt_modal_maintenance">
     <div class="modal-dialog modal-dialog-centered  modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -76,7 +91,7 @@ Plantilla de Nóminas
             </div>
         </div>
     </div>
-</div>
+</div> {% endcomment %}
 
 <div class="table-responsive">
     <table class="table table-striped table-bordered" id="tabla-nomina">
@@ -185,7 +200,6 @@ Plantilla de Nóminas
 
 {% block js %}
 
-
 <script>
     up.on('up:layer:accepted', function(event) {
         const location = event.response.header('X-Up-Location');
@@ -234,47 +248,116 @@ Plantilla de Nóminas
 
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
-
         const modalContent = up.layer?.current?.element;
         if (!modalContent) return;
-        
-        if (modalContent) {
-            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
-            
-    
-            // selector de tipo de 
-            // Usamos un pequeño retraso para asegurar el renderizado completo
-            setTimeout(() => {
-                selectElements.forEach((select, index) => {
-                    if (!select.id) {
-                        select.id = `select2-unique-${Date.now()}-${index}`;
+
+        // ===== Inicialización de Select2 =====
+        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+        setTimeout(() => {
+            selectElements.forEach((select, index) => {
+                if (!select.id) select.id = `select2-unique-${Date.now()}-${index}`;
+                if (!$(select).data('select2')) {
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
                     }
-    
-                    if (!$(select).data('select2')) {
-                        const options = {
-                            dropdownParent: $(modalContent),
-                            width: '100%'
-                        };
-    
-                        // Si tiene el atributo data-hide-search, desactiva el buscador
-                        if (select.hasAttribute('data-hide-search')) {
-                            options.minimumResultsForSearch = Infinity;
-                            
-                        }
-    
-                        $(select).select2(options);
-                    }
-                });
-            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
+                    $(select).select2(options);
+                }
+            });
+        }, 300);
+
+        // ===== Referencias a campos =====
+        const tipoNominaSelect = modalContent.querySelector('[name="tiponomina"]');
+        const fechaInicialInput = modalContent.querySelector('[name="fechainicial"]');
+        const fechaFinalInput = modalContent.querySelector('[name="fechafinal"]');
+        const nombreNominaInput = modalContent.querySelector('[name="nombrenomina"]');
+        const diasNominaInput = modalContent.querySelector('[name="diasnomina"]');
+
+        // Diccionario de tipos
+        const tipoNominaDict = {
+            '1': 'Mensual',
+            '2': 'Quincenal',
+            '3': 'Por Horas',
+            '4': 'Primas',
+            '5': 'Cesantías',
+            '6': 'Adicional',
+            '7': 'Vacaciones',
+            '8': 'Liquidación',
+            '9': 'Catorcenal',
+            '10': 'Int. de Cesantías',
+            '11': 'Semanal',
+        };
+
+        // Obtener nombre del mes
+        function obtenerMes(fechaStr) {
+            if (!fechaStr) return '';
+            const meses = [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+            const fecha = new Date(fechaStr + 'T00:00:00');
+            return meses[fecha.getMonth()];
         }
-        else 
-        {
-            console.log('Contenido completo del fragmento:', event.target.innerHTML);
+
+        // Calcular diferencia en días
+        function calcularDias() {
+            const inicio = fechaInicialInput.value ? new Date(fechaInicialInput.value + 'T00:00:00') : null;
+            const fin = fechaFinalInput.value ? new Date(fechaFinalInput.value + 'T00:00:00') : null;
+
+            if (!inicio || !fin || fin < inicio) {
+                diasNominaInput.value = '';
+                return;
+            }
+
+            let diff = Math.floor((fin - inicio) / (1000 * 60 * 60 * 24)) + 1; // incluye el día inicial
+
+            // Límite según tipo
+            const tipo = tipoNominaSelect.value;
+            if (tipo === '2' && diff > 15) { // Quincenal
+                diff = 15;
+            } else if (tipo === '1' && diff > 30) { // Mensual
+                diff = 30;
+            }
+
+            diasNominaInput.value = diff;
         }
+
+        // Armar el nombre de la nómina
+        function actualizarNombreNomina() {
+            const tipo = tipoNominaDict[tipoNominaSelect.value] || '';
+            const fecha = fechaInicialInput.value || fechaFinalInput.value || '';
+            const mes = obtenerMes(fecha);
+            const año = fecha ? new Date(fecha + 'T00:00:00').getFullYear() : '';
+
+            if (tipo && mes && año) {
+                nombreNominaInput.value = `Nómina - ${tipo} - ${mes} - ${año}`;
+            } else {
+                nombreNominaInput.value = '';
+            }
+        }
+
+        // === Función combinada ===
+        function actualizarCampos() {
+            calcularDias();
+            actualizarNombreNomina();
+        }
+
+        // === Escuchar eventos ===
+        tipoNominaSelect.addEventListener('change', actualizarCampos);
+        fechaInicialInput.addEventListener('change', actualizarCampos);
+        fechaFinalInput.addEventListener('change', actualizarCampos);
+
+        // Para Select2 también
+        $(tipoNominaSelect).on('select2:select', actualizarCampos);
     });
-
-
 </script>
+
+
+
+
 
 
 <script>
