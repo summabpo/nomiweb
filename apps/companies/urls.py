@@ -178,6 +178,9 @@ urlunpolypatterns =[
     path('payroll/settlement/edit/<str:id>', settlementlist.settlementlistedit, name='settlementlistedit'),
     
     path('payroll/vacation/resumen/<str:id>/send', vacation_general.vacation_resumen_send, name='vacation_resumen_send'),
+    path('payroll/absences/resumen/<str:id>/send', vacation_general.absences_resumen_send, name='absences_resumen_send'),
+    
+    
     path('payroll/vacation/resumen/send/new', send_nomina.vacation_send_nomina, name='vacation_send_nomina'),
 
 ]

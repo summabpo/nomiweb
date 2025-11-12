@@ -5,6 +5,8 @@ from apps.components.humani import format_value
 from django.contrib import messages
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+
 
 @login_required
 @role_required('company','accountant')
@@ -72,10 +74,24 @@ def abstractconcept(request):
             # Eliminar filtros vacíos o con valores None
             filters = {k: v for k, v in filters.items() if v not in [None, '', 'no data']}
 
+            
+            
             # Filtrar los datos
             nominas = Nomina.objects.filter(**filters).order_by('-idnomina')
             nomina = nominas if nominas.exists() else None
 
+            for data in nominas:
+                if data.cantidad < 15 :
+                    aux = f" cantidad : {data.cantidad} contrato : {data.idcontrato}"
+                    print(aux)
+            
+            # # 🔹 Si existe el campo "cantidad" en el modelo Nomina:
+            total_cantidad = nominas.count()
+            
+            
+            
+            print(total_cantidad)
+            
             return render(request, 'companies/abstractconcept.html', {
                 'liquidaciones': nominas,
                 'form': form,

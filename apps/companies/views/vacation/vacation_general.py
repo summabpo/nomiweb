@@ -318,8 +318,8 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
         idnomina_id=idnomina,
         control=vaca.idvacaciones
     )
-    
-    
+
+
     return 0
 
 
@@ -573,6 +573,119 @@ def absences_resumen_data(request,id):
     return render(request, './companies/partials/vacation_resumen_data.html', context)
 
 
+
+@login_required
+@role_required('company', 'accountant')
+def absences_resumen_send(request, id):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
+    
+    if request.method == 'POST':
+        ahora = timezone.localtime(timezone.now())
+        hoy = date.today()
+        
+        # 🔹 Recuperar valores del formulario
+        nueva_nomina_flag = request.POST.get('nueva_nomina') == 'on'
+        id_nomina = request.POST.get('nomina')
+
+        nomina_final = None
+
+        # 🔹 Caso 1: crear nueva nómina automática
+        if nueva_nomina_flag:
+            nomina_final = Crearnomina.objects.create(
+                nombrenomina=f"Nomina Aut. Ausen - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
+                fechainicial=hoy,
+                fechafinal=hoy,
+                fechapago=ahora.date(),
+                tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
+                mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
+                anoacumular=Anos.objects.get(ano=ahora.year),
+                estadonomina=True,
+                diasnomina=1,
+                id_empresa_id=idempresa,
+            )
+
+        # 🔹 Caso 2: si no se marca crear nueva nómina
+        else:
+            if id_nomina:
+                nomina_final = Crearnomina.objects.filter(
+                    idnomina=id_nomina, id_empresa_id=idempresa
+                ).first()
+
+            # Validar: si no existe la nómina seleccionada → crear una nueva automática
+            if not nomina_final:
+                nomina_final = Crearnomina.objects.create(
+                    nombrenomina=f"Nomina Aut. Ausen - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
+                    fechainicial=hoy,
+                    fechafinal=hoy,
+                    fechapago=ahora.date(),
+                    tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
+                    mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
+                    anoacumular=Anos.objects.get(ano=ahora.year),
+                    estadonomina=True,
+                    diasnomina=1,
+                    id_empresa_id=idempresa,
+                )
+                
+
+            # 🔹 Obtener datos de la vacación
+            vaca = Vacaciones.objects.get(idvacaciones=id)
+
+            # ✅ Validar rango de fechas
+            if not (
+                nomina_final.fechainicial <= vaca.fechainicialvac <= nomina_final.fechafinal and
+                nomina_final.fechainicial <= vaca.ultimodiavac <= nomina_final.fechafinal
+            ):
+                response = HttpResponse('', content_type='text/html; charset=utf-8')
+                response['X-Up-Accept-Layer'] = 'true'
+                response['X-Up-Location'] = reverse('companies:absences_resumen')
+                response['X-Up-Message'] = 'Las fechas de las vacaciones no están dentro del rango de la nómina seleccionada.'
+                response['X-Up-Icon'] = 'warning'
+                return response
+                
+                # response = HttpResponse('', content_type='text/html; charset=utf-8')
+                # response['X-Up-Accept-Layer'] = 'true'
+                # response['X-Up-Message'] = (
+                #     'Las fechas de las vacaciones no están dentro del rango de la nómina seleccionada.'
+                # )
+                # response['X-Up-Icon'] = 'warning'
+                # return response
+
+            # 🔹 Crear registros en la nómina (si pasa la validación)
+            concepto1 = Conceptosdenomina.objects.get(codigo=31, id_empresa_id=idempresa)
+            concepto2 = Conceptosdenomina.objects.get(codigo=83, id_empresa_id=idempresa)
+
+            Nomina.objects.create(
+                idconcepto=concepto1,
+                cantidad=vaca.diascalendario,
+                estadonomina=1,
+                valor=vaca.pagovac,
+                idcontrato=vaca.idcontrato,
+                idnomina=nomina_final,
+                control=vaca.idvacaciones
+            )
+
+            Nomina.objects.create(
+                idconcepto=concepto2,
+                cantidad=vaca.diascalendario,
+                estadonomina=1,
+                valor=-(vaca.pagovac),
+                idcontrato=vaca.idcontrato,
+                idnomina=nomina_final,
+                control=vaca.idvacaciones
+            )
+
+            # 🔹 Respuesta final OK
+            response = HttpResponse('', content_type='text/html; charset=utf-8')
+            response['X-Up-Accept-Layer'] = 'true'
+            response['X-Up-Location'] = reverse('companies:absences_resumen')
+            response['X-Up-Message'] = 'Vacaciones enviadas correctamente a la nómina.'
+            response['X-Up-Icon'] = 'success'
+            return response
+    
+    
+    return render(request, './companies/partials/absences_resumen_send.html',{'id':id , 'nominas':nominas})
 
 
 @login_required

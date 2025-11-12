@@ -256,11 +256,29 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         fin_periodo = min(fin_nomina, fin_contrato)
         
         
+        
+        if contrato.idcontrato == 8116:
+            aux = f" ini n : {inicio_nomina} fin n : {fin_nomina}  "
+            print(aux)
+            aux = f" ini c : {inicio_contrato} fin c : {fin_contrato}  "
+            print(aux)
+            print('periodo in ',inicio_periodo)
+            print('periodo fi ',fin_periodo)
+            print('------0------')
+            print(diasnomina)
+        
         if fin_periodo < inicio_periodo:
             diasnomina = 0
         else:
             diasnomina = (fin_periodo - inicio_periodo).days 
+            if contrato.idcontrato == 8116:
+                print('------1------')
+                print(diasnomina)
 
+        if contrato.idcontrato == 8116:
+            print('------2------')
+            print(diasnomina)
+        
         # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
         if diasnomina > 30:
             diasnomina = 30
@@ -269,9 +287,18 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         dias_incapacidad = calculo_incapacidad(contrato,nomina)
         dias_suspensiones = calcular_suspenciones(contrato,nomina)
         
+        if contrato.idcontrato == 8116:
+            print('------3------')
+            print(diasnomina)
+        
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
+        
+        if contrato.idcontrato == 8116:
+            aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones} "
+            print(aux)
+
     
         
         calculo_prestamo(contrato, idn)
@@ -844,6 +871,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             nuevo_nombre = nombre_original.replace('#2', '#1')
 
             nomina2 = Crearnomina.objects.filter(nombrenomina = nuevo_nombre).first()
+            diasnomina2 = nomina2.diasnomina
             
             inicio_nomina2 = _to_date(nomina2.fechainicial)
             fin_nomina2 = _to_date(nomina2.fechafinal)
@@ -853,10 +881,12 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             inicio_periodo2 = max(inicio_nomina2, inicio_contrato2)
             fin_periodo2 = min(fin_nomina2, fin_contrato2)
             
+            
             if fin_periodo2 < inicio_periodo2:
                 diasnomina2 = 0
             else:
-                diasnomina2 = (fin_periodo2 - inicio_periodo2).days 
+                diasnomina2 = (fin_periodo2 - inicio_periodo2).days + 1
+            
         else :
             diasnomina2 = 0
 
@@ -867,6 +897,8 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         
         # --- calcular intersección del intervalo [inicio_nomina, fin_nomina] con [inicio_contrato, fin_contrato]
         diasnomina = nomina.diasnomina
+        
+        
         inicio_periodo = max(inicio_nomina, inicio_contrato)
         fin_periodo = min(fin_nomina, fin_contrato)
         
@@ -889,6 +921,8 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
+        
+        
         
         
         

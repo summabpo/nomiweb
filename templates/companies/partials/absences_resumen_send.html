@@ -1,0 +1,67 @@
+<!-- Modal: Enviar Ausencias a Nómina -->
+<div class="modal-content" id="modal-content">
+  <div class="modal-header">
+    <h3 class="modal-title">Enviar Ausencias a la Nómina</h3>
+    <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Cerrar">
+      <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+    </button>
+  </div>
+
+  <div class="separator my-5"></div>
+
+  <div class="modal-body text-center">
+    <p>
+      Está a punto de <strong>enviar las ausencias registradas</strong> a la nómina seleccionada. <br>
+      Una vez enviadas, <strong>no podrá volver a enviarlas ni realizar cambios en esta información</strong>. <br><br>
+      Seleccione la opción que desea:
+    </p>
+
+    <!-- 🔹 Formulario principal -->
+    <form id="change-status-form"
+          method="POST"
+          action="{% url 'companies:absences_resumen_send' id=id %}"
+          up-submit
+          up-target="#modal-content"
+          up-layer="current"
+          up-mode="replace">
+
+      {% csrf_token %}
+
+      <!-- ✅ Opción de nueva nómina -->
+      <div class="d-flex align-items-center justify-content-center mb-4">
+        <div class="form-check form-switch d-flex align-items-center" style="gap: 10px;">
+          <input class="form-check-input" type="checkbox" id="nueva_nomina" name="nueva_nomina">
+          <label class="form-check-label fw-bold ms-2 mb-0" for="nueva_nomina" style="cursor: pointer;">
+            Crear una nueva nómina automática
+          </label>
+        </div>
+      </div>
+
+      <!-- ✅ Selector visible solo si NO se crea nueva nómina -->
+      <div id="selector_nomina">
+        <label for="nomina" class="form-label fw-bold">Seleccione Nómina</label>
+        <div class="mb-5 d-flex gap-2 align-items-center">
+          <div class="flex-grow-1" id="nomina-container" up-target="#nomina-container">
+            <select id="nomina" name="nomina" class="form-select" data-control="select2" data-placeholder="-- Seleccione una nómina --" required>
+              <option value=""></option>
+              {% for n in nominas %}
+                <option value="{{ n.idnomina }}">{{ n.nombrenomina }} - {{ n.idnomina }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="separator my-5"></div>
+
+  <div class="modal-footer btn-group justify-content-center">
+    <button type="button" class="btn btn-light-danger" up-dismiss>Cancelar</button>
+    <div style="width: 10px;"></div>
+    <button type="submit" form="change-status-form" class="btn btn-light-info">
+      <i class="fa-solid fa-paper-plane me-2"></i> Enviar Ausencias
+    </button>
+  </div>
+</div>
