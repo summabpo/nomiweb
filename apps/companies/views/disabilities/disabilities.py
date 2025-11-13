@@ -180,20 +180,21 @@ def disabilities_modal(request):
           
       
       
+      print(ibc)
 
       # Guardar en la base de datos
-      Incapacidades.objects.create(
-        entidad = entidad , #enlace segsocial
-        coddiagnostico = dianostico ,
-        fechainicial = initial_date ,
-        dias = incapacity_days,
-        imagenincapacidad = new_filename if new_filename else "" ,  #cambiar tipo enlace 
-        certificadoincapacidad = pdf_file if pdf_file else "", 
-        idcontrato_id  = contract ,  
-        prorroga = prorroga ,
-        ibc =  ibc.salario ,
-        origenincap = origin , 
-      )
+    #   Incapacidades.objects.create(
+    #     entidad = entidad , #enlace segsocial
+    #     coddiagnostico = dianostico ,
+    #     fechainicial = initial_date ,
+    #     dias = incapacity_days,
+    #     imagenincapacidad = new_filename if new_filename else "" ,  #cambiar tipo enlace 
+    #     certificadoincapacidad = pdf_file if pdf_file else "", 
+    #     idcontrato_id  = contract ,  
+    #     prorroga = prorroga ,
+    #     ibc =  ibc.salario ,
+    #     origenincap = origin , 
+    #   )
       
       response = HttpResponse()
       response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal

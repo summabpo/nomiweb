@@ -270,7 +270,12 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         if fin_periodo < inicio_periodo:
             diasnomina = 0
         else:
-            diasnomina = (fin_periodo - inicio_periodo).days 
+            diasnomina = (fin_periodo - inicio_periodo).days  + 1 
+            
+            if diasnomina > nomina.diasnomina :
+                diasnomina = nomina.diasnomina
+
+
             if contrato.idcontrato == 8116:
                 print('------1------')
                 print(diasnomina)
@@ -296,7 +301,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_suspensiones 
         
         if contrato.idcontrato == 8116:
-            aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones} "
+            aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones}  dias : {diasnomina}"
             print(aux)
 
     
@@ -413,6 +418,11 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     
     incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3, fechainicial__range=(inicio_nomina, fin_nomina) )
     
+    
+    print(incapacidades.count())
+    for data in incapacidades:
+        aux = f"id {data.idincapacidad} cont {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.papellido} f1 {data.fechainicial} f2 {data.dias} "
+        print(aux)
     
     if parte_nomina != 0:
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
@@ -885,11 +895,36 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             if fin_periodo2 < inicio_periodo2:
                 diasnomina2 = 0
             else:
-                diasnomina2 = (fin_periodo2 - inicio_periodo2).days + 1
+                diasnomina2 = (fin_periodo2 - inicio_periodo2).days + 1 
+
+                if diasnomina2 > nomina2.diasnomina :
+                    diasnomina2 = nomina2.diasnomina
+                    
+            
+            
+
+            
+            dias_vacaciones = calcular_vacaciones(contrato,nomina2)
+            dias_incapacidad = calculo_incapacidad(contrato,nomina2)
+            dias_suspensiones = calcular_suspenciones(contrato,nomina2)
+            
+            diasnomina2 -= dias_vacaciones 
+            diasnomina2 -= dias_incapacidad 
+            diasnomina2 -= dias_suspensiones 
+            
+            if diasnomina2 < 15 : 
+                print('------ ------')
+                print('nomina 1 ' , diasnomina2)
+                aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones} contrato : {contrato.idcontrato} "
+                print(aux)
+                
+            
             
         else :
             diasnomina2 = 0
 
+        
+        
         inicio_nomina = _to_date(nomina.fechainicial)
         fin_nomina = _to_date(nomina.fechafinal)
         inicio_contrato = _to_date(contrato.fechainiciocontrato)
@@ -906,9 +941,27 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         if fin_periodo < inicio_periodo:
             diasnomina1 = 0
         else:
-            diasnomina1 = (fin_periodo - inicio_periodo).days 
+            diasnomina1 = (fin_periodo - inicio_periodo).days  + 1 
+            
+            if diasnomina1 > nomina.diasnomina :
+                diasnomina1 = nomina.diasnomina
 
+        
+        
         diasnomina =  diasnomina1 + diasnomina2
+        
+        # if contrato.idcontrato == 8100:
+        #     print('nomina 1 ' , diasnomina2)
+        #     print('nomina 2 ' , diasnomina1)
+            
+        #     aux = f" ini n : {inicio_nomina} fin n : {fin_nomina}  "
+        #     print(aux)
+        #     aux = f" ini c : {inicio_contrato} fin c : {fin_contrato}  "
+        #     print(aux)
+        #     print('periodo in ',inicio_periodo)
+        #     print('periodo fi ',fin_periodo)
+        #     print('------0------')
+        #     print(diasnomina)
         
         # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
         if diasnomina > 30:
@@ -918,11 +971,20 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         dias_incapacidad = calculo_incapacidad(contrato,nomina)
         dias_suspensiones = calcular_suspenciones(contrato,nomina)
         
+        
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
-        
-        
+
+            
+        if diasnomina < 30 : 
+            print('------ ------')
+            print('nomina 1 ' , diasnomina2)
+            print('nomina 2 ' , diasnomina1)
+            aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones} contrato : {contrato.idcontrato} "
+            print(aux)
+            aux = f" DIAS :{ diasnomina}"
+            print(aux)
         
         
         
@@ -1026,21 +1088,37 @@ def calcular_vacaciones(contrato,nomina ):
     EmpVacaciones : Modelo maestro de solicitudes de vacaciones.
     Vacaciones : Modelo con el detalle de fechas por solicitud de vacaciones.
     """
-
     dias_vacaciones = 0
 
-    # 🔹 Filtrar solo vacaciones legales (ajustar si Tipoavacaus usa 'codigo' en lugar de 'id')
-    vacaciones = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac=1)
-
+    vacaciones = Vacaciones.objects.filter(
+        idcontrato=contrato,
+        tipovac__idvac=1
+    )
+    
+    
+    # Si el contrato no tiene vacaciones legales registradas → 0
+    if not vacaciones.exists():
+        return 0
+    
     for vac in vacaciones:
-        # Solo si hay cruce entre vacaciones y periodo de nómina
-        if vac.fechainicialvac and vac.ultimodiavac:
-            if vac.fechainicialvac <= nomina.fechafinal and vac.ultimodiavac >= nomina.fechainicial:
-                inicio = max(vac.fechainicialvac, nomina.fechainicial)
-                fin = min(vac.ultimodiavac, nomina.fechafinal)
-                dias_vacaciones += (fin - inicio).days + 1
+        
+        if not vac.fechainicialvac or not vac.ultimodiavac:
+            continue
 
-    return dias_vacaciones 
+        # Validar cruce con la nómina
+        if vac.fechainicialvac <= nomina.fechafinal and vac.ultimodiavac >= nomina.fechainicial:
+            inicio_cruce = max(vac.fechainicialvac, nomina.fechainicial)
+            fin_cruce = min(vac.ultimodiavac, nomina.fechafinal)
+
+            # 🔹 Cálculo exacto de días calendario dentro de la nómina
+            dias_en_nomina = (fin_cruce - inicio_cruce).days
+
+            # No sumar el día inicial (según norma nómina)
+            dias_vacaciones += dias_en_nomina
+
+            # Debug opcional
+
+    return dias_vacaciones
 
 
 
@@ -1121,6 +1199,13 @@ def calculo_incapacidad(contrato,nomina):
     incapacidades = Incapacidades.objects.filter(idcontrato=contrato)
     
     for inc in incapacidades:
+        
+        if inc.idcontrato.idcontrato == 8116:
+            print('llege aqui')
+            print(inc.dias)
+            print(inc.fechainicial)
+            print(inc.fechainicial + timedelta(days=inc.dias - 1))
+            
         if inc.fechainicial and inc.dias:
             fechaini = inc.fechainicial
             fechafin = fechaini + timedelta(days=inc.dias - 1)
