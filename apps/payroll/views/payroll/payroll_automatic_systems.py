@@ -256,16 +256,15 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         fin_periodo = min(fin_nomina, fin_contrato)
         
         
-        
-        if contrato.idcontrato == 8116:
-            aux = f" ini n : {inicio_nomina} fin n : {fin_nomina}  "
-            print(aux)
-            aux = f" ini c : {inicio_contrato} fin c : {fin_contrato}  "
-            print(aux)
-            print('periodo in ',inicio_periodo)
-            print('periodo fi ',fin_periodo)
-            print('------0------')
-            print(diasnomina)
+        print('----------------------------.---------------')
+        print('contrato:',contrato.idcontrato)
+        aux = f" ini n : {inicio_nomina} fin n : {fin_nomina}  "
+        print(aux)
+        aux = f" ini c : {inicio_contrato} fin c : {fin_contrato}  "
+        print(aux)
+        print('periodo in ',inicio_periodo)
+        print('periodo fi ',fin_periodo)
+        print(diasnomina)
         
         if fin_periodo < inicio_periodo:
             diasnomina = 0
@@ -276,13 +275,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
                 diasnomina = nomina.diasnomina
 
 
-            if contrato.idcontrato == 8116:
-                print('------1------')
-                print(diasnomina)
-
-        if contrato.idcontrato == 8116:
-            print('------2------')
-            print(diasnomina)
         
         # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
         if diasnomina > 30:
@@ -292,17 +284,17 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         dias_incapacidad = calculo_incapacidad(contrato,nomina)
         dias_suspensiones = calcular_suspenciones(contrato,nomina)
         
-        if contrato.idcontrato == 8116:
-            print('------3------')
-            print(diasnomina)
+        
+        print('------3------')
+        print(diasnomina)
         
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
         
-        if contrato.idcontrato == 8116:
-            aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones}  dias : {diasnomina}"
-            print(aux)
+    
+        aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones}  dias : {diasnomina}"
+        print(aux)
 
     
         
@@ -616,6 +608,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
     EPS = Conceptosfijos.objects.get(idfijo = 8)
     AFP = Conceptosfijos.objects.get(idfijo = 10)
     tope_ibc = Conceptosfijos.objects.get(idfijo = 2)
+    print(tope_ibc.valorfijo)
     factor_integral = Conceptosfijos.objects.get(idfijo = 1).valorfijo
     
     ## pruebas de valores 
@@ -655,6 +648,8 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
         ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
                 
+                
+        print(total_base_ss)
         nomina = Crearnomina.objects.get( idnomina = idn)
         
         
@@ -698,8 +693,6 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                 FSP = 0
             
             
-        
-            
             valoreps = round((total_base_ss * EPS.valorfijo) / 100, 2)
             valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
             #valorfsp = round((base_ss_fsp * FSP) / 100, 2) if base_ss_fsp >= (sal_min * 4) else 0.00
@@ -709,6 +702,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             if contrato.pensionado == '2':
                 valorafp = 0.00
                 valorfsp = 0.00
+                print('------aqui ando manito')
             
             
             # Crear o actualizar el registro de la EPS
@@ -1454,7 +1448,7 @@ def calculo_novfija(contrato, idn):
             nuevo = Nomina(
                 idconcepto=nov.idconcepto,
                 cantidad=cantidad,
-                valor=valor,
+                valor= -(valor),
                 estadonomina=1,
                 idcontrato=contrato,
                 idnomina_id=idn,

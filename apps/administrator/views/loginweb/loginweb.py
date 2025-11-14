@@ -62,19 +62,23 @@ def create_user_and_usuario(email, pnombre, papellido, password, empresa, id_emp
         
         empleado = Contratosemp.objects.get(idempleado = id_empleado) 
         
+        # Crear usuario SIN el ManyToMany
         user = User.objects.create(
             first_name=pnombre,
             last_name=papellido,
             email=email,
-            tipo_user = 'employee',
-            id_empresa = empresa ,
-            rol = Role.objects.get(id = 1),
+            tipo_user='employee',
+            rol=Role.objects.get(id=1),
             password=password,
-            id_empleado = empleado,
+            id_empleado=empleado,
             is_staff=False,
             is_superuser=False,
             is_active=True
         )
+
+        # Asignar el ManyToMany DESPUÉS de crear el usuario
+        user.id_empresa.add(empresa)   # O user.id_empresa.set([empresa])
+
         user.save()
         print(user)
         return True, user
@@ -153,7 +157,7 @@ def loginweb_admin(request):
                 }
                 subject = '¡Bienvenido a Nomiweb! Tu nueva plataforma de nóminas... ¡y tu mejor amigo!'
                 recipient_list = ['mikepruebas@yopmail.com','manuel.david.13.b@gmail.com']
-                #recipient_list = [usertempo.email]
+                recipient_list = [usertempo.email]
 
                 if send_template_email(email_type, context, subject, recipient_list):
                     messages.success(request, 'Los usuarios han sido enviados correctamente.')

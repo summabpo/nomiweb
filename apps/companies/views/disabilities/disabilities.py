@@ -85,6 +85,11 @@ def disabilities(request):
         'idcontrato__id_empresa_id'
     ).order_by('-fechainicial')
 
+    print('-----------')
+    print(incapacidades)
+    print('-----------')
+    
+    
     def clean_value(value):
         """Elimina 'no data' literal y reemplaza None por vacío."""
         if isinstance(value, str) and value.strip().lower() == "no data":
@@ -107,7 +112,7 @@ def disabilities(request):
 @login_required
 @role_required('company','accountant')
 def disabilities_modal(request):
-  """
+    """
     Vista para registrar una incapacidad en el sistema.
 
     Esta vista permite registrar una incapacidad de un empleado en el sistema, asociando los detalles 
@@ -137,73 +142,73 @@ def disabilities_modal(request):
     El usuario debe estar autenticado y tener el rol de 'accountant' en la empresa para acceder a esta vista.
     """
 
-  usuario = request.session.get('usuario', {})
-  idempresa = usuario['idempresa']
-  form = DisabilitiesForm(idempresa = idempresa)
-  
-  if request.method == 'POST':
-    form = DisabilitiesForm(request.POST, request.FILES ,idempresa = idempresa)
-    if form.is_valid():
-      #Obtener datos del formulario
-      contract = form.cleaned_data['contract']
-      origin = form.cleaned_data['origin']
-      entity = form.cleaned_data['entity']
-      initial_date = form.cleaned_data['initial_date']
-      incapacity_days = form.cleaned_data['incapacity_days']
-      diagnosis_code = form.cleaned_data['diagnosis_code']
-      extension = form.cleaned_data['extension'] #Convierte a string y usa '0' como valor predeterminado
-      prorroga = extension == '1'  #Devuelve True si extension es '1'
-      pdf_file = form.cleaned_data['pdf_file']
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    form = DisabilitiesForm(idempresa = idempresa)
+    
+    if request.method == 'POST':
+        form = DisabilitiesForm(request.POST, request.FILES ,idempresa = idempresa)
+        if form.is_valid():
+            #Obtener datos del formulario
+            contract = form.cleaned_data['contract']
+            origin = form.cleaned_data['origin']
+            entity = form.cleaned_data['entity']
+            initial_date = form.cleaned_data['initial_date']
+            incapacity_days = form.cleaned_data['incapacity_days']
+            diagnosis_code = form.cleaned_data['diagnosis_code']
+            extension = form.cleaned_data['extension'] #Convierte a string y usa '0' como valor predeterminado
+            prorroga = extension == '1'  #Devuelve True si extension es '1'
+            pdf_file = form.cleaned_data['pdf_file']
+                    
+            entidad = Entidadessegsocial.objects.get(codigo = entity)
+            dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
             
-      entidad = Entidadessegsocial.objects.get(codigo = entity)
-      dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
-      
-      #* Funcion de guardado de pdf 
-      new_filename = ''
-      
-      if pdf_file :
-        # Generar un nuevo nombre aleatorio
-        new_filename = generate_random_filename("pdf")
-        pdf_folder = os.path.join(settings.MEDIA_ROOT, 'pdfs')
-        # ✅ Crear la carpeta si no existe
-        os.makedirs(pdf_folder, exist_ok=True)
-        # Guardar el archivo con el nuevo nombre
-        pdf_path = os.path.join(pdf_folder, new_filename)
-        with open(pdf_path, 'wb+') as destination:
-            for chunk in pdf_file.chunks():
-                destination.write(chunk)
-              
-      ibc = NominaComprobantes.objects.filter(idcontrato_id=contract).order_by('-idhistorico').first()
+            #* Funcion de guardado de pdf 
+            new_filename = ''
+            
+            if pdf_file :
+                # Generar un nuevo nombre aleatorio
+                new_filename = generate_random_filename("pdf")
+                pdf_folder = os.path.join(settings.MEDIA_ROOT, 'pdfs')
+                # ✅ Crear la carpeta si no existe
+                os.makedirs(pdf_folder, exist_ok=True)
+                # Guardar el archivo con el nuevo nombre
+                pdf_path = os.path.join(pdf_folder, new_filename)
+                with open(pdf_path, 'wb+') as destination:
+                    for chunk in pdf_file.chunks():
+                        destination.write(chunk)
+                    
+            ibc = NominaComprobantes.objects.filter(idcontrato_id=contract).order_by('-idhistorico').first()
 
-      if not ibc:
-          ibc = Contratos.objects.get(idcontrato=contract)
-          
-      
-      
-      print(ibc)
+            if not ibc:
+                ibc = Contratos.objects.get(idcontrato=contract)
+                
+            
+            
+            print(ibc)
 
-      # Guardar en la base de datos
-    #   Incapacidades.objects.create(
-    #     entidad = entidad , #enlace segsocial
-    #     coddiagnostico = dianostico ,
-    #     fechainicial = initial_date ,
-    #     dias = incapacity_days,
-    #     imagenincapacidad = new_filename if new_filename else "" ,  #cambiar tipo enlace 
-    #     certificadoincapacidad = pdf_file if pdf_file else "", 
-    #     idcontrato_id  = contract ,  
-    #     prorroga = prorroga ,
-    #     ibc =  ibc.salario ,
-    #     origenincap = origin , 
-    #   )
-      
-      response = HttpResponse()
-      response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
-      response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
-      response['X-Up-message'] = 'La Incapacidad fue registrada correctamente'    
-      response['X-Up-Location'] = reverse('companies:disabilities')           
-      return response
+        #Guardar en la base de datos
+            Incapacidades.objects.create(
+                entidad = entidad , #enlace segsocial
+                coddiagnostico = dianostico ,
+                fechainicial = initial_date ,
+                dias = incapacity_days,
+                imagenincapacidad = new_filename if new_filename else "" ,  #cambiar tipo enlace 
+                certificadoincapacidad = pdf_file if pdf_file else "", 
+                idcontrato_id  = contract ,  
+                prorroga = prorroga ,
+                ibc =  ibc.salario ,
+                origenincap = origin , 
+            )
         
-  return render (request, './companies/partials/create_disabilities_modal.html',{'form' :form,})
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'La Incapacidad fue registrada correctamente'    
+            response['X-Up-Location'] = reverse('companies:disabilities')           
+            return response
+        
+    return render (request, './companies/partials/create_disabilities_modal.html',{'form' :form,})
 
 
 
