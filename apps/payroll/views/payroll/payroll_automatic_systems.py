@@ -262,6 +262,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         print(aux)
         aux = f" ini c : {inicio_contrato} fin c : {fin_contrato}  "
         print(aux)
+        print('tipo salario',contrato.tiposalario)
+        print('tipo contrato',contrato.tipocontrato)
         print('periodo in ',inicio_periodo)
         print('periodo fi ',fin_periodo)
         print(diasnomina)
@@ -285,8 +287,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         dias_suspensiones = calcular_suspenciones(contrato,nomina)
         
         
-        print('------3------')
-        print(diasnomina)
         
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
@@ -298,11 +298,11 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
 
     
         
-        calculo_prestamo(contrato, idn)
+        #calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
-        calculo_novfija(contrato, idn)
+        #calculo_novfija(contrato, idn)
         
-        if contrato.tiposalario_id == 2:
+        if contrato.tiposalario.idtiposalario == 2:
             codigo_aux = '4'
         elif contrato.tipocontrato_id == 6:
             codigo_aux = '34'
@@ -648,8 +648,9 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
         ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
                 
-                
-        print(total_base_ss)
+        print('----------------')    
+        print(contrato.tiposalario.idtiposalario)
+        print(contrato.idcontrato)
         nomina = Crearnomina.objects.get( idnomina = idn)
         
         

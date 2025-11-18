@@ -17,13 +17,17 @@
     </p>
 
     <!-- 🔹 Formulario principal -->
-    <form id="change-status-form"
-          method="POST"
+    <form id="change-status-form"          
           action="{% url 'companies:vacation_resumen_send' id=id %}"
-          up-submit
+          method="post"
           up-target="#modal-content"
+          up-mode="replace"
           up-layer="current"
-          up-mode="replace">
+          up-submit="{% url 'companies:vacation_resumen_send' id=id %}"
+          up-accept-location="{% url 'companies:vacation_resumen_send' id=id %}"
+          up-on-accepted="up.modal.close()"
+
+          >
 
       {% csrf_token %}
 
