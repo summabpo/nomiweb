@@ -298,9 +298,9 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
 
     
         
-        #calculo_prestamo(contrato, idn)
+        calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
-        #calculo_novfija(contrato, idn)
+        calculo_novfija(contrato, idn)
         
         if contrato.tiposalario.idtiposalario == 2:
             codigo_aux = '4'
