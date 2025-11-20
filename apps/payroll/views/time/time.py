@@ -812,13 +812,15 @@ def time_add(request):
                 if Tiempos.objects.filter(idcontrato__old_idcontrato=contrato, fechaingreso=fecha_ingreso, idempresa_id=idempresa).exists():
                     errors.append(f"Fila {idx+1}: Ya existe un registro de tiempo para contrato {contrato} en la fecha {fecha_ingreso}.")
                     continue
+                
+                contr = Contratos.objects.filter(old_idcontrato=contrato, id_empresa=idempresa).first()
 
                 # Si pasa todas las validaciones, lo agregamos a lista
                 registros_validados.append(
                     Tiempos(
                         fechaingreso=fecha_ingreso,
                         horaingreso=hora_ingreso,
-                        idcontrato_id=contrato,
+                        idcontrato = contr,
                         idnomina_id=idnomina,
                         fechasalida=fecha_salida,
                         horasalida=hora_salida,

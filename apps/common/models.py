@@ -639,7 +639,8 @@ class Contratos(models.Model):
     idmodelo = models.ForeignKey(ModelosContratos, models.DO_NOTHING) #enlace modelos_contratos
     riesgo_pension = models.BooleanField(default=False)
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
-    
+    old_idcontrato = models.CharField(max_length=25,blank=True, null=True)#choice
+
     class Meta:
         db_table = 'contratos'
 
