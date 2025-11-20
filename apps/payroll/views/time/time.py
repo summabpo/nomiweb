@@ -804,12 +804,12 @@ def time_add(request):
                 empresa = Empresa.objects.get(idempresa =  idempresa )
                 
                 # Verificar que el contrato exista
-                if not Contratos.objects.filter(idcontrato=contrato, id_empresa=idempresa).exists():
+                if not Contratos.objects.filter(old_idcontrato=contrato, id_empresa=idempresa).exists():
                     errors.append(f"Fila {idx+1}: El contrato {contrato} no existe en la empresa {empresa.nombreempresa}.")
                     continue
 
                 # Evitar duplicados: contrato + fecha ingreso ya existente
-                if Tiempos.objects.filter(idcontrato_id=contrato, fechaingreso=fecha_ingreso, idempresa_id=idempresa).exists():
+                if Tiempos.objects.filter(idcontrato__old_idcontrato=contrato, fechaingreso=fecha_ingreso, idempresa_id=idempresa).exists():
                     errors.append(f"Fila {idx+1}: Ya existe un registro de tiempo para contrato {contrato} en la fecha {fecha_ingreso}.")
                     continue
 
