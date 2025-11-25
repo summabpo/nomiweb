@@ -178,3 +178,4 @@ wkhtmltopdf==0.2
 xhtml2pdf==0.2.15
 zope.interface==6.4.post2
 holidays==0.82
+openai==1.0.0
