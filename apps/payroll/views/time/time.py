@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from django.contrib import messages
-from apps.common.models import Tiempos , Crearnomina , Contratos ,Nomina,Conceptosdenomina, Empresa ,Conceptosfijos ,TiemposTotales ,Sedes, Costos, Subcostos, Empresa
+from apps.common.models import Tiempos ,Anos, Crearnomina , Contratos ,Nomina,Conceptosdenomina, Empresa ,Conceptosfijos ,TiemposTotales ,Sedes, Costos, Subcostos, Empresa
 from django.http import HttpResponse
 from django.urls import reverse
 from apps.payroll.forms.SettlementForm import SettlementForm
@@ -31,6 +31,9 @@ def time_list(request):
     value2 = False
     value3 = False
     tiempos = []
+    anio_actual = datetime.now().year
+    ano_obj = Anos.objects.get(ano =  anio_actual )
+
 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -119,7 +122,7 @@ def time_list(request):
         
     # ---------- Función auxiliar para calcular extras ----------
     def calcular_horas_extras(tiempos_queryset):
-        CO_HOLIDAYS = holidays.CO(years=2025)
+        CO_HOLIDAYS = holidays.CO(years=ano_obj.ano)
         horas_por_contrato = {}
 
         conceptos = Conceptosfijos.objects.filter(
@@ -135,10 +138,8 @@ def time_list(request):
         ).values('conceptofijo', 'valorfijo')
 
         factores = {c['conceptofijo']: float(c['valorfijo']) for c in conceptos}
-        
-        
 
-        jmm = factores.get('JORNADA MAXIMA MENSUAL', 1.0)
+        jmm = factores.get('JORNADA MAXIMA MENSUAL', 240.0)  # ejemplo 240h/mes
         hed_factor  = factores.get('HORA EXTRA DIURNA FACTOR', 1.0)
         hen_factor  = factores.get('HORA EXTRA NOCTURNA FACTOR', 1.0)
         hedf_factor = factores.get('HORA EXTRA DIURNA FESTIVA FACTOR', 1.0)
@@ -146,7 +147,7 @@ def time_list(request):
         rn_factor   = factores.get('RECARGO NOCTURNO FACTOR', 1.0)
         rdf_factor  = factores.get('RECARGO DOMINICAL O FESTIVO FACTOR', 1.0)
 
-
+        # mapa (contrato, fecha) -> horas usadas como normales (para contar 8h diarias)
         daily_regular = {}
 
         for t in tiempos_queryset:
@@ -175,102 +176,153 @@ def time_list(request):
                 worked = timedelta()
 
             total_hours = round(worked.total_seconds() / 3600, 2)
-            horas_normales = hed = hen = hedf = henf = rn = dyf = 0.0
+
+            # Inicializar contadores por registro
+            normales_diurnas = normales_nocturnas = 0.0     # normales dentro de la jornada
+            normales_diurnas_festiva = normales_nocturnas_festiva = 0.0  # normales en festivo/dominical
+            hed = hen = hedf = henf = 0.0  # extras
+            # base de jornada diaria (8h típicas); si tienes variable por contrato, reemplazar aquí
             base_hours = 8.0
+
             hora_actual = dt_ingreso
             end_time = dt_salida_adj
-            step = timedelta(minutes=1)
+            step = timedelta(minutes=1)  # precisión por minuto
 
             while hora_actual < end_time:
                 siguiente = min(hora_actual + step, end_time)
                 dur = (siguiente - hora_actual).total_seconds() / 3600.0
                 slice_date = hora_actual.date()
-                is_festivo = slice_date in CO_HOLIDAYS or slice_date.weekday() == 6
-                tipo = "diurna" if time(6, 0) <= hora_actual.time() < time(21, 0) else "nocturna"
+                is_domingo = slice_date.weekday() == 6
+                is_festivo = slice_date in CO_HOLIDAYS
+                is_festivo_o_dominio = is_festivo or is_domingo
+                is_nocturna = not (time(6, 0) <= hora_actual.time() < time(21, 0))
 
                 key_day = (id_contrato, slice_date)
                 used_regular = daily_regular.get(key_day, 0.0)
                 remaining_regular = max(0.0, base_hours - used_regular)
 
-                if is_festivo:
-                    dyf += dur
-                    if tipo == "diurna":
-                        hedf += dur
-                    else:
-                        henf += dur
-                else:
+                if is_festivo_o_dominio:
+                    # Festivo / dominical: diferenciamos si queda dentro de la jornada normal o ya es extra
                     if remaining_regular > 0:
                         alloc_regular = min(dur, remaining_regular)
-                        if tipo == "diurna":
-                            horas_normales += alloc_regular
+                        # asignar a normales festivas (diurna/nocturna)
+                        if is_nocturna:
+                            normales_nocturnas_festiva += alloc_regular
                         else:
-                            rn += alloc_regular
+                            normales_diurnas_festiva += alloc_regular
                         daily_regular[key_day] = used_regular + alloc_regular
 
                         rest = dur - alloc_regular
                         if rest > 0:
-                            if tipo == "diurna":
-                                hed += rest
+                            # el resto son horas extra festivas
+                            if is_nocturna:
+                                henf += rest
                             else:
-                                hen += rest
+                                hedf += rest
                     else:
-                        if tipo == "diurna":
-                            hed += dur
+                        # todo el trozo es extra festiva
+                        if is_nocturna:
+                            henf += dur
                         else:
+                            hedf += dur
+                else:
+                    # Día normal (no festivo)
+                    if remaining_regular > 0:
+                        alloc_regular = min(dur, remaining_regular)
+                        if is_nocturna:
+                            normales_nocturnas += alloc_regular
+                        else:
+                            normales_diurnas += alloc_regular
+                        daily_regular[key_day] = used_regular + alloc_regular
+
+                        rest = dur - alloc_regular
+                        if rest > 0:
+                            # resto son horas extra (nocturna o diurna)
+                            if is_nocturna:
+                                hen += rest
+                            else:
+                                hed += rest
+                    else:
+                        # todo el trozo es extra en día normal
+                        if is_nocturna:
                             hen += dur
+                        else:
+                            hed += dur
 
                 hora_actual = siguiente
 
-            # 🔹 Acumular resultado por contrato
+            # Inicializar acumuladores por contrato si falta
             if id_contrato not in horas_por_contrato:
                 horas_por_contrato[id_contrato] = {
                     'salario': salario,
                     'horas_trabajadas': 0.0,
-                    'horas_normales': 0.0,
+                    'normales_diurnas': 0.0,
+                    'normales_nocturnas': 0.0,
+                    'normales_diurnas_festiva': 0.0,
+                    'normales_nocturnas_festiva': 0.0,
                     'hed': 0.0,
                     'hen': 0.0,
                     'hedf': 0.0,
                     'henf': 0.0,
-                    'rn': 0.0,
-                    'dyf': 0.0,
                 }
 
-            horas_por_contrato[id_contrato]['horas_trabajadas'] += total_hours
-            horas_por_contrato[id_contrato]['horas_normales'] += horas_normales
-            horas_por_contrato[id_contrato]['hed'] += hed
-            horas_por_contrato[id_contrato]['hen'] += hen
-            horas_por_contrato[id_contrato]['hedf'] += hedf
-            horas_por_contrato[id_contrato]['henf'] += henf
-            horas_por_contrato[id_contrato]['rn'] += rn
-            horas_por_contrato[id_contrato]['dyf'] += dyf 
+            acc = horas_por_contrato[id_contrato]
+            acc['horas_trabajadas'] += total_hours
+            acc['normales_diurnas'] += normales_diurnas
+            acc['normales_nocturnas'] += normales_nocturnas
+            acc['normales_diurnas_festiva'] += normales_diurnas_festiva
+            acc['normales_nocturnas_festiva'] += normales_nocturnas_festiva
+            acc['hed'] += hed
+            acc['hen'] += hen
+            acc['hedf'] += hedf
+            acc['henf'] += henf
 
-        # 🔹 Calcular valores de pago por tipo de hora
+        # Calcular valores (NOTA: la interpretación de los "factores" puede variar — abajo comento cómo adaptarlo)
         for contrato_id, valores in horas_por_contrato.items():
             salario = valores['salario']
-            valor_hora = salario / jmm
+            valor_hora = salario / jmm  # jmm: jornada maxima mensual (horas mensuales)
 
-            valores['Vhed']  = round(valores['hed']  * valor_hora * hed_factor, 1)
-            valores['Vhen']  = round(valores['hen']  * valor_hora * hen_factor, 1)
-            valores['Vhedf'] = round(valores['hedf'] * valor_hora * hedf_factor, 1)
-            valores['Vhenf'] = round(valores['henf'] * valor_hora * henf_factor, 1)
-            valores['Vrn']   = round(valores['rn']   * valor_hora * rn_factor, 1)
-            valores['Vdyf']  = round(valores['horas_normales'] * valor_hora * rdf_factor, 1)  # recargo dominical opcional
-            valores['dyf']  = round(valores['dyf'], 1)
-            
-            # 🔸 Total de valor de horas extras
-            valores['ValorExtras'] = round(
-                valores['Vhed'] + valores['Vhen'] + valores['Vhedf'] +
-                valores['Vhenf'] + valores['Vrn'] + valores['Vdyf'], 1
-            )
+            # horas festivas normales totales (dentro de la jornada)
+            normales_festivas = valores['normales_diurnas_festiva'] + valores['normales_nocturnas_festiva']
 
-            # 🔹 Redondear
-            for k, v in valores.items():
+            # Si tus factores son multiplicadores totales (ej. recargo nocturno = 1.35),
+            # y quieres calcular el VALOR ADICIONAL a pagar (no el pago total por la hora),
+            # entonces usa (factor - 1). Si en tu DB tienes directamente el % (ej. 0.35),
+            # usa simplemente factor * valor_hora * horas.
+            #
+            # Aquí asumo que los factores en la BD representan multiplicadores TOTALES
+            # (ej. HORA EXTRA DIURNA FACTOR = 1.25). Para sacar la parte adicional:
+            def extra_amount(hours, factor):
+                return hours * valor_hora * (factor - 1.0)
+
+            Vhed  = round(extra_amount(valores['hed'], hed_factor), 1)
+            Vhen  = round(extra_amount(valores['hen'], hen_factor), 1)
+            Vhedf = round(extra_amount(valores['hedf'], hedf_factor), 1)
+            Vhenf = round(extra_amount(valores['henf'], henf_factor), 1)
+            # recargo nocturno: normalmente aplica sobre horas nocturnas dentro de la jornada (normales_nocturnas)
+            Vrn = round(extra_amount(valores['normales_nocturnas'], rn_factor), 1)
+            # recargo dominical/festivo para horas normales en ese día
+            Vdyf = round(extra_amount(normales_festivas, rdf_factor), 1)
+
+            valores['Vhed']  = Vhed
+            valores['Vhen']  = Vhen
+            valores['Vhedf'] = Vhedf
+            valores['Vhenf'] = Vhenf
+            valores['Vrn']   = Vrn
+            valores['Vdyf']  = Vdyf
+
+            valores['dyf'] = round(normales_festivas, 1)
+
+            valores['ValorExtras'] = round(Vhed + Vhen + Vhedf + Vhenf + Vrn + Vdyf, 1)
+
+            # redondear todas las horas/valores
+            for k, v in list(valores.items()):
                 if isinstance(v, (int, float)):
                     valores[k] = round(v, 1)
 
         return horas_por_contrato
 
-    
+
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
         tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
@@ -372,7 +424,6 @@ def time_list(request):
             costo = Costos.objects.get(pk=contrato.idcosto.idcosto)
             empresa = Empresa.objects.get(pk=idempresa)
 
-            print(data)
             # 🔹 Buscar o crear el registro
             obj, created = TiemposTotales.objects.update_or_create(
                 idcontrato=contrato,
@@ -715,7 +766,9 @@ def time_doc(request, id):
             hed, hen, hedf, henf, rn, rnf, dyf,
             registro.idcontrato.idsede.nombresede if registro.idcontrato.idsede else "",
         ]
-        ws.append(row)
+
+        if contrato_id == 8060 :
+            ws.append(row)
 
         for cell in ws[ws.max_row]:
             cell.fill = fill
@@ -724,7 +777,7 @@ def time_doc(request, id):
         ws.cell(row=ws.max_row, column=5).number_format = 'DD/MM/YYYY'
 
     # 🔚 Totales del último contrato
-    agregar_totales_contrato(current_contract)
+    #agregar_totales_contrato(current_contract)
 
     output = BytesIO()
     wb.save(output)
