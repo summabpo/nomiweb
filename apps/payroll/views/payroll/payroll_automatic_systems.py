@@ -255,18 +255,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         inicio_periodo = max(inicio_nomina, inicio_contrato)
         fin_periodo = min(fin_nomina, fin_contrato)
         
-        
-        print('----------------------------.---------------')
-        print('contrato:',contrato.idcontrato)
-        aux = f" ini n : {inicio_nomina} fin n : {fin_nomina}  "
-        print(aux)
-        aux = f" ini c : {inicio_contrato} fin c : {fin_contrato}  "
-        print(aux)
-        print('tipo salario',contrato.tiposalario)
-        print('tipo contrato',contrato.tipocontrato)
-        print('periodo in ',inicio_periodo)
-        print('periodo fi ',fin_periodo)
-        print(diasnomina)
+
         
         if fin_periodo < inicio_periodo:
             diasnomina = 0
@@ -292,9 +281,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
         
-    
-        aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones}  dias : {diasnomina}"
-        print(aux)
 
     
         
@@ -411,10 +397,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3, fechainicial__range=(inicio_nomina, fin_nomina) )
     
     
-    print(incapacidades.count())
-    for data in incapacidades:
-        aux = f"id {data.idincapacidad} cont {data.idcontrato.idempleado.pnombre} {data.idcontrato.idempleado.papellido} f1 {data.fechainicial} f2 {data.dias} "
-        print(aux)
     
     if parte_nomina != 0:
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
@@ -648,9 +630,6 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
         ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
                 
-        print('----------------')    
-        print(contrato.tiposalario.idtiposalario)
-        print(contrato.idcontrato)
         nomina = Crearnomina.objects.get( idnomina = idn)
         
         
@@ -703,7 +682,6 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             if contrato.pensionado == '2':
                 valorafp = 0.00
                 valorfsp = 0.00
-                print('------aqui ando manito')
             
             
             # Crear o actualizar el registro de la EPS
@@ -907,11 +885,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             diasnomina2 -= dias_incapacidad 
             diasnomina2 -= dias_suspensiones 
             
-            if diasnomina2 < 15 : 
-                print('------ ------')
-                print('nomina 1 ' , diasnomina2)
-                aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones} contrato : {contrato.idcontrato} "
-                print(aux)
                 
             
             
@@ -945,19 +918,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         
         diasnomina =  diasnomina1 + diasnomina2
         
-        # if contrato.idcontrato == 8100:
-        #     print('nomina 1 ' , diasnomina2)
-        #     print('nomina 2 ' , diasnomina1)
-            
-        #     aux = f" ini n : {inicio_nomina} fin n : {fin_nomina}  "
-        #     print(aux)
-        #     aux = f" ini c : {inicio_contrato} fin c : {fin_contrato}  "
-        #     print(aux)
-        #     print('periodo in ',inicio_periodo)
-        #     print('periodo fi ',fin_periodo)
-        #     print('------0------')
-        #     print(diasnomina)
-        
         # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
         if diasnomina > 30:
             diasnomina = 30
@@ -970,18 +930,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
-
-            
-        if diasnomina < 30 : 
-            print('------ ------')
-            print('nomina 1 ' , diasnomina2)
-            print('nomina 2 ' , diasnomina1)
-            aux = f" vaca : {dias_vacaciones} inca : {dias_incapacidad} susp :{dias_suspensiones} contrato : {contrato.idcontrato} "
-            print(aux)
-            aux = f" DIAS :{ diasnomina}"
-            print(aux)
-        
-        
         
         # horas_basico_mes = Nomina.objects.filter(idconcepto__codigo = 1, idcontrato=contrato.idcontrato, 
         #                                          idnomina__mesacumular = nomina.mesacumular , idnomina__anoacumular = nomina.anoacumular ,
@@ -1445,11 +1393,13 @@ def calculo_novfija(contrato, idn):
                     nov.estado_novfija = False
                     nov.save()
 
+            
+
             # Construir instancia Nomina (sin .save())
             nuevo = Nomina(
                 idconcepto=nov.idconcepto,
                 cantidad=cantidad,
-                valor= -(valor),
+                valor= valor,
                 estadonomina=1,
                 idcontrato=contrato,
                 idnomina_id=idn,

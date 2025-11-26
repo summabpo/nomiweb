@@ -104,6 +104,53 @@
 {% block js %}
 
 <script>
+// Plugin robusto para formatos "puntos como miles" y "coma como decimal",
+// y que además maneja negativos como "-.118.597,0"
+jQuery.extend( jQuery.fn.dataTable.ext.type.order, {
+    "numeric-comma-robust-pre": function ( data ) {
+        if (data === null || data === undefined) return 0;
+
+        // Si viene HTML, extraer el texto
+        var text = typeof data === 'string' ? data.replace(/<[^>]*>/g, '') : String(data);
+
+        // Trim
+        text = text.trim();
+
+        if (text === '' || text === '-' || text === '—') return 0;
+
+        // Mantener el signo negativo si existe al inicio
+        var negative = false;
+        if (text.charAt(0) === '-') {
+            negative = true;
+            text = text.slice(1);
+        }
+
+        // Eliminar todo lo que no sea dígito, punto o coma
+        // (esto quita símbolos extraños)
+        text = text.replace(/[^0-9\.,]/g, '');
+
+        // Ahora quitar TODOS los puntos (separador de miles)
+        text = text.replace(/\./g, '');
+
+        // Reemplazar coma por punto (decimal)
+        text = text.replace(/,/g, '.');
+
+        // Reconstruir con signo
+        if (negative) text = '-' + text;
+
+        // parseFloat seguro
+        var val = parseFloat(text);
+        if (isNaN(val)) return 0;
+        return val;
+    },
+    "numeric-comma-robust-asc": function ( a, b ) { return a - b; },
+    "numeric-comma-robust-desc": function ( a, b ) { return b - a; }
+});
+</script>
+
+
+
+<script>
     $(document).ready(function() {
         $('#Filto_conceptos').on('submit', function() {
             $('#loadingModal').modal('show');
@@ -141,8 +188,7 @@
                 "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
                 "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
                 "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix":    "",
-                "thousands":      ",",
+                "thousands":      ".",
                 "lengthMenu":     "Mostrar _MENU_ entradas",
                 "loadingRecords": "Cargando...",
                 "processing":     "Procesando...",
@@ -153,21 +199,23 @@
                     "last":       "Último",
                     "next":       "Siguiente",
                     "previous":   "Anterior"
-                },
-                "aria": {
-                    "sortAscending":  ": activar para ordenar la columna ascendente",
-                    "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            dom: 'Bfrtip', // Agregamos 'B' para habilitar los botones
-            buttons: [
-                'excel', 'pdf' // Botones de exportación a Excel, PDF y Word
-            ],
-            order: [[0, 'asc']], 
-            "pageLength": 20,                
+            dom: 'Bfrtip',
+            buttons: ['excel', 'pdf'],
+            order: [[0, 'asc']],
+            pageLength: 20,
+
+            columnDefs: [
+                {
+                    targets: 3,               // <- índice de la columna con valores como -.118.597,0
+                    type: "numeric-comma-robust"
+                }
+            ]
         });
     });
 </script>
+
 
 
 {% comment %} <script>

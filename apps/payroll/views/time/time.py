@@ -767,7 +767,7 @@ def time_doc(request, id):
             registro.idcontrato.idsede.nombresede if registro.idcontrato.idsede else "",
         ]
 
-        if contrato_id == 8060 :
+        if contrato_id == 7994 :
             ws.append(row)
 
         for cell in ws[ws.max_row]:
