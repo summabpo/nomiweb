@@ -1266,37 +1266,62 @@ def calculo_prestamo(contrato, idn):
     Nomina : Modelo donde se registran los descuentos de los préstamos.
     """
 
-    loans = Prestamos.objects.filter(idcontrato=contrato, estadoprestamo=True).order_by('-idprestamo')
-    conceptosdenomina = Conceptosdenomina.objects.get(codigo=50, id_empresa=contrato.id_empresa_id)
-    
-    
+    # Obtener la nómina actual
+    nomina_actual = Crearnomina.objects.get(idnomina=idn)
+
+    # Préstamos activos del contrato
+    loans = Prestamos.objects.filter(
+        idcontrato=contrato,
+        estadoprestamo=True
+    ).order_by('-idprestamo')
+
+    # Concepto del préstamo
+    conceptosdenomina = Conceptosdenomina.objects.get(
+        codigo=50,
+        id_empresa=contrato.id_empresa_id
+    )
+
     for load in loans:
+
+        # ---------------------------------------------------------
+        # 🚨 VALIDACIÓN CLAVE:
+        # Ejecutar solo si el préstamo se creó ANTES o el MISMO día
+        # ---------------------------------------------------------
+        if load.fechaprestamo is None:
+            continue  # Si no tiene fecha, lo ignoramos para evitar errores
+
+        if load.fechaprestamo > nomina_actual.fechainicial:
+            continue  # Este préstamo no aplica a esta nómina
+
+        # Verificar si ya está registrado en la nómina actual
         nominactual = Nomina.objects.filter(
             idnomina=idn,
             idconcepto=conceptosdenomina,
             control=load.idprestamo
         ).exists()
 
-        # Obtener deducciones previas del préstamo
+        # Deducciones anteriores de este préstamo
         deducciones = Nomina.objects.filter(
             idconcepto=conceptosdenomina,
             control=load.idprestamo
-        ).order_by('-idnomina')
+        )
 
-        suma_deducciones = Nomina.objects.filter(
-            idconcepto=conceptosdenomina,
-            control=load.idprestamo
-        ).aggregate(total=Sum('valor'))['total'] or 0
+        suma_deducciones = deducciones.aggregate(
+            total=Sum('valor')
+        )['total'] or 0
 
-        if deducciones:
+        # --- Cálculo del valor a descontar ---
+        if deducciones.exists():
+            # Ya existen descuentos previos
             if not nominactual:
-                # 🔹 Si no está en la nómina actual, crear nuevo registro
+                # No está en la nómina actual → crear registro
+
                 if (load.valorprestamo + suma_deducciones) > load.valorcuota:
                     valor = load.valorcuota
                 else:
                     valor = load.valorprestamo + suma_deducciones
-                    
-                if valor != 0 :
+
+                if valor != 0:
                     Nomina.objects.create(
                         idconcepto=conceptosdenomina,
                         cantidad=1,
@@ -1306,9 +1331,9 @@ def calculo_prestamo(contrato, idn):
                         idnomina_id=idn,
                         control=load.idprestamo
                     )
-                    
+
             else:
-                # 🔹 Si ya existe en la nómina actual, actualizar valor (recalcular)
+                # Ya existe en esta nómina → actualizar
                 registro = Nomina.objects.get(
                     idnomina=idn,
                     idconcepto=conceptosdenomina,
@@ -1319,13 +1344,15 @@ def calculo_prestamo(contrato, idn):
                     valor = load.valorcuota
                 else:
                     valor = load.valorprestamo + suma_deducciones
-                if valor != 0 :
+
+                if valor != 0:
                     registro.valor = -1 * valor
                     registro.save()
 
         else:
+            # Primera cuota del préstamo
             valor = load.valorcuota
-            if valor != 0 :
+            if valor != 0:
                 Nomina.objects.create(
                     idconcepto=conceptosdenomina,
                     cantidad=1,
