@@ -80,7 +80,9 @@ def Login_view(request):
             if form.is_valid():
                 email = form.cleaned_data['email']
                 password = form.cleaned_data['password']
+                
                 user = authenticate(request, email=email, password=password)
+                
                 if user is not None:
                     login(request, user)
                     complements = {
@@ -99,6 +101,7 @@ def Login_view(request):
         else:
             form = LoginForm()
         return render(request, './users/login.html', {'form': form})
+
 
 
 

@@ -5,11 +5,13 @@ from apps.common.models import Crearnomina , Contratos,NovFijos , EditHistory ,I
 from django.contrib import messages
 from django.db import transaction, models
 from datetime import datetime
-from django.db.models import Sum
+from django.db.models import Sum , Q
 from datetime import timedelta
 from apps.components.humani import format_value
 from django.http import JsonResponse
 from django.utils import timezone
+
+
 
 #prueba git
 @login_required
@@ -114,21 +116,21 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
                 messages.error(request, "Error al realizar procesar la nómina")
                 return redirect('payroll:payrollview', id=idnomina)
             
-        elif  type_payroll == 3:
-            if procesar_nomina_transporte(idnomina, ne , idempresa,empleados_ids):
-                messages.success(request, "Proceso de Transporte realizado correctamente")
-                return redirect('payroll:payrollview', id=idnomina)
-            else :
-                messages.error(request, "Error al realizar procesar la nómina")
-                return redirect('payroll:payrollview', id=idnomina)
+        # elif  type_payroll == 3:
+        #     if procesar_nomina_transporte(idnomina, ne , idempresa,empleados_ids):
+        #         messages.success(request, "Proceso de Transporte realizado correctamente")
+        #         return redirect('payroll:payrollview', id=idnomina)
+        #     else :
+        #         messages.error(request, "Error al realizar procesar la nómina")
+        #         return redirect('payroll:payrollview', id=idnomina)
         
-        elif type_payroll == 4:
-            if procesar_nomina_reset(idnomina, ne, idempresa,empleados_ids,usuario):
-                messages.success(request, "Reinicio de nómina realizado correctamente.")
-                return redirect('payroll:payrollview', id=idnomina)
-            else:
-                messages.error(request, "Error al procesar el reinicio de la nómina.")
-                return redirect('payroll:payrollview', id=idnomina)
+        # elif type_payroll == 4:
+        #     if procesar_nomina_reset(idnomina, ne, idempresa,empleados_ids,usuario):
+        #         messages.success(request, "Reinicio de nómina realizado correctamente.")
+        #         return redirect('payroll:payrollview', id=idnomina)
+        #     else:
+        #         messages.error(request, "Error al procesar el reinicio de la nómina.")
+        #         return redirect('payroll:payrollview', id=idnomina)
         else:
             messages.error(request, "Error #13 al procesar la nómina.")
             return redirect('payroll:payrollview', id=idnomina)
@@ -178,6 +180,47 @@ def procesar_nomina_reset(idn, parte_nomina, idempresa, empleados, iduser):
     return True
 
 
+def calcular_dias_nomina(idn):
+    try:
+        nomina = Crearnomina.objects.get(idnomina=idn)
+    except Crearnomina.DoesNotExist:
+        return "Error: nómina no encontrada"
+
+    fecha_inicio_nomina = nomina.fechainicial
+    fecha_fin_nomina = nomina.fechafinal
+
+    # Contratos vigentes según fechas
+    contratos_vigentes = Contratos.objects.filter(
+        Q(fechainiciocontrato__lte=fecha_fin_nomina) &
+        (Q(fechafincontrato__isnull=True) | Q(fechafincontrato__gte=fecha_inicio_nomina)) &
+        Q(id_empresa=nomina.id_empresa)
+    )
+
+    # Excluir contratos liquidados o retirados antes del inicio de la nómina
+    contratos_excluir = contratos_vigentes.filter(
+        Q(estadoliquidacion='1') | Q(estadoliquidacion='2'),
+        fechafincontrato__lt=fecha_inicio_nomina
+    )
+
+    contratos_finales = contratos_vigentes.exclude(
+        idcontrato__in=contratos_excluir.values_list('idcontrato', flat=True)
+    )
+
+    resultado = {}
+
+    for contrato in contratos_finales:
+        # Fecha inicial efectiva
+        inicio = max(contrato.fechainiciocontrato, fecha_inicio_nomina)
+        # Fecha final efectiva
+        fin = contrato.fechafincontrato if contrato.fechafincontrato else fecha_fin_nomina
+        fin = min(fin, fecha_fin_nomina)
+
+        # Días dentro de la nómina
+        dias = (fin - inicio).days + 1
+        resultado[contrato.idcontrato] = dias
+
+    return resultado
+
 def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     """
     Procesa la nómina básica para todos los contratos activos de una empresa en un periodo determinado.
@@ -218,6 +261,12 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     - Si el concepto ya existe y no tiene historial de edición, se actualiza; de lo contrario, se crea uno nuevo.
     """
     
+    try:
+        nomina = Crearnomina.objects.get(idnomina=idn)
+    except Crearnomina.DoesNotExist:
+        return "Error de creación de nómina"
+    
+    
     if not parte_nomina:
         parte_nomina = 0
 
@@ -231,11 +280,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if empleados: 
         contratos = contratos.filter(idcontrato__in = empleados)
 
-    try:
-        nomina = Crearnomina.objects.get(idnomina=idn)
-    except Crearnomina.DoesNotExist:
-        return "Error de creación de nómina"
 
+    suma = 0
     for contrato in contratos:
         # --- opcional: normalizar a date si hubiera datetimes ---
         def _to_date(d):
@@ -271,19 +317,24 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         if diasnomina > 30:
             diasnomina = 30
 
-        dias_vacaciones = calcular_vacaciones(contrato,nomina)
-        dias_incapacidad = calculo_incapacidad(contrato,nomina)
-        dias_suspensiones = calcular_suspenciones(contrato,nomina)
-        
+
+        dias_vacaciones = calcular_vacaciones(contrato.idcontrato,nomina)
+        dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina)
+        dias_suspensiones = calcular_suspenciones(contrato.idcontrato,nomina)
         
         
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
+
+        suma += diasnomina
+        
+        if dias_vacaciones > 0 or dias_incapacidad > 0 or dias_suspensiones > 0:
+            print(f"Contrato {contrato.idcontrato}: {diasnomina} V: {dias_vacaciones} I: {dias_incapacidad} S:{dias_suspensiones} ")
+
         
 
     
-        
         calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
         calculo_novfija(contrato, idn)
@@ -590,7 +641,6 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
     EPS = Conceptosfijos.objects.get(idfijo = 8)
     AFP = Conceptosfijos.objects.get(idfijo = 10)
     tope_ibc = Conceptosfijos.objects.get(idfijo = 2)
-    print(tope_ibc.valorfijo)
     factor_integral = Conceptosfijos.objects.get(idfijo = 1).valorfijo
     
     ## pruebas de valores 
@@ -675,7 +725,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             
             valoreps = round((total_base_ss * EPS.valorfijo) / 100, 2)
             valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
-            #valorfsp = round((base_ss_fsp * FSP) / 100, 2) if base_ss_fsp >= (sal_min * 4) else 0.00
+            valorfsp = round((base_ss_fsp * FSP) / 100, 2) if base_ss_fsp >= (sal_min * 4) else 0.00
             
 
 
@@ -743,33 +793,33 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             
             
             
-            # if valorfsp > 0:
-            #     aux_pass = Nomina.objects.filter(
-            #         idconcepto=concepto3,
-            #         idcontrato=contrato,
-            #         estadonomina = 1,
-            #         idnomina_id=idn
-            #     ).first()
+            if valorfsp > 0:
+                aux_pass = Nomina.objects.filter(
+                    idconcepto=concepto3,
+                    idcontrato=contrato,
+                    estadonomina = 1,
+                    idnomina_id=idn
+                ).first()
                 
                 
-            #     if aux_pass:
-            #         if not EditHistory.objects.filter(
-            #             id_empresa_id=idempresa,
-            #             modified_object_id=aux_pass.idregistronom,
-            #             modified_model='Nomina',
-            #         ).exists():
-            #             aux_pass.valor = -1*valorfsp
-            #             aux_pass.save() 
+                if aux_pass:
+                    if not EditHistory.objects.filter(
+                        id_empresa_id=idempresa,
+                        modified_object_id=aux_pass.idregistronom,
+                        modified_model='Nomina',
+                    ).exists():
+                        aux_pass.valor = -1*valorfsp
+                        aux_pass.save() 
                                     
-            #     else:
-            #         Nomina.objects.create(
-            #                 idconcepto = concepto3 ,#*
-            #                 cantidad= 0 ,#*
-            #                 estadonomina = 1,
-            #                 valor=-1*valorfsp , #*
-            #                 idcontrato_id=contrato.idcontrato ,
-            #                 idnomina_id = idn ,
-            #             ) 
+                else:
+                    Nomina.objects.create(
+                            idconcepto = concepto3 ,#*
+                            cantidad= 0 ,#*
+                            estadonomina = 1,
+                            valor=-1*valorfsp , #*
+                            idcontrato_id=contrato.idcontrato ,
+                            idnomina_id = idn ,
+                        ) 
                     
     return True
 
@@ -1034,7 +1084,7 @@ def calcular_vacaciones(contrato,nomina ):
     dias_vacaciones = 0
 
     vacaciones = Vacaciones.objects.filter(
-        idcontrato=contrato,
+        idcontrato_id=contrato,
         tipovac__idvac=1
     )
     
@@ -1054,7 +1104,7 @@ def calcular_vacaciones(contrato,nomina ):
             fin_cruce = min(vac.ultimodiavac, nomina.fechafinal)
 
             # 🔹 Cálculo exacto de días calendario dentro de la nómina
-            dias_en_nomina = (fin_cruce - inicio_cruce).days
+            dias_en_nomina = (fin_cruce - inicio_cruce).days + 1
 
             # No sumar el día inicial (según norma nómina)
             dias_vacaciones += dias_en_nomina
@@ -1096,7 +1146,7 @@ def calcular_suspenciones(contrato,nomina ):
     dias_vacaciones = 0
 
     # 🔹 Filtrar solo vacaciones legales (ajustar si Tipoavacaus usa 'codigo' en lugar de 'id')
-    vacaciones = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac__in=[3,4,5])
+    vacaciones = Vacaciones.objects.filter(idcontrato_id=contrato, tipovac__idvac__in=[3,4,5])
 
     for vac in vacaciones:
         # Solo si hay cruce entre vacaciones y periodo de nómina
@@ -1139,15 +1189,9 @@ def calculo_incapacidad(contrato,nomina):
     dias_incapacidad = 0
 
     # 🔹 Obtener incapacidades del contrato actual
-    incapacidades = Incapacidades.objects.filter(idcontrato=contrato)
+    incapacidades = Incapacidades.objects.filter(idcontrato_id=contrato)
     
     for inc in incapacidades:
-        
-        if inc.idcontrato.idcontrato == 8116:
-            print('llege aqui')
-            print(inc.dias)
-            print(inc.fechainicial)
-            print(inc.fechainicial + timedelta(days=inc.dias - 1))
             
         if inc.fechainicial and inc.dias:
             fechaini = inc.fechainicial

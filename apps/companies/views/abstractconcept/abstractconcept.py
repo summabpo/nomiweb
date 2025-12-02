@@ -80,18 +80,6 @@ def abstractconcept(request):
             nominas = Nomina.objects.filter(**filters).order_by('-idnomina')
             nomina = nominas if nominas.exists() else None
 
-            for data in nominas:
-                if data.cantidad < 15 :
-                    aux = f" cantidad : {data.cantidad} contrato : {data.idcontrato}"
-                    print(aux)
-            
-            # # 🔹 Si existe el campo "cantidad" en el modelo Nomina:
-            total_cantidad = nominas.count()
-            
-            
-            
-            print(total_cantidad)
-            
             return render(request, 'companies/abstractconcept.html', {
                 'liquidaciones': nominas,
                 'form': form,

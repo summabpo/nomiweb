@@ -85,11 +85,6 @@ def disabilities(request):
         'idcontrato__id_empresa_id'
     ).order_by('-fechainicial')
 
-    print('-----------')
-    print(incapacidades)
-    print('-----------')
-    
-    
     def clean_value(value):
         """Elimina 'no data' literal y reemplaza None por vacío."""
         if isinstance(value, str) and value.strip().lower() == "no data":
