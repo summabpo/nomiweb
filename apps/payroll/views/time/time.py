@@ -281,6 +281,9 @@ def time_list(request):
         for contrato_id, valores in horas_por_contrato.items():
             salario = valores['salario']
             valor_hora = salario / jmm  # jmm: jornada maxima mensual (horas mensuales)
+            if contrato_id == 7993 :
+                print(salario)
+                print(valor_hora)
 
             # horas festivas normales totales (dentro de la jornada)
             normales_festivas = valores['normales_diurnas_festiva'] + valores['normales_nocturnas_festiva']
@@ -293,9 +296,16 @@ def time_list(request):
             # Aquí asumo que los factores en la BD representan multiplicadores TOTALES
             # (ej. HORA EXTRA DIURNA FACTOR = 1.25). Para sacar la parte adicional:
             def extra_amount(hours, factor):
-                return hours * valor_hora * (factor - 1.0)
+                if contrato_id == 7993 :
+                
+                    print(f" valor hora : {valor_hora}")
+                return hours * valor_hora * factor 
+                
 
             Vhed  = round(extra_amount(valores['hed'], hed_factor), 1)
+            if contrato_id == 7993 :
+                
+                print(f" {Vhed} - {valores['hed']}  {hed_factor} ")
             Vhen  = round(extra_amount(valores['hen'], hen_factor), 1)
             Vhedf = round(extra_amount(valores['hedf'], hedf_factor), 1)
             Vhenf = round(extra_amount(valores['henf'], henf_factor), 1)

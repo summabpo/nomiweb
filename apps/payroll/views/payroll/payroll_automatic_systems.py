@@ -124,13 +124,13 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
         #         messages.error(request, "Error al realizar procesar la nómina")
         #         return redirect('payroll:payrollview', id=idnomina)
         
-        # elif type_payroll == 4:
-        #     if procesar_nomina_reset(idnomina, ne, idempresa,empleados_ids,usuario):
-        #         messages.success(request, "Reinicio de nómina realizado correctamente.")
-        #         return redirect('payroll:payrollview', id=idnomina)
-        #     else:
-        #         messages.error(request, "Error al procesar el reinicio de la nómina.")
-        #         return redirect('payroll:payrollview', id=idnomina)
+        elif type_payroll == 4:
+            if procesar_nomina_reset(idnomina, ne, idempresa,empleados_ids,usuario):
+                messages.success(request, "Reinicio de nómina realizado correctamente.")
+                return redirect('payroll:payrollview', id=idnomina)
+            else:
+                messages.error(request, "Error al procesar el reinicio de la nómina.")
+                return redirect('payroll:payrollview', id=idnomina)
         else:
             messages.error(request, "Error #13 al procesar la nómina.")
             return redirect('payroll:payrollview', id=idnomina)
@@ -301,39 +301,38 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         inicio_periodo = max(inicio_nomina, inicio_contrato)
         fin_periodo = min(fin_nomina, fin_contrato)
         
-
+        if contrato.idcontrato == 8100:
+            print('------1-------')
+            print(f" d {diasnomina} contrato : {contrato.idcontrato} fecha {inicio_contrato} fecha2 {fin_contrato} fp {fin_periodo} ip {inicio_periodo}")
+    
         
         if fin_periodo < inicio_periodo:
             diasnomina = 0
         else:
-            diasnomina = (fin_periodo - inicio_periodo).days  + 1 
+            diasnomina = (fin_periodo - inicio_periodo).days  
             
-            if diasnomina > nomina.diasnomina :
-                diasnomina = nomina.diasnomina
-
-
         
-        # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
-        if diasnomina > 30:
-            diasnomina = 30
-
+        if contrato.idcontrato == 8100:
+            print('-------2------')
+            print(f" d {diasnomina} contrato : {contrato.idcontrato}")
 
         dias_vacaciones = calcular_vacaciones(contrato.idcontrato,nomina)
         dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina)
         dias_suspensiones = calcular_suspenciones(contrato.idcontrato,nomina)
         
+        d = diasnomina
         
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
+        if contrato.idcontrato == 8100:
+            print('-------3------')
+            print(f" d {diasnomina} contrato : {contrato.idcontrato}")
 
-        suma += diasnomina
-        
-        if dias_vacaciones > 0 or dias_incapacidad > 0 or dias_suspensiones > 0:
-            print(f"Contrato {contrato.idcontrato}: {diasnomina} V: {dias_vacaciones} I: {dias_incapacidad} S:{dias_suspensiones} ")
-
-        
-
+        #if contrato.idcontrato in [7962,8105,11422,11423,11427,11428,11429]  :
+        if contrato.idcontrato == 8100:
+            print('-------4------')
+            print(f" v {dias_vacaciones} i {dias_incapacidad} s {dias_suspensiones}  d {d} contrato : {contrato.idcontrato}")
     
         calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
@@ -354,7 +353,17 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             if diasnomina > 30:
                 diasnomina = 30
                 
+            
+            if diasnomina > nomina.diasnomina :
+                diasnomina = nomina.diasnomina
+        
+
             valorsalario = (contrato.salario / 30) * diasnomina
+
+            
+            if contrato.idcontrato == 8100:
+                print('-----5--------')
+                print(f" d {diasnomina} contrato : {contrato.idcontrato}")
             
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto,
@@ -372,6 +381,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
                     aux_pass.cantidad = diasnomina
                     aux_pass.valor = valorsalario
                     aux_pass.save()  
+                    
             else:
                 Nomina.objects.create(
                     idconcepto = concepto ,#*
@@ -692,6 +702,12 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
         ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
         
+        
+        from decimal import Decimal
+
+        base_ss_fsp2 = base_ss_fsp * Decimal('0.7')
+
+        
         if total_base_ss > 0:
                     
             concepto1 = Conceptosdenomina.objects.get(codigo=60, id_empresa_id=idempresa)
@@ -725,7 +741,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             
             valoreps = round((total_base_ss * EPS.valorfijo) / 100, 2)
             valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
-            valorfsp = round((base_ss_fsp * FSP) / 100, 2) if base_ss_fsp >= (sal_min * 4) else 0.00
+            valorfsp = round((base_ss_fsp2 * FSP) / 100, 2) if base_ss_fsp2 >= (sal_min * 4) else 0.00
             
 
 
@@ -794,6 +810,9 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             
             
             if valorfsp > 0:
+                valorfsp = valorfsp / 2 
+                # round((base_ss_fsp * FSP) / 100, 2) if base_ss_fsp >= (sal_min * 4) else 0.00 
+                
                 aux_pass = Nomina.objects.filter(
                     idconcepto=concepto3,
                     idcontrato=contrato,
@@ -1055,7 +1074,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
     return True
         
 
-def calcular_vacaciones(contrato,nomina ):
+def calcular_vacaciones(contrato,nomina):
     """
     Calcula los días de vacaciones que se cruzan con el período de la nómina.
 
@@ -1110,7 +1129,9 @@ def calcular_vacaciones(contrato,nomina ):
             dias_vacaciones += dias_en_nomina
 
             # Debug opcional
-
+            if nomina.fechafinal.day == 31:
+                dias_vacaciones -= 1
+                
     return dias_vacaciones
 
 

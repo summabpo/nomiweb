@@ -249,12 +249,14 @@ def generate_summary(idnomina,idempresa , data = 0):
     descuentos = sorted(descuentos, key=lambda x: x['idconcepto__codigo'])
     
     
+    
+    
     # ingresos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
     # descuentos.sort(key=lambda x: x['idconcepto__nombreconcepto'])
     
     # Combinar ingresos y descuentos
     grouped_nominas = ingresos + descuentos
-    
+
     # Obtener la cantidad de empleados distintos
     cantidad_empleados = nominas.values('idcontrato__idempleado').distinct().count()
     
