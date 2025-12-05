@@ -116,13 +116,13 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
                 messages.error(request, "Error al realizar procesar la nómina")
                 return redirect('payroll:payrollview', id=idnomina)
             
-        # elif  type_payroll == 3:
-        #     if procesar_nomina_transporte(idnomina, ne , idempresa,empleados_ids):
-        #         messages.success(request, "Proceso de Transporte realizado correctamente")
-        #         return redirect('payroll:payrollview', id=idnomina)
-        #     else :
-        #         messages.error(request, "Error al realizar procesar la nómina")
-        #         return redirect('payroll:payrollview', id=idnomina)
+        elif  type_payroll == 3:
+            if procesar_nomina_transporte(idnomina, ne , idempresa,empleados_ids):
+                messages.success(request, "Proceso de Transporte realizado correctamente")
+                return redirect('payroll:payrollview', id=idnomina)
+            else :
+                messages.error(request, "Error al realizar procesar la nómina")
+                return redirect('payroll:payrollview', id=idnomina)
         
         elif type_payroll == 4:
             if procesar_nomina_reset(idnomina, ne, idempresa,empleados_ids,usuario):
@@ -301,10 +301,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         inicio_periodo = max(inicio_nomina, inicio_contrato)
         fin_periodo = min(fin_nomina, fin_contrato)
         
-        if contrato.idcontrato == 8100:
-            print('------1-------')
-            print(f" d {diasnomina} contrato : {contrato.idcontrato} fecha {inicio_contrato} fecha2 {fin_contrato} fp {fin_periodo} ip {inicio_periodo}")
-    
         
         if fin_periodo < inicio_periodo:
             diasnomina = 0
@@ -312,9 +308,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             diasnomina = (fin_periodo - inicio_periodo).days  
             
         
-        if contrato.idcontrato == 8100:
-            print('-------2------')
-            print(f" d {diasnomina} contrato : {contrato.idcontrato}")
+    
 
         dias_vacaciones = calcular_vacaciones(contrato.idcontrato,nomina)
         dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina)
@@ -325,14 +319,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
-        if contrato.idcontrato == 8100:
-            print('-------3------')
-            print(f" d {diasnomina} contrato : {contrato.idcontrato}")
+    
 
-        #if contrato.idcontrato in [7962,8105,11422,11423,11427,11428,11429]  :
-        if contrato.idcontrato == 8100:
-            print('-------4------')
-            print(f" v {dias_vacaciones} i {dias_incapacidad} s {dias_suspensiones}  d {d} contrato : {contrato.idcontrato}")
     
         calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
@@ -361,10 +349,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             valorsalario = (contrato.salario / 30) * diasnomina
 
             
-            if contrato.idcontrato == 8100:
-                print('-----5--------')
-                print(f" d {diasnomina} contrato : {contrato.idcontrato}")
-            
+        
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto,
                 idcontrato=contrato,

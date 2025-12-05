@@ -125,6 +125,10 @@ def time_list(request):
         CO_HOLIDAYS = holidays.CO(years=ano_obj.ano)
         horas_por_contrato = {}
 
+        inicio_horario = int(Conceptosfijos.objects.get(conceptofijo = "HORARIO NOCTURNO INICIO").valorfijo)
+        fin_horario = int(Conceptosfijos.objects.get(conceptofijo = "HORARIO NOCTURNO FIN").valorfijo)
+    
+        
         conceptos = Conceptosfijos.objects.filter(
             conceptofijo__in=[
                 'JORNADA MAXIMA MENSUAL',
@@ -139,7 +143,7 @@ def time_list(request):
 
         factores = {c['conceptofijo']: float(c['valorfijo']) for c in conceptos}
 
-        jmm = factores.get('JORNADA MAXIMA MENSUAL', 240.0)  # ejemplo 240h/mes
+        jmm = factores.get('JORNADA MAXIMA MENSUAL', 220.0)  # ejemplo 220h/mes
         hed_factor  = factores.get('HORA EXTRA DIURNA FACTOR', 1.0)
         hen_factor  = factores.get('HORA EXTRA NOCTURNA FACTOR', 1.0)
         hedf_factor = factores.get('HORA EXTRA DIURNA FESTIVA FACTOR', 1.0)
@@ -185,18 +189,29 @@ def time_list(request):
             base_hours = 8.0
 
             hora_actual = dt_ingreso
-            end_time = dt_salida_adj
+            end_time = dt_salida
             step = timedelta(minutes=1)  # precisión por minuto
-
+            slice_date = hora_actual.date()
+            
+            if slice_date == date(2025, 10, 2):
+                print(f" in : {dt_ingreso} out {end_time}")
+                print(f" H1 {time(fin_horario, 0)} H2 {time(inicio_horario, 0)}")
+                print('-----------------')
+                
             while hora_actual < end_time:
                 siguiente = min(hora_actual + step, end_time)
                 dur = (siguiente - hora_actual).total_seconds() / 3600.0
-                slice_date = hora_actual.date()
+                
                 is_domingo = slice_date.weekday() == 6
                 is_festivo = slice_date in CO_HOLIDAYS
                 is_festivo_o_dominio = is_festivo or is_domingo
-                is_nocturna = not (time(6, 0) <= hora_actual.time() < time(21, 0))
-
+                is_nocturna = not (time(fin_horario, 0) <= hora_actual.time() < time(inicio_horario, 0))
+                
+                
+                
+                if slice_date == date(2025, 10, 2):
+                    print(f" I : {hora_actual}  d : {is_domingo} f : {is_festivo}  f_d : {is_festivo_o_dominio} n : {is_nocturna}")
+                
                 key_day = (id_contrato, slice_date)
                 used_regular = daily_regular.get(key_day, 0.0)
                 remaining_regular = max(0.0, base_hours - used_regular)
@@ -255,6 +270,7 @@ def time_list(request):
             if id_contrato not in horas_por_contrato:
                 horas_por_contrato[id_contrato] = {
                     'salario': salario,
+                    'horas_normales': 1.0,
                     'horas_trabajadas': 0.0,
                     'normales_diurnas': 0.0,
                     'normales_nocturnas': 0.0,
@@ -276,14 +292,13 @@ def time_list(request):
             acc['hen'] += hen
             acc['hedf'] += hedf
             acc['henf'] += henf
+        
+            acc['horas_normales'] += henf
 
         # Calcular valores (NOTA: la interpretación de los "factores" puede variar — abajo comento cómo adaptarlo)
         for contrato_id, valores in horas_por_contrato.items():
             salario = valores['salario']
             valor_hora = salario / jmm  # jmm: jornada maxima mensual (horas mensuales)
-            if contrato_id == 7993 :
-                print(salario)
-                print(valor_hora)
 
             # horas festivas normales totales (dentro de la jornada)
             normales_festivas = valores['normales_diurnas_festiva'] + valores['normales_nocturnas_festiva']
@@ -296,16 +311,10 @@ def time_list(request):
             # Aquí asumo que los factores en la BD representan multiplicadores TOTALES
             # (ej. HORA EXTRA DIURNA FACTOR = 1.25). Para sacar la parte adicional:
             def extra_amount(hours, factor):
-                if contrato_id == 7993 :
-                
-                    print(f" valor hora : {valor_hora}")
                 return hours * valor_hora * factor 
                 
 
             Vhed  = round(extra_amount(valores['hed'], hed_factor), 1)
-            if contrato_id == 7993 :
-                
-                print(f" {Vhed} - {valores['hed']}  {hed_factor} ")
             Vhen  = round(extra_amount(valores['hen'], hen_factor), 1)
             Vhedf = round(extra_amount(valores['hedf'], hedf_factor), 1)
             Vhenf = round(extra_amount(valores['henf'], henf_factor), 1)
@@ -364,59 +373,58 @@ def time_list(request):
     # ---------- Lógica principal ----------
         if selected_nomina_id:
             try:
-                nomina_sel = Crearnomina.objects.get(
-                    idnomina=selected_nomina_id,
-                    id_empresa_id=idempresa
-                )
-                if nomina_sel.fechainicial and nomina_sel.fechafinal:
-                    tiempos_agregados = (
-                        Tiempos.objects
-                        .filter(
-                            idempresa_id=idempresa,
-                            fechaingreso__gte=nomina_sel.fechainicial,
-                            fechaingreso__lte=nomina_sel.fechafinal
-                        )
-                        .values(
-                            'idcontrato_id', 'horaingreso', 'horasalida',
-                            'horasdescuentos', 'fechaingreso', 'fechasalida'
-                        )
+                # nomina_sel = Crearnomina.objects.get(
+                #     idnomina=selected_nomina_id,
+                #     id_empresa_id=idempresa
+                # )
+                #if nomina_sel.fechainicial and nomina_sel.fechafinal:
+                tiempos_agregados = (
+                    Tiempos.objects
+                    .filter(
+                        idnomina_id = selected_nomina_id
                     )
+                    .values(
+                        'idcontrato_id', 'horaingreso', 'horasalida',
+                        'horasdescuentos', 'fechaingreso', 'fechasalida'
+                    )
+                )
 
-                    # Calculamos todas las horas
-                    horas_por_contrato = calcular_horas_extras(tiempos_agregados)
+                # Calculamos todas las horas
+                horas_por_contrato = calcular_horas_extras(tiempos_agregados)
+                
+                # Normalizamos a formato decimal
+                empleados_con_horas = []
+                for emp in empleados:
+                    try:
+                        emp_id = int(emp['idcontrato'])
+                    except Exception:
+                        emp_id = str(emp['idcontrato'])
+
+                    data = horas_por_contrato.get(emp_id, {})
+                    ## horas 
+                    emp['horas_trabajadas'] = data.get('horas_trabajadas', 0)
+                    emp['horas_normales'] = data.get('horas_trabajadas', 0) - ( data.get('hed', 0) + data.get('hen', 0) + data.get('hedf', 0) + data.get('henf', 0) + data.get('rn', 0) )
                     
-                    # Normalizamos a formato decimal
-                    empleados_con_horas = []
-                    for emp in empleados:
-                        try:
-                            emp_id = int(emp['idcontrato'])
-                        except Exception:
-                            emp_id = str(emp['idcontrato'])
+                    emp['hed'] = data.get('hed', 0)
+                    emp['hen'] = data.get('hen', 0)
+                    emp['hedf'] = data.get('hedf', 0)
+                    emp['henf'] = data.get('henf', 0)
+                    emp['rn'] = data.get('normales_nocturnas', 0)
+                    
+                    ## values 
+                    emp['Vhed'] = data.get('Vhed', 0)
+                    emp['Vhen'] = data.get('Vhen', 0)
+                    emp['Vhedf'] = data.get('Vhedf', 0)
+                    emp['Vhenf'] = data.get('Vhenf', 0)
+                    emp['Vrn'] = data.get('Vrn', 0)
+                    emp['Vdyf'] = data.get('Vdyf', 0)
+                    emp['dyf'] = data.get('dyf', 0)
+                    emp['ValorExtras'] = data.get('ValorExtras', 0)
 
-                        data = horas_por_contrato.get(emp_id, {})
-                        ## horas 
-                        emp['horas_trabajadas'] = data.get('horas_trabajadas', 0)
-                        emp['horas_normales'] = data.get('horas_normales', 0)
-                        emp['hed'] = data.get('hed', 0)
-                        emp['hen'] = data.get('hen', 0)
-                        emp['hedf'] = data.get('hedf', 0)
-                        emp['henf'] = data.get('henf', 0)
-                        emp['rn'] = data.get('rn', 0)
-                        
-                        ## values 
-                        emp['Vhed'] = data.get('Vhed', 0)
-                        emp['Vhen'] = data.get('Vhen', 0)
-                        emp['Vhedf'] = data.get('Vhedf', 0)
-                        emp['Vhenf'] = data.get('Vhenf', 0)
-                        emp['Vrn'] = data.get('Vrn', 0)
-                        emp['Vdyf'] = data.get('Vdyf', 0)
-                        emp['dyf'] = data.get('dyf', 0)
-                        emp['ValorExtras'] = data.get('ValorExtras', 0)
-
-                        if emp['horas_trabajadas'] > 0:
-                            empleados_con_horas.append(emp)
-                    empleados = empleados_con_horas
-                    value2 = True
+                    if emp['horas_trabajadas'] > 0:
+                        empleados_con_horas.append(emp)
+                empleados = empleados_con_horas
+                value2 = True
 
             except Crearnomina.DoesNotExist:
                 pass
@@ -458,7 +466,7 @@ def time_list(request):
                     'idempresa': empresa,
                 }
             )
-            print("Creado:", created, "→", obj)
+            
 
         messages.success(request, 'Tiempos guardados correctamente')
 
@@ -615,6 +623,9 @@ def time_doc(request, id):
 
     tiempos = Tiempos.objects.filter(idnomina=id).select_related('idcontrato__idsede')
 
+    inicio_horario = int(Conceptosfijos.objects.get(conceptofijo = "HORARIO NOCTURNO INICIO").valorfijo)
+    fin_horario = int(Conceptosfijos.objects.get(conceptofijo = "HORARIO NOCTURNO FIN").valorfijo)
+        
     wb = Workbook()
     ws = wb.active
     ws.title = "Tiempo Marcados"
@@ -649,16 +660,9 @@ def time_doc(request, id):
         'Dyf': 0
     }
 
-    def convertir_a_horas_decimal(hora_obj):
-        if isinstance(hora_obj, time):
-            return hora_obj.hour + hora_obj.minute / 60 + hora_obj.second / 3600
-        elif isinstance(hora_obj, str):
-            hora_obj = hora_obj.strip().lower().replace('.', '')
-            hora_obj = hora_obj.replace('a m', 'am').replace('p m', 'pm')
-            hora_24 = datetime.strptime(hora_obj, "%I:%M:%S %p").time()
-            return hora_24.hour + hora_24.minute / 60 + hora_24.second / 3600
-        else:
-            return float(hora_obj or 0)
+    
+    
+    
 
     def agregar_totales_contrato(contrato_id):
         """Agrega una fila con los totales acumulados del contrato actual."""
@@ -701,55 +705,123 @@ def time_doc(request, id):
             current_contract = contrato_id
             color_index = (color_index + 1) % len(colors)
             fill = PatternFill(start_color=colors[color_index],
-                               end_color=colors[color_index],
-                               fill_type="solid")
+                                end_color=colors[color_index],
+                                fill_type="solid")
+        MINUTO_HORA = 1
+        
+        # Inicializar contadores (en horas)
+        horas_trabajadas = 0.0
+        horas_ordinarias = 0.0
+        hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = timee = 0.0
 
-        horas_trabajadas = horas_ordinarias = 0
-        hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = 0
+        inicio = datetime.combine(registro.fechaingreso, registro.horaingreso)
+        fin = datetime.combine(registro.fechasalida, registro.horasalida)
 
-        if registro.horaingreso and registro.horasalida:
-            try:
-                hora_ingreso = convertir_a_horas_decimal(registro.horaingreso)
-                hora_salida = convertir_a_horas_decimal(registro.horasalida)
-                hora_descuento = convertir_a_horas_decimal(registro.horasdescuentos) if registro.horasdescuentos else 0
+        actual = inicio
+        paso = timedelta(minutes=1)
 
-                if hora_salida < hora_ingreso:
-                    hora_salida += 24
+        # Rangos diurnos (ajusta si tu política es otra)
+        
+        inicio_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO INICIO").valorfijo)
+        fin_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO FIN").valorfijo)
 
-                horas_trabajadas = round(hora_salida - hora_ingreso - hora_descuento, 2)
-                horas_ordinarias = min(horas_trabajadas, 8)
+        noct_inicio = time(inicio_int, 0, 0)
+        noct_fin = time(fin_int, 0, 0)
 
-                fecha = registro.fechaingreso
-                es_domingo = fecha.weekday() == 6
-                es_festivo = fecha in CO_HOLIDAYS
+        # Diurna es el complemento del rango nocturno
+        inicio_diurna = noct_fin
+        fin_diurna = noct_inicio
 
-                for h in range(int(hora_ingreso), int(hora_salida)):
-                    hora_actual = (hora_ingreso + (h - hora_ingreso))
-                    if 6 <= hora_actual < 21:
-                        if es_domingo or es_festivo:
-                            hedf += 1
-                        elif h >= 8:
-                            hed += 1
-                    else:
-                        if es_domingo or es_festivo:
-                            henf += 1
-                        elif h >= 8:
-                            hen += 1
 
-                    if hora_actual >= 21 or hora_actual < 6:
-                        rn += 1
-                        if es_domingo or es_festivo:
-                            rnf += 1
+        au = actual.date()
+        is_domingo = au.weekday() == 6
+        is_festivo = au in CO_HOLIDAYS
+        is_festivo_o_dom = is_domingo or is_festivo
+        
+        
+        while actual < fin:
+            fecha = actual.date()
+            hora = actual.time()
 
-                if es_domingo or es_festivo:
-                    horas_domfes = horas_trabajadas
-                    dyf = horas_domfes
+            is_domingo = fecha.weekday() == 6
+            is_festivo = fecha in CO_HOLIDAYS
+            
+            is_festivo_o_dom = is_domingo or is_festivo
+            is_nocturna = hora < inicio_diurna or hora >= fin_diurna
+            
+                    
+            # Sumar 1 minuto
+            horas_trabajadas += MINUTO_HORA
+            # Validación de 480 minutos ( 8 horas de trabajo )
+            if (actual - inicio) >= timedelta(minutes=480):
+                if is_nocturna:
+                    hen += MINUTO_HORA
+                else:
+                    hed += MINUTO_HORA
+            else : 
+                if is_festivo_o_dom:
+                    if is_nocturna:
+                        rnf += MINUTO_HORA
+                    horas_domfes += MINUTO_HORA 
+                else : 
+                    if is_nocturna:
+                        rn += MINUTO_HORA
 
-            except Exception as e:
-                print(f"Error calculando horas para contrato {contrato_id}: {e}")
+            # avanzar
+            actual += paso
+                
+        # Calcular horas ordinarias inicialmente como diferencia
+        horas_ordinarias = (
+            horas_trabajadas
+            - (hed + hen + hedf + henf + rn + rnf + dyf)
+        )  
+        
+        
 
+        # --- Aplicar horas de descuento si existen ---
+        # registro.horasdescuentos es TimeField (HH:MM:SS) -> convertir a horas float
+        if registro.horasdescuentos:
+            h = registro.horasdescuentos
+            descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
+        else:
+            descuento_horas = 0.0
+            
+        
+        horas_trabajadas = horas_trabajadas / 60.0
+        hed = hed / 60.0
+        hen = hen / 60.0
+
+
+        if hed >= descuento_horas:
+            hed -= descuento_horas
+
+        if hen >= descuento_horas:
+            hen -= descuento_horas
+        
+        
+        rn = rn / 60.0
+        rnf = rnf / 60.0
+        dyf  = dyf / 60.0
+        
+        if horas_domfes > 0:
+            horas_domfes  = (horas_domfes / 60.0 ) - rn - rnf - descuento_horas
+        
+        
+        horas_trabajadas -= descuento_horas
+        
+    
+        
+        if  horas_domfes > horas_trabajadas : 
+            horas_domfes -= (descuento_horas) 
+        
+
+        horas_ordinarias = horas_trabajadas - (hed + hen + hedf + henf + rn + rnf + dyf + horas_domfes)
+        horas_ordinarias = max(horas_ordinarias, 0)
+        
+        
+        
         # Acumular totales
-        acumulados['HorasTraba'] += horas_trabajadas
+        acumulados['HorasTraba'] += horas_trabajadas 
         acumulados['HorasOrdi'] += horas_ordinarias
         acumulados['HorasDomFes'] += horas_domfes
         acumulados['Hed'] += hed
@@ -777,8 +849,8 @@ def time_doc(request, id):
             registro.idcontrato.idsede.nombresede if registro.idcontrato.idsede else "",
         ]
 
-        if contrato_id == 7994 :
-            ws.append(row)
+        
+        ws.append(row)
 
         for cell in ws[ws.max_row]:
             cell.fill = fill
@@ -787,10 +859,11 @@ def time_doc(request, id):
         ws.cell(row=ws.max_row, column=5).number_format = 'DD/MM/YYYY'
 
     # 🔚 Totales del último contrato
-    #agregar_totales_contrato(current_contract)
+    agregar_totales_contrato(current_contract)
 
     output = BytesIO()
     wb.save(output)
+    wb.close() 
     output.seek(0)
 
     response = HttpResponse(
@@ -798,6 +871,12 @@ def time_doc(request, id):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = 'attachment; filename="Tiempo_Marcados.xlsx"'
+    
+    # Evitar caché
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    
     return response
     
 
