@@ -64,7 +64,7 @@ urlpatterns = [
     path('settlements/vacation/', vacation_settlement.vacation_days_calc, name='vacation_days_calc'),
     
     path('settlements/bonus/p', bonus_settlement.bonus_p_settlement, name='bonus_p_settlement'),
-    path('settlements/bonus/p/add', bonus_settlement.bonus_p_settlement_add, name='bonus_p_settlement_add'),
+    path('settlements/bonus/p/add/<str:fecha_init>/<str:fecha_fin>/<str:p>', bonus_settlement.bonus_p_settlement_add, name='bonus_p_settlement_add'),
     
     path('settlements/termination', severance_settlement.settlement_list, name='settlement_list'),
     path('settlements/termination/payroll/<str:id>/<int:url>', severance_settlement.settlement_list_payroll, name='settlement_list_payroll'),

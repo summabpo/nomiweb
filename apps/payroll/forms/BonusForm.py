@@ -76,6 +76,10 @@ class BonusAddForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
+        fecha_init = kwargs.pop('fecha_init', None)
+        fecha_fin = kwargs.pop('fecha_fin', None)
+        p = kwargs.pop('p', None) 
+        
         super().__init__(*args, **kwargs)
         
         self.fields['Payroll'] = forms.ChoiceField(
@@ -110,8 +114,8 @@ class BonusAddForm(forms.Form):
             'up-target': '#modal-content',
             'up-mode': 'replace',
             'up-layer': 'current',  # Clave para resolver el error
-            'up-submit': reverse('payroll:bonus_p_settlement_add'),
-            'up-accept-location': reverse('payroll:bonus_p_settlement_add'),
+            'up-submit': reverse('payroll:bonus_p_settlement_add',args=[fecha_init, fecha_fin, p]) ,
+            'up-accept-location': reverse('payroll:bonus_p_settlement_add',args=[fecha_init, fecha_fin, p]),
             'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
         })
 

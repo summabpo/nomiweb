@@ -597,6 +597,10 @@ class Contratos(models.Model):
     2- retirado
     1 - en proceso por retirar de ss
     """
+    
+    
+    ModalidadSalario = ( ('', '----------'), ('1', 'Variable'), ('2', 'Fijo'), ('3', 'Mixto'), )
+    
     idcontrato = models.AutoField(primary_key=True) 
     cargo = models.ForeignKey(Cargos, on_delete=models.DO_NOTHING) 
     fechainiciocontrato = models.DateField(blank=True, null=True)
@@ -627,7 +631,7 @@ class Contratos(models.Model):
     idcosto = models.ForeignKey(Costos, models.DO_NOTHING, blank=True, null=True)
     idsubcosto = models.ForeignKey(Subcostos, models.DO_NOTHING, blank=True, null=True)
     idsede = models.ForeignKey(Sedes, models.DO_NOTHING, blank=True, null=True) 
-    salariovariable = models.SmallIntegerField(blank=True, null=True,default=2)
+    salariovariable = models.SmallIntegerField(blank=True,choices=ModalidadSalario, null=True,default=2)
     codeps = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_eps'  ) 
     codafp = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_afp'  ) 
     codccf = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_ccf'  ) 

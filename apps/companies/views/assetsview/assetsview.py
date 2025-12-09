@@ -5,6 +5,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 
+ModalidadSalario = (
+    ('', '----------'),
+    ('1', 'Variable'),
+    ('2', 'Fijo'),
+    ('3', 'Mixto'),
+)
 
 
 @login_required
@@ -44,12 +50,18 @@ def contractview(request,id):
         '4': 'Falla'
     }
     
+    MODALIDAD_SALARIO_DICT = {
+        '1': 'Variable',
+        '2': 'Fijo',
+        '3': 'Mixto',
+    }
+    
     try:
         contrato = Contratos.objects.get(idcontrato = id)  # Cambia la lógica según tu modelo
         # Usamos una función auxiliar para devolver '' si el campo es None
         def safe_get(value):
             return value if value is not None else ''
-
+        
         response_data = {
             'idcontrato': safe_get(contrato.idcontrato),
             'dateinit': safe_get(contrato.fechainiciocontrato),
@@ -60,7 +72,7 @@ def contractview(request,id):
             'modelo': safe_get(contrato.idmodelo.nombremodelo),
             'salario': safe_get(contrato.salario),
             'tiposalario': safe_get(contrato.tiposalario.tiposalario),
-            'modalidadsalario': safe_get(contrato.salariovariable),
+            'modalidadsalario': MODALIDAD_SALARIO_DICT.get(str(contrato.salariovariable), '----------'),
             'vivetrabajo': 'Si' if contrato.auxiliotransporte else 'No',
             'ciudadcontratacion': safe_get(contrato.ciudadcontratacion.ciudad),
             'bancocuenta': contrato.bancocuenta.nombanco if contrato.bancocuenta else '',

@@ -193,10 +193,6 @@ def time_list(request):
             step = timedelta(minutes=1)  # precisión por minuto
             slice_date = hora_actual.date()
             
-            if slice_date == date(2025, 10, 2):
-                print(f" in : {dt_ingreso} out {end_time}")
-                print(f" H1 {time(fin_horario, 0)} H2 {time(inicio_horario, 0)}")
-                print('-----------------')
                 
             while hora_actual < end_time:
                 siguiente = min(hora_actual + step, end_time)
@@ -206,12 +202,7 @@ def time_list(request):
                 is_festivo = slice_date in CO_HOLIDAYS
                 is_festivo_o_dominio = is_festivo or is_domingo
                 is_nocturna = not (time(fin_horario, 0) <= hora_actual.time() < time(inicio_horario, 0))
-                
-                
-                
-                if slice_date == date(2025, 10, 2):
-                    print(f" I : {hora_actual}  d : {is_domingo} f : {is_festivo}  f_d : {is_festivo_o_dominio} n : {is_nocturna}")
-                
+            
                 key_day = (id_contrato, slice_date)
                 used_regular = daily_regular.get(key_day, 0.0)
                 remaining_regular = max(0.0, base_hours - used_regular)

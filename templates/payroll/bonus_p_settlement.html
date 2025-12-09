@@ -140,7 +140,9 @@ Listado de Empleados
             up-dismissable ="false"
             up-cache="false"
 
-            href="{% url 'payroll:bonus_p_settlement_add' %}">
+            href="{% url 'payroll:bonus_p_settlement_add' date_init_str date_end_str proy %}" 
+            
+            >
             <i class="fa-solid fa-plus"></i> Agregar
         </a> 
 
