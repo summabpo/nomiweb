@@ -136,7 +136,6 @@ def electronic_payroll_detail(request, pk=None):
 def electronic_payroll_generate_detail(query_detail_all, contrato_id):
     filtered_data = [item for item in query_detail_all if item['contrato_id'] == contrato_id]
     # Ahora filtered_data contiene solo los registros con el ID filtrado
-    print(filtered_data)
     return filtered_data
 
 
@@ -850,7 +849,7 @@ def electronic_payroll_generate_refactor(request, pk=None):
 
         # Get the generated ID
         generated_id = datail_payroll.id_detalle_nomina_electronica
-        print(f"Generated ID: {generated_id}")
+        
 
         employee_concepts = [concept for concept in concept_details if concept['contrato_id'] == detail['id']]
         employee_json = generate_employee_json(detail, container, company_data, employee_concepts, generated_id)
@@ -950,7 +949,7 @@ def electronic_payroll_regenerate(request, pk=None):
         detail_payroll.save()
 
         # Optionally, you can print or log the generated JSON
-        print(formatted_json)
+        
 
     messages.success(request, 'Nómina Generada Exitosamente.')
     return redirect('payroll:detalle_nomina_electronica', pk=container.idnominaelectronica)
@@ -965,7 +964,7 @@ def electronic_payroll_token(empresa):
     response_data = response.json()
     code_response = response_data.get("codigo")
     token = response_data.get("token")
-    print(response.text)
+    
     return code_response, token
 
 #method to send json a provider
@@ -996,7 +995,7 @@ def electronic_payroll_validate_send(request, pk=None):
     details = NeDetalleNominaElectronica.objects.get(id_detalle_nomina_electronica=pk)
     JsonResponse = electronic_payroll_send(details.id_ne_datos_mensual.empresa.idempresa, details.json_nomina)
     JsonResponse = json.loads(JsonResponse)
-    print(JsonResponse)
+
     estado_codigo = JsonResponse.get("estado", {}).get("codigo")
     
     # Pretty print the JSON response
@@ -1031,7 +1030,6 @@ def electronic_payroll_validate_masive_send(request, pk=None):
     for detail in details_payroll:
         JsonResponse = electronic_payroll_send(detail.id_ne_datos_mensual.empresa.idempresa, detail.json_nomina)
         JsonResponse = json.loads(JsonResponse)
-        print(JsonResponse)
         estado_codigo = JsonResponse.get("estado", {}).get("codigo")
         
         # Pretty print the JSON response
@@ -1081,7 +1079,7 @@ def electronic_payroll_detail_view(request, pk=None):
         employee_salary = F('id_contrato__salario'),
         employee_entry_date = F('id_contrato__fechainiciocontrato'),
     ).get(id_detalle_nomina_electronica=pk)
-    print(detail_payroll.container_id)
+    
     detail_payroll_response = NeRespuestaDian.objects.filter(id_ne_detalle_nomina_electronica=pk)
 
     cune = None

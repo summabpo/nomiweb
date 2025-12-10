@@ -43,11 +43,15 @@ def employee_benefits_provision(request):
             
             for contrato in contratos_empleados:
                 salario = contrato['salario']
+                
+                cc = Conceptosfijos.objects.get(conceptofijo = 'CESANTIAS').valorfijo
+                icc = Conceptosfijos.objects.get(conceptofijo = 'Intereses de Cesantias').valorfijo
+                vac = Conceptosfijos.objects.get(conceptofijo = 'Vacaciones').valorfijo
 
-                cesantias = salario * 0.0833
-                intereses = salario * 0.01
-                prima = salario * 0.0833
-                vacaciones = salario * 0.0417
+                cesantias = salario * (cc/100)
+                intereses = salario * (icc/100)  
+                prima = salario * (cc/100)
+                vacaciones = salario *(vac/100)  
 
                 total = cesantias + intereses + prima + vacaciones
 
