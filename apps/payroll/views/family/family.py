@@ -36,8 +36,14 @@ def family_list(request):
     Indicador : Modelo que representa agrupaciones o clasificaciones de conceptos de nómina.
     """
 
-    familys = Indicador.objects.all().order_by('id')
-    return render(request, './payroll/family_list.html',{'familys': familys})
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+
+    familys = Indicador.objects.filter(
+        indicador__id_empresa=idempresa  
+    ).distinct().order_by('id')
+
+    return render(request, './payroll/family_list.html', {'familys': familys})
    
    
    

@@ -1,8 +1,9 @@
 from django.shortcuts import render,redirect
 from apps.administrator.forms.companiesForm import CompaniesForm
-from apps.common.models import  Empresa, Ciudades, Paises, Entidadessegsocial, Bancos
+from apps.common.models import  Empresa, Ciudades, Paises, Entidadessegsocial, Bancos , Conceptosdenomina ,Familia
 from django.http import JsonResponse
-
+from django.http import HttpResponse
+from django.urls import reverse
 
 def createcompanies_admin(request):
     
@@ -95,6 +96,12 @@ def addcompanies_admin(request):
             ige100 = form.cleaned_data.get('ige100', '')
             ajustarnovedad = form.cleaned_data.get('ajustarnovedad', '')
             
+            metodoextras = "SI" if form.cleaned_data.get('metodoextras') else "NO"
+            realizarparafiscales = "SI" if form.cleaned_data.get('realizarparafiscales') else "NO"
+            vstccf = "SI" if form.cleaned_data.get('vstccf') else "NO"
+            vstsenaicbf = "SI" if form.cleaned_data.get('vstsenaicbf') else "NO"
+            ige100 = "SI" if form.cleaned_data.get('ige100') else "NO"
+            slntarifapension = "SI" if form.cleaned_data.get('slntarifapension') else "NO"
                         
             empresa = Empresa(
                 nit=form.cleaned_data['nit'],
@@ -105,7 +112,7 @@ def addcompanies_admin(request):
                 direccionempresa=form.cleaned_data['direccionempresa'],
                 telefono=form.cleaned_data['telefono'],
                 email=form.cleaned_data['email'],
-                codciudad=Ciudades.objects.get(idciudad=form.cleaned_data['codciudad']),
+                idciudad=Ciudades.objects.get(idciudad=form.cleaned_data['codciudad']),
                 pais=Paises.objects.get(idpais=form.cleaned_data['pais']),
                 arl=Entidadessegsocial.objects.get(identidad=form.cleaned_data['arl']),
                 contactonomina=form.cleaned_data['contactonomina'],
@@ -115,26 +122,46 @@ def addcompanies_admin(request):
                 contactocontab=form.cleaned_data['contactocontab'],
                 emailcontab=form.cleaned_data['emailcontab'],
                 cargocertificaciones=form.cleaned_data['cargocertificaciones'],
-                firmacertificaciones=form.cleaned_data['firmacertificaciones'],
+                firmacertificaciones= form.cleaned_data.get('firmacertificaciones') or "" ,
                 website=form.cleaned_data['website'],
                 logo=form.cleaned_data['logo'],
-                metodoextras=form.cleaned_data['metodoextras'],
-                realizarparafiscales=form.cleaned_data['realizarparafiscales'],
-                vstccf=str(vstccf)[:2] if vstccf else '',
-                vstsenaicbf=str(vstsenaicbf)[:2] if vstsenaicbf else '',
-                ige100=str(ige100)[:2] if ige100 else '',
-                slntarifapension=form.cleaned_data['slntarifapension'],
+                metodoextras= metodoextras,
+                realizarparafiscales=realizarparafiscales ,
+                vstccf= vstccf  ,
+                vstsenaicbf=vstsenaicbf ,
+                ige100=ige100,
+                slntarifapension=slntarifapension,
                 banco=Bancos.objects.get(idbanco=form.cleaned_data['banco']) if form.cleaned_data['banco'] else None,
                 numcuenta=form.cleaned_data['numcuenta'],
                 tipocuenta=form.cleaned_data['tipocuenta'],
                 codigosuc=form.cleaned_data['codigosuc'],
                 nombresuc=form.cleaned_data['nombresuc'],
                 claseaportante=form.cleaned_data['claseaportante'],
-                tipoaportante=form.cleaned_data['tipoaportante'],
+                tipoaportante=form.cleaned_data.get('tipoaportante') or None, 
                 ajustarnovedad=str(ajustarnovedad)[:2] if ajustarnovedad else '',	
             )
+            
             empresa.save()
-            return JsonResponse({'status': 'success', 'message': 'Empresa creada exitosamente'})
+            # return JsonResponse({'status': 'success', 'message': 'Empresa creada exitosamente'})
+            
+            data1 = proceso_conceptos(empresa.idempresa)
+            data2 = proceso_indicadores(empresa.idempresa)
+
+            # Determinar mensaje según los datos de retorno
+            if data1 or data2:  # Si alguno trae error
+                mensaje = f"Hubo problemas al guardar la empresa: {data1} {data2}".strip()
+                icono = 'error'
+            else:
+                mensaje = "Empresa guardada exitosamente"
+                icono = 'success'
+
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'
+            response['X-Up-icon'] = icono
+            response['X-Up-message'] = mensaje
+            response['X-Up-Location'] = reverse('admin:companies')
+            return response
+            
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario
             for field, errors in form.errors.items():
@@ -145,3 +172,78 @@ def addcompanies_admin(request):
     return render(request, './admin/partials/companiesModal.html',{
         'form': form
         })
+    
+
+
+def proceso_conceptos(id):
+    try:
+        data = Conceptosdenomina.objects.filter(id_empresa_id=1)
+
+        # Si no hay conceptos base en la empresa 1
+        if not data.exists():
+            return "Error: No hay conceptos base en la empresa 1 para copiar."
+
+        nuevos = []
+
+        for concepto in data:
+            nuevos.append(
+                Conceptosdenomina(
+                    nombreconcepto=concepto.nombreconcepto,
+                    multiplicadorconcepto=concepto.multiplicadorconcepto,
+                    tipoconcepto=concepto.tipoconcepto,
+                    formula=concepto.formula,
+                    grupo_dian=concepto.grupo_dian,
+                    id_empresa_id=id,
+                    codigo=concepto.codigo
+                )
+            )
+
+        # Inserta TODO de una vez
+        Conceptosdenomina.objects.bulk_create(nuevos)
+
+        return ""  # éxito, sin mensaje
+
+    except Exception as e:
+        # Para debug / logs
+        print("ERROR EN GENERACIÓN DE CONCEPTOS:", str(e))
+
+        return "Error en la generación de conceptos para la empresa."
+    
+    
+
+def proceso_indicadores(id_empresa_destino):
+    try:
+        # 1. Conceptos base (empresa 1)
+        base_conceptos = Conceptosdenomina.objects.filter(id_empresa_id=1)
+
+        if not base_conceptos.exists():
+            return "Error: No hay conceptos base en la empresa 1 para copiar indicadores."
+
+        # 2. Conceptos clonados en la empresa destino
+        nuevos_conceptos = Conceptosdenomina.objects.filter(id_empresa_id=id_empresa_destino)
+
+        # Crear mapa por codigo (clave única que ambos comparten)
+        mapa_nuevos = {c.codigo: c for c in nuevos_conceptos}
+
+        # 3. Recorrer los conceptos base y replicar sus indicadores
+        for concepto_base in base_conceptos:
+            indicadores = concepto_base.indicador.all()  # indicadores M2M
+
+            if not indicadores:
+                continue
+
+            # Buscar el concepto nuevo correspondiente
+            concepto_nuevo = mapa_nuevos.get(concepto_base.codigo)
+
+            if not concepto_nuevo:
+                print(f"No se encontró concepto nuevo para código {concepto_base.codigo}")
+                continue
+
+            # Asignar M2M
+            concepto_nuevo.indicador.set(indicadores)
+
+        return ""
+
+    except Exception as e:
+        print("ERROR en proceso_indicadores:", str(e))
+        return "Error al generar los indicadores de los conceptos."

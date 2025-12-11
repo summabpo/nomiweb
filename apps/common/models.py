@@ -362,7 +362,7 @@ class Empresa(models.Model):
     
     
     cargocertificaciones = models.CharField(max_length=50)
-    firmacertificaciones = models.CharField(max_length=50)
+    firmacertificaciones = models.CharField(max_length=50 ,default="", blank=True, null=True)
 
     # Detalles adicionales
     website = models.CharField(max_length=255, blank=True, null=True)
@@ -732,6 +732,7 @@ class TiposConcepto(models.IntegerChoices):
 class Indicador(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     descripcion = models.TextField(blank=True, null=True)
+    
 
     class Meta:
         db_table = 'indicadores'
