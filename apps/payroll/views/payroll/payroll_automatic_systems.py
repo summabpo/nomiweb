@@ -277,12 +277,18 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto=parte_nomina)
 
+    
+        
     if empleados: 
         contratos = contratos.filter(idcontrato__in = empleados)
-
+        
+    
 
     suma = 0
     for contrato in contratos:
+        
+        
+        
         # --- opcional: normalizar a date si hubiera datetimes ---
         def _to_date(d):
             if d is None:
@@ -305,10 +311,34 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         if fin_periodo < inicio_periodo:
             diasnomina = 0
         else:
-            diasnomina = (fin_periodo - inicio_periodo).days  
             
-        
+            if nomina.tiponomina.idtiponomina == 1 :
     
+                # días calculados por Python (sin incluir el día final)
+                dias_base = (fin_periodo - inicio_periodo).days
+
+                # determinar días del mes del fin_periodo
+                mes = fin_periodo.month
+                ano = fin_periodo.year
+                
+                if mes == 12:
+                    dias_en_mes = 31
+                else:
+                    from datetime import date, timedelta
+                    dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
+
+                if dias_en_mes == 31:
+                    diasnomina = dias_base + 2
+                else:
+                    diasnomina = dias_base + 1
+            elif nomina.tiponomina.idtiponomina == 2 :
+                nombre_original = nomina.nombrenomina or ""
+                if '#2' in nombre_original:
+                    
+                    diasnomina = (fin_periodo - inicio_periodo).days  
+                else : 
+                    diasnomina = (fin_periodo - inicio_periodo).days + 1 
+                
 
         dias_vacaciones = calcular_vacaciones(contrato.idcontrato,nomina)
         dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina)
@@ -319,9 +349,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
-    
 
-    
         calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
         calculo_novfija(contrato, idn)
