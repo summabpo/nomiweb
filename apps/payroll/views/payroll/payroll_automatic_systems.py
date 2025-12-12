@@ -10,7 +10,7 @@ from datetime import timedelta
 from apps.components.humani import format_value
 from django.http import JsonResponse
 from django.utils import timezone
-
+from datetime import date, timedelta
 
 
 #prueba git
@@ -324,17 +324,15 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
                 if mes == 12:
                     dias_en_mes = 31
                 else:
-                    from datetime import date, timedelta
                     dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
 
                 if dias_en_mes == 31:
-                    diasnomina = dias_base + 2
+                    diasnomina = dias_base 
                 else:
                     diasnomina = dias_base + 1
             elif nomina.tiponomina.idtiponomina == 2 :
                 nombre_original = nomina.nombrenomina or ""
                 if '#2' in nombre_original:
-                    
                     diasnomina = (fin_periodo - inicio_periodo).days  
                 else : 
                     diasnomina = (fin_periodo - inicio_periodo).days + 1 
@@ -350,6 +348,9 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
 
+        if contrato.idcontrato == 10769 :
+            print(f" d {d} v {dias_vacaciones} i {dias_incapacidad} s {dias_suspensiones}")
+        
         calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
         calculo_novfija(contrato, idn)
@@ -932,7 +933,18 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
 
         nombre_original = nomina.nombrenomina or ""
 
-        if '#2' in nombre_original:
+        
+        #passs = nomina.
+        existe = Nomina.objects.filter(
+            idnomina__mesacumular=nomina.mesacumular,
+            idnomina__id_empresa=nomina.id_empresa,
+            idcontrato=contrato,
+            idconcepto__codigo=2
+        ).exists()
+
+        # Solo entra si NO existe el concepto en esa nómina
+        if not existe and '#2' in nombre_original:
+            
             nuevo_nombre = nombre_original.replace('#2', '#1')
 
             nomina2 = Crearnomina.objects.filter(nombrenomina = nuevo_nombre).first()
@@ -954,11 +966,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
 
                 if diasnomina2 > nomina2.diasnomina :
                     diasnomina2 = nomina2.diasnomina
-                    
-            
-            
 
-            
             dias_vacaciones = calcular_vacaciones(contrato,nomina2)
             dias_incapacidad = calculo_incapacidad(contrato,nomina2)
             dias_suspensiones = calcular_suspenciones(contrato,nomina2)
@@ -966,24 +974,21 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             diasnomina2 -= dias_vacaciones 
             diasnomina2 -= dias_incapacidad 
             diasnomina2 -= dias_suspensiones 
-            
-                
-            
-            
+
         else :
             diasnomina2 = 0
 
+        
+        
         
         
         inicio_nomina = _to_date(nomina.fechainicial)
         fin_nomina = _to_date(nomina.fechafinal)
         inicio_contrato = _to_date(contrato.fechainiciocontrato)
         fin_contrato = _to_date(contrato.fechafincontrato) or fin_nomina
-        
+
         # --- calcular intersección del intervalo [inicio_nomina, fin_nomina] con [inicio_contrato, fin_contrato]
-        diasnomina = nomina.diasnomina
-        
-        
+        diasnomina1 = nomina.diasnomina
         inicio_periodo = max(inicio_nomina, inicio_contrato)
         fin_periodo = min(fin_nomina, fin_contrato)
         
@@ -991,14 +996,45 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         if fin_periodo < inicio_periodo:
             diasnomina1 = 0
         else:
-            diasnomina1 = (fin_periodo - inicio_periodo).days  + 1 
             
-            if diasnomina1 > nomina.diasnomina :
-                diasnomina1 = nomina.diasnomina
+            if nomina.tiponomina.idtiponomina == 1 :
+                dias_base = (fin_periodo - inicio_periodo).days
+                mes = fin_periodo.month
+                ano = fin_periodo.year
+                
+                if mes == 12:
+                    dias_en_mes = 31
+                else:
+                    dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
+
+                if dias_en_mes == 31:
+                    diasnomina1 = dias_base + 2
+                else:
+                    diasnomina1 = dias_base + 1
+                    
+            elif nomina.tiponomina.idtiponomina == 2 :
+                nombre_original = nomina.nombrenomina or ""
+                if '#2' in nombre_original:
+                    mes = fin_periodo.month
+                    ano = fin_periodo.year
+                    
+                    if mes == 12:
+                        dias_en_mes = 31
+                    else:
+                        dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
+
+                    if dias_en_mes == 31:
+                        diasnomina1 = (fin_periodo - inicio_periodo).days 
+                    else:
+                        diasnomina1 = (fin_periodo - inicio_periodo).days  + 1 
+                else : 
+                    diasnomina1 = (fin_periodo - inicio_periodo).days + 1 
 
         
         
         diasnomina =  diasnomina1 + diasnomina2
+        
+        
         
         # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
         if diasnomina > 30:
@@ -1013,14 +1049,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
         
-        # horas_basico_mes = Nomina.objects.filter(idconcepto__codigo = 1, idcontrato=contrato.idcontrato, 
-        #                                          idnomina__mesacumular = nomina.mesacumular , idnomina__anoacumular = nomina.anoacumular ,
-        #                                          estadonomina=2).aggregate(Sum('cantidad'))['cantidad__sum'] or 0
-        
-        # horas_basico_quincena = Nomina.objects.filter(idconcepto=1, idcontrato=contrato.idcontrato, 
-        #                                                idnomina_id=idn).aggregate(Sum('cantidad'))['cantidad__sum'] or 0
-        
-        # total_mes = horas_basico_mes + horas_basico_quincena
 
         if contrato.auxiliotransporte :
             transporte = 0
@@ -1142,7 +1170,7 @@ def calcular_vacaciones(contrato,nomina):
             dias_vacaciones += dias_en_nomina
 
             # Debug opcional
-            if nomina.fechafinal.day == 31:
+            if nomina.fechafinal.day == 30:
                 dias_vacaciones -= 1
                 
     return dias_vacaciones

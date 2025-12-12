@@ -156,6 +156,15 @@ def vacation_resumen(request):
     return render(request, './companies/vacation_resumen.html', context)
 
 
+
+@login_required
+@role_required('company', 'accountant')
+def vacaciones_resumen_add(request):
+    
+    
+    
+    return render(request, './companies/vacation_resumen.html')
+
 @login_required
 @role_required('company', 'accountant')
 def vacation_resumen_send(request, id):

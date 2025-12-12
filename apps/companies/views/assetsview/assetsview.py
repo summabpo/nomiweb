@@ -62,6 +62,7 @@ def contractview(request,id):
         def safe_get(value):
             return value if value is not None else ''
         
+        
         response_data = {
             'idcontrato': safe_get(contrato.idcontrato),
             'dateinit': safe_get(contrato.fechainiciocontrato),
@@ -91,6 +92,7 @@ def contractview(request,id):
             'tipocotizante': safe_get(contrato.tipocotizante.tipocotizante),
             'subtipocotizante': safe_get(contrato.subtipocotizante.subtipocotizante),
             'pensionado': safe_get(contrato.riesgo_pension),
+            'centrotrabajo': contrato.centrotrabajo.nombrecentrotrabajo ,
         }
 
         # ✅ Limpieza de valores "no data" (o equivalentes)

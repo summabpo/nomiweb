@@ -228,11 +228,14 @@ def edit_main(request):
             messages.error(request, 'No se encontró empleado con el correo electrónico proporcionado.')
             return redirect('admin:loginweb')
         
-        try:
-            usuario = User.objects.get(email = correo2 )
-        except User.DoesNotExist:
-            messages.error(request, 'No se encontró un usuario con el Correo proporcionado. Por favor, asegúrese de que el usuario esté activo antes de intentar cambiar su correo electrónico.')
-            return redirect('admin:loginweb')
+        
+        # try:
+        #     usuario = User.objects.get(email = correo2 )
+        # except User.DoesNotExist:
+        #     messages.error(request, 'No se encontró un usuario con el Correo proporcionado. Por favor, asegúrese de que el usuario esté activo antes de intentar cambiar su correo electrónico.')
+        #     return redirect('admin:loginweb')
+        usuario = User.objects.filter(email=correo2).first()
+        
         
         if correo1 == correo2:
             messages.warning(request, 'El correo electrónico ingresado ya está registrado para este empleado.')
@@ -246,20 +249,19 @@ def edit_main(request):
                 messages.error(request, 'Error al actualizar el correo electrónico del empleado.')
                 return redirect('admin:loginweb')
             
-            usuario.email = correo1
-            try:
-                usuario.save()
-                
-            except Exception as e:
-                print(f"Error saving usuario.user: {e}")
-                messages.error(request, 'Error al actualizar el correo electrónico del empleado.')
-                return redirect('admin:loginweb')
+            if usuario:
+                usuario.email = correo1
+                try:
+                    usuario.save()
+                except Exception as e:
+                    print(f"Error saving usuario.user: {e}")
+                    messages.error(request, 'Error al actualizar el correo electrónico del empleado.')
+                    return redirect('admin:loginweb')
             
             messages.success(request, 'Correo electrónico actualizado correctamente.')
             return redirect('admin:loginweb')
 
 
         
-    
     
 
