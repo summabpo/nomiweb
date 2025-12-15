@@ -284,10 +284,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         
     
 
-    suma = 0
     for contrato in contratos:
-        
-        
         
         # --- opcional: normalizar a date si hubiera datetimes ---
         def _to_date(d):
@@ -753,18 +750,19 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                 FSP = 0
             
             
+            
+            
             valoreps = round((total_base_ss * EPS.valorfijo) / 100, 2)
             valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
             valorfsp = round((base_ss_fsp2 * FSP) / 100, 2) if base_ss_fsp2 >= (sal_min * 4) else 0.00
             
-
+        
 
             if contrato.pensionado == '2':
                 valorafp = 0.00
                 valorfsp = 0.00
             
-            
-            # Crear o actualizar el registro de la EPS
+            #* Crear o actualizar el registro de la EPS
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto1,
                 idcontrato=contrato,
@@ -791,8 +789,8 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                         idnomina_id = idn ,
                     )  
                 
-            
-            
+    
+            #* Crear o actualizar el registro de la Pension
             
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto2,
@@ -812,6 +810,8 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                     aux_pass.save() 
                                 
             else:
+
+
                 Nomina.objects.create(
                         idconcepto = concepto2 ,#*
                         cantidad= 0 ,#*

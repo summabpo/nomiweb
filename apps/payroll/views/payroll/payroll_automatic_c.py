@@ -65,27 +65,75 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
     
     contrato = Contratos.objects.get(idcontrato = idcontrato) 
     
+    # --- opcional: normalizar a date si hubiera datetimes ---
+    def _to_date(d):
+        if d is None:
+            return None
+        if isinstance(d, datetime):
+            return d.date()
+        return d
+
+    inicio_nomina = _to_date(nomina.fechainicial)
+    fin_nomina = _to_date(nomina.fechafinal)
+    inicio_contrato = _to_date(contrato.fechainiciocontrato)
+    fin_contrato = _to_date(contrato.fechafincontrato) or fin_nomina
+
+    # --- calcular intersección del intervalo [inicio_nomina, fin_nomina] con [inicio_contrato, fin_contrato]
     diasnomina = nomina.diasnomina
-    if contrato.fechainiciocontrato > nomina.fechafinal:
-        diasnomina = (nomina.fechafinal - contrato.fechainiciocontrato).days + 1
-
-    if contrato.fechafincontrato and nomina.fechafinal <= contrato.fechafincontrato <= nomina.fechafinal:
-        diasnomina -= (nomina.fechafinal - contrato.fechafincontrato).days
+    inicio_periodo = max(inicio_nomina, inicio_contrato)
+    fin_periodo = min(fin_nomina, fin_contrato)
+    
+    
+    if fin_periodo < inicio_periodo:
+        diasnomina = 0
+    else:
         
+        if nomina.tiponomina.idtiponomina == 1 :
 
-    dias_vacaciones = calcular_vacaciones(contrato,nomina)
-    dias_incapacidad = calculo_incapacidad(contrato,nomina)
+            # días calculados por Python (sin incluir el día final)
+            dias_base = (fin_periodo - inicio_periodo).days
+
+            # determinar días del mes del fin_periodo
+            mes = fin_periodo.month
+            ano = fin_periodo.year
+            
+            if mes == 12:
+                dias_en_mes = 31
+            else:
+                dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
+
+            if dias_en_mes == 31:
+                diasnomina = dias_base 
+            else:
+                diasnomina = dias_base + 1
+        elif nomina.tiponomina.idtiponomina == 2 :
+            nombre_original = nomina.nombrenomina or ""
+            if '#2' in nombre_original:
+                diasnomina = (fin_periodo - inicio_periodo).days  
+            else : 
+                diasnomina = (fin_periodo - inicio_periodo).days + 1 
+            
+
+    dias_vacaciones = calcular_vacaciones(contrato.idcontrato,nomina)
+    dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina)
+    dias_suspensiones = calcular_suspenciones(contrato.idcontrato,nomina)
+    
+    d = diasnomina
+    
     diasnomina -= dias_vacaciones 
     diasnomina -= dias_incapacidad 
-    
-    
+    diasnomina -= dias_suspensiones 
+
+    if contrato.idcontrato == 10769 :
+        print(f" d {d} v {dias_vacaciones} i {dias_incapacidad} s {dias_suspensiones}")
     
     calculo_prestamo(contrato, idnomina)
+    #Calculo_vacaciones(contrato, idn)
     calculo_novfija(contrato, idnomina)
     
-    if contrato.tiposalario_id == 2:
+    if contrato.tiposalario.idtiposalario == 2:
         codigo_aux = '4'
-    elif contrato.tipocontrato_id in [5, 6]:
+    elif contrato.tipocontrato_id == 6:
         codigo_aux = '34'
     else:
         codigo_aux = '1'
@@ -94,11 +142,19 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
     concepto = Conceptosdenomina.objects.get(codigo=codigo_aux, id_empresa_id = idempresa)
     
     if diasnomina > 0:
+        
         if diasnomina > 30:
             diasnomina = 30
             
-        valorsalario = (contrato.salario / 30) * diasnomina
         
+        if diasnomina > nomina.diasnomina :
+            diasnomina = nomina.diasnomina
+    
+
+        valorsalario = (contrato.salario / 30) * diasnomina
+
+        
+    
         aux_pass = Nomina.objects.filter(
             idconcepto=concepto,
             idcontrato=contrato,
@@ -115,6 +171,7 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
                 aux_pass.cantidad = diasnomina
                 aux_pass.valor = valorsalario
                 aux_pass.save()  
+                
         else:
             Nomina.objects.create(
                 idconcepto = concepto ,#*
@@ -141,7 +198,8 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
     
     
     for incapacidad in incapacidades:
-        
+        dias_incapacidad = 0 
+        dias_asumidos = 0
         ini = incapacidad.fechainicial
         fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
         
@@ -155,18 +213,24 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
         dia_asumido_1 = int(inicio_nomina <= ini <= fin_nomina)
         dia_asumido_2 = int(inicio_nomina <= segundo_dia <= fin_nomina)
         dias_asumidos = dia_asumido_1 + dia_asumido_2 if dias != 1 else dia_asumido_1
-
+        
+        
         if ini <= inicio_nomina <= fin <= fin_nomina:
-            dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
+            # Incapacidad empieza antes de la nómina y termina dentro de ella
+            dias_incapacidad = (fin - inicio_nomina).days + 1   # ✅ antes estaba (fin_nomina - inicio_nomina)
         elif ini <= inicio_nomina <= fin_nomina <= fin:
+            # Incapacidad cubre toda la nómina
             dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
         elif inicio_nomina <= ini <= fin <= fin_nomina:
+            # Incapacidad completamente dentro de la nómina
             dias_incapacidad = (fin - ini).days + 1
         elif ini >= inicio_nomina and fin >= fin_nomina:
+            # Incapacidad empieza en la nómina y sigue después
             dias_incapacidad = (fin_nomina - ini).days + 1
+
         else:
             dias_incapacidad = 0
-
+                
         #Calculo del IBC
         if pago_incapacidad == "NO":
             ibc = round(ibc * 2 / 3, 0)
@@ -174,6 +238,7 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
         if ibc < salario_minimo:
             ibc = salario_minimo
         
+
         #Tipo de incapacidad
         if tipo == '1':
             idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
@@ -198,26 +263,28 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
             
         if prorroga:
             dias_asumidos = 0
-
+        
+        
+        
         dias_incapacidad -= dias_asumidos
 
+        
         horas_incapacidad = dias_incapacidad * 8
         valor_incapacidad = ibc / 240 * horas_incapacidad
         horas_asumidas = dias_asumidos * 8
         valor_asumido = ibc / 240 * horas_asumidas
         
-        ## division de conceptos     
-        
-
         if dias_asumidos > 0 :
             if idconceptoa :
+                
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoa,
                     idcontrato = incapacidad.idcontrato , 
                     estadonomina = 1,
-                    idnomina_id=idnomina
+                    idnomina_id=idn
                 ).first()
-                
+
+
                 if aux_pass:
                     if not EditHistory.objects.filter(
                         id_empresa_id=idempresa,
@@ -226,8 +293,8 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
                     ).exists():
                         aux_pass.cantidad = horas_asumidas/8
                         aux_pass.valor =  valor_asumido
-                        aux_pass.save()  
-                                    
+                        aux_pass.save() 
+                        
                 else:
                     Nomina.objects.create(
                         valor = valor_asumido,
@@ -245,8 +312,9 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
                 aux_pass = Nomina.objects.filter(
                     idconcepto = idconceptoi,
                     idcontrato = incapacidad.idcontrato , 
-                    idnomina_id=idnomina
+                    idnomina_id=idn
                 ).first()
+                
                 if aux_pass:
                     if not EditHistory.objects.filter(
                         id_empresa_id=idempresa,
@@ -304,56 +372,68 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
         idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
     ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
             
-        
+    nomina = Crearnomina.objects.get( idnomina = idnomina)
+    
+    
+    base_ss_fsp =   Nomina.objects.filter(
+        idcontrato = contrato,
+        idnomina__mesacumular = nomina.mesacumular ,
+        idnomina__anoacumular = nomina.anoacumular ,
+        idconcepto__indicador__nombre='basesegsocial'
+    ).exclude(
+        idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
+    ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
+    
+    
+    from decimal import Decimal
+
+    base_ss_fsp2 = base_ss_fsp * Decimal('0.7')
+
+    
     if total_base_ss > 0:
-        
-        concepto1 = Conceptosdenomina.objects.get(codigo = 60 , id_empresa_id = idempresa)
-        concepto2 = Conceptosdenomina.objects.get(codigo = 70 , id_empresa_id = idempresa)
-        concepto3 = Conceptosdenomina.objects.get(codigo = 90 , id_empresa_id = idempresa)
+                
+        concepto1 = Conceptosdenomina.objects.get(codigo=60, id_empresa_id=idempresa)
+        concepto2 = Conceptosdenomina.objects.get(codigo=70, id_empresa_id=idempresa)
+        concepto3 = Conceptosdenomina.objects.get(codigo=90, id_empresa_id=idempresa)
         
         base_max = sal_min * tope_ibc.valorfijo
-    
-        if tipo_salario == 2 :
+
+        if tipo_salario == 2:
             total_base_ss *= (factor_integral / 100)
+            total_base_ss = round(total_base_ss, 2)
         
-            
         base_ss = min(total_base_ss, base_max)
-        
+        base_ss = round(base_ss, 2)
         
         if (base_ss > (sal_min * 4)) and (base_ss < (sal_min * 16)):
             FSP = fsp416
-            
         elif (base_ss > (sal_min * 16)) and (base_ss < (sal_min * 17)):
             FSP = fsp1617
-            
         elif (base_ss > (sal_min * 17)) and (base_ss < (sal_min * 18)):
             FSP = fsp1718
-            
         elif (base_ss > (sal_min * 18)) and (base_ss < (sal_min * 19)):
             FSP = fsp1819
-            
         elif (base_ss > (sal_min * 19)) and (base_ss < (sal_min * 20)):
             FSP = fsp1920
-            
         elif base_ss > (sal_min * 20):
             FSP = fsp21
-            
         else:
             FSP = 0
-            
+        
+        
+        
+        
+        valoreps = round((total_base_ss * EPS.valorfijo) / 100, 2)
+        valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
+        valorfsp = round((base_ss_fsp2 * FSP) / 100, 2) if base_ss_fsp2 >= (sal_min * 4) else 0.00
+        
+    
 
-        
-        valoreps = (total_base_ss * EPS.valorfijo ) / 100
-        valorafp = (total_base_ss * AFP.valorfijo ) / 100
-        valorfsp = (total_base_ss * FSP) / 100 if total_base_ss >= (sal_min * 4) else 0
-        
-        
         if contrato.pensionado == '2':
-            valorafp = 0
-            valorfsp = 0
+            valorafp = 0.00
+            valorfsp = 0.00
         
-        
-        # Crear o actualizar el registro de la EPS
+        #* Crear o actualizar el registro de la EPS
         aux_pass = Nomina.objects.filter(
             idconcepto=concepto1,
             idcontrato=contrato,
@@ -380,8 +460,8 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
                     idnomina_id = idnomina ,
                 )  
             
-        
-        
+
+        #* Crear o actualizar el registro de la Pension
         
         aux_pass = Nomina.objects.filter(
             idconcepto=concepto2,
@@ -401,6 +481,8 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
                 aux_pass.save() 
                             
         else:
+
+
             Nomina.objects.create(
                     idconcepto = concepto2 ,#*
                     cantidad= 0 ,#*
@@ -413,11 +495,14 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
         
         
         if valorfsp > 0:
+            valorfsp = valorfsp / 2 
+            # round((base_ss_fsp * FSP) / 100, 2) if base_ss_fsp >= (sal_min * 4) else 0.00 
+            
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto3,
                 idcontrato=contrato,
                 estadonomina = 1,
-                idnomina_id= idnomina
+                idnomina_id = idnomina
             ).first()
             
             
@@ -437,9 +522,9 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
                         estadonomina = 1,
                         valor=-1*valorfsp , #*
                         idcontrato_id=contrato.idcontrato ,
-                        idnomina_id = idnomina ,
+                        idnomina_id = idn ,
                     ) 
-                
+                    
     return True
 
 
@@ -455,35 +540,137 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
     sal_min = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).salariominimo
     aux_tra = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).auxtransporte
     
-    diasnomina = nomina.diasnomina
+    # --- opcional: normalizar a date si hubiera datetimes ---
+    def _to_date(d):
+        if d is None:
+            return None
+        if isinstance(d, datetime):
+            return d.date()
+        return d
+
+    nombre_original = nomina.nombrenomina or ""
+
     
-    if contrato.fechainiciocontrato > nomina.fechafinal:
-        diasnomina = (nomina.fechafinal - contrato.fechainiciocontrato).days + 1
-    
-    if contrato.fechafincontrato and nomina.fechafinal <= contrato.fechafincontrato <= nomina.fechafinal:
-        diasnomina -= (nomina.fechafinal - contrato.fechafincontrato).days
+    #passs = nomina.
+    existe = Nomina.objects.filter(
+        idnomina__mesacumular=nomina.mesacumular,
+        idnomina__id_empresa=nomina.id_empresa,
+        idcontrato=contrato,
+        idconcepto__codigo=2
+    ).exists()
+
+    # Solo entra si NO existe el concepto en esa nómina
+    if not existe and '#2' in nombre_original:
         
+        nuevo_nombre = nombre_original.replace('#2', '#1')
+
+        nomina2 = Crearnomina.objects.filter(nombrenomina = nuevo_nombre).first()
+        diasnomina2 = nomina2.diasnomina
+        
+        inicio_nomina2 = _to_date(nomina2.fechainicial)
+        fin_nomina2 = _to_date(nomina2.fechafinal)
+        inicio_contrato2 = _to_date(contrato.fechainiciocontrato)
+        fin_contrato2 = _to_date(contrato.fechafincontrato) or fin_nomina2
+        
+        inicio_periodo2 = max(inicio_nomina2, inicio_contrato2)
+        fin_periodo2 = min(fin_nomina2, fin_contrato2)
+        
+        
+        if fin_periodo2 < inicio_periodo2:
+            diasnomina2 = 0
+        else:
+            diasnomina2 = (fin_periodo2 - inicio_periodo2).days + 1 
+
+            if diasnomina2 > nomina2.diasnomina :
+                diasnomina2 = nomina2.diasnomina
+
+        dias_vacaciones = calcular_vacaciones(contrato,nomina2)
+        dias_incapacidad = calculo_incapacidad(contrato,nomina2)
+        dias_suspensiones = calcular_suspenciones(contrato,nomina2)
+        
+        diasnomina2 -= dias_vacaciones 
+        diasnomina2 -= dias_incapacidad 
+        diasnomina2 -= dias_suspensiones 
+
+    else :
+        diasnomina2 = 0
+
+    
+    
+    
+    
+    inicio_nomina = _to_date(nomina.fechainicial)
+    fin_nomina = _to_date(nomina.fechafinal)
+    inicio_contrato = _to_date(contrato.fechainiciocontrato)
+    fin_contrato = _to_date(contrato.fechafincontrato) or fin_nomina
+
+    # --- calcular intersección del intervalo [inicio_nomina, fin_nomina] con [inicio_contrato, fin_contrato]
+    diasnomina1 = nomina.diasnomina
+    inicio_periodo = max(inicio_nomina, inicio_contrato)
+    fin_periodo = min(fin_nomina, fin_contrato)
+    
+    
+    if fin_periodo < inicio_periodo:
+        diasnomina1 = 0
+    else:
+        
+        if nomina.tiponomina.idtiponomina == 1 :
+            dias_base = (fin_periodo - inicio_periodo).days
+            mes = fin_periodo.month
+            ano = fin_periodo.year
+            
+            if mes == 12:
+                dias_en_mes = 31
+            else:
+                dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
+
+            if dias_en_mes == 31:
+                diasnomina1 = dias_base + 2
+            else:
+                diasnomina1 = dias_base + 1
+                
+        elif nomina.tiponomina.idtiponomina == 2 :
+            nombre_original = nomina.nombrenomina or ""
+            if '#2' in nombre_original:
+                mes = fin_periodo.month
+                ano = fin_periodo.year
+                
+                if mes == 12:
+                    dias_en_mes = 31
+                else:
+                    dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
+
+                if dias_en_mes == 31:
+                    diasnomina1 = (fin_periodo - inicio_periodo).days 
+                else:
+                    diasnomina1 = (fin_periodo - inicio_periodo).days  + 1 
+            else : 
+                diasnomina1 = (fin_periodo - inicio_periodo).days + 1 
+
+    
+    
+    diasnomina =  diasnomina1 + diasnomina2
+    
+    
+    
+    # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
+    if diasnomina > 30:
+        diasnomina = 30
+
     dias_vacaciones = calcular_vacaciones(contrato,nomina)
     dias_incapacidad = calculo_incapacidad(contrato,nomina)
-
+    dias_suspensiones = calcular_suspenciones(contrato,nomina)
+    
+    
     diasnomina -= dias_vacaciones 
     diasnomina -= dias_incapacidad 
+    diasnomina -= dias_suspensiones 
     
-    
-    horas_basico_mes = Nomina.objects.filter(idconcepto__codigo = 1, idcontrato=contrato.idcontrato, 
-                                                idnomina__mesacumular = nomina.mesacumular , idnomina__anoacumular = nomina.anoacumular ,
-                                                estadonomina=2).aggregate(Sum('cantidad'))['cantidad__sum'] or 0
-    
-    horas_basico_quincena = Nomina.objects.filter(idconcepto=1, idcontrato=contrato.idcontrato, 
-                                                    idnomina_id=idnomina).aggregate(Sum('cantidad'))['cantidad__sum'] or 0
-    
-    total_mes = horas_basico_mes + horas_basico_quincena
 
     if contrato.auxiliotransporte :
         transporte = 0
         diasnomina = 0
             
-    
     if contrato.salario <= (sal_min * 2):
         # Obtener la suma de las deducciones de la eps 
         total_base_trans = Nomina.objects.filter(
@@ -494,7 +681,8 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
         ).exclude(
             idconcepto__codigo=2
         ).distinct().aggregate(total=Sum('valor'))['total'] or 0# Reemplaza 'monto' con el nombre correcto de la columna
-                            
+        
+                    
         if total_base_trans < (sal_min * 2):
             transporte = diasnomina * (aux_tra / 30)
         else:
@@ -505,12 +693,12 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
         
         
         if contrato.tipocontrato.idtipocontrato not in [5, 6]:
-
+            
             if diasnomina > 0 and transporte > 0 :
                 
                 if diasnomina > 30:
                     diasnomina = 30
-
+                
                 aux_pass = Nomina.objects.filter(
                     idconcepto=concepto,
                     idcontrato=contrato,
@@ -542,6 +730,7 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
                         idnomina_id = idnomina ,
                     )  
     return True
+        
 
 
 
