@@ -430,14 +430,29 @@ def build_loans_context(user):
     if not idcontrato:
         return "No se encontró un contrato activo para el empleado."
 
-    # Obtener el concepto de préstamo (código 50)
+    # Obtener el id_empresa del contrato
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT id_empresa_id
+            FROM contratos
+            WHERE idcontrato = %s
+            LIMIT 1;
+        """, [idcontrato])
+        empresa_row = cursor.fetchone()
+        id_empresa = empresa_row[0] if empresa_row else None
+
+    if not id_empresa:
+        return "No se pudo obtener la empresa del contrato."
+
+    # Obtener el concepto de préstamo (código 50) FILTRADO POR EMPRESA
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT idconcepto
             FROM conceptosdenomina
             WHERE codigo = 50
+              AND id_empresa_id = %s
             LIMIT 1;
-        """, [])
+        """, [id_empresa])
         concepto_row = cursor.fetchone()
         idconcepto_prestamo = concepto_row[0] if concepto_row else None
 
@@ -489,7 +504,7 @@ def build_loans_context(user):
                 WHERE n.idcontrato_id = %s
                   AND n.control = %s
                   AND n.idconcepto_id = %s
-            """, [idcontrato, idprestamo, idconcepto_prestamo])  # Cambiar str(idprestamo) a idprestamo
+            """, [idcontrato, idprestamo, idconcepto_prestamo])
             descuento_row = cursor.fetchone()
 
             total_pagado = int(descuento_row[0] or 0)  # Negativo (descuentos)
@@ -515,7 +530,7 @@ def build_loans_context(user):
                   AND cn.estadonomina = FALSE
                 GROUP BY cn.idnomina, cn.nombrenomina, cn.fechapago
                 ORDER BY cn.fechapago DESC NULLS LAST, cn.idnomina DESC;
-            """, [idcontrato, idprestamo, idconcepto_prestamo])  # Cambiar str(idprestamo) a idprestamo
+            """, [idcontrato, idprestamo, idconcepto_prestamo])
             nominas_descuento = cursor.fetchall()
 
         fecha_prestamo_str = fechaprestamo.strftime("%Y-%m-%d") if fechaprestamo else "Sin fecha"
