@@ -94,10 +94,12 @@ def listaNomina(request):
     # Obtener el contrato seleccionado, si existe
     selected_contrato_id = request.GET.get('contrato')
     if selected_contrato_id:
-        nominas = Nomina.objects.distinct('idnomina').filter(idcontrato=selected_contrato_id).order_by('-idnomina')
+        nominas = Nomina.objects.distinct('idnomina').filter(idcontrato=selected_contrato_id , idnomina__estadonomina = False  ).order_by('-idnomina')
+        
     elif cont == 1:
         # Si solo hay un contrato, obtener las nóminas para ese contrato
-        nominas = Nomina.objects.distinct('idnomina').filter(idcontrato=contratos[0]['idcontrato']).order_by('-idnomina')
+        nominas = Nomina.objects.distinct('idnomina').filter(idcontrato=contratos[0]['idcontrato'] , idnomina__estadonomina = False ).order_by('-idnomina')
+        print(nominas.count())
     else:
         # En otros casos, no mostrar nóminas
         nominas = []

@@ -367,9 +367,7 @@ def prima_normal(fecha_init, fecha_fin, p, contrato):
         ).values_list('idconcepto', flat=True)
     ).values('idnomina').distinct().count()
     
-    print('-------------')
-    print(value_count)
-    print(value_agg)
+    
     
     if value_count > 0:
         avg_value_per_nomina = (value / Decimal(value_count))

@@ -88,7 +88,7 @@ def limitar_cadena(cadena, max_length=25):
 
 
 
-def genera_comprobante(idnomina, idcontrato, date=0):
+def genera_comprobante(idnomina, idcontrato, date=1):
     contrato = Contratos.objects.filter(idcontrato=idcontrato).first()
     crear = Crearnomina.objects.filter(idnomina=idnomina).first()
     datac = datos_cliente(contrato.id_empresa.idempresa)

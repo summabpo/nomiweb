@@ -942,24 +942,25 @@ def time_add(request):
                     continue
 
                 # Evitar duplicados: contrato + fecha ingreso ya existente
-                if Tiempos.objects.filter(idcontrato__old_idcontrato=contrato, fechaingreso=fecha_ingreso, idempresa_id=idempresa).exists():
-                    errors.append(f"Fila {idx+1}: Ya existe un registro de tiempo para contrato {contrato} en la fecha {fecha_ingreso}.")
-                    continue
+                # if Tiempos.objects.filter(idcontrato__old_idcontrato=contrato, fechaingreso=fecha_ingreso, idempresa_id=idempresa).exists():
+                #     errors.append(f"Fila {idx+1}: Ya existe un registro de tiempo para contrato {contrato} en la fecha {fecha_ingreso}.")
+                #     continue
                 
                 contr = Contratos.objects.filter(old_idcontrato=contrato, id_empresa=idempresa).first()
 
                 # Si pasa todas las validaciones, lo agregamos a lista
-                registros_validados.append(
-                    Tiempos(
-                        fechaingreso=fecha_ingreso,
-                        horaingreso=hora_ingreso,
-                        idcontrato = contr,
-                        idnomina_id=idnomina,
-                        fechasalida=fecha_salida,
-                        horasalida=hora_salida,
-                        horasdescuentos= horas_descuentos, 
-                        idempresa_id=idempresa,
-                    )
+                obj, created = Tiempos.objects.update_or_create(
+                    idcontrato__old_idcontrato=contrato,
+                    fechaingreso=fecha_ingreso,
+                    idempresa_id=idempresa,
+                    defaults={
+                        'horaingreso': hora_ingreso,
+                        'idcontrato': contr,
+                        'idnomina_id': idnomina,
+                        'fechasalida': fecha_salida,
+                        'horasalida': hora_salida,
+                        'horasdescuentos': horas_descuentos,
+                    }
                 )
             except Exception as e:
                 errors.append(f"Fila {idx+1}: Error inesperado -> {str(e)}")
