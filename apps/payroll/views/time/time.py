@@ -952,6 +952,7 @@ def time_add(request):
                 obj, created = Tiempos.objects.update_or_create(
                     idcontrato__old_idcontrato=contrato,
                     fechaingreso=fecha_ingreso,
+                    horaingreso = hora_ingreso,
                     idempresa_id=idempresa,
                     defaults={
                         'horaingreso': hora_ingreso,
