@@ -478,6 +478,7 @@ def build_loans_context(user):
         estadoprestamo = prestamo_row[5]
 
         # Calcular total pagado desde nóminas (los valores son negativos porque son descuentos)
+        # IMPORTANTE: control es IntegerField, no string, y debe compararse como entero
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -488,7 +489,7 @@ def build_loans_context(user):
                 WHERE n.idcontrato_id = %s
                   AND n.control = %s
                   AND n.idconcepto_id = %s
-            """, [idcontrato, str(idprestamo), idconcepto_prestamo])
+            """, [idcontrato, idprestamo, idconcepto_prestamo])  # Cambiar str(idprestamo) a idprestamo
             descuento_row = cursor.fetchone()
 
             total_pagado = int(descuento_row[0] or 0)  # Negativo (descuentos)
@@ -514,7 +515,7 @@ def build_loans_context(user):
                   AND cn.estadonomina = FALSE
                 GROUP BY cn.idnomina, cn.nombrenomina, cn.fechapago
                 ORDER BY cn.fechapago DESC NULLS LAST, cn.idnomina DESC;
-            """, [idcontrato, str(idprestamo), idconcepto_prestamo])
+            """, [idcontrato, idprestamo, idconcepto_prestamo])  # Cambiar str(idprestamo) a idprestamo
             nominas_descuento = cursor.fetchall()
 
         fecha_prestamo_str = fechaprestamo.strftime("%Y-%m-%d") if fechaprestamo else "Sin fecha"
