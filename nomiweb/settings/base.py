@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Cargar las variables de entorno desde el archivo .env
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(BASE_DIR), '.env'))
 
-
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 SETTINGS_ENV = 'base'
 
@@ -59,6 +59,7 @@ LOCAL_APPS = [
     'apps.companies',     # Companies application
     'apps.administrator',
     'apps.payroll',       # Payroll application
+    'apps.mar_ia',             # Chat IA empleados
     # 'apps.api_database',  # API database applicatio#n
 ]
 THIRD_APPS = [

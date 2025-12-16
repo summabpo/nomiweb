@@ -1,10 +1,9 @@
 {% extends 'base/base.html' %}
+{% load static %}
+
 {% block navbar %}
     {% include 'base/navbar_employees.html' %}               
 {% endblock %}
-
-{% load static %} 
-
 
 {% block title %}
     Nomiweb.co - Portal Empleado - Home
@@ -12,37 +11,253 @@
 
 {% block titulo %}
 Pagina de inicio sistema empleados 
-{% endblock titulo%} 
+{% endblock titulo %}
 
-{% block sub_titulo1 %} 
-inicio
-{% endblock %}
+{% block sub_titulo1 %} inicio {% endblock %}
+{% block sub_titulo2 %} inicio {% endblock %}
+{% block titulo2 %}{% endblock %}
 
-{% block sub_titulo2 %} 
-inicio
-{% endblock %}
-
-{% block titulo2 %} 
-
-{% endblock %}
-
-
-
-
-{%block content%} 
-
-
+{% block content %}
 
 <!-- Bloque de bienvenida -->
 <div class="grid-x align-center">
     <h1 class="cell large-8" style="font-size: 25px; text-align: center;">Bienvenido al sistema de empleados</h1>
+
     <div class="cell large-7">
         <div class="callout success">
-            
+
+            <!-- Panel MAR-IA debajo del título -->
+            <div class="row mt-4">
+                <div class="col-md-8 offset-md-2">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            MAR-IA · Asistente de Nómina
+                            <small class="float-right" id="maria-tokens-info" style="font-size: 0.85em; opacity: 0.9;"></small>
+                        </div>
+                        <div class="card-body">
+                            <div id="maria-chat-log" style="height: 400px; overflow-y:auto; background:#f7f7f7; padding:10px; border-radius:6px; font-size: 0.9em;">
+                                <div style="color:#666;">👋 Hola, soy MAR-IA. Puedo ayudarte con información de tus nóminas de los últimos 6 meses, préstamos, libranzas y datos de tu contrato. Pregúntame sobre pagos, conceptos, descuentos o cualquier duda relacionada.</div>
+                            </div>
+
+                            <div class="mt-3">
+                                <div class="input-group">
+                                    <input 
+                                        id="maria-input" 
+                                        type="text" 
+                                        class="form-control" 
+                                        placeholder="Escribe tu pregunta (máx. 100 caracteres)..."
+                                        maxlength="100"
+                                    >
+                                    <div class="input-group-append">
+                                        <button id="maria-send" class="btn btn-primary" disabled>
+                                            <span id="maria-send-text">Enviar</span>
+                                            <span id="maria-loading" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    <span id="maria-char-count">0</span>/100 caracteres
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Fin MAR-IA -->
+
         </div>
     </div>
-    
 </div>
-<!-- Fin bloque de Bienvenida -->
 
 {% endblock content %}
+
+{% block js %}
+<script>
+// Elementos del DOM
+const input = document.getElementById("maria-input");
+const sendBtn = document.getElementById("maria-send");
+const sendText = document.getElementById("maria-send-text");
+const loadingSpinner = document.getElementById("maria-loading");
+const log = document.getElementById("maria-chat-log");
+const charCount = document.getElementById("maria-char-count");
+const tokensInfo = document.getElementById("maria-tokens-info");
+
+// Event listener para el botón Enviar
+sendBtn.addEventListener("click", function(e) {
+    e.preventDefault();
+    if (!sendBtn.disabled) {
+        enviarMaria();
+    }
+});
+
+// Actualizar contador de caracteres
+input.addEventListener("input", function() {
+    const length = input.value.length;
+    charCount.textContent = length;
+    
+    // Habilitar/deshabilitar botón
+    sendBtn.disabled = length === 0 || length > 100;
+    
+    // Cambiar color si se acerca al límite
+    if (length > 90) {
+        charCount.style.color = "#dc3545";
+    } else if (length > 70) {
+        charCount.style.color = "#ffc107";
+    } else {
+        charCount.style.color = "#6c757d";
+    }
+});
+
+// Enviar con Enter
+input.addEventListener("keypress", function(e) {
+    if (e.key === 'Enter' && !sendBtn.disabled) {
+        e.preventDefault();
+        enviarMaria();
+    }
+});
+
+// Función para escapar HTML y prevenir XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Función para formatear mensajes (soporte básico para markdown)
+function formatMessage(text) {
+    // Escapar HTML primero
+    let formatted = escapeHtml(text);
+    
+    // Convertir markdown básico a HTML
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    return formatted;
+}
+
+// Función para actualizar info de tokens
+function updateTokensInfo(data) {
+    if (data && data.session_tokens_remaining !== undefined) {
+        const remaining = data.session_tokens_remaining;
+        const used = 5000 - remaining;
+        const percentage = (used / 5000) * 100;
+        
+        if (percentage > 90) {
+            tokensInfo.textContent = `⚠️ ${remaining} tokens restantes`;
+            tokensInfo.style.color = "#dc3545";
+        } else if (percentage > 70) {
+            tokensInfo.textContent = `${remaining} tokens restantes`;
+            tokensInfo.style.color = "#ffc107";
+        } else {
+            tokensInfo.textContent = `${remaining} tokens restantes`;
+            tokensInfo.style.color = "#fff";
+        }
+    }
+}
+
+async function enviarMaria() {
+    const question = input.value.trim();
+    if (!question || question.length > 100) return;
+
+    // Deshabilitar input y botón
+    input.disabled = true;
+    sendBtn.disabled = true;
+    sendText.classList.add("d-none");
+    loadingSpinner.classList.remove("d-none");
+
+    // Mensaje del usuario
+    log.innerHTML += `
+        <div style="text-align:right; margin:6px 0;">
+            <span style="background:#d1e7dd; padding:6px 10px; border-radius:8px; display:inline-block; max-width:80%; word-wrap:break-word;">
+                ${escapeHtml(question)}
+            </span>
+        </div>`;
+    log.scrollTop = log.scrollHeight;
+
+    input.value = "";
+    charCount.textContent = "0";
+
+    try {
+        // Petición al backend MAR-IA
+        const response = await fetch("/mar-ia/chat/", {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify({ question })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            // Manejar errores
+            let errorMsg = data.answer || "Hubo un error procesando tu pregunta.";
+            
+            if (data.error === "question_too_long") {
+                errorMsg = `Tu pregunta es muy larga (${data.current_length} caracteres). Máximo permitido: ${data.max_length} caracteres.`;
+            } else if (data.error === "session_limit_exceeded") {
+                errorMsg = "Has alcanzado el límite de uso para esta sesión. Por favor, recarga la página.";
+            }
+            
+            log.innerHTML += `
+                <div style="text-align:left; margin:6px 0;">
+                    <span style="background:#f8d7da; color:#721c24; padding:6px 10px; border-radius:8px; display:inline-block; max-width:80%; word-wrap:break-word;">
+                        ⚠️ ${escapeHtml(errorMsg)}
+                    </span>
+                </div>`;
+        } else {
+            // Respuesta exitosa
+            log.innerHTML += `
+                <div style="text-align:left; margin:6px 0;">
+                    <span style="background:#e2e3e5; padding:6px 10px; border-radius:8px; display:inline-block; max-width:80%; word-wrap:break-word;">
+                        ${formatMessage(data.answer)}
+                    </span>
+                </div>`;
+            
+            // Actualizar info de tokens
+            updateTokensInfo(data);
+        }
+        
+        log.scrollTop = log.scrollHeight;
+        
+    } catch (error) {
+        console.error("Error:", error);
+        log.innerHTML += `
+            <div style="text-align:left; margin:6px 0;">
+                <span style="background:#f8d7da; color:#721c24; padding:6px 10px; border-radius:8px; display:inline-block; max-width:80%; word-wrap:break-word;">
+                    ⚠️ Error de conexión. Por favor, verifica tu internet e intenta de nuevo.
+                </span>
+            </div>`;
+        log.scrollTop = log.scrollHeight;
+    } finally {
+        // Rehabilitar input y botón
+        input.disabled = false;
+        sendBtn.disabled = false;
+        sendText.classList.remove("d-none");
+        loadingSpinner.classList.add("d-none");
+        input.focus();
+    }
+}
+
+// Función helper para obtener cookie CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Inicializar contador de caracteres
+charCount.textContent = "0";
+</script>
+{% endblock js %}
