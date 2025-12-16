@@ -494,6 +494,7 @@ def build_loans_context(user):
 
         # Calcular total pagado desde nóminas (los valores son negativos porque son descuentos)
         # IMPORTANTE: control es IntegerField, no string, y debe compararse como entero
+        # FILTRAR por estadonomina = FALSE para solo contar nóminas procesadas
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -501,9 +502,11 @@ def build_loans_context(user):
                     COUNT(DISTINCT n.idnomina_id) AS nominas_con_descuento,
                     COUNT(*) AS registros_descuento
                 FROM nomina n
+                JOIN crearnomina cn ON cn.idnomina = n.idnomina_id
                 WHERE n.idcontrato_id = %s
                   AND n.control = %s
                   AND n.idconcepto_id = %s
+                  AND cn.estadonomina = FALSE
             """, [idcontrato, idprestamo, idconcepto_prestamo])
             descuento_row = cursor.fetchone()
 
@@ -512,6 +515,7 @@ def build_loans_context(user):
             registros_descuento = descuento_row[2] or 0
 
         # Calcular saldo pendiente: valorprestamo + total_pagado (total_pagado es negativo)
+        # Ejemplo: 500,000 + (-250,000) = 250,000
         saldo_pendiente = valorprestamo + total_pagado
 
         # Obtener nóminas donde se descontó
