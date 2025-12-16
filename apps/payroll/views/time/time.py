@@ -946,22 +946,25 @@ def time_add(request):
                 #     errors.append(f"Fila {idx+1}: Ya existe un registro de tiempo para contrato {contrato} en la fecha {fecha_ingreso}.")
                 #     continue
                 
+                
+                
+                
                 contr = Contratos.objects.filter(old_idcontrato=contrato, id_empresa=idempresa).first()
-
+                
+                
+                
                 # Si pasa todas las validaciones, lo agregamos a lista
-                obj, created = Tiempos.objects.update_or_create(
-                    idcontrato__old_idcontrato=contrato,
-                    fechaingreso=fecha_ingreso,
-                    horaingreso = hora_ingreso,
-                    idempresa_id=idempresa,
-                    defaults={
-                        'horaingreso': hora_ingreso,
-                        'idcontrato': contr,
-                        'idnomina_id': idnomina,
-                        'fechasalida': fecha_salida,
-                        'horasalida': hora_salida,
-                        'horasdescuentos': horas_descuentos,
-                    }
+                registros_validados.append(
+                    Tiempos(
+                        fechaingreso=fecha_ingreso,
+                        horaingreso=hora_ingreso,
+                        idcontrato = contr,
+                        idnomina_id=idnomina,
+                        fechasalida=fecha_salida,
+                        horasalida=hora_salida,
+                        horasdescuentos= horas_descuentos, 
+                        idempresa_id=idempresa,
+                    )
                 )
             except Exception as e:
                 errors.append(f"Fila {idx+1}: Error inesperado -> {str(e)}")
@@ -971,12 +974,9 @@ def time_add(request):
             return render(request, './companies/partials/disability_upload_errors.html', {
                 'errors': errors
             })
-
-        # Guardamos en bloque, asegurando atomicidad
-        if registros_validados:
-            with transaction.atomic():
-                Tiempos.objects.bulk_create(registros_validados)
-                return render(request, 'payroll/partials/success_time.html')
+        else:
+            return render(request, 'payroll/partials/success_time.html')
+        
 
     return render(request, 'payroll/partials/time_add.html', {'nominas': nominas})
 
