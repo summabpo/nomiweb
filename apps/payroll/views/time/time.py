@@ -612,10 +612,11 @@ def time_doc(request, id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario.get('idempresa')
 
-    tiempos = Tiempos.objects.filter(idnomina=id).select_related('idcontrato__idsede')
+    tiempos = Tiempos.objects.filter(idnomina=id , idcontrato = 8050 ).select_related('idcontrato__idsede')
 
     inicio_horario = int(Conceptosfijos.objects.get(conceptofijo = "HORARIO NOCTURNO INICIO").valorfijo)
     fin_horario = int(Conceptosfijos.objects.get(conceptofijo = "HORARIO NOCTURNO FIN").valorfijo)
+        
         
     wb = Workbook()
     ws = wb.active
@@ -718,11 +719,12 @@ def time_doc(request, id):
 
         noct_inicio = time(inicio_int, 0, 0)
         noct_fin = time(fin_int, 0, 0)
-
         # Diurna es el complemento del rango nocturno
         inicio_diurna = noct_fin
         fin_diurna = noct_inicio
 
+        # print('-----------------')
+        # print(actual)
 
         au = actual.date()
         is_domingo = au.weekday() == 6
@@ -740,32 +742,55 @@ def time_doc(request, id):
             is_festivo_o_dom = is_domingo or is_festivo
             is_nocturna = hora < inicio_diurna or hora >= fin_diurna
             
-                    
+            
             # Sumar 1 minuto
             horas_trabajadas += MINUTO_HORA
+            
+            
+            if (actual - inicio) <= timedelta(minutes=479) and not is_festivo_o_dom :
+                horas_ordinarias += MINUTO_HORA
+                
+            
+            if is_festivo_o_dom and not is_nocturna : 
+                horas_domfes += MINUTO_HORA
+                
+            if is_festivo_o_dom and is_nocturna : 
+                rnf += MINUTO_HORA
+                
+            if not is_festivo_o_dom and is_nocturna : 
+                rn += MINUTO_HORA
+
+            # if actual.date() == date(2025, 11, 2):
+            #     print(f"{rnf/60} : {is_festivo_o_dom}  - {is_nocturna} ")
+                
+            
             # Validación de 480 minutos ( 8 horas de trabajo )
-            if (actual - inicio) >= timedelta(minutes=480):
+            if (actual - inicio) >= timedelta(minutes=480) and not is_festivo_o_dom :
+                
                 if is_nocturna:
                     hen += MINUTO_HORA
                 else:
                     hed += MINUTO_HORA
-            else : 
-                if is_festivo_o_dom:
-                    if is_nocturna:
-                        rnf += MINUTO_HORA
-                    horas_domfes += MINUTO_HORA 
-                else : 
-                    if is_nocturna:
-                        rn += MINUTO_HORA
+            # else : 
+                
+            #     if is_festivo_o_dom:
+            #         if is_nocturna:
+            #             rnf += 0
+            #         horas_domfes += 0 
+            #     else : 
+            #         if is_nocturna:
+            #             rn += 0
+            #         else:
+            #             
 
             # avanzar
             actual += paso
                 
         # Calcular horas ordinarias inicialmente como diferencia
-        horas_ordinarias = (
-            horas_trabajadas
-            - (hed + hen + hedf + henf + rn + rnf + dyf)
-        )  
+        # horas_ordinarias = (
+        #     horas_trabajadas
+        #     - (hed + hen + hedf + henf + rn + rnf + dyf)
+        # )  
         
         
 
@@ -778,9 +803,10 @@ def time_doc(request, id):
             descuento_horas = 0.0
             
         
-        horas_trabajadas = horas_trabajadas / 60.0
-        hed = hed / 60.0
-        hen = hen / 60.0
+        horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
+        horas_domfes = round( horas_domfes / 60.0, 3)  
+        hed = round( hed / 60.0, 3)   
+        hen = round( hen / 60.0, 3)   
 
 
         if hed >= descuento_horas:
@@ -790,25 +816,27 @@ def time_doc(request, id):
             hen -= descuento_horas
         
         
-        rn = rn / 60.0
-        rnf = rnf / 60.0
-        dyf  = dyf / 60.0
+        rn = round( rn / 60.0, 3)    
+        rnf = round( rnf / 60.0, 3)   
+        dyf  = round( dyf / 60.0, 3)   
         
-        if horas_domfes > 0:
-            horas_domfes  = (horas_domfes / 60.0 ) - rn - rnf - descuento_horas
+        
         
         
         horas_trabajadas -= descuento_horas
-        
-    
-        
-        if  horas_domfes > horas_trabajadas : 
-            horas_domfes -= (descuento_horas) 
+
+        # if  horas_domfes > horas_trabajadas : 
+        #     horas_domfes -= (descuento_horas) 
         
 
-        horas_ordinarias = horas_trabajadas - (hed + hen + hedf + henf + rn + rnf + dyf + horas_domfes)
+        #horas_ordinarias = horas_trabajadas - (hed + hen + hedf + henf + rn + rnf + dyf + horas_domfes)
+        horas_ordinarias = round( horas_ordinarias / 60.0, 3)  
         horas_ordinarias = max(horas_ordinarias, 0)
         
+        if horas_domfes > descuento_horas:
+            horas_domfes -= (descuento_horas) 
+            
+
         
         
         # Acumular totales
@@ -840,8 +868,8 @@ def time_doc(request, id):
             registro.idcontrato.idsede.nombresede if registro.idcontrato.idsede else "",
         ]
 
-        
-        ws.append(row)
+        if contrato_id == 8050:
+            ws.append(row)
 
         for cell in ws[ws.max_row]:
             cell.fill = fill
@@ -850,7 +878,7 @@ def time_doc(request, id):
         ws.cell(row=ws.max_row, column=5).number_format = 'DD/MM/YYYY'
 
     # 🔚 Totales del último contrato
-    agregar_totales_contrato(current_contract)
+    # agregar_totales_contrato(current_contract)
 
     output = BytesIO()
     wb.save(output)
@@ -954,18 +982,24 @@ def time_add(request):
                 
                 
                 # Si pasa todas las validaciones, lo agregamos a lista
-                registros_validados.append(
-                    Tiempos(
-                        fechaingreso=fecha_ingreso,
-                        horaingreso=hora_ingreso,
-                        idcontrato = contr,
-                        idnomina_id=idnomina,
-                        fechasalida=fecha_salida,
-                        horasalida=hora_salida,
-                        horasdescuentos= horas_descuentos, 
-                        idempresa_id=idempresa,
-                    )
+                tiempo, created = Tiempos.objects.update_or_create(
+                    # 🔍 Campos para buscar si ya existe
+                    fechaingreso=fecha_ingreso,
+                    idcontrato=contr,
+                    idnomina_id=idnomina,
+                    idempresa_id=idempresa,
+
+                    # ✏️ Campos que se actualizan si existe
+                    defaults={
+                        'horaingreso': hora_ingreso,
+                        'fechasalida': fecha_salida,
+                        'horasalida': hora_salida,
+                        'horasdescuentos': horas_descuentos,
+                    }
                 )
+
+                
+                print(created)
             except Exception as e:
                 errors.append(f"Fila {idx+1}: Error inesperado -> {str(e)}")
 

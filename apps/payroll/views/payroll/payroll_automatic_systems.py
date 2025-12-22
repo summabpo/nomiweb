@@ -272,17 +272,12 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
 
     contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
     
-    
-    
+
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto=parte_nomina)
 
-    
-        
     if empleados: 
         contratos = contratos.filter(idcontrato__in = empleados)
-        
-    
 
     for contrato in contratos:
         
@@ -466,12 +461,16 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
     
-    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3, fechainicial__range=(inicio_nomina, fin_nomina) )
+    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3)
     
     
     
     if parte_nomina != 0:
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
+    
+    print(inicio_nomina)
+    print(fin_nomina)
+    print(incapacidades)
     
     for incapacidad in incapacidades:
         dias_incapacidad = 0 
@@ -549,6 +548,8 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         valor_incapacidad = ibc / 240 * horas_incapacidad
         horas_asumidas = dias_asumidos * 8
         valor_asumido = ibc / 240 * horas_asumidas
+        
+        
         
         if dias_asumidos > 0 :
             if idconceptoa :
