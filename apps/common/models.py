@@ -1624,33 +1624,44 @@ class Tiempos(models.Model):
 
 class TiemposTotales(models.Model):
     idtiempostotales = models.AutoField(primary_key=True)
-    idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING) 
-    horasord = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    horastrab = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    horasdomfes = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    hed = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    vhed = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    hen = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    vhen = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    hedf = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    vhedf = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    henf = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    vhenf = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    rn = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    vrn = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    rnf = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    vrnf = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    dyf = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
-    vdyf = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    idnomina = models.ForeignKey(Crearnomina, models.DO_NOTHING) 
-    valorextras = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    idsede = models.ForeignKey(Sedes, models.DO_NOTHING, blank=True, null=True) 
-    idcosto =  models.ForeignKey(Costos, models.DO_NOTHING ) #enlace costo 
-    idsubcosto = models.ForeignKey(Subcostos, models.DO_NOTHING ,  blank=True, null=True)
-    idempresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
+
+    idcontrato = models.ForeignKey(Contratos, models.DO_NOTHING)
+
+    # ===== HORAS =====
+    horasord     = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    horastrab    = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    horasdomfes  = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+
+    hed   = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    hen   = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    hedf  = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    henf  = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+
+    rn    = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    rnf   = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    dyf   = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+
+    # ===== VALORES ($) =====
+    vhed   = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    vhen   = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    vhedf  = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    vhenf  = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    vrn    = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    vrnf   = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    vdyf   = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+
+    valorextras = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+
+    # ===== RELACIONES =====
+    idnomina   = models.ForeignKey(Crearnomina, models.DO_NOTHING)
+    idsede     = models.ForeignKey(Sedes, models.DO_NOTHING, blank=True, null=True)
+    idcosto    = models.ForeignKey(Costos, models.DO_NOTHING)
+    idsubcosto = models.ForeignKey(Subcostos, models.DO_NOTHING, blank=True, null=True)
+    idempresa  = models.ForeignKey(Empresa, models.DO_NOTHING)
 
     class Meta:
         db_table = 'tiempos_totales'
+        
 
 # validar 
 class Vacaciones(models.Model):

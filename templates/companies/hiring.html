@@ -134,19 +134,26 @@ tr.htmx-swapping td {
                                 <i class="fa-solid fa-pen-to-square fs-3"></i>
                             </button> {% endcomment %}
 
-                            
+
                             <a
-                                class='btn btn-icon btn-light-info'
+                                class='btn btn-icon btn-light-facebook me-2'
+
+                                data-bs-toggle="tooltip"
+                                data-bs-custom-class="tooltip-inverse"
+                                data-bs-placement="top" 
+                                title="Crear contrato"
+
                                 up-layer='new modal'
-                                up-target=".modal-content"
+                                up-target=".modal-content2"
                                 up-size = "medium"
                                 up-align = "center"
                                 up-backdrop = "true"
                                 up-history = "false"
                                 up-dismissable ="false"
                                 up-cache="false"
+
                                 href="{% url 'companies:hiring_contract' empleado.idempleado %}">
-                                <i class="fa-solid fa-pen-to-square fs-3"></i>
+                                <i class="fa-solid fa-pen-to-square fs-4"></i>
                             </a> 
 
 

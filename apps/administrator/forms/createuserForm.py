@@ -43,8 +43,11 @@ class UserCreationForm(forms.Form):
         if role == 'company' and not company:
             self.add_error('company', "Debe seleccionar una compañía para el rol de compañía.")
         
-        if role != 'accountant' and company and len(company) > 1:
-            self.add_error('company', 'Solo el rol Contador admite varias empresas.')
+        if role not in ['accountant', 'company'] and company and len(company) > 1:
+            self.add_error(
+                'company',
+                'Solo los roles Contador y Compañía admiten varias empresas.'
+            )
 
         
         return cleaned_data
@@ -183,8 +186,11 @@ class UserEditForm(forms.Form):
         company = cleaned_data.get('company')
 
         # Validar que si no es 'contador', solo pueda seleccionar una empresa
-        if role != 'accountant' and company and len(company) > 1:
-            self.add_error('company', 'Solo el rol Contador admite varias empresas.')
+        if role not in ['accountant', 'company'] and company and len(company) > 1:
+            self.add_error(
+                'company',
+                'Solo los roles Contador y Compañía admiten varias empresas.'
+            )
 
         return cleaned_data
     

@@ -468,10 +468,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     if parte_nomina != 0:
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
     
-    print(inicio_nomina)
-    print(fin_nomina)
-    print(incapacidades)
-    
     for incapacidad in incapacidades:
         dias_incapacidad = 0 
         dias_asumidos = 0
