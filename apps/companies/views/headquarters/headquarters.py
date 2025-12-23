@@ -107,9 +107,17 @@ def headquarters_modal(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
+    print('-------------')
+    print('prueba')
+    print('-------------')
+    
     if request.method == 'POST':
         form = headquartersForm(request.POST)
         if form.is_valid():
+            
+            print('-------------')
+            print('prueba')
+            print('-------------')
             nombresede = form.cleaned_data['nombresede']
             cajacompensacion = form.cleaned_data['cajacompensacion']
             aux = Entidadessegsocial.objects.get(codigo=cajacompensacion)
@@ -120,6 +128,8 @@ def headquarters_modal(request):
                 id_empresa_id = idempresa
             )
             sede.save()
+            
+            print(sede)
             return JsonResponse({'status': 'success', 'message': 'Sede creada exitosamente'})
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario

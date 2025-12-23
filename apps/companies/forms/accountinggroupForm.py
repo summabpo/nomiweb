@@ -6,8 +6,8 @@ from apps.common.models import Nivelesestructura
 from django.urls import reverse
 
 class accountinggroupForm(forms.Form):
-    grupo = forms.CharField(label='Nombre del Grupo',max_length=2, widget=forms.TextInput(attrs={'placeholder': 'Ingrese el nombre del grupo'}))
-    grupocontable = forms.CharField(label='Grupo Contable' , widget=forms.TextInput(attrs={'placeholder': 'Grupo Contable'}))
+    grupo = forms.CharField(label='Grupo Contable',max_length=2, widget=forms.TextInput(attrs={'placeholder': 'Grupo Contable '}))
+    grupocontable = forms.CharField(label='Nombre del Grupo' , widget=forms.TextInput(attrs={'placeholder': 'Ingrese el nombre del grupo'}))
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,8 +26,8 @@ class accountinggroupForm(forms.Form):
         
         self.helper.layout = Layout(
             Row(
-                Column('grupo', css_class='form-group mb-0'),
                 Column('grupocontable', css_class='form-group mb-0'),
+                Column('grupo', css_class='form-group mb-0'),
                 css_class='row'
             ),
         )
