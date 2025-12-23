@@ -49,18 +49,25 @@ class CompanyForms(forms.Form):
 
 
 @login_required
-@role_required('accountant')
+@role_required('company','accountant')
 def select_company(request):
     usuario = request.session.get('usuario', {})
     user = User.objects.get(id = usuario['id'] )
     empresas = user.id_empresa.all()
+    rol = usuario['rol']
+    
     
     if empresas.count() == 1:
         unica_empresa = empresas.first()
         usuario['idempresa'] = unica_empresa.idempresa
         request.session['usuario'] = usuario
-        return redirect('payroll:index_payroll')
-    
+        
+        if rol == 'accountant' :
+            return redirect('payroll:index_payroll')
+        elif rol == 'company' :
+            return redirect('companies:index_companies')
+
+
     if request.method == 'POST':
         form = CompanyForms(request.POST, id=request.user.id)
         if form.is_valid():
@@ -69,8 +76,14 @@ def select_company(request):
             usuario['idempresa'] = empresa_id
             usuario['nombre_empresa'] = name
             usuario['pass'] = True
+            
             request.session['usuario'] = usuario
-            return redirect('payroll:index_payroll')  # Redirige a donde necesites
+            
+            if rol == 'accountant' :
+                return redirect('payroll:index_payroll')
+            elif rol == 'company' :
+                return redirect('companies:index_companies') 
+            # Redirige a donde necesites
     else:
         form = CompanyForms(id=request.user.id)
     

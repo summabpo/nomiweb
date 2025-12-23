@@ -64,7 +64,7 @@ def redirect_by_role(user):
         'admin': 'admin:admin',
         'accountant': 'payroll:select_company',
         'employee': 'employees:index_employees',
-        'company': 'companies:index_companies',
+        'company': 'payroll:select_company',
     }
 
     # Obtener la vista correspondiente al rol del usuario

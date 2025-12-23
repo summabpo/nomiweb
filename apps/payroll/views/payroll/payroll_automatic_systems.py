@@ -929,20 +929,23 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             return d
 
         nombre_original = nomina.nombrenomina or ""
-
+        print(nombre_original)
         
         #passs = nomina.
         existe = Nomina.objects.filter(
             idnomina__mesacumular=nomina.mesacumular,
             idnomina__id_empresa=nomina.id_empresa,
             idcontrato=contrato,
-            idconcepto__codigo=2
+            idconcepto__codigo = 2
         ).exists()
+        
+        
 
         # Solo entra si NO existe el concepto en esa nómina
         if not existe and '#2' in nombre_original:
             
             nuevo_nombre = nombre_original.replace('#2', '#1')
+            
 
             nomina2 = Crearnomina.objects.filter(nombrenomina = nuevo_nombre).first()
             diasnomina2 = nomina2.diasnomina
@@ -975,10 +978,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         else :
             diasnomina2 = 0
 
-        
-        
-        
-        
+
         inicio_nomina = _to_date(nomina.fechainicial)
         fin_nomina = _to_date(nomina.fechafinal)
         inicio_contrato = _to_date(contrato.fechainiciocontrato)
