@@ -86,7 +86,7 @@ def payrollsheet(request):
     idempresa = usuario['idempresa']
     #nominas = Nomina.objects.select_related('idnomina').values('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
     #nominas = Nomina.objects.select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')
-    nominas = Crearnomina.objects.filter(id_empresa = idempresa ).values_list('nombrenomina', 'idnomina').order_by('-idnomina').exclude(idnomina = 438 )
+    nominas = Crearnomina.objects.filter(id_empresa = idempresa , estadonomina = False ).values_list('nombrenomina', 'idnomina').order_by('-idnomina')
     compects = []
     acumulados = {}
 
