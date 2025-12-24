@@ -97,7 +97,7 @@
                             <td>{{ compect.descuentos }}</td>
                             <td>{{ compect.neto }}</td>
                             <td>
-                                <a  href="{% url 'companies:generatepayrollcertificate' compect.nominaid compect.contratoid %}" target="_blank"  class="btn btn-icon btn-light-success hover-scale btn-sm">
+                                <a  href="{% url 'companies:generatepayrollcertificate' compect.nominaid compect.contratoid 0 %}" target="_blank"  class="btn btn-icon btn-light-success hover-scale btn-sm">
                                     <i class="fa-solid fa-file fs-1"></i>
                                 </a> 
                             </td>
@@ -417,15 +417,15 @@
     $(document).ready(function() {
 
         {% if selected_nomina %}
-            var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=selected_nomina %}";
+            var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=selected_nomina data=0  %}";
         {% else %}
-            var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=0 %}"; // O el valor por defecto que desees
+            var exportUrl = ""; // O el valor por defecto que desees
         {% endif %}
 
         {% if selected_nomina %}
-            var exportUrl2 = "{% url 'companies:generatepayrollsummary2' idnomina=selected_nomina %}";
+            var exportUrl2 = "{% url 'companies:generatepayrollsummary2' idnomina=selected_nomina data=0  %}";
         {% else %}
-            var exportUrl2 = "{% url 'companies:generatepayrollsummary2' idnomina=0 %}"; // O el valor por defecto que desees
+            var exportUrl2 = ""; // O el valor por defecto que desees
         {% endif %}
 
         var table = $('#tabla-planilla-nomina').DataTable({
