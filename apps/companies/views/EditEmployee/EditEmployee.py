@@ -80,6 +80,11 @@ def EditEmployeeVisual(request,idempleado):
         'cell_phone': empleado.celular,
         'residence_country': empleado.paisresidencia.idpais,
         'employee_phone': empleado.telefonoempleado,
+        
+        'contact_name': empleado.contact_name,
+        'contact_cell_phone': empleado.contact_cell_phone,
+        'contact_relationship': empleado.contact_relationship,
+        
         'pants_size': empleado.dotpantalon,
         'shirt_size': empleado.dotcamisa,
         'shoes_size': empleado.dotzapatos,
@@ -160,6 +165,16 @@ def EditEmployeeVisual(request,idempleado):
                 if form.cleaned_data['employee_phone'] != empleado.telefonoempleado:
                     empleado.telefonoempleado = form.cleaned_data['employee_phone']
 
+                if form.cleaned_data['contact_name'] != empleado.contact_name:
+                    empleado.contact_name = form.cleaned_data['contact_name']
+                    
+                if form.cleaned_data['contact_cell_phone'] != empleado.contact_cell_phone:
+                    empleado.contact_cell_phone = form.cleaned_data['contact_cell_phone']
+                    
+                if form.cleaned_data['contact_relationship'] != empleado.contact_relationship:
+                    empleado.contact_relationship = form.cleaned_data['contact_relationship']
+                
+                
                 if form.cleaned_data['pants_size'] != empleado.dotpantalon:
                     empleado.dotpantalon = form.cleaned_data['pants_size']
 

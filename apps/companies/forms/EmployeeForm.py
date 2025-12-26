@@ -7,6 +7,18 @@ from crispy_forms.layout import Layout, Div, Submit,HTML,Row,Column
 from django.urls import reverse
 
 
+RELATIONSHIP_CHOICES = [
+            ('', '----------'),
+            ('parent', 'Padre / Madre'),
+            ('sibling', 'Hermano(a)'),
+            ('partner', 'Pareja'),
+            ('friend', 'Amigo(a)'),
+            ('coworker', 'Compañero(a) de trabajo'),
+            ('other', 'Otro'),
+        ]
+
+
+
 class EmployeeForm(forms.Form):
     height = forms.CharField(
         required=False,
@@ -19,6 +31,7 @@ class EmployeeForm(forms.Form):
         initial='0.0',
         label='Peso (Kg)'
     )
+    
     
                     
     def __init__(self, *args, **kwargs):
@@ -167,6 +180,33 @@ class EmployeeForm(forms.Form):
     
             })
         )
+        
+        
+        # Nombre de la persona de contacto
+        self.fields['contact_name'] = forms.CharField(
+            label='Nombre de contacto',
+            required=False
+        )
+
+        # Celular de la persona de contacto
+        self.fields['contact_cell_phone'] = forms.CharField(
+            label='Celular de contacto',
+            required=False
+        )
+
+        # Tipo de relación con la persona de contacto
+        self.fields['contact_relationship'] = forms.ChoiceField(
+            choices=RELATIONSHIP_CHOICES,
+            label='Tipo de relación',
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+            }),
+            required=False
+        )
+        
+
         self.fields['employee_phone'] = forms.CharField(label='Teléfono del Empleado', required=False)
         self.fields['pants_size'] = forms.ChoiceField(
             choices=[('', '----------'), ('6', '6'), ('8', '8'), ('10', '10'), ('12', '12'), ('14', '14'), ('16', '16'), ('28', '28'), ('30', '30'), ('32', '32'), ('34', '34'), ('36', '36'), ('38', '38'), ('40', '40')],
@@ -201,6 +241,10 @@ class EmployeeForm(forms.Form):
             }),
             required=False
         )
+        
+        
+        
+        
                 
         self.helper = FormHelper()
         self.helper.form_method = 'post'
@@ -298,7 +342,16 @@ class EmployeeForm(forms.Form):
                 Column('employee_phone', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
-                
+            
+            HTML('<div class="separator my-10"></div>'),
+            HTML('<h3>Contacto de Emergencia </h3>'),
+            Row(
+                Column('contact_name', css_class='form-group col-md-4 mb-0'),
+                Column('contact_cell_phone', css_class='form-group col-md-4 mb-0'),
+                Column('contact_relationship', css_class='form-group col-md-4 mb-0'),
+                css_class='row'
+            ),
+            
             HTML('<div class="separator my-10"></div>'),
             HTML('<h3>Dotación</h3>'),
             Row(

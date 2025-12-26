@@ -111,6 +111,16 @@ def contractview(request,id):
     
     
     #return render(request, './companies/contractview.html',{'contrato': contrato })
+RELATIONSHIP_CHOICES = [
+            ('', '----------'),
+            ('parent', 'Padre / Madre'),
+            ('sibling', 'Hermano(a)'),
+            ('partner', 'Pareja'),
+            ('friend', 'Amigo(a)'),
+            ('coworker', 'Compañero(a) de trabajo'),
+            ('other', 'Otro'),
+        ]
+
 
 @login_required
 @role_required('company','accountant')
@@ -141,6 +151,7 @@ def resumeview(request,id):
     -----
     El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
     """
+    RELATIONSHIP_DICT = dict(RELATIONSHIP_CHOICES)
     
     try:
         empleado = Contratosemp.objects.get(idempleado=id)
@@ -171,6 +182,11 @@ def resumeview(request,id):
             'peso': empleado.peso or '',
             'fechaexpedicion': empleado.fechaexpedicion or '',
             'ciudadexpedicion': (empleado.ciudadexpedicion.ciudad if empleado.ciudadexpedicion else '') or '',
+            
+            'contact_name': empleado.contact_name or '',
+            'contact_cell_phone': empleado.contact_cell_phone or '',
+            'contact_relationship': RELATIONSHIP_DICT.get(empleado.contact_relationship, ''),
+            
             'dotpantalon': empleado.dotpantalon or '',
             'dotcamisa': empleado.dotcamisa or '',
             'dotzapatos': empleado.dotzapatos or '',

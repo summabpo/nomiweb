@@ -114,23 +114,6 @@ def bonus_p_settlement(request):
                     contrato['dias_prima'] = 0
 
                 contrato['valor'], contrato['dias_prima']  = prima_normal(date_init_str, date_end_str, proy , contrato)
-                
-                
-                # Calcular valores
-                # contrato['valor'], contrato['pp'] , contrato['dias_prima'] = prima(
-                #     contrato=contrato,
-                #     dias_prima=contrato['dias_prima'],
-                #     salario_minimo=salario_minimo,
-                #     aux_transporte_val=aux_transporte_val,
-                #     semestre_actual=semestre_actual,
-                #     fin_calculo=date_end,
-                #     id_empresa=idempresa,
-                #     proy=proy
-                # )
-                
-                
-                
-
 
                 contrato['trans'] = aux_transporte(contrato['idcontrato'], contrato['salario'], salario_minimo, aux_transporte_val)
                 contrato['extra'] = extra_auto(contrato=contrato, semestre_actual=semestre_actual, fin_calculo=date_end, id=idempresa) / contrato['dias_prima'] * 30 if contrato['dias_prima'] else 0
@@ -449,11 +432,7 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
     meses = months_between(semestre_actual['inicio'], fin_calculo)
     expected_nominas = max(1, meses * 2)  # entero
 
-    print('-----------')
-    print(semestre_actual['inicio'])
-    print(fin_calculo)
-    print(meses)
-    print('-----------')
+  
     
     # ----------------- EXTRAS / COMISIONES (value) -----------------
     value_agg = Nomina.objects.filter(
@@ -493,12 +472,7 @@ def prima(contrato, dias_prima, salario_minimo, aux_transporte_val, semestre_act
         value = Decimal('0')
 
     base_variable = (value / dias_prima_real) * Decimal(30) if dias_prima_real > 0 else Decimal('0')
-    print('------------')
-    print(salario)
-    print(base_variable)
-    print(aux_trans)
-    print(value_agg)
-    print(value_count)
+    
     
     total_base = salario + base_variable + aux_trans
     valor_prima = (total_base * dias_prima_total) / Decimal(360)
