@@ -13,7 +13,7 @@ from .views.family import family
 from .views.time import time
 from .views.accounting import benefits_provision 
 from .views.accounting import security_provision
-
+from .views.severance import severance
 
 # afsa fsa asfad 
 
@@ -68,6 +68,9 @@ urlpatterns = [
     
     path('settlements/termination', severance_settlement.settlement_list, name='settlement_list'),
     path('settlements/termination/payroll/<str:id>/<int:url>', severance_settlement.settlement_list_payroll, name='settlement_list_payroll'),
+    
+    
+    path('severance/annual/', severance.severance_annual_calculation, name='severance_annual_calculation'),
     
     ### time 
     path('time/list', time.time_list, name='time_list'),

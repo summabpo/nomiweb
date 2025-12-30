@@ -40,7 +40,6 @@ def family_list(request):
     idempresa = usuario['idempresa']
 
     familys = Indicador.objects.filter(
-        indicador__id_empresa=idempresa  
     ).distinct().order_by('id')
 
     return render(request, './payroll/family_list.html', {'familys': familys})

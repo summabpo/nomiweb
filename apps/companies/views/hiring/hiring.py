@@ -153,6 +153,11 @@ def hiring_employee(request):
                 fechaexpedicion = form_empleados.cleaned_data['expedition_date'],
                 ciudadexpedicion = ciudad3 , 
                 
+                #Contacto de emergencia
+                contact_name = form_empleados.cleaned_data['contact_name'],
+                contact_cell_phone = form_empleados.cleaned_data['contact_cell_phone'],
+                contact_relationship = form_empleados.cleaned_data['contact_relationship'],
+                
                 #Dotaciones
                 dotpantalon = form_empleados.cleaned_data['pants_size'],
                 dotcamisa = form_empleados.cleaned_data['shirt_size'],

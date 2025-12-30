@@ -73,6 +73,7 @@ def employee_loans(request):
     nomina_sum_subquery = Nomina.objects.filter(
         control=OuterRef('idprestamo'),
         idconcepto=conceptosdenomina,
+        estadonomina = False,
     ).values('control').annotate(
         total_pagado=Coalesce(Sum('valor'), 0)
     ).values('total_pagado')[:1]
@@ -161,6 +162,7 @@ def detail_employee_loans_modal(request, id=None):
     nomina_sum_subquery = Nomina.objects.filter(
         control=OuterRef('idprestamo'),
         idconcepto=conceptosdenomina,
+        estadonomina = False,
     ).values('control').annotate(
         total_pagado=Coalesce(Sum('valor'), 0)
     ).values('total_pagado')[:1]
@@ -378,7 +380,8 @@ def api_detail_payroll_loan(request, pk=None):
     # Obtener deducciones de nómina relacionadas al préstamo
     deducciones = Nomina.objects.filter(
         idconcepto__codigo = 50,  # Asegúrate que este es el id correcto para "deducción de préstamo"
-        control=pk
+        control=pk,
+        estadonomina = 2,
     ).order_by('idnomina__fechapago')  # Orden ascendente para cálculo progresivo
     
     # Preparar datos y calcular saldos

@@ -572,6 +572,31 @@ class Contratosemp(models.Model):
     # Relación con la empresa
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING )
     
+    
+    # Nombre de la persona de contacto
+    contact_name = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True
+    )
+
+    # Celular de la persona de contacto
+    contact_cell_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True
+    )
+
+
+    # Tipo de relación con la persona de contacto
+    contact_relationship = models.CharField(
+        max_length=20,
+        verbose_name='Tipo de relación',
+        blank=True,
+        null=True
+    )
+    
+    
     class Meta:
         db_table = 'contratosemp'
 
