@@ -173,35 +173,64 @@ Listados de Tiempos
                 <thead>
                     <tr>
                         <th>Empleado</th>
-                        <th>Fecha Ingreso</th>
-                        <th>Hora Ingreso</th>
-                        <th>Fecha Salida</th>
-                        <th>Hora Salida</th>
-                        <th>H.Dscto.</th>
+                        <th>Fecha de Ingreso</th>
+                        <th>Hora de Ingreso</th>
+                        <th>Fecha de Salida</th>
+                        <th>Hora de Salida</th>
+                        <th>Horas Descuento</th>
+                        <th>Horas Trabajadas</th>
+                        <th>Horas Ordinarias</th>
+                        <th>Saldo</th>
+                        <th>Horas Dom./Fest.</th>
+                        <th>HED</th>
+                        <th>HEN</th>
+                        <th>HEDF</th>
+                        <th>HENF</th>
+                        <th>RN</th>
+                        <th>RNF</th>
+                        <th>DYF</th>
                         <th></th>
                     </tr>
+
                 </thead>
                 <tbody>
                     {% for item in tiempos %}
                         <tr>
-                            <!-- Nombre completo del empleado basado en idcontrato -->
+                            <!-- Empleado -->
                             <td>{{ item.nombre_completo|default:'Sin nombre' }}</td>
 
                             <!-- Fechas y horas -->
                             <td>{{ item.fechaingreso|date:'d-m-Y' }}</td>
                             <td>{{ item.horaingreso|default:'00:00' }}</td>
                             <td>{{ item.fechasalida|date:'d-m-Y' }}</td>
-                            <td>{{ item.horasalida|default:0 }}</td>
-                            <td>{{ item.horasdescuentos|default:0 }}</td>
+                            <td>{{ item.horasalida|default:'00:00' }}</td>
 
-                            <!-- Botón de acción -->
+                            <!-- Horas -->
+                            <td>{{ item.horasdescuentos|default:0 }}</td>     <!-- H. Dscto -->
+                            <td>{{ item.horas_trabajadas|default:0 }}</td>    <!-- H. Trab -->
+                            <td>{{ item.horas_ordinarias|default:0 }}</td>    <!-- H. Ordi -->
+                            <td>{{ item.saldo_horas|default:0 }}</td>         <!-- Saldo -->
+                            <td>{{ item.horas_dom_fest|default:0 }}</td>      <!-- H. Dom/Fest -->
+
+                            <!-- Extras -->
+                            <td>{{ item.hed|default:0 }}</td>   <!-- HED -->
+                            <td>{{ item.hen|default:0 }}</td>   <!-- HEN -->
+                            <td>{{ item.hedf|default:0 }}</td>  <!-- HEDF -->
+                            <td>{{ item.henf|default:0 }}</td>  <!-- HENF -->
+
+                            <!-- Recargos -->
+                            <td>{{ item.rn|default:0 }}</td>    <!-- RN -->
+                            <td>{{ item.rnf|default:0 }}</td>   <!-- RNF -->
+                            <td>{{ item.dyf|default:0 }}</td>   <!-- DYF -->
+
+                            <!-- Acciones -->
                             <td>
                                 <a
-                                    class='btn btn-icon btn-sm btn-light-success'
+                                    class="btn btn-icon btn-sm btn-light-success"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Editar Tiempo"
-                                    up-layer='new modal'
+                                    up-layer="new modal"
                                     up-target=".modal-content1"
                                     up-size="medium"
                                     up-align="center"
@@ -215,6 +244,7 @@ Listados de Tiempos
                             </td>
                         </tr>
                     {% empty %}
+
                         <tr>
                             <td colspan="7" class="text-center">No hay registros de tiempos para esta nómina.</td>
                         </tr>

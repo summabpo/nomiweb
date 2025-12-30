@@ -34,6 +34,10 @@ def time_list(request):
     anio_actual = datetime.now().year
     ano_obj = Anos.objects.get(ano =  anio_actual )
 
+    inicio_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO INICIO").valorfijo)
+    fin_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO FIN").valorfijo)
+
+    CO_HOLIDAYS = holidays.CO(years=ano_obj.ano)
 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
@@ -120,6 +124,124 @@ def time_list(request):
                 output_field=CharField()
             )
         ).order_by('-idmarcacion')
+
+
+        for t in tiempos:
+
+            #* =========  Variables de Inicio =========
+            MINUTO_HORA = 1
+            horas_trabajadas = 0.0
+            horas_ordinarias = 0.0
+            hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = timee = 0.0
+
+            inicio = datetime.combine(t.fechaingreso, t.horaingreso)
+            fin = datetime.combine(t.fechasalida, t.horasalida)
+
+            actual = inicio
+            paso = timedelta(minutes=1)
+
+            noct_inicio = time(inicio_int, 0, 0)
+            noct_fin = time(fin_int, 0, 0)
+
+
+            inicio_diurna = noct_fin
+            fin_diurna = noct_inicio
+            
+            au = actual.date()
+            is_domingo = au.weekday() == 6
+            is_festivo = au in CO_HOLIDAYS
+            is_festivo_o_dom = is_domingo or is_festivo
+
+            while actual < fin:
+                fecha = actual.date()
+                hora = actual.time()
+
+                is_domingo = fecha.weekday() == 6
+                is_festivo = fecha in CO_HOLIDAYS
+                
+                is_festivo_o_dom = is_domingo or is_festivo
+                is_nocturna = hora < inicio_diurna or hora >= fin_diurna
+                
+
+                horas_trabajadas += MINUTO_HORA
+
+                if (actual - inicio) < timedelta(minutes=480) and not is_festivo_o_dom :
+                    horas_ordinarias += MINUTO_HORA
+                    
+                
+                if is_festivo_o_dom and not is_nocturna : 
+                    horas_domfes += MINUTO_HORA
+                    
+                if is_festivo_o_dom and is_nocturna : 
+                    rnf += MINUTO_HORA
+                    
+                if not is_festivo_o_dom and is_nocturna : 
+                    rn += MINUTO_HORA
+
+                # Validación de 480 minutos ( 8 horas de trabajo )
+                if (actual - inicio) >= timedelta(minutes=480) and not is_festivo_o_dom :
+                    
+                    if is_nocturna:
+                        hen += MINUTO_HORA
+                    else:
+                        hed += MINUTO_HORA
+
+
+                # avanzar
+                actual += paso
+
+            # --- Aplicar horas de descuento si existen ---
+            # registro.horasdescuentos es TimeField (HH:MM:SS) -> convertir a horas float
+            if t.horasdescuentos:
+                h = t.horasdescuentos
+                descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
+            else:
+                descuento_horas = 0.0
+                
+            
+            descuento_horas = round(descuento_horas,3)
+            horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
+
+            descuento_horas = round(descuento_horas,3)
+            horas_domfes = round( horas_domfes / 60.0, 3)  
+            hed = round( hed / 60.0, 3)   
+            hen = round( hen / 60.0, 3)   
+
+
+            if hed >= descuento_horas:
+                hed -= descuento_horas
+
+            if hen >= descuento_horas:
+                hen -= descuento_horas
+            
+            
+            rn = round( rn / 60.0, 3)    
+            rnf = round( rnf / 60.0, 3)   
+            dyf = round( dyf / 60.0, 3)   
+            
+
+            horas_trabajadas -= descuento_horas
+            horas_ordinarias = round( horas_ordinarias / 60.0, 3)  
+            horas_ordinarias = max(horas_ordinarias, 0)
+            
+            
+            if horas_domfes > descuento_horas:
+                horas_domfes -= (descuento_horas) 
+
+
+            t.horas_trabajadas= horas_trabajadas
+            t.horas_ordinarias= horas_ordinarias
+            t.saldo_horas= 0
+            t.horas_dom_fest= dyf
+
+            t.hed = hed
+            t.hen = hen
+            t.hedf = hedf
+            t.henf = henf
+            t.rn = rn
+            t.rnf = rnf
+            t.dyf = dyf
+
         value1 = True
 
     ##! ===================== Calcular =====================
@@ -129,10 +251,9 @@ def time_list(request):
         value2 = True
         value1 = False
         
-        CO_HOLIDAYS = holidays.CO(years=ano_obj.ano)
+        
 
-        inicio_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO INICIO").valorfijo)
-        fin_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO FIN").valorfijo)
+        
 
         tiempos = Tiempos.objects.filter(
             idnomina=selected_nomina_id
