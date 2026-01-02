@@ -251,9 +251,6 @@ def time_list(request):
         value2 = True
         value1 = False
         
-        
-
-        
 
         tiempos = Tiempos.objects.filter(
             idnomina=selected_nomina_id
@@ -575,6 +572,16 @@ def time_list(request):
             'selected_nomina_id': selected_nomina_id
         }
     )
+
+
+
+
+def calcule_time():
+    time_c = 0 
+
+    return  time_c 
+
+
 
 @login_required
 @role_required('accountant')
