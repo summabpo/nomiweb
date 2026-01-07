@@ -110,7 +110,7 @@ def time_list(request):
 
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
-        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id , idcontrato = 8050).select_related(
+        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
             nombre_completo=Concat(
@@ -168,15 +168,10 @@ def time_list(request):
                 
                 if (actual - inicio) < timedelta(minutes=480) and not is_festivo_o_dom :
                     horas_ordinarias += MINUTO_HORA
-                    
-                
-
 
                 if is_festivo_o_dom and not is_nocturna : 
                     horas_domfes += MINUTO_HORA
 
-                
-                    
                 if is_festivo_o_dom and is_nocturna : 
                     rnf += MINUTO_HORA
                     
@@ -191,11 +186,6 @@ def time_list(request):
                     else:
                         hed += MINUTO_HORA
                 
-                if fecha == date(2025, 11, 3):
-                    print(f'horas n {horas_domfes} hen = {hen} hed = {hed} , d {is_festivo_o_dom} n {is_nocturna}')
-
-
-
                 # avanzar
                 actual += paso
 
@@ -226,9 +216,6 @@ def time_list(request):
             horas_ordinarias = round( horas_ordinarias / 60.0, 3)  
             horas_ordinarias = max(horas_ordinarias, 0)
 
-            if fecha == date(2025, 11, 3):
-                print(f' ultimo horas n {horas_ordinarias} hen = {hen} hed = {hed} ')
-
             if horas_ordinarias >= 8:
                 hed = hed
             else :
@@ -238,9 +225,6 @@ def time_list(request):
                 hen = hen
             else :
                 hen = 0
-
-            if fecha == date(2025, 10, 29):
-                print(f' filtro horas n {horas_ordinarias} hen = {hen} hed = {hed} ')
 
 
             if hed >= descuento_horas:
@@ -396,17 +380,11 @@ def time_list(request):
             
             descuento_horas = round(descuento_horas,3)
             horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
+
+            descuento_horas = round(descuento_horas,3)
             horas_domfes = round( horas_domfes / 60.0, 3)  
             hed = round( hed / 60.0, 3)   
-            hen = round( hen / 60.0, 3)   
-
-
-            if hed >= descuento_horas:
-                hed -= descuento_horas
-
-            if hen >= descuento_horas:
-                hen -= descuento_horas
-            
+            hen = round( hen / 60.0, 3)               
             
             rn = round( rn / 60.0, 3)    
             rnf = round( rnf / 60.0, 3)   
@@ -416,10 +394,34 @@ def time_list(request):
             horas_trabajadas -= descuento_horas
             horas_ordinarias = round( horas_ordinarias / 60.0, 3)  
             horas_ordinarias = max(horas_ordinarias, 0)
-            
-            
+
+            if horas_ordinarias >= 8:
+                hed = hed
+            else :
+                hed = 0
+
+            if horas_ordinarias >= 8:
+                hen = hen
+            else :
+                hen = 0
+
+
+            if hed >= descuento_horas:
+                hed -= descuento_horas
+
+            if hen >= descuento_horas:
+                hen -= descuento_horas
+
+
             if horas_domfes > descuento_horas:
-                horas_domfes -= (descuento_horas)
+                horas_domfes -= (descuento_horas) 
+                dyf = horas_domfes
+
+            if rn > 8:
+                rn -= (descuento_horas) 
+
+            if rnf > 8:
+                rnf -= (descuento_horas)  
 
 
             # =============================
