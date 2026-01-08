@@ -612,12 +612,6 @@ def time_list(request):
 
 
 
-# def calcule_time():
-#     time_c = 0 
-
-#     return  time_c 
-
-
 
 @login_required
 @role_required('accountant')
