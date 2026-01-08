@@ -232,7 +232,6 @@ def time_list(request):
 
 
             h_totales = horas_trabajadas + horas_domfes
-            print(f" hd {horas_domfes} ht {horas_trabajadas} ho {horas_ordinarias}")
 
 
             if h_totales >= 8:
@@ -476,7 +475,6 @@ def time_list(request):
             # ✅ SOLO APPEND A EMPLEADOS
             # =============================
             
-            #print(f" fecha {inicio} - hed : {hed}  " )
             
             emp['horas_trabajadas'] += horas_trabajadas
             emp['horas_normales'] += horas_ordinarias
@@ -1125,7 +1123,6 @@ def time_add(request):
                 )
 
                 
-                print(created)
             except Exception as e:
                 errors.append(f"Fila {idx+1}: Error inesperado -> {str(e)}")
 
