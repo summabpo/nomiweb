@@ -110,7 +110,7 @@ def time_list(request):
 
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
-        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id , idcontrato = 10147).select_related(
+        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
             nombre_completo=Concat(
