@@ -95,7 +95,7 @@ Prestaciones
 {% endblock %}
 
 {% block sub_titulo2 %} 
-Liquidaciones Primas
+Liquidaciones Cesantias
 {% endblock %}
 
 {% block titulo2 %} 
@@ -114,7 +114,7 @@ Listado de Empleados
 <div class="container" >
     <div class="card shadow-sm">
         <div class="card-header">
-            <h3 class="card-title">Sistemas Primas - Filtros </h3>
+            <h3 class="card-title">Sistemas Cesantias - Filtros </h3>
         </div>
         <div class="card-body">
             {% csrf_token %}
@@ -173,10 +173,10 @@ Listado de Empleados
                             <td >{{ item.salario |format_currency }}</td>
                             <td >{{ item.trans |format_currency }}</td>
                             <td >{{ item.extra|format_currency }}</td>
-                            <td >{{ item.dias_prima |format_currency }}</td>
-                            <td >{{ item.cesantias |format_currency }}</td>
-                            <td >{{ item.pp |format_currency }}</td>
-                            <td >{{ item.pp |format_currency }}</td>
+                            <td >{{ item.dias_cesantias |format_currency }}</td>
+                            <td >{{ item.valor_cesantias |format_currency }}</td>
+                            <td >{{ item.intereses_cesantias |format_currency }}</td>
+                            <td >{{ item.fondo_cesantias |default:"N/A" }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
