@@ -135,7 +135,7 @@ def severance_annual_calculation(request):
                     'valor_cesantias': valor_cesantias,
                     'intereses_cesantias': intereses,
 
-                    # Para fondo (IMPORTANTE)
+                    # Para fondo 
                     'fondo_cesantias': c.fondocesantias ,
                 })
 
