@@ -17,6 +17,7 @@ TIPE_CHOICES = (
     ('9', 'Catorcenal'),
     ('10', 'Int. de Cesantías'),
     ('11', 'Semanal'),
+    ('12', 'Provisiones'),
 )
 
 class PayrollForm(forms.Form):
