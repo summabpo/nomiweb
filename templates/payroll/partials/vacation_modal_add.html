@@ -1,0 +1,76 @@
+{% load crispy_forms_tags %}
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Nueva vacacion </h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+
+            <form method="get">
+
+            <label class="mb-2">Seleccione una opción</label>
+
+            <select class="form-select"
+                name="opcion"
+                up-change="closest form"
+                up-target="#tabla-container"
+                up-fragment="#tabla-container"
+                up-layer="closest"
+                up-history="false">
+
+                <option value="">-- Elegir --</option>
+                <option value="A" {% if opcion == "A" %}selected{% endif %}>Opción A</option>
+                <option value="B" {% if opcion == "B" %}selected{% endif %}>Opción B</option>
+            </select>
+
+        </form>
+
+            <div id="tabla-container">
+                {% if data %}
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in data %}
+                        <tr>
+                            <td>{{ d.id }}</td>
+                            <td>{{ d.nombre }}</td>
+                            <td>{{ d.precio }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                    <p class="text-muted">Seleccione una opción para ver los datos.</p>
+                {% endif %}
+            </div>
+
+
+        </div>
+
+
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" form="upload-form" class="btn btn-primary">Cargar Archivo</button>
+    </div>
+</div>
+
+
+
+

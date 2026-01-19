@@ -40,22 +40,8 @@ Listado de Solicitudes
 
 {% block actions %}
 <!-- Button trigger modal -->
-    
-    {% comment %} <a
-        class='btn btn-light-info'
 
-        up-layer='new modal'
-        up-target=".modal-content"
-        up-size = "large"
-        up-align = "center"
-        up-backdrop = "true"
-        up-history = "false"
-        up-dismissable ="false"
-        up-cache="false"
 
-        href="{% url 'companies:vacation_request_file_upload' %}">
-        <i class="fa-solid fa-plus"></i> Cargar Vacaciones
-    </a>  {% endcomment %}
 {% endblock %}
 
 {% block content %}
@@ -264,101 +250,357 @@ Listado de Solicitudes
 
 {% block js %}
 
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer?.current?.element;
+        const fecha0 = modalContent.querySelector('#id_pay_date');
+        const fecha1 = modalContent.querySelector('#fecha_inicio-1');
+        const fecha2 = modalContent.querySelector('#fecha_fin-1');
+
+        const tabla = modalContent.querySelector('#tabla-lista-novedad');
+
+        if (tabla) {
+            if ($.fn.dataTable.isDataTable(tabla)) {
+                $(tabla).DataTable().destroy();
+            }
+
+            $(tabla).DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 10
+            });
+        }
+        
+        if (fecha0) {
+            $(fecha0).flatpickr();
+        }
+
+
+        if (fecha1) {
+            $(fecha1).flatpickr();
+        }
+
+        if (fecha2) {
+            $(fecha2).flatpickr();
+        }
+
+
+        if (!modalContent) return;
+        
+            setTimeout(() => {      
+
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+
+            const pay_date = modalContent.querySelector('#id_pay_date');
+            const type_novedad = modalContent.querySelector('#id_type_novedad');
+            const contract = modalContent.querySelector('#id_contract');
+            const extraSection = modalContent.querySelector('#extra-section');
+            const novedadSelect = modalContent.querySelector('#novedad');
+
+
+            
+            const fecha_inicio = modalContent.querySelector('#fecha_inicio-1')
+            const sabados_checkbox = modalContent.querySelector('#sabados-1');
+            const incluir_sabados = sabados_checkbox && sabados_checkbox.checked ? '1' : '0';
+            const fecha_fin = modalContent.querySelector('#fecha_fin-1')
+            const dias_c_input = modalContent.querySelector('#dias_c-1');
+            const dias_v_input = modalContent.querySelector('#dias_v-1');
+            const salario_input = modalContent.querySelector('#base-1');
+            const valor_input = modalContent.querySelector('#valor-1');
+            
+            function calcularDias() {
+                if (fecha_inicio.value && fecha_fin.value) {
+                        up.request({
+                        url: "{% url 'payroll:vacation_days_calc' %}",
+                        method: "POST",
+                        params: {
+                            fecha_inicio: fecha_inicio.value,
+                            fecha_fin: fecha_fin.value,
+                            idc: contract.value , 
+                            incluir_sabados: sabados_checkbox.checked,
+                            csrfmiddlewaretoken: modalContent.querySelector('[name="csrfmiddlewaretoken"]').value
+                        }
+                        }).then(function(response) {
+                            const data = JSON.parse(response.text);  // Suponiendo que tu view retorna JSON
+                            dias_c_input.value = data.dias_c;
+                            dias_v_input.value = data.dias_v;
+                            salario_input.value = data.salario;
+                            valor_input.value = data.valor;
+
+                        });
+                    }
+                }
+
+            if (fecha_inicio && fecha_fin && sabados_checkbox) {
+                fecha_inicio.addEventListener('change', calcularDias);
+                fecha_fin.addEventListener('change', calcularDias);
+                sabados_checkbox.addEventListener('change', calcularDias);
+            }
+            
+
+            // Inicializar Select2
+            selectElements.forEach((select, index) => {
+                if (!select.id) {
+                    select.id = `select2-unique-${Date.now()}-${index}`;
+                }
+
+                if (!$(select).data('select2')) {
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
+                    }
+
+                    $(select).select2(options);
+                }
+            });
+
+            // Mostrar u ocultar sección extra según si los 3 campos están llenos
+            function checkFieldsFilled() {
+                const payDateFilled = pay_date?.value?.trim() !== '';
+                const typeFilled = type_novedad?.value?.trim() !== '';
+                const contractFilled = contract?.value?.trim() !== '';
+
+                if (extraSection) {
+                    extraSection.style.display = (payDateFilled && typeFilled && contractFilled) ? 'block' : 'none';
+                }
+            }
+
+            if (pay_date) {
+                pay_date.addEventListener('input', checkFieldsFilled);
+                pay_date.addEventListener('change', checkFieldsFilled);
+            }
+
+            if (type_novedad) {
+                $(type_novedad).on('change.select2', checkFieldsFilled);
+            }
+
+            if (contract) {
+                $(contract).on('change.select2', checkFieldsFilled);
+            }
+
+            checkFieldsFilled();
+
+            // Opciones dinámicas según el tipo de novedad
+            const opcionesPorTipo = {
+                '1': [  // Vacaciones
+                    { id: '1', text: 'Vacaciones Disfrutadas' },
+                    { id: '2', text: 'Vacaciones Compensadas' }
+                ],
+                '2': [  // Ausencias
+                    { id: '3', text: 'Licencia Remunerada' },
+                    { id: '4', text: 'Licencia No Remunerada' },
+                    { id: '5', text: 'Suspensiones' }
+                ]
+            };
+
+            function actualizarSelect2(tipo) {
+                const opciones = opcionesPorTipo[tipo] || [];
+
+                if (!novedadSelect) return;
+
+                if ($(novedadSelect).hasClass('select2-hidden-accessible')) {
+                    $(novedadSelect).select2('destroy');
+                }
+
+                novedadSelect.innerHTML = '';
+
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = '';
+                novedadSelect.appendChild(emptyOption);
+
+                opciones.forEach(op => {
+                    const option = document.createElement('option');
+                    option.value = op.id;
+                    option.textContent = op.text;
+                    novedadSelect.appendChild(option);
+                });
+
+                $(novedadSelect).select2({
+                    dropdownParent: $(modalContent),
+                    width: '100%'
+                });
+            }
+
+            // Función para ocultar/mostrar columnas
+            function toggleColumnas(indices, mostrar) {
+                const table = modalContent.querySelector('#items-table');
+                if (!table) return;
+
+                indices.forEach(index => {
+                    // Oculta TH
+                    const th = table.querySelector(`thead tr th:nth-child(${index})`);
+                    if (th) th.style.display = mostrar ? '' : 'none';
+
+                    // Oculta TD
+                    const filas = table.querySelectorAll('tbody tr');
+                    filas.forEach(fila => {
+                        const td = fila.querySelector(`td:nth-child(${index})`);
+                        if (td) td.style.display = mostrar ? '' : 'none';
+                    });
+
+                    // Oculta COL
+                    const colgroup = table.querySelector('colgroup');
+                    if (colgroup) {
+                        const cols = colgroup.querySelectorAll('col');
+                        const col = cols[index - 1]; // index es 1-based
+                        if (col) col.style.display = mostrar ? '' : 'none';
+                    }
+                });
+            }
+
+            // Manejo de cambio de tipo de novedad
+            if (type_novedad) {
+                $(type_novedad).on('change', function () {
+                    const tipo = this.value;
+
+                    actualizarSelect2(tipo);
+
+                    // Oculta columnas si no es Vacaciones
+                    if (tipo === '1') {
+                        toggleColumnas([4, 6, 9, 10], true);  // Mostrar si Vacaciones
+                    } else {
+                        toggleColumnas([4, 6, 9, 10], false); // Ocultar en otros casos
+                    }
+                });
+
+                // Verifica si ya hay valor y aplica la visibilidad
+                if (type_novedad.value) {
+                    actualizarSelect2(type_novedad.value);
+                    if (type_novedad.value === '1') {
+                        toggleColumnas([4, 6, 9, 10], true);
+                    } else {
+                        toggleColumnas([4, 6, 9, 10], false);
+                    }
+                }
+
+
+            }
+        }, 300);
+    });
+</script>
+
+
+
+
 <script>
     
-var vacationDetails;
-$('#kt_modal_2').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget); 
-    vacationDetails = button.data('vacation_details'); 
-});
-
-$('#form_vacation_request').on('submit', function (e) {
-    e.preventDefault();  
-    var loanSelect = $('#loanSelect').val();  
-    var comments = $('#comments').val();  
-    $.ajax({
-        type: 'POST',
-        url: "{% url 'companies:get_vacation_acction' %}",  
-        data: {
-            'loanSelect': loanSelect,
-            'comments': comments,
-            'vacationDetails': vacationDetails, 
-            'csrfmiddlewaretoken': '{{ csrf_token }}'  
-        },
-        success: function (response) {
-            if (response.success) {
-                toastr.success(response.message, "Éxito");  
-                $('#kt_modal_2').modal('hide');
-                setTimeout(function() {
-                    location.reload();
-                }, 4000); 
-            } else {
-                toastr.error(response.message, "Error"); 
-                $('#kt_modal_2').modal('hide');
-                setTimeout(function() {
-                    location.reload();
-                }, 4000); 
-            }
-        },
-        error: function (xhr, status, error) {
-            toastr.error("Ocurrió un error al procesar la solicitud.", "Error");
-        }
+    var vacationDetails;
+    $('#kt_modal_2').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); 
+        vacationDetails = button.data('vacation_details'); 
     });
-});
+
+    $('#form_vacation_request').on('submit', function (e) {
+        e.preventDefault();  
+        var loanSelect = $('#loanSelect').val();  
+        var comments = $('#comments').val();  
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'companies:get_vacation_acction' %}",  
+            data: {
+                'loanSelect': loanSelect,
+                'comments': comments,
+                'vacationDetails': vacationDetails, 
+                'csrfmiddlewaretoken': '{{ csrf_token }}'  
+            },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message, "Éxito");  
+                    $('#kt_modal_2').modal('hide');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 4000); 
+                } else {
+                    toastr.error(response.message, "Error"); 
+                    $('#kt_modal_2').modal('hide');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 4000); 
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("Ocurrió un error al procesar la solicitud.", "Error");
+            }
+        });
+    });
 </script>
     
 
 
 <script>
     // Configuración de Toastr para notificaciones
-toastr.options = {
-    "closeButton": true,
-    "debug": false,
-    "newestOnTop": true,
-    "progressBar": true,
-    "positionClass": "toastr-top-left",
-    "preventDuplicates": true,
-    "showDuration": "300",
-    "hideDuration": "1000",
-    "timeOut": "5000",
-    "extendedTimeOut": "1000",
-    "showEasing": "swing",
-    "hideEasing": "linear",
-    "showMethod": "fadeIn",
-    "hideMethod": "fadeOut"
-};
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toastr-top-left",
+        "preventDuplicates": true,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
 
-// Función para manejar las acciones de aprobar, rechazar o marcar pendiente
-function sendAction(element) {
-    var action = element.getAttribute("data-action");
-    var vacation = element.getAttribute("data-vacation");
-    var url = "{% url 'companies:get_vacation_acction' %}";
+    // Función para manejar las acciones de aprobar, rechazar o marcar pendiente
+    function sendAction(element) {
+        var action = element.getAttribute("data-action");
+        var vacation = element.getAttribute("data-vacation");
+        var url = "{% url 'companies:get_vacation_acction' %}";
 
-    $.ajax({
-        url: url,
-        type: 'GET', 
-        data: {
-            action: action,
-            vacation: vacation,
-        },
-        success: function(response) {
-            if (response.success) {
-                toastr.success("El proceso se ha completado con éxito: " + action, "Operación Exitosa");
-            } else {
-                toastr.error("Hubo un error al procesar: " + action , "Error en la Operación");
+        $.ajax({
+            url: url,
+            type: 'GET', 
+            data: {
+                action: action,
+                vacation: vacation,
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success("El proceso se ha completado con éxito: " + action, "Operación Exitosa");
+                } else {
+                    toastr.error("Hubo un error al procesar: " + action , "Error en la Operación");
+                }
+                setTimeout(function() {
+                    location.reload();
+                }, 4000); 
+            },
+            error: function(xhr, status, error) {
+                toastr.error("Hubo un problema al comunicarse con el servidor.", "Error en la Conexión");
+                setTimeout(function() {
+                    location.reload();
+                }, 4000); 
             }
-            setTimeout(function() {
-                location.reload();
-            }, 4000); 
-        },
-        error: function(xhr, status, error) {
-            toastr.error("Hubo un problema al comunicarse con el servidor.", "Error en la Conexión");
-            setTimeout(function() {
-                location.reload();
-            }, 4000); 
-        }
-    });
-}
+        });
+    }
 
 </script>
 

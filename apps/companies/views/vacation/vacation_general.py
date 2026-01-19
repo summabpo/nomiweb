@@ -232,12 +232,6 @@ def vacation_resumen_send(request, id):
         else:
             icon = "error"
 
-
-        print('----------')
-        print(icon)
-        print(mensaje)
-
-
         response = HttpResponse()
         response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
         response['X-Up-Icon'] = icon  # URL para recargar la página principal   

@@ -78,7 +78,6 @@ def select_company(request):
             usuario['pass'] = True
             
             request.session['usuario'] = usuario
-            print(rol)
             if rol == 'accountant' :
                 return redirect('payroll:index_payroll')
             elif rol == 'company' :

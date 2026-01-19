@@ -37,14 +37,31 @@ Novedades de Nomina
 Listado de vacaciones
 {% endblock %}
 
-{% block actions %}
-
-{% endblock %}
-
 {% block titulo2 %} 
 Listado de vacaciones
 {% endblock %}
 
+
+
+{% block actions %}
+<!-- Button trigger modal -->
+    
+    <a class="btn btn-light-info"
+        href="{% url 'payroll:vacation_settlement_add' %}"
+        up-layer="new"
+        up-modal="true"
+        up-target=".modal-content"
+        up-size="large"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false">
+        <i class="fa-solid fa-plus"></i> Nueva Vacaciones
+    </a>
+
+
+{% endblock %}
 
 {% block content %}
     
@@ -146,48 +163,288 @@ Listado de vacaciones
 {% block js %}
 
 <script>
-    up.on('up:layer:accepted', function(event) {
-        const location = event.response.header('X-Up-Location');
-        const message  = event.response.header('X-Up-message');
-        const icon     = event.response.header('X-Up-icon');
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer?.current?.element;
+        const fecha0 = modalContent.querySelector('#id_pay_date');
+        const fecha1 = modalContent.querySelector('#fecha_inicio-1');
+        const fecha2 = modalContent.querySelector('#fecha_fin-1');
 
+        const tabla = modalContent.querySelector('#tabla-lista-novedad');
 
-        if (location) {
-            // Guardamos todo lo necesario en sessionStorage
-            sessionStorage.setItem('showSuccessAlert', 'true');
-            sessionStorage.setItem('swalMessage', message);
-            sessionStorage.setItem('swalIcon', icon);
+        if (tabla) {
+            if ($.fn.dataTable.isDataTable(tabla)) {
+                $(tabla).DataTable().destroy();
+            }
 
-            window.location.href = location;
-        }
-    });
-
-    window.addEventListener('DOMContentLoaded', function() {
-        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
-            const message = sessionStorage.getItem('swalMessage');
-            const icon = sessionStorage.getItem('swalIcon');
-
-            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
-            sessionStorage.removeItem('showSuccessAlert');
-            sessionStorage.removeItem('swalMessage');
-            sessionStorage.removeItem('swalIcon');
-
-            Swal.fire({
-                text: message,
-                icon: icon,
-                showConfirmButton: true,
-                confirmButtonText: "Ok",
-                customClass: {
-                    confirmButton: "btn btn-primary"
-                },
-                willOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+            $(tabla).DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
                 }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 10
             });
         }
+        
+        if (fecha0) {
+            $(fecha0).flatpickr();
+        }
+
+
+        if (fecha1) {
+            $(fecha1).flatpickr();
+        }
+
+        if (fecha2) {
+            $(fecha2).flatpickr();
+        }
+
+
+        if (!modalContent) return;
+        
+            setTimeout(() => {      
+
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+
+            const pay_date = modalContent.querySelector('#id_pay_date');
+            const type_novedad = modalContent.querySelector('#id_type_novedad');
+            const contract = modalContent.querySelector('#id_contract');
+            const extraSection = modalContent.querySelector('#extra-section');
+            const novedadSelect = modalContent.querySelector('#novedad');
+
+
+            
+            const fecha_inicio = modalContent.querySelector('#fecha_inicio-1')
+            const sabados_checkbox = modalContent.querySelector('#sabados-1');
+            const incluir_sabados = sabados_checkbox && sabados_checkbox.checked ? '1' : '0';
+            const fecha_fin = modalContent.querySelector('#fecha_fin-1')
+            const dias_c_input = modalContent.querySelector('#dias_c-1');
+            const dias_v_input = modalContent.querySelector('#dias_v-1');
+            const salario_input = modalContent.querySelector('#base-1');
+            const valor_input = modalContent.querySelector('#valor-1');
+            
+            function calcularDias() {
+                if (fecha_inicio.value && fecha_fin.value) {
+                        up.request({
+                        url: "{% url 'payroll:vacation_days_calc' %}",
+                        method: "POST",
+                        params: {
+                            fecha_inicio: fecha_inicio.value,
+                            fecha_fin: fecha_fin.value,
+                            idc: contract.value , 
+                            incluir_sabados: sabados_checkbox.checked,
+                            csrfmiddlewaretoken: modalContent.querySelector('[name="csrfmiddlewaretoken"]').value
+                        }
+                        }).then(function(response) {
+                            const data = JSON.parse(response.text);  // Suponiendo que tu view retorna JSON
+                            dias_c_input.value = data.dias_c;
+                            dias_v_input.value = data.dias_v;
+                            salario_input.value = data.salario;
+                            valor_input.value = data.valor;
+
+                        });
+                    }
+                }
+
+            function ListNov(){
+                if (pay_date.value && contract.value && type_novedad.value) {
+                
+                    up.request({
+                        url: "{% url 'payroll:vacation_settlement_add_list' %}",
+                        method: "POST",
+                        params: {
+                            pay_date: pay_date.value,
+                            type_novedad: type_novedad.value,
+                            idc: contract.value , 
+                            csrfmiddlewaretoken: modalContent.querySelector('[name="csrfmiddlewaretoken"]').value
+                        }
+                        }).then(function(response) {
+                            const data = JSON.parse(response.text);  // Suponiendo que tu view retorna JSON
+                            console.log(data)
+
+                        });
+
+                }
+            }
+
+            if (pay_date ) {
+                pay_date.addEventListener('change', ListNov);
+            }
+            
+            
+            $(contract).on('select2:select select2:clear', ListNov);
+            $(type_novedad).on('select2:select select2:clear', ListNov);
+                        
+
+
+            if (fecha_inicio && selectElements && sabados_checkbox) {
+                fecha_inicio.addEventListener('change', calcularDias);
+                fecha_fin.addEventListener('change', calcularDias);
+                sabados_checkbox.addEventListener('change', calcularDias);
+            }
+            
+
+            // Inicializar Select2
+            selectElements.forEach((select, index) => {
+                if (!select.id) {
+                    select.id = `select2-unique-${Date.now()}-${index}`;
+                }
+
+                if (!$(select).data('select2')) {
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
+                    }
+
+                    $(select).select2(options);
+                }
+            });
+
+            // Mostrar u ocultar sección extra según si los 3 campos están llenos
+            function checkFieldsFilled() {
+                const payDateFilled = pay_date?.value?.trim() !== '';
+                const typeFilled = type_novedad?.value?.trim() !== '';
+                const contractFilled = contract?.value?.trim() !== '';
+
+                if (extraSection) {
+                    extraSection.style.display = (payDateFilled && typeFilled && contractFilled) ? 'block' : 'none';
+                }
+            }
+
+            if (pay_date) {
+                pay_date.addEventListener('input', checkFieldsFilled);
+                pay_date.addEventListener('change', checkFieldsFilled);
+            }
+
+            if (type_novedad) {
+                $(type_novedad).on('change.select2', checkFieldsFilled);
+            }
+
+            if (contract) {
+                $(contract).on('change.select2', checkFieldsFilled);
+            }
+
+            checkFieldsFilled();
+
+            // Opciones dinámicas según el tipo de novedad
+            const opcionesPorTipo = {
+                '1': [  // Vacaciones
+                    { id: '1', text: 'Vacaciones Disfrutadas' },
+                    { id: '2', text: 'Vacaciones Compensadas' }
+                ],
+                '2': [  // Ausencias
+                    { id: '3', text: 'Licencia Remunerada' },
+                    { id: '4', text: 'Licencia No Remunerada' },
+                    { id: '5', text: 'Suspensiones' }
+                ]
+            };
+
+            function actualizarSelect2(tipo) {
+                const opciones = opcionesPorTipo[tipo] || [];
+
+                if (!novedadSelect) return;
+
+                if ($(novedadSelect).hasClass('select2-hidden-accessible')) {
+                    $(novedadSelect).select2('destroy');
+                }
+
+                novedadSelect.innerHTML = '';
+
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = '';
+                novedadSelect.appendChild(emptyOption);
+
+                opciones.forEach(op => {
+                    const option = document.createElement('option');
+                    option.value = op.id;
+                    option.textContent = op.text;
+                    novedadSelect.appendChild(option);
+                });
+
+                $(novedadSelect).select2({
+                    dropdownParent: $(modalContent),
+                    width: '100%'
+                });
+            }
+
+            // Función para ocultar/mostrar columnas
+            function toggleColumnas(indices, mostrar) {
+                const table = modalContent.querySelector('#items-table');
+                if (!table) return;
+
+                indices.forEach(index => {
+                    // Oculta TH
+                    const th = table.querySelector(`thead tr th:nth-child(${index})`);
+                    if (th) th.style.display = mostrar ? '' : 'none';
+
+                    // Oculta TD
+                    const filas = table.querySelectorAll('tbody tr');
+                    filas.forEach(fila => {
+                        const td = fila.querySelector(`td:nth-child(${index})`);
+                        if (td) td.style.display = mostrar ? '' : 'none';
+                    });
+
+                    // Oculta COL
+                    const colgroup = table.querySelector('colgroup');
+                    if (colgroup) {
+                        const cols = colgroup.querySelectorAll('col');
+                        const col = cols[index - 1]; // index es 1-based
+                        if (col) col.style.display = mostrar ? '' : 'none';
+                    }
+                });
+            }
+
+            // Manejo de cambio de tipo de novedad
+            if (type_novedad) {
+                $(type_novedad).on('change', function () {
+                    const tipo = this.value;
+
+                    actualizarSelect2(tipo);
+
+                    // Oculta columnas si no es Vacaciones
+                    if (tipo === '1') {
+                        toggleColumnas([4, 6, 9, 10], true);  // Mostrar si Vacaciones
+                    } else {
+                        toggleColumnas([4, 6, 9, 10], false); // Ocultar en otros casos
+                    }
+                });
+
+                // Verifica si ya hay valor y aplica la visibilidad
+                if (type_novedad.value) {
+                    actualizarSelect2(type_novedad.value);
+                    if (type_novedad.value === '1') {
+                        toggleColumnas([4, 6, 9, 10], true);
+                    } else {
+                        toggleColumnas([4, 6, 9, 10], false);
+                    }
+                }
+
+
+            }
+        }, 300);
     });
 </script>
+
 
 
 
@@ -256,76 +513,76 @@ Listado de vacaciones
 </script>
 
 <script>
-$(document).ready(function() {
-    var table = $('#tabla-lista-vacation').DataTable({
-        language: {
-            "decimal": "",
-            "emptyTable": "No hay datos disponibles en la tabla",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
-            "infoFiltered": "(filtrado de _MAX_ entradas totales)",
-            "lengthMenu": "Mostrar _MENU_ entradas",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "Buscar:",
-            "zeroRecords": "No se encontraron registros coincidentes",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            },
-            "aria": {
-                "sortAscending": ": activar para ordenar la columna ascendente",
-                "sortDescending": ": activar para ordenar la columna descendente"
-            }
-        },
-        dom: 'frtip',
-        order: [[3, 'desc']], 
-        pageLength: 20,
-
-        // 👇 Aquí está la corrección del columnDefs
-        columnDefs: [
-            {
-                targets: 3, // índice de la columna "Fecha"
-                render: function (data, type, row) {
-                    if (!data) return '';
-                    if (type === 'sort' || type === 'type') {
-                        // convertir "dd-mm-yyyy" → "yyyymmdd"
-                        var parts = data.split('-');
-                        return parts[2] + parts[1] + parts[0];
-                    }
-                    return data;
+    $(document).ready(function() {
+        var table = $('#tabla-lista-vacation').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
                 }
+            },
+            dom: 'frtip',
+            order: [[3, 'desc']], 
+            pageLength: 20,
+
+            // 👇 Aquí está la corrección del columnDefs
+            columnDefs: [
+                {
+                    targets: 3, // índice de la columna "Fecha"
+                    render: function (data, type, row) {
+                        if (!data) return '';
+                        if (type === 'sort' || type === 'type') {
+                            // convertir "dd-mm-yyyy" → "yyyymmdd"
+                            var parts = data.split('-');
+                            return parts[2] + parts[1] + parts[0];
+                        }
+                        return data;
+                    }
+                }
+            ],
+        });
+
+        // 👇 Manejo del botón para subfilas (detalle de cada fila)
+        $('#tabla-lista-vacation tbody').on('click', 'button.btn-secondary', function () {
+            var tr = $(this).closest('tr');
+            var btn = $(this);
+            var orderId = tr.data('order-id');
+
+            if (btn.prop('disabled')) return; 
+            btn.prop('disabled', true);
+
+            if (tr.next().hasClass('details-row')) {
+                tr.next().remove();
+                btn.html('<i class="fa-solid fa-plus"></i>');
+                btn.prop('disabled', false);
+            } else {
+                $.get('/companies/payroll/vacation/resumen/' + orderId + '/items/', function(data) {
+                    tr.after('<tr class="details-row"><td colspan="5">' + data + '</td></tr>');
+                    btn.html('<i class="fa-solid fa-minus"></i>');
+                    btn.prop('disabled', false);
+                }).fail(function() {
+                    btn.prop('disabled', false);
+                    alert('Error al cargar los datos.');
+                });
             }
-        ],
+        });
     });
-
-    // 👇 Manejo del botón para subfilas (detalle de cada fila)
-    $('#tabla-lista-vacation tbody').on('click', 'button.btn-secondary', function () {
-        var tr = $(this).closest('tr');
-        var btn = $(this);
-        var orderId = tr.data('order-id');
-
-        if (btn.prop('disabled')) return; 
-        btn.prop('disabled', true);
-
-        if (tr.next().hasClass('details-row')) {
-            tr.next().remove();
-            btn.html('<i class="fa-solid fa-plus"></i>');
-            btn.prop('disabled', false);
-        } else {
-            $.get('/companies/payroll/vacation/resumen/' + orderId + '/items/', function(data) {
-                tr.after('<tr class="details-row"><td colspan="5">' + data + '</td></tr>');
-                btn.html('<i class="fa-solid fa-minus"></i>');
-                btn.prop('disabled', false);
-            }).fail(function() {
-                btn.prop('disabled', false);
-                alert('Error al cargar los datos.');
-            });
-        }
-    });
-});
 </script>
 
 

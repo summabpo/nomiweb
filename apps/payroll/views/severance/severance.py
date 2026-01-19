@@ -3,9 +3,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from apps.common.models import Tipodenomina , Conceptosdenomina ,Nomina, Crearnomina , Contratos , Anos, Liquidacion , Salariominimoanual , Nomina,Vacaciones
-from apps.payroll.forms.BonusForm import BonusForm , BonusAddForm
 from datetime import datetime, timedelta ,date
 from dateutil.relativedelta import relativedelta
+
+
+from django import forms
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Row, Column, Div, Submit
+from apps.common.models import Contratos , Crearnomina
+from django.urls import reverse
+
 
 
 
@@ -55,6 +62,50 @@ def intereses_cesantias(valor_cesantias, dias):
     return round((valor_cesantias * 0.12 * dias) / 360, 2)
 
 
+
+
+
+class SeveranceForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        
+        self.fields['year'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(years.idano, f" {years.ano}" ) for years in Anos.objects.all().order_by('-idano')], 
+            label='Años a calcular' ,
+            widget=forms.Select(attrs={
+                'data-control': 'select2',
+                'class': 'form-select',
+                'data-hide-search': 'true',
+            }), 
+            )
+
+        
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'form_bonus'
+        
+        self.helper.layout = Layout(
+            Row(
+                Column('year', css_class='form-group col-md-12 mb-3'),
+                css_class='row'
+            ),
+            Row(
+                Column(
+                    Div(
+                        Submit('submit', 'Generar', css_class='btn btn-primary w-100'),
+                        css_class='d-grid'  # para que el botón ocupe todo el ancho de la columna
+                    ),
+                    css_class='form-group col-md-12 mb-3'
+                ),
+                css_class='row'
+            )
+            
+        )
+
+
+
 @login_required
 @role_required('accountant')
 def severance_annual_calculation(request):
@@ -63,12 +114,12 @@ def severance_annual_calculation(request):
     idempresa = usuario.get('idempresa')
     contratos_empleados = []
 
-    form = BonusForm()
+    form = SeveranceForm()
     date_init_str = date_end_str = ''
     proy = 0
 
     if request.method == 'POST':
-        form = BonusForm(request.POST)
+        form = SeveranceForm(request.POST)
 
         if form.is_valid():
             date_init_str = form.cleaned_data['init_Date']
@@ -78,6 +129,9 @@ def severance_annual_calculation(request):
             date_init = datetime.strptime(date_init_str, '%d-%m-%Y').date()
             date_end = datetime.strptime(date_end_str, '%d-%m-%Y').date()
             año_actual = date_end.year
+            
+            
+            
 
             try:
                 sm = Salariominimoanual.objects.get(ano=año_actual)

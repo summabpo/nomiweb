@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models  import Contratosemp , Vacaciones ,Contratos , Tipoavacaus
+from apps.common.models  import Contratosemp , Vacaciones ,Contratos , Tipoavacaus , EmpVacaciones
 from apps.payroll.forms.VacationSettlementForm import VacationSettlementForm , BenefitFormSet
 from datetime import datetime, timedelta
 from django.http import JsonResponse
@@ -10,6 +10,7 @@ from apps.components.humani import format_value_float
 
 
 vacaciones_list = []
+vacaemp = {}
 
 @login_required
 @role_required('accountant')
@@ -50,6 +51,14 @@ def vacation_settlement(request):
 
     return render(request, './payroll/vacation_settlement.html', context)
 
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0]
+    return request.META.get('REMOTE_ADDR')
+
+
 @login_required
 @role_required('accountant')
 def vacation_settlement_add(request):
@@ -57,7 +66,9 @@ def vacation_settlement_add(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     form = VacationSettlementForm(id_empresa=idempresa)
-
+    vacaciones_list = {}
+    
+    
     data = {
         "conceptors": [
             (1, "Vacaciones Disfrutadas"),
@@ -105,8 +116,30 @@ def vacation_settlement_add(request):
                 
             except Exception:
                 dias_c = dias_v = 0
-       
-        
+                
+        if not vacaciones_list: 
+            vacaemp = EmpVacaciones.objects.create(
+                idcontrato = Contratos.objects.get(idcontrato = contrato) ,
+                tipovac = Tipoavacaus.objects.get(idvac = novedad ) , 
+                fechainicialvac = fecha_inicio , 
+                fechafinalvac = fecha_fin , 
+                estado =  1,  # Estado de la solicitud (0: pendiente, 1: aprobado, 2: rechazado, etc.)
+                diasvac =  int(dias_v) if dias_v else 0,
+                cuentasabados = csabado ,
+                estadovac = 1,
+                diascalendario = int(dias_c) , 
+                ip_usuario =   get_client_ip(request) , # Dirección IP del usuario que realiza la solicitud
+                fecha_hora= datetime.now()  , # Fecha y hora de la solicitud
+                comentarios = 'Generacion desde sistema Contador' , # Comentarios adicionales
+                comentarios2 = 'Generacion desde sistema Contador' , # Comentarios adicionales (opcional)
+            )
+            
+            id_master = vacaemp.id_sol_vac
+            
+        else : 
+            primer_registro = vacaciones_list[0]
+            id_master = primer_registro.idvacmaster
+            
 
         vacacion = Vacaciones.objects.create( 
             idcontrato= Contratos.objects.get(idcontrato = contrato) ,
@@ -116,17 +149,24 @@ def vacation_settlement_add(request):
             diasvac = int(dias_v) if dias_v else 0,
             #diaspendientes = ,
             pagovac = valor if valor else 0,
-            totaldiastomados = int(dias_c) ,
+            #totaldiastomados = int(dias_c) ,
             basepago = salario ,
-            estadovac = 1,
+            #estadovac = 1,
             #idnomina = nomina,
             cuentasabados= csabado ,
             tipovac= Tipoavacaus.objects.get(idvac = novedad ) ,
-            fechapago = fecha_pago
-
+            fechapago = fecha_pago , 
+            idvacmaster = id_master
+            
             )
+        print('------------')
+        print(fecha_pago)
+        print(contrato)
+        print('------------')
+        
+        vacaciones_list = Vacaciones.objects.filter(fechapago = fecha_pago , idcontrato_id = contrato )
 
-        vacaciones_list.append(vacacion)
+        #vacaciones_list.append(vacacion)
 
 
 
@@ -136,6 +176,29 @@ def vacation_settlement_add(request):
         'vacaciones_list':vacaciones_list ,
         
     })
+    
+    
+
+@login_required
+@role_required('accountant')
+def vacation_settlement_add_list(request):
+    
+    pay_date = request.POST.get('pay_date')
+    type_novedad = request.POST.get('type_novedad')
+    
+    contrato = request.POST.get('idc')
+    
+    print('---------------')
+    print(pay_date)
+    print(type_novedad)
+    print(contrato)
+    print('---------------')
+    vacaciones_list = []
+    
+    return JsonResponse({
+            'vacaciones_list':vacaciones_list ,
+        })
+
 
 @login_required
 @role_required('accountant')
@@ -165,6 +228,7 @@ def vacation_modal_data(request,id,t):
         'data': data,
         
     })
+
 
 
 

@@ -155,6 +155,11 @@ urlunpolypatterns =[
     ## loans 
     path('payroll/loans/add', loans.employee_loans_modal_add, name='employee_loans_modal_add'),
     path('payroll/loans/data/<int:id>', loans.detail_employee_loans_modal, name='detail_employee_loans_modal'),
+    
+    
+    ## vaca 
+    path('payroll/vacation/add', vacation_settlement.vacation_settlement_add_list, name='vacation_settlement_add_list'),
+    
 ]
 
 urlpatterns += urlunpolypatterns  

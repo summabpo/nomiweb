@@ -146,8 +146,7 @@ def payroll_create_add(request):
     if request.method == 'POST':
         form = PayrollForm(request.POST)
         if form.is_valid():
-            
-            print(request.POST)
+
             try:
                 # Obtener datos del formulario
                 tiponomina_id = form.cleaned_data['tiponomina']

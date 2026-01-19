@@ -22,73 +22,7 @@
 
 {% block css %}
 
-.daterangepicker {
-  z-index: 9999 !important;
-}
 
-up-modal[size=large] up-modal-box {
-    border-radius: 0.75rem;
-    width: 1500px;
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-    
-}
-
-up-modal[size=full] up-modal-box {
-    border-radius: 0.75rem;
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-    
-}
-
-up-modal[size=medium] up-modal-box {
-    border-radius: 0.75rem;
-    width: 800px;
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-    
-}
-
-up-modal[size=small] up-modal-box {
-    border-radius: 0.75rem;
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-    
-}
-
-.select2-container .select2-selection--single .select2-selection__rendered {
-    text-align: left;
-}
-
-.select2-container .select2-search--dropdown .select2-search__field {
-    height: 28px; /* Ajusta la altura según prefieras */
-    padding: 4px 8px; /* Ajusta el padding para hacerlo más delgado */
-    font-size: 14px; /* Si quieres un texto más pequeño */
-    border-radius: 8px; /* Bordes más suaves si te gusta */
-}
-
-
-.select2-container .select2-results__option {
-    text-align: left;
-}
-
-
-.swal2-container {
-    z-index: 9999 !important; /* Más alto que el z-index de los modales de Unpoly */
-}
-
-
-tr.htmx-swapping td {
-    opacity: 0;
-    transition: opacity 1s ease-out;
-}
-
-table#items-table {
-    table-layout: fixed;
-    width: 100%;
-  }
-
-  .select2-container {
-    width: 100% !important;
-  }
-
-  
 {% endblock %}
 
 {% block sub_titulo1 %} 
@@ -195,255 +129,255 @@ Listado de Liquidaciones
 
 {% block js %}
 <script>
-document.addEventListener('up:fragment:inserted', function(event) {
-    const modalContent = up.layer?.current?.element;
-    const fecha0 = modalContent.querySelector('#id_pay_date');
-    const fecha1 = modalContent.querySelector('#fecha_inicio-1');
-    const fecha2 = modalContent.querySelector('#fecha_fin-1');
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer?.current?.element;
+        const fecha0 = modalContent.querySelector('#id_pay_date');
+        const fecha1 = modalContent.querySelector('#fecha_inicio-1');
+        const fecha2 = modalContent.querySelector('#fecha_fin-1');
 
-    const tabla = modalContent.querySelector('#tabla-lista-novedad');
+        const tabla = modalContent.querySelector('#tabla-lista-novedad');
 
-    if (tabla) {
-        if ($.fn.dataTable.isDataTable(tabla)) {
-            $(tabla).DataTable().destroy();
+        if (tabla) {
+            if ($.fn.dataTable.isDataTable(tabla)) {
+                $(tabla).DataTable().destroy();
+            }
+
+            $(tabla).DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 10
+            });
+        }
+        
+        if (fecha0) {
+            $(fecha0).flatpickr();
         }
 
-        $(tabla).DataTable({
-        language: {
-            "decimal": "",
-            "emptyTable": "No hay datos disponibles en la tabla",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
-            "infoFiltered": "(filtrado de _MAX_ entradas totales)",
-            "lengthMenu": "Mostrar _MENU_ entradas",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "Buscar:",
-            "zeroRecords": "No se encontraron registros coincidentes",
-            "paginate": {
-            "first": "Primero",
-            "last": "Último",
-            "next": "Siguiente",
-            "previous": "Anterior"
-            }
-        },
-        dom: 'frtip',
-        order: [],
-        pageLength: 10
-        });
-    }
-    
-    if (fecha0) {
-        $(fecha0).flatpickr();
-    }
+
+        if (fecha1) {
+            $(fecha1).flatpickr();
+        }
+
+        if (fecha2) {
+            $(fecha2).flatpickr();
+        }
 
 
-    if (fecha1) {
-        $(fecha1).flatpickr();
-    }
-
-    if (fecha2) {
-        $(fecha2).flatpickr();
-    }
-
-
-    if (!modalContent) return;
-    
-        setTimeout(() => {      
-
-        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
-
-        const pay_date = modalContent.querySelector('#id_pay_date');
-        const type_novedad = modalContent.querySelector('#id_type_novedad');
-        const contract = modalContent.querySelector('#id_contract');
-        const extraSection = modalContent.querySelector('#extra-section');
-        const novedadSelect = modalContent.querySelector('#novedad');
-
-
+        if (!modalContent) return;
         
-        const fecha_inicio = modalContent.querySelector('#fecha_inicio-1')
-        const sabados_checkbox = modalContent.querySelector('#sabados-1');
-        const incluir_sabados = sabados_checkbox && sabados_checkbox.checked ? '1' : '0';
-        const fecha_fin = modalContent.querySelector('#fecha_fin-1')
-        const dias_c_input = modalContent.querySelector('#dias_c-1');
-        const dias_v_input = modalContent.querySelector('#dias_v-1');
-        const salario_input = modalContent.querySelector('#base-1');
-        const valor_input = modalContent.querySelector('#valor-1');
-        
-        function calcularDias() {
-            if (fecha_inicio.value && fecha_fin.value) {
-                    up.request({
-                    url: "{% url 'payroll:vacation_days_calc' %}",
-                    method: "POST",
-                    params: {
-                        fecha_inicio: fecha_inicio.value,
-                        fecha_fin: fecha_fin.value,
-                        idc: contract.value , 
-                        incluir_sabados: sabados_checkbox.checked,
-                        csrfmiddlewaretoken: modalContent.querySelector('[name="csrfmiddlewaretoken"]').value
+            setTimeout(() => {      
+
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+
+            const pay_date = modalContent.querySelector('#id_pay_date');
+            const type_novedad = modalContent.querySelector('#id_type_novedad');
+            const contract = modalContent.querySelector('#id_contract');
+            const extraSection = modalContent.querySelector('#extra-section');
+            const novedadSelect = modalContent.querySelector('#novedad');
+
+
+            
+            const fecha_inicio = modalContent.querySelector('#fecha_inicio-1')
+            const sabados_checkbox = modalContent.querySelector('#sabados-1');
+            const incluir_sabados = sabados_checkbox && sabados_checkbox.checked ? '1' : '0';
+            const fecha_fin = modalContent.querySelector('#fecha_fin-1')
+            const dias_c_input = modalContent.querySelector('#dias_c-1');
+            const dias_v_input = modalContent.querySelector('#dias_v-1');
+            const salario_input = modalContent.querySelector('#base-1');
+            const valor_input = modalContent.querySelector('#valor-1');
+            
+            function calcularDias() {
+                if (fecha_inicio.value && fecha_fin.value) {
+                        up.request({
+                        url: "{% url 'payroll:vacation_days_calc' %}",
+                        method: "POST",
+                        params: {
+                            fecha_inicio: fecha_inicio.value,
+                            fecha_fin: fecha_fin.value,
+                            idc: contract.value , 
+                            incluir_sabados: sabados_checkbox.checked,
+                            csrfmiddlewaretoken: modalContent.querySelector('[name="csrfmiddlewaretoken"]').value
+                        }
+                        }).then(function(response) {
+                            const data = JSON.parse(response.text);  // Suponiendo que tu view retorna JSON
+                            dias_c_input.value = data.dias_c;
+                            dias_v_input.value = data.dias_v;
+                            salario_input.value = data.salario;
+                            valor_input.value = data.valor;
+
+                        });
                     }
-                    }).then(function(response) {
-                        const data = JSON.parse(response.text);  // Suponiendo que tu view retorna JSON
-                        dias_c_input.value = data.dias_c;
-                        dias_v_input.value = data.dias_v;
-                        salario_input.value = data.salario;
-                        valor_input.value = data.valor;
+                }
 
-                    });
+            if (fecha_inicio && fecha_fin && sabados_checkbox) {
+                fecha_inicio.addEventListener('change', calcularDias);
+                fecha_fin.addEventListener('change', calcularDias);
+                sabados_checkbox.addEventListener('change', calcularDias);
+            }
+            
+
+            // Inicializar Select2
+            selectElements.forEach((select, index) => {
+                if (!select.id) {
+                    select.id = `select2-unique-${Date.now()}-${index}`;
+                }
+
+                if (!$(select).data('select2')) {
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
+                    }
+
+                    $(select).select2(options);
+                }
+            });
+
+            // Mostrar u ocultar sección extra según si los 3 campos están llenos
+            function checkFieldsFilled() {
+                const payDateFilled = pay_date?.value?.trim() !== '';
+                const typeFilled = type_novedad?.value?.trim() !== '';
+                const contractFilled = contract?.value?.trim() !== '';
+
+                if (extraSection) {
+                    extraSection.style.display = (payDateFilled && typeFilled && contractFilled) ? 'block' : 'none';
                 }
             }
 
-        if (fecha_inicio && fecha_fin && sabados_checkbox) {
-            fecha_inicio.addEventListener('change', calcularDias);
-            fecha_fin.addEventListener('change', calcularDias);
-            sabados_checkbox.addEventListener('change', calcularDias);
-        }
-        
-
-        // Inicializar Select2
-        selectElements.forEach((select, index) => {
-            if (!select.id) {
-                select.id = `select2-unique-${Date.now()}-${index}`;
+            if (pay_date) {
+                pay_date.addEventListener('input', checkFieldsFilled);
+                pay_date.addEventListener('change', checkFieldsFilled);
             }
 
-            if (!$(select).data('select2')) {
-                const options = {
-                    dropdownParent: $(modalContent),
-                    width: '100%'
-                };
+            if (type_novedad) {
+                $(type_novedad).on('change.select2', checkFieldsFilled);
+            }
 
-                if (select.hasAttribute('data-hide-search')) {
-                    options.minimumResultsForSearch = Infinity;
+            if (contract) {
+                $(contract).on('change.select2', checkFieldsFilled);
+            }
+
+            checkFieldsFilled();
+
+            // Opciones dinámicas según el tipo de novedad
+            const opcionesPorTipo = {
+                '1': [  // Vacaciones
+                    { id: '1', text: 'Vacaciones Disfrutadas' },
+                    { id: '2', text: 'Vacaciones Compensadas' }
+                ],
+                '2': [  // Ausencias
+                    { id: '3', text: 'Licencia Remunerada' },
+                    { id: '4', text: 'Licencia No Remunerada' },
+                    { id: '5', text: 'Suspensiones' }
+                ]
+            };
+
+            function actualizarSelect2(tipo) {
+                const opciones = opcionesPorTipo[tipo] || [];
+
+                if (!novedadSelect) return;
+
+                if ($(novedadSelect).hasClass('select2-hidden-accessible')) {
+                    $(novedadSelect).select2('destroy');
                 }
 
-                $(select).select2(options);
-            }
-        });
+                novedadSelect.innerHTML = '';
 
-        // Mostrar u ocultar sección extra según si los 3 campos están llenos
-        function checkFieldsFilled() {
-            const payDateFilled = pay_date?.value?.trim() !== '';
-            const typeFilled = type_novedad?.value?.trim() !== '';
-            const contractFilled = contract?.value?.trim() !== '';
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = '';
+                novedadSelect.appendChild(emptyOption);
 
-            if (extraSection) {
-                extraSection.style.display = (payDateFilled && typeFilled && contractFilled) ? 'block' : 'none';
-            }
-        }
-
-        if (pay_date) {
-            pay_date.addEventListener('input', checkFieldsFilled);
-            pay_date.addEventListener('change', checkFieldsFilled);
-        }
-
-        if (type_novedad) {
-            $(type_novedad).on('change.select2', checkFieldsFilled);
-        }
-
-        if (contract) {
-            $(contract).on('change.select2', checkFieldsFilled);
-        }
-
-        checkFieldsFilled();
-
-        // Opciones dinámicas según el tipo de novedad
-        const opcionesPorTipo = {
-            '1': [  // Vacaciones
-                { id: '1', text: 'Vacaciones Disfrutadas' },
-                { id: '2', text: 'Vacaciones Compensadas' }
-            ],
-            '2': [  // Ausencias
-                { id: '3', text: 'Licencia Remunerada' },
-                { id: '4', text: 'Licencia No Remunerada' },
-                { id: '5', text: 'Suspensiones' }
-            ]
-        };
-
-        function actualizarSelect2(tipo) {
-            const opciones = opcionesPorTipo[tipo] || [];
-
-            if (!novedadSelect) return;
-
-            if ($(novedadSelect).hasClass('select2-hidden-accessible')) {
-                $(novedadSelect).select2('destroy');
-            }
-
-            novedadSelect.innerHTML = '';
-
-            const emptyOption = document.createElement('option');
-            emptyOption.value = '';
-            emptyOption.textContent = '';
-            novedadSelect.appendChild(emptyOption);
-
-            opciones.forEach(op => {
-                const option = document.createElement('option');
-                option.value = op.id;
-                option.textContent = op.text;
-                novedadSelect.appendChild(option);
-            });
-
-            $(novedadSelect).select2({
-                dropdownParent: $(modalContent),
-                width: '100%'
-            });
-        }
-
-        // Función para ocultar/mostrar columnas
-        function toggleColumnas(indices, mostrar) {
-            const table = modalContent.querySelector('#items-table');
-            if (!table) return;
-
-            indices.forEach(index => {
-                // Oculta TH
-                const th = table.querySelector(`thead tr th:nth-child(${index})`);
-                if (th) th.style.display = mostrar ? '' : 'none';
-
-                // Oculta TD
-                const filas = table.querySelectorAll('tbody tr');
-                filas.forEach(fila => {
-                    const td = fila.querySelector(`td:nth-child(${index})`);
-                    if (td) td.style.display = mostrar ? '' : 'none';
+                opciones.forEach(op => {
+                    const option = document.createElement('option');
+                    option.value = op.id;
+                    option.textContent = op.text;
+                    novedadSelect.appendChild(option);
                 });
 
-                // Oculta COL
-                const colgroup = table.querySelector('colgroup');
-                if (colgroup) {
-                    const cols = colgroup.querySelectorAll('col');
-                    const col = cols[index - 1]; // index es 1-based
-                    if (col) col.style.display = mostrar ? '' : 'none';
-                }
-            });
-        }
-
-        // Manejo de cambio de tipo de novedad
-        if (type_novedad) {
-            $(type_novedad).on('change', function () {
-                const tipo = this.value;
-
-                actualizarSelect2(tipo);
-
-                // Oculta columnas si no es Vacaciones
-                if (tipo === '1') {
-                    toggleColumnas([4, 6, 9, 10], true);  // Mostrar si Vacaciones
-                } else {
-                    toggleColumnas([4, 6, 9, 10], false); // Ocultar en otros casos
-                }
-            });
-
-            // Verifica si ya hay valor y aplica la visibilidad
-            if (type_novedad.value) {
-                actualizarSelect2(type_novedad.value);
-                if (type_novedad.value === '1') {
-                    toggleColumnas([4, 6, 9, 10], true);
-                } else {
-                    toggleColumnas([4, 6, 9, 10], false);
-                }
+                $(novedadSelect).select2({
+                    dropdownParent: $(modalContent),
+                    width: '100%'
+                });
             }
 
+            // Función para ocultar/mostrar columnas
+            function toggleColumnas(indices, mostrar) {
+                const table = modalContent.querySelector('#items-table');
+                if (!table) return;
 
-        }
-    }, 300);
-});
+                indices.forEach(index => {
+                    // Oculta TH
+                    const th = table.querySelector(`thead tr th:nth-child(${index})`);
+                    if (th) th.style.display = mostrar ? '' : 'none';
+
+                    // Oculta TD
+                    const filas = table.querySelectorAll('tbody tr');
+                    filas.forEach(fila => {
+                        const td = fila.querySelector(`td:nth-child(${index})`);
+                        if (td) td.style.display = mostrar ? '' : 'none';
+                    });
+
+                    // Oculta COL
+                    const colgroup = table.querySelector('colgroup');
+                    if (colgroup) {
+                        const cols = colgroup.querySelectorAll('col');
+                        const col = cols[index - 1]; // index es 1-based
+                        if (col) col.style.display = mostrar ? '' : 'none';
+                    }
+                });
+            }
+
+            // Manejo de cambio de tipo de novedad
+            if (type_novedad) {
+                $(type_novedad).on('change', function () {
+                    const tipo = this.value;
+
+                    actualizarSelect2(tipo);
+
+                    // Oculta columnas si no es Vacaciones
+                    if (tipo === '1') {
+                        toggleColumnas([4, 6, 9, 10], true);  // Mostrar si Vacaciones
+                    } else {
+                        toggleColumnas([4, 6, 9, 10], false); // Ocultar en otros casos
+                    }
+                });
+
+                // Verifica si ya hay valor y aplica la visibilidad
+                if (type_novedad.value) {
+                    actualizarSelect2(type_novedad.value);
+                    if (type_novedad.value === '1') {
+                        toggleColumnas([4, 6, 9, 10], true);
+                    } else {
+                        toggleColumnas([4, 6, 9, 10], false);
+                    }
+                }
+
+
+            }
+        }, 300);
+    });
 </script>
 
 

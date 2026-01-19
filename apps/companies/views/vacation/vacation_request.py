@@ -112,7 +112,7 @@ def vacation_request(request):
     context = {
         'vacaciones': vacaciones,
     }
-
+    
     return render(request, './companies/vacation_request.html', context)
 
 
