@@ -231,6 +231,7 @@ def vacation_resumen_send(request, id):
             icon = "warning"
         else:
             icon = "error"
+        
 
         response = HttpResponse()
         response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
@@ -253,6 +254,7 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
         vaca = Vacaciones.objects.get(idvacaciones=idvacaciones)
         contrato = vaca.idcontrato
 
+        
         # 🔹 Determinar tipo de vacaciones
         tipo = vaca.tipovac.idvac  # 1: disfrutadas, 2: compensadas
         if tipo == 1:
@@ -275,6 +277,8 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
         # ==========================================================
         if nomina_actual.nombrenomina.startswith('Nomina Aut. Vacas'):
             
+            
+            
             if tipo == 1:  # Disfrutadas
                 dias_vacaciones = (vaca.ultimodiavac - vaca.fechainicialvac).days + 1
                 valor = (contrato.salario / 30) * dias_vacaciones
@@ -288,6 +292,7 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
                 if vaca.pagovac:
                     valor = vaca.pagovac
 
+            
             Nomina.objects.create(
                 idconcepto=concepto,
                 cantidad=cantidad,
@@ -303,22 +308,17 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
         # 🟦 CASO NORMAL: NÓMINAS REGULARES (VALIDAR RANGO)
         # ==========================================================
         if tipo == 1 and vaca.fechainicialvac and vaca.ultimodiavac:
-            if vaca.fechainicialvac <= nomina_actual.fechafinal and vaca.ultimodiavac >= nomina_actual.fechainicial:                               
-                cantidad = calcular_vacaciones(contrato, nomina_actual)
-                valor = (contrato.salario / 30) * cantidad
-            else:
-                return ("out_of_range", "Las fechas de vacaciones no están dentro del rango de la nómina.")
-
+            cantidad = vaca.diascalendario or 0
+            valor = (contrato.salario / 30) * cantidad
+            
+            
         elif tipo == 2 and vaca.fechapago:
-            if nomina_actual.fechainicial <= vaca.fechapago <= nomina_actual.fechafinal:
-                dias_vacaciones = vaca.diasvac or 0
-                base = vaca.basepago or contrato.salario
-                valor = (base / 30) * dias_vacaciones
-                cantidad = 1
-                if vaca.pagovac:
-                    valor = vaca.pagovac
-            else:
-                return ("out_of_range", "Las vacaciones compensadas están fuera del rango de la nómina.")
+            dias_vacaciones = vaca.diascalendario or 0
+            base = vaca.basepago or contrato.salario
+            valor = (base / 30) * dias_vacaciones
+            cantidad = 1
+            if vaca.pagovac:
+                valor = vaca.pagovac
             
         else:
             print(f'Vacación {vaca.idvacaciones} sin datos válidos.')

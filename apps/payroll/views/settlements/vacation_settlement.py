@@ -159,11 +159,8 @@ def vacation_settlement_add(request):
             idvacmaster = id_master
             
             )
-        print('------------')
-        print(fecha_pago)
-        print(contrato)
-        print('------------')
-        
+
+
         vacaciones_list = Vacaciones.objects.filter(fechapago = fecha_pago , idcontrato_id = contrato )
 
         #vacaciones_list.append(vacacion)
@@ -187,16 +184,27 @@ def vacation_settlement_add_list(request):
     type_novedad = request.POST.get('type_novedad')
     
     contrato = request.POST.get('idc')
-    
-    print('---------------')
-    print(pay_date)
-    print(type_novedad)
-    print(contrato)
-    print('---------------')
-    vacaciones_list = []
+
+    vacaciones_list = Vacaciones.objects.filter(
+        fechapago = pay_date ,
+        idcontrato_id = contrato 
+    ).values(
+        'tipovac__nombrevacaus',
+        'fechainicialvac',
+        'ultimodiavac',
+        'cuentasabados',
+        'diascalendario',
+        'diasvac',
+        'basepago',
+        'pagovac',
+        'perinicio',
+        'perfinal',
+        'idvacaciones',
+    )
+
     
     return JsonResponse({
-            'vacaciones_list':vacaciones_list ,
+            'vacaciones_list':list(vacaciones_list),
         })
 
 

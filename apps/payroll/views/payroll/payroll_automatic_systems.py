@@ -270,7 +270,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa ) 
     
 
     if parte_nomina != 0:
@@ -334,14 +334,17 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina)
         dias_suspensiones = calcular_suspenciones(contrato.idcontrato,nomina)
         
+        
+        # if contrato.idcontrato == 7991:
+        #     print(f" v {dias_vacaciones} I {dias_incapacidad} S {dias_suspensiones}")
+        
+        
         d = diasnomina
         
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
 
-        if contrato.idcontrato == 10769 :
-            print(f" d {d} v {dias_vacaciones} i {dias_incapacidad} s {dias_suspensiones}")
         
         calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
