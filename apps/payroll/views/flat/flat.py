@@ -472,10 +472,6 @@ def flat_modal(request):
                             contrato2 = Contratos.objects.get(idcontrato = contrato )
                             celda2 = abs(celda)
 
-                            print("-----------")
-                            print(f"contrato : {contrato}")
-                            print(f"idconcepto : {clave}")
-                            print(f"celda : {int(celda) if celda == int(celda) else celda}")
 
                             if celda2 > 100 : 
                                 cantidad = 0.0 

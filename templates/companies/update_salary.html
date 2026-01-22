@@ -42,7 +42,7 @@ Cambio de Salario
 {% endblock %}
 
 {% block actions %}
-<a
+    <a
         class='btn btn-light-info'
 
         up-layer='new modal'
@@ -57,6 +57,32 @@ Cambio de Salario
         href="{% url 'companies:update_salary_add' %}">
         <i class="fa-solid fa-plus"></i> Registrar ajuste salarial
     </a> 
+
+    <div style="width: 10px;"></div>
+
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "medium"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top" 
+        title="Tooltip on top"
+
+
+        href="{% url 'companies:update_salary_add_masive' %}">
+        <i class="fa-solid fa-plus"></i> Cargar ajustes salariales
+    </a> 
+
+    
 {% endblock %}
 
 {% block titulo2 %} 
@@ -73,6 +99,7 @@ Cambio de Salario
             <thead>
                 <tr>
                     <th>Idcontrato</th>
+                    <th>Documento</th>
                     <th>Empleado</th>
                     <th>Salario Actual</th>
                     <th>Nuevo salario</th>
@@ -82,8 +109,9 @@ Cambio de Salario
             <tbody>
                 {% for item in novsalarios %}
                     <tr>
-                        <td >{{ item.idcontrato }}</td>
-                        <td>{{ item.idcontrato }}</td>
+                        <td >{{ item.idcontrato.idcontrato }}</td>
+                        <td >{{ item.idcontrato.idempleado.docidentidad }}</td>
+                        <td>{{ item.idcontrato.idempleado.pnombre }}  {{ item.idcontrato.idempleado.papellido }}</td>
                         <td>{{ item.salarioactual }}</td>
                         <td >{{ item.nuevosalario  }}</td>
                         <td >{{ item.fechanuevosalario | date:"d/m/Y" }}</td>                        

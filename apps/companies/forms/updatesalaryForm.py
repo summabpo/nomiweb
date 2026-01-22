@@ -42,8 +42,7 @@ class updatesalaryForm(forms.Form):
                 for item in Contratos.objects.filter(
                     estadocontrato=1,
                     id_empresa=idempresa
-                ).exclude(
-                    tipocontrato__idtipocontrato__in=[5, 6]
+                
                 ).order_by('idempleado__papellido')
                 .values(
                     'idempleado__pnombre', 'idempleado__snombre',

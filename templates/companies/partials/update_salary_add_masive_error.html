@@ -1,0 +1,73 @@
+<div class="modal-content" id="modal-content">
+
+    <div class="modal-header">
+        {% if errores %}
+            <h3 class="modal-title text-danger">Errores en el archivo</h3>
+        {% else %}
+            <h3 class="modal-title text-success">Éxito</h3>
+        {% endif %}
+
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2"
+             up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1">
+                <span class="path1"></span><span class="path2"></span>
+            </i>
+        </div>
+    </div>
+
+    <div class="separator my-5"></div>
+
+    <div class="modal-body">
+        <div class="container">
+
+            {% if errores %}
+                <p class="text-danger fw-bold">
+                    Se encontraron {{ total_errores }} errores en el archivo:
+                </p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle">
+                        <thead class="table-danger">
+                            <tr>
+                                <th>Fila</th>
+                                <th>ID Contrato</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in errores %}
+                                <tr>
+                                    <td>{{ e.fila }}</td>
+                                    <td>{{ e.id_contrato|default:"—" }}</td>
+                                    <td>{{ e.error }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-warning mt-4">
+                    No se aplicaron cambios. Corrige el archivo y vuelve a cargarlo.
+                </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="separator my-5"></div>
+
+    <div class="modal-footer btn-group">
+        {% if errores %}
+            <button class="btn btn-light-danger" up-dismiss>
+                Cerrar
+            </button>
+        {% else %}
+            <a href="{% url 'companies:vacations' %}"
+               class="btn btn-light-success">
+                Continuar
+            </a>
+        {% endif %}
+    </div>
+
+</div>
