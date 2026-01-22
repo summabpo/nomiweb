@@ -1,4 +1,5 @@
 <!-- Bootstrap-styled modal -->
+{% load custom_filters %}
 <div class="modal-content"  id="modal-content">
     <div class="modal-header">
         <h3 class="modal-title">Datos de Contrato #{{contrato.idcontrato}}</h3>
@@ -16,11 +17,11 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label class="form-label" for="fechainiciocontrato">Fecha Inicial del Contrato</label>
-                        <input class="form-control" type="text" id="fechainiciocontrato"  disabled value='{{contrato.dateinit}}' />
+                        <input class="form-control" type="text" id="fechainiciocontrato"  disabled value="{{contrato.dateinit|date:'d-m-Y'}}" />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="fechafincontrato">Fecha de Terminación</label>
-                        <input class="form-control" type="text" id="fechafincontrato"  disabled value='{{contrato.dateend}}'  />
+                        <input class="form-control" type="text" id="fechafincontrato"  disabled value="{{contrato.dateend|date:'d-m-Y'}}"  />
                     </div>
                 </div>
                 
@@ -55,7 +56,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label class="form-label" for="salario">Salario</label>
-                        <input class="form-control" type="text" id="salario" disabled value='{{contrato.salario}}'/>
+                        <input class="form-control" type="text" id="salario" disabled value='{{contrato.salario|format_currency }}'/>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="tiposalario">Tipo Salario</label>

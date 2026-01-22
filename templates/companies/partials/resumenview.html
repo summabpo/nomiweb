@@ -31,11 +31,11 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label class="form-label"> Fecha de expedición </label>
-                        <input id="fechaexpedicion" class="form-control" type="text" value='{{empleados.fechaexpedicion}}' disabled />
+                        <input id="fechaexpedicion" class="form-control" type="text" value="{{empleados.fechaexpedicion|date:'d-m-Y'}}" disabled />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label"> Ciudad de expedición </label>
-                        <input id="ciudadexpedicion" class="form-control" type="text" value='{{empleados.ciudadexpedicion}}' disabled />
+                        <input id="ciudadexpedicion" class="form-control" type="text" value="{{empleados.ciudadexpedicion|date:'d-m-Y' }}" disabled />
                     </div>
                 </div>
 
@@ -92,7 +92,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label class="form-label"> Fecha de Nacimiento </label>
-                        <input id="fechanac" class="form-control" type="text" value='{{empleados.fechanac}}' disabled />
+                        <input id="fechanac" class="form-control" type="text" value= "{{empleados.fechanac|date:'d-m-Y'}}" disabled />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label"> Nivel Educativo </label>

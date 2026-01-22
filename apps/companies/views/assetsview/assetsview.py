@@ -71,7 +71,7 @@ def contractview(request,id):
             'lugartrabajo': safe_get(contrato.ciudadcontratacion.ciudad),
             'tipocontrato': safe_get(contrato.tipocontrato.tipocontrato),
             'modelo': safe_get(contrato.idmodelo.nombremodelo),
-            'salario': safe_get(contrato.salario),
+            'salario': contrato.salario,
             'tiposalario': safe_get(contrato.tiposalario.tiposalario),
             'modalidadsalario': MODALIDAD_SALARIO_DICT.get(str(contrato.salariovariable), '----------'),
             'vivetrabajo': 'Si' if contrato.auxiliotransporte else 'No',
