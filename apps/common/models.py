@@ -15,6 +15,7 @@ class Anos(models.Model):
         return str(self.ano)
 
     class Meta:
+        managed = False
         db_table = 'anos'
         
 class Ausencias(models.Model):
@@ -25,6 +26,7 @@ class Ausencias(models.Model):
         return self.ausencia
 
     class Meta:
+        managed = False
         db_table = 'ausencias'
 
 
@@ -36,6 +38,7 @@ class Profesiones(models.Model):
         return self.profesion
 
     class Meta:
+        managed = False
         db_table = 'profesiones'
 
 
@@ -47,6 +50,7 @@ class Nivelesestructura(models.Model):
         return self.nombrenivel
 
     class Meta:
+        managed = False
         db_table = 'nivelesestructura'
         
 
@@ -68,6 +72,7 @@ class Cargos(models.Model):
         return  f"{self.nombrecargo} - {self.id_empresa}"
 
     class Meta:
+        managed = False
         db_table = 'cargos'
 
 class Costos(models.Model):
@@ -86,6 +91,7 @@ class Costos(models.Model):
         return  f"{self.nomcosto} - {self.id_empresa}"
 
     class Meta:
+        managed = False
         db_table = 'costos'       
 
 class Subcostos(models.Model):
@@ -100,6 +106,7 @@ class Subcostos(models.Model):
         return f"{self.nomsubcosto} - {self.id_empresa}"
 
     class Meta:
+        managed = False
         db_table = 'subcostos' 
 
 
@@ -114,6 +121,7 @@ class Sedes(models.Model):
         return  f"{self.nombresede} - {self.id_empresa}"
 
     class Meta:
+        managed = False
         db_table = 'sedes'
 
 class Conceptosfijos(models.Model):
@@ -129,6 +137,7 @@ class Conceptosfijos(models.Model):
         return self.conceptofijo
     
     class Meta:
+        managed = False
         db_table = 'conceptosfijos'
 
 class Subtipocotizantes(models.Model):
@@ -143,6 +152,7 @@ class Subtipocotizantes(models.Model):
         return self.descripcion
     
     class Meta:
+        managed = False
         db_table = 'subtipocotizantes'
 
 class Paises(models.Model):
@@ -153,6 +163,7 @@ class Paises(models.Model):
         return self.pais
     
     class Meta:
+        managed = False
         db_table = 'paises'
         
 
@@ -170,6 +181,7 @@ class ModelosContratos(models.Model):
         return self.nombremodelo
     
     class Meta:
+        managed = False
         db_table = 'modelos_contratos'
 
 class Ciudades(models.Model):
@@ -183,6 +195,7 @@ class Ciudades(models.Model):
         return self.ciudad
     
     class Meta:
+        managed = False
         db_table = 'ciudades'
 
 class Entidadessegsocial(models.Model):
@@ -197,6 +210,7 @@ class Entidadessegsocial(models.Model):
         return self.entidad
 
     class Meta:
+        managed = False
         db_table = 'entidadessegsocial'
         
 class Diagnosticosenfermedades(models.Model):
@@ -209,6 +223,7 @@ class Diagnosticosenfermedades(models.Model):
         return self.coddiagnostico
     
     class Meta:
+        managed = False
         db_table = 'diagnosticosenfermedades'
         
 
@@ -230,6 +245,7 @@ class Bancos(models.Model):
         return self.nombanco
     
     class Meta:
+        managed = False
         db_table = 'bancos'
 
 
@@ -241,6 +257,7 @@ class Tipoavacaus(models.Model):
         return self.nombrevacaus
     
     class Meta:
+        managed = False
         db_table = 'tipoavacaus'
 
 
@@ -253,6 +270,7 @@ class Tipocontrato(models.Model):
         return self.tipocontrato
     
     class Meta:
+        managed = False
         db_table = 'tipocontrato'
 
 
@@ -266,6 +284,7 @@ class Tipodenomina(models.Model):
         return self.tipodenomina
     
     class Meta:
+        managed = False
         db_table = 'tipodenomina'
 
 
@@ -278,6 +297,7 @@ class Tipodocumento(models.Model):
     def __str__(self):
         return self.documento
     class Meta:
+        managed = False
         db_table = 'tipodocumento'
 
 
@@ -290,6 +310,7 @@ class Tiposalario(models.Model):
         return self.tiposalario
     
     class Meta:
+        managed = False
         db_table = 'tiposalario'
 
 
@@ -303,6 +324,7 @@ class Tiposdecotizantes(models.Model):
         return self.tipocotizante
 
     class Meta:
+        managed = False
         db_table = 'tiposdecotizantes'
 
 
@@ -325,6 +347,7 @@ class Centrotrabajo(models.Model):
         return  f"{self.nombrecentrotrabajo} - {self.id_empresa}"
     
     class Meta:
+        managed = False
         db_table = 'centrotrabajo'
 
 
@@ -374,6 +397,7 @@ class Empresa(models.Model):
     vstsenaicbf = models.CharField(max_length=2, blank=True, null=True)
     ige100 = models.CharField(max_length=2, blank=True, null=True)
     slntarifapension = models.CharField(max_length=2, blank=True, null=True)
+    empresa_exonerada = models.BooleanField(default=True)
 
     # Detalles bancarios
     banco = models.ForeignKey(Bancos, on_delete=models.DO_NOTHING, blank=True, null=True ) # Posible enlace -> banco 
@@ -392,6 +416,7 @@ class Empresa(models.Model):
         return self.nombreempresa
     
     class Meta:
+        managed = False
         db_table = 'empresa'
         verbose_name = "empresa"
         verbose_name_plural = "empresas"
@@ -406,6 +431,7 @@ class Role(models.Model):
         return self.name
     
     class Meta:
+        managed = False
         verbose_name = "Role"
         verbose_name_plural = "Roles"
         db_table = 'role'
@@ -466,6 +492,7 @@ class User(AbstractUser):
         return self.tipo_user == 'accountant'
     
     class Meta:
+        managed = False
         verbose_name = "user"
         verbose_name_plural = "users"
         db_table = 'user'
@@ -477,6 +504,7 @@ class Token(models.Model):
     estado = models.BooleanField(default=True , blank=True, null=True )
     
     class Meta:
+        managed = False
         db_table = 'token'
         verbose_name = "token"
         verbose_name_plural = "tokens"
@@ -509,6 +537,7 @@ class EditHistory(models.Model):
         return f"{self.modified_model} (ID: {self.modified_object_id}) modificado por {self.user} el {self.modification_time}"
 
     class Meta:
+        managed = False
         verbose_name = 'Historial de modificación'
         verbose_name_plural = 'Historial de modificaciones'
         db_table = 'history'
@@ -598,6 +627,7 @@ class Contratosemp(models.Model):
     
     
     class Meta:
+        managed = False
         db_table = 'contratosemp'
 
 
@@ -671,6 +701,7 @@ class Contratos(models.Model):
     old_idcontrato = models.CharField(max_length=25,blank=True, null=True)#choice
 
     class Meta:
+        managed = False
         db_table = 'contratos'
 
 
@@ -693,6 +724,7 @@ class Ausentismo(models.Model):
     idnomina = models.IntegerField(blank=True, null=True)#Posible enlace 
 
     class Meta:
+        managed = False
         db_table = 'ausentismo'
         
 
@@ -726,6 +758,7 @@ class Certificaciones(models.Model):
     
 
     class Meta:
+        managed = False
         db_table = 'certificaciones'
         
 
@@ -745,6 +778,7 @@ class Cesantias(models.Model):
     diassuspension = models.IntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'cesantias'
 
 
@@ -760,6 +794,7 @@ class Indicador(models.Model):
     
 
     class Meta:
+        managed = False
         db_table = 'indicadores'
         verbose_name_plural = 'Indicadores'
 
@@ -773,6 +808,7 @@ class Familia(models.Model):
     indicadores = models.ManyToManyField(Indicador, related_name="familias", blank=True)
 
     class Meta:
+        managed = False
         db_table = 'familias'
         verbose_name_plural = 'Familias'
 
@@ -794,6 +830,7 @@ class Conceptosdenomina(models.Model):
     indicador = models.ManyToManyField(Indicador, related_name="indicador", blank=True)
     
     class Meta:
+        managed = False
         db_table = 'conceptosdenomina'
         verbose_name_plural = 'Conceptos de Nómina'
 
@@ -820,6 +857,7 @@ class Contabcuentas(models.Model):
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
 
     class Meta:
+        managed = False
         db_table = 'contabcuentas'
 
 
@@ -830,6 +868,7 @@ class Contabgrupos(models.Model):
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
     
     class Meta:
+        managed = False
         db_table = 'contabgrupos'
 
 
@@ -866,6 +905,7 @@ class Crearnomina(models.Model):
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING,null=True, blank=True)
     
     class Meta:
+        managed = False
         db_table = 'crearnomina'
         
     def __str__(self):
@@ -925,7 +965,8 @@ class EmpVacaciones(models.Model):
     comentarios = models.CharField(max_length=255, blank=True, null=True)  # Comentarios adicionales
     comentarios2 = models.CharField(max_length=255, blank=True, null=True)  # Comentarios adicionales (opcional)
 
-    class Meta:  
+    class Meta:
+        managed = False  
         db_table = 'emp_vacaciones'   
 
 
@@ -942,6 +983,7 @@ class EstActivos(models.Model):
     extras = models.IntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'est_activos'
 
 
@@ -957,6 +999,7 @@ class Festivos(models.Model):
     ano = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'festivos'
 
 
@@ -977,6 +1020,7 @@ class Incapacidades(models.Model):
     origenincap = models.CharField(max_length=100,blank=True, null=True) # choice 
 
     class Meta:
+        managed = False
         db_table = 'incapacidades'
 
 
@@ -1000,6 +1044,7 @@ class IncapacidadesImportador(models.Model):
     origenincap = models.CharField(max_length=100,blank=True, null=True) # choice 
     
     class Meta:
+        managed = False
         db_table = 'incapacidades_importador'
 
 
@@ -1033,6 +1078,7 @@ class Ingresosyretenciones(models.Model):
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
 
     class Meta:
+        managed = False
         db_table = 'ingresosyretenciones'
 
 
@@ -1092,6 +1138,7 @@ class Liquidacion(models.Model):
     diassuspv = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'liquidacion'
         unique_together = (('idliquidacion', 'idcontrato'),)
 
@@ -1125,6 +1172,7 @@ class LiquidacionMasivo(models.Model):
     
     
     class Meta:
+        managed = False
         db_table = 'liquidacion_masivo'
         unique_together = (('idliquidacion', 'idcontrato'),)
 
@@ -1137,6 +1185,7 @@ class Mediospago(models.Model):
     medio = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'mediospago'
 
 
@@ -1164,6 +1213,7 @@ class NeDatosMensual(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'ne_datos_mensual'
 
 
@@ -1179,6 +1229,7 @@ class NeDetalleNominaElectronica(models.Model):
     observaciones = models.TextField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'ne_detalle_nomina_electronica'
 
 
@@ -1190,6 +1241,7 @@ class NeRespuestaDian(models.Model):
     codigo_respuesta = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'ne_respuesta_dian'
 
 
@@ -1199,6 +1251,7 @@ class NeSumatorias(models.Model):
     tipo = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'ne_sumatorias'
 
 
@@ -1223,6 +1276,7 @@ class Nomina(models.Model):
     
     
     class Meta:
+        managed = False
         db_table = 'nomina'
 
 
@@ -1242,6 +1296,7 @@ class NominaComprobantes(models.Model):
     envio_email = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'nomina_comprobantes'
 
 
@@ -1261,6 +1316,7 @@ class NominaFija(models.Model):
     idconcepto = models.IntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'nomina_fija'
 
 
@@ -1280,6 +1336,7 @@ class NominaImportador(models.Model):
     control = models.IntegerField(blank=True, null=True) # vacaciones o incapacidades o prestamos automatico  
 
     class Meta:
+        managed = False
         db_table = 'nomina_importador'
 
 
@@ -1310,6 +1367,7 @@ class NovCambiocargo(models.Model):
     estadonovcambio = models.SmallIntegerField(blank=True, null=True)#quitar
 
     class Meta:
+        managed = False
         db_table = 'nov_cambiocargo'
 
 
@@ -1328,6 +1386,7 @@ class NovDescuentos(models.Model):
     estadonovdes = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'nov_descuentos'
 
 
@@ -1346,6 +1405,7 @@ class NovFijos(models.Model):
     fechafinnovedad = models.DateField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'nov_fijos'
 
 
@@ -1361,6 +1421,7 @@ class NovSalarios(models.Model):
     tiposalario = models.SmallIntegerField(blank=True, null=True)#enlace tiposalarios 
 
     class Meta:
+        managed = False
         db_table = 'nov_salarios'
 
 
@@ -1382,6 +1443,7 @@ class NovSegsocial(models.Model):
     estadonov = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'nov_segsocial'
 
 
@@ -1562,6 +1624,7 @@ class Prestamos(models.Model):
     estadoprestamo = models.BooleanField(default=False)#boleano
     
     class Meta:
+        managed = False
         db_table = 'prestamos'
 
 
@@ -1582,6 +1645,7 @@ class ProvisionesContables(models.Model):
     entidad = models.CharField(max_length=32, blank=True, null=True) # nit 
 
     class Meta:
+        managed = False
         db_table = 'provisiones_contables'
 
 
@@ -1594,6 +1658,7 @@ class Salariominimoanual(models.Model):
     ano = models.IntegerField(blank=True, null=True)
     
     class Meta:
+        managed = False
         db_table = 'salariominimoanual'
 
 
@@ -1611,6 +1676,7 @@ class SalariosImportador(models.Model):
     salarioanterior = models.IntegerField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'salarios_importador'
 
 
@@ -1644,6 +1710,7 @@ class Tiempos(models.Model):
     idempresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
     
     class Meta:
+        managed = False
         db_table = 'tiempos'
 
 
@@ -1685,6 +1752,7 @@ class TiemposTotales(models.Model):
     idempresa  = models.ForeignKey(Empresa, models.DO_NOTHING)
 
     class Meta:
+        managed = False
         db_table = 'tiempos_totales'
         
 
