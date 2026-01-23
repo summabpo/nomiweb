@@ -50,6 +50,18 @@ def update_salary(request):
     
     
     
+    # for i in novsalarios :
+    #     contrato = Contratos.objects.get(idcontrato =  i.idcontrato.idcontrato )
+    #     if contrato.salario != i.nuevosalario :
+    #         contrato.salario = i.nuevosalario
+    #         contrato.save()   
+            
+    #         print('------------')
+    #         print('llege aqui',i.idcontrato.idcontrato)
+            
+                
+    
+    
     return render (request, './companies/update_salary.html',{'novsalarios':novsalarios})
 
 

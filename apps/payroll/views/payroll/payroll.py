@@ -1005,7 +1005,9 @@ def payroll_concept_info(request):
                 elif concept1.formula == '2':
                     multiplier = Contratos.objects.get(idcontrato=idempleado).salario
                     salariohoras = (float(multiplier) / float(conceptfi.valorfijo))
+                
                     multiplier =  salariohoras * float(concept1.multiplicadorconcepto)
+                    
                 
                 
 

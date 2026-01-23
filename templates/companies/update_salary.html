@@ -1,6 +1,7 @@
 {% extends 'base/base.html' %}
 {% load extras %} 
 {% load humanize %}
+{% load custom_filters %}
 {% load crispy_forms_tags %}
 
 
@@ -112,8 +113,8 @@ Cambio de Salario
                         <td >{{ item.idcontrato.idcontrato }}</td>
                         <td >{{ item.idcontrato.idempleado.docidentidad }}</td>
                         <td>{{ item.idcontrato.idempleado.pnombre }}  {{ item.idcontrato.idempleado.papellido }}</td>
-                        <td>{{ item.salarioactual }}</td>
-                        <td >{{ item.nuevosalario  }}</td>
+                        <td>{{ item.salarioactual|format_currency }}</td>
+                        <td >{{ item.nuevosalario|format_currency }}</td>
                         <td >{{ item.fechanuevosalario | date:"d/m/Y" }}</td>                        
                     </tr>
                 {% endfor %}
