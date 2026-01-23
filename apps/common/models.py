@@ -374,6 +374,7 @@ class Empresa(models.Model):
     vstsenaicbf = models.CharField(max_length=2, blank=True, null=True)
     ige100 = models.CharField(max_length=2, blank=True, null=True)
     slntarifapension = models.CharField(max_length=2, blank=True, null=True)
+    empresa_exonerada = models.BooleanField(default=True)
 
     # Detalles bancarios
     banco = models.ForeignKey(Bancos, on_delete=models.DO_NOTHING, blank=True, null=True ) # Posible enlace -> banco 
