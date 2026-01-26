@@ -266,7 +266,7 @@ def hiring_contract(request,idempleado):
                     porcentajeretefuente = 0, ## validar calculo 
                     valordeduciblevivienda = 0,## validar calculo 
                     saludretefuente = 0, ## validar calculo
-                    pensionado = '2',
+                    pensionado = '1',
                     estadoliquidacion = 3,#choice Estadoliquidacion  
                     estadosegsocial = 3, #choice Estadosegsocial 
                     

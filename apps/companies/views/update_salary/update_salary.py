@@ -50,14 +50,12 @@ def update_salary(request):
     
     
     
-    # for i in novsalarios :
-    #     contrato = Contratos.objects.get(idcontrato =  i.idcontrato.idcontrato )
-    #     if contrato.salario != i.nuevosalario :
-    #         contrato.salario = i.nuevosalario
-    #         contrato.save()   
+    for i in novsalarios :
+        contrato = Contratos.objects.get(idcontrato =  i.idcontrato.idcontrato )
+        if contrato.salario != i.nuevosalario :
+            contrato.salario = i.nuevosalario
+            contrato.save()   
             
-    #         print('------------')
-    #         print('llege aqui',i.idcontrato.idcontrato)
             
                 
     
@@ -75,11 +73,12 @@ def update_salary_add(request):
     
     form = updatesalaryForm(idempresa = idempresa)
     if request.method == 'POST':
+        
         form = updatesalaryForm(request.POST , idempresa=idempresa )
         if form.is_valid():
             
             newsalary = NovSalarios.objects.create(
-                idcontrato_id = form.cleaned_data['idcontrato'] ,
+                idcontrato_id = form.cleaned_data['contract'] ,
                 salarioactual = form.cleaned_data['Salario_Actual'] ,
                 nuevosalario = form.cleaned_data['Salario_nuevo'] ,
                 fechanuevosalario = form.cleaned_data['fecha_nuevo'] ,

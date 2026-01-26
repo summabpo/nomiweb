@@ -336,7 +336,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         
         
         # if contrato.idcontrato == 7991:
-        #     print(f" v {dias_vacaciones} I {dias_incapacidad} S {dias_suspensiones}")
+        #print(f" v {dias_vacaciones} I {dias_incapacidad} S {dias_suspensiones}")
         
         
         d = diasnomina
@@ -678,7 +678,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa)
+    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa )
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
     
@@ -702,7 +702,6 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
         ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
                 
         nomina = Crearnomina.objects.get( idnomina = idn)
-        
         
         base_ss_fsp =   Nomina.objects.filter(
             idcontrato = contrato,
@@ -756,7 +755,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
             valorfsp = round((base_ss_fsp2 * FSP) / 100, 2) if base_ss_fsp2 >= (sal_min * 4) else 0.00
             
-        
+            print(contrato.pensionado)
 
             if contrato.pensionado == '2':
                 valorafp = 0.00

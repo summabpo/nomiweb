@@ -19,6 +19,8 @@ from apps.payroll.views.payroll.payroll_automatic_systems import calcular_vacaci
 from django.utils import timezone
 from datetime import date
 from django.db.models import F, Case, When, Value, DateField
+from apps.payroll.views.payroll.payroll_automatic_systems import calcular_suspenciones 
+
 
 MES_CHOICES = [
     ('', '--------------'),
@@ -281,13 +283,12 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
             
             if tipo == 1:  # Disfrutadas
                 dias_vacaciones = (vaca.ultimodiavac - vaca.fechainicialvac).days + 1
-                valor = (contrato.salario / 30) * dias_vacaciones
+                valor = vaca.pagovac
                 cantidad = dias_vacaciones
 
             elif tipo == 2:  # Compensadas
                 dias_vacaciones = vaca.diasvac or 0
-                base = vaca.basepago or contrato.salario
-                valor = (base / 30) * dias_vacaciones
+                valor = vaca.pagovac
                 cantidad = dias_vacaciones
                 if vaca.pagovac:
                     valor = vaca.pagovac
@@ -309,13 +310,11 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
         # ==========================================================
         if tipo == 1 and vaca.fechainicialvac and vaca.ultimodiavac:
             cantidad = vaca.diascalendario or 0
-            valor = (contrato.salario / 30) * cantidad
-            
+            valor = vaca.pagovac
             
         elif tipo == 2 and vaca.fechapago:
             dias_vacaciones = vaca.diascalendario or 0
-            base = vaca.basepago or contrato.salario
-            valor = (base / 30) * dias_vacaciones
+            valor = vaca.pagovac
             cantidad = 1
             if vaca.pagovac:
                 valor = vaca.pagovac
@@ -334,6 +333,7 @@ def Calculo_vacaciones_por_id(idnomina, idvacaciones):
             idnomina_id=idnomina,
             control=vaca.idvacaciones
         )
+        
 
 
         return ("success", "Vacación registrada correctamente.")
@@ -650,45 +650,59 @@ def absences_resumen_send(request, id):
             # 🔹 Obtener datos de la vacación
             vaca = Vacaciones.objects.get(idvacaciones=id)
 
-            # ✅ Validar rango de fechas
-            if not (
-                nomina_final.fechainicial <= vaca.fechainicialvac <= nomina_final.fechafinal and
-                nomina_final.fechainicial <= vaca.ultimodiavac <= nomina_final.fechafinal
-            ):
+            # Crear registros en la nómina (si pasa la validación)
+            
+            if vaca.tipovac.idvac == 4 :
+                concepto1 = Conceptosdenomina.objects.get(codigo=31, id_empresa_id=idempresa)
+                concepto2 = Conceptosdenomina.objects.get(codigo=83, id_empresa_id=idempresa)
+
+            elif  vaca.tipovac.idvac == 3 :
+                #concepto1 = Conceptosdenomina.objects.get(codigo=31, id_empresa_id=idempresa)
+                concepto2 = Conceptosdenomina.objects.get(codigo=82, id_empresa_id=idempresa)
+            
+            elif  vaca.tipovac.idvac == 5 :
+                concepto1 = Conceptosdenomina.objects.get(codigo=30, id_empresa_id=idempresa)
+                concepto2 = Conceptosdenomina.objects.get(codigo=86, id_empresa_id=idempresa)
+            
+            
+            
+            
+            dias_suspensiones = calcular_suspenciones(vaca.idcontrato.idcontrato, nomina_final )
+            dias = vaca.basepago / 30 
+            
+            if Nomina.objects.filter(
+                idnomina=nomina_final,
+                idconcepto=concepto2,
+                control=vaca.idvacaciones
+            ).exists():
+                
                 response = HttpResponse('', content_type='text/html; charset=utf-8')
                 response['X-Up-Accept-Layer'] = 'true'
                 response['X-Up-Location'] = reverse('companies:absences_resumen')
-                response['X-Up-Message'] = 'Las fechas de las vacaciones no están dentro del rango de la nómina seleccionada.'
+                response['X-Up-Message'] = 'Suspensión o licencia ya está registrada en la nómina.'
                 response['X-Up-Icon'] = 'warning'
+                print(response)
                 return response
+                    
+                                
+            
+            if  vaca.tipovac.idvac != 3 : 
                 
-                # response = HttpResponse('', content_type='text/html; charset=utf-8')
-                # response['X-Up-Accept-Layer'] = 'true'
-                # response['X-Up-Message'] = (
-                #     'Las fechas de las vacaciones no están dentro del rango de la nómina seleccionada.'
-                # )
-                # response['X-Up-Icon'] = 'warning'
-                # return response
-
-            # 🔹 Crear registros en la nómina (si pasa la validación)
-            concepto1 = Conceptosdenomina.objects.get(codigo=31, id_empresa_id=idempresa)
-            concepto2 = Conceptosdenomina.objects.get(codigo=83, id_empresa_id=idempresa)
-
-            Nomina.objects.create(
-                idconcepto=concepto1,
-                cantidad=vaca.diascalendario,
-                estadonomina=1,
-                valor=vaca.pagovac,
-                idcontrato=vaca.idcontrato,
-                idnomina=nomina_final,
-                control=vaca.idvacaciones
-            )
+                Nomina.objects.create(
+                    idconcepto=concepto1,
+                    cantidad= dias_suspensiones,
+                    estadonomina=1,
+                    valor= dias * dias_suspensiones,
+                    idcontrato=vaca.idcontrato,
+                    idnomina=nomina_final,
+                    control=vaca.idvacaciones
+                )
 
             Nomina.objects.create(
                 idconcepto=concepto2,
-                cantidad=vaca.diascalendario,
+                cantidad= dias_suspensiones,
                 estadonomina=1,
-                valor=-(vaca.pagovac),
+                valor=-(dias * dias_suspensiones),
                 idcontrato=vaca.idcontrato,
                 idnomina=nomina_final,
                 control=vaca.idvacaciones
@@ -698,7 +712,7 @@ def absences_resumen_send(request, id):
             response = HttpResponse('', content_type='text/html; charset=utf-8')
             response['X-Up-Accept-Layer'] = 'true'
             response['X-Up-Location'] = reverse('companies:absences_resumen')
-            response['X-Up-Message'] = 'Vacaciones enviadas correctamente a la nómina.'
+            response['X-Up-Message'] = 'Suspencion o licencia enviada correctamente a la nómina.'
             response['X-Up-Icon'] = 'success'
             return response
     

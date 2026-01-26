@@ -1007,10 +1007,6 @@ def payroll_concept_info(request):
                     salariohoras = (float(multiplier) / float(conceptfi.valorfijo))
                 
                     multiplier =  salariohoras * float(concept1.multiplicadorconcepto)
-                    
-                
-                
-
                 else:
                     multiplier = 0
             else:
