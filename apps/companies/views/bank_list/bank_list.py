@@ -102,6 +102,18 @@ def bank_list_get(request,idnomina):
     return render(request, './companies/partials/flat_bank.html', {'data': data})
 
 
+def fmt_num(valor, largo):
+    """Rellena con ceros a la izquierda y solo números"""
+    valor = str(valor).replace('.', '').replace(',', '')
+    return valor.zfill(largo)[:largo]
+
+
+def fmt_str_ceros(texto, largo):
+    """Texto alineado a la izquierda, relleno con espacios"""
+    texto = str(texto) if texto else ''
+    return texto.ljust(largo)[:largo]
+
+
 @login_required
 @role_required('company')
 def bank_file(request,idnomina):
@@ -183,57 +195,99 @@ def bank_file(request,idnomina):
     
     compects = list(acumulados.values())
     
-    # Generar el código de la empresa
-    strrc = 'RC'
     dataempresa = datos_cliente(idempresa)
-    strrc += formttex(dataempresa['nit'] + dataempresa['dv'], 16)
-    strrc += formttex('NOMI', 4)
-    strrc += formttex('NOMI', 4)
-    strrc += formttex(dataempresa['numcuenta'], 16)
-    strrc += formttex('CC', 2)
-    strrc += formttex(str(dataempresa['banco']), 6)
-    strrc += formtnun(suma_total_pagos, 18)
-    strrc += formttex(str(count_cuenta_1), 6)
-    strrc += formttex(fecha_formateada, 8)
-    strrc += formttex('000000', 6)
-    strrc += formttex('0', 4)
-    strrc += formttex('9999', 4)
-    strrc += formttex('0', 8)
-    strrc += formttex('0', 6)
-    strrc += formttex('0', 2)
-    strrc += formttex('01', 2)
-    strrc += formttex('0', 12)
-    strrc += formttex('0', 4)
-    strrc += formttex('0', 40)
-    strrc += '\n'
+    
+    
+    
+    codigo = Bancos.objects.get(idbanco  = dataempresa['banco']).digchequeo
+    
+    print(codigo)
+    
+    # Generar el código de la empresa
+    strrc = ''
+    rc = ''
+
+    rc += 'RC'
+    rc += fmt_num(dataempresa['nit'] + dataempresa['dv'], 16)
+    rc += fmt_str_ceros('NOMI', 4)
+    rc += fmt_str_ceros('NOMI', 4)
+    rc += fmt_num(dataempresa['numcuenta'], 16)
+
+    # Tipo de cuenta empresa (AHO = CA / CORR = CC)
+    rc += fmt_str_ceros('CA', 2)
+
+    # Código ACH banco empresa
+    rc += fmt_num(codigo, 6)
+
+    # Valor total en CENTAVOS
+    total_centavos = int(round(suma_total_pagos * 100))
+    rc += fmt_num(total_centavos, 18)
+
+    # Cantidad de registros TR
+    rc += fmt_num(count_cuenta_1, 6)
+
+    rc += fmt_num(fecha_formateada, 8)   # YYYYMMDD
+    rc += fmt_num('000000', 6)          # Hora proceso
+    rc += fmt_num('0000', 4)         # Operador
+    rc += fmt_num('9999', 4)
+    rc += fmt_num(0, 8)                 # Fecha generación
+    rc += fmt_num(0, 6)                 # Hora generación
+    rc += fmt_num(0, 2)
+
+    # ✅ TIPO IDENTIFICACIÓN EMPRESA = 03 (NIT)
+    rc += fmt_num('03', 2)
+
+    rc += fmt_num(0, 12)  # Cliente Davivienda
+    rc += fmt_num(0, 4)   # Oficina
+    rc += fmt_num(0, 40)  # Campo futuro
+
+    assert len(rc) == 170
+    strrc += rc + '\n'
     
     for data in compects:
-        strrc += 'TR'
-        strrc += formttex(str(data['cc']), 16)
-        strrc += formttex('0', 16)
-        strrc += formttex(data['numcuenta'], 16)
-        
+        tr = ''
+
+        tr += 'TR'
+        tr += fmt_num(data['cc'], 16)      # Documento beneficiario
+        tr += fmt_num(0, 16)               # Referencia
+        tr += fmt_num(data['numcuenta'], 16)
+
+        # Tipo de producto destino
         if data['cuenta'] == 'ahorros':
-            strrc += formttex('CA', 2)
+            tr += fmt_str_ceros('CA', 2)
         elif data['cuenta'] == 'corriente':
-            strrc += formttex('CC', 2)
+            tr += fmt_str_ceros('CC', 2)
+        elif data['cuenta'] == 'daviplata':
+            tr += fmt_str_ceros('DP', 2)
         else:
-            strrc += formttex('OP', 2)
-    
-        
-        strrc += formttex(str(data['banco']), 6)
-        strrc += formtnun(data['pago'], 18)
-        strrc += formttex('0', 6)
-        strrc += formttex(data['tipecc'], 2)
-        strrc += formttex('0', 1)
-        strrc += formttex('9999', 4)
-        strrc += formttex('0', 40)
-        strrc += formttex('0', 18)
-        strrc += formttex('0', 8)
-        strrc += formttex('0', 4)
-        strrc += formttex('0', 4)
-        strrc += formttex('0', 7)
-        strrc += '\n'
+            tr += fmt_str_ceros('OT', 2)
+
+        # Código ACH del banco destino
+        tr += fmt_num(data['banco'], 6)
+
+        # Valor en centavos
+        valor_centavos = int(round(data['pago'] * 100))
+        tr += fmt_num(valor_centavos, 18)
+
+        tr += fmt_num(0, 6)  # Talón
+
+        # Tipo de documento beneficiario (01 CC, 02 CE, 03 NIT, etc.)
+        tr += fmt_num(data['tipecc'], 2)
+
+        # ✅ Validar ACH = 1
+        tr += fmt_num(1, 1)
+
+        tr += fmt_num(9999, 4)  # Resultado
+
+        tr += fmt_num(0, 40)  # Mensaje respuesta
+        tr += fmt_num(0, 18)  # Valor acumulado
+        tr += fmt_num(0, 8)   # Fecha aplicación
+        tr += fmt_num(0, 4)   # Oficina
+        tr += fmt_num(0, 4)   # Motivo devolución
+        tr += fmt_num(0, 7)   # Campo futuro
+
+        assert len(tr) == 170
+        strrc += tr + '\n'
 
     #Crear y escribir en el archivo
     buffer = io.BytesIO()
@@ -247,3 +301,9 @@ def bank_file(request,idnomina):
 
     return response
     #return HttpResponse(strrc)
+    
+    
+    
+    
+    
+    
