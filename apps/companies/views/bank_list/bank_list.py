@@ -11,14 +11,14 @@ from datetime import datetime
 from django.shortcuts import get_object_or_404
 from .identificador import obtener_numero_documento
 
-
+from django.db.models import Sum, Count, Q
 
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 
 @login_required
 @role_required('company')
-def bank_list_get(request):
+def bank_list_get(request,idnomina):
     """
         Recupera el resumen de los pagos asociados a una nómina específica.
 
@@ -50,51 +50,56 @@ def bank_list_get(request):
 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
+    dataempresa = datos_cliente(idempresa)
+    pas = False
+
+    # 🔹 Datos del banco (1 sola consulta)
+    banco_nota = "Data no encontrada"
+    num_cuenta = dataempresa.get('numcuenta', 'Data no encontrada')
+
+    banco_id = dataempresa.get('banco')
+    if banco_id:
+        banco = Bancos.objects.filter(idbanco=banco_id).only('nombanco', 'digchequeo').first()
+        if banco:
+            banco_nota = f"{banco.nombanco} - {banco.digchequeo}"
+            pas = True
+
+    # 🔹 Query base optimizada
+    nominas = Nomina.objects.filter(idnomina=idnomina).select_related(
+        'idcontrato__idempleado'
+    )
+
+    # 🔹 SUMA TOTAL (en BD)
+    suma_total_pagos = nominas.aggregate(total=Sum('valor'))['total'] or 0
+
+    # 🔹 CONTAR EMPLEADOS ÚNICOS POR TIPO DE CUENTA
+    cuentas = nominas.values(
+        'idcontrato__idempleado__docidentidad',
+        'idcontrato__formapago'
+    ).distinct()
+
     count_cuenta_1 = 0
     count_cuenta_2 = 0
-    suma_total_pagos = 0
-    acumulados = {}
-    id_nomina = request.GET.get('id_nomina')  
-    dataempresa = datos_cliente(idempresa)
-    compectos = Nomina.objects.filter(idnomina=id_nomina)
 
-    # Inicializar valores en caso de que no se encuentre el banco
-    banco_nota = "Data no encontrada"
-    num_cuenta = "Data no encontrada"
+    for c in cuentas:
+        if c['idcontrato__formapago'] == '1':
+            count_cuenta_1 += 1
+        else:
+            count_cuenta_2 += 1
 
-    try:
-        banco = Bancos.objects.get(digchequeo=dataempresa['banco'])
-        banco_nota = f"{banco.nombanco} - {banco.digchequeo}"
-        num_cuenta = dataempresa.get('numcuenta', 'Data no encontrada')
-    except Bancos.DoesNotExist:
-        # Si no se encuentra el banco, se usan las notas por defecto
-        pass
-
-    for data in compectos:
-        docidentidad = data.idcontrato.idempleado.docidentidad
-
-        if docidentidad not in acumulados:
-            acumulados[docidentidad] = {
-                'cuenta': 1 if data.idcontrato.formapago == '1' else 2
-            }
-
-            if acumulados[docidentidad]['cuenta'] == 1:
-                count_cuenta_1 += 1
-            elif acumulados[docidentidad]['cuenta'] == 2:
-                count_cuenta_2 += 1
-
-        suma_total_pagos += data.valor
-
-    # Generar el JSON de respuesta
     data = {
         'banco': banco_nota,
         'cuenta': num_cuenta,
         'registros_con_cuenta': count_cuenta_1,
+        'registros_sin_cuenta': count_cuenta_2,
         'valor_pagos': format_value(suma_total_pagos),
-        'registros_sin_cuenta': count_cuenta_2
+        'pass': pas,
+        'selected_nomina':idnomina
     }
 
-    return JsonResponse(data)
+    
+    print(data)
+    return render(request, './companies/partials/flat_bank.html', {'data': data})
 
 
 @login_required
@@ -131,6 +136,8 @@ def bank_file(request,idnomina):
     """
 
     # Obtener la fecha actual
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
     fecha_actual = datetime.now()
 
     # Formatear la fecha como AAAAMMDD
@@ -139,19 +146,26 @@ def bank_file(request,idnomina):
     acumulados = {}
     suma_total_pagos = 0
     count_cuenta_1 = 0
-    compectos = Nomina.objects.filter(idnomina=idnomina).order_by('idempleado__papellido')  
+    compectos = Nomina.objects.filter(idnomina=idnomina).order_by('idcontrato__idempleado__papellido')  
     
     
     for data in compectos:
             
-        docidentidad = data.idempleado.docidentidad
+        docidentidad = data.idcontrato.idempleado.docidentidad
 
         if docidentidad not in acumulados:
+            
+            
             acumulados[docidentidad] = {
-                'cc':data.idempleado.docidentidad,
-                'tipecc':data.idempleado.tipodocident,
+                'cc':data.idcontrato.idempleado.docidentidad,
+                'tipecc':data.idcontrato.idempleado.tipodocident.codigo,
                 'numcuenta': data.idcontrato.cuentanomina,
-                'banco':  get_object_or_404(Bancos, nombanco=data.idcontrato.bancocuenta).digchequeo,
+                'banco': (
+                        Bancos.objects.filter(nombanco=data.idcontrato.bancocuenta)
+                        .values_list('digchequeo', flat=True)
+                        .first()
+                        if data.idcontrato.bancocuenta else ""
+                    ),
                 'cuenta': data.idcontrato.tipocuentanomina,
                 'pago': 0,
                 'pasos': 1 if data.idcontrato.formapago == '1' else 2
@@ -171,13 +185,13 @@ def bank_file(request,idnomina):
     
     # Generar el código de la empresa
     strrc = 'RC'
-    dataempresa = datos_cliente()
+    dataempresa = datos_cliente(idempresa)
     strrc += formttex(dataempresa['nit'] + dataempresa['dv'], 16)
     strrc += formttex('NOMI', 4)
     strrc += formttex('NOMI', 4)
     strrc += formttex(dataempresa['numcuenta'], 16)
     strrc += formttex('CC', 2)
-    strrc += formttex(dataempresa['banco'], 6)
+    strrc += formttex(str(dataempresa['banco']), 6)
     strrc += formtnun(suma_total_pagos, 18)
     strrc += formttex(str(count_cuenta_1), 6)
     strrc += formttex(fecha_formateada, 8)
@@ -205,11 +219,12 @@ def bank_file(request,idnomina):
             strrc += formttex('CC', 2)
         else:
             strrc += formttex('OP', 2)
+    
         
         strrc += formttex(str(data['banco']), 6)
         strrc += formtnun(data['pago'], 18)
         strrc += formttex('0', 6)
-        strrc += formttex(obtener_numero_documento(data['tipecc']), 2)
+        strrc += formttex(data['tipecc'], 2)
         strrc += formttex('0', 1)
         strrc += formttex('9999', 4)
         strrc += formttex('0', 40)

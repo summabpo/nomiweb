@@ -107,7 +107,7 @@ urlpatterns = [
     path('payroll/sheet/send/<int:idnomina>/<int:idcontrato>/', payrollsheet.unique_mail, name='unique_mail'),
     path('payroll/summary/download/<int:idnomina>/<int:data>', payrollsheet.generatepayrollsummary, name='generatepayrollsummary'),
     path('payroll/summary/download/<int:idnomina>/all/<int:data>', payrollsheet.generatepayrollsummary2, name='generatepayrollsummary2'),
-    path('payroll/bank/list/get/', bank_list.bank_list_get, name='bank_list_get'),
+    path('payroll/bank/list/get/<int:idnomina>/', bank_list.bank_list_get, name='bank_list_get'),
     path('payroll/bank/list/file/<int:idnomina>/', bank_list.bank_file, name='bank_file'),
     path('payroll/settlement/list/', settlementlist.settlementlist, name='settlementlist'),
     

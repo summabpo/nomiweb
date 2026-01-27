@@ -104,6 +104,7 @@ Listado de Contratos Activos
         <table id='tabla-contrato-activos' class="table table-striped table-bordered">
             <thead class="fw-bold fs-6 text-gray-800">
                 <tr>
+                <th>Idcontrato</th>
                 <th>Documento</th>
                 <th>Nombre</th>
                 <th class="w-15" >Inicio Contrato</th>
@@ -119,6 +120,7 @@ Listado de Contratos Activos
             <tbody>
                 {% for empleado in empleados %}
                     <tr>
+                        <td>{{ empleado.idcontrato }}</td>
                         <td>{{ empleado.documento }}</td>
                         <td>{{ empleado.nombre }}</td>
                         <td class="w-15" >{{ empleado.fechainiciocontrato |date:'d-m-Y' }}</td>

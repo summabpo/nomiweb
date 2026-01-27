@@ -1,0 +1,95 @@
+
+{% load crispy_forms_tags %}
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Pago de Nómina</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+
+        <div class="container my-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <h5 class="card-title text-danger fw-bold mb-3">
+                        <i class="bi bi-file-earmark-text"></i> Archivo Plano - Pago de Nómina
+                    </h5>
+
+                    <hr>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded h-100">
+                                <small class="text-muted d-block">Banco</small>
+                                <span class="fs-5 fw-semibold">{{ data.banco }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded h-100">
+                                <small class="text-muted d-block">Cuenta</small>
+                                <span class="fs-5 fw-semibold">{{ data.cuenta }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded text-center h-100">
+                                <small class="text-muted d-block">Registros con Cuenta</small>
+                                <span class="fs-4 fw-bold text-success">{{ data.registros_con_cuenta }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded text-center h-100">
+                                <small class="text-muted d-block">Registros sin Cuenta</small>
+                                <span class="fs-4 fw-bold text-warning">{{ data.registros_sin_cuenta }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded text-center h-100">
+                                <small class="text-muted d-block">Valor Total Pagos</small>
+                                <span class="fs-4 fw-bold text-primary">{{ data.valor_pagos }}</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>.
+
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger ms-auto" up-dismiss>Cerrar</button>
+        <div style="width: 10px;"></div>
+        {% if data.pass %}
+            <a href="{% url 'companies:bank_file' data.selected_nomina %}" class="btn btn-light-primary">
+                <i class="fa-solid fa-download fs-1"></i> 
+                Descargar
+            </a> 
+        {% else %}
+            <a href="#" class="btn btn-light-primary disabled opacity-50"
+                tabindex="-1" aria-disabled="true" onclick="return false;">
+                <i class="fa-solid fa-download fs-1"></i> 
+                Descargar
+            </a> 
+        {% endif %}
+        
+    </div>
+</div>
+
+
+
+

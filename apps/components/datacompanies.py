@@ -66,7 +66,7 @@ def datos_cliente(idemp):
         'nombresuc': empresa_data.nombresuc if empresa_data.nombresuc else 'No encontrado',
         'claseaportante': empresa_data.claseaportante if empresa_data.claseaportante else 'No encontrado',
         'tipoaportante': empresa_data.tipoaportante if empresa_data.tipoaportante else 'No encontrado',
-        'banco': empresa_data.banco if empresa_data.banco else 'No encontrado',
+        'banco': empresa_data.banco_id if empresa_data.banco_id else 'No encontrado',
         'numcuenta': empresa_data.numcuenta if empresa_data.numcuenta else 'No encontrado',
         'tipocuenta': empresa_data.tipocuenta if empresa_data.tipocuenta else 'No encontrado',
         'pais': empresa_data.pais if empresa_data.pais else 'No encontrado',

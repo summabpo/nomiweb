@@ -681,7 +681,6 @@ def absences_resumen_send(request, id):
                 response['X-Up-Location'] = reverse('companies:absences_resumen')
                 response['X-Up-Message'] = 'Suspensión o licencia ya está registrada en la nómina.'
                 response['X-Up-Icon'] = 'warning'
-                print(response)
                 return response
                     
                                 
