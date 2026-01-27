@@ -295,7 +295,41 @@ def bank_file(request,idnomina):
     assert len(rc1) == 170
     
     
-    
+     rc1 += 'RC'
+    rc1 += fmt_num(dataempresa['nit'] + dataempresa['dv'], 16)
+    rc1 += fmt_str_ceros('NOMI', 4)
+    rc1 += fmt_str_ceros('NOMI', 4)
+    rc1 += fmt_num(dataempresa['numcuenta'], 16)
+
+    # Tipo de cuenta empresa (AHO = CA / CORR = CC)
+    rc1 += fmt_str_ceros('CA', 2)
+
+    # Código ACH banco empresa
+    rc1 += fmt_num(codigo, 6)
+
+    # Valor total en CENTAVOS
+    total_centavos = int(round(suma_total_pagos * 100))
+    rc1 += fmt_num(total_centavos, 18)
+
+    # Cantidad de registros TR
+    rc1 += fmt_num(count_cuenta_1, 6)
+
+    rc1 += fmt_num(fecha_formateada, 8)   # YYYYMMDD
+    rc1 += fmt_num('000000', 6)          # Hora proceso
+    rc1 += fmt_num('0000', 4)         # Operador
+    rc1 += fmt_num('9999', 4)
+    rc1 += fmt_num(0, 8)                 # Fecha generación
+    rc1 += fmt_num(0, 6)                 # Hora generación
+    rc1 += fmt_num(0, 2)
+
+    # ✅ TIPO IDENTIFICACIÓN EMPRESA = 03 (NIT)
+    rc1 += fmt_num('03', 2)
+
+    rc1 += fmt_num(0, 12)  # Cliente Davivienda
+    rc1 += fmt_num(0, 4)   # Oficina
+    rc1 += fmt_num(0, 40)  # Campo futuro
+
+    assert len(rc1) == 170
     
     strrc += rc1 + '\n' + strrc2
     
