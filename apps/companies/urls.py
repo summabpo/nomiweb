@@ -39,6 +39,8 @@ from .views.accountinggroup import accountinggroup
 from .views.update_salary import update_salary 
 from .views.viewsaux import send_nomina
 
+from .views.hr_changes import position_change
+
 
 
 urlpatterns = [
@@ -155,6 +157,18 @@ urlpatterns = [
     
     ## Index URL
     path('', index.index_companies, name='index_companies'),
+    
+    
+    
+    
+    ## hr changes 
+    
+    path('payroll/change/position', position_change.job_change, name='job_change'),
+    #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
+    #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),
+    #path("employee/<int:employee_id>/change-severance-fund/", severance_fund_change.severance_fund_change_view, name="severance_fund_change"),
+    #path("employee/<int:employee_id>/change-work-location/", work_location_change.work_location_change_view, name="work_location_change"),
+    
 ]
 
 
@@ -184,6 +198,16 @@ urlunpolypatterns =[
     
     
     path('payroll/vacation/resumen/send/new', send_nomina.vacation_send_nomina, name='vacation_send_nomina'),
+    
+    
+    ## hr changes 
+    
+    path('payroll/change/position/add', position_change.job_change_add, name='job_change_add'),
+    #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
+    #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),
+    #path("employee/<int:employee_id>/change-severance-fund/", severance_fund_change.severance_fund_change_view, name="severance_fund_change"),
+    #path("employee/<int:employee_id>/change-work-location/", work_location_change.work_location_change_view, name="work_location_change"),
+    
 
 ]
 

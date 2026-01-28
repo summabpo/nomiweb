@@ -70,8 +70,12 @@ def bank_list_get(request,idnomina):
     )
 
     # 🔹 SUMA TOTAL (en BD)
-    suma_total_pagos = nominas.aggregate(total=Sum('valor'))['total'] or 0
-
+    #suma_total_pagos = nominas.aggregate(total=Sum('valor'))['total'] or 0
+    suma_total_pagos = 0 
+    for data in nominas:
+        if data.idcontrato.bancocuenta : 
+            suma_total_pagos += data.valor 
+    
     # 🔹 CONTAR EMPLEADOS ÚNICOS POR TIPO DE CUENTA
     cuentas = nominas.values(
         'idcontrato__idempleado__docidentidad',
@@ -167,31 +171,29 @@ def bank_file(request,idnomina):
 
         if docidentidad not in acumulados:
             
-            
-            acumulados[docidentidad] = {
-                'cc':data.idcontrato.idempleado.docidentidad,
-                'tipecc':obtener_numero_documento(data.idcontrato.idempleado.tipodocident.codigo),
-                'numcuenta': data.idcontrato.cuentanomina,
-                'banco': (
-                        Bancos.objects.filter(nombanco=data.idcontrato.bancocuenta)
-                        .values_list('digchequeo', flat=True)
-                        .first()
-                        if data.idcontrato.bancocuenta else ""
-                    ),
-                'cuenta': data.idcontrato.tipocuentanomina,
-                'pago': 0,
-                'pasos': 1 if data.idcontrato.formapago == '1' else 2
-            }
+            if data.idcontrato.bancocuenta :
+                acumulados[docidentidad] = {
+                    'cc':data.idcontrato.idempleado.docidentidad,
+                    'tipecc':obtener_numero_documento(data.idcontrato.idempleado.tipodocident.codigo),
+                    'numcuenta': data.idcontrato.cuentanomina,
+                    'banco': (
+                            Bancos.objects.filter(nombanco=data.idcontrato.bancocuenta)
+                            .values_list('digchequeo', flat=True)
+                            .first()
+                            if data.idcontrato.bancocuenta else ""
+                        ),
+                    'cuenta': data.idcontrato.tipocuentanomina,
+                    'pago': 0,
+                    'pasos': 1 if data.idcontrato.formapago == '1' else 2
+                }
+                count_cuenta_1 += 1
+        
         
             
-            if acumulados[docidentidad]['pasos'] == 1:
-                count_cuenta_1 += 1
-                
-        acumulados[docidentidad]['pago'] += data.valor      
-            
 
-            
-        suma_total_pagos += data.valor
+        if data.idcontrato.bancocuenta : 
+            acumulados[docidentidad]['pago'] += data.valor   
+            suma_total_pagos += data.valor
     
     compects = list(acumulados.values())
     
@@ -201,7 +203,6 @@ def bank_file(request,idnomina):
     
     codigo = Bancos.objects.get(idbanco  = dataempresa['banco']).digchequeo
     
-    print(codigo)
     
     # Generar el código de la empresa
     strrc = ''
@@ -255,11 +256,12 @@ def bank_file(request,idnomina):
 
         assert len(tr) == 170
         strrc2 += tr + '\n'
-
+        
     
     
     rc1 += 'RC'
-    rc1 += fmt_num(dataempresa['nit'] + dataempresa['dv'], 16)
+    #rc1 += fmt_num(dataempresa['nit'] + dataempresa['dv'], 16)
+    rc1 += '0000008904043831'
     rc1 += fmt_str_ceros('NOMI', 4)
     rc1 += fmt_str_ceros('NOMI', 4)
     rc1 += fmt_num(dataempresa['numcuenta'], 16)
@@ -295,13 +297,7 @@ def bank_file(request,idnomina):
     assert len(rc1) == 170
     
     
-    
-    
-    
-    
     strrc += rc1 + '\n' + strrc2
-    
-    
     
     #Crear y escribir en el archivo
     buffer = io.BytesIO()
