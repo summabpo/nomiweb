@@ -186,7 +186,7 @@ def bank_file(request,idnomina):
                     'pago': 0,
                     'pasos': 1 if data.idcontrato.formapago == '1' else 2
                 }
-                count_cuenta_1 += 1
+                
         
         
             
@@ -220,18 +220,25 @@ def bank_file(request,idnomina):
         tr += fmt_num(0, 16)               # Referencia
         tr += fmt_num(data['numcuenta'], 16)
 
-        # Tipo de producto destino
-        if data['cuenta'] == 'ahorros':
-            tr += fmt_str_ceros('CA', 2)
-        elif data['cuenta'] == 'corriente':
-            tr += fmt_str_ceros('CC', 2)
-        elif data['cuenta'] == 'daviplata':
+        
+        if data['banco'] == '5':
             tr += fmt_str_ceros('DP', 2)
+        else : 
+            # Tipo de producto destino
+            if data['cuenta'] == 'ahorros':
+                tr += fmt_str_ceros('CA', 2)
+            elif data['cuenta'] == 'corriente':
+                tr += fmt_str_ceros('CC', 2)
+            else:
+                tr += fmt_str_ceros('CA', 2)
+            
+        
+        
+        if data['banco'] == '5' : 
+            tr += fmt_num(51, 6)
         else:
-            tr += fmt_str_ceros('OT', 2)
-
-        # Código ACH del banco destino
-        tr += fmt_num(data['banco'], 6)
+            # Código ACH del banco destino
+            tr += fmt_num(data['banco'], 6)
 
         # Valor en centavos
         valor_centavos = int(round(data['pago'] * 100))
@@ -255,16 +262,21 @@ def bank_file(request,idnomina):
         tr += fmt_num(0, 7)   # Campo futuro
 
         assert len(tr) == 170
-        strrc2 += tr + '\n'
         
-    
+        if fmt_num(data['banco'], 6) != '000000':
+            strrc2 += tr + '\n'
+            count_cuenta_1 += 1
+        else : 
+            print('----------------1------------')
+            print(data['banco'])
+            print(data['cc'])
     
     rc1 += 'RC'
     #rc1 += fmt_num(dataempresa['nit'] + dataempresa['dv'], 16)
     rc1 += '0000008904043831'
     rc1 += fmt_str_ceros('NOMI', 4)
     rc1 += fmt_str_ceros('NOMI', 4)
-    rc1 += fmt_num(dataempresa['numcuenta'], 16)
+    rc1 += fmt_num('0550116100064058', 16)
 
     # Tipo de cuenta empresa (AHO = CA / CORR = CC)
     rc1 += fmt_str_ceros('CA', 2)

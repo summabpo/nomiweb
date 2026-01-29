@@ -31,7 +31,7 @@
 {% endblock %}
 
 {% block titulo2 %} 
-    Cambio de cargo
+    Cambio de AFP
 {% endblock %}
 
 {% block actions %}
@@ -46,8 +46,8 @@
     up-history = "false"
     up-dismissable ="false"
     up-cache="false"
-    href="{% url 'companies:job_change_add' %}">
-    <i class="fa-solid fa-plus"></i> Cambio de cargo
+    href="{% url 'companies:occupational_risk_change_add' %}">
+    <i class="fa-solid fa-plus"></i> Cambio de AFP
 </a> 
 
 {% endblock %}
@@ -76,15 +76,15 @@
                 </tr>
             </thead>
             <tbody>
-                {% for cargo in cargos %}
+                {% for item in afp %}
                     <tr>
-                        <td>{{ cargo.contrato_id }}</td>
-                        <td>{{ cargo.documento }}</td>
-                        <td>{{ cargo.nombre }}</td>
-                        <td>{{ cargo.cargo_anterior }}</td>
-                        <td>{{ cargo.cargo_actual }}</td>
-                        <td>{{ cargo.fecha_cambio|date:"d/m/Y H:i" }}</td>
-                        <td>{{ cargo.user }} </td>
+                        <td>{{ item.contrato_id }}</td>
+                        <td>{{ item.documento }}</td>
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.afp_anterior }}</td>
+                        <td>{{ item.afp_actual }}</td>
+                        <td>{{ item.fecha_cambio|date:"d/m/Y H:i" }}</td>
+                        <td>{{ item.user }} </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -153,17 +153,17 @@ document.addEventListener('up:fragment:inserted', function(event) {
     const form = modalContent.querySelector('form');
     const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
     const contractSelect = modalContent.querySelector('#id_contract');
-    const positionOldSelect = modalContent.querySelector('#id_position_oll');
+    const positionOldSelect = modalContent.querySelector('#id_afp_oll');
 
     if (!form || !positionOldSelect) return;
 
     // 🔹 Crear hidden para enviar el valor cuando esté disabled
-    let hiddenOldInput = modalContent.querySelector('#hidden_position_oll');
+    let hiddenOldInput = modalContent.querySelector('#hidden_afp_oll');
     if (!hiddenOldInput) {
         hiddenOldInput = document.createElement('input');
         hiddenOldInput.type = 'hidden';
-        hiddenOldInput.name = 'position_oll';
-        hiddenOldInput.id = 'hidden_position_oll';
+        hiddenOldInput.name = 'afp_oll';
+        hiddenOldInput.id = 'hidden_afp_oll';
         form.appendChild(hiddenOldInput);
     }
 
@@ -199,15 +199,15 @@ document.addEventListener('up:fragment:inserted', function(event) {
             const contractId = $(this).val();
             if (!contractId) return;
 
-            fetch("{% url 'companies:get_contract_position' %}?contract_id=" + contractId)
+            fetch("{% url 'companies:get_afp' %}?contract_id=" + contractId)
                 .then(response => response.json())
                 .then(data => {
-
-                    if (data.cargo_id) {
+                    console.log(data)
+                    if (data.afp_id) {
                         $(positionOldSelect).prop('disabled', false); // habilitar antes
-                        $(positionOldSelect).val(data.cargo_id).trigger('change');
+                        $(positionOldSelect).val(data.afp_id).trigger('change');
 
-                        hiddenOldInput.value = data.cargo_id;
+                        hiddenOldInput.value = data.afp_id;
 
                         // Bloquear nuevamente
                         $(positionOldSelect).prop('disabled', true);

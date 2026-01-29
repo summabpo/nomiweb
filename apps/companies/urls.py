@@ -39,7 +39,8 @@ from .views.accountinggroup import accountinggroup
 from .views.update_salary import update_salary 
 from .views.viewsaux import send_nomina
 
-from .views.hr_changes import position_change
+from .views.hr_changes import position_change , health_insurance_change ,occupational_risk_change
+
 
 
 
@@ -164,6 +165,8 @@ urlpatterns = [
     ## hr changes 
     
     path('payroll/change/position', position_change.job_change, name='job_change'),
+    path('payroll/change/health/insurance/', health_insurance_change.health_insurance_change, name='health_insurance_change'),
+    path('payroll/change/occupational/risk/', occupational_risk_change.occupational_risk_change, name='occupational_risk_change'),
     #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
     #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),
     #path("employee/<int:employee_id>/change-severance-fund/", severance_fund_change.severance_fund_change_view, name="severance_fund_change"),
@@ -203,6 +206,16 @@ urlunpolypatterns =[
     ## hr changes 
     
     path('payroll/change/position/add', position_change.job_change_add, name='job_change_add'),
+    path('get-contract-position/', position_change.get_contract_position, name='get_contract_position'),
+    
+    
+    path('payroll/change/health/insurance/add', health_insurance_change.health_insurance_change_add, name='health_insurance_change_add'),
+    path('get-contract-eps/', health_insurance_change.get_eps, name='get_eps'),
+    
+    
+    path('payroll/change/occupational/risk/add', occupational_risk_change.occupational_risk_change_add, name='occupational_risk_change_add'),
+    path('get-contract-afp/', occupational_risk_change.get_afp, name='get_afp'),
+    
     #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
     #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),
     #path("employee/<int:employee_id>/change-severance-fund/", severance_fund_change.severance_fund_change_view, name="severance_fund_change"),

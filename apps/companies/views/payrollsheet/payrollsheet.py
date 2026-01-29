@@ -92,7 +92,7 @@ def payrollsheet(request):
 
     selected_nomina = request.GET.get('nomina')
     if selected_nomina:
-        compectos = Nomina.objects.filter(idnomina=selected_nomina)[:10]
+        compectos = Nomina.objects.filter(idnomina=selected_nomina)
         
         # Consulta 1: Total neto
         # neto = Nomina.objects.filter(idnomina=id_nomina).aggregate(Sum('valor'))['valor__sum'] or 0
