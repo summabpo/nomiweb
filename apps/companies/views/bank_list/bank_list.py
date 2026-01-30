@@ -101,8 +101,6 @@ def bank_list_get(request,idnomina):
         'selected_nomina':idnomina
     }
 
-    
-    print(data)
     return render(request, './companies/partials/flat_bank.html', {'data': data})
 
 
@@ -266,14 +264,11 @@ def bank_file(request,idnomina):
         if fmt_num(data['banco'], 6) != '000000':
             strrc2 += tr + '\n'
             count_cuenta_1 += 1
-        else : 
-            print('----------------1------------')
-            print(data['banco'])
-            print(data['cc'])
+
     
     rc1 += 'RC'
-    #rc1 += fmt_num(dataempresa['nit'] + dataempresa['dv'], 16)
-    rc1 += '0000008904043831'
+    rc1 += fmt_num(dataempresa['nit'] + dataempresa['dv'], 16)
+    #rc1 += '0000008904043831'
     rc1 += fmt_str_ceros('NOMI', 4)
     rc1 += fmt_str_ceros('NOMI', 4)
     rc1 += fmt_num('0550116100064058', 16)
