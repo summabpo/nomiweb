@@ -271,7 +271,7 @@ def bank_file(request,idnomina):
     #rc1 += '0000008904043831'
     rc1 += fmt_str_ceros('NOMI', 4)
     rc1 += fmt_str_ceros('NOMI', 4)
-    rc1 += fmt_num('0550116100064058', 16)
+    rc1 += fmt_num(dataempresa['numcuenta'], 16)
 
     # Tipo de cuenta empresa (AHO = CA / CORR = CC)
     rc1 += fmt_str_ceros('CC', 2)

@@ -427,8 +427,10 @@ def flat_modal(request):
                 else:
                     if contrato.estadocontrato != 1:
                         row_errors.append('4')
-                        
-                    if contrato.id_empresa_id != idempresa:
+                    
+                    
+                    
+                    if contrato.id_empresa_id != int(idempresa):
                         row_errors.append('6')
                         
                 if row_errors:
