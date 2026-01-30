@@ -274,7 +274,7 @@ def bank_file(request,idnomina):
     rc1 += fmt_num('0550116100064058', 16)
 
     # Tipo de cuenta empresa (AHO = CA / CORR = CC)
-    rc1 += fmt_str_ceros('CA', 2)
+    rc1 += fmt_str_ceros('CC', 2)
 
     # Código ACH banco empresa
     rc1 += fmt_num(codigo, 6)
