@@ -422,13 +422,6 @@ Listado de Incapacidades
             }
             
             
-
-            if (select1) {
-                select1.disabled = !select1.value;
-                if (select1.value) calculateEndDate();
-            }
-            
-
             // Actualizar el input cuando se seleccione una fecha
             if(startDateInput){
                 $(startDateInput).on('apply.daterangepicker', function(ev, picker) {

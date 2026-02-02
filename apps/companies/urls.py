@@ -31,6 +31,7 @@ from .views.dian import dian
 from .views.loans import loans
 from .views.disabilities import disabilities
 from .views.vacation import vacation, vacation_general, vacation_balance, vacation_request
+from .views.suspension import suspension
 
 from .views.index import index
 
@@ -141,6 +142,8 @@ urlpatterns = [
     path('payroll/vacation/request/get/', vacation_request.get_vacation_details, name='get_vacation_details'),
     path('payroll/vacation/request/acction/', vacation_request.get_vacation_acction, name='get_vacation_acction'),
 
+
+    path('payroll/suspension/request/', suspension.suspension_list, name='suspension_list'),
     
     path('payroll/update/salary', update_salary.update_salary, name='update_salary'),
     path('payroll/update/salary/add', update_salary.update_salary_add, name='update_salary_add'),
@@ -201,6 +204,7 @@ urlunpolypatterns =[
     
     
     path('payroll/vacation/resumen/send/new', send_nomina.vacation_send_nomina, name='vacation_send_nomina'),
+    path('payroll/suspension/request/add', suspension.suspension_list_add, name='suspension_list_add'),
     
     
     ## hr changes 

@@ -11,7 +11,7 @@ from apps.components.humani import format_value
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import date, timedelta
-
+import calendar
 
 #prueba git
 @login_required
@@ -270,7 +270,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa ) 
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
     
 
     if parte_nomina != 0:
@@ -335,11 +335,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         dias_suspensiones = calcular_suspenciones(contrato.idcontrato,nomina)
         
         
-        # if contrato.idcontrato == 7991:
-        #print(f" v {dias_vacaciones} I {dias_incapacidad} S {dias_suspensiones}")
+        # if contrato.idcontrato == 7991
         
-        
-        d = diasnomina
         
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
@@ -1206,19 +1203,21 @@ def calcular_suspenciones(contrato,nomina ):
 
     dias_vacaciones = 0
 
-    # 🔹 Filtrar solo vacaciones legales (ajustar si Tipoavacaus usa 'codigo' en lugar de 'id')
-    vacaciones = Vacaciones.objects.filter(idcontrato_id=contrato, tipovac__idvac__in=[3,4,5])
+    vacaciones = Vacaciones.objects.filter(
+        idcontrato_id=contrato,
+        tipovac__idvac__in=[3, 4, 5]
+    )
+    
 
     for vac in vacaciones:
-        # Solo si hay cruce entre vacaciones y periodo de nómina
         if vac.fechainicialvac and vac.ultimodiavac:
             if vac.fechainicialvac <= nomina.fechafinal and vac.ultimodiavac >= nomina.fechainicial:
                 inicio = max(vac.fechainicialvac, nomina.fechainicial)
                 fin = min(vac.ultimodiavac, nomina.fechafinal)
-                dias_vacaciones += (fin - inicio).days + 1
-
-    return dias_vacaciones 
-
+                dias = (fin - inicio).days + 1 
+                dias_vacaciones += dias
+                
+    return dias_vacaciones
 
 
 

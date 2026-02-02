@@ -668,6 +668,7 @@ def absences_resumen_send(request, id):
             
             
             dias_suspensiones = calcular_suspenciones(vaca.idcontrato.idcontrato, nomina_final )
+            
             dias = vaca.basepago / 30 
             
             if Nomina.objects.filter(

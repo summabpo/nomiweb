@@ -26,10 +26,7 @@ def generate_random_filename(extension="pdf"):
     """Genera un nombre aleatorio de 80 caracteres con la extensión adecuada."""
     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=80))
     return f"{random_string}.{extension}"
-  
-  
-  
-  
+
 @login_required
 @role_required('company','accountant')
 def disabilities(request):
@@ -179,8 +176,6 @@ def disabilities_modal(request):
                 ibc = Contratos.objects.get(idcontrato=contract)
                 
             
-            
-            print(ibc)
 
         #Guardar en la base de datos
             Incapacidades.objects.create(
