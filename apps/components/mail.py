@@ -1,6 +1,7 @@
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.conf import settings
 
 """
@@ -184,40 +185,63 @@ def send_template_email2(email_type, context, subject, recipient_list, from_emai
 
 
 def send_template_email3(email_type, context, subject, recipient_list, from_email=None, attachment=None):
-    
+
     if from_email is None:
         from_email = settings.EMAIL_HOST_USER
-        
+
     email_templates = {
         'welcome': 'mails/bienvenido.html',
         'password_reset': 'mails/resetpassword.html',
         'loginweb': 'mails/cuentausuario.html',
         'vacations': 'mails/vacations.html',
         'vacation_request': 'mails/vacation_request.html',
-        'nomina1':'mails/correo_de_nomina.html'
+        'nomina1': 'mails/correo_de_nomina.html'
     }
-    
+
     template_name = email_templates.get(email_type)
-    
     if not template_name:
-        raise ValueError(f"Tipo de correo no reconocido: {email_type}")
-    
+        return False, f"Tipo de correo no reconocido: {email_type}"
+
+    # 🔹 Validar y limpiar correos antes de enviar
+    valid_recipients = []
+    invalid_recipients = []
+
+    for email in recipient_list or []:
+        email = (email or "").strip()
+        if not email:
+            invalid_recipients.append(email)
+            continue
+        try:
+            validate_email(email)
+            valid_recipients.append(email)
+        except ValidationError:
+            invalid_recipients.append(email)
+
+    if not valid_recipients:
+        return False, f"No hay correos válidos (vacíos o con formato incorrecto). Detectados: {invalid_recipients}"
+
+
     message = render_to_string(template_name, context)
-    
-    email = EmailMessage(
+
+    email_message = EmailMessage(
         subject=subject,
         body=message,
         from_email=from_email,
-        to=recipient_list,
+        to=valid_recipients,
     )
-    email.content_subtype = "html"  
+    email_message.content_subtype = "html"
 
-    # Adjuntar archivo si se proporciona
     if attachment:
-        email.attach(attachment['filename'], attachment['content'], attachment['mimetype'])
-    
+        email_message.attach(
+            attachment['filename'],
+            attachment['content'],
+            attachment['mimetype']
+        )
+
     try:
-        email.send()
-        return True , '0k'
+        email_message.send()
+        if invalid_recipients:
+            return True, f"Enviado con advertencias. Correos inválidos omitidos: {invalid_recipients}"
+        return True, "OK"
     except Exception as e:
-        return False , e
+        return False, str(e)

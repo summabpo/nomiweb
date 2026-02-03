@@ -1,0 +1,13 @@
+{% if compect.estado == 'Enviado' %}
+    <button type="button" class="btn btn-icon btn-light-success btn-sm" title="Enviado">
+        <i class="fa-solid fa-envelope-circle-check fs-1"></i>
+    </button>
+{% elif compect.estado == 'Error' %}
+    <button type="button" class="btn btn-icon btn-light-danger btn-sm" title="Error">
+        <i class="fa-solid fa-circle-exclamation fs-1"></i>
+    </button> 
+{% else %}
+    <button type="button" class="btn btn-icon btn-light-warning btn-sm" title="No Enviado">
+        <i class="fa-solid fa-envelope fs-1"></i>
+    </button>
+{% endif %}

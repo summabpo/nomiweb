@@ -1,0 +1,156 @@
+{% load crispy_forms_tags %}
+
+<div class="modal-content" id="modal-content">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+        <h3 class="modal-title">
+            <i class="fa-solid fa-envelope-open-text fs-1"></i>
+            Envío de Comprobantes de Nómina
+        </h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div> 
+
+    <div class="separator my-4"></div>
+
+    <!-- BODY -->
+    <div class="modal-body px-5 py-4">
+
+        <div class="alert alert-info d-flex align-items-center mb-4">
+            <i class="ki-duotone ki-information-5 fs-2 me-3 text-info"></i>
+            <div>
+                Se realizará el envío masivo de comprobantes de nómina por correo electrónico.  
+                A continuación puedes ver el estado de los empleados.
+            </div>
+        </div>
+
+        <div class="row g-4 text-center">
+
+            <!-- TOTAL -->
+            <div class="col-md-4">
+                <div class="border rounded p-4 h-100 bg-light">
+                    <small class="text-muted d-block">Total empleados</small>
+                    <span class="fs-2 fw-bold text-dark">{{ total }}</span>
+                </div>
+            </div>
+
+            <!-- CON CORREO -->
+            <div class="col-md-4">
+                <div class="border rounded p-4 h-100 bg-light-success">
+                    <small class="text-muted d-block">Con correo válido</small>
+                    <span class="fs-2 fw-bold text-success">{{ cantiok }}</span>
+                </div>
+            </div>
+
+            <!-- SIN CORREO -->
+            <div class="col-md-4">
+                <div class="border rounded p-4 h-100 bg-light-danger">
+                    <small class="text-muted d-block">Sin correo registrado</small>
+                    <span class="fs-2 fw-bold text-danger">{{ cantifal }}</span>
+                </div>
+            </div>
+
+        </div>
+
+        {% if cantifal > 0 %}
+        <div class="alert alert-warning mt-4">
+            <i class="ki-duotone ki-warning-2 fs-2 me-2 text-warning"></i>
+            Hay empleados sin correo electrónico. Ellos **no recibirán** el comprobante.
+        </div>
+        {% endif %}
+
+
+        <!-- 🔴 ERRORES EN ACORDEÓN -->
+        {% if errores %}
+        <div class="separator"></div>
+
+        <div class="accordion mt-4" id="accordionErrores">
+
+            <div class="accordion-item border-danger">
+                <h2 class="accordion-header" id="headingErrores">
+                    <button class="accordion-button collapsed text-danger fw-bold"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseErrores">
+                        <i class="ki-duotone ki-cross-circle fs-2 me-2 text-danger"></i>
+                        Ver errores de envío ({{ errores|length }})
+                    </button>
+                </h2>
+
+                <div id="collapseErrores"
+                        class="accordion-collapse collapse"
+                        data-bs-parent="#accordionErrores">
+
+                    <div class="accordion-body p-0">
+                        <div style="max-height: 220px; overflow-y: auto;">
+                            <ul class="list-group list-group-flush">
+                                {% for error in errores %}
+                                    <li class="list-group-item text-danger small">
+                                        <i class="fa-solid fa-circle-xmark me-2"></i>
+                                        {{ error }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        {% endif %}
+
+        {% if enviados %}
+            <div class="my-10"></div>
+            <div class="alert alert-success">Todos los correos fueron enviados correctamente</div>
+        {% endif %} 
+
+
+        <form id="form-massive-mail"
+            method="post"
+            action="{% url 'companies:massivemail' selected_nomina %}"
+            up-target="#modal-content"
+            up-swap="innerHTML">
+
+            {% csrf_token %}
+            <input type="hidden" name="modo" id="modo-envio">
+        </form>
+
+    </div>
+
+    <div class="separator my-4"></div>
+
+    <!-- FOOTER -->
+    
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger ms-auto" up-dismiss>Cerrar</button>
+        
+        {% if not enviados %}
+            <div style="width: 10px;"></div>
+            {% if cantifal > 0  %}
+                <button type="button"
+                        class="btn btn-light-primary"
+                        onclick="document.getElementById('modo-envio').value='validos'; up.submit('#form-massive-mail')">
+                    <i class="fa-solid fa-envelopes-bulk fs-1"></i>
+                    Enviar Con faltantes
+                </button>
+
+            {% else %}
+                <button type="button"
+                        class="btn btn-light-primary"
+                        onclick="document.getElementById('modo-envio').value='todos'; up.submit('#form-massive-mail')">
+                        <i class="fa-solid fa-envelopes-bulk fs-1"></i>
+                        Enviar
+                </button>
+            {% endif %}
+
+        {% endif %}
+        
+
+    </div>
+
+</div>
