@@ -1379,6 +1379,8 @@ def calculo_prestamo(contrato, idn):
         estadoprestamo=True
     ).order_by('-idprestamo')
 
+
+    
     # Concepto del préstamo
     conceptosdenomina = Conceptosdenomina.objects.get(
         codigo=50,
@@ -1386,7 +1388,6 @@ def calculo_prestamo(contrato, idn):
     )
 
     for load in loans:
-
         # ---------------------------------------------------------
         # 🚨 VALIDACIÓN CLAVE:
         # Ejecutar solo si el préstamo se creó ANTES o el MISMO día

@@ -1,13 +1,19 @@
 {% if compect.estado == 'Enviado' %}
-    <button type="button" class="btn btn-icon btn-light-success btn-sm" title="Enviado">
+    <a class="btn btn-icon btn-light-success btn-sm" title="Enviado">
         <i class="fa-solid fa-envelope-circle-check fs-1"></i>
-    </button>
+    </a>
 {% elif compect.estado == 'Error' %}
-    <button type="button" class="btn btn-icon btn-light-danger btn-sm" title="Error">
+    <a class="btn btn-icon btn-light-danger btn-sm" title="Error">
         <i class="fa-solid fa-circle-exclamation fs-1"></i>
-    </button> 
+    </a>
 {% else %}
-    <button type="button" class="btn btn-icon btn-light-warning btn-sm" title="No Enviado">
-        <i class="fa-solid fa-envelope fs-1"></i>
-    </button>
+    <a 
+        up-method="post"
+        up-target="[data-estado='{{ compect.nominaid }}-{{ compect.contratoid }}']"
+        href="{% url 'companies:unique_mail' compect.nominaid compect.contratoid %}"
+        class="btn btn-icon btn-light-warning btn-sm send-email-btn"
+        title="No Enviado">
+        <i class="fa-regular fa-paper-plane fs-1"></i>
+        <span class="btn-text">Enviando...</span>
+    </a>
 {% endif %}

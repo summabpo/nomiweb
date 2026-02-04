@@ -930,191 +930,113 @@ def massive_mail(request, idnomina):
     return render(request, './companies/partials/massive_mail.html', context )
 
 
-# @login_required
-# @role_required('company','accountant')
-# def massive_mail(request):
-#     if request.method == 'POST':
-#         nomina = request.POST.get('nomina2', '')
-        
-#         # Verificación de que el campo nomina no esté vacío y sea un número
-#         if not nomina:
-#             return JsonResponse({'error': 'El campo nomina no debe estar vacío.'}, status=400)
-        
-#         if not nomina.isdigit():
-#             return JsonResponse({'error': 'El campo nomina debe ser un número.'}, status=400)
-        
-#         try:
-#             compectos = Nomina.objects.filter(idnomina=int(nomina)).distinct('idcontrato')[:5]
-#         except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
-#             return JsonResponse({'error': f'Error al obtener los datos de Nomina: {str(e)}'}, status=500)
-#         except Exception as e:
-#             return JsonResponse({'error': f'Error inesperado al obtener los datos de Nomina: {str(e)}'}, status=500)
-
-#         recipient_list = [
-#             'mikepruebas@yopmail.com', 
-#             'alt.ru-1lmzxan@yopmail.com', 
-#             'alt.ya-9v5lsgo@yopmail.com', 
-#             'alt.ya-9v5lsgo@ydsopmail.com',
-#             'alt.ya-9v5lsgo@ydsopmail.com'
-#         ]
-        
-#         cont = 0
-#         error = 0
-#         use = 0
-#         error_messages = []
-        
-#         for comp in compectos:            
-#             context = genera_comprobante(nomina, comp.idcontrato.idcontrato)
-
-#             html_string = render(request, './html/payrollcertificate.html', context).content.decode('utf-8')
-
-#             fecha_actual = datetime.now().strftime('%Y-%m-%d')
-
-#             pdf = BytesIO()
-#             pisa_status = pisa.CreatePDF(html_string, dest=pdf)
-#             pdf.seek(0)
-
-#             if pisa_status.err:
-#                 return HttpResponse('Error al generar el PDF', status=400)
-            
-#             nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
-            
-#             # Enviar el PDF por correo
-#             email_subject = 'Tu Comprobante de Nòmina'
-            
-#             recipient_list = ['mikepruebas@yopmail.com']  # Lista de destinatarios
-
-#             attachment = {
-#                 'filename': nombre_archivo,
-#                 'content': pdf.getvalue(),
-#                 'mimetype': 'application/pdf'
-#             }
-            
-            
-#             try:
-#                 if use < len(recipient_list):
-#                     success, message = send_template_email3(
-#                         email_type='nomina1',  # Ajusta el tipo de correo según corresponda
-#                         context=context,
-#                         subject=email_subject,
-#                         recipient_list=recipient_list,
-#                         attachment=attachment
-#                     )
-#                     if success:
-#                         cont += 1
-#                     else:
-#                         error += 1
-#                         error_messages.append(str(message))
-#                     use += 1
-#                 else:
-#                     error_messages.append('Número insuficiente de destinatarios en recipient_list.')
-#             except Exception as e:
-#                 error += 1
-#                 error_messages.append(f'Error al enviar el correo: {str(e)}')
-
-#         response_data = {
-#             'correos_enviados': cont,
-#             'errores': error,
-#             'use': use,
-#             'mensajes_error': error_messages
-#         }
-        
-#         return JsonResponse(response_data)
-    
-#     return JsonResponse({'error': 'Este view solo acepta peticiones POST.'}, status=405)
-
-
 
 @login_required
 @role_required('company','accountant')
-def unique_mail(request,idnomina,idcontrato):
-    usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
-    data = 10
+def unique_mail(request, idnomina, idcontrato):
+    if request.method == 'POST':
+        # Obtener tu objeto
+        
+        
+        # RETORNAR HTML del nuevo estado (¡NO JSON!)
+        html = render_to_string('partials/estado_botones.html', {
+            'compect': obj
+        })
+        return HttpResponse(html)
     
-    try:
-        datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )
-    except NominaComprobantes.DoesNotExist:
-        datacn = None
-        contrato = Contratos.objects.get(idcontrato = idcontrato)
+    return HttpResponse('Método no permitido', status=405)
+
+
+# @login_required
+# @role_required('company','accountant')
+# def unique_mail(request,idnomina,idcontrato):
+#     usuario = request.session.get('usuario', {})
+#     idempresa = usuario['idempresa']
+#     data = 10
     
-    empresa_data = Empresa.objects.get(idempresa=idempresa)
-    logo = None
-    try:
-        logo_path = f"static/img/{empresa_data.logo}"
-        logo = ImageReader(logo_path)
-    except Exception as e:
-        print(f"[LOGO ERROR] No se pudo cargar el logo: {e}")
+#     try:
+#         datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )
+#     except NominaComprobantes.DoesNotExist:
+#         datacn = None
+#         contrato = Contratos.objects.get(idcontrato = idcontrato)
+    
+#     empresa_data = Empresa.objects.get(idempresa=idempresa)
+#     logo = None
+#     try:
+#         logo_path = f"static/img/{empresa_data.logo}"
+#         logo = ImageReader(logo_path)
+#     except Exception as e:
+#         print(f"[LOGO ERROR] No se pudo cargar el logo: {e}")
         
     
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=letter)
+#     buffer = BytesIO()
+#     pdf = canvas.Canvas(buffer, pagesize=letter)
 
-    context = genera_comprobante(idnomina, idcontrato,data) 
-    build_payroll_certificate_pdf(pdf, context, logo)
-    pdf.showPage() 
-    nombre_archivo = f'Certificado_{idnomina}_{datetime.now().strftime("%Y-%m-%d")}.pdf'
+#     context = genera_comprobante(idnomina, idcontrato,data) 
+#     build_payroll_certificate_pdf(pdf, context, logo)
+#     pdf.showPage() 
+#     nombre_archivo = f'Certificado_{idnomina}_{datetime.now().strftime("%Y-%m-%d")}.pdf'
     
-    pdf.setTitle(nombre_archivo)
-    pdf.setAuthor("Nomiweb")
-    pdf.setSubject(f"Comprobante de Nomina_{idnomina}_{datetime.now().strftime('%Y-%m-%d')}")
-    pdf.setCreator("Sistema Nomiweb")
-    pdf.save()
-    buffer.seek(0)
+#     pdf.setTitle(nombre_archivo)
+#     pdf.setAuthor("Nomiweb")
+#     pdf.setSubject(f"Comprobante de Nomina_{idnomina}_{datetime.now().strftime('%Y-%m-%d')}")
+#     pdf.setCreator("Sistema Nomiweb")
+#     pdf.save()
+#     buffer.seek(0)
 
-    # Enviar el PDF por correo
-    email_subject = 'Tu Comprobante de Nòmina'
+#     # Enviar el PDF por correo
+#     email_subject = 'Tu Comprobante de Nòmina'
     
-    #
-    recipient_list = ['manuel.david.13.b@gmail.com']  # Lista de destinatarios
-    #recipient_list = [context["mail"],'mikepruebas@yopmail.com']
+#     #
+#     recipient_list = ['manuel.david.13.b@gmail.com']  # Lista de destinatarios
+#     #recipient_list = [context["mail"],'mikepruebas@yopmail.com']
     
-    attachment = {
-        'filename': nombre_archivo,
-        'content': buffer.getvalue(),
-        'mimetype': 'application/pdf'
-    }
+#     attachment = {
+#         'filename': nombre_archivo,
+#         'content': buffer.getvalue(),
+#         'mimetype': 'application/pdf'
+#     }
 
-    email_sent = send_template_email3(
-        email_type='nomina1',  # Ajusta el tipo de correo según corresponda
-        context=context,
-        subject=email_subject,
-        recipient_list=recipient_list,
-        attachment=attachment
-    )
+#     email_sent = send_template_email3(
+#         email_type='nomina1',  # Ajusta el tipo de correo según corresponda
+#         context=context,
+#         subject=email_subject,
+#         recipient_list=recipient_list,
+#         attachment=attachment
+#     )
 
-    email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo.'
+#     email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo.'
     
-    if datacn :
-        pass
-    else :
-        NominaComprobantes.objects.create(
-            idcontrato = contrato, 
-            salario = contrato.salario, 
-            cargo = contrato.cargo.nombrecargo, 
-            idcosto_id = contrato.idcosto.idcosto , 
-            salud = contrato.salario ,
-            idnomina_id = idnomina ,
-            envio_email = 2
-            )
-        datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )
+#     if datacn :
+#         pass
+#     else :
+#         NominaComprobantes.objects.create(
+#             idcontrato = contrato, 
+#             salario = contrato.salario, 
+#             cargo = contrato.cargo.nombrecargo, 
+#             idcosto_id = contrato.idcosto.idcosto , 
+#             salud = contrato.salario ,
+#             idnomina_id = idnomina ,
+#             envio_email = 2
+#             )
+#         datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )
         
 
-    if email_sent :
-        datacn.envio_email = 1
-        datacn.save()
-    else:
-        datacn.envio_email = 2
-        datacn.save()
+#     if email_sent :
+#         datacn.envio_email = 1
+#         datacn.save()
+#     else:
+#         datacn.envio_email = 2
+#         datacn.save()
     
-    response_data = {
-            'message': 'ID recibido correctamente',
-            'status' : email_status,
-            'name' : context["nombre_completo"] ,
-            'pass' :email_sent
-        }
+#     response_data = {
+#             'message': 'ID recibido correctamente',
+#             'status' : email_status,
+#             'name' : context["nombre_completo"] ,
+#             'pass' :email_sent
+#         }
     
-    print(response_data)
+#     print(response_data)
     
-    return JsonResponse(response_data)
+#     return JsonResponse(response_data)
 

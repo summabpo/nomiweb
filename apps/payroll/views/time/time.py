@@ -1099,10 +1099,20 @@ def time_add(request):
                 #     continue
                 
                 
-                
-                
-                contr = Contratos.objects.filter(old_idcontrato=contrato, id_empresa=idempresa).first()
-                
+            
+                contr = (
+                    Contratos.objects
+                    .filter(old_idcontrato=contrato, id_empresa=idempresa)
+                    .first()
+                )
+
+                if not contr:
+                    contr = (
+                        Contratos.objects
+                        .filter(idcontrato=contrato, id_empresa=idempresa)
+                        .first()
+                    )
+                                
                 
                 
                 # Si pasa todas las validaciones, lo agregamos a lista

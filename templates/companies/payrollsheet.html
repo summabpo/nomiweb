@@ -105,16 +105,27 @@
                             </td>
                             <td>
 
-                                <a  class="btn btn-icon btn-light-success btn-sm"
+                                {% comment %} <a  class="btn btn-icon btn-light-success btn-sm"
                                     up-post="{% url 'companies:unique_mail' compect.nominaid compect.contratoid  %}"
                                     up-target="#estado-{{ compect.nominaid }}-{{ compect.contratoid }}"
                                     up-swap="outerHTML"
                                     up-indicator>
                                     <i class="fa-regular fa-paper-plane fs-1"></i>
+                                </a> {% endcomment %}
+
+                                <a 
+                                    up-method="post"
+                                    up-target="[data-estado='{{ compect.nominaid }}-{{ compect.contratoid }}']"
+                                    up-layer="parent"
+                                    href="{% url 'companies:unique_mail' compect.nominaid compect.contratoid %}"
+                                    class="btn btn-icon btn-light-success btn-sm send-email-btn"
+                                    title="Enviar Correo">
+                                    <i class="fa-regular fa-paper-plane fs-1"></i>
+                                    <span class="btn-text">Enviando...</span>
                                 </a>
 
                             </td>
-                            <td id="estado-{{ compect.nominaid }}-{{ compect.contratoid }}" >
+                            <td data-estado="{{ compect.nominaid }}-{{ compect.contratoid }}" >
                                 {% include "companies/partials/estado_boton.html" with compect=compect %}
                             </td>
                         </tr>
@@ -179,9 +190,6 @@
 
 <script>
     $(document).ready(function() {
-
-        console.log(selected_nomina)
-
 
         {% if selected_nomina %}
             var exportUrl = "{% url 'companies:generatepayrollsummary' idnomina=selected_nomina data=10  %}";

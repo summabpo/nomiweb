@@ -297,6 +297,41 @@ def fixed_add(request):
 
 @login_required
 @role_required('company','admin','accountant')
+def fixed_add(request):
+    form = FixedForm()
+    
+    if request.method == 'POST':
+        form = FixedForm(request.POST)
+        if form.is_valid():
+            try:
+                # Crear instancia de Crearnomina
+                Conceptosfijos.objects.create(
+                    conceptofijo=form.cleaned_data['conceptofijo'],
+                    valorfijo  = form.cleaned_data['valorfijo']
+                )
+                
+                response = HttpResponse()
+                response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+                response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+                response['X-Up-message'] = 'Concepto guardado exitosamente'    
+                response['X-Up-Location'] = reverse('payroll:fixed')           
+                return response
+            except Exception as e:
+                # Captura cualquier otro error no contemplado
+                print("Ocurrió un error inesperado:", e)
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")
+    else:
+        form = FixedForm()
+    
+    return render(request, './payroll/partials/fixed_create.html',{'form': form})
+
+
+@login_required
+@role_required('company','admin','accountant')
 def fixed_edit(request,id):
     concept = Conceptosfijos.objects.get(idfijo =  id)
 

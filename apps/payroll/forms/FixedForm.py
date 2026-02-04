@@ -78,6 +78,7 @@ class FixidForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
+        edit = kwargs.pop('edit', None)
         
         super().__init__(*args, **kwargs)
         
@@ -109,23 +110,6 @@ class FixidForm(forms.Form):
             .order_by('idempleado__papellido')
         ]
 
-
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.form_id = 'form_login'
-        self.helper.enctype = 'multipart/form-data'
-
-        # Atributos específicos para Unpoly
-        self.helper.attrs.update({
-            'up-target': '#modal-content',
-            'up-mode': 'replace',
-            'up-layer': 'current',
-            'up-submit': reverse('payroll:fixed_modal'),
-            'up-accept-location': reverse('payroll:fixedconcepts'),
-            'up-on-accepted': ""
-        })
-
-
         for field_name in ['idconcepto', 'idcontrato']:
             if field_name in self.fields:
                 self.fields[field_name].widget.attrs.update({
@@ -142,6 +126,30 @@ class FixidForm(forms.Form):
                     'data-hide-search':"true",
 
                 })
+                
+                
+
+        if edit:
+            for field in ['idcontrato','idconcepto','valor']:
+                self.fields[field].disabled = True
+        
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'form_login'
+        self.helper.enctype = 'multipart/form-data'
+
+        # Atributos específicos para Unpoly
+        self.helper.attrs.update({
+            'up-target': '#modal-content',
+            'up-mode': 'replace',
+            'up-layer': 'current',
+            'up-submit': reverse('payroll:fixed_modal'),
+            'up-accept-location': reverse('payroll:fixedconcepts'),
+            'up-on-accepted': ""
+        })
+
+
+        
 
 
         self.helper.layout = Layout(
