@@ -110,7 +110,8 @@ def time_list(request):
 
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
-        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
+        # ,idcontrato_id = 8083
+        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id ).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
             nombre_completo=Concat(
@@ -212,7 +213,10 @@ def time_list(request):
             descuento_horas = round(descuento_horas,3)
             horas_domfes = round( horas_domfes / 60.0, 3)  
             hed = round( hed / 60.0, 3)   
-            hen = round( hen / 60.0, 3)               
+            hen = round( hen / 60.0, 3)      
+            
+            hedf = round( hedf / 60.0, 3)   
+            henf = round( henf / 60.0, 3)              
             
             rn = round( rn / 60.0, 3)    
             rnf = round( rnf / 60.0, 3)   
@@ -267,7 +271,7 @@ def time_list(request):
 
             if rnf > 8:
                 rnf -= (descuento_horas)  
-
+                
             t.horas_trabajadas= round( horas_trabajadas, 3) 
             t.horas_ordinarias= round( horas_ordinarias, 3)  
             t.saldo_horas= 0
@@ -414,7 +418,11 @@ def time_list(request):
             descuento_horas = round(descuento_horas,3)
             horas_domfes = round( horas_domfes / 60.0, 3)  
             hed = round( hed / 60.0, 3)   
-            hen = round( hen / 60.0, 3)               
+            hen = round( hen / 60.0, 3)   
+            
+            
+            hedf = round( hedf / 60.0, 3)   
+            henf = round( henf / 60.0, 3)               
             
             rn = round( rn / 60.0, 3)    
             rnf = round( rnf / 60.0, 3)   
@@ -907,7 +915,11 @@ def time_doc(request, id):
         descuento_horas = round(descuento_horas,3)
         horas_domfes = round( horas_domfes / 60.0, 3)  
         hed = round( hed / 60.0, 3)   
-        hen = round( hen / 60.0, 3)               
+        hen = round( hen / 60.0, 3)     
+
+
+        hedf = round( hedf / 60.0, 3)   
+        henf = round( henf / 60.0, 3)   
         
         rn = round( rn / 60.0, 3)    
         rnf = round( rnf / 60.0, 3)   
