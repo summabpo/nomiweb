@@ -1052,6 +1052,7 @@ def time_add(request):
 
         try:
             df = pd.read_csv(file, header=None,sep=";", encoding="utf-8")
+            df = df.dropna(axis=1, how='all')
         except Exception as e:
             errors.append(f"Error al leer el archivo: {str(e)}")
             return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
