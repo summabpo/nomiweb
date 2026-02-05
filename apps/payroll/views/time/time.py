@@ -111,7 +111,7 @@ def time_list(request):
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
         # ,idcontrato_id = 8083
-        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id ).select_related(
+        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id,idcontrato_id = 10732 , idmarcacion = 17776 ).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
             nombre_completo=Concat(
@@ -135,6 +135,9 @@ def time_list(request):
             horas_ordinarias = 0.0
             hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = timee = 0.0
 
+            print(t.fechaingreso)
+            print(t.horaingreso)
+
             inicio = datetime.combine(t.fechaingreso, t.horaingreso)
             fin = datetime.combine(t.fechasalida, t.horasalida)
 
@@ -144,6 +147,7 @@ def time_list(request):
             noct_inicio = time(inicio_int, 0, 0)
             noct_fin = time(fin_int, 0, 0)
 
+            
 
             inicio_diurna = noct_fin
             fin_diurna = noct_inicio
@@ -152,10 +156,22 @@ def time_list(request):
             is_domingo = au.weekday() == 6
             is_festivo = au in CO_HOLIDAYS
             is_festivo_o_dom = is_domingo or is_festivo
+            data_pr = actual.date()
 
-            while actual < fin:
+            fecha = actual.date()
+            hora = actual.time()
+
+            print(f" init: {inicio} -  end : {fin}  --- {actual} = inicio ")
+
+            while actual < datetime.strptime("2026-01-01 12:02:00", "%Y-%m-%d %H:%M:%S"):
+                
+                print(f"{actual}")
                 fecha = actual.date()
                 hora = actual.time()
+
+                # if fecha == datetime.strptime("2026-02-01", "%Y-%m-%d").date() and t.idcontrato_id == 10732 :
+
+                #print(f" pp{data_pr} - h  {horas_trabajadas} - {fecha} - {fin} id {t.idmarcacion } actual {actual}")
 
                 is_domingo = fecha.weekday() == 6
                 is_festivo = fecha in CO_HOLIDAYS
@@ -197,7 +213,7 @@ def time_list(request):
                 # avanzar
                 actual += paso
 
-
+            print(horas_trabajadas)
             # --- Aplicar horas de descuento si existen ---
             # registro.horasdescuentos es TimeField (HH:MM:SS) -> convertir a horas float
             if t.horasdescuentos:
@@ -205,10 +221,11 @@ def time_list(request):
                 descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
             else:
                 descuento_horas = 0.0
-                
+            
             
             descuento_horas = round(descuento_horas,3)
             horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
+            print(horas_trabajadas)
 
             descuento_horas = round(descuento_horas,3)
             horas_domfes = round( horas_domfes / 60.0, 3)  
@@ -225,8 +242,11 @@ def time_list(request):
             horas_ordinarias = round( horas_ordinarias / 60.0, 3)  
             horas_ordinarias = max(horas_ordinarias, 0)
 
+
+
             if horas_trabajadas >= descuento_horas:
                 horas_trabajadas -= descuento_horas
+
 
             if horas_domfes >= descuento_horas:
                 horas_domfes -= descuento_horas
