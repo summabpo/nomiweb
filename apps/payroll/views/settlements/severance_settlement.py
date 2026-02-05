@@ -293,6 +293,9 @@ def settlement_create(request):
                 indemnizacion = indemnizacion,
                 diassuspv = dias_susp_vac,
             )
+
+            contrato = Contratos.objects.get(idcontrato=contract_id)
+            contrato.fechafincontrato = datetime.strptime(end_date_str, '%d-%m-%Y').date()
             
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal

@@ -111,7 +111,7 @@ def time_list(request):
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
         # ,idcontrato_id = 8083
-        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id,idcontrato_id = 10732 , idmarcacion = 17776 ).select_related(
+        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
             nombre_completo=Concat(
@@ -134,9 +134,6 @@ def time_list(request):
             horas_trabajadas = 0.0
             horas_ordinarias = 0.0
             hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = timee = 0.0
-
-            print(t.fechaingreso)
-            print(t.horaingreso)
 
             inicio = datetime.combine(t.fechaingreso, t.horaingreso)
             fin = datetime.combine(t.fechasalida, t.horasalida)
@@ -161,17 +158,9 @@ def time_list(request):
             fecha = actual.date()
             hora = actual.time()
 
-            print(f" init: {inicio} -  end : {fin}  --- {actual} = inicio ")
-
-            while actual < datetime.strptime("2026-01-01 12:02:00", "%Y-%m-%d %H:%M:%S"):
-                
-                print(f"{actual}")
+            while actual < fin :
                 fecha = actual.date()
                 hora = actual.time()
-
-                # if fecha == datetime.strptime("2026-02-01", "%Y-%m-%d").date() and t.idcontrato_id == 10732 :
-
-                #print(f" pp{data_pr} - h  {horas_trabajadas} - {fecha} - {fin} id {t.idmarcacion } actual {actual}")
 
                 is_domingo = fecha.weekday() == 6
                 is_festivo = fecha in CO_HOLIDAYS
@@ -182,7 +171,6 @@ def time_list(request):
 
                 horas_trabajadas += MINUTO_HORA
 
-                
                 if (actual - inicio) < timedelta(minutes=480) and not is_festivo_o_dom :
                     horas_ordinarias += MINUTO_HORA
 
@@ -212,8 +200,6 @@ def time_list(request):
                 
                 # avanzar
                 actual += paso
-
-            print(horas_trabajadas)
             # --- Aplicar horas de descuento si existen ---
             # registro.horasdescuentos es TimeField (HH:MM:SS) -> convertir a horas float
             if t.horasdescuentos:
@@ -225,8 +211,6 @@ def time_list(request):
             
             descuento_horas = round(descuento_horas,3)
             horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
-            print(horas_trabajadas)
-
             descuento_horas = round(descuento_horas,3)
             horas_domfes = round( horas_domfes / 60.0, 3)  
             hed = round( hed / 60.0, 3)   

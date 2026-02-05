@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.components.filterform import FilterForm 
 from apps.components.decorators import  role_required
-from apps.common.models  import Contratosemp , Vacaciones ,Contratos 
 from apps.common.models  import EmpVacaciones, Vacaciones, Contratos, Festivos, Contratosemp , Tipoavacaus , Crearnomina
 from django.db.models.functions import Coalesce
 from django.db.models import Value
@@ -415,8 +414,27 @@ def get_vacation_acction(request):
         data.comentarios2 = comments
         data.save()
         email_subject = 'Notificación del Estado de su Solicitud de Vacaciones'
+        recipient_list = ['mikepruebas@yopmail.com'] 
+        #recipient_list = ['mikepruebas@yopmail.com',data.idcontrato.idempleado.email] 
         
-        recipient_list = ['mikepruebas@yopmail.com',data.idcontrato.idempleado.email] 
+
+
+
+
+        Vacaciones.objects.create(
+            idcontrato = data.idcontrato,
+            fechainicialvac = data.fechainicialvac , 
+            ultimodiavac = data.fechafinalvac , 
+            diascalendario = data.diascalendario , 
+            diasvac = data.diasvac,
+            pagovac = data.idcontrato.salario,
+            basepago = data.idcontrato.salario,
+            tipovac = data.tipovac,
+            idvacmaster = data.id_sol_vac , 
+        )
+
+
+
         
         
         if status == '2':
