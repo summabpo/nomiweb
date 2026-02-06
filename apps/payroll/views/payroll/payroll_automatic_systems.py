@@ -12,6 +12,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import date, timedelta
 import calendar
+from decimal import Decimal, ROUND_HALF_UP
+
 
 #prueba git
 @login_required
@@ -351,10 +353,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         
 
         
-        if contrato.idcontrato == 10158 :
-            print('----------')
-            print(fin_contrato < fin_nomina)
-            print(dias_mes)
+        if contrato.idcontrato == 8160 :
             print(f" vac : {dias_vacaciones}-{dias_vac}  , inc {dias_incapacidad}-{dias_inca}  , sus {dias_suspensiones}-{dias_sus}   , dd {diasnomina} ")
         
         
@@ -362,7 +361,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
 
-        if contrato.idcontrato == 10158 :
+        if contrato.idcontrato == 8160 :
             print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones}  , dd {diasnomina} ")
 
         
@@ -382,9 +381,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         
         if diasnomina > 0:
 
-            if contrato.idcontrato == 10158 :
-                print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones}  , dd {diasnomina} ")
-
             if diasnomina > 30:
                 diasnomina = 30
                 
@@ -393,10 +389,12 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
                 diasnomina = nomina.diasnomina
         
 
-            valorsalario = (contrato.salario / 30) * diasnomina
+            valorsalario = (
+                Decimal(contrato.salario) / Decimal('30') *
+                Decimal(diasnomina)
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
             
-        
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto,
                 idcontrato=contrato,
@@ -774,8 +772,17 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             
             
             
-            valoreps = round((total_base_ss * EPS.valorfijo) / 100, 2)
-            valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
+            valoreps = (
+                Decimal(total_base_ss) *
+                Decimal(EPS.valorfijo) / Decimal('100')
+            ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+
+            valorafp = (
+                Decimal(total_base_ss) *
+                Decimal(AFP.valorfijo) / Decimal('100')
+            ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
             valorfsp = round((base_ss_fsp2 * FSP) / 100, 2) if base_ss_fsp2 >= (sal_min * 4) else 0.00
             
 
@@ -953,6 +960,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             return d
 
         nombre_original = nomina.nombrenomina or ""
+        nuevo_nombre = nombre_original.replace('#2', '#1')
 
         #passs = nomina.
         existe = Nomina.objects.filter(
@@ -974,24 +982,10 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             idconcepto__codigo = 2
         ).exists()
         
-        
-        if contrato.idcontrato == 7974 :
-            # Solo entra si NO existe el concepto en esa nómina
-            print('#2' in nombre_original)
-            print(existe)
-            print(existe2)
 
-        if not existe and '#2' in nombre_original:
-            if contrato.idcontrato == 7974 :
-                print('------ llege ---------------')
+        if not existe2 and '#2' in nombre_original:
 
             nuevo_nombre = nombre_original.replace('#2', '#1')
-
-            if contrato.idcontrato == 7974 :
-                print('------ llege 2---------------')
-                print(nuevo_nombre)
-            
-            
 
             nomina2 = Crearnomina.objects.filter(nombrenomina = nuevo_nombre).first()
             diasnomina2 = nomina2.diasnomina
@@ -1121,7 +1115,11 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             
                         
             if total_base_trans < (sal_min * 2):
-                transporte = diasnomina * (aux_tra / 30)
+                transporte = (
+                    Decimal(diasnomina) *
+                    (Decimal(aux_tra) / Decimal('30'))
+                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
             else:
                 transporte = 0
                 diasnomina = 0
@@ -1300,6 +1298,15 @@ def calcular_suspenciones(contrato,nomina ):
                 dias_en_nomina -= 1
 
             dias_vacaciones += dias_en_nomina
+
+
+            if vac.idcontrato.idcontrato == 8160 :
+                print(vac.fechainicialvac)
+                print(vac.ultimodiavac)
+                print(dias_vacaciones)
+                print(cruza_mes)
+                print(dias_en_nomina)
+
 
     return dias_vacaciones
 
