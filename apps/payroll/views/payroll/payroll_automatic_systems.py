@@ -353,16 +353,14 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         
 
         
-        if contrato.idcontrato == 8160 :
-            print(f" vac : {dias_vacaciones}-{dias_vac}  , inc {dias_incapacidad}-{dias_inca}  , sus {dias_suspensiones}-{dias_sus}   , dd {diasnomina} ")
         
         
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
 
-        if contrato.idcontrato == 8160 :
-            print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones}  , dd {diasnomina} ")
+        # if contrato.idcontrato == 8160 :
+        #     print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones}  , dd {diasnomina} ")
 
         
         calculo_prestamo(contrato, idn)
@@ -1011,16 +1009,10 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             dias_incapacidad = calculo_incapacidad(contrato,nomina2)
             dias_suspensiones = calcular_suspenciones(contrato,nomina2)
             
-            if contrato.idcontrato == 7974 :
-                print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones} ")
 
             diasnomina2 -= dias_vacaciones 
             diasnomina2 -= dias_incapacidad 
             diasnomina2 -= dias_suspensiones 
-
-            if contrato.idcontrato == 7974 :
-                print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones}  , dd2 {diasnomina2}")
-
             
 
         else :
@@ -1094,9 +1086,6 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
 
-        if contrato.idcontrato == 7974 :
-            print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones}  , dd1 {diasnomina1}  dd2 {diasnomina2}")
-        
 
         if contrato.auxiliotransporte :
             transporte = 0
@@ -1300,14 +1289,6 @@ def calcular_suspenciones(contrato,nomina ):
             dias_vacaciones += dias_en_nomina
 
 
-            if vac.idcontrato.idcontrato == 8160 :
-                print(vac.fechainicialvac)
-                print(vac.ultimodiavac)
-                print(dias_vacaciones)
-                print(cruza_mes)
-                print(dias_en_nomina)
-
-
     return dias_vacaciones
 
 
@@ -1425,7 +1406,6 @@ def Calculo_vacaciones(contrato, idn):
                 control=vaca.idvacaciones
             )
 
-            print(f'Vacación {vaca.idvacaciones} registrada en nómina con valor {valor}')
 
     # Procesar vacaciones disfrutadas (tipo 1)
     procesar_vacaciones(vacaciones_dis, conp_vaca_dis, tipo=1)

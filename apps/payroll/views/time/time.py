@@ -110,7 +110,7 @@ def time_list(request):
 
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
-        # ,idcontrato_id = 8083
+        # ,idcontrato_id = 8083 
         tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
@@ -157,6 +157,14 @@ def time_list(request):
             fecha = actual.date()
             hora = actual.time()
 
+            if t.horasdescuentos:
+                h = t.horasdescuentos
+                descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
+            else:
+                descuento_horas = 0.0
+
+            descanso = descuento_horas * 60 
+
             while actual < fin :
                 fecha = actual.date()
                 hora = actual.time()
@@ -170,27 +178,30 @@ def time_list(request):
 
                 horas_trabajadas += MINUTO_HORA
 
-                if (actual - inicio) < timedelta(minutes=480) and not is_festivo_o_dom :
+                if (actual - inicio) < timedelta(minutes=(480 + descanso)) and not is_festivo_o_dom :
                     horas_ordinarias += MINUTO_HORA
 
-                if is_festivo_o_dom and not is_nocturna : 
+                if (actual - inicio) < timedelta(minutes=(480 + descanso)) and is_festivo_o_dom and not is_nocturna : 
                     dyf += MINUTO_HORA
+                    if actual.date() == date(2026, 1, 4):
+                        print(f'rn : {dyf} - fecha :{actual}')
 
                 if is_festivo_o_dom and is_nocturna : 
                     rnf += MINUTO_HORA
                     
                 if not is_festivo_o_dom and is_nocturna : 
                     rn += MINUTO_HORA
+                    
 
                 # Validación de 480 minutos ( 8 horas de trabajo )
-                if (actual - inicio) >= timedelta(minutes=480) and not is_festivo_o_dom :
+                if (actual - inicio) >= timedelta(minutes=(480 + descanso) ) and not is_festivo_o_dom :
                     
                     if is_nocturna:
                         hen += MINUTO_HORA
                     else:
                         hed += MINUTO_HORA
 
-                if (actual - inicio) >= timedelta(minutes=480) and is_festivo_o_dom :
+                if (actual - inicio) >= timedelta(minutes=(480 + descanso)) and is_festivo_o_dom :
                     
                     if is_nocturna:
                         henf += MINUTO_HORA
@@ -199,13 +210,6 @@ def time_list(request):
                 
                 # avanzar
                 actual += paso
-            # --- Aplicar horas de descuento si existen ---
-            # registro.horasdescuentos es TimeField (HH:MM:SS) -> convertir a horas float
-            if t.horasdescuentos:
-                h = t.horasdescuentos
-                descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
-            else:
-                descuento_horas = 0.0
                 
             
             descuento_horas = round(descuento_horas,3)
@@ -249,22 +253,6 @@ def time_list(request):
                 hen = 0
 
 
-            if hed >= descuento_horas:
-                hed -= descuento_horas
-
-            if hen >= descuento_horas:
-                hen -= descuento_horas
-
-
-            if hedf >= descuento_horas:
-                hedf -= descuento_horas
-
-            if henf >= descuento_horas:
-                henf -= descuento_horas
-
-            
-
-
             if rn > 8:
                 rn -= (descuento_horas) 
 
@@ -272,9 +260,18 @@ def time_list(request):
                 rnf -= (descuento_horas)  
 
             if rn > 0:
-                rn -= (hen + henf)
+                rn -= (hen + henf) 
+                if rn < 0 : 
+                    rn = 0 
+
+
+            if rnf > 0:
+                rnf -= (henf + henf) 
+                if rnf < 0 : 
+                    rnf = 0 
 
             horas_domfes = dyf + rnf
+
                 
             t.horas_trabajadas= round( horas_trabajadas, 3) 
             t.horas_ordinarias= round( horas_ordinarias, 3)  
@@ -300,7 +297,7 @@ def time_list(request):
         
 
         tiempos = Tiempos.objects.filter(
-            idnomina=selected_nomina_id 
+            idnomina=selected_nomina_id ,
         ).select_related('idcontrato__idsede')
         
 
@@ -360,7 +357,15 @@ def time_list(request):
             is_festivo = au in CO_HOLIDAYS
             is_festivo_o_dom = is_domingo or is_festivo
 
-            while actual < fin:
+            if registro.horasdescuentos:
+                h = registro.horasdescuentos
+                descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
+            else:
+                descuento_horas = 0.0
+
+            descanso = descuento_horas * 60 
+
+            while actual < fin :
                 fecha = actual.date()
                 hora = actual.time()
 
@@ -373,47 +378,42 @@ def time_list(request):
 
                 horas_trabajadas += MINUTO_HORA
 
-                
-                if (actual - inicio) < timedelta(minutes=480) and not is_festivo_o_dom :
+                if (actual - inicio) < timedelta(minutes=(480 + descanso)) and not is_festivo_o_dom :
                     horas_ordinarias += MINUTO_HORA
 
-                if is_festivo_o_dom and not is_nocturna : 
+                if (actual - inicio) < timedelta(minutes=(480 + descanso)) and is_festivo_o_dom and not is_nocturna :  
                     dyf += MINUTO_HORA
-                    #print(f" hora : {dyf/60}   fecha {actual}" )
 
                 if is_festivo_o_dom and is_nocturna : 
                     rnf += MINUTO_HORA
                     
                 if not is_festivo_o_dom and is_nocturna : 
                     rn += MINUTO_HORA
+                    #print(f'rn : {rn} - fecha :{actual}')
+                    
 
                 # Validación de 480 minutos ( 8 horas de trabajo )
-                if (actual - inicio) >= timedelta(minutes=480) and not is_festivo_o_dom :
+                if (actual - inicio) >= timedelta(minutes=(480 + descanso) ) and not is_festivo_o_dom :
                     
                     if is_nocturna:
                         hen += MINUTO_HORA
                     else:
                         hed += MINUTO_HORA
 
-                if (actual - inicio) >= timedelta(minutes=480) and is_festivo_o_dom :
+                if (actual - inicio) >= timedelta(minutes=(480 + descanso)) and is_festivo_o_dom :
                     
                     if is_nocturna:
                         henf += MINUTO_HORA
                     else:
                         hedf += MINUTO_HORA
+
                         
+                       
+                
                 # avanzar
                 actual += paso
 
-            # --- Aplicar horas de descuento si existen ---
-            # registro.horasdescuentos es TimeField (HH:MM:SS) -> convertir a horas float
-            if registro.horasdescuentos:
-                h = registro.horasdescuentos
-                descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
-            else:
-                descuento_horas = 0.0
-                
-            
+    
             descuento_horas = round(descuento_horas,3)
             horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
 
@@ -456,20 +456,6 @@ def time_list(request):
                 hen = 0
 
 
-            if hed >= descuento_horas:
-                hed -= descuento_horas
-
-            if hen >= descuento_horas:
-                hen -= descuento_horas
-
-
-            if hedf >= descuento_horas:
-                hedf -= descuento_horas
-
-            if henf >= descuento_horas:
-                henf -= descuento_horas
-
-
             horas_domfes = dyf + rnf
 
 
@@ -480,14 +466,21 @@ def time_list(request):
                 rnf -= (descuento_horas) 
 
             if rn > 0:
-                rn -= (hen + henf)  
+                rn -= (hen + hed) 
+                if rn < 0 : 
+                    rn = 0 
 
+            if rnf > 0:
+                rnf -= (hedf + henf) 
+                if rnf < 0 : 
+                    rnf = 0 
 
             # =============================
             # ✅ SOLO APPEND A EMPLEADOS
-            # =============================
-
+            # =============================            
             
+            
+
             emp['horas_trabajadas'] += horas_trabajadas
             emp['horas_normales'] += horas_ordinarias
             emp['horas_domfes'] += horas_domfes
@@ -498,9 +491,19 @@ def time_list(request):
             emp['rn'] += rn
             emp['rnf'] += rnf
             emp['dyf'] += dyf
-            
+        
+        # print('------------------')
+        # print(f"HED  : {emp['hed']}")
+        # print(f"HEN  : {emp['hen']}")
+        # print(f"HEDF : {emp['hedf']}")
+        # print(f"HENF : {emp['henf']}")
+        # print(f"RN   : {emp['rn']}")
+        # print(f"RNF  : {emp['rnf']}")
+        # print(f"DYF  : {emp['dyf']}")
+        # print('------------------')
 
         for e in empleados:
+        
             aux = ( e['salario'] / jmm )
             e['horas_trabajadas'] = round(e['horas_trabajadas'], 3)
             e['horas_normales'] = round(e['horas_normales'], 3)
@@ -518,7 +521,7 @@ def time_list(request):
             
             e['henf'] = round(e['henf'], 3)
             e['vhenf'] = e['henf'] * aux * henf_factor 
-            
+
             e['rn'] = round(e['rn'], 3)
             e['Vrn'] = e['rn'] * aux * rn_factor 
             
@@ -550,7 +553,8 @@ def time_list(request):
             # 🔴 Si ambas son 0 → no crear ni actualizar
             if horas_ord == 0 and horas_trab == 0:
                 continue  # o `continue` si estás dentro de un loop
-            
+            print('----------')
+            print(data.get('rn', 0))
             # 🔹 Buscar o crear el registro
             obj, created = TiemposTotales.objects.update_or_create(
                 idcontrato=contrato,
@@ -858,7 +862,15 @@ def time_doc(request, id):
         is_festivo = au in CO_HOLIDAYS
         is_festivo_o_dom = is_domingo or is_festivo
         
-        while actual < fin:
+        if registro.horasdescuentos:
+            h = registro.horasdescuentos
+            descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
+        else:
+            descuento_horas = 0.0
+
+        descanso = descuento_horas * 60 
+
+        while actual < fin :
             fecha = actual.date()
             hora = actual.time()
 
@@ -871,11 +883,10 @@ def time_doc(request, id):
 
             horas_trabajadas += MINUTO_HORA
 
-            
-            if (actual - inicio) < timedelta(minutes=480) and not is_festivo_o_dom :
+            if (actual - inicio) < timedelta(minutes=(480 + descanso)) and not is_festivo_o_dom :
                 horas_ordinarias += MINUTO_HORA
 
-            if is_festivo_o_dom and not is_nocturna : 
+            if (actual - inicio) < timedelta(minutes=(480 + descanso)) and is_festivo_o_dom and not is_nocturna : 
                 dyf += MINUTO_HORA
 
             if is_festivo_o_dom and is_nocturna : 
@@ -885,32 +896,25 @@ def time_doc(request, id):
                 rn += MINUTO_HORA
 
             # Validación de 480 minutos ( 8 horas de trabajo )
-            if (actual - inicio) >= timedelta(minutes=480) and not is_festivo_o_dom :
+            if (actual - inicio) >= timedelta(minutes=(480 + descanso) ) and not is_festivo_o_dom :
                 
                 if is_nocturna:
                     hen += MINUTO_HORA
                 else:
                     hed += MINUTO_HORA
 
-            if (actual - inicio) >= timedelta(minutes=480) and is_festivo_o_dom :
+            if (actual - inicio) >= timedelta(minutes=(480 + descanso)) and is_festivo_o_dom :
                 
                 if is_nocturna:
                     henf += MINUTO_HORA
                 else:
                     hedf += MINUTO_HORA
-                    
+            
             # avanzar
             actual += paso
 
 
-        # --- Aplicar horas de descuento si existen ---
-        # registro.horasdescuentos es TimeField (HH:MM:SS) -> convertir a horas float
-        if registro.horasdescuentos:
-            h = registro.horasdescuentos
-            descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
-        else:
-            descuento_horas = 0.0
-            
+
         
         descuento_horas = round(descuento_horas,3)
         horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
@@ -953,22 +957,7 @@ def time_doc(request, id):
         else :
             hen = 0
 
-
-        if hed >= descuento_horas:
-            hed -= descuento_horas
-
-        if hen >= descuento_horas:
-            hen -= descuento_horas
-
-
-        if hedf >= descuento_horas:
-            hedf -= descuento_horas
-
-        if henf >= descuento_horas:
-            henf -= descuento_horas
-
         horas_domfes = dyf + rnf
-
 
         if rn > 8:
             rn -= (descuento_horas) 
@@ -977,7 +966,14 @@ def time_doc(request, id):
             rnf -= (descuento_horas)  
 
         if rn > 0:
-            rn -= (hen + henf)
+            rn -= (hen + hed) 
+            if rn < 0 : 
+                rn = 0 
+
+        if rnf > 0:
+            rnf -= (hedf + henf) 
+            if rnf < 0 : 
+                rnf = 0 
 
         # Acumular totales
         acumulados['HorasTraba'] += horas_trabajadas 
