@@ -8,7 +8,7 @@ from django.db.models.functions import Concat
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 import requests
-
+import os
 
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
@@ -956,10 +956,12 @@ def electronic_payroll_regenerate(request, pk=None):
 
 #method to generate token
 def electronic_payroll_token(empresa):
-    url = f"https://alfauat.dominadigital.com.co/api/GenerarTokenJWT/{empresa.nit}-{empresa.dv}"
+
+    urltoken= os.getenv('url_electronic_payroll_token')
+    urltoken += str(empresa.nit) +('-')+ str(empresa.dv)
     payload = ""
     headers = {}
-    response = requests.request("POST", url, headers=headers, data=payload)
+    response = requests.request("POST", urltoken, headers=headers, data=payload)
     
     response_data = response.json()
     code_response = response_data.get("codigo")
@@ -974,20 +976,25 @@ def electronic_payroll_send(pk=None, json_data=None):
         code_response, token = electronic_payroll_token(empresa)
 
         payload = json.dumps(json_data) if not isinstance(json_data, str) else json_data
-        
+        urlsend= os.getenv('url_electronic_payroll_send')
+        urlsend += str(empresa.nit) +('-')+ str(empresa.dv)
+
         url = f"https://alfauat.dominadigital.com.co/api/ReceptorNominaJson/{empresa.nit}-{empresa.dv}"
+
+         
         headers = {
             'Authorization': token,
             'Version-Document': '2',
             'Content-Type': 'application/json',
         }
 
-        response = requests.post(url, headers=headers, data=payload)
+        response = requests.post(urlsend, headers=headers, data=payload)
         response.raise_for_status()  # Lanza una excepción si el status code no es 200
         return response.text  # Devuelve el cuerpo de la respuesta como texto
     except Empresa.DoesNotExist:
         raise ValueError("Empresa no encontrada.")
     except Exception as e:
+        print(e)
         raise ValueError(f"Error al enviar nómina electrónica: {str(e)}")
 
 #method to send the payroll and register detail electronic payroll
