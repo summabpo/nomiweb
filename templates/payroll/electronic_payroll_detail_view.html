@@ -69,44 +69,45 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                 </div>
                 <div class="separator separator-dashed mb-7"></div>
                 <div class="mb-7">
-                    <h5 class="mb-4">Estado Envio</h5>
+                    <h5 class="mb-4">Estado Envio:</h5>
                     <div class="mb-0">
+
                         {% if detail_payroll.state_send == 1 %}
                             <span class="badge badge-light-primary me-2">Generado</span>
+
                         {% elif detail_payroll.state_send == 2 %}
-                            <span class="badge badge-light-success me-2 mb-2">Exitoso</span>
-                            <p>Cune: {{ cune }}</p>
-                            <button type="button" class="btn btn-light-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_2">
-                                VER DIAN
-                            </button>
-                            
-                            <div class="modal bg-body fade" tabindex="-1" id="kt_modal_2">
-                                <div class="modal-dialog modal-fullscreen">
-                                    <div class="modal-content shadow-none">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Ver DIAN</h5>
-                            
-                                            <!--begin::Close-->
-                                            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                                                <i class="ki-duotone ki-cross fs-2x"><span class="path1"></span><span class="path2"></span></i>
-                                            </div>
-                                            <!--end::Close-->
-                                        </div>
-                            
-                                        <div class="modal-body">
-                                            <iframe src="https://catalogo-vpfe-hab.dian.gov.co/Document/ShowDocumentToPublic/{{cune}}" style="width: 100%; height: 100%; border: none;"></iframe>
-                                        </div>
-                            
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-primary">Save changes</button>
-                                        </div>
-                                    </div>
-                                </div>
+                            <span class="badge badge-light-success me-2">Exitoso</span>
+                            <div class="separator my-10"></div>
+                            <!-- Acciones -->
+                            <div class="d-flex flex-wrap gap-2">
+                                <a
+                                    class="btn btn-light-info"
+                                    up-layer="new modal"
+                                    up-target=".modal-content"
+                                    up-size="large"
+                                    up-align="center"
+                                    up-backdrop="true"
+                                    up-history="false"
+                                    up-dismissable="false"
+                                    up-cache="false"
+                                    href="{% url 'payroll:electronic_payroll_detail_view_template' id %}">
+                                    Ver detalle
+                                </a>
+
+                                <a
+                                    href="{{ qr_url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn btn-light-success">
+                                    Ver en DIAN
+                                </a>
                             </div>
+
+
                         {% elif detail_payroll.state_send == 3 %}
                             <span class="badge badge-light-danger me-2">Error</span>
                         {% endif %}
+
                     </div>
                 </div>   
                 <div class="separator separator-dashed mb-7"></div>

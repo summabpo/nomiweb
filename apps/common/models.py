@@ -1227,6 +1227,7 @@ class NeDetalleNominaElectronica(models.Model):
     estado = models.IntegerField(blank=True, null=True)
     tipo_registro = models.IntegerField(blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
+    id_consecutivo = models.IntegerField()
 
     class Meta:
         managed = False

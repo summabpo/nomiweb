@@ -33,7 +33,8 @@ urlpatterns = [
     path('payroll/electronic_payroll_validate_send/<int:pk>', electronic_payroll.electronic_payroll_validate_send, name='enviar_nomina_electronica'),
     path('payroll/electronic_payroll_validate_masive_send/<int:pk>', electronic_payroll.electronic_payroll_validate_masive_send, name='enviar_nomina_electronica_masiva'),
     path('payroll/electronic_payroll_detail_view/<int:pk>', electronic_payroll.electronic_payroll_detail_view, name='ver_nomina_electronica_detalle'),
-    
+    path('payroll/electronic_payroll_report_download/<int:pk>',electronic_payroll.electronic_payroll_report_download,name='electronic_payroll_report_download'),
+
     #loans
     path('loans', loans.employee_loans, name='loans_list'),
     path('loans_detail/<int:pk>', loans.detail_employee_loans, name='loans_detail'),
@@ -160,6 +161,11 @@ urlunpolypatterns =[
     
     ## vaca 
     path('payroll/vacation/add', vacation_settlement.vacation_settlement_add_list, name='vacation_settlement_add_list'),
+
+
+    ## electronic payroll
+    path('payroll/electronic_payroll_detail_view_template/<int:pk>', electronic_payroll.electronic_payroll_detail_view_template, name='electronic_payroll_detail_view_template'),
+    
     
 ]
 

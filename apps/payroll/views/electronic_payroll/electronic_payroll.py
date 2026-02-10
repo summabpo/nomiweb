@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 import json
 from django.http import JsonResponse
@@ -9,15 +10,28 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 import requests
 import os
-
+from django.db.models import Max
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
-
+import xml.etree.ElementTree as ET
 # models
 from apps.common.models import Anos, Nomina, Contratos, Contratosemp, NeDatosMensual, NeDetalleNominaElectronica, NeRespuestaDian, Ciudades, Paises, Empresa, Conceptosfijos, Vacaciones, Incapacidades
 
 # forms
 from apps.payroll.forms.PayrollContainerForm import PayrollContainerForm
+
+
+## doc 
+from django.http import HttpResponse
+from openpyxl import Workbook
+
+
+def clean_field(field_name):
+    return Case(
+        When(**{f"{field_name}__in": ["no data", "sin dato", "n/a", "none", "ninguno"]}, then=Value("")),
+        default=F(field_name),
+        output_field=CharField()
+    )
 
 
 # create and view the electronic payroll container
@@ -48,9 +62,10 @@ def electronic_payroll_container(request):
     if request.method == 'POST': 
         form = PayrollContainerForm(request.POST)
         if form.is_valid():
+            now = timezone.localtime()
             # current date and time data
-            fechageneracion = datetime.datetime.now().strftime('%Y-%m-%d')
-            horageneracion = datetime.datetime.now().strftime('%H:%M:%S')
+            fechageneracion = now.strftime('%Y-%m-%d')
+            horageneracion = now.strftime('%H:%M:%S')
             fechaliquidacioninicio = form.cleaned_data['fechaliquidacioninicio']
             fechaliquidacionfin = form.cleaned_data['fechaliquidacionfin']
             prefijo = form.cleaned_data['prefijo']
@@ -69,13 +84,22 @@ def electronic_payroll_container(request):
             idioma = 'es'
             tipomoneda = 'COP'
             
+            ultimo = (
+                NeDatosMensual.objects.filter(
+                    empresa=empresa,
+                    prefijo=prefijo,
+                )
+                .aggregate(max_consecutivo=Max('consecutivo'))
+            )
+            consecutivo = (ultimo['max_consecutivo'] or 0) + 1
+
             # Save the form data to the model
             NeDatosMensual.objects.create(
                 fechaliquidacioninicio=fechaliquidacioninicio,
                 fechaliquidacionfin=fechaliquidacionfin,
                 fechageneracion=fechageneracion,
                 prefijo=prefijo,
-                consecutivo=None,
+                consecutivo = consecutivo ,
                 paisgeneracion=paisgeneracion,
                 departamentogeneracion=departamentogeneracion,
                 ciudadgeneracion=ciudadgeneracion,
@@ -110,19 +134,20 @@ def electronic_payroll_container(request):
 @login_required
 @role_required('accountant')
 def electronic_payroll_detail(request, pk=None):
+
     detail_payroll = NeDetalleNominaElectronica.objects.select_related(
         'id_contrato__idempleado',
         'id_contrato__cargo',
     ).filter(id_ne_datos_mensual=pk).annotate(
-        contract_id = F('id_contrato'),
+        contract_id = F('id_contrato'), 
         employee_name=Concat(
-            F('id_contrato__idempleado__pnombre'), Value(' '),
-            F('id_contrato__idempleado__snombre'), Value(' '),
-            F('id_contrato__idempleado__papellido'), Value(' '),
-            F('id_contrato__idempleado__sapellido')
+            clean_field('id_contrato__idempleado__pnombre'), Value(' '),
+            clean_field('id_contrato__idempleado__snombre'), Value(' '),
+            clean_field('id_contrato__idempleado__papellido'), Value(' '),
+            clean_field('id_contrato__idempleado__sapellido'),
         ),
-        employee_document=F('id_contrato__idempleado__docidentidad'), 
-        employee_position = F('id_contrato__cargo__nombrecargo'),
+        employee_document=F('id_contrato__idempleado__docidentidad'),
+        employee_position=F('id_contrato__cargo__nombrecargo'),
     )
 
     context =  {
@@ -209,8 +234,10 @@ def get_employee_details(container, month, ano_id):
     ).values(
         id=F('idcontrato'),
         employee_name=Concat(
-            F('idcontrato__idempleado__papellido'), Value(' '), F('idcontrato__idempleado__sapellido'),
-            Value(' '), F('idcontrato__idempleado__pnombre'), Value(' '), F('idcontrato__idempleado__snombre')
+            clean_field('idcontrato__idempleado__pnombre'), Value(' '),
+            clean_field('idcontrato__idempleado__snombre'), Value(' '),
+            clean_field('idcontrato__idempleado__papellido'), Value(' '),
+            clean_field('idcontrato__idempleado__sapellido'),
         ),
         first_name=F('idcontrato__idempleado__pnombre'),
         second_name=F('idcontrato__idempleado__snombre'),
@@ -257,6 +284,169 @@ def get_concept_details(month, ano_id):
         mulitplicador_concepto=F('idconcepto__multiplicadorconcepto')
     )
 
+
+NAMESPACES = {
+    "ni": "dian:gov:co:facturaelectronica:NominaIndividual"
+}
+
+def parse_nomina_xml(xml_string):
+    NS = {
+        "ni": "dian:gov:co:facturaelectronica:NominaIndividual",
+        "ext": "urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2",
+        "ds": "http://www.w3.org/2000/09/xmldsig#",
+        "xades": "http://uri.etsi.org/01903/v1.3.2#",
+    }
+
+    root = ET.fromstring(xml_string)
+
+    def attr(el, name):
+        return el.attrib.get(name) if el is not None else None
+
+    def text(el):
+        return el.text if el is not None else None
+
+    # ===============================
+    # PERIODO
+    # ===============================
+    periodo = root.find("ni:Periodo", NS)
+    periodo_data = {
+        "fecha_ingreso": attr(periodo, "FechaIngreso"),
+        "fecha_inicio": attr(periodo, "FechaLiquidacionInicio"),
+        "fecha_fin": attr(periodo, "FechaLiquidacionFin"),
+        "tiempo_laborado_dias": attr(periodo, "TiempoLaborado"),
+        "fecha_generacion": attr(periodo, "FechaGen"),
+    }
+
+    # ===============================
+    # NUMERACIÓN
+    # ===============================
+    secuencia = root.find("ni:NumeroSecuenciaXML", NS)
+    numeracion = {
+        "codigo_trabajador": attr(secuencia, "CodigoTrabajador"),
+        "prefijo": attr(secuencia, "Prefijo"),
+        "consecutivo": attr(secuencia, "Consecutivo"),
+        "numero_completo": attr(secuencia, "Numero"),
+    }
+
+    # ===============================
+    # LUGAR Y PROVEEDOR
+    # ===============================
+    lugar = root.find("ni:LugarGeneracionXML", NS)
+    proveedor = root.find("ni:ProveedorXML", NS)
+
+    lugar_data = lugar.attrib if lugar is not None else {}
+    proveedor_data = proveedor.attrib if proveedor is not None else {}
+
+    # ===============================
+    # INFORMACIÓN GENERAL
+    # ===============================
+    info = root.find("ni:InformacionGeneral", NS)
+    info_general = info.attrib if info is not None else {}
+
+    # ===============================
+    # EMPLEADOR
+    # ===============================
+    empleador = root.find("ni:Empleador", NS)
+    empleador_data = empleador.attrib if empleador is not None else {}
+
+    # ===============================
+    # TRABAJADOR
+    # ===============================
+    trabajador = root.find("ni:Trabajador", NS)
+    trabajador_data = trabajador.attrib if trabajador is not None else {}
+
+    # ===============================
+    # PAGO
+    # ===============================
+    pago = root.find("ni:Pago", NS)
+    pago_data = pago.attrib if pago is not None else {}
+
+    fechas_pago = [
+        text(fp)
+        for fp in root.findall(".//ni:FechaPago", NS)
+    ]
+
+    # ===============================
+    # DEVENGADOS
+    # ===============================
+    devengados = {}
+
+    basico = root.find(".//ni:Basico", NS)
+    if basico is not None:
+        devengados["basico"] = basico.attrib
+
+    transporte = root.find(".//ni:Transporte", NS)
+    if transporte is not None:
+        devengados["transporte"] = transporte.attrib
+
+    auxilios = []
+    for aux in root.findall(".//ni:Auxilio", NS):
+        auxilios.append(aux.attrib)
+
+    if auxilios:
+        devengados["auxilios"] = auxilios
+
+    # ===============================
+    # DEDUCCIONES
+    # ===============================
+    deducciones = {}
+
+    salud = root.find(".//ni:Salud", NS)
+    if salud is not None:
+        deducciones["salud"] = salud.attrib
+
+    pension = root.find(".//ni:FondoPension", NS)
+    if pension is not None:
+        deducciones["pension"] = pension.attrib
+
+    # ===============================
+    # TOTALES
+    # ===============================
+    totales = {
+        "devengados": text(root.find("ni:DevengadosTotal", NS)),
+        "deducciones": text(root.find("ni:DeduccionesTotal", NS)),
+        "total_pagar": text(root.find("ni:ComprobanteTotal", NS)),
+        "redondeo": text(root.find("ni:Redondeo", NS)),
+    }
+
+    # ===============================
+    # QR Y CUNE
+    # ===============================
+    qr = text(root.find("ni:CodigoQR", NS))
+
+    # ===============================
+    # FIRMA DIGITAL (INFO CLAVE, SIN CERTIFICADO GIGANTE)
+    # ===============================
+    firma = root.find(".//ds:Signature", NS)
+
+    firma_data = {
+        "id": firma.attrib.get("Id") if firma is not None else None,
+        "fecha_firma": text(root.find(".//xades:SigningTime", NS)),
+        "rol_firmante": text(root.find(".//xades:ClaimedRole", NS)),
+        "politica_firma": text(root.find(".//xades:Identifier", NS)),
+        "emisor_certificado": text(root.find(".//ds:X509IssuerName", NS)),
+        "serial_certificado": text(root.find(".//ds:X509SerialNumber", NS)),
+    }
+
+    # ===============================
+    # RESULTADO FINAL
+    # ===============================
+    return {
+        "periodo": periodo_data,
+        "numeracion": numeracion,
+        "lugar_generacion": lugar_data,
+        "proveedor": proveedor_data,
+        "informacion_general": info_general,
+        "empleador": empleador_data,
+        "trabajador": trabajador_data,
+        "pago": pago_data,
+        "fechas_pago": fechas_pago,
+        "devengados": devengados,
+        "deducciones": deducciones,
+        "totales": totales,
+        "qr_texto": qr,
+        "firma_digital": firma_data,
+    }
 
 def classify_concepts(concept_details):
 
@@ -488,22 +678,26 @@ def classify_concepts(concept_details):
         # AuxilioS
         if concept['concepto_dian'] == 'AuxilioS':
             if "Auxilio" not in devengados:
-                devengados["Auxilio"] = {
-                    "AuxilioS": 0,
-                    "AuxilioNS": 0
-                }
+                devengados["Auxilio"] = {}
+
+            if "AuxilioS" not in devengados["Auxilio"]:
+                devengados["Auxilio"]["AuxilioS"] = 0
+
             devengados["Auxilio"]["AuxilioS"] += concept['valor_anotado']
             devengadosSum += concept['valor_anotado']
 
+
         # AuxilioNS
-        if concept['concepto_dian'] == 'AuxilioNS':
+        elif concept['concepto_dian'] == 'AuxilioNS':
             if "Auxilio" not in devengados:
-                devengados["Auxilio"] = {
-                    "AuxilioS": 0,
-                    "AuxilioNS": 0
-                }
+                devengados["Auxilio"] = {}
+
+            if "AuxilioNS" not in devengados["Auxilio"]:
+                devengados["Auxilio"]["AuxilioNS"] = 0
+
             devengados["Auxilio"]["AuxilioNS"] += concept['valor_anotado']
             devengadosSum += concept['valor_anotado']
+
 
         # HuelgaLegal
         if concept['concepto_dian'] == 'HuelgaLegal':
@@ -821,6 +1015,7 @@ def electronic_payroll_generate_refactor(request, pk=None):
     """Main function to generate payroll JSON for one or all employees."""
     container = NeDatosMensual.objects.get(idnominaelectronica=pk)
     month, year = container.mesacumular, container.anoacumular
+    consecutivo = container.consecutivo + 1
 
     try:
         ano_id = Anos.objects.get(ano=year).idano
@@ -841,14 +1036,15 @@ def electronic_payroll_generate_refactor(request, pk=None):
         datail_payroll = NeDetalleNominaElectronica.objects.create(
             id_ne_datos_mensual=container,
             id_contrato=contrato_instance,
-            fecha_creacion = datetime.datetime.now(),
+            fecha_creacion = timezone.now(),
             estado=1,  # Assuming 1 is the default state
             tipo_registro=1,  # Assuming 1 is the default type
-            observaciones=""
+            observaciones="" ,
+            id_consecutivo = consecutivo
         )
 
         # Get the generated ID
-        generated_id = datail_payroll.id_detalle_nomina_electronica
+        generated_id = consecutivo
         
 
         employee_concepts = [concept for concept in concept_details if concept['contrato_id'] == detail['id']]
@@ -860,6 +1056,7 @@ def electronic_payroll_generate_refactor(request, pk=None):
         datail_payroll.save()
 
         json_results.append(employee_json)
+        consecutivo += 1
 
     messages.success(request, 'Nómina Generada Exitosamente.')
     return redirect('payroll:detalle_nomina_electronica',  pk=pk)  # Cambia a la vista deseada después de guardar
@@ -872,9 +1069,11 @@ def get_employee_details_individual(contract_id):
         idcontrato=contract_id
     ).values(
         id=F('idcontrato'),
-        employee_name=Concat(
-            F('idcontrato__idempleado__papellido'), Value(' '), F('idcontrato__idempleado__sapellido'),
-            Value(' '), F('idcontrato__idempleado__pnombre'), Value(' '), F('idcontrato__idempleado__snombre')
+         employee_name=Concat(
+            clean_field('idcontrato__idempleado__pnombre'), Value(' '),
+            clean_field('idcontrato__idempleado__snombre'), Value(' '),
+            clean_field('idcontrato__idempleado__papellido'), Value(' '),
+            clean_field('idcontrato__idempleado__sapellido'),
         ),
         first_name=F('idcontrato__idempleado__pnombre'),
         second_name=F('idcontrato__idempleado__snombre'),
@@ -939,11 +1138,11 @@ def electronic_payroll_regenerate(request, pk=None):
     # Generate JSON for the individual employee
     for detail in employee_details:
         employee_concepts = [concept for concept in concept_details if concept['contrato_id'] == detail['id']]
-        employee_json = generate_employee_json(detail, container, company_data, employee_concepts, detail_payroll.id_detalle_nomina_electronica)
+        employee_json = generate_employee_json(detail, container, company_data, employee_concepts, detail_payroll.id_consecutivo)
 
         # Update the JSON field in the NeDetalleNominaElectronica object
         formatted_json = json.dumps(employee_json, cls=DjangoJSONEncoder, indent=4, ensure_ascii=False)
-        detail_payroll.fecha_modificacion = datetime.datetime.now()
+        detail_payroll.fecha_modificacion = timezone.now()
         detail_payroll.json_nomina = formatted_json
         detail_payroll.estado = 1
         detail_payroll.save()
@@ -979,9 +1178,6 @@ def electronic_payroll_send(pk=None, json_data=None):
         urlsend= os.getenv('url_electronic_payroll_send')
         urlsend += str(empresa.nit) +('-')+ str(empresa.dv)
 
-        url = f"https://alfauat.dominadigital.com.co/api/ReceptorNominaJson/{empresa.nit}-{empresa.dv}"
-
-         
         headers = {
             'Authorization': token,
             'Version-Document': '2',
@@ -1011,7 +1207,7 @@ def electronic_payroll_validate_send(request, pk=None):
     if estado_codigo == 'EXITOSO':
         NeRespuestaDian.objects.create(
             id_ne_detalle_nomina_electronica=details,
-            fecha_transaccion = datetime.datetime.now(),
+            fecha_transaccion = timezone.now(),
             json_respuesta = json_end,
             codigo_respuesta= estado_codigo,
         )
@@ -1020,7 +1216,7 @@ def electronic_payroll_validate_send(request, pk=None):
     elif estado_codigo == 'ERROR' or estado_codigo == 'ERRORDIAN':
         NeRespuestaDian.objects.create(
             id_ne_detalle_nomina_electronica=details,
-            fecha_transaccion = datetime.datetime.now(),
+            fecha_transaccion = timezone.now(),
             json_respuesta = json_end,
             codigo_respuesta= estado_codigo,
         )
@@ -1045,7 +1241,7 @@ def electronic_payroll_validate_masive_send(request, pk=None):
         if estado_codigo == 'EXITOSO':
             NeRespuestaDian.objects.create(
                 id_ne_detalle_nomina_electronica=detail,
-                fecha_transaccion = datetime.datetime.now(),
+                fecha_transaccion = timezone.now(),
                 json_respuesta = json_end,
                 codigo_respuesta= estado_codigo,
             )
@@ -1054,7 +1250,7 @@ def electronic_payroll_validate_masive_send(request, pk=None):
         elif estado_codigo == 'ERROR' or estado_codigo == 'ERRORDIAN':
             NeRespuestaDian.objects.create(
                 id_ne_detalle_nomina_electronica=detail,
-                fecha_transaccion = datetime.datetime.now(),
+                fecha_transaccion = timezone.now(),
                 json_respuesta = json_end,
                 codigo_respuesta= estado_codigo,
             )
@@ -1075,11 +1271,11 @@ def electronic_payroll_detail_view(request, pk=None):
         container_id = F('id_ne_datos_mensual'),
         detail_id = F('id_detalle_nomina_electronica'),
         state_send = F('estado'),
-        employee_name=Concat(
-            F('id_contrato__idempleado__pnombre'), Value(' '),
-            F('id_contrato__idempleado__snombre'), Value(' '),
-            F('id_contrato__idempleado__papellido'), Value(' '),
-            F('id_contrato__idempleado__sapellido')
+         employee_name=Concat(
+            clean_field('id_contrato__idempleado__pnombre'), Value(' '),
+            clean_field('id_contrato__idempleado__snombre'), Value(' '),
+            clean_field('id_contrato__idempleado__papellido'), Value(' '),
+            clean_field('id_contrato__idempleado__sapellido'),
         ),
         employee_document=F('id_contrato__idempleado__docidentidad'), 
         employee_position = F('id_contrato__cargo__nombrecargo'),
@@ -1090,10 +1286,12 @@ def electronic_payroll_detail_view(request, pk=None):
     detail_payroll_response = NeRespuestaDian.objects.filter(id_ne_detalle_nomina_electronica=pk)
 
     cune = None
+    qr_url = None
     for response in detail_payroll_response:
         if response.codigo_respuesta == 'EXITOSO':
             response_data = json.loads(response.json_respuesta)
             cune = response_data.get("cune")
+            qr_url =  f"https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey={cune}"
             break
             
 
@@ -1103,7 +1301,111 @@ def electronic_payroll_detail_view(request, pk=None):
         'detail_payroll': detail_payroll,
         'detail_payroll_response': detail_payroll_response,
         'json_data': json_data,
-        'cune': cune
+        'cune': cune , 
+        'qr_url':qr_url , 
+        'id':pk
     }
 
     return render(request, 'payroll/electronic_payroll_detail_view.html', context)
+
+
+def electronic_payroll_detail_view_template(request, pk=None):
+
+    detail_payroll_response = NeRespuestaDian.objects.filter(id_ne_detalle_nomina_electronica=pk)
+    for response in detail_payroll_response:
+        if response.codigo_respuesta == 'EXITOSO':
+            response_data = json.loads(response.json_respuesta)
+            xml_string = response_data["estado"]["xml"]
+            nomina = parse_nomina_xml(xml_string)
+            cune = response_data.get("cune")
+            qr_url =  f"https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey={cune}"
+            break
+
+
+    contex = {
+        "qr_url":qr_url,
+        "periodo": nomina.get("periodo", {}),
+        "numeracion": nomina.get("numeracion", {}),
+        "lugar_generacion": nomina.get("lugar_generacion", {}),
+        "proveedor": nomina.get("proveedor", {}),
+        "info_general": nomina.get("informacion_general", {}),
+        "empleador": nomina.get("empleador", {}),
+        "trabajador": nomina.get("trabajador", {}),
+        "pago": nomina.get("pago", {}),
+        "fechas_pago": nomina.get("fechas_pago", []),
+        "devengados": nomina.get("devengados", {}),
+        "deducciones": nomina.get("deducciones", {}),
+        "totales": nomina.get("totales", {}),
+        "qr_texto": nomina.get("qr_texto", ""),
+        "firma": nomina.get("firma_digital", {}),
+    }
+    ## templates/payroll/partials/electronic_payroll_detail_view_template.html
+    return render(request, 'payroll/partials/electronic_payroll_detail_view_template.html', contex )
+
+
+
+ESTADO_NOMINA_LABEL = {
+    1: "Generado",
+    2: "Exitoso",
+    3: "Error",
+    4: "Eliminado",
+    5: "Reemplazado",
+    6: "Anulado",
+}
+
+def electronic_payroll_report_download(request, pk):
+    # 
+    # {{ json_data.ComprobanteTotal|floatformat:2|intcomma }}
+
+    detail_payroll = NeDetalleNominaElectronica.objects.select_related(
+        'id_contrato__idempleado',
+        'id_contrato__cargo',
+    ).filter(id_ne_datos_mensual=pk).annotate(
+        contract_id = F('id_contrato'), 
+        employee_name=Concat(
+            clean_field('id_contrato__idempleado__pnombre'), Value(' '),
+            clean_field('id_contrato__idempleado__snombre'), Value(' '),
+            clean_field('id_contrato__idempleado__papellido'), Value(' '),
+            clean_field('id_contrato__idempleado__sapellido'),
+        ),
+        employee_document=F('id_contrato__idempleado__docidentidad'),
+        employee_position=F('id_contrato__cargo__nombrecargo'),
+    )
+
+    print(pk)
+    
+    # 🔹 Crear Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Informe Nómina"
+
+    # 🔹 Encabezados
+    headers = [
+        "idcontrato",
+        "Nombre",
+        "Documento",
+        "Neto Json",
+        "Aprobación",
+    ]
+    ws.append(headers)
+
+    for data in detail_payroll :
+        json_data = json.loads(data.json_nomina) 
+        ws.append([
+            data.contract_id,
+            data.employee_name,
+            data.employee_document,
+            json_data["ComprobanteTotal"],
+            ESTADO_NOMINA_LABEL.get(data.estado, "Desconocido"),
+        ])
+
+    # 🔹 Respuesta HTTP
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = (
+        f'attachment; filename="informe_nomina_pp.xlsx"'
+    )
+
+    wb.save(response)
+    return response

@@ -82,7 +82,7 @@ Detalle Nómina Electrónica | {{ container_id }}
         <tbody>
             {% for record in detail_payroll %}
             <tr>
-                <td class="text-center align-middle">{{ record.id_detalle_nomina_electronica }}</td>
+                <td class="text-center align-middle">{{ record.id_consecutivo}}</td>
                 <td class="text-center align-middle">{{ record.contract_id }} </td>
                 <td class="text-left align-middle">{{ record.employee_document }} </td>
                 <td class="text-left align-middle">{{ record.employee_name }} </td>
@@ -119,19 +119,7 @@ Detalle Nómina Electrónica | {{ container_id }}
                 </td>
                 <td class="text-center align-middle">{{ record.observaciones }}</td>
                 <td class="text-center align-middle">
-                    {% comment %} <a href="{% url 'payroll:ver_nomina_electronica_detalle' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
-                        <i class="fa-regular fa-eye fs-2"></i>
-                    </a>
-                    {% if record.estado == 1 %}
-                    <a href="{% url 'payroll:enviar_nomina_electronica' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-success" title="Enviar Nomina Electrónica">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </a>
-                    {% endif %}
-                    {% if record.estado == 3 %}
-                    <a href="{% url 'payroll:generar_detalle_individual' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-info" title="Enviar Nomina Electrónica">
-                        <i class="fa-solid fa-rotate-right"></i>
-                    </a>
-                    {% endif %} {% endcomment %}
+                   
 
                     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                         <a href="{% url 'payroll:ver_nomina_electronica_detalle' record.id_detalle_nomina_electronica %}" class="btn btn-icon btn-light-primary" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Detalle">
@@ -164,7 +152,14 @@ Detalle Nómina Electrónica | {{ container_id }}
 
 {% endblock %}
 
+
+
 {% block js %}
+
+<script>
+    var container_id = "{{ container_id|default:'' }}";
+</script>
+
 <script>
     $(document).ready(function() {
         $('#tabla-nomina').DataTable({
@@ -199,7 +194,26 @@ Detalle Nómina Electrónica | {{ container_id }}
             order: [],
             "pageLength": 100,     
             buttons: [
-            ]
+                {% if container_id %}
+                
+                {
+                    
+                    text: ' <i class="fa-solid fa-table"></i> Descargar Informe',
+                    action: function (e, dt, node, config) {
+                        setTimeout(function(){
+                            window.location.href = "{% url 'payroll:electronic_payroll_report_download' pk=container_id  %}";
+                        }, 100);
+                    },
+                    className: 'btn btn-light-info'
+                },
+               
+                
+
+                
+                {% endif %}
+                
+                
+            ],
         });
     });
 </script>

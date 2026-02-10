@@ -1,0 +1,242 @@
+
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Visualizacion de data</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+
+
+            <!-- HEADER EMPLEADOR -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-body text-center py-3">
+                    <h5 class="fw-bold mb-1">{{ empleador.RazonSocial }}</h5>
+                    <p class="mb-0 text-muted small">
+                        NIT {{ empleador.NIT }}-{{ empleador.DV }}
+                    </p>
+                    <small class="text-secondary d-block">
+                        Documento Soporte de Pago de Nómina Electrónica
+                    </small>
+                </div>
+            </div>
+
+            <!-- INFO GENERAL + TRABAJADOR -->
+            <div class="row g-3 mb-3">
+
+                <!-- INFO GENERAL -->
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-light fw-bold py-2">
+                            Información General
+                        </div>
+                        <div class="card-body py-2">
+
+                            <div class="mb-2">
+                                <small class="text-muted">Fecha generación</small><br>
+                                <strong>{{ info_general.FechaGen }} {{ info_general.HoraGen }}</strong>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">Periodo nómina</small><br>
+                                <strong>{{ periodo.fecha_inicio }} → {{ periodo.fecha_fin }}</strong>
+                            </div>
+
+                            <div>
+                                <small class="text-muted">Número documento</small><br>
+                                <strong>{{ numeracion.numero_completo }}</strong>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DATOS TRABAJADOR -->
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-light fw-bold py-2">
+                            Datos del Trabajador
+                        </div>
+                        <div class="card-body py-2">
+
+                            <div class="mb-2">
+                                <small class="text-muted">Nombre</small><br>
+                                <strong>
+                                    {{ trabajador.PrimerNombre }}
+                                    {{ trabajador.SegundoNombre }}
+                                    {{ trabajador.PrimerApellido }}
+                                    {{ trabajador.SegundoApellido }}
+                                </strong>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <small class="text-muted">Documento</small><br>
+                                    <strong>
+                                        {{ trabajador.TipoDocumento }} - {{ trabajador.NumeroDocumento }}
+                                    </strong>
+                                </div>
+
+                                <div class="col-md-6 mb-2">
+                                    <small class="text-muted">Salario</small><br>
+                                    <strong class="text-success">
+                                        ${{ trabajador.Sueldo }}
+                                    </strong>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- DEVENGADOS + DEDUCCIONES -->
+              <div class="row g-3 mb-3 scroll h-250px">
+
+                    <!-- DEVENGADOS -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header fw-bold text-success bg-light py-2">
+                                Devengados
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-striped mb-0">
+                                    <thead class="table-success">
+                                        <tr>
+                                            <th>Concepto</th>
+                                            <th class="text-end">Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                Sueldo ({{ devengados.basico.DiasTrabajados }} días)
+                                            </td>
+                                            <td class="text-end">
+                                                ${{ devengados.basico.SueldoTrabajado }}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Auxilio de transporte</td>
+                                            <td class="text-end">
+                                                ${{ devengados.transporte.AuxilioTransporte }}
+                                            </td>
+                                        </tr>
+
+                                        {% for auxilio in devengados.auxilios %}
+                                        <tr>
+                                            <td>Auxilio no salarial</td>
+                                            <td class="text-end">
+                                                ${{ auxilio.AuxilioNS }}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- DEDUCCIONES -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header fw-bold text-danger bg-light py-2">
+                                Deducciones
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-striped mb-0">
+                                    <thead class="table-danger">
+                                        <tr>
+                                            <th>Concepto</th>
+                                            <th class="text-end">Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Salud ({{ deducciones.salud.Porcentaje }}%)</td>
+                                            <td class="text-end">
+                                                ${{ deducciones.salud.Deduccion }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pensión ({{ deducciones.pension.Porcentaje }}%)</td>
+                                            <td class="text-end">
+                                                ${{ deducciones.pension.Deduccion }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            <!-- TOTALES -->
+            <div class="card shadow-sm border-primary mb-3">
+                <div class="card-body py-2">
+                    <div class="row justify-content-end">
+                        <div class="col-md-6 col-lg-4 text-end">
+                            <p class="mb-1 small">
+                                Devengados:
+                                <strong>${{ totales.devengados }}</strong>
+                            </p>
+                            <p class="mb-1 small">
+                                Deducciones:
+                                <strong>${{ totales.deducciones }}</strong>
+                            </p>
+                            <hr class="my-2">
+                            <h6 class="fw-bold text-primary mb-0">
+                                Total a pagar: ${{ totales.total_pagar }}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VALIDACIÓN DIAN -->
+            <div class="card shadow-sm mb-0">
+                <div class="card-body py-1 px-2">
+
+                    <p class="mb-1 text-muted" style="font-size: 0.7rem;">
+                        <strong>Validación DIAN</strong>
+                    </p>
+
+                    <p class="mb-1 text-break" style="font-size: 0.65rem; line-height: 1.1;">
+                        {{ qr_texto }}
+                    </p>
+
+                    <hr class="my-1">
+
+                    <p class="mb-0" style="font-size: 0.65rem; line-height: 1.1;">
+                        <strong>Firma:</strong> {{ firma.fecha_firma }}
+                        <span class="text-muted">| {{ firma.emisor_certificado }}</span>
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+    </div>
+</div>
+
+
+
+

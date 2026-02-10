@@ -40,26 +40,7 @@ def startCompanies(request):
     El usuario debe estar autenticado y tener el rol `'company'` o `'accountant'` para acceder a esta vista.
     """
     usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
-    
-    # numeros = [
-    #     1094165897, 1012399538, 1018490950, 1018487668, 79825475, 80127485,
-    #     1072668473, 7186392, 74182544, 74344897, 1053329911, 79663392,
-    #     79892593, 52824603, 1143264961, 80138563, 1065917402, 1067719339,
-    #     1095929305, 5416907, 1098715090, 1005220326, 1098731565, 1098749160,
-    #     1193587681, 1095815439, 79697019, 5874263, 1010005789, 4138293,
-    #     1014193668, 1000810218, 1030616451, 19483492, 1031133915, 1019018752,
-    #     86058644, 1233511167, 14273010, 1013685026, 79470821, 37862695,
-    #     1007317314, 1007582396, 1004211263, 18955643
-    # ]
-    
-    # for n in numeros:
-    #     data = Contratos.objects.get(idempleado__docidentidad  = n , estadocontrato=1 ) 
-    #     print('---------------------------')
-    #     print(n)
-    #     print(data.idcontrato)
-    
-    
+    idempresa = usuario['idempresa']    
     
     # --- Función auxiliar de limpieza ---
     def clean_value(value):
