@@ -24,6 +24,8 @@ from django.views.decorators.http import require_GET
 import json
 from django.http import QueryDict
 from django.urls import reverse
+from decimal import Decimal, ROUND_HALF_UP
+
 
 def get_empleado_name(empleado):
     papellido = empleado.get('idempleado__papellido', '') if empleado.get('idempleado__papellido') is not None else ""
@@ -106,18 +108,31 @@ def payroll(request):
 
                 # Crear instancia de Crearnomina
                 
-                Crearnomina.objects.create(
-                    nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa),
-                    fechainicial=fechainicial,
-                    fechafinal=fechafinal,
-                    fechapago=form.cleaned_data['fechapago'],
-                    tiponomina=tiponomina,
-                    mesacumular=mes_acumular,
-                    anoacumular=ano_acumular,
-                    estadonomina=True, 
-                    diasnomina=dias_nomina,  #Usamos el cálculo aquí
-                    id_empresa=empresa,
-                )
+                print('-----------------')
+                print(form.cleaned_data['nombrenomina'])
+                print(fechainicial)
+                print(fechafinal)
+                print(form.cleaned_data['fechapago'])
+                print(tiponomina)
+                print(mes_acumular)
+                print(ano_acumular)
+                print(dias_nomina)
+                print(empresa)
+                print('-----------------')
+
+
+                # Crearnomina.objects.create(
+                #     nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa),
+                #     fechainicial=fechainicial,
+                #     fechafinal=fechafinal,
+                #     fechapago=form.cleaned_data['fechapago'],
+                #     tiponomina=tiponomina,
+                #     mesacumular=mes_acumular,
+                #     anoacumular=ano_acumular,
+                #     estadonomina=True, 
+                #     diasnomina=dias_nomina,  #Usamos el cálculo aquí
+                #     id_empresa=empresa,
+                # )
                 messages.success(request, "Nómina creada exitosamente.")
                 return redirect('payroll:payroll')  # Redirigir a una vista de lista, por ejemplo
             except (Tipodenomina.DoesNotExist, Empresa.DoesNotExist):
@@ -176,18 +191,32 @@ def payroll_create_add(request):
 
                 # Crear instancia de Crearnomina
                 name = generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa)
-                Crearnomina.objects.create(
-                    nombrenomina=name,
-                    fechainicial=fechainicial,
-                    fechafinal=fechafinal,
-                    fechapago=form.cleaned_data['fechapago'],
-                    tiponomina=tiponomina,
-                    mesacumular=mes_acumular,
-                    anoacumular=ano_acumular,
-                    estadonomina=True, 
-                    diasnomina=dias_nomina,  #Usamos el cálculo aquí
-                    id_empresa=empresa,
-                )
+                
+                print('-----------------')
+                print(form.cleaned_data['nombrenomina'])
+                print(fechainicial)
+                print(fechafinal)
+                print(form.cleaned_data['fechapago'])
+                print(tiponomina)
+                print(mes_acumular)
+                print(ano_acumular)
+                print(dias_nomina)
+                print(empresa)
+                print('-----------------')
+
+
+                # Crearnomina.objects.create(
+                #     nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa),
+                #     fechainicial=fechainicial,
+                #     fechafinal=fechafinal,
+                #     fechapago=form.cleaned_data['fechapago'],
+                #     tiponomina=tiponomina,
+                #     mesacumular=mes_acumular,
+                #     anoacumular=ano_acumular,
+                #     estadonomina=True, 
+                #     diasnomina=dias_nomina,  #Usamos el cálculo aquí
+                #     id_empresa=empresa,
+                # )
                 
                 
                 response = HttpResponse()
@@ -444,24 +473,49 @@ def payroll_create(request):
 
         if formula:
             if concept1.formula == '1':
-                if concept1.codigo == 2:                    
-                    aux = Salariominimoanual.objects.get(ano=nomina.anoacumular.ano).auxtransporte
-                    multiplier = aux / 30
-                    valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
+                if concept1.codigo == 2:
+
+                    aux = Salariominimoanual.objects.get(
+                        ano=nomina.anoacumular.ano
+                    ).auxtransporte
+
+                    multiplier = Decimal(aux) / Decimal('30')
+
                 else:
-                    multiplier = Contratos.objects.get(idcontrato=id).salario
-                    multiplier = multiplier / 30
-                    valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
+                    salario = Contratos.objects.get(idcontrato=id).salario
+                    multiplier = Decimal(salario) / Decimal('30')
+
+                valor = (
+                    Decimal(cantidad) *
+                    multiplier *
+                    Decimal(concept1.multiplicadorconcepto)
+                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
             elif concept1.formula == '2':
-                multiplier = Contratos.objects.get(idcontrato=id).salario
-                multiplier = (float(multiplier) / float(conceptfi.valorfijo))
-                valor = float(cantidad) * multiplier * float(concept1.multiplicadorconcepto)
+                salario = Contratos.objects.get(idcontrato=id).salario
+
+                multiplier = (
+                    Decimal(salario) /
+                    Decimal(conceptfi.valorfijo)
+                )
+
+                valor = (
+                    Decimal(cantidad) *
+                    multiplier *
+                    Decimal(concept1.multiplicadorconcepto)
+                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
             else:
-                cantidad = 0
-                valor = int(valor.replace(',', ''))
+                cantidad = Decimal('0')
+                valor = Decimal(valor.replace(',', '')).quantize(
+                    Decimal('1'), rounding=ROUND_HALF_UP
+                )
+
         else:
-            cantidad = 0
-            valor = int(valor.replace(',', ''))
+            cantidad = Decimal('0')
+            valor = Decimal(valor.replace(',', '')).quantize(
+                Decimal('1'), rounding=ROUND_HALF_UP
+            )
 
         # 🔹 Limpieza del nombre del empleado (sin "no data", None, ni vacíos)
         contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)

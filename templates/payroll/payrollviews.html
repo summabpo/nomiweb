@@ -486,11 +486,13 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                         $(conceptSelect).val(data.concept).trigger('change');
 
 
-                        conceptAmount.addEventListener('input', (event) => {
+                       conceptAmount.addEventListener('input', (event) => {
                             const cantidad = parseFloat(event.target.value) || 0;
                             const resultado = cantidad * data.multiplier;
-                            conceptValue.value = resultado.toFixed(2);
+
+                            conceptValue.value = Math.ceil(resultado);
                         });
+
 
 
                     }
@@ -669,7 +671,7 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                     amount.addEventListener('input', (event) => {
                         const cantidad = parseFloat(event.target.value) || 0;
                         const resultado = cantidad * data.multiplier;
-                        value.value = resultado.toFixed(2);
+                        value.value = Math.ceil(resultado);
                     });
 
                 }

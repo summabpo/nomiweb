@@ -114,6 +114,16 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
                 diasnomina = (fin_periodo - inicio_periodo).days + 1 
             
 
+    mes = fin_periodo.month
+    
+    if mes == 2 : 
+        if nomina.tiponomina.idtiponomina == 2 : 
+            diasnomina = 15 
+        elif nomina.tiponomina.idtiponomina == 1 : 
+            diasnomina = 30 
+        else:
+            diasnomina = diasnomina
+
     dias_vacaciones = calcular_vacaciones(contrato.idcontrato,nomina)
     dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina)
     dias_suspensiones = calcular_suspenciones(contrato.idcontrato,nomina)
@@ -124,8 +134,6 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
     diasnomina -= dias_incapacidad 
     diasnomina -= dias_suspensiones 
 
-    if contrato.idcontrato == 10769 :
-        print(f" d {d} v {dias_vacaciones} i {dias_incapacidad} s {dias_suspensiones}")
     
     calculo_prestamo(contrato, idnomina)
     #Calculo_vacaciones(contrato, idn)
@@ -151,7 +159,10 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
             diasnomina = nomina.diasnomina
     
 
-        valorsalario = (contrato.salario / 30) * diasnomina
+        valorsalario = (
+                Decimal(contrato.salario) / Decimal('30') *
+                Decimal(diasnomina)
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
         
     
@@ -423,8 +434,17 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
         
         
         
-        valoreps = round((total_base_ss * EPS.valorfijo) / 100, 2)
-        valorafp = round((total_base_ss * AFP.valorfijo) / 100, 2)
+        valoreps = (
+                Decimal(total_base_ss) *
+                Decimal(EPS.valorfijo) / Decimal('100')
+            ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+
+        valorafp = (
+                Decimal(total_base_ss) *
+                Decimal(AFP.valorfijo) / Decimal('100')
+            ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        
         valorfsp = round((base_ss_fsp2 * FSP) / 100, 2) if base_ss_fsp2 >= (sal_min * 4) else 0.00
         
     
@@ -651,7 +671,15 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
     
     diasnomina =  diasnomina1 + diasnomina2
     
+    mes = fin_periodo.month
     
+    if mes == 2 : 
+        if nomina.tiponomina.idtiponomina == 2 : 
+            diasnomina = 15 
+        elif nomina.tiponomina.idtiponomina == 1 : 
+            diasnomina = 30 
+        else:
+            diasnomina = diasnomina
     
     # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
     if diasnomina > 30:
@@ -684,7 +712,10 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
         
                     
         if total_base_trans < (sal_min * 2):
-            transporte = diasnomina * (aux_tra / 30)
+            transporte = (
+                    Decimal(diasnomina) *
+                    (Decimal(aux_tra) / Decimal('30'))
+                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         else:
             transporte = 0
             diasnomina = 0

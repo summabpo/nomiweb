@@ -55,7 +55,7 @@ def generate_contract_excel(idempresa):
         'Documento', 'Nombre', 'Fecha Inicio Contrato', 'Cargo', 'Salario',
         'Centro de Costos', 'Tipo de Contrato', 'Tarifa ARL', 'Fecha Fin Contrato',
         'Tipo Nomina', 'Banco Cuenta', 'Cuenta Nomina', 'Tipo Cuenta Nomina', 'EPS', 'Pension',
-        'Caja Compensacion', 'Ciudad Contratacion ', 
+        'Fondo Cesantias', 'Caja Compensacion', 'Ciudad Contratacion ', 
         'Forma Pago', 'Tipo Salario', 'Modelo', 'Departamento', 'ID Contrato'
     ]
     ws.append(headers)
@@ -70,7 +70,7 @@ def generate_contract_excel(idempresa):
         'idempleado__snombre', 'fechainiciocontrato', 'cargo', 'salario', 'idcosto__nomcosto',
         'tipocontrato__tipocontrato', 'centrotrabajo__tarifaarl', 'fechafincontrato',
         'tiponomina', 'bancocuenta', 'cuentanomina', 'tipocuentanomina', 'codeps',
-        'codafp', 'codccf', 'ciudadcontratacion__ciudad', 'formapago',
+        'codafp', 'codccf', 'idsede__cajacompensacion', 'ciudadcontratacion__ciudad', 'formapago',
         'tiposalario__tiposalario', 'jornada', 'idmodelo__nombremodelo', 'idcontrato'
     )
 
@@ -100,6 +100,7 @@ def generate_contract_excel(idempresa):
             clean(data.codeps.entidad),
             clean(data.codafp.entidad),
             clean(data.codccf.entidad),
+            clean(data.idsede.cajacompensacion),
             clean(data.ciudadcontratacion.ciudad),
             clean(forma_pago_dict.get(data.formapago, '')),
             clean(data.tiposalario.tiposalario),

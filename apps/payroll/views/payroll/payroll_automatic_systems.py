@@ -316,7 +316,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     
                 # días calculados por Python (sin incluir el día final)
                 dias_base = (fin_periodo - inicio_periodo).days
-
+                
                 # determinar días del mes del fin_periodo
                 mes = fin_periodo.month
                 ano = fin_periodo.year
@@ -331,6 +331,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
                     diasnomina = dias_base 
                 else:
                     diasnomina = dias_base + 1
+
+                
                     
             elif nomina.tiponomina.idtiponomina == 2 :
                 nombre_original = nomina.nombrenomina or ""
@@ -338,9 +340,20 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
                     diasnomina = (fin_periodo - inicio_periodo).days  
                 else : 
                     diasnomina = (fin_periodo - inicio_periodo).days + 1 
+
+
                 
         mes = fin_periodo.month
         anio = fin_periodo.year
+       
+        if mes == 2 : 
+            if nomina.tiponomina.idtiponomina == 2 : 
+                diasnomina = 15 
+            elif nomina.tiponomina.idtiponomina == 1 : 
+                diasnomina = 30 
+            else:
+                diasnomina = diasnomina
+
 
         dias_mes = calendar.monthrange(anio, mes)[1]
 
@@ -1028,6 +1041,9 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         diasnomina1 = nomina.diasnomina
         inicio_periodo = max(inicio_nomina, inicio_contrato)
         fin_periodo = min(fin_nomina, fin_contrato)
+
+        mes = fin_periodo.month
+        ano = fin_periodo.year
         
         
         if fin_periodo < inicio_periodo:
@@ -1077,6 +1093,14 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
         if diasnomina > 30:
             diasnomina = 30
 
+        if mes == 2 : 
+            if nomina.tiponomina.idtiponomina == 2 : 
+                diasnomina = 15 
+            elif nomina.tiponomina.idtiponomina == 1 : 
+                diasnomina = 30 
+            else:
+                diasnomina = diasnomina
+
         dias_vacaciones = calcular_vacaciones(contrato,nomina)
         dias_incapacidad = calculo_incapacidad(contrato,nomina)
         dias_suspensiones = calcular_suspenciones(contrato,nomina)
@@ -1102,7 +1126,7 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
                 idconcepto__codigo=2
             ).distinct().aggregate(total=Sum('valor'))['total'] or 0# Reemplaza 'monto' con el nombre correcto de la columna
             
-                        
+            transporte = (diasnomina  * aux_tra ) / 30 
             if total_base_trans < (sal_min * 2):
                 transporte = (
                     Decimal(diasnomina) *
@@ -1112,7 +1136,8 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
             else:
                 transporte = 0
                 diasnomina = 0
-        
+
+
             concepto = Conceptosdenomina.objects.get(codigo= 2 , id_empresa_id = idempresa)
             
             
@@ -1141,7 +1166,8 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
                         ).exists():
                             aux_pass.cantidad = diasnomina
                             aux_pass.valor = transporte
-                            aux_pass.save()                  
+                            aux_pass.save()     
+
                     else:
                         
                         
