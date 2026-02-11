@@ -1015,7 +1015,7 @@ def electronic_payroll_generate_refactor(request, pk=None):
     """Main function to generate payroll JSON for one or all employees."""
     container = NeDatosMensual.objects.get(idnominaelectronica=pk)
     month, year = container.mesacumular, container.anoacumular
-    consecutivo = container.consecutivo + 1
+    consecutivo = container.consecutivo
 
     try:
         ano_id = Anos.objects.get(ano=year).idano
@@ -1029,7 +1029,7 @@ def electronic_payroll_generate_refactor(request, pk=None):
 
     json_results = []
     for detail in employee_details:
-
+        consecutivo += 1
         contrato_instance = Contratos.objects.get(idcontrato=detail['id'])
 
         # Create NeDetalleNominaElectronica object
@@ -1056,8 +1056,10 @@ def electronic_payroll_generate_refactor(request, pk=None):
         datail_payroll.save()
 
         json_results.append(employee_json)
-        consecutivo += 1
+       
 
+    container.consecutivo = consecutivo
+    container.save()
     messages.success(request, 'Nómina Generada Exitosamente.')
     return redirect('payroll:detalle_nomina_electronica',  pk=pk)  # Cambia a la vista deseada después de guardar
 
@@ -1124,6 +1126,7 @@ def electronic_payroll_regenerate(request, pk=None):
     detail_payroll = NeDetalleNominaElectronica.objects.get(id_detalle_nomina_electronica=pk)
     container = detail_payroll.id_ne_datos_mensual
     month, year = container.mesacumular, container.anoacumular
+    consecutivo = container.consecutivo 
 
     try:
         ano_id = Anos.objects.get(ano=year).idano
@@ -1137,6 +1140,7 @@ def electronic_payroll_regenerate(request, pk=None):
 
     # Generate JSON for the individual employee
     for detail in employee_details:
+        consecutivo += 1
         employee_concepts = [concept for concept in concept_details if concept['contrato_id'] == detail['id']]
         employee_json = generate_employee_json(detail, container, company_data, employee_concepts, detail_payroll.id_consecutivo)
 
@@ -1147,9 +1151,11 @@ def electronic_payroll_regenerate(request, pk=None):
         detail_payroll.estado = 1
         detail_payroll.save()
 
+        
         # Optionally, you can print or log the generated JSON
         
-
+    container.consecutivo = consecutivo
+    container.save()
     messages.success(request, 'Nómina Generada Exitosamente.')
     return redirect('payroll:detalle_nomina_electronica', pk=container.idnominaelectronica)
 

@@ -24,6 +24,235 @@ from apps.payroll.forms.TimeForm import TimeForm
 from urllib.parse import urlencode
 from openpyxl.styles import PatternFill, Font
 
+
+def aplicar_descanso(descanso_minutos, horas):
+    """
+    horas: dict con bolsas en minutos
+    Modifica el dict directamente
+    """
+    prioridad = [
+        'horas_ordinarias',
+        'rn',
+        'hed',
+        'hen',
+        'hedf',
+        'henf',
+        'dyf',               
+        'rnf',
+    ]
+
+    for key in prioridad:
+        if descanso_minutos <= 0:
+            break
+
+        disponible = horas.get(key, 0)
+
+        if disponible > 0:
+            descontar = min(disponible, descanso_minutos)
+            horas[key] -= descontar
+            descanso_minutos -= descontar
+
+    return descanso_minutos
+
+
+def data_time(r):
+
+    inicio_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO INICIO").valorfijo)
+    fin_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO FIN").valorfijo)
+    anio_actual = datetime.now().year
+    ano_obj = Anos.objects.get(ano =  anio_actual )
+    CO_HOLIDAYS = holidays.CO(years=ano_obj.ano)
+
+    data = {
+        'horas_trabajadas': 0.0,
+        'horas_ordinarias': 0.0,
+        'horas_domfes': 0.0,
+        'rn': 0.0,
+        'hed': 0.0,
+        'hen': 0.0,
+        'hedf': 0.0,
+        'henf': 0.0,
+        'dyf': 0.0,
+        'rnf': 0.0,
+    }
+
+    # ho, rn, hed,hen,dyf, rnf, hedf, henf
+    prioridad = [
+            'horas_ordinarias',
+            'rn',
+            'hed',
+            'hen',
+            'dyf', 
+            'rnf',
+            'hedf',
+            'henf',
+        ]
+
+    #* =========  Variables de Inicio =========
+    MINUTO_HORA = 1
+    horas_trabajadas = 0.0
+    horas_ordinarias = 0.0
+    hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = timee = 0.0
+
+    inicio = datetime.combine(r.fechaingreso, r.horaingreso)
+    fin = datetime.combine(r.fechasalida, r.horasalida)
+
+    actual = inicio
+    paso = timedelta(minutes=1)
+
+    noct_inicio = time(inicio_int, 0, 0)
+    noct_fin = time(fin_int, 0, 0)
+
+    
+
+    inicio_diurna = noct_fin
+    fin_diurna = noct_inicio
+
+    au = actual.date()
+    is_domingo = au.weekday() == 6
+    is_festivo = au in CO_HOLIDAYS
+    is_festivo_o_dom = is_domingo or is_festivo
+    
+    fecha = actual.date()
+    hora = actual.time()
+
+    if r.horasdescuentos:
+        h = r.horasdescuentos
+        descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
+    else:
+        descuento_horas = 0.0
+
+    descanso = descuento_horas * 60 
+
+    while actual < fin :
+        fecha = actual.date()
+        hora = actual.time()
+
+        is_domingo = fecha.weekday() == 6
+        is_festivo = fecha in CO_HOLIDAYS
+        
+        is_festivo_o_dom = is_domingo or is_festivo
+        is_nocturna = hora < inicio_diurna or hora >= fin_diurna
+        
+
+        horas_trabajadas += MINUTO_HORA
+
+        if (actual - inicio) < timedelta(minutes=(480 + descanso)) and not is_festivo_o_dom and not is_nocturna :
+            
+            horas_ordinarias += MINUTO_HORA
+
+        if (actual - inicio) < timedelta(minutes=(480 + descanso)) and is_festivo_o_dom and not is_nocturna : 
+            dyf += MINUTO_HORA
+            
+
+        if is_festivo_o_dom and is_nocturna : 
+            rnf += MINUTO_HORA
+            
+        if not is_festivo_o_dom and is_nocturna : 
+            rn += MINUTO_HORA
+            #print(f" dato : {rn} fecha {actual}")
+    
+        # Validación de 480 minutos ( 8 horas de trabajo )
+        if (actual - inicio) >= timedelta(minutes=(480 + descanso) ) and not is_festivo_o_dom :
+            
+            if is_nocturna:
+                hen += MINUTO_HORA
+            else:
+                hed += MINUTO_HORA
+
+        if (actual - inicio) >= timedelta(minutes=(480 + descanso)) and is_festivo_o_dom :
+            
+            if is_nocturna:
+                henf += MINUTO_HORA
+            else:
+                hedf += MINUTO_HORA
+        
+        # avanzar
+        actual += paso
+   
+
+    descuento_horas = round(descuento_horas,3)
+    horas_ordinarias = round( horas_ordinarias / 60.0, 3) 
+    horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
+    dyf = round(dyf / 60.0, 3) 
+    horas_trabajadas = max(horas_trabajadas - descuento_horas , 0)
+
+    hed = round( hed / 60.0, 3)   
+    hen = round( hen / 60.0, 3)     
+
+
+    hedf = round( hedf / 60.0, 3)   
+    henf = round( henf / 60.0, 3)   
+    
+    rn = round( rn / 60.0, 3)    
+    rnf = round( rnf / 60.0, 3) 
+    
+    
+    
+    if rn > 0:
+        rn -= ( hen + hed )  
+        if rn < 0 : 
+            rn = 0 
+        if rn > 8:
+            rn = 8 
+
+
+    if rnf > 0:
+        rnf -= (henf + hedf)  
+        if rnf < 0 : 
+            rnf = 0 
+
+        if rnf > 8:
+            rnf = 8 
+
+
+
+    horas_domfes = dyf + rnf
+    h_totales = horas_trabajadas + horas_domfes
+
+    if h_totales >= 8:
+        hed = hed
+    else :
+        hed = 0
+
+    if h_totales >= 8:
+        hen = hen
+    else :
+        hen = 0
+
+    #### salida final 
+
+    data = {
+        'horas_trabajadas': horas_trabajadas,
+        'horas_ordinarias': horas_ordinarias,
+        'horas_domfes': horas_domfes,
+        'rn': rn,
+        'hed': hed,
+        'hen': hen,
+        'hedf': hedf,
+        'henf': henf,
+        'dyf': dyf,
+        'rnf': rnf,
+    }
+
+
+    for key in prioridad:
+        if descuento_horas <= 0:
+            break
+
+        disponible = data.get(key, 0)
+
+        if disponible > 0:
+            descontar = min(disponible, descuento_horas)
+            data[key] -= descontar
+            descuento_horas -= descontar
+            break
+    
+    return data 
+
+
+
+
 @login_required
 @role_required('accountant')
 def time_list(request):
@@ -110,8 +339,8 @@ def time_list(request):
 
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
-        # ,idcontrato_id = 8083 
-        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
+        # ,idcontrato_id = 11427 , idmarcacion = 18186 
+        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id ).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
             nombre_completo=Concat(
@@ -129,162 +358,20 @@ def time_list(request):
 
         for t in tiempos:
 
-            #* =========  Variables de Inicio =========
-            MINUTO_HORA = 1
-            horas_trabajadas = 0.0
-            horas_ordinarias = 0.0
-            hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = timee = 0.0
-
-            inicio = datetime.combine(t.fechaingreso, t.horaingreso)
-            fin = datetime.combine(t.fechasalida, t.horasalida)
-
-            actual = inicio
-            paso = timedelta(minutes=1)
-
-            noct_inicio = time(inicio_int, 0, 0)
-            noct_fin = time(fin_int, 0, 0)
-
-            
-
-            inicio_diurna = noct_fin
-            fin_diurna = noct_inicio
-
-            au = actual.date()
-            is_domingo = au.weekday() == 6
-            is_festivo = au in CO_HOLIDAYS
-            is_festivo_o_dom = is_domingo or is_festivo
-            
-            fecha = actual.date()
-            hora = actual.time()
-
-            if t.horasdescuentos:
-                h = t.horasdescuentos
-                descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
-            else:
-                descuento_horas = 0.0
-
-            descanso = descuento_horas * 60 
-
-            while actual < fin :
-                fecha = actual.date()
-                hora = actual.time()
-
-                is_domingo = fecha.weekday() == 6
-                is_festivo = fecha in CO_HOLIDAYS
-                
-                is_festivo_o_dom = is_domingo or is_festivo
-                is_nocturna = hora < inicio_diurna or hora >= fin_diurna
-                
-
-                horas_trabajadas += MINUTO_HORA
-
-                if (actual - inicio) < timedelta(minutes=(480 + descanso)) and not is_festivo_o_dom :
-                    horas_ordinarias += MINUTO_HORA
-
-                if (actual - inicio) < timedelta(minutes=(480 + descanso)) and is_festivo_o_dom and not is_nocturna : 
-                    dyf += MINUTO_HORA
-                    if actual.date() == date(2026, 1, 4):
-                        print(f'rn : {dyf} - fecha :{actual}')
-
-                if is_festivo_o_dom and is_nocturna : 
-                    rnf += MINUTO_HORA
-                    
-                if not is_festivo_o_dom and is_nocturna : 
-                    rn += MINUTO_HORA
-                    
-
-                # Validación de 480 minutos ( 8 horas de trabajo )
-                if (actual - inicio) >= timedelta(minutes=(480 + descanso) ) and not is_festivo_o_dom :
-                    
-                    if is_nocturna:
-                        hen += MINUTO_HORA
-                    else:
-                        hed += MINUTO_HORA
-
-                if (actual - inicio) >= timedelta(minutes=(480 + descanso)) and is_festivo_o_dom :
-                    
-                    if is_nocturna:
-                        henf += MINUTO_HORA
-                    else:
-                        hedf += MINUTO_HORA
-                
-                # avanzar
-                actual += paso
-                
-            
-            descuento_horas = round(descuento_horas,3)
-            horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
-
-            descuento_horas = round(descuento_horas,3)
-            
-            hed = round( hed / 60.0, 3)   
-            hen = round( hen / 60.0, 3)     
-
-
-            hedf = round( hedf / 60.0, 3)   
-            henf = round( henf / 60.0, 3)   
-            
-            rn = round( rn / 60.0, 3)    
-            rnf = round( rnf / 60.0, 3)  
-
-            if dyf > 0 :
-                dyf = round(dyf / 60.0 - descuento_horas , 3)   
-            else:
-                dyf = 0  
-            
-            horas_ordinarias = round( horas_ordinarias / 60.0, 3)  
-            horas_ordinarias = max(horas_ordinarias - descuento_horas , 0)
-
-            if horas_trabajadas >= descuento_horas:
-                horas_trabajadas -= descuento_horas
-
-
-            h_totales = horas_trabajadas + horas_domfes
-
-
-            if h_totales >= 8:
-                hed = hed
-            else :
-                hed = 0
-
-            if h_totales >= 8:
-                hen = hen
-            else :
-                hen = 0
-
-
-            if rn > 8:
-                rn -= (descuento_horas) 
-
-            if rnf > 8:
-                rnf -= (descuento_horas)  
-
-            if rn > 0:
-                rn -= (hen + henf) 
-                if rn < 0 : 
-                    rn = 0 
-
-
-            if rnf > 0:
-                rnf -= (henf + henf) 
-                if rnf < 0 : 
-                    rnf = 0 
-
-            horas_domfes = dyf + rnf
-
-                
-            t.horas_trabajadas= round( horas_trabajadas, 3) 
-            t.horas_ordinarias= round( horas_ordinarias, 3)  
+            data = data_time(t)
+      
+            t.horas_trabajadas= data['horas_trabajadas'] 
+            t.horas_ordinarias= data['horas_ordinarias']
             t.saldo_horas= 0
-            t.horas_dom_fest= round( horas_domfes, 3)  
+            t.horas_dom_fest= data['horas_domfes']
 
-            t.hed = round( hed, 3)   
-            t.hen = round( hen, 3)   
-            t.hedf = round( hedf, 3)  
-            t.henf = round( henf, 3)  
-            t.rn = round( rn, 3)  
-            t.rnf = round( rnf, 3)  
-            t.dyf = round( dyf, 3)   
+            t.hed = data['hed']  
+            t.hen = data['hen']   
+            t.hedf = data['hedf']  
+            t.henf = data['henf']  
+            t.rn = data['rn']  
+            t.rnf = data['rnf']  
+            t.dyf = data['dyf'] 
 
         value1 = True
 
@@ -333,147 +420,7 @@ def time_list(request):
             if not emp:
                 continue
 
-            #* =========  Variables de Inicio =========
-            MINUTO_HORA = 1
-            horas_trabajadas = 0.0
-            horas_ordinarias = 0.0
-            hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = timee = 0.0
-
-            inicio = datetime.combine(registro.fechaingreso, registro.horaingreso)
-            fin = datetime.combine(registro.fechasalida, registro.horasalida)
-
-            actual = inicio
-            paso = timedelta(minutes=1)
-
-            noct_inicio = time(inicio_int, 0, 0)
-            noct_fin = time(fin_int, 0, 0)
-
-
-            inicio_diurna = noct_fin
-            fin_diurna = noct_inicio
-
-            au = actual.date()
-            is_domingo = au.weekday() == 6
-            is_festivo = au in CO_HOLIDAYS
-            is_festivo_o_dom = is_domingo or is_festivo
-
-            if registro.horasdescuentos:
-                h = registro.horasdescuentos
-                descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
-            else:
-                descuento_horas = 0.0
-
-            descanso = descuento_horas * 60 
-
-            while actual < fin :
-                fecha = actual.date()
-                hora = actual.time()
-
-                is_domingo = fecha.weekday() == 6
-                is_festivo = fecha in CO_HOLIDAYS
-                
-                is_festivo_o_dom = is_domingo or is_festivo
-                is_nocturna = hora < inicio_diurna or hora >= fin_diurna
-                
-
-                horas_trabajadas += MINUTO_HORA
-
-                if (actual - inicio) < timedelta(minutes=(480 + descanso)) and not is_festivo_o_dom :
-                    horas_ordinarias += MINUTO_HORA
-
-                if (actual - inicio) < timedelta(minutes=(480 + descanso)) and is_festivo_o_dom and not is_nocturna :  
-                    dyf += MINUTO_HORA
-
-                if is_festivo_o_dom and is_nocturna : 
-                    rnf += MINUTO_HORA
-                    
-                if not is_festivo_o_dom and is_nocturna : 
-                    rn += MINUTO_HORA
-                    #print(f'rn : {rn} - fecha :{actual}')
-                    
-
-                # Validación de 480 minutos ( 8 horas de trabajo )
-                if (actual - inicio) >= timedelta(minutes=(480 + descanso) ) and not is_festivo_o_dom :
-                    
-                    if is_nocturna:
-                        hen += MINUTO_HORA
-                    else:
-                        hed += MINUTO_HORA
-
-                if (actual - inicio) >= timedelta(minutes=(480 + descanso)) and is_festivo_o_dom :
-                    
-                    if is_nocturna:
-                        henf += MINUTO_HORA
-                    else:
-                        hedf += MINUTO_HORA
-
-                        
-                       
-                
-                # avanzar
-                actual += paso
-
-    
-            descuento_horas = round(descuento_horas,3)
-            horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
-
-            descuento_horas = round(descuento_horas,3)
-            
-            hed = round( hed / 60.0, 3)   
-            hen = round( hen / 60.0, 3)     
-
-
-            hedf = round( hedf / 60.0, 3)   
-            henf = round( henf / 60.0, 3)   
-            
-            rn = round( rn / 60.0, 3)    
-            rnf = round( rnf / 60.0, 3) 
-
-
-            if dyf > 0 :
-                dyf = round(dyf / 60.0 - descuento_horas , 3)   
-            else:
-                dyf = 0
-            
-            horas_ordinarias = round( horas_ordinarias / 60.0, 3)  
-            horas_ordinarias = max(horas_ordinarias - descuento_horas , 0)
-
-            if horas_trabajadas >= descuento_horas:
-                horas_trabajadas -= descuento_horas
-
-
-            h_totales = horas_trabajadas + horas_domfes
-
-
-            if h_totales >= 8:
-                hed = hed
-            else :
-                hed = 0
-
-            if h_totales >= 8:
-                hen = hen
-            else :
-                hen = 0
-
-
-            horas_domfes = dyf + rnf
-
-
-            if rn > 8:
-                rn -= (descuento_horas) 
-
-            if rnf > 8:
-                rnf -= (descuento_horas) 
-
-            if rn > 0:
-                rn -= (hen + hed) 
-                if rn < 0 : 
-                    rn = 0 
-
-            if rnf > 0:
-                rnf -= (hedf + henf) 
-                if rnf < 0 : 
-                    rnf = 0 
+            data = data_time(registro)
 
             # =============================
             # ✅ SOLO APPEND A EMPLEADOS
@@ -481,27 +428,17 @@ def time_list(request):
             
             
 
-            emp['horas_trabajadas'] += horas_trabajadas
-            emp['horas_normales'] += horas_ordinarias
-            emp['horas_domfes'] += horas_domfes
-            emp['hed'] += hed
-            emp['hen'] += hen
-            emp['hedf'] += hedf
-            emp['henf'] += henf
-            emp['rn'] += rn
-            emp['rnf'] += rnf
-            emp['dyf'] += dyf
+            emp['horas_trabajadas'] += data['horas_trabajadas'] 
+            emp['horas_normales'] += data['horas_ordinarias'] 
+            emp['horas_domfes'] += data['horas_domfes'] 
+            emp['hed'] += data['hed'] 
+            emp['hen'] += data['hen'] 
+            emp['hedf'] += data['hedf'] 
+            emp['henf'] += data['henf'] 
+            emp['rn'] += data['rn'] 
+            emp['rnf'] += data['rnf'] 
+            emp['dyf'] += data['dyf'] 
         
-        # print('------------------')
-        # print(f"HED  : {emp['hed']}")
-        # print(f"HEN  : {emp['hen']}")
-        # print(f"HEDF : {emp['hedf']}")
-        # print(f"HENF : {emp['henf']}")
-        # print(f"RN   : {emp['rn']}")
-        # print(f"RNF  : {emp['rnf']}")
-        # print(f"DYF  : {emp['dyf']}")
-        # print('------------------')
-
         for e in empleados:
         
             aux = ( e['salario'] / jmm )
@@ -553,8 +490,7 @@ def time_list(request):
             # 🔴 Si ambas son 0 → no crear ni actualizar
             if horas_ord == 0 and horas_trab == 0:
                 continue  # o `continue` si estás dentro de un loop
-            print('----------')
-            print(data.get('rn', 0))
+
             # 🔹 Buscar o crear el registro
             obj, created = TiemposTotales.objects.update_or_create(
                 idcontrato=contrato,
@@ -752,7 +688,7 @@ def time_doc(request, id):
     idempresa = usuario.get('idempresa')
 
     tiempos = Tiempos.objects.filter(idnomina=id ).select_related('idcontrato__idsede')
-    #tiempos = Tiempos.objects.filter(idmarcacion = 17464 ).select_related('idcontrato__idsede')
+    #tiempos = Tiempos.objects.filter(,idcontrato_id = 7960).select_related('idcontrato__idsede')
         
     wb = Workbook()
     ws = wb.active
@@ -835,157 +771,19 @@ def time_doc(request, id):
                                 fill_type="solid")
         MINUTO_HORA = 1
         
-        # Inicializar contadores (en horas)
-        horas_trabajadas = 0.0
-        horas_ordinarias = 0.0
-        hed = hen = hedf = henf = rn = rnf = dyf = horas_domfes = timee = 0.0
-
-        inicio = datetime.combine(registro.fechaingreso, registro.horaingreso)
-        fin = datetime.combine(registro.fechasalida, registro.horasalida)
-
-        actual = inicio
-        paso = timedelta(minutes=1)
-
-        # Rangos diurnos (ajusta si tu política es otra)
-        
-        inicio_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO INICIO").valorfijo)
-        fin_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO FIN").valorfijo)
-
-        noct_inicio = time(inicio_int, 0, 0)
-        noct_fin = time(fin_int, 0, 0)
-        # Diurna es el complemento del rango nocturno
-        inicio_diurna = noct_fin
-        fin_diurna = noct_inicio
-
-        au = actual.date()
-        is_domingo = au.weekday() == 6
-        is_festivo = au in CO_HOLIDAYS
-        is_festivo_o_dom = is_domingo or is_festivo
-        
-        if registro.horasdescuentos:
-            h = registro.horasdescuentos
-            descuento_horas = h.hour + (h.minute / 60.0) + (h.second / 3600.0)
-        else:
-            descuento_horas = 0.0
-
-        descanso = descuento_horas * 60 
-
-        while actual < fin :
-            fecha = actual.date()
-            hora = actual.time()
-
-            is_domingo = fecha.weekday() == 6
-            is_festivo = fecha in CO_HOLIDAYS
-            
-            is_festivo_o_dom = is_domingo or is_festivo
-            is_nocturna = hora < inicio_diurna or hora >= fin_diurna
-            
-
-            horas_trabajadas += MINUTO_HORA
-
-            if (actual - inicio) < timedelta(minutes=(480 + descanso)) and not is_festivo_o_dom :
-                horas_ordinarias += MINUTO_HORA
-
-            if (actual - inicio) < timedelta(minutes=(480 + descanso)) and is_festivo_o_dom and not is_nocturna : 
-                dyf += MINUTO_HORA
-
-            if is_festivo_o_dom and is_nocturna : 
-                rnf += MINUTO_HORA
-                
-            if not is_festivo_o_dom and is_nocturna : 
-                rn += MINUTO_HORA
-
-            # Validación de 480 minutos ( 8 horas de trabajo )
-            if (actual - inicio) >= timedelta(minutes=(480 + descanso) ) and not is_festivo_o_dom :
-                
-                if is_nocturna:
-                    hen += MINUTO_HORA
-                else:
-                    hed += MINUTO_HORA
-
-            if (actual - inicio) >= timedelta(minutes=(480 + descanso)) and is_festivo_o_dom :
-                
-                if is_nocturna:
-                    henf += MINUTO_HORA
-                else:
-                    hedf += MINUTO_HORA
-            
-            # avanzar
-            actual += paso
-
-
-
-        
-        descuento_horas = round(descuento_horas,3)
-        horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
-
-        descuento_horas = round(descuento_horas,3)
-        
-        hed = round( hed / 60.0, 3)   
-        hen = round( hen / 60.0, 3)     
-
-
-        hedf = round( hedf / 60.0, 3)   
-        henf = round( henf / 60.0, 3)   
-        
-        rn = round( rn / 60.0, 3)    
-
-        rnf = round( rnf / 60.0, 3)   
-
-        if dyf > 0 :
-            dyf = round(dyf / 60.0 - descuento_horas , 3)   
-        else:
-            dyf = 0
-        
-        horas_ordinarias = round( horas_ordinarias / 60.0, 3)  
-        horas_ordinarias = max(horas_ordinarias - descuento_horas , 0)
-
-        if horas_trabajadas >= descuento_horas:
-            horas_trabajadas -= descuento_horas
-
-
-        h_totales = horas_trabajadas + horas_domfes
-
-
-        if h_totales >= 8:
-            hed = hed
-        else :
-            hed = 0
-
-        if h_totales >= 8:
-            hen = hen
-        else :
-            hen = 0
-
-        horas_domfes = dyf + rnf
-
-        if rn > 8:
-            rn -= (descuento_horas) 
-
-        if rnf > 8:
-            rnf -= (descuento_horas)  
-
-        if rn > 0:
-            rn -= (hen + hed) 
-            if rn < 0 : 
-                rn = 0 
-
-        if rnf > 0:
-            rnf -= (hedf + henf) 
-            if rnf < 0 : 
-                rnf = 0 
+        data = data_time(registro)
 
         # Acumular totales
-        acumulados['HorasTraba'] += horas_trabajadas 
-        acumulados['HorasOrdi'] += horas_ordinarias
-        acumulados['HorasDomFes'] += horas_domfes
-        acumulados['Hed'] += hed
-        acumulados['Hen'] += hen
-        acumulados['Hedf'] += hedf
-        acumulados['Henf'] += henf
-        acumulados['Rn'] += rn
-        acumulados['Rnf'] += rnf
-        acumulados['Dyf'] += dyf
+        acumulados['HorasTraba'] += data['horas_trabajadas'] 
+        acumulados['HorasOrdi'] += data['horas_ordinarias'] 
+        acumulados['HorasDomFes'] += data['horas_domfes'] 
+        acumulados['Hed'] += data['hed'] 
+        acumulados['Hen'] += data['hen'] 
+        acumulados['Hedf'] += data['hedf'] 
+        acumulados['Henf'] += data['henf'] 
+        acumulados['Rn'] += data['rn'] 
+        acumulados['Rnf'] += data['rnf'] 
+        acumulados['Dyf'] += data['dyf'] 
 
         # Agregar fila
         row = [
@@ -996,11 +794,17 @@ def time_doc(request, id):
             registro.fechasalida,
             registro.horasalida,
             registro.horasdescuentos,
-            horas_trabajadas,
-            horas_ordinarias,
+            data['horas_trabajadas'] ,
+            data['horas_ordinarias'],
             '0.0',
-            horas_domfes,
-            hed, hen, hedf, henf, rn, rnf, dyf,
+            data['horas_domfes'],
+            data['hed'], 
+            data['hen'], 
+            data['hedf'],
+            data['henf'], 
+            data['rn'], 
+            data['rnf'], 
+            data['dyf'],
             registro.idcontrato.idsede.nombresede if registro.idcontrato.idsede else "",
         ]
 
