@@ -306,10 +306,10 @@ def _get_ficha_contratos(empresa_id: int, ids_contrato: list[int]) -> list[dict]
       ON td.id_tipo_doc = ce.tipodocident_id
 
     LEFT JOIN public.ciudades ciu
-      ON ciu.idciudad = ce.ciudad_id
+      ON ciu.idciudad = c.ciudadcontratacion_id
 
     LEFT JOIN public.centrotrabajo ct
-      ON ct.idcentrotrabajo = c.centrotrabajo_id
+      ON ct.centrotrabajo = c.centrotrabajo_id
 
     JOIN public.tiposdecotizantes tc
       ON tc.tipocotizante = c.tipocotizante_id
