@@ -1,0 +1,3793 @@
+{
+  "empresa": {
+    "id_interno": 1,
+    "nit": "900000123",
+    "razon_social": "EMPRESA PRUEBA SAS",
+    "sucursal": "01",
+    "tipo_aportante": "E",
+    "clase_riesgo_arl": "3",
+    "flags": {
+      "empresa_exonerada": true
+    }
+  },
+  "periodo": "2025-12",
+  "planilla": {
+    "tipo_planilla": "E",
+    "numero_interno": "NW-EMP1-2025-12",
+    "fecha_generacion": "2026-01-30"
+  },
+  "empleados": [
+    {
+      "id_empleado": 7933,
+      "tipo_doc": "CC",
+      "num_doc": "73575113",
+      "nombre_completo": "PERTUZ JAVIER",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3501810",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 15,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1634253",
+        "pension": "1634253",
+        "arl": "1634253",
+        "parafiscales": "1634253"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7934,
+      "tipo_doc": "CC",
+      "num_doc": "72124873",
+      "nombre_completo": "BARANDICA LIBARDO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3611528",
+        "pension": "3611528",
+        "arl": "3611528",
+        "parafiscales": "3611528"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7935,
+      "tipo_doc": "CC",
+      "num_doc": "1113625407",
+      "nombre_completo": "MARINO OSCAR",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS018",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2629556",
+        "pension": "2629556",
+        "arl": "2629556",
+        "parafiscales": "2629556"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7936,
+      "tipo_doc": "CC",
+      "num_doc": "7143597",
+      "nombre_completo": "RAMIREZ EDWIN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3501810",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "ND",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 21,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3628700",
+        "pension": "3628700",
+        "arl": "2622308",
+        "parafiscales": "3528700"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7938,
+      "tipo_doc": "CC",
+      "num_doc": "73164902",
+      "nombre_completo": "VALLEJO ARCADIO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3939536",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4505367",
+        "pension": "4505367",
+        "arl": "4505367",
+        "parafiscales": "4505367"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7939,
+      "tipo_doc": "CC",
+      "num_doc": "71777454",
+      "nombre_completo": "MEJIA LUIS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3088203",
+        "pension": "3088203",
+        "arl": "3088203",
+        "parafiscales": "3088203"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7958,
+      "tipo_doc": "CC",
+      "num_doc": "1143326402",
+      "nombre_completo": "MATOREL VIVIAN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "4727443",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4734536",
+        "pension": "4734536",
+        "arl": "4233016",
+        "parafiscales": "4233016"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7959,
+      "tipo_doc": "CC",
+      "num_doc": "1143139932",
+      "nombre_completo": "BUENDIA EMERLY",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3501810",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4232290",
+        "pension": "4232290",
+        "arl": "4232290",
+        "parafiscales": "4232290"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7960,
+      "tipo_doc": "CC",
+      "num_doc": "1140893659",
+      "nombre_completo": "PADILLA JOHAN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2626357",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 29,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2905437",
+        "pension": "2905437",
+        "arl": "2905437",
+        "parafiscales": "2905437"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7961,
+      "tipo_doc": "CC",
+      "num_doc": "1143387853",
+      "nombre_completo": "ROSALES CARMEN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "4727443",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "5252561",
+        "pension": "5252561",
+        "arl": "5024561",
+        "parafiscales": "5024561"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7962,
+      "tipo_doc": "CC",
+      "num_doc": "1002317352",
+      "nombre_completo": "ALTAMAR DIANA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1434460",
+        "pension": "1434460",
+        "arl": "1112489",
+        "parafiscales": "1112489"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7974,
+      "tipo_doc": "CC",
+      "num_doc": "22647812",
+      "nombre_completo": "CASTRO  BLEIDIS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1434460",
+        "pension": "1434460",
+        "arl": "1434460",
+        "parafiscales": "1434460"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7991,
+      "tipo_doc": "CC",
+      "num_doc": "1007576797",
+      "nombre_completo": "ALTAMAR SILVIA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1762624",
+        "pension": "1762624",
+        "arl": "1598932",
+        "parafiscales": "1598932"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 7993,
+      "tipo_doc": "CC",
+      "num_doc": "1001946953",
+      "nombre_completo": "QUINTERO ADRIANA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2711701",
+        "pension": "2711701",
+        "arl": "2711701",
+        "parafiscales": "2711701"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8018,
+      "tipo_doc": "CC",
+      "num_doc": "1099370566",
+      "nombre_completo": "GONZALEZ KEVIN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "ND",
+        "arl": "14-11",
+        "caja": "CCF40"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2990298",
+        "pension": "2990298",
+        "arl": "2990298",
+        "parafiscales": "2990298"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8020,
+      "tipo_doc": "CC",
+      "num_doc": "1020732617",
+      "nombre_completo": "FERNANDEZ AMADEO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF44"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4040543",
+        "pension": "4040543",
+        "arl": "4040543",
+        "parafiscales": "4040543"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8036,
+      "tipo_doc": "CC",
+      "num_doc": "32886436",
+      "nombre_completo": "RAMIREZ ISABEL",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "CCFC55",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2043437",
+        "pension": "2043437",
+        "arl": "2043437",
+        "parafiscales": "2043437"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8042,
+      "tipo_doc": "CC",
+      "num_doc": "98579286",
+      "nombre_completo": "VALENCIA PASTOR",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3217557",
+        "pension": "3217557",
+        "arl": "3217557",
+        "parafiscales": "3217557"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8043,
+      "tipo_doc": "CC",
+      "num_doc": "1102841839",
+      "nombre_completo": "QUIROZ IVAN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3764445",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4098028",
+        "pension": "4098028",
+        "arl": "3257026",
+        "parafiscales": "3257026"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8044,
+      "tipo_doc": "CC",
+      "num_doc": "1010234595",
+      "nombre_completo": "RODRIGUEZ DIANA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3686016",
+        "pension": "3686016",
+        "arl": "4210356",
+        "parafiscales": "4210356"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8045,
+      "tipo_doc": "CC",
+      "num_doc": "73133039",
+      "nombre_completo": "OCHOA HERVES",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1927468",
+        "pension": "1927468",
+        "arl": "1927468",
+        "parafiscales": "1927468"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8046,
+      "tipo_doc": "CC",
+      "num_doc": "1123633546",
+      "nombre_completo": "RESTREPO NICOLAS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF64"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4360210",
+        "pension": "4360210",
+        "arl": "3392253",
+        "parafiscales": "4360210"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8048,
+      "tipo_doc": "CC",
+      "num_doc": "1036965205",
+      "nombre_completo": "MARTINEZ JUAN ",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2609930",
+        "pension": "2609930",
+        "arl": "2609930",
+        "parafiscales": "2609930"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8049,
+      "tipo_doc": "CC",
+      "num_doc": "1140893968",
+      "nombre_completo": "MOLINARES LUIS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2503382",
+        "pension": "2503382",
+        "arl": "2503382",
+        "parafiscales": "2503382"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8050,
+      "tipo_doc": "CC",
+      "num_doc": "1026576238",
+      "nombre_completo": "ALARCON MARIA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3125515",
+        "pension": "3125515",
+        "arl": "3125515",
+        "parafiscales": "3125515"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8057,
+      "tipo_doc": "CC",
+      "num_doc": "80491708",
+      "nombre_completo": "RODRIGUEZ JAVIER",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "CCFC55",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1746828",
+        "pension": "1746828",
+        "arl": "1746828",
+        "parafiscales": "1746828"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8058,
+      "tipo_doc": "CC",
+      "num_doc": "1114457835",
+      "nombre_completo": "RIVERA LINA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3959497",
+        "pension": "3959497",
+        "arl": "3959497",
+        "parafiscales": "3959497"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8059,
+      "tipo_doc": "CC",
+      "num_doc": "1020481783",
+      "nombre_completo": "HERNANDEZ JUAN ",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3029721",
+        "pension": "3029721",
+        "arl": "3029721",
+        "parafiscales": "3029721"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8060,
+      "tipo_doc": "CC",
+      "num_doc": "1047450533",
+      "nombre_completo": "ALDANA DOMINGO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3720673",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3698999",
+        "pension": "3698999",
+        "arl": "2899989",
+        "parafiscales": "2899989"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8062,
+      "tipo_doc": "CC",
+      "num_doc": "1088824901",
+      "nombre_completo": "RAMIREZ SARA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF44"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2806658",
+        "pension": "2806658",
+        "arl": "2806658",
+        "parafiscales": "2806658"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8073,
+      "tipo_doc": "CC",
+      "num_doc": "1047497477",
+      "nombre_completo": "DE LA VICTORIA DANIEL",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 29,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3426907",
+        "pension": "3426907",
+        "arl": "3426907",
+        "parafiscales": "3426907"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8074,
+      "tipo_doc": "CC",
+      "num_doc": "1040048250",
+      "nombre_completo": "BERMUDEZ JUAN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3613871",
+        "pension": "3613871",
+        "arl": "3613871",
+        "parafiscales": "3613871"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8075,
+      "tipo_doc": "CC",
+      "num_doc": "1002232487",
+      "nombre_completo": "VILLARREAL JEFERSON",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1967604",
+        "pension": "1967604",
+        "arl": "1967604",
+        "parafiscales": "1967604"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8077,
+      "tipo_doc": "CC",
+      "num_doc": "1093141488",
+      "nombre_completo": "RODRIGUEZ YURY",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2538812",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF36"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2993838",
+        "pension": "2993838",
+        "arl": "2993838",
+        "parafiscales": "2993838"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8078,
+      "tipo_doc": "CC",
+      "num_doc": "1000413565",
+      "nombre_completo": "ROJAS SAMUEL",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2585314",
+        "pension": "2585314",
+        "arl": "2585314",
+        "parafiscales": "2585314"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8079,
+      "tipo_doc": "CC",
+      "num_doc": "80111460",
+      "nombre_completo": "TORRES ANDRES",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2515273",
+        "pension": "2515273",
+        "arl": "2515273",
+        "parafiscales": "2515273"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8083,
+      "tipo_doc": "CC",
+      "num_doc": "1064118119",
+      "nombre_completo": "GAMEZ JOSE",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF15"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3356504",
+        "pension": "3356504",
+        "arl": "3356504",
+        "parafiscales": "3356504"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8086,
+      "tipo_doc": "CC",
+      "num_doc": "1113681058",
+      "nombre_completo": "BURBANO NICOL",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS018",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2875752",
+        "pension": "2875752",
+        "arl": "2729212",
+        "parafiscales": "2875752"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8091,
+      "tipo_doc": "CC",
+      "num_doc": "1104008313",
+      "nombre_completo": "PRETEL MARCELA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2538812",
+      "entidades": {
+        "eps": "CCFC55",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3683627",
+        "pension": "3683627",
+        "arl": "3683627",
+        "parafiscales": "3683627"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8092,
+      "tipo_doc": "CC",
+      "num_doc": "1129522131",
+      "nombre_completo": "VEGA CARLOS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2582584",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2645194",
+        "pension": "2645194",
+        "arl": "2328253",
+        "parafiscales": "2645194"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8104,
+      "tipo_doc": "CC",
+      "num_doc": "1140890479",
+      "nombre_completo": "CUERVO HENRY",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "4814988",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "0099",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4208000",
+        "pension": "4208000",
+        "arl": "4208000",
+        "parafiscales": "4208000"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8105,
+      "tipo_doc": "CC",
+      "num_doc": "1047473908",
+      "nombre_completo": "HERNANDEZ  ROBERTO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3764445",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3124440",
+        "pension": "3124440",
+        "arl": "2646324",
+        "parafiscales": "2646324"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8106,
+      "tipo_doc": "CC",
+      "num_doc": "79623700",
+      "nombre_completo": "PIÑEROS ALEXANDER",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "4377262",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4050200",
+        "pension": "4050200",
+        "arl": "4050200",
+        "parafiscales": "4050200"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8107,
+      "tipo_doc": "CC",
+      "num_doc": "1041771148",
+      "nombre_completo": "FRANCO EDGARDO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "ESSC24",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1823319",
+        "pension": "1823319",
+        "arl": "1823319",
+        "parafiscales": "1823319"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8113,
+      "tipo_doc": "CC",
+      "num_doc": "45512716",
+      "nombre_completo": "ANGULO NORA ",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "10199021",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "ND",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "5929882",
+        "pension": "5929882",
+        "arl": "5609882",
+        "parafiscales": "5609882"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8115,
+      "tipo_doc": "CC",
+      "num_doc": "1001942820",
+      "nombre_completo": "CANTILLO HILLARIS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2538812",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2526164",
+        "pension": "2526164",
+        "arl": "2526164",
+        "parafiscales": "2526164"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8116,
+      "tipo_doc": "CC",
+      "num_doc": "1001901430",
+      "nombre_completo": "SANDON HEILEN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "ESSC24",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2904898",
+        "pension": "2904898",
+        "arl": "2904898",
+        "parafiscales": "2904898"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8117,
+      "tipo_doc": "CC",
+      "num_doc": "1040039340",
+      "nombre_completo": "JARAMILLO JUAN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3284017",
+        "pension": "3284017",
+        "arl": "3284017",
+        "parafiscales": "3284017"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8118,
+      "tipo_doc": "CC",
+      "num_doc": "45582500",
+      "nombre_completo": "BAÑOS BETTY",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "22761765",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "ND",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": true
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "18505776",
+        "pension": "18505776",
+        "arl": "16872776",
+        "parafiscales": "16872776"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8123,
+      "tipo_doc": "CC",
+      "num_doc": "1007126854",
+      "nombre_completo": "ANAYA VICTOR",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3825648",
+        "pension": "3825648",
+        "arl": "3825648",
+        "parafiscales": "3825648"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8126,
+      "tipo_doc": "CC",
+      "num_doc": "1082996461",
+      "nombre_completo": "MEZA NELSON",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3370051",
+        "pension": "3370051",
+        "arl": "3370051",
+        "parafiscales": "3370051"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8127,
+      "tipo_doc": "CC",
+      "num_doc": "1006325172",
+      "nombre_completo": "RUIZ CARLOS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845221",
+      "entidades": {
+        "eps": "EPS018",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3540799",
+        "pension": "3540799",
+        "arl": "3540799",
+        "parafiscales": "3540799"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8128,
+      "tipo_doc": "CC",
+      "num_doc": "1007126831",
+      "nombre_completo": "SALAZAR JHONNER",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3023412",
+        "pension": "3023412",
+        "arl": "2411866",
+        "parafiscales": "2411866"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8131,
+      "tipo_doc": "CC",
+      "num_doc": "1052089595",
+      "nombre_completo": "SOLANO LAURA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3001143",
+        "pension": "3001143",
+        "arl": "3001143",
+        "parafiscales": "3001143"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8132,
+      "tipo_doc": "CC",
+      "num_doc": "1113675668",
+      "nombre_completo": "BRITO LUIS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2658097",
+        "pension": "2658097",
+        "arl": "2658097",
+        "parafiscales": "2658097"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8135,
+      "tipo_doc": "CC",
+      "num_doc": "1013339457",
+      "nombre_completo": "AREVALO JUAN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 27,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3152668",
+        "pension": "3152668",
+        "arl": "3152668",
+        "parafiscales": "3152668"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8137,
+      "tipo_doc": "CC",
+      "num_doc": "45766998",
+      "nombre_completo": "ANGULO PAOLA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "22761765",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": true
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "18505776",
+        "pension": "18505776",
+        "arl": "16874776",
+        "parafiscales": "16874776"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8138,
+      "tipo_doc": "CC",
+      "num_doc": "73575747",
+      "nombre_completo": "CAMPOS OSCAR",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "22761765",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": true
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "18505776",
+        "pension": "18505776",
+        "arl": "16674776",
+        "parafiscales": "16674776"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8142,
+      "tipo_doc": "CC",
+      "num_doc": "1002195456",
+      "nombre_completo": "CUADRO  BRANDO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1900000",
+        "pension": "1900000",
+        "arl": "1900000",
+        "parafiscales": "1900000"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8143,
+      "tipo_doc": "CC",
+      "num_doc": "1043661891",
+      "nombre_completo": "BEDOYA JESUS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "CCFC55",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3160201",
+        "pension": "3160201",
+        "arl": "3160201",
+        "parafiscales": "3160201"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8152,
+      "tipo_doc": "CC",
+      "num_doc": "1143328178",
+      "nombre_completo": "GARCIA CRISTINA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2713052",
+        "pension": "2713052",
+        "arl": "2713052",
+        "parafiscales": "2713052"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8155,
+      "tipo_doc": "CC",
+      "num_doc": "1050976880",
+      "nombre_completo": "PEREZ SAUDY",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2678706",
+        "pension": "2678706",
+        "arl": "2678706",
+        "parafiscales": "2678706"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8159,
+      "tipo_doc": "CC",
+      "num_doc": "32888126",
+      "nombre_completo": "IBAÑEZ ANA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3939536",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "4709205",
+        "pension": "4709205",
+        "arl": "4709205",
+        "parafiscales": "4709205"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8160,
+      "tipo_doc": "CC",
+      "num_doc": "1044607211",
+      "nombre_completo": "PEREZ ODALIS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 29,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2801372",
+        "pension": "2801372",
+        "arl": "2230893",
+        "parafiscales": "2722291"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 8167,
+      "tipo_doc": "CC",
+      "num_doc": "1143460697",
+      "nombre_completo": "MARTINEZ MOISES",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2413304",
+        "pension": "2413304",
+        "arl": "2413304",
+        "parafiscales": "2413304"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10147,
+      "tipo_doc": "RC",
+      "num_doc": "1048293334",
+      "nombre_completo": "CLARO YEISON",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2297666",
+        "pension": "2297666",
+        "arl": "2297666",
+        "parafiscales": "2297666"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10148,
+      "tipo_doc": "RC",
+      "num_doc": "73430774",
+      "nombre_completo": "CANOLES EMIRO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1423500",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 10,
+        "pension": 10,
+        "arl": 10,
+        "caja": 10
+      },
+      "ibc": {
+        "salud": "428705",
+        "pension": "428705",
+        "arl": "428705",
+        "parafiscales": "764178"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10149,
+      "tipo_doc": "RC",
+      "num_doc": "1130266975",
+      "nombre_completo": "LIZCANO MARIA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "9999",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF40"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10150,
+      "tipo_doc": "RC",
+      "num_doc": "1140861344",
+      "nombre_completo": "ORTEGA DANIELLA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "9999",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10151,
+      "tipo_doc": "RC",
+      "num_doc": "1002308877",
+      "nombre_completo": "PADILLA MARYLUZ",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "9999",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "379600",
+        "pension": "379600",
+        "arl": "362518",
+        "parafiscales": "379600"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10152,
+      "tipo_doc": "RC",
+      "num_doc": "1047399374",
+      "nombre_completo": "BLANQUICETT YENNIFER",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2013352",
+        "pension": "2013352",
+        "arl": "2013352",
+        "parafiscales": "2013352"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10154,
+      "tipo_doc": "CC",
+      "num_doc": "1193038696",
+      "nombre_completo": "POTES DARIANA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3406885",
+        "pension": "3406885",
+        "arl": "3406885",
+        "parafiscales": "3406885"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10158,
+      "tipo_doc": "RC",
+      "num_doc": "1042416234",
+      "nombre_completo": "CARRILLO BLADIMIR",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1423500",
+        "pension": "1423500",
+        "arl": "1423500",
+        "parafiscales": "1423500"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10729,
+      "tipo_doc": "RC",
+      "num_doc": "1143132874",
+      "nombre_completo": "SALCEDO WALDO",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1843270",
+        "pension": "1843270",
+        "arl": "1843270",
+        "parafiscales": "1843270"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10730,
+      "tipo_doc": "RC",
+      "num_doc": "1143162515",
+      "nombre_completo": "SEPULVEDA DANIEL",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2421228",
+        "pension": "2421228",
+        "arl": "2421228",
+        "parafiscales": "2421228"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10731,
+      "tipo_doc": "RC",
+      "num_doc": "1143408784",
+      "nombre_completo": "MUÑOZ JULIAN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2626357",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3326790",
+        "pension": "3326790",
+        "arl": "3326790",
+        "parafiscales": "3326790"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10732,
+      "tipo_doc": "RC",
+      "num_doc": "1038416197",
+      "nombre_completo": "BOTERO MARIA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3679670",
+        "pension": "3679670",
+        "arl": "3679670",
+        "parafiscales": "3679670"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10733,
+      "tipo_doc": "RC",
+      "num_doc": "1050971265",
+      "nombre_completo": "CRESPO MARIA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2561163",
+        "pension": "2561163",
+        "arl": "2561163",
+        "parafiscales": "2561163"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10734,
+      "tipo_doc": "RC",
+      "num_doc": "1140872075",
+      "nombre_completo": "DE LA CRUZ STEPHANIA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "3418200",
+        "pension": "3418200",
+        "arl": "3418200",
+        "parafiscales": "3418200"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10735,
+      "tipo_doc": "RC",
+      "num_doc": "1002161738",
+      "nombre_completo": "DIAZ CAMILA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10736,
+      "tipo_doc": "RC",
+      "num_doc": "1042246304",
+      "nombre_completo": "HERRERA ANGIE",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "MIN001",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 10737,
+      "tipo_doc": "RC",
+      "num_doc": "1143261165",
+      "nombre_completo": "HERRERA ROSA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11419,
+      "tipo_doc": "RC",
+      "num_doc": "1044620740",
+      "nombre_completo": "MOLINARES NICOLLE",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11420,
+      "tipo_doc": "RC",
+      "num_doc": "1032011419",
+      "nombre_completo": "VALBUENA KAREN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11421,
+      "tipo_doc": "CC",
+      "num_doc": "1002195365",
+      "nombre_completo": "CATALAN NATALIA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1900000",
+        "pension": "1900000",
+        "arl": "1900000",
+        "parafiscales": "1900000"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11422,
+      "tipo_doc": "RC",
+      "num_doc": "1002135009",
+      "nombre_completo": "AGUIRRE DARWIN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1423500",
+        "pension": "1423500",
+        "arl": "1423500",
+        "parafiscales": "1423500"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11423,
+      "tipo_doc": "RC",
+      "num_doc": "1140890296",
+      "nombre_completo": "SARMIENTO BREYNER",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1423500",
+        "pension": "1423500",
+        "arl": "1423500",
+        "parafiscales": "1423500"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11424,
+      "tipo_doc": "RC",
+      "num_doc": "1066864205",
+      "nombre_completo": "PABON ELIM",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF15"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11425,
+      "tipo_doc": "RC",
+      "num_doc": "1067807295",
+      "nombre_completo": "SANCHEZ ANA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "711750",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11426,
+      "tipo_doc": "RC",
+      "num_doc": "1048434916",
+      "nombre_completo": "ARELLANO BRIAN",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1067625",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "0",
+        "pension": "0",
+        "arl": "1067626",
+        "parafiscales": "0"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11427,
+      "tipo_doc": "RC",
+      "num_doc": "1007901880",
+      "nombre_completo": "MEDRANO MARIA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2626357",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2992175",
+        "pension": "2992175",
+        "arl": "2992175",
+        "parafiscales": "2992175"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11428,
+      "tipo_doc": "RC",
+      "num_doc": "1143410690",
+      "nombre_completo": "VERGARA KRISTEL",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2626357",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2831502",
+        "pension": "2831502",
+        "arl": "2831502",
+        "parafiscales": "2831502"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11429,
+      "tipo_doc": "CC",
+      "num_doc": "1000442349",
+      "nombre_completo": "CORTEZ JOSE",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2166696",
+        "pension": "2166696",
+        "arl": "2166696",
+        "parafiscales": "2166696"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11650,
+      "tipo_doc": "RC",
+      "num_doc": "1018226613",
+      "nombre_completo": "OSORIO EDWAR",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "2574970",
+        "pension": "2574970",
+        "arl": "2574970",
+        "parafiscales": "2574970"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11651,
+      "tipo_doc": "RC",
+      "num_doc": "1047410256",
+      "nombre_completo": "BARBOZA LUIS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1900000",
+        "pension": "1900000",
+        "arl": "1900000",
+        "parafiscales": "1900000"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 11652,
+      "tipo_doc": "CC",
+      "num_doc": "1007739592",
+      "nombre_completo": "CORTINA LINA",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 30,
+        "pension": 30,
+        "arl": 30,
+        "caja": 30
+      },
+      "ibc": {
+        "salud": "1900000",
+        "pension": "1900000",
+        "arl": "1900000",
+        "parafiscales": "1900000"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 12067,
+      "tipo_doc": "RC",
+      "num_doc": "1002428823",
+      "nombre_completo": "POSSO NAYELIS",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 27,
+        "pension": 27,
+        "arl": 27,
+        "caja": 27
+      },
+      "ibc": {
+        "salud": "2135201",
+        "pension": "2135201",
+        "arl": "2135201",
+        "parafiscales": "2135201"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 12068,
+      "tipo_doc": "RC",
+      "num_doc": "1047479031",
+      "nombre_completo": "VILLALOBOS ANGIE",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 9,
+        "pension": 9,
+        "arl": 9,
+        "caja": 9
+      },
+      "ibc": {
+        "salud": "570000",
+        "pension": "570000",
+        "arl": "570000",
+        "parafiscales": "570000"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    },
+    {
+      "id_empleado": 12071,
+      "tipo_doc": "RC",
+      "num_doc": "1047464046",
+      "nombre_completo": "JULIO GABRIEL",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "dias": {
+        "salud": 8,
+        "pension": 8,
+        "arl": 8,
+        "caja": 8
+      },
+      "ibc": {
+        "salud": "379600",
+        "pension": "379600",
+        "arl": "379600",
+        "parafiscales": "379600"
+      },
+      "tarifas": {
+        "arl": null
+      },
+      "novedades": []
+    }
+  ],
+  "meta": {
+    "origen": "nomiweb",
+    "version_payload": "1.0",
+    "usuario": "admin@nomiweb.com.co"
+  },
+  "parametros": {
+    "smmlv": 1423500,
+    "tope_ibc_smmlv": 25,
+    "dias_base": 30
+  }
+}

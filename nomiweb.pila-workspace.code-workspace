@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../pila"
+		}
+	],
+	"settings": {
+		"workbench.colorTheme": "Tomorrow Night Blue"
+	}
+}
