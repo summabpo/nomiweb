@@ -103,8 +103,6 @@ def data_time(r):
     noct_inicio = time(inicio_int, 0, 0)
     noct_fin = time(fin_int, 0, 0)
 
-    
-
     inicio_diurna = noct_fin
     fin_diurna = noct_inicio
 
@@ -134,24 +132,26 @@ def data_time(r):
         is_festivo_o_dom = is_domingo or is_festivo
         is_nocturna = hora < inicio_diurna or hora >= fin_diurna
         
-
         horas_trabajadas += MINUTO_HORA
+        #print(f" dato : {horas_trabajadas} fecha {actual}")
 
         if (actual - inicio) < timedelta(minutes=(480 + descanso)) and not is_festivo_o_dom and not is_nocturna :
-            
             horas_ordinarias += MINUTO_HORA
+            #print(f" dato : {horas_ordinarias} fecha {actual}")
+            
 
         if (actual - inicio) < timedelta(minutes=(480 + descanso)) and is_festivo_o_dom and not is_nocturna : 
             dyf += MINUTO_HORA
+            #print(f" dato : {dyf} fecha {actual}")
             
 
-        if is_festivo_o_dom and is_nocturna : 
+        if is_festivo_o_dom and is_nocturna and (actual - inicio) <  timedelta(minutes=(480 + descanso)) :
             rnf += MINUTO_HORA
+            #print(f" dato : {rnf} fecha {actual}")
             
-        if not is_festivo_o_dom and is_nocturna : 
+        if not is_festivo_o_dom and is_nocturna and (actual - inicio) <  timedelta(minutes=(480 + descanso)) :
             rn += MINUTO_HORA
-            #print(f" dato : {rn} fecha {actual}")
-    
+            
         # Validación de 480 minutos ( 8 horas de trabajo )
         if (actual - inicio) >= timedelta(minutes=(480 + descanso) ) and not is_festivo_o_dom :
             
@@ -171,83 +171,54 @@ def data_time(r):
         actual += paso
    
 
-    descuento_horas = round(descuento_horas,3)
-    horas_ordinarias = round( horas_ordinarias / 60.0, 3) 
-    horas_trabajadas = round( horas_trabajadas / 60.0, 3)  
-    dyf = round(dyf / 60.0, 3) 
+    descuento_horas = round(descuento_horas,2)
+    horas_ordinarias = round( horas_ordinarias / 60.0, 2) 
+    horas_trabajadas = round( horas_trabajadas / 60.0, 2)  
+    dyf = round(dyf / 60.0, 2) 
+    hed = round( hed / 60.0, 2)   
+    hen = round( hen / 60.0, 2)     
+    hedf = round( hedf / 60.0, 2)   
+    henf = round( henf / 60.0, 2)   
+    rn = round( rn / 60.0, 2)    
+    rnf = round( rnf / 60.0, 2) 
+    
+    
+    if rn > 8:
+        rn = 8
+
+    if rnf > 8:
+        rnf = 8
+
     horas_trabajadas = max(horas_trabajadas - descuento_horas , 0)
-
-    hed = round( hed / 60.0, 3)   
-    hen = round( hen / 60.0, 3)     
-
-
-    hedf = round( hedf / 60.0, 3)   
-    henf = round( henf / 60.0, 3)   
-    
-    rn = round( rn / 60.0, 3)    
-    rnf = round( rnf / 60.0, 3) 
-    
-    
-    
-    if rn > 0:
-        rn -= ( hen + hed )  
-        if rn < 0 : 
-            rn = 0 
-        if rn > 8:
-            rn = 8 
-
-
-    if rnf > 0:
-        rnf -= (henf + hedf)  
-        if rnf < 0 : 
-            rnf = 0 
-
-        if rnf > 8:
-            rnf = 8 
-
-
-
     horas_domfes = dyf + rnf
-    h_totales = horas_trabajadas + horas_domfes
-
-    if h_totales >= 8:
-        hed = hed
-    else :
-        hed = 0
-
-    if h_totales >= 8:
-        hen = hen
-    else :
-        hen = 0
-
+    
     #### salida final 
-
     data = {
-        'horas_trabajadas': horas_trabajadas,
-        'horas_ordinarias': horas_ordinarias,
-        'horas_domfes': horas_domfes,
-        'rn': rn,
-        'hed': hed,
-        'hen': hen,
-        'hedf': hedf,
-        'henf': henf,
-        'dyf': dyf,
-        'rnf': rnf,
+        'horas_trabajadas': round(horas_trabajadas, 2),
+        'horas_ordinarias': round(horas_ordinarias, 2),
+        'horas_domfes': round(horas_domfes, 2),
+        'rn':  round(rn, 2),
+        'hed': round(hed, 2),
+        'hen': round(hen, 2),
+        'hedf': round(hedf, 2),
+        'henf': round(henf, 2),
+        'dyf': round(dyf, 2),
+        'rnf': round(rnf, 2),
     }
-
 
     for key in prioridad:
         if descuento_horas <= 0:
             break
-
         disponible = data.get(key, 0)
-
+        
         if disponible > 0:
+            #print(key)
             descontar = min(disponible, descuento_horas)
             data[key] -= descontar
             descuento_horas -= descontar
             break
-    
+
+
     return data 
 
 
@@ -339,8 +310,8 @@ def time_list(request):
 
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
-        # ,idcontrato_id = 11427 , idmarcacion = 18186 
-        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id ).select_related(
+        # ,idcontrato_id = 8050 , idmarcacion = 18288 
+        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id ,idcontrato_id = 8050 ).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
             nombre_completo=Concat(
@@ -359,19 +330,19 @@ def time_list(request):
         for t in tiempos:
 
             data = data_time(t)
-      
-            t.horas_trabajadas= data['horas_trabajadas'] 
-            t.horas_ordinarias= data['horas_ordinarias']
+            
+            t.horas_trabajadas= round(data['horas_trabajadas'], 2) 
+            t.horas_ordinarias= round(data['horas_ordinarias'], 2)
             t.saldo_horas= 0
-            t.horas_dom_fest= data['horas_domfes']
+            t.horas_dom_fest= round(data['horas_domfes'], 2) 
 
-            t.hed = data['hed']  
-            t.hen = data['hen']   
-            t.hedf = data['hedf']  
-            t.henf = data['henf']  
-            t.rn = data['rn']  
-            t.rnf = data['rnf']  
-            t.dyf = data['dyf'] 
+            t.hed = round(data['hed'], 2)
+            t.hen = round(data['hen'], 2)   
+            t.hedf = round(data['hedf'], 2)  
+            t.henf = round(data['henf'], 2) 
+            t.rn = round(data['rn'], 2)  
+            t.rnf = round(data['rnf'], 2)  
+            t.dyf = round(data['dyf'], 2)  
 
         value1 = True
 
@@ -426,18 +397,18 @@ def time_list(request):
             # ✅ SOLO APPEND A EMPLEADOS
             # =============================            
             
-            
+            # round(data['horas_trabajadas'], 2) 
 
-            emp['horas_trabajadas'] += data['horas_trabajadas'] 
-            emp['horas_normales'] += data['horas_ordinarias'] 
-            emp['horas_domfes'] += data['horas_domfes'] 
-            emp['hed'] += data['hed'] 
-            emp['hen'] += data['hen'] 
-            emp['hedf'] += data['hedf'] 
-            emp['henf'] += data['henf'] 
-            emp['rn'] += data['rn'] 
-            emp['rnf'] += data['rnf'] 
-            emp['dyf'] += data['dyf'] 
+            emp['horas_trabajadas'] += round(data['horas_trabajadas'], 2)   
+            emp['horas_normales'] += round(data['horas_ordinarias'], 2)   
+            emp['horas_domfes'] += round(data['horas_domfes'], 2)   
+            emp['hed'] += round(data['hed'], 2)   
+            emp['hen'] += round(data['hen'], 2)   
+            emp['hedf'] += round(data['hedf'], 2)   
+            emp['henf'] += round(data['henf'], 2)   
+            emp['rn'] += round(data['rn'], 2)   
+            emp['rnf'] += round(data['rnf'], 2)   
+            emp['dyf'] += round(data['dyf'], 2)   
         
         for e in empleados:
         
@@ -771,19 +742,19 @@ def time_doc(request, id):
                                 fill_type="solid")
         MINUTO_HORA = 1
         
-        data = data_time(registro)
-
+        data = data_time(registro) 
+        
         # Acumular totales
-        acumulados['HorasTraba'] += data['horas_trabajadas'] 
-        acumulados['HorasOrdi'] += data['horas_ordinarias'] 
-        acumulados['HorasDomFes'] += data['horas_domfes'] 
-        acumulados['Hed'] += data['hed'] 
-        acumulados['Hen'] += data['hen'] 
-        acumulados['Hedf'] += data['hedf'] 
-        acumulados['Henf'] += data['henf'] 
-        acumulados['Rn'] += data['rn'] 
-        acumulados['Rnf'] += data['rnf'] 
-        acumulados['Dyf'] += data['dyf'] 
+        acumulados['HorasTraba'] += round(data['horas_trabajadas'], 2)    
+        acumulados['HorasOrdi'] += round(data['horas_ordinarias'], 2)    
+        acumulados['HorasDomFes'] += round(data['horas_domfes'], 2)    
+        acumulados['Hed'] += round(data['hed'], 2)    
+        acumulados['Hen'] += round(data['hen'], 2)    
+        acumulados['Hedf'] += round(data['hedf'], 2)    
+        acumulados['Henf'] += round(data['henf'], 2)    
+        acumulados['Rn'] += round(data['rn'], 2)    
+        acumulados['Rnf'] += round(data['rnf'], 2)    
+        acumulados['Dyf'] += round(data['dyf'], 2)    
 
         # Agregar fila
         row = [
@@ -909,13 +880,6 @@ def time_add(request):
                 if not Contratos.objects.filter(old_idcontrato=contrato, id_empresa=idempresa).exists():
                     errors.append(f"Fila {idx+1}: El contrato {contrato} no existe en la empresa {empresa.nombreempresa}.")
                     continue
-
-                # Evitar duplicados: contrato + fecha ingreso ya existente
-                # if Tiempos.objects.filter(idcontrato__old_idcontrato=contrato, fechaingreso=fecha_ingreso, idempresa_id=idempresa).exists():
-                #     errors.append(f"Fila {idx+1}: Ya existe un registro de tiempo para contrato {contrato} en la fecha {fecha_ingreso}.")
-                #     continue
-                
-                
             
                 contr = (
                     Contratos.objects
@@ -936,6 +900,9 @@ def time_add(request):
                 tiempo, created = Tiempos.objects.update_or_create(
                     # 🔍 Campos para buscar si ya existe
                     fechaingreso=fecha_ingreso,
+                    horaingreso=hora_ingreso,
+                    fechasalida=fecha_salida,
+                    horasalida=hora_salida,
                     idcontrato=contr,
                     idnomina_id=idnomina,
                     idempresa_id=idempresa,
