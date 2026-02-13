@@ -5,7 +5,6 @@ from .views.flat  import flat
 from .views.electronic_payroll import electronic_payroll
 from .views.loans import loans
 from .views.parameters import parameters
-from .views.pruebas import pruebas
 from .views.fixed import fixed
 from .views.select_company import select_company
 from .views.settlements import vacation_settlement , bonus_settlement , severance_settlement
@@ -144,10 +143,6 @@ urlunpolypatterns =[
     path('fixed/modal/edit/<int:id>', fixed.fixed_modal_edit, name='fixed_modal_edit'),
     path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
 
-    ### pruebas 
-    path('payroll/modal/pruebas', pruebas.prueba, name='prueba'),
-    path('payroll/modal/pruebas/modal', pruebas.prueba_modal, name='prueba_modal'),
-    
     
     ## Time
     path('time/list/add', time.time_add, name='time_add'),

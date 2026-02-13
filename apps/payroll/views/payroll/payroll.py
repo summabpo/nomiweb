@@ -189,34 +189,20 @@ def payroll_create_add(request):
                 
                 empresa = Empresa.objects.get(idempresa=idempresa)
 
-                # Crear instancia de Crearnomina
-                name = generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa)
-                
-                print('-----------------')
-                print(form.cleaned_data['nombrenomina'])
-                print(fechainicial)
-                print(fechafinal)
-                print(form.cleaned_data['fechapago'])
-                print(tiponomina)
-                print(mes_acumular)
-                print(ano_acumular)
-                print(dias_nomina)
-                print(empresa)
-                print('-----------------')
 
 
-                # Crearnomina.objects.create(
-                #     nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa),
-                #     fechainicial=fechainicial,
-                #     fechafinal=fechafinal,
-                #     fechapago=form.cleaned_data['fechapago'],
-                #     tiponomina=tiponomina,
-                #     mesacumular=mes_acumular,
-                #     anoacumular=ano_acumular,
-                #     estadonomina=True, 
-                #     diasnomina=dias_nomina,  #Usamos el cálculo aquí
-                #     id_empresa=empresa,
-                # )
+                Crearnomina.objects.create(
+                    nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa),
+                    fechainicial=fechainicial,
+                    fechafinal=fechafinal,
+                    fechapago=form.cleaned_data['fechapago'],
+                    tiponomina=tiponomina,
+                    mesacumular=mes_acumular,
+                    anoacumular=ano_acumular,
+                    estadonomina=True, 
+                    diasnomina=dias_nomina,  #Usamos el cálculo aquí
+                    id_empresa=empresa,
+                )
                 
                 
                 response = HttpResponse()
