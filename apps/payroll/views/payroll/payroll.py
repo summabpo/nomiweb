@@ -207,8 +207,8 @@ def payroll_create_add(request):
                 
                 response = HttpResponse()
                 response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
-                response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
-                response['X-Up-message'] = 'Familia guardada exitosamente'    
+                response['X-Up-icon'] = 'success'  # URL para recargar la página principal   messages.success(request, "Nómina creada exitosamente.") 
+                response['X-Up-message'] = 'Nómina creada exitosamente.'    
                 response['X-Up-Location'] = reverse('payroll:payroll')           
                 return response
                 
