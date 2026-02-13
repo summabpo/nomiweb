@@ -311,7 +311,7 @@ def time_list(request):
     if selected_nomina_id:
         # Traer tiempos de la nómina seleccionada
         # ,idcontrato_id = 8050 , idmarcacion = 18288 
-        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id ,idcontrato_id = 8050 ).select_related(
+        tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
             'idcontrato', 'idcontrato__idempleado'
         ).annotate(
             nombre_completo=Concat(
@@ -679,8 +679,6 @@ def time_doc(request, id):
     current_contract = None
     color_index = 0
 
-    CO_HOLIDAYS = holidays.CO(years=2025)
-
     # Inicializar acumuladores
     acumulados = {
         'HorasTraba': 0,
@@ -695,7 +693,6 @@ def time_doc(request, id):
         'Dyf': 0
     }
 
-    
 
     def agregar_totales_contrato(contrato_id):
         """Agrega una fila con los totales acumulados del contrato actual."""
@@ -740,7 +737,6 @@ def time_doc(request, id):
             fill = PatternFill(start_color=colors[color_index],
                                 end_color=colors[color_index],
                                 fill_type="solid")
-        MINUTO_HORA = 1
         
         data = data_time(registro) 
         

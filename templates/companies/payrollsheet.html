@@ -78,7 +78,7 @@
                         <th>Descuentos</th>
                         <th>Neto</th>
                         <th>Comp.</th>
-                        <th>E-mail</th>
+                        <!-- <th>E-mail</th> -->
                         <th>Estado</th>
                     </tr>
                 </thead>
@@ -103,7 +103,7 @@
                                     <i class="fa-solid fa-file fs-1"></i>
                                 </a> 
                             </td>
-                            <td>
+                            <!-- <td>
 
                                 {% comment %} <a  class="btn btn-icon btn-light-success btn-sm"
                                     up-post="{% url 'companies:unique_mail' compect.nominaid compect.contratoid  %}"
@@ -124,10 +124,22 @@
                                     <span class="btn-text">Enviando...</span>
                                 </a>
 
-                            </td>
-                            <td data-estado="{{ compect.nominaid }}-{{ compect.contratoid }}" >
-                                {% include "companies/partials/estado_boton.html" with compect=compect %}
-                            </td>
+                            </td>-->
+                            <td >
+                                {% if compect.estado == 'Enviado' %}
+                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
+                                        <i class="fa-solid fa-envelope-circle-check fs-1"></i>
+                                    </button>
+                                {% elif compect.estado == 'Error' %}
+                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Error" >
+                                        <i class="fa-solid fa-circle-exclamation fs-1"></i>
+                                    </button> 
+                                {% else %}
+                                    <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="No Enviado" >
+                                        <i class="fa-solid fa-envelope fs-1"></i>
+                                    </button>
+                                {% endif %}
+                            </td> 
                         </tr>
                     {% endfor %}
                 </tbody>

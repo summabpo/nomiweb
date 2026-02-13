@@ -46,7 +46,7 @@ DATABASES = {
     
 }
 
-
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [

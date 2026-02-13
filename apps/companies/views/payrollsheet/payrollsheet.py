@@ -119,9 +119,9 @@ def payrollsheet(request):
             
             docidentidad = data.idcontrato.idcontrato
             try:
-                compribanten = NominaComprobantes.objects.get(idnomina=selected_nomina, idcontrato=data.idcontrato.idcontrato, idcosto__idcosto=data.idcontrato.idcosto.idcosto)
+                comprobante = NominaComprobantes.objects.get(idnomina=selected_nomina, idcontrato=data.idcontrato.idcontrato, idcosto__idcosto=data.idcontrato.idcosto.idcosto)
             except NominaComprobantes.DoesNotExist:
-                compribanten = None
+                comprobante = None
                 
                 
             if docidentidad not in acumulados:
@@ -136,7 +136,7 @@ def payrollsheet(request):
                     'extras': 0,
                     'aportess': 0,
                     'prestamos': 0,
-                    'estado': get_email_status(compribanten.envio_email) if compribanten else None,
+                    'estado': get_email_status(comprobante.envio_email) if comprobante else None,
                     'nominaid': data.idnomina.idnomina,
                     'contratoid' :data.idcontrato.idcontrato,   
                 }
@@ -166,12 +166,46 @@ def payrollsheet(request):
         for key in ['neto', 'ingresos', 'basico', 'tpte', 'extras', 'aportess', 'prestamos', 'descuentos', 'otrosing', 'otrosdesc']:
             compect[key] = format_value(compect[key])
 
+
+
     return render(request, 'companies/payrollsheet.html', {
         'nominas': nominas,
         'compects': compects,
         'selected_nomina': selected_nomina,
     })
 
+
+
+def draw_watermark(p, width, height):
+    """Dibuja la marca de agua diagonal 'Quote' en el centro de la página"""
+    # Guardar el estado actual del canvas
+    p.saveState()
+    
+    # Color más claro para la marca de agua (gris claro sutil pero visible)
+    watermark_color = colors.HexColor("#D0D0D0")  # Gris claro más sutil
+    p.setFillColor(watermark_color)
+    
+    # Configurar fuente muy grande y en negrita para mejor visibilidad
+    font_size = 130  # Aumentado a 180 para que sea muy grande y visible
+    p.setFont("Helvetica-Bold", font_size)
+    
+    # Calcular el centro de la página
+    center_x = width / 2
+    center_y = height / 2
+    
+    # Rotar el canvas 45 grados (diagonal)
+    p.translate(center_x, center_y)
+    p.rotate(45)
+    
+    # Dibujar el texto "Quote" centrado
+    text = "Pre-nomina"
+    text_width = p.stringWidth(text, "Helvetica-Bold", font_size)
+    # Mejor cálculo del centro vertical (aproximadamente la mitad de la altura de la fuente)
+    text_height_offset = font_size * 0.35  # Ajuste para centrar mejor verticalmente
+    p.drawString(-text_width / 2, -text_height_offset, text)
+    
+    # Restaurar el estado del canvas
+    p.restoreState()
 
 
 
@@ -183,6 +217,7 @@ def generatepayrollsummary(request, idnomina, data):
     context = generate_summary(idnomina, idempresa , data )
 
     buffer = BytesIO()
+    dark_blue = colors.HexColor("#1d2748")  # Primary dark blue
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
@@ -197,6 +232,9 @@ def generatepayrollsummary(request, idnomina, data):
     p.setStrokeColor(colors.grey)
     p.setLineWidth(0.5)
     p.line(35, height - 60, width - 35, height - 60)
+
+    if data == 0 :
+        draw_watermark(p, width, height)
 
     try:
         logo = ImageReader(f"static/img/{context['logo']}")
@@ -294,7 +332,7 @@ def draw_table(pdf, data, col_widths, y_pos, width, x_pos=22, row_height=20):
     tabla.drawOn(pdf, x_pos, y_pos - row_height)
     return y_pos - row_height
 
-def build_payroll_certificate_pdf(pdf, context, logo=None):
+def build_payroll_certificate_pdf(pdf, context,data , logo=None):
     width, height = letter
     margin = 30
         
@@ -458,7 +496,8 @@ def build_payroll_certificate_pdf(pdf, context, logo=None):
     table_ingresos.drawOn(pdf, x=22, y=bottom_y - h_i)
     table_descuentos.drawOn(pdf, x=306, y=bottom_y - h_d)
 
-    
+    if data == 0 :
+        draw_watermark(pdf, width, height)
     
     # ---------------------- Tabla 5: Totales ----------------------
 
@@ -529,7 +568,7 @@ def generatepayrollsummary2(request, idnomina,data=None):
     for i, idcontrato in enumerate(contratos, start=1):
         t0 = time.time()
         context = genera_comprobante(idnomina, idcontrato,data)        # Generar la página individual
-        build_payroll_certificate_pdf(pdf, context, logo)
+        build_payroll_certificate_pdf(pdf, context, data, logo)
         pdf.showPage()  # Agrega una nueva página
     
     nombre_archivo = f'Certificado_{idnomina}_{datetime.now().strftime("%Y-%m-%d")}.pdf'
@@ -848,7 +887,7 @@ def massive_mail(request, idnomina):
             pdf = canvas.Canvas(buffer, pagesize=letter)
 
             context = genera_comprobante(idnomina, comp.idcontrato_id ,data) 
-            build_payroll_certificate_pdf(pdf, context, logo)
+            build_payroll_certificate_pdf(pdf, context, data, logo)
             pdf.showPage() 
             nombre_archivo = f'Certificado_{idnomina}_{datetime.now().strftime("%Y-%m-%d")}.pdf'
             
