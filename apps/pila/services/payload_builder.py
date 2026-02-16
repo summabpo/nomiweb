@@ -283,8 +283,8 @@ def _get_ficha_contratos(empresa_id: int, ids_contrato: list[int]) -> list[dict]
       ce.papellido                   AS primer_apellido,
       ce.sapellido                   AS segundo_apellido,
 
-      ciu.coddepartamento            AS cod_departamento,
-      ciu.codciudad                  AS cod_municipio,
+      ciu.codciudad                  AS cod_departamento,
+      ciu.coddepartamento            AS cod_municipio,
 
       c.salario::numeric             AS salario_basico,
       c.tiposalario_id               AS tiposalario_id,
