@@ -345,7 +345,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
                 
         mes = fin_periodo.month
         anio = fin_periodo.year
-       
+        
         if mes == 2 : 
             if nomina.tiponomina.idtiponomina == 2 : 
                 diasnomina = 15 
@@ -1617,23 +1617,32 @@ def calculo_novfija(contrato, idn):
                 if nomina.fechainicial <= nov.fechafinnovedad <= nomina.fechafinal:
                     cantidad = 0
                 else:
-                    # Si la fecha fin ya pasó (o no está en el periodo) marcamos la novedad como inactiva
-                    # (según tu lógica previa)
+                    # Si la fecha fin ya pasó marcamos la novedad como inactiva
                     nov.estado_novfija = False
                     nov.save()
 
-            
-
-            # Construir instancia Nomina (sin .save())
-            nuevo = Nomina(
-                idconcepto=nov.idconcepto,
-                cantidad=cantidad,
-                valor= valor,
-                estadonomina=1,
-                idcontrato=contrato,
-                idnomina_id=idn,
-                control=nov.idnovfija
-            )
+            if nov.idconcepto.codigo == 91:
+                nuevo = Nomina(
+                    idconcepto=nov.idconcepto,
+                    cantidad=cantidad,
+                    valor = -(float(nov.pago)) ,
+                    estadonomina=1,
+                    idcontrato=contrato,
+                    idnomina_id=idn,
+                    control=nov.idnovfija
+                )
+    
+            else : 
+                # Construir instancia Nomina (sin .save())
+                nuevo = Nomina(
+                    idconcepto=nov.idconcepto,
+                    cantidad=cantidad,
+                    valor= valor,
+                    estadonomina=1,
+                    idcontrato=contrato,
+                    idnomina_id=idn,
+                    control=nov.idnovfija
+                )
             objetos_a_crear.append(nuevo)
 
         # Bulk create para eficiencia

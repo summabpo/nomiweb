@@ -108,18 +108,6 @@ def payroll(request):
 
                 # Crear instancia de Crearnomina
                 
-                print('-----------------')
-                print(form.cleaned_data['nombrenomina'])
-                print(fechainicial)
-                print(fechafinal)
-                print(form.cleaned_data['fechapago'])
-                print(tiponomina)
-                print(mes_acumular)
-                print(ano_acumular)
-                print(dias_nomina)
-                print(empresa)
-                print('-----------------')
-
 
                 # Crearnomina.objects.create(
                 #     nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa),

@@ -34,6 +34,10 @@ PAGO_CHOICES = (
 )
 
 class FixidForm(forms.Form):
+    def disable_field(self, field):
+        self.fields[field].disabled = True
+        self.fields[field].required = False
+
     idcontrato = forms.ChoiceField(
         label='Empleado',
         choices=TIPO_CHOICES,  # Suponiendo que esto se cambia luego por contratos reales
@@ -79,6 +83,7 @@ class FixidForm(forms.Form):
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
         edit = kwargs.pop('edit', None)
+        edit2 = kwargs.pop('edit2', None)
         
         super().__init__(*args, **kwargs)
         
@@ -86,7 +91,7 @@ class FixidForm(forms.Form):
             '<span class="fs-6 text-muted"> Máximo 35 caracteres. Describe brevemente la situación. </span> '
         )
 
-        self.fields['idconcepto'].choices = [('', '-------------')] + [(concepto.idconcepto, f"{concepto.nombreconcepto}") for concepto in Conceptosdenomina.objects.filter(id_empresa = idempresa)]
+        self.fields['idconcepto'].choices = [('', '-------------')] + [(concepto.idconcepto, f"{concepto.codigo} - {concepto.nombreconcepto}") for concepto in Conceptosdenomina.objects.filter(id_empresa = idempresa)]
         
         
         def clean_text(value):
@@ -129,10 +134,24 @@ class FixidForm(forms.Form):
                 
                 
 
+            
         if edit:
-            for field in ['idcontrato','idconcepto','valor']:
-                self.fields[field].disabled = True
+            for field in ['idcontrato','idconcepto']:
+                self.disable_field(field)
         
+
+        if edit2:
+            for field in ['idcontrato','idconcepto','valor']:
+                self.disable_field(field)
+
+            self.fields['cuota'] = forms.IntegerField(
+                label='Cuota',
+                widget=forms.NumberInput(attrs={'placeholder': 'Ej: 100000'})
+            )
+
+
+
+
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_login'
@@ -152,26 +171,49 @@ class FixidForm(forms.Form):
         
 
 
-        self.helper.layout = Layout(
+        layout_fields = [
+
             Row(
-                Column('idcontrato', css_class='form-group  col-md-12 mb-0'),
-                css_class='row'
-            ),
-            
-            Row(
-                Column('idconcepto', css_class='form-group  col-md-6 mb-0'),
-                Column('valor', css_class='form-group  col-md-6 mb-0'),
+                Column('idcontrato', css_class='form-group col-md-12 mb-0'),
                 css_class='row'
             ),
 
             Row(
-                Column('estado', css_class='form-group  col-md-6 mb-0'),
-                Column('fecha', css_class='form-group  col-md-6 mb-0'),
-                css_class='row'
-            ),
-            Row(
-                Column('descrip', css_class='form-group  col-md-12 mb-0'),
+                Column('idconcepto', css_class='form-group col-md-6 mb-0'),
+                Column('valor', css_class='form-group col-md-6 mb-0'),
                 css_class='row'
             ),
 
+        ]
+        # Condición correcta
+        if edit2:
+
+            layout_fields.append(
+                Row(
+                    Column('estado', css_class='form-group col-md-4 mb-0'),
+                    Column('fecha', css_class='form-group col-md-4 mb-0'),
+                    Column('cuota', css_class='form-group col-md-4 mb-0'),
+                    css_class='row'
+                )
+            )
+
+        else:
+
+            layout_fields.append(
+                Row(
+                    Column('estado', css_class='form-group col-md-6 mb-0'),
+                    Column('fecha', css_class='form-group col-md-6 mb-0'),
+                    css_class='row'
+                )
+            )
+
+
+        layout_fields.append(
+            Row(
+                Column('descrip', css_class='form-group col-md-12 mb-0'),
+                css_class='row'
+            )
         )
+
+
+        self.helper.layout = Layout(*layout_fields)

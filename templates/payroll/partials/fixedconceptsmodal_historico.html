@@ -1,0 +1,189 @@
+{% load crispy_forms_tags %}
+{% load custom_filters %}
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Detalle de descuento </h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+        <div class="modal-body">
+
+        <!-- Card resumen -->
+        <div class="card shadow-sm border mb-5">
+
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    Información del descuento
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <label class="fw-semibold text-muted">Concepto</label>
+                        <div class="fs-5 fw-bold text-dark">
+                            {{ novfija.idconcepto.nombreconcepto }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="fw-semibold text-muted">Valor</label>
+                        <div class="fs-4 fw-bold text-danger">
+                            $ {{ novfija.valor|format_currency }}
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col-md-6">
+                        {% if aux %}
+
+                        <label class="fw-semibold text-muted">Valor a Pagar </label>
+                        
+                        <div>
+                            <span class="badge badge-light-success fs-7">
+                                    {{ novfija.pago|format_currency }}
+                            </span>
+                        </div>
+
+                        {% else %}
+                            <label class="fw-semibold text-muted">Valor a Descontar </label>
+                            
+                            <div>
+                                <span class="badge badge-light-success fs-7">
+                                        {% widthratio novfija.valor 2 1 as mitad %}
+
+                                        {{ mitad|format_currency }}
+                                </span>
+                            </div>
+
+                            
+                        {% endif %}
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label class="fw-semibold text-muted">Descripción</label>
+                        <div class="text-gray-800">
+                            {{ novfija.descripcion }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Tabla de descuentos dentro de la nómina -->
+        <div class="card shadow-sm border ">
+            {% if items %}
+            <div class="card-header bg-light-danger">
+                <h5 class="card-title text-danger mb-0">
+
+                    <i class="ki-duotone ki-chart-line fs-2 me-2">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+
+                    Descuentos aplicados en la nómina
+
+                </h5>
+            </div>
+
+            
+            <div class="card-body hover-scroll-y h-300px">
+
+                <div class="table-responsive">
+                    
+                    <table class="table table-row-bordered table-row-gray-200 align-middle gs-0 gy-4">
+
+                        <thead>
+
+                            <tr class="fw-bold text-muted bg-light">
+
+                                <th>Concepto</th>
+                                <th>Valor</th>
+                                <th>Nomina</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+
+                                <td>
+                                    <span class="fw-bold">
+                                        {{ item.idconcepto  }}
+                                    </span>
+                                </td>
+
+                                <td class="text-danger fw-bold">
+                                    {{ item.valor|format_currency  }}
+                                </td>
+
+                                <td>
+                                    <span class="badge badge-light-success">
+                                        {{ item.idnomina.nombrenomina  }}
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}                
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+            
+            {% else %}
+                <div class="card-body text-center py-15">
+
+                    <!-- Icono -->
+                    <div class="mb-5">
+
+                        <i class="ki-duotone ki-chart-line-down fs-5x text-danger">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
+
+                    </div>
+
+
+                    <!-- Título -->
+                    <div class="fw-bold fs-3 text-gray-800 mb-2">
+
+                        No se encontraron descuentos registrados
+
+                    </div>
+                </div>
+            {% endif %}
+            
+        </div>
+
+
+    </div>
+    <div class="separator my-5"></div>
+    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+</div>
+
+
+
+

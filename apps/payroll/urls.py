@@ -141,6 +141,10 @@ urlunpolypatterns =[
     # fixed concepts 
     path('fixed/modal', fixed.fixed_modal, name='fixed_modal'),
     path('fixed/modal/edit/<int:id>', fixed.fixed_modal_edit, name='fixed_modal_edit'),
+    path('fixed/modal/edit/<int:id>/95', fixed.fixed_modal_edit_des, name='fixed_modal_edit_des'),
+    path('fixed/modal/views/<int:id>/95', fixed.fixed_modal_views_historico, name='fixed_modal_views_historico'),
+
+
     path('parameters/concepts/add', parameters.concepts_add, name='concepts_add'),
 
     

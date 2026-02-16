@@ -28,7 +28,44 @@ Novedades fijas
 
 
 {% block css %}
+.notification-btn{
+    position: relative;
+    transition: all 0.3s ease;
+    animation: pulseColor 2s infinite;
+}
 
+/* CAMBIO DE COLOR */
+@keyframes pulseColor {
+
+    0%{
+        background-color: #0d6efd;
+        color: white;
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(13,110,253, 0.7);
+    }
+
+    50%{
+        background-color: #dc3545;
+        color: white;
+        transform: scale(1.15);
+        box-shadow: 0 0 0 10px rgba(220,53,69, 0);
+    }
+
+    100%{
+        background-color: #0d6efd;
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(13,110,253, 0);
+    }
+
+}
+
+@keyframes blink{
+
+    0%{opacity:1;}
+    50%{opacity:0.2;}
+    100%{opacity:1;}
+
+}
 
 
 {% endblock %}
@@ -89,8 +126,92 @@ Novedades fijas
                     <td class="text-center align-middle">{{ novfijo.fechafinnovedad|date:'d-m-Y'|default:"—" }}</td>
                     <td class="text-center align-middle">{{ novfijo.descripcion }}</td>
                     <td class="text-center ">
+
+
+                    {% if novfijo.idconcepto.codigo == 91  %}
+                        {% if novfijo.pago %}
+
+                            <a
+                                class='btn btn-icon btn-sm btn-light-facebook me-2 '
+
+                                data-bs-toggle="tooltip"
+                                data-bs-custom-class="tooltip-inverse"
+                                data-bs-placement="top" 
+                                title="Editar"
+
+                                up-layer='new modal'
+                                up-target=".modal-content2"
+                                up-size="medium"
+                                up-align="center"
+                                up-backdrop="true"
+                                up-history="false"
+                                up-dismissable="false"
+                                up-cache="false"
+
+                                href="{% url 'payroll:fixed_modal_edit_des' novfijo.idnovfija %}">
+
+                                <span class="notification-dot"></span>
+
+                                <i class="fa-solid fa-pen-to-square fs-4"></i>
+
+                            </a>
+
+                            <a
+                                class='btn btn-icon btn-sm me-2 btn-light-instagram'
+
+                                data-bs-toggle="tooltip"
+                                data-bs-custom-class="tooltip-inverse"
+                                data-bs-placement="top" 
+                                title="Ver data"
+
+                                up-layer='new modal'
+                                up-target=".modal-content"
+                                up-size = "medium"
+                                up-align = "center"
+                                up-backdrop = "true"
+                                up-history = "false"
+                                up-dismissable ="false"
+                                up-cache="false"
+
+                                href="{% url 'payroll:fixed_modal_views_historico' novfijo.idnovfija %}">
+                                <i class="fas fa-solid fa-eye fs-3 "></i>
+                            </a> 
+
+                        {% else %}
+                            <a
+                                class='btn btn-icon btn-sm btn-light-facebook me-2 notification-btn'
+
+                                data-bs-toggle="tooltip"
+                                data-bs-custom-class="tooltip-inverse"
+                                data-bs-placement="top" 
+                                title="Editar"
+
+                                up-layer='new modal'
+                                up-target=".modal-content2"
+                                up-size="medium"
+                                up-align="center"
+                                up-backdrop="true"
+                                up-history="false"
+                                up-dismissable="false"
+                                up-cache="false"
+
+                                href="{% url 'payroll:fixed_modal_edit_des' novfijo.idnovfija %}">
+
+                                <span class="notification-dot"></span>
+
+                                <i class="fa-solid fa-pen-to-square fs-4"></i>
+
+                            </a> 
+                            
+                            
+                           
+                        {% endif %}
+
+
+                    {% else %}
+
                     <a
-                        class='btn btn-icon btn-light-facebook me-2'
+                        class='btn btn-icon btn-sm btn-light-facebook me-2'
 
                         data-bs-toggle="tooltip"
                         data-bs-custom-class="tooltip-inverse"
@@ -108,7 +229,32 @@ Novedades fijas
 
                         href="{% url 'payroll:fixed_modal_edit' novfijo.idnovfija %}">
                         <i class="fa-solid fa-pen-to-square fs-4"></i>
+                    </a>    
+
+                    <a
+                        class='btn btn-icon btn-sm me-2 btn-light-instagram'
+
+                        data-bs-toggle="tooltip"
+                        data-bs-custom-class="tooltip-inverse"
+                        data-bs-placement="top" 
+                        title="Ver data"
+
+                        up-layer='new modal'
+                        up-target=".modal-content"
+                        up-size = "medium"
+                        up-align = "center"
+                        up-backdrop = "true"
+                        up-history = "false"
+                        up-dismissable ="false"
+                        up-cache="false"
+
+                        href="{% url 'payroll:fixed_modal_views_historico' novfijo.idnovfija %}">
+                        <i class="fas fa-solid fa-eye fs-3 "></i>
                     </a> 
+
+                    {% endif %}
+                    
+                    
                     </td>
                 </tr>
             {% endfor %}

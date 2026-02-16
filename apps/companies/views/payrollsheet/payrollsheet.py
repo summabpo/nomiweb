@@ -1,8 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from apps.common.models import Nomina , NominaComprobantes ,Crearnomina , Contratos ,Empresa
 from apps.components.humani import format_value
 from io import BytesIO
-from xhtml2pdf import pisa
 from datetime import datetime
 from apps.components.payrollgenerate import generate_summary
 from apps.components.payrollgenerate import genera_comprobante 
@@ -20,7 +19,8 @@ from reportlab.lib import colors
 from reportlab.lib.units import cm
 import time
 from reportlab.pdfgen import canvas
-
+from django.urls import reverse
+from django.contrib import messages
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -217,7 +217,6 @@ def generatepayrollsummary(request, idnomina, data):
     context = generate_summary(idnomina, idempresa , data )
 
     buffer = BytesIO()
-    dark_blue = colors.HexColor("#1d2748")  # Primary dark blue
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
@@ -604,6 +603,10 @@ def generatepayrollcertificate(request, idnomina, idcontrato,data=None):
     p.setLineWidth(0.5)
     p.line(35, height - 60, width - 35, height - 60)
 
+    if data == 0 :
+        draw_watermark(p, width, height)
+
+        
     # Logo
     try:
         logo = ImageReader(f"static/img/{context['logo']}")
@@ -970,21 +973,183 @@ def massive_mail(request, idnomina):
 
 
 
+
+
+
 @login_required
 @role_required('company','accountant')
 def unique_mail(request, idnomina, idcontrato):
-    if request.method == 'POST':
-        # Obtener tu objeto
-        
-        
-        # RETORNAR HTML del nuevo estado (¡NO JSON!)
-        html = render_to_string('partials/estado_botones.html', {
-            'compect': obj
-        })
-        return HttpResponse(html)
-    
-    return HttpResponse('Método no permitido', status=405)
 
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario.get('idempresa')
+
+    url = reverse('companies:payrollsheet')
+
+    try:
+
+        data = 10
+
+        # =============================
+        # Obtener comprobante
+        # =============================
+
+        try:
+            datacn = NominaComprobantes.objects.get(
+                idnomina_id=idnomina,
+                idcontrato_id=idcontrato
+            )
+            contrato = datacn.idcontrato
+
+        except NominaComprobantes.DoesNotExist:
+
+            datacn = None
+
+            try:
+                contrato = Contratos.objects.get(idcontrato=idcontrato)
+            except Contratos.DoesNotExist:
+
+                messages.error(
+                    request,
+                    "Error: El contrato no existe."
+                )
+
+                return redirect(f'{url}?nomina={idnomina}')
+
+
+        # =============================
+        # Empresa
+        # =============================
+
+        try:
+            empresa_data = Empresa.objects.get(idempresa=idempresa)
+        except Empresa.DoesNotExist:
+
+            messages.error(
+                request,
+                "Error: La empresa no existe."
+            )
+
+            return redirect(f'{url}?nomina={idnomina}')
+
+
+        # =============================
+        # Logo
+        # =============================
+
+        logo = None
+        try:
+            logo_path = f"static/img/{empresa_data.logo}"
+            logo = ImageReader(logo_path)
+        except Exception as e:
+            print(f"[LOGO ERROR] No se pudo cargar el logo: {e}")
+        
+        print(logo)
+
+        # =============================
+        # Generar PDF
+        # =============================
+
+        try:
+
+            buffer = BytesIO()
+            pdf = canvas.Canvas(buffer, pagesize=letter)
+            context = genera_comprobante(idnomina, idcontrato, data)
+            build_payroll_certificate_pdf(pdf, context, logo)
+            pdf.showPage()
+            nombre_archivo = f'Certificado_{idnomina}_{datetime.now().strftime("%Y-%m-%d")}.pdf'
+            pdf.save()
+            buffer.seek(0)
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error generando el PDF: {str(e)}"
+            )
+
+            return redirect(f'{url}?nomina={idnomina}')
+
+
+        # =============================
+        # Enviar correo
+        # =============================
+
+        email_subject = 'Tu Comprobante de Nómina'
+
+        recipient_list = ['manuel.david.13.b@gmail.com']
+        #recipient_list = [context["mail"],'mikepruebas@yopmail.com']
+
+
+        attachment = {
+            'filename': nombre_archivo,
+            'content': buffer.getvalue(),
+            'mimetype': 'application/pdf'
+        }
+
+
+        email_sent = send_template_email3(
+            email_type='nomina1',
+            context=context,
+            subject=email_subject,
+            recipient_list=recipient_list,
+            attachment=attachment
+        )
+
+
+        # =============================
+        # Guardar estado
+        # =============================
+
+        if not datacn:
+
+            datacn = NominaComprobantes.objects.create(
+
+                idcontrato=contrato,
+                salario=contrato.salario,
+                cargo=contrato.cargo.nombrecargo,
+                idcosto_id=contrato.idcosto.idcosto,
+                salud=contrato.salario,
+                idnomina_id=idnomina,
+                envio_email=2
+
+            )
+
+
+        datacn.envio_email = 1 if email_sent else 2
+        datacn.save()
+
+
+        # =============================
+        # Mensajes finales
+        # =============================
+
+        if email_sent:
+
+            messages.success(
+                request,
+                f"Correo enviado correctamente a {context['nombre_completo']}."
+            )
+
+        else:
+
+            messages.error(
+                request,
+                f"No se pudo enviar el correo a {context['nombre_completo']}."
+            )
+
+
+    except Exception as e:
+
+        messages.error(
+            request,
+            f"Error inesperado: {str(e)}"
+        )
+
+
+    return redirect(f'{url}?nomina={idnomina}')
+
+
+    
 
 # @login_required
 # @role_required('company','accountant')

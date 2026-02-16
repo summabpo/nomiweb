@@ -78,7 +78,7 @@
                         <th>Descuentos</th>
                         <th>Neto</th>
                         <th>Comp.</th>
-                        <!-- <th>E-mail</th> -->
+                        <th>E-mail</th> 
                         <th>Estado</th>
                     </tr>
                 </thead>
@@ -99,32 +99,33 @@
                             <td>{{ compect.descuentos }}</td>
                             <td>{{ compect.neto }}</td>
                             <td>
-                                <a  href="{% url 'companies:generatepayrollcertificate' compect.nominaid compect.contratoid 10 %}" target="_blank"  class="btn btn-icon btn-light-success hover-scale btn-sm">
+                                <a  
+                                href="{% url 'companies:generatepayrollcertificate' compect.nominaid compect.contratoid 10 %}" 
+                                target="_blank"  
+                                class="btn btn-icon btn-light-success hover-scale btn-sm"
+                                data-bs-toggle="tooltip" 
+                                data-bs-custom-class="tooltip-inverse" 
+                                data-bs-placement="top" 
+                                title="Ver comprobante"
+                                
+                                >
                                     <i class="fa-solid fa-file fs-1"></i>
                                 </a> 
                             </td>
-                            <!-- <td>
 
-                                {% comment %} <a  class="btn btn-icon btn-light-success btn-sm"
-                                    up-post="{% url 'companies:unique_mail' compect.nominaid compect.contratoid  %}"
-                                    up-target="#estado-{{ compect.nominaid }}-{{ compect.contratoid }}"
-                                    up-swap="outerHTML"
-                                    up-indicator>
+                            <td>
+                                <a href="{% url 'companies:unique_mail' compect.nominaid compect.contratoid %}" class="btn btn-icon btn-light-success btn-sm"
+                                data-bs-toggle="tooltip" 
+                                data-bs-custom-class="tooltip-inverse" 
+                                data-bs-placement="top" 
+                                title="Enviar Correo"
+                                
+                                >
                                     <i class="fa-regular fa-paper-plane fs-1"></i>
-                                </a> {% endcomment %}
-
-                                <a 
-                                    up-method="post"
-                                    up-target="[data-estado='{{ compect.nominaid }}-{{ compect.contratoid }}']"
-                                    up-layer="parent"
-                                    href="{% url 'companies:unique_mail' compect.nominaid compect.contratoid %}"
-                                    class="btn btn-icon btn-light-success btn-sm send-email-btn"
-                                    title="Enviar Correo">
-                                    <i class="fa-regular fa-paper-plane fs-1"></i>
-                                    <span class="btn-text">Enviando...</span>
-                                </a>
-
-                            </td>-->
+                                </a>    
+                                
+                            </td>
+                            
                             <td >
                                 {% if compect.estado == 'Enviado' %}
                                     <button type="button" class="btn btn-icon btn-light-success hover-scale btn-sm" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Enviado" >
