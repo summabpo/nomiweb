@@ -258,7 +258,6 @@ def payroll_closet(request,id):
 @role_required('accountant')
 def payrollview(request, id):
     usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
 
     empleados_raw = Nomina.objects \
         .select_related('idcontrato') \
