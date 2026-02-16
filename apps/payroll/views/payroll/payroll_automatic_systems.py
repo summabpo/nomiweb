@@ -76,7 +76,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
     titulo = titles.get(type_payroll, 'Sistemas Automáticos')
     centros = Costos.objects.filter(id_empresa_id=idempresa)
-    empleados = Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa).order_by('idempleado__papellido')
+    empleados = Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa).order_by('idempleado__papellido').values('idcontrato','idempleado__docidentidad','idempleado__papellido','idempleado__pnombre','idempleado__sapellido')
     
     
     
@@ -344,6 +344,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
 
                 
         mes = fin_periodo.month
+        mes_nomina = fin_nomina.month  
         anio = fin_periodo.year
         
         if mes == 2 : 
@@ -354,11 +355,17 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             else:
                 diasnomina = diasnomina
 
+        if fin_periodo < inicio_periodo:
+            diasnomina = 0
 
-        dias_mes = calendar.monthrange(anio, mes)[1]
+        dias_mes = calendar.monthrange(anio, mes_nomina)[1]
 
+        
         if dias_mes == 31 and fin_contrato < fin_nomina :
             diasnomina += 1 
+
+        # if contrato.idcontrato == 11428 :
+        #    print(f"d: {diasnomina} fin {fin_contrato} fin c {fin_nomina} dias_mes {dias_mes} año {anio} mes {mes_nomina}")
 
         dias_vacaciones = calcular_vacaciones(contrato.idcontrato,nomina) 
         dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina) 
@@ -366,13 +373,11 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         
 
         
-        
-        
         diasnomina -= dias_vacaciones 
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
 
-        # if contrato.idcontrato == 8160 :
+        # if contrato.idcontrato == 11428 :
         #     print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones}  , dd {diasnomina} ")
 
         

@@ -49,7 +49,7 @@
                 >
                       <option value="" ></option>
                       {% for empleado in empleados %}
-                        <option value="{{ empleado.idcontrato}}">{{ empleado.idempleado.pnombre }} {{ empleado.idempleado.papellido }} {{ empleado.idempleado.sapellido }}</option>
+                        <option value="{{ empleado.idcontrato}}">{{empleado.idempleado__docidentidad}} - {{ empleado.idempleado__pnombre }} {{ empleado.idempleado__papellido }} {{ empleado.idempleado__sapellido }} - {{ empleado.idcontrato}}</option>
                       {% endfor %}
                 </select>
 

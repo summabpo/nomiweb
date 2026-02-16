@@ -37,7 +37,29 @@ MES_CHOICES = [
 def settlement_list(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa ).order_by('-idliquidacion')
+    settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa 
+            ).order_by('-idliquidacion'
+            ).values(   
+                'idcontrato__idcontrato',
+                'idcontrato__idempleado__docidentidad',
+                'idcontrato__idempleado__papellido',
+                'idcontrato__idempleado__pnombre',
+                'idcontrato__idempleado__sapellido',
+                'idcontrato__idempleado__snombre',
+                'diastrabajados',
+                'idcontrato__fechainiciocontrato',
+                'idliquidacion',
+                'fechafincontrato',
+                'cesantias',
+                'intereses',
+                'prima',
+                'vacaciones',
+                'totalliq',
+                
+                
+                )
+
+
     return render(request, './payroll/settlement_list.html',{'settlements': settlements})
 
 @login_required
@@ -296,6 +318,7 @@ def settlement_create(request):
 
             contrato = Contratos.objects.get(idcontrato=contract_id)
             contrato.fechafincontrato = datetime.strptime(end_date_str, '%d-%m-%Y').date()
+            contrato.save()
             
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
