@@ -185,13 +185,13 @@ class Command(BaseCommand):
     def _enviar_a_microservicio(self, payload):
         """Envía el payload al microservicio PILA"""
         try:
-            from apps.pila.services.pila_cliente import enviar_payload_pila
+            from apps.pila.services.pila_cliente import crear_planilla
             
             self.stdout.write(self.style.WARNING(
                 "\n📤 Enviando payload al microservicio PILA...\n"
             ))
             
-            respuesta = enviar_payload_pila(payload)
+            respuesta = crear_planilla(payload)
             
             self.stdout.write(self.style.SUCCESS(
                 f"\n✅ Payload enviado exitosamente\n"
