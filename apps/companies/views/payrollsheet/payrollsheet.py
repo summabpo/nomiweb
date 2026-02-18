@@ -177,34 +177,37 @@ def payrollsheet(request):
 
 
 def draw_watermark(p, width, height):
-    """Dibuja la marca de agua diagonal 'Quote' en el centro de la página"""
-    # Guardar el estado actual del canvas
+    """Marca de agua densa, pequeña y de fondo completo"""
+
     p.saveState()
-    
-    # Color más claro para la marca de agua (gris claro sutil pero visible)
-    watermark_color = colors.HexColor("#D0D0D0")  # Gris claro más sutil
-    p.setFillColor(watermark_color)
-    
-    # Configurar fuente muy grande y en negrita para mejor visibilidad
-    font_size = 130  # Aumentado a 180 para que sea muy grande y visible
-    p.setFont("Helvetica-Bold", font_size)
-    
-    # Calcular el centro de la página
-    center_x = width / 2
-    center_y = height / 2
-    
-    # Rotar el canvas 45 grados (diagonal)
-    p.translate(center_x, center_y)
+
+    # Gris profesional claro
+    p.setFillColor(colors.HexColor("#F55252"))
+
+    # Transparencia elegante
+    p.setFillAlpha(0.10)
+
+    font_name = "Helvetica-Bold"
+    font_size = 40   # MÁS PEQUEÑO
+    p.setFont(font_name, font_size)
+
+    text = "NÓMINA PROVISIONAL"
+
+    # Rotación diagonal
+    p.translate(width / 2, height / 2)
     p.rotate(45)
-    
-    # Dibujar el texto "Quote" centrado
-    text = "Pre-nomina"
-    text_width = p.stringWidth(text, "Helvetica-Bold", font_size)
-    # Mejor cálculo del centro vertical (aproximadamente la mitad de la altura de la fuente)
-    text_height_offset = font_size * 0.35  # Ajuste para centrar mejor verticalmente
-    p.drawString(-text_width / 2, -text_height_offset, text)
-    
-    # Restaurar el estado del canvas
+
+    text_width = p.stringWidth(text, font_name, font_size)
+
+    # Mucho menor espaciado = más cantidad
+    x_step = text_width + 60
+    y_step = font_size + 40
+
+    # cubrir TODA el área
+    for x in range(-int(width * 1.5), int(width * 1.5), int(x_step)):
+        for y in range(-int(height * 1.5), int(height * 1.5), int(y_step)):
+            p.drawString(x, y, text)
+
     p.restoreState()
 
 
@@ -220,6 +223,9 @@ def generatepayrollsummary(request, idnomina, data):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
+    if data == 0 :
+        draw_watermark(p, width, height)
+
     # Encabezado empresa
     p.setFont("Helvetica-Bold", 8)
     p.drawCentredString(width / 2, height - 25, context['empresa'])
@@ -232,8 +238,7 @@ def generatepayrollsummary(request, idnomina, data):
     p.setLineWidth(0.5)
     p.line(35, height - 60, width - 35, height - 60)
 
-    if data == 0 :
-        draw_watermark(p, width, height)
+    
 
     try:
         logo = ImageReader(f"static/img/{context['logo']}")
@@ -334,7 +339,10 @@ def draw_table(pdf, data, col_widths, y_pos, width, x_pos=22, row_height=20):
 def build_payroll_certificate_pdf(pdf, context,data , logo=None):
     width, height = letter
     margin = 30
-        
+    
+    if data == 0 :
+        draw_watermark(pdf, width, height)
+
     # Logo y encabezado
     if logo:
         try:
@@ -495,8 +503,7 @@ def build_payroll_certificate_pdf(pdf, context,data , logo=None):
     table_ingresos.drawOn(pdf, x=22, y=bottom_y - h_i)
     table_descuentos.drawOn(pdf, x=306, y=bottom_y - h_d)
 
-    if data == 0 :
-        draw_watermark(pdf, width, height)
+    
     
     # ---------------------- Tabla 5: Totales ----------------------
 
@@ -592,6 +599,9 @@ def generatepayrollcertificate(request, idnomina, idcontrato,data=None):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
     # Encabezado empresa
+    if data == 0 :
+        draw_watermark(p, width, height)
+
     p.setFont("Helvetica-Bold", 8)
     p.drawCentredString(width / 2, height - 25, context['empresa'])
     p.setFont("Helvetica", 8)
@@ -603,8 +613,7 @@ def generatepayrollcertificate(request, idnomina, idcontrato,data=None):
     p.setLineWidth(0.5)
     p.line(35, height - 60, width - 35, height - 60)
 
-    if data == 0 :
-        draw_watermark(p, width, height)
+    
 
         
     # Logo

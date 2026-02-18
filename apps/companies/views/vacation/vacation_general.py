@@ -138,7 +138,8 @@ def vacation_resumen(request):
         )
         .order_by('-fecha_orden')
     )
-    
+
+
     # Limpiar los valores "no data" y None
     vacaciones = [
         {

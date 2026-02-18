@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import date, timedelta
 import calendar
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP , getcontext , ROUND_CEILING , ROUND_UP
 
 
 #prueba git
@@ -272,6 +272,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
+    # , idcontrato = 8050 
     contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
     
 
@@ -377,9 +378,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_incapacidad 
         diasnomina -= dias_suspensiones 
 
-        # if contrato.idcontrato == 11428 :
-        #     print(f" vac : {dias_vacaciones} , inc {dias_incapacidad} , sus {dias_suspensiones}  , dd {diasnomina} ")
-
+        
+        #print(f"d: {diasnomina} v {dias_vacaciones} i {dias_incapacidad} s {dias_suspensiones} ")
         
         calculo_prestamo(contrato, idn)
         #Calculo_vacaciones(contrato, idn)
@@ -405,12 +405,15 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
                 diasnomina = nomina.diasnomina
         
 
+            getcontext().prec = 50
+
             valorsalario = (
-                Decimal(contrato.salario) / Decimal('30') *
-                Decimal(diasnomina)
+                Decimal(str(contrato.salario))
+                * Decimal(str(diasnomina))
+                / Decimal('30')
             ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
-            
+
             aux_pass = Nomina.objects.filter(
                 idconcepto=concepto,
                 idcontrato=contrato,
@@ -496,12 +499,12 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     salario_minimo = Salariominimoanual.objects.get( ano = ano ).salariominimo
     pago_incapacidad = Empresa.objects.get(idempresa=1).ige100 or "NO"
     
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa)
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa )
     
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
     
-    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3)
+    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3 )
     
     
     
@@ -581,10 +584,15 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
 
         
         horas_incapacidad = dias_incapacidad * 8
-        valor_incapacidad = ibc / 240 * horas_incapacidad
         horas_asumidas = dias_asumidos * 8
-        valor_asumido = ibc / 240 * horas_asumidas
-        
+
+        valor_incapacidad = (
+            Decimal(ibc) / Decimal('240') * Decimal(horas_incapacidad)
+        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+        valor_asumido = (
+            Decimal(ibc) / Decimal('240') * Decimal(horas_asumidas)
+        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         
         
         if dias_asumidos > 0 :
@@ -714,8 +722,8 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
 
     if not parte_nomina:
         parte_nomina = 0
-
-    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa )
+    # ,idcontrato = 8106 
+    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa)
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
     
@@ -753,7 +761,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
         from decimal import Decimal
 
         base_ss_fsp2 = base_ss_fsp * Decimal('0.7')
-
+        
         
         if total_base_ss > 0:
                     
@@ -769,6 +777,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             
             base_ss = min(total_base_ss, base_max)
             base_ss = round(base_ss, 2)
+        
             
             if (base_ss > (sal_min * 4)) and (base_ss < (sal_min * 16)):
                 FSP = fsp416
@@ -786,21 +795,21 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                 FSP = 0
             
             
-            
+            value = (total_base_ss * EPS.valorfijo) / 100
             
             valoreps = (
                 Decimal(total_base_ss) *
                 Decimal(EPS.valorfijo) / Decimal('100')
-            ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
             valorafp = (
                 Decimal(total_base_ss) *
                 Decimal(AFP.valorfijo) / Decimal('100')
-            ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+            
 
             valorfsp = round((base_ss_fsp2 * FSP) / 100, 2) if base_ss_fsp2 >= (sal_min * 4) else 0.00
-            
 
             if contrato.pensionado == '2':
                 valorafp = 0.00
@@ -820,13 +829,13 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                     modified_object_id=aux_pass.idregistronom,
                     modified_model='Nomina',
                 ).exists():
+                    aux_pass.cantidad = 1
                     aux_pass.valor = -1*valoreps
                     aux_pass.save() 
-                                
             else:
                 Nomina.objects.create(
                         idconcepto = concepto1 ,#*
-                        cantidad= 0 ,#*
+                        cantidad= 1 ,#*
                         estadonomina = 1,
                         valor=-1*valoreps , #*
                         idcontrato_id=contrato.idcontrato ,
@@ -850,6 +859,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                     modified_object_id=aux_pass.idregistronom,
                     modified_model='Nomina',
                 ).exists():
+                    aux_pass.cantidad = 1
                     aux_pass.valor = -1*valorafp
                     aux_pass.save() 
                                 
@@ -858,7 +868,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
 
                 Nomina.objects.create(
                         idconcepto = concepto2 ,#*
-                        cantidad= 0 ,#*
+                        cantidad= 1 ,#*
                         estadonomina = 1,
                         valor=-1*valorafp , #*
                         idcontrato_id=contrato.idcontrato ,
@@ -868,7 +878,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             
             
             if valorfsp > 0:
-                valorfsp = valorfsp / 2 
+                valorfsp = valorfsp 
                 # round((base_ss_fsp * FSP) / 100, 2) if base_ss_fsp >= (sal_min * 4) else 0.00 
                 
                 aux_pass = Nomina.objects.filter(
@@ -885,13 +895,14 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                         modified_object_id=aux_pass.idregistronom,
                         modified_model='Nomina',
                     ).exists():
+                        aux_pass.cantidad = 1
                         aux_pass.valor = -1*valorfsp
                         aux_pass.save() 
                                     
                 else:
                     Nomina.objects.create(
                             idconcepto = concepto3 ,#*
-                            cantidad= 0 ,#*
+                            cantidad= 1 ,#*
                             estadonomina = 1,
                             valor=-1*valorfsp , #*
                             idcontrato_id=contrato.idcontrato ,
@@ -1220,6 +1231,7 @@ def calcular_vacaciones(contrato,nomina):
         tipovac__idvac=1
     )
 
+
     if not vacaciones.exists():
         return 0
 
@@ -1249,8 +1261,6 @@ def calcular_vacaciones(contrato,nomina):
                 dias_en_nomina -= 1
 
             dias_vacaciones += dias_en_nomina
-
-
     return dias_vacaciones
 
 
@@ -1480,8 +1490,6 @@ def calculo_prestamo(contrato, idn):
         idcontrato=contrato,
         estadoprestamo=True
     ).order_by('-idprestamo')
-
-
     
     # Concepto del préstamo
     conceptosdenomina = Conceptosdenomina.objects.get(
@@ -1491,14 +1499,17 @@ def calculo_prestamo(contrato, idn):
 
     for load in loans:
         # ---------------------------------------------------------
-        # 🚨 VALIDACIÓN CLAVE:
         # Ejecutar solo si el préstamo se creó ANTES o el MISMO día
         # ---------------------------------------------------------
-        if load.fechaprestamo is None:
-            continue  # Si no tiene fecha, lo ignoramos para evitar errores
 
-        if load.fechaprestamo > nomina_actual.fechainicial:
-            continue  # Este préstamo no aplica a esta nómina
+        fecha = load.fechaprestamo
+
+        if fecha is None:
+            break
+
+        # ignorar solo los que nacen después de la nómina
+        if fecha > nomina_actual.fechafinal:
+            continue
 
         # Verificar si ya está registrado en la nómina actual
         nominactual = Nomina.objects.filter(
@@ -1510,7 +1521,7 @@ def calculo_prestamo(contrato, idn):
         # Deducciones anteriores de este préstamo
         deducciones = Nomina.objects.filter(
             idconcepto=conceptosdenomina,
-            control=load.idprestamo
+            control=load.idprestamo,
         )
 
         suma_deducciones = deducciones.aggregate(
@@ -1520,6 +1531,7 @@ def calculo_prestamo(contrato, idn):
         # --- Cálculo del valor a descontar ---
         if deducciones.exists():
             # Ya existen descuentos previos
+            
             if not nominactual:
                 # No está en la nómina actual → crear registro
 
@@ -1541,6 +1553,24 @@ def calculo_prestamo(contrato, idn):
 
             else:
                 # Ya existe en esta nómina → actualizar
+                
+                aux_pass = Nomina.objects.filter(
+                    idconcepto=conceptosdenomina,
+                    idcontrato=contrato,
+                    estadonomina = 1,
+                    idnomina_id=idn
+                ).first()
+                
+                # if aux_pass:
+                #     if not EditHistory.objects.filter(
+                #         id_empresa_id=idempresa,
+                #         modified_object_id=aux_pass.idregistronom,
+                #         modified_model='Nomina',
+                #     ).exists():
+                #         aux_pass.cantidad = diasnomina
+                #         aux_pass.valor = valorsalario
+                #         aux_pass.save() 
+
                 registro = Nomina.objects.get(
                     idnomina=idn,
                     idconcepto=conceptosdenomina,

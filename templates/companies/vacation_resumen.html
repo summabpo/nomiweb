@@ -69,6 +69,7 @@ Listado de vacaciones
     <table id='tabla-lista-vacation' class="table table-striped table-bordered">
         <thead>
             <tr>
+                <th>ID vacaciones</th>
                 <th>Documento</th>
                 <th>Nombre</th>
                 <th>Contrato</th>
@@ -86,6 +87,7 @@ Listado de vacaciones
         <tbody>
             {% for item in vacaciones %}
                 <tr data-order-id="{{ item.idvacaciones }}" >
+                    <td>{{ item.idvacaciones|default:"" }}</td>
                     <td>{{ item.idcontrato__idempleado__docidentidad|default:"" }}</td>
                     <td>
                         {{ item.idcontrato__idempleado__papellido|default:"" }}

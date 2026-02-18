@@ -46,9 +46,7 @@ def update_salary(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    novsalarios = NovSalarios.objects.filter(idcontrato__id_empresa = idempresa )
-    
-    
+    novsalarios = NovSalarios.objects.filter(idcontrato__id_empresa = idempresa ).order_by('idcambiosalario')
     
     for i in novsalarios :
         contrato = Contratos.objects.get(idcontrato =  i.idcontrato.idcontrato )
@@ -56,10 +54,6 @@ def update_salary(request):
             contrato.salario = i.nuevosalario
             contrato.save()   
             
-            
-                
-    
-    
     return render (request, './companies/update_salary.html',{'novsalarios':novsalarios})
 
 
