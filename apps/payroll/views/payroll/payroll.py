@@ -15,7 +15,7 @@ import json
 from django.http import QueryDict
 from django.urls import reverse
 from decimal import Decimal, ROUND_HALF_UP
-from apps.components.close_employee_payroll import close_employee_payroll
+from apps.components.close_employee_payroll import close_employee_payroll , guardar_historico_nomina
 from django.db import transaction
 
 
@@ -159,8 +159,11 @@ def payroll_closet(request,id):
             novedades_to_update = []
 
             for data in novedades:
-                close_employee_payroll(data.idcontrato,id)
-                # cambiar estado
+                if nomina.tiponomina.idtiponomina in (1, 2, 11):
+                    close_employee_payroll(data.idcontrato,id)
+                    if data.idconcepto.codigo == 1 : 
+                        guardar_historico_nomina(data)
+    
                 data.estadonomina = 2
                 novedades_to_update.append(data)
 

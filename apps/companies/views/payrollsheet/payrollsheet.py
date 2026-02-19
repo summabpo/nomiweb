@@ -28,9 +28,9 @@ def get_email_status(estado_email):
     if estado_email == 1:
         envio_email = 'Enviado'
     elif estado_email == 2:
-        envio_email = 'Error'
-    else:
         envio_email = 'Sin Enviar'
+    else:
+        envio_email = 'Error' 
 
     return envio_email
 
@@ -124,8 +124,9 @@ def payrollsheet(request):
                 comprobante = NominaComprobantes.objects.get(idnomina=selected_nomina, idcontrato=data.idcontrato.idcontrato, idcosto__idcosto=data.idcontrato.idcosto.idcosto)
             except NominaComprobantes.DoesNotExist:
                 comprobante = None
-                
-                
+            
+            
+
             if docidentidad not in acumulados:
                 acumulados[docidentidad] = {
                     'idcontrato': data.idcontrato.idcontrato,
@@ -167,8 +168,6 @@ def payrollsheet(request):
         # Formatear los valores
         for key in ['neto', 'ingresos', 'basico', 'tpte', 'extras', 'aportess', 'prestamos', 'descuentos', 'otrosing', 'otrosdesc']:
             compect[key] = format_value(compect[key])
-
-
 
     return render(request, 'companies/payrollsheet.html', {
         'nominas': nominas,
@@ -850,10 +849,10 @@ def massive_mail(request, idnomina):
         .distinct('idcontrato')
     )
 
-    for data in compectos:
+    for data2 in compectos:
         cont += 1  # total de contratos revisados
         try:
-            email = data.idcontrato.idempleado.email
+            email = data2.idcontrato.idempleado.email
             if email and email.strip():   # existe y no está vacío
                 cantiok += 1
             else:
@@ -931,7 +930,7 @@ def massive_mail(request, idnomina):
                 datacn.envio_email = 1
                 datacn.save()
             else:
-                datacn.envio_email = 2
+                datacn.envio_email = 3
                 datacn.save()
 
     context = {

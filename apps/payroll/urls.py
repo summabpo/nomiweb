@@ -13,6 +13,7 @@ from .views.time import time
 from .views.accounting import benefits_provision 
 from .views.accounting import security_provision
 from .views.severance import severance
+from .views.history import history 
 
 # afsa fsa asfad 
 
@@ -80,6 +81,10 @@ urlpatterns = [
     # Accounting Module
     path('provisions/employee-benefits/', benefits_provision.employee_benefits_provision, name='employee_benefits_provision'),
     path('provisions/social-security/', security_provision.social_security_provision, name='social_security_provision'),
+
+    path('history/salary', history.history_salary, name='history_salary'),
+
+
 ]
 
 
@@ -166,7 +171,7 @@ urlunpolypatterns =[
     ## electronic payroll
     path('payroll/electronic_payroll_detail_view_template/<int:pk>', electronic_payroll.electronic_payroll_detail_view_template, name='electronic_payroll_detail_view_template'),
     
-    
+    path('history/salary/<int:id>', history.history_salary_details, name='history_salary_details'),
 ]
 
 urlpatterns += urlunpolypatterns  

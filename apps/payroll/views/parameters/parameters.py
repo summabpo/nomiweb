@@ -10,6 +10,9 @@ from django.shortcuts import get_object_or_404
 import json
 from django.urls import reverse
 from decimal import Decimal 
+
+
+
 @login_required
 @role_required('company','admin','accountant')
 def banks(request):

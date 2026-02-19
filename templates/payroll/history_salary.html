@@ -1,0 +1,251 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}    
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}           
+{% endblock %}
+
+{% load static %} 
+
+
+{% block title %}
+    Nomiweb.co - Aplicacion Contable - Historial - Salarios
+{% endblock %}
+
+{% block css %}
+
+
+up-modal[size=large] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+up-modal[size=medium] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+up-modal[size=small] up-modal-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    
+}
+
+
+up-modal[size=large] up-modal-box {
+    width: 1200px;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    text-align: left;
+}
+
+.select2-container .select2-search--dropdown .select2-search__field {
+    height: 28px; /* Ajusta la altura según prefieras */
+    padding: 4px 8px; /* Ajusta el padding para hacerlo más delgado */
+    font-size: 14px; /* Si quieres un texto más pequeño */
+    border-radius: 8px; /* Bordes más suaves si te gusta */
+}
+
+
+.select2-container .select2-results__option {
+    text-align: left;
+}
+
+
+.swal2-container {
+    z-index: 9999 !important; /* Más alto que el z-index de los modales de Unpoly */
+}
+
+
+tr.htmx-swapping td {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
+:root[data-bs-theme=dark] up-modal[size=large] up-modal-box,
+    :root[data-bs-theme=dark] up-modal[size=medium] up-modal-box,
+    :root[data-bs-theme=dark] up-modal[size=small] up-modal-box {
+        background-color: var(--greeva-secondary-bg, #1e1f27);
+        color: var(--greeva-body-color, #aab8c5);
+        border: 1px solid var(--greeva-border-color, #37394d);
+        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Historial
+{% endblock %}
+
+{% block sub_titulo2 %} 
+Salarios
+{% endblock %}
+
+{% block titulo2 %} 
+Listado de Salarios
+{% endblock %}
+
+{% block actions %}
+    
+{% endblock %}
+
+
+
+{%block content%} 
+
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered" id="tabla-holidays">
+        <thead>
+            <tr class="fw-bold fs-6 text-gray-800">
+                <th class="text-center">Idcontrato</th>
+                <th class="text-center">Documento</th>
+                <th class="text-center">Nombre</th>
+                <th class="text-center">Año</th>
+                <th class="text-center">
+                    <div class="container d-flex justify-content-center align-items-center">
+                        <i class="ki-duotone ki-chart fs-1">
+                            <i class="path1"></i>
+                            <i class="path2"></i>
+                        </i>
+                    </div>
+                </th>
+            </tr>            
+        </thead>
+        <tbody>
+            {% for history in historys %}
+                <tr>
+                    <td class="text-center align-middle">{{ history.contrato.idcontrato }}</td>
+                    <td class="text-center align-middle">{{ history.employee_document }}</td>
+                    <td class="text-center align-middle">{{ history.employee_name }}</td>
+                    <td class="text-center align-middle">{{ history.ano }}</td>
+                    <td class="text-center align-middle">
+
+                        <a
+                            class='btn btn-icon btn-light-info'
+
+                            data-bs-toggle="tooltip"
+                            data-bs-custom-class="tooltip-inverse"
+                            data-bs-placement="top" 
+                            title="Ver Historial"
+
+                            up-layer='new modal'
+                            up-target=".modal-content1"
+                            up-size = "large"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+
+                            href="{% url 'payroll:history_salary_details' history.id %}">
+                            <i class="fa-solid fa-eye fs-4"></i>
+                        </a> 
+
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+{% block js %}
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+
+        let table = event.target.querySelector('#table-Historial');
+
+        if (!table) return;
+        new DataTable(table, {
+
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'ftp',
+            order: [],
+            pageLength: 10,
+
+        });
+
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-holidays').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 10,
+        });
+
+    });
+</script>
+{% endblock %}

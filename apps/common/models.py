@@ -1297,6 +1297,7 @@ class NominaComprobantes(models.Model):
     idnomina = models.ForeignKey(Crearnomina, models.DO_NOTHING)
     envio_email = models.SmallIntegerField(blank=True, null=True)
     fecha_nomina = models.DateField(null=True, blank=True) ## campo nuevo 
+
     
     class Meta:
         managed = False
@@ -1440,6 +1441,23 @@ class HistorialSalario(models.Model):
     class Meta:
         #managed = False
         db_table = 'historial_salario'
+
+
+
+class HistoricoNomina(models.Model):
+
+    contrato = models.ForeignKey(Contratos, models.DO_NOTHING )
+    ano = models.ForeignKey(Anos, models.DO_NOTHING )
+    historial = models.JSONField( default=dict,blank=True )
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    total_anual = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'historico_nomina'
+        unique_together = ('contrato', 'ano')
+
+
+
 
 class NovSegsocial(models.Model):
     """
