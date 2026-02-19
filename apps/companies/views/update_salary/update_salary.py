@@ -1,25 +1,18 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from apps.components.decorators import  role_required
-from apps.common.models  import NovSalarios, Contratos
+from django.shortcuts import render
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 from apps.companies.forms.updatesalaryForm import updatesalaryForm
 from django.http import JsonResponse , HttpResponse
 from django.urls import reverse
-
-
-
-from django.core.files.storage import default_storage
+from django.views.decorators.csrf import csrf_exempt
 import pandas as pd
-from openpyxl.utils.exceptions import InvalidFileException
-from apps.common.models import Conceptosdenomina, Contratos
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.dimensions import DimensionHolder
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from django.http import JsonResponse
-from apps.common.models import Crearnomina , Contratos, EditHistory ,Incapacidades, Conceptosfijos ,Costos,Salariominimoanual, Crearnomina ,EmpVacaciones,Prestamos ,Conceptosdenomina , Empresa , Vacaciones , Nomina , Contratos
+from apps.common.models import NovSalarios, Contratos ,HistorialSalario
 from decimal import Decimal
 
 from django.db import transaction
@@ -46,24 +39,53 @@ def update_salary(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    novsalarios = NovSalarios.objects.filter(idcontrato__id_empresa = idempresa ).order_by('idcambiosalario')
+    novsalarios = (
+        NovSalarios.objects
+        .select_related(
+            'idcontrato',
+            'idcontrato__idempleado'
+        )
+        .only(
+            'idcambiosalario',
+            'salarioactual',
+            'nuevosalario',
+            'fechanuevosalario',
+
+            'idcontrato__idcontrato',
+
+            'idcontrato__idempleado__docidentidad',
+            'idcontrato__idempleado__pnombre',
+            'idcontrato__idempleado__papellido',
+        )
+        .filter(
+            idcontrato__id_empresa=idempresa
+        )
+        .order_by('idcambiosalario')
+    )
     
-    for i in novsalarios :
-        contrato = Contratos.objects.get(idcontrato =  i.idcontrato.idcontrato )
-        if contrato.salario != i.nuevosalario :
-            contrato.salario = i.nuevosalario
-            contrato.save()   
+    # for i in novsalarios :
+    #     contrato = Contratos.objects.get(idcontrato =  i.idcontrato.idcontrato )
+    #     if contrato.salario != i.nuevosalario :
+    #         contrato.salario = i.nuevosalario
+    #         contrato.save()   
             
     return render (request, './companies/update_salary.html',{'novsalarios':novsalarios})
 
 
 
-@login_required
-@role_required('company','accountant')
+def actualizacion():
+
+
+    return('ok')
+
+
+# @login_required
+# @role_required('company','accountant').
+@csrf_exempt
 def update_salary_add(request):
     
     usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
+    idempresa = 16
     
     form = updatesalaryForm(idempresa = idempresa)
     if request.method == 'POST':
@@ -71,21 +93,81 @@ def update_salary_add(request):
         form = updatesalaryForm(request.POST , idempresa=idempresa )
         if form.is_valid():
             
-            newsalary = NovSalarios.objects.create(
-                idcontrato_id = form.cleaned_data['contract'] ,
-                salarioactual = form.cleaned_data['Salario_Actual'] ,
-                nuevosalario = form.cleaned_data['Salario_nuevo'] ,
-                fechanuevosalario = form.cleaned_data['fecha_nuevo'] ,
-                tiposalario = form.cleaned_data['contractType'] ,
-            )
-            
-            response = HttpResponse()
-            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
-            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
-            response['X-Up-message'] = 'Nuevo salario guardada exitosamente'    
-            response['X-Up-Location'] = reverse('companies:update_salary')           
-            return response
+            contrato_id = form.cleaned_data['contract']
+            nuevosalario = form.cleaned_data['Salario_nuevo']
+            fecha_nuevo = form.cleaned_data['fecha_nuevo']
+            salario_actual = form.cleaned_data['Salario_Actual']
+            salario_nuevo = form.cleaned_data['Salario_nuevo']
+            fecha_nuevo = form.cleaned_data['fecha_nuevo']
+            tiposalario = form.cleaned_data['contractType']
 
+            contrato = Contratos.objects.get(idcontrato = form.cleaned_data['contract'] )
+            
+
+            if nuevosalario > contrato.salario : 
+
+                dataaux =  NovSalarios.objects.filter(nuevosalario = contrato.salario , idcontrato_id = form.cleaned_data['contract'] ).first()
+                
+                # validar existencia
+                existe_historial = HistorialSalario.objects.filter(
+                    contrato_id=contrato_id,
+                    salario=salario_nuevo,
+                    fecha_inicio=dataaux.fechanuevosalario,
+                    fecha_fin=fecha_nuevo
+                ).exists()
+
+
+                existe_novsalario = NovSalarios.objects.filter(
+                    idcontrato_id=contrato_id,
+                    salarioactual=salario_actual,
+                    nuevosalario=salario_nuevo,
+                    fechanuevosalario=fecha_nuevo,
+                    tiposalario=tiposalario,
+                ).exists()
+
+                if not existe_novsalario:
+
+                    with transaction.atomic():
+
+                        novsalario = NovSalarios.objects.create(
+                            idcontrato_id=contrato_id,
+                            salarioactual=salario_actual,
+                            nuevosalario=salario_nuevo,
+                            fechanuevosalario=fecha_nuevo,
+                            tiposalario=tiposalario,
+                        )
+
+                        if  not existe_historial  : 
+                            historial = HistorialSalario.objects.create(
+                                contrato_id=contrato_id,
+                                salario=contrato.salario,
+                                fecha_inicio=dataaux.fechanuevosalario,
+                                es_actual=True,
+                            )
+                        else:
+                            historial = HistorialSalario.objects.create(
+                                contrato_id=contrato_id,
+                                salario=contrato.salario,
+                                fecha_inicio=dataaux.fechanuevosalario,
+                                fecha_fin=fecha_nuevo,
+                                es_actual=True,
+                            )
+                            
+
+                        response = HttpResponse()
+                        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+                        response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+                        response['X-Up-message'] = 'Nuevo salario guardada exitosamente'    
+                        response['X-Up-Location'] = reverse('companies:update_salary')           
+                        return response
+                else:
+                    
+                    response = HttpResponse()
+                    response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+                    response['X-Up-icon'] = 'warning'  # URL para recargar la página principal   
+                    response['X-Up-message'] = 'ups , parece que esa data ya la tenemos'    
+                    response['X-Up-Location'] = reverse('companies:update_salary')           
+                    return response
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario
             for field, errors in form.errors.items():

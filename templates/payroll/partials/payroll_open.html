@@ -1,7 +1,7 @@
-<!-- Modal: Cerrar Nómina -->
+<!-- Modal: Abrir Nómina -->
 <div class="modal-content" id="modal-content">
     <div class="modal-header">
-        <h3 class="modal-title">Cerrar Nómina</h3>
+        <h3 class="modal-title">Abrir Nómina</h3>
         <!--begin::Close-->
         <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Cerrar">
             <i class="ki-duotone ki-cross fs-1">
@@ -16,21 +16,21 @@
     <!--begin::Body-->
     <div class="modal-body text-center">
         <p>
-            Está a punto de cerrar la nómina actual. <br>
-            Al cerrarla, no se podrán realizar modificaciones ni ajustes mientras permanezca en estado cerrado. <br><br>
-            Tenga en cuenta que podrá volver a abrir la nómina en cualquier momento; sin embargo, <strong>todas las acciones realizadas quedarán registradas en el historial del sistema para efectos de control y auditoría</strong>. <br><br>
-            ¿Confirma que desea proceder con el cierre de la nómina?
+            Está a punto de abrir la nómina seleccionada. <br>
+            Al realizar esta acción, la nómina quedará habilitada para realizar modificaciones, ajustes o nuevos movimientos. <br><br>
+            Tenga en cuenta que <strong>todos los cambios realizados a partir de este momento quedarán registrados en el sistema como parte del historial de la nómina</strong>. <br><br>
+            ¿Confirma que desea abrir la nómina?
         </p>
 
         <!-- 🔹 Formulario Unpoly para cierre de nómina -->
         <form id="change-status-form"
                 method="POST"
-                action="{% url 'payroll:payroll_closet' id %}"
+                action="{% url 'payroll:payroll_open' id %}"
                 up-target="#modal-content"
                 up-mode="replace"
                 up-layer="current"
-                up-submit="{% url 'payroll:payroll_closet' id %}"
-                up-accept-location="{% url 'payroll:payroll_closet' id %}"
+                up-submit="{% url 'payroll:payroll_open' id %}"
+                up-accept-location="{% url 'payroll:payroll_open' id %}"
                 up-on-accepted="up.modal.close()">
             
             {% csrf_token %}
@@ -45,7 +45,7 @@
         <button type="button" class="btn btn-light-danger" up-dismiss>Cancelar</button>
         <div style="width: 10px;"></div>
         <button type="submit" form="change-status-form" class="btn btn-light-info">
-            <i class="fa-solid fa-lock me-2"></i> Cerrar Nómina
+            <i class="fa-solid fa-lock-open me-2"></i> Abrir Nómina
         </button>
     </div>
     <!--end::Footer-->

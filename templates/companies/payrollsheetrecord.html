@@ -80,8 +80,35 @@
                     <td class="text-center align-middle">{{ nomina.fechapago|date:'d-m-Y' }}</td>
                     <td class="text-center align-middle">
                         <a href="{% url 'companies:payrollsheet_record_date' nomina.idnomina %}" class="btn btn-icon btn-light-info" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Ver Nómina">
-                            <i class="fa-regular fa-eye fs-2"></i>
+                            <i class="fa-regular fa-eye fs-3"></i>
                         </a>
+
+                        {% if user.is_accountant %}
+                            <a 
+                                up-layer="new modal"
+                                up-target=".modal-content"
+                                up-size="medium"
+                                up-align="center"
+                                up-backdrop="true"
+                                up-history="false"
+                                up-dismissable="false"
+                                up-cache="false"
+
+                                
+                                data-bs-toggle="tooltip" 
+                                data-bs-custom-class="tooltip-inverse" 
+                                data-bs-placement="top" 
+                                title="Abrir nómina"
+                                
+                                href="{% url 'payroll:payroll_open' nomina.idnomina %}" 
+                                class="btn btn-icon btn-light-danger" >                          
+                                <i class="fa-solid fa-lock-open fs-3"></i>
+                            </a>
+
+                        {% endif %}    
+
+                        
+
                     </td>
                 </tr>
             {% endfor %}
@@ -94,6 +121,53 @@
 {% endblock %}
 
 {% block js %}
+
+
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
+
 
 <script>
     $(document).ready(function() {

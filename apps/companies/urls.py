@@ -40,7 +40,7 @@ from .views.accountinggroup import accountinggroup
 from .views.update_salary import update_salary 
 from .views.viewsaux import send_nomina
 
-from .views.hr_changes import position_change , health_insurance_change ,occupational_risk_change
+from .views.hr_changes import position_change , health_insurance_change ,occupational_risk_change , severance_fund_change
 
 
 
@@ -170,6 +170,7 @@ urlpatterns = [
     path('payroll/change/position', position_change.job_change, name='job_change'),
     path('payroll/change/health/insurance/', health_insurance_change.health_insurance_change, name='health_insurance_change'),
     path('payroll/change/occupational/risk/', occupational_risk_change.occupational_risk_change, name='occupational_risk_change'),
+    path('payroll/change/severance/fund/', severance_fund_change.severance_fund_change, name='severance_fund_change'),
     #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
     #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),
     #path("employee/<int:employee_id>/change-severance-fund/", severance_fund_change.severance_fund_change_view, name="severance_fund_change"),
@@ -219,6 +220,11 @@ urlunpolypatterns =[
     
     path('payroll/change/occupational/risk/add', occupational_risk_change.occupational_risk_change_add, name='occupational_risk_change_add'),
     path('get-contract-afp/', occupational_risk_change.get_afp, name='get_afp'),
+    
+
+    path('payroll/change/severance/fund/add', severance_fund_change.severance_fund_change_add, name='severance_fund_change_add'),
+    path('get-contract-fps/', severance_fund_change.get_fps, name='get_fps'),
+    
     
     #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
     #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),

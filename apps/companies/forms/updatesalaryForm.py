@@ -25,7 +25,21 @@ class updatesalaryForm(forms.Form):
         widget=forms.DateInput(attrs={'type': 'date'})
     )
     
+    def clean(self):
+        cleaned_data = super().clean()
+        salario_actual = cleaned_data.get('Salario_Actual')
+        salario_nuevo = cleaned_data.get('Salario_nuevo')
 
+        if salario_actual is not None and salario_nuevo is not None:
+            if salario_nuevo <= salario_actual:
+                self.add_error(
+                    'Salario_nuevo',
+                    'El salario nuevo debe ser mayor al salario actual.'
+                )
+
+        return cleaned_data
+    
+    
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
         super().__init__(*args, **kwargs)

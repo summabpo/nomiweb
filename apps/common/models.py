@@ -903,6 +903,7 @@ class Crearnomina(models.Model):
     estadonomina =models.BooleanField(default=False)
     diasnomina = models.SmallIntegerField(blank=True, null=True)
     id_empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING,null=True, blank=True)
+    is_opened = models.BooleanField(default=False)
     
     class Meta:
         managed = False
@@ -1295,7 +1296,8 @@ class NominaComprobantes(models.Model):
     salud = models.CharField(max_length=125, blank=True, null=True) 
     idnomina = models.ForeignKey(Crearnomina, models.DO_NOTHING)
     envio_email = models.SmallIntegerField(blank=True, null=True)
-
+    fecha_nomina = models.DateField(null=True, blank=True) ## campo nuevo 
+    
     class Meta:
         managed = False
         db_table = 'nomina_comprobantes'
@@ -1425,6 +1427,19 @@ class NovSalarios(models.Model):
         managed = False
         db_table = 'nov_salarios'
 
+
+class HistorialSalario(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    contrato = models.ForeignKey(Contratos, models.DO_NOTHING)
+    salario = models.IntegerField()
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField(null=True, blank=True)
+    es_actual = models.BooleanField()
+
+    class Meta:
+        #managed = False
+        db_table = 'historial_salario'
 
 class NovSegsocial(models.Model):
     """

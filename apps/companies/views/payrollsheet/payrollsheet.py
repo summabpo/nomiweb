@@ -21,6 +21,8 @@ import time
 from reportlab.pdfgen import canvas
 from django.urls import reverse
 from django.contrib import messages
+from apps.components.close_employee_payroll import close_employee_payroll
+
 
 def get_email_status(estado_email):
     if estado_email == 1:
@@ -828,16 +830,6 @@ def generatepayrollcertificate(request, idnomina, idcontrato,data=None):
 
 
 
-""" 
-para el optimo funcionamiento del views , es requerido que se borre el icono 1 
-se cambie la configuracion de correos electronicos y se cree la plantilla 
-
-icono 1 : [:5] - linea 145 
-icono 2 : recipient_list - entre la linea 152 - 158
-icono 3 :  success, message - linea 177
-
-"""
-
 @login_required
 @role_required('company','accountant')
 def massive_mail(request, idnomina):
@@ -876,17 +868,13 @@ def massive_mail(request, idnomina):
 
     if request.method == 'POST':
         enviados = False
-        modo = request.POST.get('modo')
         compectos = Nomina.objects.filter(idnomina = idnomina ).distinct('idcontrato')
 
         for comp in compectos: 
-            try:
-                datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = comp.idcontrato )
-            except NominaComprobantes.DoesNotExist:
-                datacn = None
-                contrato = Contratos.objects.get(idcontrato_id = comp.idcontrato) 
-            
+
+            contrato = Contratos.objects.get(idcontrato = comp.idcontrato.idcontrato ) 
             empresa_data = Empresa.objects.get(idempresa=idempresa)
+
             logo = None
             try:
                 logo_path = f"static/img/{empresa_data.logo}"
@@ -929,8 +917,7 @@ def massive_mail(request, idnomina):
                 recipient_list=recipient_list,
                 attachment=attachment
             )
-                        
-                        
+            
 
             if not email_sent:
                 enviados = False
@@ -938,22 +925,7 @@ def massive_mail(request, idnomina):
             else :
                 enviados = True
                             
-            
-            #email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo. : '
-            
-            if datacn :
-                pass
-            else :
-                NominaComprobantes.objects.create(
-                    idcontrato = contrato, 
-                    salario = contrato.salario, 
-                    cargo = contrato.cargo.nombrecargo, 
-                    idcosto_id = contrato.idcosto.idcosto , 
-                    salud = contrato.salario ,
-                    idnomina_id = idnomina ,
-                    envio_email = 2
-                    )
-                datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato = comp )
+            datacn = close_employee_payroll(contrato,idnomina)
 
             if email_sent :
                 datacn.envio_email = 1
@@ -962,13 +934,6 @@ def massive_mail(request, idnomina):
                 datacn.envio_email = 2
                 datacn.save()
 
-        
-    
-    
-    
-        
-        
-    
     context = {
         'selected_nomina' : idnomina,
         "cantiok": cantiok,
@@ -998,36 +963,17 @@ def unique_mail(request, idnomina, idcontrato):
 
         data = 10
 
-        # =============================
-        # Obtener comprobante
-        # =============================
-
         try:
-            datacn = NominaComprobantes.objects.get(
-                idnomina_id=idnomina,
-                idcontrato_id=idcontrato
+            contrato = Contratos.objects.get(idcontrato=idcontrato)
+        except Contratos.DoesNotExist:
+
+            messages.error(
+                request,
+                "Error: El contrato no existe."
             )
-            contrato = datacn.idcontrato
 
-        except NominaComprobantes.DoesNotExist:
+            return redirect(f'{url}?nomina={idnomina}')
 
-            datacn = None
-
-            try:
-                contrato = Contratos.objects.get(idcontrato=idcontrato)
-            except Contratos.DoesNotExist:
-
-                messages.error(
-                    request,
-                    "Error: El contrato no existe."
-                )
-
-                return redirect(f'{url}?nomina={idnomina}')
-
-
-        # =============================
-        # Empresa
-        # =============================
 
         try:
             empresa_data = Empresa.objects.get(idempresa=idempresa)
@@ -1040,11 +986,6 @@ def unique_mail(request, idnomina, idcontrato):
 
             return redirect(f'{url}?nomina={idnomina}')
 
-
-        # =============================
-        # Logo
-        # =============================
-
         logo = None
         try:
             logo_path = f"static/img/{empresa_data.logo}"
@@ -1052,12 +993,6 @@ def unique_mail(request, idnomina, idcontrato):
         except Exception as e:
             print(f"[LOGO ERROR] No se pudo cargar el logo: {e}")
         
-        print(logo)
-
-        # =============================
-        # Generar PDF
-        # =============================
-
         try:
 
             buffer = BytesIO()
@@ -1078,15 +1013,10 @@ def unique_mail(request, idnomina, idcontrato):
 
             return redirect(f'{url}?nomina={idnomina}')
 
-
-        # =============================
-        # Enviar correo
-        # =============================
-
         email_subject = 'Tu Comprobante de Nómina'
 
-        recipient_list = ['manuel.david.13.b@gmail.com']
-        #recipient_list = [context["mail"],'mikepruebas@yopmail.com']
+        #recipient_list = ['manuel.david.13.b@gmail.com']
+        recipient_list = [context["mail"],'mikepruebas@yopmail.com']
 
 
         attachment = {
@@ -1104,33 +1034,9 @@ def unique_mail(request, idnomina, idcontrato):
             attachment=attachment
         )
 
-
-        # =============================
-        # Guardar estado
-        # =============================
-
-        if not datacn:
-
-            datacn = NominaComprobantes.objects.create(
-
-                idcontrato=contrato,
-                salario=contrato.salario,
-                cargo=contrato.cargo.nombrecargo,
-                idcosto_id=contrato.idcosto.idcosto,
-                salud=contrato.salario,
-                idnomina_id=idnomina,
-                envio_email=2
-
-            )
-
-
+        datacn = close_employee_payroll(contrato,idnomina)
         datacn.envio_email = 1 if email_sent else 2
         datacn.save()
-
-
-        # =============================
-        # Mensajes finales
-        # =============================
 
         if email_sent:
 
@@ -1156,100 +1062,4 @@ def unique_mail(request, idnomina, idcontrato):
 
 
     return redirect(f'{url}?nomina={idnomina}')
-
-
-    
-
-# @login_required
-# @role_required('company','accountant')
-# def unique_mail(request,idnomina,idcontrato):
-#     usuario = request.session.get('usuario', {})
-#     idempresa = usuario['idempresa']
-#     data = 10
-    
-#     try:
-#         datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )
-#     except NominaComprobantes.DoesNotExist:
-#         datacn = None
-#         contrato = Contratos.objects.get(idcontrato = idcontrato)
-    
-#     empresa_data = Empresa.objects.get(idempresa=idempresa)
-#     logo = None
-#     try:
-#         logo_path = f"static/img/{empresa_data.logo}"
-#         logo = ImageReader(logo_path)
-#     except Exception as e:
-#         print(f"[LOGO ERROR] No se pudo cargar el logo: {e}")
-        
-    
-#     buffer = BytesIO()
-#     pdf = canvas.Canvas(buffer, pagesize=letter)
-
-#     context = genera_comprobante(idnomina, idcontrato,data) 
-#     build_payroll_certificate_pdf(pdf, context, logo)
-#     pdf.showPage() 
-#     nombre_archivo = f'Certificado_{idnomina}_{datetime.now().strftime("%Y-%m-%d")}.pdf'
-    
-#     pdf.setTitle(nombre_archivo)
-#     pdf.setAuthor("Nomiweb")
-#     pdf.setSubject(f"Comprobante de Nomina_{idnomina}_{datetime.now().strftime('%Y-%m-%d')}")
-#     pdf.setCreator("Sistema Nomiweb")
-#     pdf.save()
-#     buffer.seek(0)
-
-#     # Enviar el PDF por correo
-#     email_subject = 'Tu Comprobante de Nòmina'
-    
-#     #
-#     recipient_list = ['manuel.david.13.b@gmail.com']  # Lista de destinatarios
-#     #recipient_list = [context["mail"],'mikepruebas@yopmail.com']
-    
-#     attachment = {
-#         'filename': nombre_archivo,
-#         'content': buffer.getvalue(),
-#         'mimetype': 'application/pdf'
-#     }
-
-#     email_sent = send_template_email3(
-#         email_type='nomina1',  # Ajusta el tipo de correo según corresponda
-#         context=context,
-#         subject=email_subject,
-#         recipient_list=recipient_list,
-#         attachment=attachment
-#     )
-
-#     email_status = 'Correo enviado exitosamente.' if email_sent else 'Error al enviar el correo.'
-    
-#     if datacn :
-#         pass
-#     else :
-#         NominaComprobantes.objects.create(
-#             idcontrato = contrato, 
-#             salario = contrato.salario, 
-#             cargo = contrato.cargo.nombrecargo, 
-#             idcosto_id = contrato.idcosto.idcosto , 
-#             salud = contrato.salario ,
-#             idnomina_id = idnomina ,
-#             envio_email = 2
-#             )
-#         datacn = NominaComprobantes.objects.get(idnomina_id = idnomina ,idcontrato_id = idcontrato )
-        
-
-#     if email_sent :
-#         datacn.envio_email = 1
-#         datacn.save()
-#     else:
-#         datacn.envio_email = 2
-#         datacn.save()
-    
-#     response_data = {
-#             'message': 'ID recibido correctamente',
-#             'status' : email_status,
-#             'name' : context["nombre_completo"] ,
-#             'pass' :email_sent
-#         }
-    
-#     print(response_data)
-    
-#     return JsonResponse(response_data)
 

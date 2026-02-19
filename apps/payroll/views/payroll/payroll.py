@@ -3,28 +3,20 @@ from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from apps.common.models import Crearnomina , Tipodenomina , EditHistory , Conceptosfijos , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
 from apps.payroll.forms.PayrollForm import PayrollForm
-from apps.payroll.forms.updateForm import UpdateForm
 from django.contrib import messages
 from .common import generar_nombre_nomina , MES_CHOICES
-from apps.payroll.forms.ConceptForm import ConceptForm
-from datetime import timedelta
 from django.http import JsonResponse
-from django.views import View
 from apps.components.humani import format_value
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-import json
 from django.http import JsonResponse
-from django.core.files.storage import default_storage
 from django.shortcuts import get_object_or_404
-import random
 from django.http import HttpResponse
 from decimal import Decimal
-from django.views.decorators.http import require_GET
 import json
 from django.http import QueryDict
 from django.urls import reverse
 from decimal import Decimal, ROUND_HALF_UP
+from apps.components.close_employee_payroll import close_employee_payroll
+from django.db import transaction
 
 
 def get_empleado_name(empleado):
@@ -67,76 +59,8 @@ def payroll(request):
 
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    form = PayrollForm()
     nominas = Crearnomina.objects.filter(estadonomina=True, id_empresa_id=idempresa).order_by('-idnomina')
-    error = False
-
-    if request.method == 'POST':
-        form = PayrollForm(request.POST)
-        if form.is_valid():
-            try:
-                # Obtener datos del formulario
-                tiponomina_id = form.cleaned_data['tiponomina']
-
-                # Buscar los objetos relacionados
-                tiponomina = Tipodenomina.objects.get(idtiponomina=tiponomina_id)
-
-                # Calcular mes y año acumulados a partir de fechainicial
-                fechainicial = form.cleaned_data['fechainicial']
-                fechafinal = form.cleaned_data['fechafinal']
-
-                # Calcular días de nómina, asegurando que nunca sea mayor a 30
-                if tiponomina.tipodenomina == 'Mensual':
-                    dias_nomina = min(30, (fechafinal - fechainicial).days + 1)
-                    
-                elif tiponomina.tipodenomina == 'Quincenal':
-                    dias_nomina = max(15, (fechafinal - fechainicial).days + 1)
-                else:
-                    dias_nomina = (fechafinal - fechainicial).days + 1  # Incluir día inicial
-                
-                
-
-
-                mes_numero = fechainicial.month  # Obtener el número del mes (1-12)
-                mes_acumular = MES_CHOICES[mes_numero][0] if mes_numero else ''
-                
-                ano_acumular = Anos.objects.get(ano=fechainicial.year)  # Año de la fecha
-                
-                tipo_nomina_text = tiponomina.tipodenomina 
-
-                empresa = Empresa.objects.get(idempresa=idempresa)
-
-                # Crear instancia de Crearnomina
-                
-
-                # Crearnomina.objects.create(
-                #     nombrenomina=generar_nombre_nomina(form.cleaned_data['nombrenomina'] , idempresa),
-                #     fechainicial=fechainicial,
-                #     fechafinal=fechafinal,
-                #     fechapago=form.cleaned_data['fechapago'],
-                #     tiponomina=tiponomina,
-                #     mesacumular=mes_acumular,
-                #     anoacumular=ano_acumular,
-                #     estadonomina=True, 
-                #     diasnomina=dias_nomina,  #Usamos el cálculo aquí
-                #     id_empresa=empresa,
-                # )
-                messages.success(request, "Nómina creada exitosamente.")
-                return redirect('payroll:payroll')  # Redirigir a una vista de lista, por ejemplo
-            except (Tipodenomina.DoesNotExist, Empresa.DoesNotExist):
-                messages.error(request, "Hubo un problema al procesar la información.")
-
-        else:
-            error = True
-            # Si el formulario no es válido, recopilamos todos los errores y los mostramos en un solo mensaje
-            error_message = "Por favor, corrija los siguientes errores:"
-            for field in form:
-                for error in field.errors:
-                    error_message += f"\n- {error}"
-
-            messages.error(request, error_message)
-    
-    return render(request, './payroll/payroll.html', {'nominas': nominas, 'form': form, 'error': error})
+    return render(request, './payroll/payroll.html', {'nominas': nominas})
     
 
 @login_required
@@ -224,15 +148,28 @@ def payroll_create_add(request):
 @role_required('accountant')
 def payroll_closet(request,id):
     if request.method == 'POST':
-        nomina = Crearnomina.objects.get(idnomina = id)
-        novedades = Nomina.objects.filter(idnomina_id = id )
-        nomina.estadonomina = False
-        for data in novedades:
-            data.estadonomina = 2 
-            data.save()
-        nomina.save()
+        with transaction.atomic():
+
+            nomina = get_object_or_404(Crearnomina,idnomina=id)
+            nomina.estadonomina = False
+            nomina.save(update_fields=['estadonomina'])
+            
+            # Obtener solo campos necesarios (optimizado)
+            novedades = Nomina.objects.filter(idnomina_id = id ).only('idcontrato')
+            novedades_to_update = []
+
+            for data in novedades:
+                close_employee_payroll(data.idcontrato,id)
+                # cambiar estado
+                data.estadonomina = 2
+                novedades_to_update.append(data)
+
+            # Guardar todo en UNA sola query
+            Nomina.objects.bulk_update(
+                novedades_to_update,
+                ['estadonomina']
+            )
         
-        # 2750
         response = HttpResponse()
         response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
         response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
@@ -241,6 +178,38 @@ def payroll_closet(request,id):
         return response
     
     return render(request, './payroll/partials/payroll_closet.html',{'id':id})
+
+
+
+@login_required
+@role_required('accountant')
+def payroll_open(request,id):
+    if request.method == 'POST':
+        with transaction.atomic():
+            # Obtener nómina
+            nomina = get_object_or_404(Crearnomina, idnomina=id)
+            # Actualizar nómina
+            nomina.estadonomina = True
+            nomina.is_opened = True
+            nomina.save(update_fields=['estadonomina', 'is_opened'])
+            # Actualizar todas las novedades en UNA sola query
+            Nomina.objects.filter(
+                idnomina_id=id
+            ).update(
+                estadonomina = 1 
+            )
+
+        response = HttpResponse()
+        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+        response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+        response['X-Up-Message'] = 'Nómina cerrada exitosamente'  
+        response['X-Up-Location'] = reverse('companies:payrollsheet_record')       
+        return response
+    
+    return render(request, './payroll/partials/payroll_open.html',{'id':id})
+
+
+
 
 @login_required
 @role_required('accountant')

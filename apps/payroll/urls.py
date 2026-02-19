@@ -22,6 +22,7 @@ urlpatterns = [
     path('payroll/', payroll.payroll, name='payroll'),
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),
     path('payroll/closet/<str:id>', payroll.payroll_closet, name='payroll_closet'),
+    path('payroll/open/<str:id>', payroll.payroll_open, name='payroll_open'),
 
 
     #electronic_payroll
