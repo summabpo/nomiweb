@@ -136,7 +136,7 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
 
     
     calculo_prestamo(contrato, idnomina)
-    #Calculo_vacaciones(contrato, idn)
+    Calculo_vacaciones(contrato, idnomina)
     calculo_novfija(contrato, idnomina)
     
     if contrato.tiposalario.idtiposalario == 2:

@@ -379,10 +379,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         diasnomina -= dias_suspensiones 
 
         
-        #print(f"d: {diasnomina} v {dias_vacaciones} i {dias_incapacidad} s {dias_suspensiones} ")
-        
         calculo_prestamo(contrato, idn)
-        #Calculo_vacaciones(contrato, idn)
+        Calculo_vacaciones(contrato, idn)
         calculo_novfija(contrato, idn)
         
         if contrato.tiposalario.idtiposalario == 2:
@@ -1382,79 +1380,58 @@ def calculo_incapacidad(contrato,nomina):
 
 
 def Calculo_vacaciones(contrato, idn):
-    
-    # Conceptos asociados
-    conp_vaca_dis = Conceptosdenomina.objects.get(codigo=24, id_empresa=contrato.id_empresa_id)
-    conp_vaca_con = Conceptosdenomina.objects.get(codigo=32, id_empresa=contrato.id_empresa_id)
-
     # Nómina actual
     nomina_actual = Crearnomina.objects.get(idnomina=idn)
 
     # Vacaciones según tipo
-    vacaciones_dis = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac=1)
-    vacaciones_con = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac=2)
-
-    def procesar_vacaciones(vacaciones, concepto, tipo):
-        for vaca in vacaciones:
-            existe = Nomina.objects.filter(
-                idnomina=idn,
-                idconcepto=concepto,
-                control=vaca.idvacaciones
-            ).exists()
-
-            if existe:
-                print(f'Vacación {vaca.idvacaciones} ya está en la nómina.')
-                continue
-
-            # 🟦 Tipo 1: Vacaciones disfrutadas → se comparan fechas de disfrute
-            if tipo == 1 and vaca.fechainicialvac and vaca.ultimodiavac:
-                if vaca.fechainicialvac <= nomina_actual.fechafinal and vaca.ultimodiavac >= nomina_actual.fechainicial:
-                    inicio = max(vaca.fechainicialvac, nomina_actual.fechainicial)
-                    fin = min(vaca.ultimodiavac, nomina_actual.fechafinal)
-                    dias_vacaciones = (fin - inicio).days + 1
-                    valor = (contrato.salario / 30) * dias_vacaciones
-                    cantidad = calcular_vacaciones(contrato,nomina_actual)
-                else:
-                    print(f'Vacación {vaca.idvacaciones} fuera del rango de nómina.')
-                    continue
-
-            # 🟩 Tipo 2: Vacaciones compensadas → se usan fecha de pago y días pagados
-            elif tipo == 2 and vaca.fechapago:
-                if nomina_actual.fechainicial <= vaca.fechapago <= nomina_actual.fechafinal:
-                    dias_vacaciones = vaca.diasvac or 0
-                    base = vaca.basepago or contrato.salario
-                    valor = (base / 30) * dias_vacaciones
-                    cantidad = 1
-                    # Si el pago ya está registrado como valor fijo
-                    if vaca.pagovac:
-                        valor = vaca.pagovac
-                else:
-                    print(f'Vacación {vaca.idvacaciones} (tipo 2) con fecha de pago fuera del rango de nómina.')
-                    continue
-
-            else:
-                print(f'Vacación {vaca.idvacaciones} sin datos válidos.')
-                continue
-
-            # Crear registro en la nómina
-            Nomina.objects.create(
-                idconcepto=concepto,
-                cantidad= cantidad,
-                estadonomina=1,
-                valor=valor,
-                idcontrato=contrato,
-                idnomina_id=idn,
-                control=vaca.idvacaciones
-            )
-
-
-    # Procesar vacaciones disfrutadas (tipo 1)
-    procesar_vacaciones(vacaciones_dis, conp_vaca_dis, tipo=1)
-
-    # Procesar vacaciones compensadas (tipo 2)
-    procesar_vacaciones(vacaciones_con, conp_vaca_con, tipo=2)
+    vacaciones = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac__in=[3, 4, 5])
     
+    for vaca in vacaciones :
+        # Conceptos asociados
+        if vaca.tipovac.idvac == 4 :
+            concepto1 = Conceptosdenomina.objects.get(codigo=31, id_empresa_id=contrato.id_empresa_id)
+            concepto2 = Conceptosdenomina.objects.get(codigo=83, id_empresa_id=contrato.id_empresa_id)
 
+        elif  vaca.tipovac.idvac == 3 :
+            concepto2 = Conceptosdenomina.objects.get(codigo=82, id_empresa_id=contrato.id_empresa_id)
+        
+        elif  vaca.tipovac.idvac == 5 :
+            concepto1 = Conceptosdenomina.objects.get(codigo=30, id_empresa_id=contrato.id_empresa_id)
+            concepto2 = Conceptosdenomina.objects.get(codigo=86, id_empresa_id=contrato.id_empresa_id)
+
+        dias_suspensiones = calcular_suspenciones(vaca.idcontrato.idcontrato, nomina_actual )
+
+        dias = vaca.basepago / 30 
+
+        if Nomina.objects.filter(
+                idnomina=nomina_actual,
+                idconcepto=concepto2,
+                control=vaca.idvacaciones
+            ).exists():
+            return 
+
+
+        if  vaca.tipovac.idvac != 3 : 
+
+            Nomina.objects.create(
+                    idconcepto=concepto1,
+                    cantidad= dias_suspensiones,
+                    estadonomina=1,
+                    valor= dias * dias_suspensiones,
+                    idcontrato=vaca.idcontrato,
+                    idnomina=nomina_actual,
+                    control=vaca.idvacaciones
+                )
+
+        Nomina.objects.create(
+            idconcepto=concepto2,
+            cantidad= dias_suspensiones,
+            estadonomina=1,
+            valor=-(dias * dias_suspensiones),
+            idcontrato=vaca.idcontrato,
+            idnomina=nomina_actual,
+            control=vaca.idvacaciones
+        )
 
 
 
