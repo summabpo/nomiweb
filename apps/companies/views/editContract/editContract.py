@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.common.models  import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo
+from apps.common.models  import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo,Tiposdecotizantes ,Subtipocotizantes
 from .EditForm import ContractForm 
 from django.contrib import messages
 
@@ -81,6 +81,8 @@ def EditContracVisual(request,idempleado):
         'CesanFund': contrato.codccf.identidad if contrato.codccf else '',
         'arlWorkCenter': contrato.centrotrabajo.centrotrabajo if contrato.centrotrabajo else '',
         'workPlace': contrato.idsede.idsede if contrato.idsede else '',
+        'contributor': contrato.tipocotizante.tipocotizante if contrato.tipocotizante else '',
+        'subContributor': contrato.subtipocotizante.subtipocotizante if contrato.subtipocotizante else '',
     }
 
     # ✅ Limpieza de valores tipo "no data", "sin dato", "n/a", etc.
@@ -92,10 +94,7 @@ def EditContracVisual(request,idempleado):
     
     if request.method == 'POST':
         form = ContractForm(request.POST,idempresa=idempresa)
-
-
         if form.is_valid():
-            print(request.POST)
             try:
 
                 # Solo se realiza el cambio si el valor no es None ni vacío
@@ -117,9 +116,16 @@ def EditContracVisual(request,idempleado):
                 if form.cleaned_data['costCenter'] not in ('', None):
                     contrato.idcosto = Costos.objects.get(idcosto=form.cleaned_data['costCenter'])
 
-                print(form.cleaned_data['subCostCenter'])
                 if form.cleaned_data['subCostCenter'] not in ('', None):
                     contrato.idsubcosto = Subcostos.objects.get(idsubcosto=form.cleaned_data['subCostCenter'])
+
+                if form.cleaned_data['contributor'] not in ('', None):
+                    contrato.tipocotizante = Tiposdecotizantes.objects.get(tipocotizante=form.cleaned_data['contributor'])
+
+                if form.cleaned_data['subContributor'] not in ('', None):
+                    contrato.subtipocotizante = Subtipocotizantes.objects.get(subtipocotizante=form.cleaned_data['subContributor'])
+
+
 
                 contrato.save()
                 messages.success(request, 'El Contrato ha sido Actualizado')
