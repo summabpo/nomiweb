@@ -191,7 +191,7 @@ class Command(BaseCommand):
                 "\n📤 Enviando payload al microservicio PILA...\n"
             ))
             
-            respuesta = crear_planilla(payload)
+            respuesta = crear_planilla(payload, force=True)
             
             self.stdout.write(self.style.SUCCESS(
                 f"\n✅ Payload enviado exitosamente\n"

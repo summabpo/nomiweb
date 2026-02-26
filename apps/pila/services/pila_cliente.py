@@ -24,12 +24,14 @@ def _headers():
     }
 
 
-def crear_planilla(payload: dict) -> dict:
+def crear_planilla(payload: dict, force: bool = False) -> dict:
     base = getattr(settings, "PILA_BASE_URL", "").rstrip("/")
     if not base:
-        raise PilaServiceError("Falta PILA_BASE_URL en settings/.env")
+        raise PilaServiceError("Falta PILA_BASE_URL in settings/.env")
 
     url = f"{base}/api/v1/pila/planillas/"
+    if force:
+        url += "?force=1"
     r = requests.post(url, json=payload, headers=_headers(), timeout=_timeouts())
 
     # Errores HTTP (400/401/409/500) con mensaje
@@ -58,9 +60,15 @@ def consultar_planilla(planilla_id: int) -> dict:
     return r.json()
 
 
-def descargar_archivo(planilla_id: int) -> bytes:
+def descargar_archivo(planilla_id: int, tipo_planilla: str | None = None) -> bytes:
+    """
+    Descarga el archivo TXT PILA.
+    tipo_planilla: "K" para solo estudiantes, "E" para solo no estudiantes, None para todos.
+    """
     base = getattr(settings, "PILA_BASE_URL", "").rstrip("/")
     url = f"{base}/api/v1/pila/planillas/{planilla_id}/archivo/"
+    if tipo_planilla and tipo_planilla.upper() in ("K", "E"):
+        url += f"?tipo_planilla={tipo_planilla.upper()}"
     r = requests.get(url, headers=_headers(), timeout=_timeouts())
 
     if r.status_code >= 400:
