@@ -111,3 +111,5 @@ def guardar_historico_nomina(comp):
             )
 
     return historico
+
+

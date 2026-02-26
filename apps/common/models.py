@@ -688,7 +688,7 @@ class Contratos(models.Model):
     idsede = models.ForeignKey(Sedes, models.DO_NOTHING, blank=True, null=True) 
     salariovariable = models.SmallIntegerField(blank=True,choices=ModalidadSalario, null=True,default=2)
     codeps = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_eps'  ) 
-    codafp = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_afp'  ) 
+    codafp = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_afp',blank=True, null=True) 
     codccf = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_ccf'  ) 
     fondocesantias = models.ForeignKey(Entidadessegsocial, on_delete=models.DO_NOTHING,related_name='contratos_fondocesantias' ,blank=True, null=True ) 
     auxiliotransporte = models.BooleanField(default=False)

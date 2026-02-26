@@ -32,12 +32,16 @@ error_messages = {
     'general': "Error general: Error procesando el archivo"
 }
 
+
 @login_required
 @role_required('company','accountant')
 def update_salary(request):
-    
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
+    
+    # Obtener fecha actual
+    from datetime import date
+    fecha_hoy = date.today()
     
     novsalarios = (
         NovSalarios.objects
@@ -50,9 +54,7 @@ def update_salary(request):
             'salarioactual',
             'nuevosalario',
             'fechanuevosalario',
-
             'idcontrato__idcontrato',
-
             'idcontrato__idempleado__docidentidad',
             'idcontrato__idempleado__pnombre',
             'idcontrato__idempleado__papellido',
@@ -63,13 +65,16 @@ def update_salary(request):
         .order_by('idcambiosalario')
     )
     
-    # for i in novsalarios :
-    #     contrato = Contratos.objects.get(idcontrato =  i.idcontrato.idcontrato )
-    #     if contrato.salario != i.nuevosalario :
-    #         contrato.salario = i.nuevosalario
-    #         contrato.save()   
-            
-    return render (request, './companies/update_salary.html',{'novsalarios':novsalarios})
+    for i in novsalarios:
+        contrato = Contratos.objects.get(idcontrato=i.idcontrato.idcontrato)
+        
+        # Validar que la fecha del nuevo salario sea igual a hoy
+        if i.fechanuevosalario == fecha_hoy and contrato.salario != i.nuevosalario:
+            contrato.salario = i.nuevosalario
+            contrato.save()
+    
+    return render(request, './companies/update_salary.html', {'novsalarios': novsalarios})
+
 
 
 
@@ -189,21 +194,34 @@ def update_salary_add_masive(request):
 
     if request.method == 'POST':
         file = request.FILES.get("file")
-
         if not file:
             return JsonResponse({"errors": ["Archivo no proporcionado"]}, status=400)
 
         # Leer archivo
         try:
+
+            file.seek(0)
+
             if file.name.endswith('.csv'):
                 df = pd.read_csv(file)
-            elif file.name.endswith(('.xls', '.xlsx')):
-                df = pd.read_excel(file)
-            else:
-                return JsonResponse({"errors": ["Formato no soportado"]}, status=400)
-        except Exception:
-            return JsonResponse({"errors": ["Error leyendo el archivo"]}, status=400)
 
+            elif file.name.endswith(('.xls', '.xlsx')):
+                df = pd.read_excel(file, engine='openpyxl')
+
+            else:
+
+                return JsonResponse(
+                    {"errors": ["Formato no soportado"]},
+                    status=400
+                )
+
+        except Exception as e:
+            print("ERROR REAL:", e)
+            return JsonResponse(
+                {"errors": [str(e)]},
+                status=400
+            )
+        
         cargados = set()  # detectar duplicados en archivo
 
         # =========================
@@ -211,7 +229,6 @@ def update_salary_add_masive(request):
         # =========================
         for index, row in df.iterrows():
             row_errors = []  # se reinicia por fila
-
             try:
                 id_contrato = int(row.get('ID Contrato'))
                 nuevo_salario = float(row.get('Nuevo Salario'))
@@ -253,6 +270,9 @@ def update_salary_add_masive(request):
             if row_errors:
                 has_errors = True
                 for err in row_errors:
+                    print('------------------')
+                    print(error_messages[err])
+
                     errores.append({
                         "fila": index + 1,
                         "id_contrato": id_contrato,
@@ -279,6 +299,7 @@ def update_salary_add_masive(request):
         # 2GUARDAR (SIN ERRORES)
         # =========================
         for r in pending_rows:
+            print('--------5--------------')
             NovSalarios.objects.create(
                 idcontrato=r["contrato"],
                 salarioactual=r["contrato"].salario,
