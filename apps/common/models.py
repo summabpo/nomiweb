@@ -342,6 +342,7 @@ class Centrotrabajo(models.Model):
     tarifaarl = models.DecimalField(max_digits=5, decimal_places=3)
     ctanterior = models.CharField(max_length=30,blank=True, null=True)
     id_empresa = models.ForeignKey('Empresa', on_delete=models.DO_NOTHING)
+    actividad_economica_arl = models.CharField(max_length=7, blank=True, null=True)
     
     def __str__(self):
         return  f"{self.nombrecentrotrabajo} - {self.id_empresa}"
@@ -409,8 +410,9 @@ class Empresa(models.Model):
     nombresuc = models.CharField(max_length=40, blank=True, null=True)
     claseaportante = models.CharField(max_length=1, blank=True, null=True)
     tipoaportante = models.SmallIntegerField(blank=True, null=True)
-    
+    empresa_exonerada = models.BooleanField(default=False)
     ajustarnovedad = models.CharField(max_length=2, blank=True, null=True)
+    tipo_presentacion_planilla = models.CharField(max_length=1, blank=True, null=True)
     
     def __str__(self):
         return self.nombreempresa

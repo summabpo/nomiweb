@@ -1,0 +1,5835 @@
+{
+  "empresa": {
+    "id_interno": 1,
+    "nit": "806013964",
+    "dv": "5",
+    "razon_social": "CARIBBEAN SUPPORT AND FLIGHT SERVICES SAS",
+    "sucursal": "",
+    "tipo_documento_aportante": "NI",
+    "tipo_aportante": "01",
+    "clase_aportante": "B",
+    "tipo_presentacion_planilla": "U",
+    "codigo_arl": "14-11",
+    "flags": {
+      "empresa_exonerada": true
+    }
+  },
+  "periodo": "2025-12",
+  "planilla": {
+    "tipo_planilla": "E",
+    "numero_interno": "NW-EMP1-2025-12",
+    "fecha_generacion": "2026-02-26"
+  },
+  "empleados": [
+    {
+      "id_empleado": 7933,
+      "tipo_doc": "CC",
+      "num_doc": "73575113",
+      "primer_apellido": "PERTUZ",
+      "segundo_apellido": "CABARCAS",
+      "primer_nombre": "JAVIER",
+      "segundo_nombre": "MAURICIO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3501810",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "VAC",
+          "dias": {
+            "salud": 15,
+            "pension": 15,
+            "arl": 15,
+            "caja": 15
+          },
+          "ibc": {
+            "salud": "1750905",
+            "pension": "1750905",
+            "arl": "1750905",
+            "parafiscales": "1750905"
+          },
+          "novedades": [
+            {
+              "codigo": "VAC",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-15",
+              "dias": 15
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 15,
+            "pension": 15,
+            "arl": 15,
+            "caja": 15
+          },
+          "ibc": {
+            "salud": "1812705",
+            "pension": "1812705",
+            "arl": "1812705",
+            "parafiscales": "1812705"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 123599
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7934,
+      "tipo_doc": "CC",
+      "num_doc": "72124873",
+      "primer_apellido": "BARANDICA",
+      "segundo_apellido": "MANJARRES",
+      "primer_nombre": "LIBARDO",
+      "segundo_nombre": "",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3771737",
+            "pension": "3771737",
+            "arl": "3771737",
+            "parafiscales": "3771737"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 707654
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7935,
+      "tipo_doc": "CC",
+      "num_doc": "1113625407",
+      "primer_apellido": "NIEVA",
+      "segundo_apellido": "",
+      "primer_nombre": "OSCAR",
+      "segundo_nombre": "MARINO",
+      "cod_departamento": "76",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS018",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2800218",
+            "pension": "2800218",
+            "arl": "2800218",
+            "parafiscales": "2800218"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 830450
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7936,
+      "tipo_doc": "CC",
+      "num_doc": "7143597",
+      "primer_apellido": "RAMIREZ",
+      "segundo_apellido": "OROZCO",
+      "primer_nombre": "EDWIN",
+      "segundo_nombre": "EDUARDO",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3501810",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "VAC",
+          "dias": {
+            "salud": 9,
+            "pension": 9,
+            "arl": 9,
+            "caja": 9
+          },
+          "ibc": {
+            "salud": "1050543",
+            "pension": "1050543",
+            "arl": "1050543",
+            "parafiscales": "1050543"
+          },
+          "novedades": [
+            {
+              "codigo": "VAC",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-09",
+              "dias": 9
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 21,
+            "pension": 21,
+            "arl": 21,
+            "caja": 21
+          },
+          "ibc": {
+            "salud": "2876442",
+            "pension": "2876442",
+            "arl": "2876442",
+            "parafiscales": "2876442"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 607392
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7938,
+      "tipo_doc": "CC",
+      "num_doc": "73164902",
+      "primer_apellido": "VALLEJO",
+      "segundo_apellido": "NASSI",
+      "primer_nombre": "ARCADIO",
+      "segundo_nombre": "",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3939536",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4779633",
+            "pension": "4779633",
+            "arl": "4779633",
+            "parafiscales": "4779633"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 840097
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7939,
+      "tipo_doc": "CC",
+      "num_doc": "71777454",
+      "primer_apellido": "MEJIA",
+      "segundo_apellido": "MESA",
+      "primer_nombre": "LUIS",
+      "segundo_nombre": "FERNANDO",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3420599",
+            "pension": "3420599",
+            "arl": "3420599",
+            "parafiscales": "3420599"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 575379
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7958,
+      "tipo_doc": "CC",
+      "num_doc": "1143326402",
+      "primer_apellido": "MATOREL",
+      "segundo_apellido": "GAVIRIA",
+      "primer_nombre": "VIVIAN",
+      "segundo_nombre": "CRISTINA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "4727443",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "5434923",
+            "pension": "5434923",
+            "arl": "5434923",
+            "parafiscales": "5434923"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 707480
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7959,
+      "tipo_doc": "CC",
+      "num_doc": "1143139932",
+      "primer_apellido": "BUENDIA",
+      "segundo_apellido": "LEON",
+      "primer_nombre": "EMERLY",
+      "segundo_nombre": "ALEXANDRA",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3501810",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4712792",
+            "pension": "4712792",
+            "arl": "4712792",
+            "parafiscales": "4712792"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1210982
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7960,
+      "tipo_doc": "CC",
+      "num_doc": "1140893659",
+      "primer_apellido": "PADILLA",
+      "segundo_apellido": "GONZALEZ",
+      "primer_nombre": "JOHAN",
+      "segundo_nombre": "DE JESUS",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2626357",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "VAC",
+          "dias": {
+            "salud": 1,
+            "pension": 1,
+            "arl": 1,
+            "caja": 1
+          },
+          "ibc": {
+            "salud": "87546",
+            "pension": "87546",
+            "arl": "87546",
+            "parafiscales": "87546"
+          },
+          "novedades": [
+            {
+              "codigo": "VAC",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": 1
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 29,
+            "pension": 29,
+            "arl": 29,
+            "caja": 29
+          },
+          "ibc": {
+            "salud": "3184723",
+            "pension": "3184723",
+            "arl": "3184723",
+            "parafiscales": "3184723"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 668184
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7961,
+      "tipo_doc": "CC",
+      "num_doc": "1143387853",
+      "primer_apellido": "ROSALES",
+      "segundo_apellido": "GARCIA",
+      "primer_nombre": "CARMEN",
+      "segundo_nombre": "ELENA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "4727443",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "5952948",
+            "pension": "5952948",
+            "arl": "5952948",
+            "parafiscales": "5952948"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1225505
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7962,
+      "tipo_doc": "CC",
+      "num_doc": "1002317352",
+      "primer_apellido": "ALTAMAR",
+      "segundo_apellido": "MONSALVE",
+      "primer_nombre": "DIANA",
+      "segundo_nombre": "PATRICIA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1434460",
+            "pension": "1434460",
+            "arl": "1112489",
+            "parafiscales": "1112489"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 7974,
+      "tipo_doc": "CC",
+      "num_doc": "22647812",
+      "primer_apellido": "CASTRO ",
+      "segundo_apellido": "TORREGROSA",
+      "primer_nombre": "BLEIDI",
+      "segundo_nombre": "CECILIA",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1434460",
+            "pension": "1434460",
+            "arl": "1434460",
+            "parafiscales": "1434460"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 7991,
+      "tipo_doc": "CC",
+      "num_doc": "1007576797",
+      "primer_apellido": "ALTAMAR",
+      "segundo_apellido": "MONSALVE",
+      "primer_nombre": "SILVIA",
+      "segundo_nombre": "JULIANA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2079069",
+            "pension": "2079069",
+            "arl": "2079069",
+            "parafiscales": "2079069"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 328164
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 7993,
+      "tipo_doc": "CC",
+      "num_doc": "1001946953",
+      "primer_apellido": "QUINTERO",
+      "segundo_apellido": "URUETA",
+      "primer_nombre": "ADRIANA",
+      "segundo_nombre": "CAROLINA",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3096930",
+            "pension": "3096930",
+            "arl": "3096930",
+            "parafiscales": "3096930"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 339255
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8018,
+      "tipo_doc": "CC",
+      "num_doc": "1099370566",
+      "primer_apellido": "GONZALEZ",
+      "segundo_apellido": "RODRIGUEZ",
+      "primer_nombre": "KEVIN",
+      "segundo_nombre": "JOSEPH",
+      "cod_departamento": "68",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF40"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3322662",
+            "pension": "3322662",
+            "arl": "3322662",
+            "parafiscales": "3322662"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 477442
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8020,
+      "tipo_doc": "CC",
+      "num_doc": "1020732617",
+      "primer_apellido": "FERNANDEZ",
+      "segundo_apellido": "ALVAREZ",
+      "primer_nombre": "AMADEO",
+      "segundo_nombre": "",
+      "cod_departamento": "66",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF44"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4200752",
+            "pension": "4200752",
+            "arl": "4200752",
+            "parafiscales": "4200752"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1136669
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8036,
+      "tipo_doc": "CC",
+      "num_doc": "32886436",
+      "primer_apellido": "RAMIREZ",
+      "segundo_apellido": "CONRADO",
+      "primer_nombre": "ISABEL",
+      "segundo_nombre": "",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2359882",
+            "pension": "2359882",
+            "arl": "2359882",
+            "parafiscales": "2359882"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 608977
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8042,
+      "tipo_doc": "CC",
+      "num_doc": "98579286",
+      "primer_apellido": "VALENCIA",
+      "segundo_apellido": "CUARTAS",
+      "primer_nombre": "PASTOR",
+      "segundo_nombre": "ALONSO",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3549953",
+            "pension": "3549953",
+            "arl": "3549953",
+            "parafiscales": "3549953"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 704733
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8043,
+      "tipo_doc": "CC",
+      "num_doc": "1102841839",
+      "primer_apellido": "QUIROZ",
+      "segundo_apellido": "CAMPO",
+      "primer_nombre": "IVAN",
+      "segundo_nombre": "DARIO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3764445",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4534125",
+            "pension": "4534125",
+            "arl": "4534125",
+            "parafiscales": "4534125"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 769680
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8044,
+      "tipo_doc": "CC",
+      "num_doc": "1010234595",
+      "primer_apellido": "RODRIGUEZ",
+      "segundo_apellido": "ROLON",
+      "primer_nombre": "DIANA",
+      "segundo_nombre": "LIZ",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4074213",
+            "pension": "4074213",
+            "arl": "4074213",
+            "parafiscales": "4074213"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1010130
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8045,
+      "tipo_doc": "CC",
+      "num_doc": "73133039",
+      "primer_apellido": "OCHOA",
+      "segundo_apellido": "BUELVAS",
+      "primer_nombre": "HERVES",
+      "segundo_nombre": "RUBEN",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2254873",
+            "pension": "2254873",
+            "arl": "2254873",
+            "parafiscales": "2254873"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 503968
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8046,
+      "tipo_doc": "CC",
+      "num_doc": "1123633546",
+      "primer_apellido": "RESTREPO",
+      "segundo_apellido": "GRANADILLO",
+      "primer_nombre": "NICOLAS",
+      "segundo_nombre": "",
+      "cod_departamento": "88",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF64"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3552462",
+            "pension": "3552462",
+            "arl": "3552462",
+            "parafiscales": "3552462"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 488379
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8048,
+      "tipo_doc": "CC",
+      "num_doc": "1036965205",
+      "primer_apellido": "MARTINEZ",
+      "segundo_apellido": "ESCOBAR",
+      "primer_nombre": "JUAN ",
+      "segundo_nombre": "PABLO",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2780592",
+            "pension": "2780592",
+            "arl": "2780592",
+            "parafiscales": "2780592"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 810824
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8049,
+      "tipo_doc": "CC",
+      "num_doc": "1140893968",
+      "primer_apellido": "MOLINARES",
+      "segundo_apellido": "ZABALA",
+      "primer_nombre": "LUIS",
+      "segundo_nombre": "CARLOS",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2674044",
+            "pension": "2674044",
+            "arl": "2674044",
+            "parafiscales": "2674044"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 704276
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8050,
+      "tipo_doc": "CC",
+      "num_doc": "1026576238",
+      "primer_apellido": "ALARCON",
+      "segundo_apellido": "CARDENAS",
+      "primer_nombre": "MARIA",
+      "segundo_nombre": "ALEJANDRA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3294849",
+            "pension": "3294849",
+            "arl": "3294849",
+            "parafiscales": "3294849"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 449629
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8057,
+      "tipo_doc": "CC",
+      "num_doc": "80491708",
+      "primer_apellido": "RODRIGUEZ",
+      "segundo_apellido": "RODRIGUEZ",
+      "primer_nombre": "JAVIER",
+      "segundo_nombre": "HERNAN",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2074233",
+            "pension": "2074233",
+            "arl": "2074233",
+            "parafiscales": "2074233"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 323328
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8058,
+      "tipo_doc": "CC",
+      "num_doc": "1114457835",
+      "primer_apellido": "RIVERA",
+      "segundo_apellido": "PEREIRA",
+      "primer_nombre": "LINA",
+      "segundo_nombre": "MARCELA",
+      "cod_departamento": "76",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4119706",
+            "pension": "4119706",
+            "arl": "4119706",
+            "parafiscales": "4119706"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1055623
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8059,
+      "tipo_doc": "CC",
+      "num_doc": "1020481783",
+      "primer_apellido": "HERNANDEZ",
+      "segundo_apellido": "MONSALVE",
+      "primer_nombre": "JUAN ",
+      "segundo_nombre": "ANDRES",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3414950",
+            "pension": "3414950",
+            "arl": "3414950",
+            "parafiscales": "3414950"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 657275
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8060,
+      "tipo_doc": "CC",
+      "num_doc": "1047450533",
+      "primer_apellido": "ALDANA",
+      "segundo_apellido": "NOEL",
+      "primer_nombre": "DOMINGO",
+      "segundo_nombre": "ANTONIO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3720673",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4147110",
+            "pension": "4147110",
+            "arl": "4147110",
+            "parafiscales": "4147110"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 426437
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8062,
+      "tipo_doc": "CC",
+      "num_doc": "1088824901",
+      "primer_apellido": "RAMIREZ",
+      "segundo_apellido": "RAMIREZ",
+      "primer_nombre": "SARA",
+      "segundo_nombre": "",
+      "cod_departamento": "66",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF44"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3191887",
+            "pension": "3191887",
+            "arl": "3191887",
+            "parafiscales": "3191887"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 434212
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8073,
+      "tipo_doc": "CC",
+      "num_doc": "1047497477",
+      "primer_apellido": "DE LA VICTORIA",
+      "segundo_apellido": "TERAN",
+      "primer_nombre": "DANIEL",
+      "segundo_nombre": "ALFREDO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3904299",
+            "pension": "3904299",
+            "arl": "3904299",
+            "parafiscales": "3904299"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 840216
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8074,
+      "tipo_doc": "CC",
+      "num_doc": "1040048250",
+      "primer_apellido": "BERMUDEZ",
+      "segundo_apellido": "BEDOYA",
+      "primer_nombre": "JUAN",
+      "segundo_nombre": "PABLO",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3774080",
+            "pension": "3774080",
+            "arl": "3774080",
+            "parafiscales": "3774080"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 709997
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8075,
+      "tipo_doc": "CC",
+      "num_doc": "1002232487",
+      "primer_apellido": "VILLARREAL",
+      "segundo_apellido": "ROCHA",
+      "primer_nombre": "JEFERSON",
+      "segundo_nombre": "GREGORIO",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2295009",
+            "pension": "2295009",
+            "arl": "2295009",
+            "parafiscales": "2295009"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 544104
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8077,
+      "tipo_doc": "CC",
+      "num_doc": "1093141488",
+      "primer_apellido": "RODRIGUEZ",
+      "segundo_apellido": "LLANES",
+      "primer_nombre": "YURY",
+      "segundo_nombre": "FERNANDA",
+      "cod_departamento": "54",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2538812",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF36"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3160204",
+            "pension": "3160204",
+            "arl": "3160204",
+            "parafiscales": "3160204"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 621392
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8078,
+      "tipo_doc": "CC",
+      "num_doc": "1000413565",
+      "primer_apellido": "ROJAS",
+      "segundo_apellido": "CORREA",
+      "primer_nombre": "SAMUEL",
+      "segundo_nombre": "DAVID",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2755976",
+            "pension": "2755976",
+            "arl": "2755976",
+            "parafiscales": "2755976"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 786208
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8079,
+      "tipo_doc": "CC",
+      "num_doc": "80111460",
+      "primer_apellido": "TORRES",
+      "segundo_apellido": "RODRIGUEZ",
+      "primer_nombre": "ANDRES",
+      "segundo_nombre": "CAMILO",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2685935",
+            "pension": "2685935",
+            "arl": "2685935",
+            "parafiscales": "2685935"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 716167
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8083,
+      "tipo_doc": "CC",
+      "num_doc": "1064118119",
+      "primer_apellido": "GAMEZ",
+      "segundo_apellido": "CASTILLO",
+      "primer_nombre": "JOSE",
+      "segundo_nombre": "ALEJANDRO",
+      "cod_departamento": "20",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF15"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3688900",
+            "pension": "3688900",
+            "arl": "3688900",
+            "parafiscales": "3688900"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 843680
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8086,
+      "tipo_doc": "CC",
+      "num_doc": "1113681058",
+      "primer_apellido": "BURBANO",
+      "segundo_apellido": "CARDOZO",
+      "primer_nombre": "NICOL",
+      "segundo_nombre": "DANIELA",
+      "cod_departamento": "76",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS018",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "IGE",
+          "dias": {
+            "salud": 2,
+            "pension": 2,
+            "arl": 2,
+            "caja": 2
+          },
+          "ibc": {
+            "salud": "183845",
+            "pension": "183845",
+            "arl": "183845",
+            "parafiscales": "183845"
+          },
+          "novedades": [
+            {
+              "codigo": "IGE",
+              "fecha_desde": "2025-12-27",
+              "fecha_hasta": "2025-12-28",
+              "dias": 2
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 28,
+            "pension": 28,
+            "arl": 28,
+            "caja": 28
+          },
+          "ibc": {
+            "salud": "3054431",
+            "pension": "3054431",
+            "arl": "3054431",
+            "parafiscales": "3054431"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 514929
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8091,
+      "tipo_doc": "CC",
+      "num_doc": "1104008313",
+      "primer_apellido": "PRETEL",
+      "segundo_apellido": "SANCHEZ ",
+      "primer_nombre": "MARCELA",
+      "segundo_nombre": "YINATH",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2538812",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3849993",
+            "pension": "3849993",
+            "arl": "3849993",
+            "parafiscales": "3849993"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1311181
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8092,
+      "tipo_doc": "CC",
+      "num_doc": "1129522131",
+      "primer_apellido": "VEGA",
+      "segundo_apellido": "HERNANDEZ",
+      "primer_nombre": "CARLOS",
+      "segundo_nombre": "ANDRES",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2582584",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "LMA",
+          "dias": {
+            "salud": 5,
+            "pension": 5,
+            "arl": 5,
+            "caja": 5
+          },
+          "ibc": {
+            "salud": "430431",
+            "pension": "430431",
+            "arl": "430431",
+            "parafiscales": "430431"
+          },
+          "novedades": [
+            {
+              "codigo": "LMA",
+              "fecha_desde": "2025-12-26",
+              "fecha_hasta": "2025-12-30",
+              "dias": 5
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 25,
+            "pension": 25,
+            "arl": 25,
+            "caja": 25
+          },
+          "ibc": {
+            "salud": "2485142",
+            "pension": "2485142",
+            "arl": "2485142",
+            "parafiscales": "2485142"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 399586
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8104,
+      "tipo_doc": "CC",
+      "num_doc": "1140890479",
+      "primer_apellido": "CUERVO",
+      "segundo_apellido": "MARTINEZ",
+      "primer_nombre": "HENRY",
+      "segundo_nombre": "",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "03",
+      "salario_basico": "4814988",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": null,
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4208000",
+            "pension": "0",
+            "arl": "4208000",
+            "parafiscales": "4208000"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 8105,
+      "tipo_doc": "CC",
+      "num_doc": "1047473908",
+      "primer_apellido": "HERNANDEZ ",
+      "segundo_apellido": "VILLAR",
+      "primer_nombre": "ROBERTO",
+      "segundo_nombre": "DE JESUS",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3764445",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3124440",
+            "pension": "3124440",
+            "arl": "2646324",
+            "parafiscales": "2646324"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 8106,
+      "tipo_doc": "CC",
+      "num_doc": "79623700",
+      "primer_apellido": "PIÑEROS",
+      "segundo_apellido": "ABRIL",
+      "primer_nombre": "ALEXANDER",
+      "segundo_nombre": "",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "4377262",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4050200",
+            "pension": "4050200",
+            "arl": "4050200",
+            "parafiscales": "4050200"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 8107,
+      "tipo_doc": "CC",
+      "num_doc": "1041771148",
+      "primer_apellido": "FRANCO",
+      "segundo_apellido": "PERTUZ",
+      "primer_nombre": "EDGARDO",
+      "segundo_nombre": "ANTONIO",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "ESSC24",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1993087",
+            "pension": "1993087",
+            "arl": "1993087",
+            "parafiscales": "1993087"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 23319
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8113,
+      "tipo_doc": "CC",
+      "num_doc": "45512716",
+      "primer_apellido": "ANGULO",
+      "segundo_apellido": "LOPEZ",
+      "primer_nombre": "NORA ",
+      "segundo_nombre": "MARGARITA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "10199021",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "5929882",
+            "pension": "5929882",
+            "arl": "5609882",
+            "parafiscales": "5609882"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 8115,
+      "tipo_doc": "CC",
+      "num_doc": "1001942820",
+      "primer_apellido": "CANTILLO",
+      "segundo_apellido": "PATIÑO",
+      "primer_nombre": "HILLARIS",
+      "segundo_nombre": "TATIANA",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2538812",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2908206",
+            "pension": "2908206",
+            "arl": "2908206",
+            "parafiscales": "2908206"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 369394
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8116,
+      "tipo_doc": "CC",
+      "num_doc": "1001901430",
+      "primer_apellido": "SANDON",
+      "segundo_apellido": "MARRUGO",
+      "primer_nombre": "HEILEN",
+      "segundo_nombre": "PAOLA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3333900",
+            "pension": "3333900",
+            "arl": "3333900",
+            "parafiscales": "3333900"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 532452
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8117,
+      "tipo_doc": "CC",
+      "num_doc": "1040039340",
+      "primer_apellido": "JARAMILLO",
+      "segundo_apellido": "VELEZ",
+      "primer_nombre": "JUAN",
+      "segundo_nombre": "JOSE",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3444226",
+            "pension": "3444226",
+            "arl": "3444226",
+            "parafiscales": "3444226"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 380143
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8118,
+      "tipo_doc": "CC",
+      "num_doc": "45582500",
+      "primer_apellido": "BAÑOS",
+      "segundo_apellido": "BERRIO",
+      "primer_nombre": "BETY",
+      "segundo_nombre": "BERNARDA",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "22761765",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": true
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "15933236",
+            "pension": "15933236",
+            "arl": "15933236",
+            "parafiscales": "15933236"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 8123,
+      "tipo_doc": "CC",
+      "num_doc": "1007126854",
+      "primer_apellido": "ANAYA",
+      "segundo_apellido": "MOGOLLON",
+      "primer_nombre": "VICTOR",
+      "segundo_nombre": "ALBERTO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4213845",
+            "pension": "4213845",
+            "arl": "4213845",
+            "parafiscales": "4213845"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1149762
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8126,
+      "tipo_doc": "CC",
+      "num_doc": "1082996461",
+      "primer_apellido": "MEZA",
+      "segundo_apellido": "CARO",
+      "primer_nombre": "NELSON",
+      "segundo_nombre": "LUIS",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3530260",
+            "pension": "3530260",
+            "arl": "3530260",
+            "parafiscales": "3530260"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 466177
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8127,
+      "tipo_doc": "CC",
+      "num_doc": "1006325172",
+      "primer_apellido": "RUIZ",
+      "segundo_apellido": "BERRIO",
+      "primer_nombre": "CARLOS",
+      "segundo_nombre": "ANDRES",
+      "cod_departamento": "76",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845221",
+      "entidades": {
+        "eps": "EPS018",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3873194",
+            "pension": "3873194",
+            "arl": "3873194",
+            "parafiscales": "3873194"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1027973
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8128,
+      "tipo_doc": "CC",
+      "num_doc": "1007126831",
+      "primer_apellido": "SALAZAR",
+      "segundo_apellido": "RAMIREZ",
+      "primer_nombre": "JHONNER",
+      "segundo_nombre": "",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3452414",
+            "pension": "3452414",
+            "arl": "3452414",
+            "parafiscales": "3452414"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 650966
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8131,
+      "tipo_doc": "CC",
+      "num_doc": "1052089595",
+      "primer_apellido": "SOLANO",
+      "segundo_apellido": "VASQUEZ",
+      "primer_nombre": "LAURA",
+      "segundo_nombre": "VANESSA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3430145",
+            "pension": "3430145",
+            "arl": "3430145",
+            "parafiscales": "3430145"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 628697
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8132,
+      "tipo_doc": "CC",
+      "num_doc": "1113675668",
+      "primer_apellido": "BRITO",
+      "segundo_apellido": "TORO",
+      "primer_nombre": "LUIS",
+      "segundo_nombre": "FERNANDO",
+      "cod_departamento": "76",
+      "cod_municipio": "520",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2828759",
+            "pension": "2828759",
+            "arl": "2828759",
+            "parafiscales": "2828759"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 858991
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8135,
+      "tipo_doc": "CC",
+      "num_doc": "1013339457",
+      "primer_apellido": "AREVALO",
+      "segundo_apellido": "QUERUBIN",
+      "primer_nombre": "JUAN",
+      "segundo_nombre": "SEBASTIAN",
+      "cod_departamento": "76",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3736318",
+            "pension": "3736318",
+            "arl": "3736318",
+            "parafiscales": "3736318"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 891098
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8137,
+      "tipo_doc": "CC",
+      "num_doc": "45766998",
+      "primer_apellido": "ANGULO",
+      "segundo_apellido": "LOPEZ",
+      "primer_nombre": "PAOLA",
+      "segundo_nombre": "DEL CARMEN",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "22761765",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": true
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "15933236",
+            "pension": "15933236",
+            "arl": "15933236",
+            "parafiscales": "15933236"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 8138,
+      "tipo_doc": "CC",
+      "num_doc": "73575747",
+      "primer_apellido": "CAMPOS",
+      "segundo_apellido": "LEGRO",
+      "primer_nombre": "OSCAR",
+      "segundo_nombre": "MAURICIO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "22761765",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "231001",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": true
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "15933236",
+            "pension": "15933236",
+            "arl": "15933236",
+            "parafiscales": "15933236"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 8142,
+      "tipo_doc": "CC",
+      "num_doc": "1002195456",
+      "primer_apellido": "CUADRO ",
+      "segundo_apellido": "DEL REAL",
+      "primer_nombre": "BRANDO",
+      "segundo_nombre": "YESID",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1900000",
+            "pension": "1900000",
+            "arl": "1900000",
+            "parafiscales": "1900000"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 8143,
+      "tipo_doc": "CC",
+      "num_doc": "1043661891",
+      "primer_apellido": "BEDOYA",
+      "segundo_apellido": "LOZANO",
+      "primer_nombre": "JESUS",
+      "segundo_nombre": "ALBERTO",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "CCFC55",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3492565",
+            "pension": "3492565",
+            "arl": "3492565",
+            "parafiscales": "3492565"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 647345
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8152,
+      "tipo_doc": "CC",
+      "num_doc": "1143328178",
+      "primer_apellido": "GARCIA",
+      "segundo_apellido": "OCAÑO",
+      "primer_nombre": "CRISTINA",
+      "segundo_nombre": "",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3142054",
+            "pension": "3142054",
+            "arl": "3142054",
+            "parafiscales": "3142054"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 340606
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8155,
+      "tipo_doc": "CC",
+      "num_doc": "1050976880",
+      "primer_apellido": "PEREZ",
+      "segundo_apellido": "PUELLO",
+      "primer_nombre": "SAUDY",
+      "segundo_nombre": "ANDREA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3107708",
+            "pension": "3107708",
+            "arl": "3107708",
+            "parafiscales": "3107708"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 306260
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8159,
+      "tipo_doc": "CC",
+      "num_doc": "32888126",
+      "primer_apellido": "IBAÑEZ",
+      "segundo_apellido": "GONZALEZ",
+      "primer_nombre": "ANA",
+      "segundo_nombre": "MILENA",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3939536",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4983471",
+            "pension": "4983471",
+            "arl": "4983471",
+            "parafiscales": "4983471"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1043935
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8160,
+      "tipo_doc": "CC",
+      "num_doc": "1044607211",
+      "primer_apellido": "PEREZ",
+      "segundo_apellido": "VALERA",
+      "primer_nombre": "ODALIS",
+      "segundo_nombre": "ZHARITH",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "IRL",
+          "dias": {
+            "salud": 7,
+            "pension": 7,
+            "arl": 7,
+            "caja": 7
+          },
+          "ibc": {
+            "salud": "643458",
+            "pension": "643458",
+            "arl": "643458",
+            "parafiscales": "643458"
+          },
+          "novedades": [
+            {
+              "codigo": "IRL",
+              "fecha_desde": "2025-12-02",
+              "fecha_hasta": "2025-12-08",
+              "dias": 7
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 23,
+            "pension": 23,
+            "arl": 23,
+            "caja": 23
+          },
+          "ibc": {
+            "salud": "2551356",
+            "pension": "2551356",
+            "arl": "2551356",
+            "parafiscales": "2551356"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 570180
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8167,
+      "tipo_doc": "CC",
+      "num_doc": "1143460697",
+      "primer_apellido": "MARTINEZ",
+      "segundo_apellido": "DE LAS SALAS",
+      "primer_nombre": "MOISES",
+      "segundo_nombre": "DAVID",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2583966",
+            "pension": "2583966",
+            "arl": "2583966",
+            "parafiscales": "2583966"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 614198
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10147,
+      "tipo_doc": "CC",
+      "num_doc": "1048293334",
+      "primer_apellido": "CLARO",
+      "segundo_apellido": "SANGUINO",
+      "primer_nombre": "YEISON",
+      "segundo_nombre": "",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2468328",
+            "pension": "2468328",
+            "arl": "2468328",
+            "parafiscales": "2468328"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 498560
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10148,
+      "tipo_doc": "CC",
+      "num_doc": "73430774",
+      "primer_apellido": "CANOLES",
+      "segundo_apellido": "GRACIA",
+      "primer_nombre": "EMIRO",
+      "segundo_nombre": "ALFONSO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1423500",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 10,
+            "pension": 10,
+            "arl": 10,
+            "caja": 10
+          },
+          "ibc": {
+            "salud": "506685",
+            "pension": "506685",
+            "arl": "506685",
+            "parafiscales": "506685"
+          },
+          "novedades": [
+            {
+              "codigo": "RET",
+              "fecha_desde": "2025-12-10",
+              "fecha_hasta": "2025-12-10",
+              "dias": 1
+            },
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 96555
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10149,
+      "tipo_doc": "CC",
+      "num_doc": "1130266975",
+      "primer_apellido": "LIZCANO",
+      "segundo_apellido": "HERNANDEZ",
+      "primer_nombre": "MARIA",
+      "segundo_nombre": "PAULA",
+      "cod_departamento": "68",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "9999",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF40"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 10150,
+      "tipo_doc": "CC",
+      "num_doc": "1140861344",
+      "primer_apellido": "ORTEGA",
+      "segundo_apellido": "POTES",
+      "primer_nombre": "DANIELLA",
+      "segundo_nombre": "NATALY",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "9999",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 10151,
+      "tipo_doc": "CC",
+      "num_doc": "1002308877",
+      "primer_apellido": "PADILLA",
+      "segundo_apellido": "BELTRAN",
+      "primer_nombre": "MARYLUZ",
+      "segundo_nombre": "",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "711750",
+      "entidades": {
+        "eps": "9999",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "IRL",
+          "dias": {
+            "salud": 8,
+            "pension": 0,
+            "arl": 8,
+            "caja": 8
+          },
+          "ibc": {
+            "salud": "189800",
+            "pension": "0",
+            "arl": "189800",
+            "parafiscales": "189800"
+          },
+          "novedades": [
+            {
+              "codigo": "IRL",
+              "fecha_desde": "2025-12-02",
+              "fecha_hasta": "2025-12-09",
+              "dias": 8
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 22,
+            "pension": 0,
+            "arl": 22,
+            "caja": 22
+          },
+          "ibc": {
+            "salud": "521950",
+            "pension": "0",
+            "arl": "521950",
+            "parafiscales": "521950"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 10152,
+      "tipo_doc": "CC",
+      "num_doc": "1047399374",
+      "primer_apellido": "BLANQUICETT",
+      "segundo_apellido": "SIERRA",
+      "primer_nombre": "YENNIFER",
+      "segundo_nombre": "PAOLA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2301983",
+            "pension": "2301983",
+            "arl": "2301983",
+            "parafiscales": "2301983"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 113352
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10154,
+      "tipo_doc": "CC",
+      "num_doc": "1193038696",
+      "primer_apellido": "POTES",
+      "segundo_apellido": "CARBONELL",
+      "primer_nombre": "DARIANA",
+      "segundo_nombre": "ISABEL",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2757675",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3792114",
+            "pension": "3792114",
+            "arl": "3792114",
+            "parafiscales": "3792114"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1034439
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10158,
+      "tipo_doc": "CC",
+      "num_doc": "1042416234",
+      "primer_apellido": "CARRILLO",
+      "segundo_apellido": "ARTETA",
+      "primer_nombre": "BLADIMIR",
+      "segundo_nombre": "JOSE",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1423500",
+            "pension": "1423500",
+            "arl": "1423500",
+            "parafiscales": "1423500"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 10729,
+      "tipo_doc": "CC",
+      "num_doc": "1143132874",
+      "primer_apellido": "SALCEDO",
+      "segundo_apellido": "JAIELLUT",
+      "primer_nombre": "WALDO",
+      "segundo_nombre": "RAFAEL",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2170675",
+            "pension": "2170675",
+            "arl": "2170675",
+            "parafiscales": "2170675"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 419770
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10730,
+      "tipo_doc": "CC",
+      "num_doc": "1143162515",
+      "primer_apellido": "SEPULVEDA",
+      "segundo_apellido": "CALDERON",
+      "primer_nombre": "DANIEL",
+      "segundo_nombre": "ALDAIR",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2591890",
+            "pension": "2591890",
+            "arl": "2591890",
+            "parafiscales": "2591890"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 622122
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10731,
+      "tipo_doc": "CC",
+      "num_doc": "1143408784",
+      "primer_apellido": "MUÑOZ",
+      "segundo_apellido": "BUSTILLO",
+      "primer_nombre": "JULIAN",
+      "segundo_nombre": "ENRIQUE",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2626357",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3587617",
+            "pension": "3587617",
+            "arl": "3587617",
+            "parafiscales": "3587617"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 961260
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10732,
+      "tipo_doc": "CC",
+      "num_doc": "1038416197",
+      "primer_apellido": "BOTERO",
+      "segundo_apellido": "JARAMILLO",
+      "primer_nombre": "MARIA",
+      "segundo_nombre": "CAMILA",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "3064083",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3839879",
+            "pension": "3839879",
+            "arl": "3839879",
+            "parafiscales": "3839879"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 775796
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10733,
+      "tipo_doc": "CC",
+      "num_doc": "1050971265",
+      "primer_apellido": "CRESPO",
+      "segundo_apellido": "VERTEL",
+      "primer_nombre": "MARIA",
+      "segundo_nombre": "DEL SOCORRO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2990165",
+            "pension": "2990165",
+            "arl": "2990165",
+            "parafiscales": "2990165"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 188717
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10734,
+      "tipo_doc": "CC",
+      "num_doc": "1140872075",
+      "primer_apellido": "DE LA CRUZ",
+      "segundo_apellido": "TAFUR",
+      "primer_nombre": "STEPHANIA",
+      "segundo_nombre": "",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2845220",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3750596",
+            "pension": "3750596",
+            "arl": "3750596",
+            "parafiscales": "3750596"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 905376
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 10735,
+      "tipo_doc": "CC",
+      "num_doc": "1002161738",
+      "primer_apellido": "DIAZ",
+      "segundo_apellido": "INSIGNARES",
+      "primer_nombre": "CAMILA",
+      "segundo_nombre": "EDITH",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "875500",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 10736,
+      "tipo_doc": "CC",
+      "num_doc": "1042246304",
+      "primer_apellido": "HERRERA",
+      "segundo_apellido": "TOVAR",
+      "primer_nombre": "ANGIE",
+      "segundo_nombre": "PAOLA",
+      "cod_departamento": "76",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "875500",
+      "entidades": {
+        "eps": "MIN001",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF56"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 10737,
+      "tipo_doc": "CC",
+      "num_doc": "1143261165",
+      "primer_apellido": "HERRERA",
+      "segundo_apellido": "RODRIGUEZ",
+      "primer_nombre": "ROSA",
+      "segundo_nombre": "ANGELICA",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "875500",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11419,
+      "tipo_doc": "CC",
+      "num_doc": "1044620740",
+      "primer_apellido": "MOLINARES",
+      "segundo_apellido": "DUNCAN",
+      "primer_nombre": "NICOLLE",
+      "segundo_nombre": "",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "875500",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11420,
+      "tipo_doc": "CC",
+      "num_doc": "1032011419",
+      "primer_apellido": "VALBUENA",
+      "segundo_apellido": "TAPIAS",
+      "primer_nombre": "KAREN",
+      "segundo_nombre": "LIZET",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "875500",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11421,
+      "tipo_doc": "CC",
+      "num_doc": "1002195365",
+      "primer_apellido": "CATALAN",
+      "segundo_apellido": "GUTIERREZ",
+      "primer_nombre": "NATALIA",
+      "segundo_nombre": "CAROLINA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1900000",
+            "pension": "1900000",
+            "arl": "1900000",
+            "parafiscales": "1900000"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11422,
+      "tipo_doc": "CC",
+      "num_doc": "1002135009",
+      "primer_apellido": "AGUIRRE",
+      "segundo_apellido": "LUGO",
+      "primer_nombre": "DARWIN",
+      "segundo_nombre": "RICARDO",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1423500",
+            "pension": "1423500",
+            "arl": "1423500",
+            "parafiscales": "1423500"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11423,
+      "tipo_doc": "CC",
+      "num_doc": "1140890296",
+      "primer_apellido": "SARMIENTO",
+      "segundo_apellido": "BARRIOS",
+      "primer_nombre": "BREYNER",
+      "segundo_nombre": "RICARDO",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1423500",
+            "pension": "1423500",
+            "arl": "1423500",
+            "parafiscales": "1423500"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11424,
+      "tipo_doc": "CC",
+      "num_doc": "1066864205",
+      "primer_apellido": "PABON",
+      "segundo_apellido": "HENRIQUEZ",
+      "primer_nombre": "ELIM",
+      "segundo_nombre": "JISSELA",
+      "cod_departamento": "20",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "875500",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF15"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11425,
+      "tipo_doc": "CC",
+      "num_doc": "1067807295",
+      "primer_apellido": "SANCHEZ",
+      "segundo_apellido": "BUSTILLO",
+      "primer_nombre": "ANA",
+      "segundo_nombre": "PAOLA",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "875500",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "711750",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11426,
+      "tipo_doc": "CC",
+      "num_doc": "1048434916",
+      "primer_apellido": "ARELLANO",
+      "segundo_apellido": "COGOLLO",
+      "primer_nombre": "BRIAN",
+      "segundo_nombre": "ANDRES",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "23",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1313200",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "9999",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": false,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": false,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "0",
+            "pension": "0",
+            "arl": "1067626",
+            "parafiscales": "0"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11427,
+      "tipo_doc": "CC",
+      "num_doc": "1007901880",
+      "primer_apellido": "MEDRANO",
+      "segundo_apellido": "ESCAMILLA",
+      "primer_nombre": "MARIA",
+      "segundo_nombre": "ISABEL",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2626357",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3253002",
+            "pension": "3253002",
+            "arl": "3253002",
+            "parafiscales": "3253002"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 626645
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 11428,
+      "tipo_doc": "CC",
+      "num_doc": "1143410690",
+      "primer_apellido": "VERGARA",
+      "segundo_apellido": "SALAS",
+      "primer_nombre": "KRISTEL",
+      "segundo_nombre": "MARIA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2626357",
+      "entidades": {
+        "eps": "EPS037",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "3092329",
+            "pension": "3092329",
+            "arl": "3092329",
+            "parafiscales": "3092329"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 465972
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 11429,
+      "tipo_doc": "CC",
+      "num_doc": "1000442349",
+      "primer_apellido": "CORTEZ",
+      "segundo_apellido": "GOMEZ",
+      "primer_nombre": "JOSE",
+      "segundo_nombre": "DANIEL",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2337358",
+            "pension": "2337358",
+            "arl": "2337358",
+            "parafiscales": "2337358"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 367590
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 11650,
+      "tipo_doc": "CC",
+      "num_doc": "1018226613",
+      "primer_apellido": "OSORIO",
+      "segundo_apellido": "LOPEZ",
+      "primer_nombre": "EDWAR",
+      "segundo_nombre": "ESTEBAN",
+      "cod_departamento": "05",
+      "cod_municipio": "615",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1969768",
+      "entidades": {
+        "eps": "EPS010",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF03"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "2745632",
+            "pension": "2745632",
+            "arl": "2745632",
+            "parafiscales": "2745632"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 775864
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 11651,
+      "tipo_doc": "CC",
+      "num_doc": "1047410256",
+      "primer_apellido": "BARBOZA",
+      "segundo_apellido": "AYOLA",
+      "primer_nombre": "LUIS",
+      "segundo_nombre": "GERARDO",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1900000",
+            "pension": "1900000",
+            "arl": "1900000",
+            "parafiscales": "1900000"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 11652,
+      "tipo_doc": "CC",
+      "num_doc": "1007739592",
+      "primer_apellido": "CORTINA",
+      "segundo_apellido": "MARRUGO",
+      "primer_nombre": "LINA",
+      "segundo_nombre": "CANDELARIA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 30,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "1900000",
+            "pension": "1900000",
+            "arl": "1900000",
+            "parafiscales": "1900000"
+          },
+          "novedades": []
+        }
+      ]
+    },
+    {
+      "id_empleado": 12067,
+      "tipo_doc": "CC",
+      "num_doc": "1002428823",
+      "primer_apellido": "POSSO",
+      "segundo_apellido": "ARIÑA",
+      "primer_nombre": "NAYELIS",
+      "segundo_nombre": "PAOLA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2801448",
+      "entidades": {
+        "eps": "ESSC07",
+        "afp": "25-14",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 27,
+            "pension": 27,
+            "arl": 27,
+            "caja": 27
+          },
+          "ibc": {
+            "salud": "2135201",
+            "pension": "2135201",
+            "arl": "2135201",
+            "parafiscales": "2135201"
+          },
+          "novedades": [
+            {
+              "codigo": "ING",
+              "fecha_desde": "2025-12-04",
+              "fecha_hasta": "2025-12-04",
+              "dias": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 12068,
+      "tipo_doc": "CC",
+      "num_doc": "1047479031",
+      "primer_apellido": "VILLALOBOS",
+      "segundo_apellido": "BABILONIA",
+      "primer_nombre": "ANGIE",
+      "segundo_nombre": "CAROLINA",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "2188631",
+      "entidades": {
+        "eps": "EPS005",
+        "afp": "230201",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "0.522"
+      },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 9,
+            "pension": 9,
+            "arl": 9,
+            "caja": 9
+          },
+          "ibc": {
+            "salud": "570000",
+            "pension": "570000",
+            "arl": "570000",
+            "parafiscales": "570000"
+          },
+          "novedades": [
+            {
+              "codigo": "ING",
+              "fecha_desde": "2025-12-22",
+              "fecha_hasta": "2025-12-22",
+              "dias": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 12071,
+      "tipo_doc": "CC",
+      "num_doc": "1047464046",
+      "primer_apellido": "JULIO",
+      "segundo_apellido": "SIMANCAS",
+      "primer_nombre": "GABRIEL",
+      "segundo_nombre": "JAIME",
+      "cod_departamento": "13",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "00",
+      "salario_basico": "1750905",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": "230301",
+        "arl": "14-11",
+        "caja": "CCF08"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": true,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 8,
+            "pension": 8,
+            "arl": 8,
+            "caja": 8
+          },
+          "ibc": {
+            "salud": "379600",
+            "pension": "379600",
+            "arl": "379600",
+            "parafiscales": "379600"
+          },
+          "novedades": [
+            {
+              "codigo": "ING",
+              "fecha_desde": "2025-12-23",
+              "fecha_hasta": "2025-12-23",
+              "dias": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "origen": "nomiweb",
+    "version_payload": "1.0",
+    "usuario": "admin@nomiweb.com.co"
+  },
+  "parametros": {
+    "smmlv": 1423500,
+    "tope_ibc_smmlv": 25,
+    "dias_base": 30,
+    "fsp_porcentajes": {
+      "4-16": 0.01,
+      "16-17": 0.012,
+      "17-18": 0.013999999999999999,
+      "18-19": 0.016,
+      "19-20": 0.018000000000000002,
+      ">20": 0.02
+    },
+    "factor_integral": 0.7,
+    "tasa_salud_emp": 0.04,
+    "tasa_salud_empl_ibc_mayor_10": 0.085
+  }
+}
