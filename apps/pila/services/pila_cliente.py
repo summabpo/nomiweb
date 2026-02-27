@@ -9,7 +9,7 @@ class PilaServiceError(Exception):
 
 def _timeouts():
     connect = int(getattr(settings, "PILA_TIMEOUT_CONNECT", 3))
-    read = int(getattr(settings, "PILA_TIMEOUT_READ", 15))
+    read = int(getattr(settings, "PILA_TIMEOUT_READ", 120))
     return (connect, read)
 
 

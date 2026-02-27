@@ -18,7 +18,7 @@
   "planilla": {
     "tipo_planilla": "E",
     "numero_interno": "NW-EMP1-2025-12",
-    "fecha_generacion": "2026-02-25"
+    "fecha_generacion": "2026-02-26"
   },
   "empleados": [
     {
@@ -86,10 +86,10 @@
             "caja": 15
           },
           "ibc": {
-            "salud": "3625409",
-            "pension": "3625409",
-            "arl": "3625409",
-            "parafiscales": "3625409"
+            "salud": "1812705",
+            "pension": "1812705",
+            "arl": "1812705",
+            "parafiscales": "1812705"
           },
           "novedades": [
             {
@@ -286,10 +286,10 @@
             "caja": 21
           },
           "ibc": {
-            "salud": "4109202",
-            "pension": "4109202",
-            "arl": "4109202",
-            "parafiscales": "4109202"
+            "salud": "2876442",
+            "pension": "2876442",
+            "arl": "2876442",
+            "parafiscales": "2876442"
           },
           "novedades": [
             {
@@ -604,10 +604,10 @@
             "caja": 29
           },
           "ibc": {
-            "salud": "3294541",
-            "pension": "3294541",
-            "arl": "3294541",
-            "parafiscales": "3294541"
+            "salud": "3184723",
+            "pension": "3184723",
+            "arl": "3184723",
+            "parafiscales": "3184723"
           },
           "novedades": [
             {
@@ -2291,18 +2291,41 @@
       "actividad_economica_arl": "4522901",
       "registros": [
         {
-          "tipo_linea": "NORMAL",
+          "tipo_linea": "IGE",
           "dias": {
-            "salud": 30,
-            "pension": 30,
-            "arl": 30,
-            "caja": 30
+            "salud": 2,
+            "pension": 2,
+            "arl": 2,
+            "caja": 2
           },
           "ibc": {
-            "salud": "3272604",
-            "pension": "3272604",
-            "arl": "3272604",
-            "parafiscales": "3272604"
+            "salud": "183845",
+            "pension": "183845",
+            "arl": "183845",
+            "parafiscales": "183845"
+          },
+          "novedades": [
+            {
+              "codigo": "IGE",
+              "fecha_desde": "2025-12-27",
+              "fecha_hasta": "2025-12-28",
+              "dias": 2
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 28,
+            "pension": 28,
+            "arl": 28,
+            "caja": 28
+          },
+          "ibc": {
+            "salud": "3054431",
+            "pension": "3054431",
+            "arl": "3054431",
+            "parafiscales": "3054431"
           },
           "novedades": [
             {
@@ -2417,10 +2440,10 @@
             "caja": 5
           },
           "ibc": {
-            "salud": "2852467",
-            "pension": "2852467",
-            "arl": "2852467",
-            "parafiscales": "2852467"
+            "salud": "430431",
+            "pension": "430431",
+            "arl": "430431",
+            "parafiscales": "430431"
           },
           "novedades": [
             {
@@ -2440,10 +2463,10 @@
             "caja": 25
           },
           "ibc": {
-            "salud": "2982170",
-            "pension": "2982170",
-            "arl": "2982170",
-            "parafiscales": "2982170"
+            "salud": "2485142",
+            "pension": "2485142",
+            "arl": "2485142",
+            "parafiscales": "2485142"
           },
           "novedades": [
             {
@@ -3784,18 +3807,41 @@
       "actividad_economica_arl": "4522901",
       "registros": [
         {
-          "tipo_linea": "NORMAL",
+          "tipo_linea": "IRL",
           "dias": {
-            "salud": 30,
-            "pension": 30,
-            "arl": 30,
-            "caja": 30
+            "salud": 7,
+            "pension": 7,
+            "arl": 7,
+            "caja": 7
           },
           "ibc": {
-            "salud": "3327855",
-            "pension": "3327855",
-            "arl": "3327855",
-            "parafiscales": "3327855"
+            "salud": "643458",
+            "pension": "643458",
+            "arl": "643458",
+            "parafiscales": "643458"
+          },
+          "novedades": [
+            {
+              "codigo": "IRL",
+              "fecha_desde": "2025-12-02",
+              "fecha_hasta": "2025-12-08",
+              "dias": 7
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 23,
+            "pension": 23,
+            "arl": 23,
+            "caja": 23
+          },
+          "ibc": {
+            "salud": "2551356",
+            "pension": "2551356",
+            "arl": "2551356",
+            "parafiscales": "2551356"
           },
           "novedades": [
             {
@@ -3969,10 +4015,10 @@
             "caja": 10
           },
           "ibc": {
-            "salud": "1520055",
-            "pension": "1520055",
-            "arl": "1520055",
-            "parafiscales": "1520055"
+            "salud": "506685",
+            "pension": "506685",
+            "arl": "506685",
+            "parafiscales": "506685"
           },
           "novedades": [
             {
@@ -4128,18 +4174,41 @@
       "actividad_economica_arl": "4522901",
       "registros": [
         {
-          "tipo_linea": "NORMAL",
+          "tipo_linea": "IRL",
           "dias": {
-            "salud": 30,
+            "salud": 8,
             "pension": 0,
-            "arl": 30,
-            "caja": 30
+            "arl": 8,
+            "caja": 8
           },
           "ibc": {
-            "salud": "379600",
+            "salud": "189800",
             "pension": "0",
-            "arl": "362518",
-            "parafiscales": "379600"
+            "arl": "189800",
+            "parafiscales": "189800"
+          },
+          "novedades": [
+            {
+              "codigo": "IRL",
+              "fecha_desde": "2025-12-02",
+              "fecha_hasta": "2025-12-09",
+              "dias": 8
+            }
+          ]
+        },
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 22,
+            "pension": 0,
+            "arl": 22,
+            "caja": 22
+          },
+          "ibc": {
+            "salud": "521950",
+            "pension": "0",
+            "arl": "521950",
+            "parafiscales": "521950"
           },
           "novedades": []
         }

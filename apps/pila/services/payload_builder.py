@@ -975,7 +975,7 @@ def _generar_registros_empleado(
             })
             dias_usados += dias_vac
 
-    # 2. Líneas de incapacidades (IBC = valor pagado por rubro en periodo)
+    # 2. Líneas de incapacidades (IBC = salario básico proporcional a días de la novedad)
     for nov_incap in novedades_incap:
         dias_incap = nov_incap["dias"]
         if salario_integral:
@@ -987,12 +987,13 @@ def _generar_registros_empleado(
                 "parafiscales": str(ibc_pror),
             }
         else:
-            ibc_salud_incap = str(_redondear_ibc(ibc_anterior["salud_pension"]))
+            # IGE/LMA/IRL/SLN: salario básico × (días novedad / 30), no IBC mes anterior
+            ibc_pror_incap = _prorratear_ibc(float(salario_contrato), dias_incap)
             ibc_incap = {
-                "salud": ibc_salud_incap,
-                "pension": ibc_salud_incap,
-                "arl": ibc_salud_incap,  # IBC riesgos = IBC salud; tarifa 0% solo IGE/LMA en microservicio
-                "parafiscales": str(_redondear_ibc(ibc_anterior["caja"])),
+                "salud": str(ibc_pror_incap),
+                "pension": str(ibc_pror_incap),
+                "arl": str(ibc_pror_incap),  # IBC riesgos = IBC salud; tarifa 0% solo IGE/LMA en microservicio
+                "parafiscales": str(ibc_pror_incap),
             }
         # IGE/LMA/IRL: días ARL = días salud, IBC ARL = IBC salud; tarifa 0% solo IGE/LMA
         dias_arl_incap = dias_incap
@@ -1070,13 +1071,14 @@ def _generar_registros_empleado(
                 "valor_vst": vst,
             })
     elif vst > 0:
-        # VST sin integral: IBC = salario + VST
-        ibc_vst = salario_contrato + vst
+        # VST sin integral: IBC = (salario + VST) × (días normales / 30)
+        ibc_base_vst = salario_contrato + vst
+        ibc_pror_normal = _prorratear_ibc(ibc_base_vst, dias_normales)
         ibc_normal = {
-            "salud": str(_redondear_ibc(ibc_vst)),
-            "pension": str(_redondear_ibc(ibc_vst)),
-            "arl": str(_redondear_ibc(ibc_vst)),
-            "parafiscales": str(_redondear_ibc(ibc_vst)),
+            "salud": str(ibc_pror_normal),
+            "pension": str(ibc_pror_normal),
+            "arl": str(ibc_pror_normal),
+            "parafiscales": str(ibc_pror_normal),
         }
         fecha_vst = fecha_periodo.isoformat() if fecha_periodo else date.today().isoformat()
         novedades_normal.append({
@@ -1087,13 +1089,26 @@ def _generar_registros_empleado(
             "valor_vst": vst,
         })
     else:
-        # Sin VST y no integral: usar IBC normal (basesegsocial)
-        ibc_normal = {
-            "salud": str(_redondear_ibc(ibc_actual["salud_pension"])),
-            "pension": str(_redondear_ibc(ibc_actual["salud_pension"])),
-            "arl": str(_redondear_ibc(ibc_actual["arl"])),
-            "parafiscales": str(_redondear_ibc(ibc_actual["caja"])),
-        }
+        # Sin VST y no integral: IBC proporcional a días normales
+        # Si hay múltiples líneas: salario básico × (días normales / 30)
+        # Si solo línea normal (30 días): IBC del mes desde nómina (basesegsocial)
+        if dias_normales < dias_base:
+            # Múltiples líneas: salario básico proporcional a días
+            ibc_pror = _prorratear_ibc(float(salario_contrato), dias_normales)
+            ibc_normal = {
+                "salud": str(ibc_pror),
+                "pension": str(ibc_pror),
+                "arl": str(ibc_pror),
+                "parafiscales": str(ibc_pror),
+            }
+        else:
+            # Solo línea normal (30 días): IBC completo del mes desde nómina
+            ibc_normal = {
+                "salud": str(_redondear_ibc(ibc_actual["salud_pension"])),
+                "pension": str(_redondear_ibc(ibc_actual["salud_pension"])),
+                "arl": str(_redondear_ibc(ibc_actual["arl"])),
+                "parafiscales": str(_redondear_ibc(ibc_actual["caja"])),
+            }
     
     # Línea normal siempre se crea (aunque tenga 0 días si hubo novedades)
     registros.append({

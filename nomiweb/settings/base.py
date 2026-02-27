@@ -270,4 +270,4 @@ AUTH_USER_MODEL = 'common.User'
 PILA_BASE_URL = os.getenv("PILA_BASE_URL", "").strip()
 PILA_SERVICE_TOKEN = os.getenv("PILA_SERVICE_TOKEN", "").strip()
 PILA_TIMEOUT_CONNECT = int(os.getenv("PILA_TIMEOUT_CONNECT", "3"))
-PILA_TIMEOUT_READ = int(os.getenv("PILA_TIMEOUT_READ", "15"))
+PILA_TIMEOUT_READ = int(os.getenv("PILA_TIMEOUT_READ", "120"))
