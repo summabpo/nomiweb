@@ -273,7 +273,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
         parte_nomina = 0
 
     # , idcontrato = 10731
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa , idcontrato = 10731) 
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa ) 
     
 
     if parte_nomina != 0:
@@ -403,12 +403,20 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             if diasnomina > nomina.diasnomina :
                 diasnomina = nomina.diasnomina
 
-            salario = salary_nomina_update(contrato,inicio_nomina)  
+            """ 
+            
+            inicio_nomina = _to_date(nomina.fechainicial)
+            fin_nomina = _to_date(nomina.fechafinal)
+            """
+
+            salario = salary_nomina_update(contrato,inicio_nomina,fin_nomina)  
+
+
 
             getcontext().prec = 50
 
             valorsalario = (
-                Decimal(str(salario))
+                Decimal(str(contrato.salario))
                 * Decimal(str(diasnomina))
                 / Decimal('30')
             ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
