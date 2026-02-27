@@ -130,3 +130,5 @@ requirements*.txt
 
 # Ignorar archivos .rst temporalmente
 *.rst
+
+*.code-workspace
