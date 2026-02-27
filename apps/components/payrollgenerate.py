@@ -152,7 +152,7 @@ def genera_comprobante(idnomina, idcontrato, date=1):
         # Limpiar “no data” también en campos de cargo, EPS y pensión
         cargo = (contrato.cargo.nombrecargo or '').replace('no data', '').strip()
         eps = (contrato.codeps.entidad or '').replace('no data', '').strip()
-        pension = (contrato.codafp.entidad or '').replace('no data', '').strip()
+        pension = ((getattr(contrato, "codafp", None) and (contrato.codafp.entidad or '')) or '').replace('no data', '').strip()
 
         context = {
             'empresa': datac['nombreempresa'],

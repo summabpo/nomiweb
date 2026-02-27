@@ -54,10 +54,11 @@ def suspension_list(request):
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def suspension_list_add(request):
     
     usuario = request.session.get('usuario', {})
+    user_role = request.session.get('usuario', {}).get('rol')
     idempresa = usuario['idempresa']
     form = SuspensionForm(idempresa = idempresa)
     
@@ -92,7 +93,10 @@ def suspension_list_add(request):
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
             response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
             response['X-Up-message'] = 'La Novedad fue registrada correctamente'    
-            response['X-Up-Location'] = reverse('companies:suspension_list')           
+            if user_role == 'accountant' : 
+                response['X-Up-Location'] = reverse('companies:absences_resumen')   
+            else : 
+                response['X-Up-Location'] = reverse('companies:suspension_list')           
             return response
     
     

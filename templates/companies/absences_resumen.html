@@ -38,7 +38,23 @@ Listado de ausencias
 {% endblock %}
 
 {% block actions %}
+<!-- Button trigger modal -->
+    
+    <a
+        class='btn btn-light-info'
 
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        href="{% url 'companies:suspension_list_add' %}">
+        <i class="fa-solid fa-plus"></i> Crear Novedad
+    </a> 
 {% endblock %}
 
 {% block titulo2 %} 
@@ -116,6 +132,27 @@ Listado de ausencias
 
 
 {% block js %}
+
+<script>
+  // 👇 Controlar la visibilidad del selector según el checkbox
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'nueva_nomina') {
+      const selectDiv = document.getElementById('selector_nomina');
+      const select = document.getElementById('nomina');
+
+      if (e.target.checked) {
+        selectDiv.style.display = 'none';
+        select.removeAttribute('required');
+        select.value = ''; // Limpia selección previa
+      } else {
+        selectDiv.style.display = 'block';
+        select.setAttribute('required', 'required');
+      }
+    }
+  });
+</script>
+
+
 <script>
     up.on('up:layer:accepted', function(event) {
         const location = event.response.header('X-Up-Location');
@@ -160,37 +197,92 @@ Listado de ausencias
     });
 </script>
 
-<script>
-  // 👇 Controlar la visibilidad del selector según el checkbox
-  document.addEventListener('change', function(e) {
-    if (e.target && e.target.id === 'nueva_nomina') {
-      const selectDiv = document.getElementById('selector_nomina');
-      const select = document.getElementById('nomina');
-
-      if (e.target.checked) {
-        selectDiv.style.display = 'none';
-        select.removeAttribute('required');
-        select.value = ''; // Limpia selección previa
-      } else {
-        selectDiv.style.display = 'block';
-        select.setAttribute('required', 'required');
-      }
-    }
-  });
-</script>
-
 
 <script>
     document.addEventListener('up:fragment:inserted', function(event) {
 
         const modalContent = up.layer?.current?.element;
         if (!modalContent) return;
-        
+
+
         if (modalContent) {
-            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+
+            modal_edit = modalContent.querySelector('#modal-content-edit'); 
+
             
-    
-            // selector de tipo de 
+
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            const date = modalContent.querySelector('#kt_daterangepicker_1');
+            const date2 = modalContent.querySelector('#kt_daterangepicker_2'); // Campo de texto
+
+            // calculo de dias basado fechas 
+            const startDateInput = modalContent.querySelector('#kt_daterangepicker_1');
+            const daysInput = modalContent.querySelector('#id_sus_days');
+            const endDateInput = modalContent.querySelector('#kt_daterangepicker_2');
+            
+
+            if (date2) date2.disabled = true;
+
+
+
+
+            // Actualizar el input cuando se seleccione una fecha
+            if(startDateInput){
+                $(startDateInput).on('apply.daterangepicker', function(ev, picker) {
+                    startDateInput.value = picker.startDate.format('YYYY-MM-DD');
+                    calculateEndDate();
+                });
+            }
+            
+
+            function calculateEndDate() {
+                const startDateValue = startDateInput.value;
+                const daysValue = parseInt(daysInput.value, 10);
+                
+                if (startDateValue && !isNaN(daysValue) && daysValue > 0) {
+                    const startDate = new Date(startDateValue);
+                    startDate.setDate(startDate.getDate() + daysValue);
+                    
+                    const formattedEndDate = startDate.getFullYear() + '-' +
+                        String(startDate.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(startDate.getDate()).padStart(2, '0');
+                    
+                    endDateInput.value = formattedEndDate;
+                    endDateInput.disabled = true;
+                } else {
+                    endDateInput.value = '';
+                }
+            }
+            if(daysInput){
+                daysInput.addEventListener('input', calculateEndDate);
+            }
+        
+
+
+            if (date) { // Verificamos que el elemento exista antes de inicializar daterangepicker
+                $(date).daterangepicker({
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 2000,
+                    maxYear: parseInt(moment().format("YYYY"), 12),
+                    endDate: moment(),
+                    maxDate: moment().add(10, 'days'),  // Fecha máxima sigue siendo 10 días después
+                    autoApply: true,
+                    locale: {
+                        format: 'YYYY-MM-DD',
+                        applyLabel: 'Aplicar',
+                        cancelLabel: 'Cancelar',
+                        daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                    },
+                });
+                // **Forzar el z-index del daterangepicker**
+                setTimeout(() => {
+                    $('.daterangepicker').css('z-index', 9999); // Ajusta el z-index para estar sobre Unpoly
+                }, 10);
+
+            }
+
             // Usamos un pequeño retraso para asegurar el renderizado completo
             setTimeout(() => {
                 selectElements.forEach((select, index) => {
@@ -223,6 +315,7 @@ Listado de ausencias
 
 
 </script>
+
 
 
 <script>
