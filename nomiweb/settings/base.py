@@ -60,6 +60,7 @@ LOCAL_APPS = [
     'apps.administrator',
     'apps.payroll',       # Payroll application
     'apps.mar_ia',             # Chat IA empleados
+    'apps.pila',              #Ms liquidación de PILA
     # 'apps.api_database',  # API database applicatio#n
 ]
 THIRD_APPS = [
@@ -265,3 +266,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 AUTH_USER_MODEL = 'common.User'
+
+PILA_BASE_URL = os.getenv("PILA_BASE_URL", "").strip()
+PILA_SERVICE_TOKEN = os.getenv("PILA_SERVICE_TOKEN", "").strip()
+PILA_TIMEOUT_CONNECT = int(os.getenv("PILA_TIMEOUT_CONNECT", "3"))
+PILA_TIMEOUT_READ = int(os.getenv("PILA_TIMEOUT_READ", "120"))
