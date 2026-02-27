@@ -157,7 +157,7 @@ def genera_comprobante(idnomina, idcontrato, date=1):
         context = {
             'empresa': datac['nombreempresa'],
             'nit': datac['nit'],
-            'web': datac['website'],
+            'web': datac.get('website', ''),
             'logo': datac['logo'],
             'nombre_completo': (nombre_completo[:32] + '...') if len(nombre_completo) > 32 else nombre_completo,
             'cc': contrato.idempleado.docidentidad if contrato.idempleado.docidentidad else ' ',

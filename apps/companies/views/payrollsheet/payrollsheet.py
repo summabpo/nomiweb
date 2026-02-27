@@ -11,17 +11,26 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.utils import ImageReader
-from reportlab.platypus import Table, TableStyle
+
 from io import BytesIO
-from reportlab.lib import colors
-from reportlab.lib.units import cm
+
 import time
 from reportlab.pdfgen import canvas
 from django.urls import reverse
 from django.contrib import messages
 from apps.components.close_employee_payroll import close_employee_payroll
+
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Table, TableStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.graphics.shapes import String, Drawing
+from reportlab.graphics import renderPDF
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+
+from reportlab.lib.pdfencrypt import StandardEncryption
 
 
 def get_email_status(estado_email):
@@ -181,18 +190,14 @@ def draw_watermark(p, width, height):
     """Marca de agua densa, pequeña y de fondo completo"""
 
     p.saveState()
-
-    # Gris profesional claro
-    p.setFillColor(colors.HexColor("#F55252"))
-
+    p.setFillColor(colors.HexColor("#4B4949"))
     # Transparencia elegante
     p.setFillAlpha(0.10)
-
     font_name = "Helvetica-Bold"
-    font_size = 40   # MÁS PEQUEÑO
+    font_size = 20   # MÁS PEQUEÑO
     p.setFont(font_name, font_size)
 
-    text = "NÓMINA PROVISIONAL"
+    text = "Pre-nomina"
 
     # Rotación diagonal
     p.translate(width / 2, height / 2)
@@ -221,7 +226,18 @@ def generatepayrollsummary(request, idnomina, data):
     context = generate_summary(idnomina, idempresa , data )
 
     buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=letter)
+    encrypt = StandardEncryption(
+            userPassword="",            # sin contraseña para abrir
+            ownerPassword="nomiweb",    # contraseña interna
+            canPrint=1,
+            canModify=0,
+            canCopy=0,
+            canAnnotate=0
+        )
+
+    p = canvas.Canvas(buffer, pagesize=letter, encrypt=encrypt)
+
+    #p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
     if data == 0 :
@@ -597,7 +613,20 @@ def generatepayrollsummary2(request, idnomina,data=None):
 def generatepayrollcertificate(request, idnomina, idcontrato,data=None):
     context = genera_comprobante(idnomina, idcontrato,data)
     buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=letter)
+
+    buffer = BytesIO()
+    encrypt = StandardEncryption(
+        userPassword="",            # sin contraseña para abrir
+        ownerPassword="nomiweb",    # contraseña interna
+        canPrint=1,
+        canModify=0,
+        canCopy=0,
+        canAnnotate=0
+    )
+
+    p = canvas.Canvas(buffer, pagesize=letter, encrypt=encrypt)
+
+    #p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
     # Encabezado empresa
     if data == 0 :

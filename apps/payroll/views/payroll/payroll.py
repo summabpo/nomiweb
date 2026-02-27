@@ -163,7 +163,6 @@ def payroll_closet(request,id):
                     close_employee_payroll(data.idcontrato,id)
                     if data.idconcepto.codigo == 1 : 
                         guardar_historico_nomina(data)
-    
                 data.estadonomina = 2
                 novedades_to_update.append(data)
 

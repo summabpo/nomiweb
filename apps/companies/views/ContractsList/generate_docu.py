@@ -98,7 +98,7 @@ def generate_contract_excel(idempresa):
             clean(data.cuentanomina),
             clean(data.tipocuentanomina),
             clean(data.codeps.entidad),
-            clean(data.codafp.entidad),
+            clean(data.codafp.entidad if data.codafp else '' ),
             clean(data.codccf.entidad),
             clean(data.idsede.cajacompensacion),
             clean(data.ciudadcontratacion.ciudad),

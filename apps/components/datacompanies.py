@@ -49,7 +49,7 @@ def datos_cliente(idemp):
         'emailcontab': empresa_data.emailcontab if empresa_data.emailcontab else 'No encontrado',
         'cargocertificaciones': empresa_data.cargocertificaciones if empresa_data.cargocertificaciones else 'No encontrado',
         'firmacertificaciones': empresa_data.firmacertificaciones if empresa_data.firmacertificaciones else 'No encontrado',
-        'website': empresa_data.website if  empresa_data.website else 'No encontrado',
+        'website': empresa_data.website if  empresa_data.website else ' ',
         'metodoextras': empresa_data.metodoextras if empresa_data.metodoextras else 'No encontrado',
         'dv': empresa_data.dv if empresa_data.dv else 'No encontrado',
         'coddpto': empresa_data.idciudad.coddepartamento if empresa_data.idciudad.coddepartamento else 'No encontrado',

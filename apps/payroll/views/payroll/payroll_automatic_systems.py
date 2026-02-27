@@ -13,7 +13,7 @@ from django.utils import timezone
 from datetime import date, timedelta
 import calendar
 from decimal import Decimal, ROUND_HALF_UP , getcontext , ROUND_CEILING , ROUND_UP
-
+from apps.components.salary_nomina import salary_nomina_update
 
 #prueba git
 @login_required
@@ -272,8 +272,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    # , idcontrato = 8050 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
+    # , idcontrato = 10731
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa , idcontrato = 10731) 
     
 
     if parte_nomina != 0:
@@ -398,15 +398,17 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             if diasnomina > 30:
                 diasnomina = 30
                 
+
             
             if diasnomina > nomina.diasnomina :
                 diasnomina = nomina.diasnomina
-        
+
+            salario = salary_nomina_update(contrato,inicio_nomina)  
 
             getcontext().prec = 50
 
             valorsalario = (
-                Decimal(str(contrato.salario))
+                Decimal(str(salario))
                 * Decimal(str(diasnomina))
                 / Decimal('30')
             ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
@@ -730,7 +732,6 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
     
     for contrato in contratos:
         
-        salario_emp = contrato.salario
         tipo_salario = contrato.tiposalario.idtiposalario
 
         
@@ -1317,13 +1318,13 @@ def calcular_suspenciones(contrato,nomina ):
             inicio_cruce = max(vac.fechainicialvac, nomina.fechainicial)
             fin_cruce = min(vac.ultimodiavac, nomina.fechafinal)
 
-            dias_en_nomina = (fin_cruce - inicio_cruce).days + 1
+            dias_en_nomina = (fin_cruce - inicio_cruce).days
 
             # 🔹 Validar si cruza de mes y el mes tiene 31 días
             cruza_mes = inicio_cruce.month != vac.ultimodiavac.month
 
-            if cruza_mes and dias_mes_nomina == 31:
-                dias_en_nomina -= 1
+            if cruza_mes and dias_mes_nomina == 30:
+                dias_en_nomina += 1
 
             dias_vacaciones += dias_en_nomina
 
@@ -1380,57 +1381,83 @@ def calculo_incapacidad(contrato,nomina):
 
 
 def Calculo_vacaciones(contrato, idn):
-    # Nómina actual
+
     nomina_actual = Crearnomina.objects.get(idnomina=idn)
 
-    # Vacaciones según tipo
-    vacaciones = Vacaciones.objects.filter(idcontrato=contrato, tipovac__idvac__in=[3, 4, 5])
-    
-    for vaca in vacaciones :
-        # Conceptos asociados
-        if vaca.tipovac.idvac == 4 :
-            concepto1 = Conceptosdenomina.objects.get(codigo=31, id_empresa_id=contrato.id_empresa_id)
-            concepto2 = Conceptosdenomina.objects.get(codigo=83, id_empresa_id=contrato.id_empresa_id)
+    vacaciones = Vacaciones.objects.filter(
+        idcontrato=contrato,
+        tipovac__idvac__in=[3, 4, 5]
+    )
 
-        elif  vaca.tipovac.idvac == 3 :
-            concepto2 = Conceptosdenomina.objects.get(codigo=82, id_empresa_id=contrato.id_empresa_id)
-        
-        elif  vaca.tipovac.idvac == 5 :
-            concepto1 = Conceptosdenomina.objects.get(codigo=30, id_empresa_id=contrato.id_empresa_id)
-            concepto2 = Conceptosdenomina.objects.get(codigo=86, id_empresa_id=contrato.id_empresa_id)
+    for vaca in vacaciones:
 
-        dias_suspensiones = calcular_suspenciones(vaca.idcontrato.idcontrato, nomina_actual )
+        concepto1 = None
+        concepto2 = None
 
-        dias = vaca.basepago / 30 
+        # Definir conceptos según tipo
+        if vaca.tipovac.idvac == 4:
+            concepto1 = Conceptosdenomina.objects.get(
+                codigo=31,
+                id_empresa_id=contrato.id_empresa_id
+            )
+            concepto2 = Conceptosdenomina.objects.get(
+                codigo=83,
+                id_empresa_id=contrato.id_empresa_id
+            )
 
-        if Nomina.objects.filter(
+        elif vaca.tipovac.idvac == 3:
+            concepto2 = Conceptosdenomina.objects.get(
+                codigo=82,
+                id_empresa_id=contrato.id_empresa_id
+            )
+
+        elif vaca.tipovac.idvac == 5:
+            concepto1 = Conceptosdenomina.objects.get(
+                codigo=30,
+                id_empresa_id=contrato.id_empresa_id
+            )
+            concepto2 = Conceptosdenomina.objects.get(
+                codigo=86,
+                id_empresa_id=contrato.id_empresa_id
+            )
+
+        dias_suspensiones = calcular_suspenciones(
+            vaca.idcontrato.idcontrato,
+            nomina_actual
+        )
+
+        if dias_suspensiones <= 0:
+            continue
+
+        dias = vaca.basepago / 30
+        valor_calculado = dias * dias_suspensiones
+
+        # 🔹 Si NO es tipo 3, manejar concepto1
+        if vaca.tipovac.idvac != 3 and concepto1:
+
+            Nomina.objects.update_or_create(
                 idnomina=nomina_actual,
-                idconcepto=concepto2,
-                control=vaca.idvacaciones
-            ).exists():
-            return 
+                idconcepto=concepto1,
+                control=vaca.idvacaciones,
+                defaults={
+                    "cantidad": dias_suspensiones,
+                    "estadonomina": 1,
+                    "valor": valor_calculado,
+                    "idcontrato": vaca.idcontrato,
+                }
+            )
 
-
-        if  vaca.tipovac.idvac != 3 : 
-
-            Nomina.objects.create(
-                    idconcepto=concepto1,
-                    cantidad= dias_suspensiones,
-                    estadonomina=1,
-                    valor= dias * dias_suspensiones,
-                    idcontrato=vaca.idcontrato,
-                    idnomina=nomina_actual,
-                    control=vaca.idvacaciones
-                )
-
-        Nomina.objects.create(
-            idconcepto=concepto2,
-            cantidad= dias_suspensiones,
-            estadonomina=1,
-            valor=-(dias * dias_suspensiones),
-            idcontrato=vaca.idcontrato,
+        # 🔹 Manejar concepto2 (siempre existe en los 3 tipos)
+        Nomina.objects.update_or_create(
             idnomina=nomina_actual,
-            control=vaca.idvacaciones
+            idconcepto=concepto2,
+            control=vaca.idvacaciones,
+            defaults={
+                "cantidad": dias_suspensiones,
+                "estadonomina": 1,
+                "valor": -valor_calculado,
+                "idcontrato": vaca.idcontrato,
+            }
         )
 
 

@@ -26,7 +26,7 @@ def close_employee_payroll(employee, idnomina):
         "salario": employee.salario,
         "cargo": employee.cargo.nombrecargo,
         "idcosto_id": employee.idcosto.idcosto,
-        "pension": employee.codafp.codigo,
+        "pension": employee.codafp.codigo if employee.codafp else None,
         "salud": employee.codeps.codigo,
         "envio_email": 2,
     }
@@ -84,7 +84,7 @@ def guardar_historico_nomina(comp):
             "fecha_final": fecha_fin.isoformat(),
             "salario": comp.idcontrato.salario,
             "cargo_id": comp.idcontrato.cargo.idcargo,
-            "pension_id": comp.idcontrato.codafp.identidad,
+            "pension_id": comp.idcontrato.codafp.identidad if comp.idcontrato.codafp else None,
             "salud_id": comp.idcontrato.codeps.identidad,
             "costo_id": comp.idcontrato.idcosto.idcosto,
         }

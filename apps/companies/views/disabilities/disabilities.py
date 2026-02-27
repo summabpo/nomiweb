@@ -206,7 +206,7 @@ def disabilities_modal(request):
 @login_required
 @role_required('company','accountant')
 def disabilities_modal_edit(request , id ):
-  """
+    """
     Vista para editar una incapacidad existente en el sistema.
 
     Esta vista permite editar los detalles de una incapacidad ya registrada, como el origen, entidad de 
@@ -238,92 +238,114 @@ def disabilities_modal_edit(request , id ):
     El usuario debe estar autenticado y tener el rol de 'accountant' en la empresa para acceder a esta vista.
     """
 
-  usuario = request.session.get('usuario', {})
-  idempresa = usuario['idempresa']
-  
-  incapacidad = Incapacidades.objects.get(pk = id)
-  
-  
-  data = {
-    'contract' :incapacidad.idcontrato.idcontrato , 
-    'origin' :incapacidad.origenincap ,  
-    'entity' :incapacidad.entidad.codigo ,  
-    'initial_date' :incapacidad.fechainicial ,  
-    'incapacity_days' :incapacidad.dias ,  
-    'diagnosis_code' :incapacidad.coddiagnostico ,  
-    'extension' : '1' if incapacidad.prorroga  else '0',  
-    'id':incapacidad.idincapacidad 
-  }
-  
-  
-  
-  form = DisabilitiesEditForm(idempresa = idempresa ,initial= data ,id=id)
-  
-  if request.method == 'POST':
-    form = DisabilitiesEditForm(request.POST, request.FILES ,idempresa = idempresa,id=id)
-    if form.is_valid():
-      #Obtener datos del formulario
-      origin = form.cleaned_data['origin']
-      entity = form.cleaned_data['entity']
-      initial_date = form.cleaned_data['initial_date']
-      incapacity_days = form.cleaned_data['incapacity_days']
-      diagnosis_code = form.cleaned_data['diagnosis_code']
-      extension = form.cleaned_data['extension'] #Convierte a string y usa '0' como valor predeterminado
-      prorroga = extension == '1'  #Devuelve True si extension es '1'
-      pdf_file = form.cleaned_data['pdf_file']
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    incapacidad = Incapacidades.objects.get(pk = id)
+    
+    
+    data = {
+        'contract' :incapacidad.idcontrato.idcontrato , 
+        'origin' :incapacidad.origenincap ,  
+        'entity' :incapacidad.entidad.codigo ,  
+        'initial_date' :incapacidad.fechainicial ,  
+        'incapacity_days' :incapacidad.dias ,  
+        'diagnosis_code' :incapacidad.coddiagnostico ,  
+        'extension' : '1' if incapacidad.prorroga  else '0',  
+        'id':incapacidad.idincapacidad 
+    }
+    
+    
+    
+    form = DisabilitiesEditForm(idempresa = idempresa ,initial= data ,id=id)
+    
+    if request.method == 'POST':
+        form = DisabilitiesEditForm(request.POST, request.FILES ,idempresa = idempresa,id=id)
+        if form.is_valid():
+            #Obtener datos del formulario
+            origin = form.cleaned_data['origin']
+            entity = form.cleaned_data['entity']
+            initial_date = form.cleaned_data['initial_date']
+            incapacity_days = form.cleaned_data['incapacity_days']
+            diagnosis_code = form.cleaned_data['diagnosis_code']
+            extension = form.cleaned_data['extension'] #Convierte a string y usa '0' como valor predeterminado
+            prorroga = extension == '1'  #Devuelve True si extension es '1'
+            pdf_file = form.cleaned_data['pdf_file']
+                    
+            entidad = Entidadessegsocial.objects.get(codigo = entity)
+            dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
             
-      entidad = Entidadessegsocial.objects.get(codigo = entity)
-      dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
-      
-      #* Funcion de guardado de pdf 
-      new_filename = ''
-      
-      if pdf_file :
-        # Generar un nuevo nombre aleatorio
-        new_filename = generate_random_filename("pdf")
-        pdf_folder = os.path.join(settings.MEDIA_ROOT, 'pdfs')
-        # ✅ Crear la carpeta si no existe
-        os.makedirs(pdf_folder, exist_ok=True)
-        # Guardar el archivo con el nuevo nombre
-        pdf_path = os.path.join(pdf_folder, new_filename)
-        with open(pdf_path, 'wb+') as destination:
-            for chunk in pdf_file.chunks():
-                destination.write(chunk)
-              
-              
-  
+            #* Funcion de guardado de pdf 
+            new_filename = ''
+            
+            if pdf_file :
+                # Generar un nuevo nombre aleatorio
+                new_filename = generate_random_filename("pdf")
+                pdf_folder = os.path.join(settings.MEDIA_ROOT, 'pdfs')
+                # ✅ Crear la carpeta si no existe
+                os.makedirs(pdf_folder, exist_ok=True)
+                # Guardar el archivo con el nuevo nombre
+                pdf_path = os.path.join(pdf_folder, new_filename)
+                with open(pdf_path, 'wb+') as destination:
+                    for chunk in pdf_file.chunks():
+                        destination.write(chunk)
+                    
+                    
+            # ibc = disabilities_ibc(incapacidad.idcontrato.idcontrato , initial_date)
+            # print(ibc)
 
-      # Guardar en la base de datos
-      
-      if incapacidad.entidad != entidad:
-        incapacidad.entidad = entidad  # enlace segsocial
+            # Guardar en la base de datos
+            
+            if incapacidad.entidad != entidad:
+                incapacidad.entidad = entidad  # enlace segsocial
 
-      if incapacidad.coddiagnostico != dianostico:
-        incapacidad.coddiagnostico = dianostico
+            if incapacidad.coddiagnostico != dianostico:
+                incapacidad.coddiagnostico = dianostico
 
-      if incapacidad.fechainicial != initial_date:
-        incapacidad.fechainicial = initial_date
+            if incapacidad.fechainicial != initial_date:
+                incapacidad.fechainicial = initial_date
 
-      if incapacidad.dias != incapacity_days:
-        incapacidad.dias = incapacity_days
+            if incapacidad.dias != incapacity_days:
+                incapacidad.dias = incapacity_days
 
-      if incapacidad.prorroga != prorroga:
-        incapacidad.prorroga = prorroga
+            if incapacidad.prorroga != prorroga:
+                incapacidad.prorroga = prorroga
 
-      if incapacidad.origenincap != origin:
-        incapacidad.origenincap = origin
+            if incapacidad.origenincap != origin:
+                incapacidad.origenincap = origin
 
-      incapacidad.save()
-      
-      response = HttpResponse()
-      response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
-      response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
-      response['X-Up-message'] = 'La incapacidad fue actualizada correctamente.'    
-      response['X-Up-Location'] = reverse('companies:disabilities')           
-      return response
-  
-  return render (request, './companies/partials/create_disabilities_modal_edit.html',{'form' :form, 'data':data})
+            incapacidad.save()
+            
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'La incapacidad fue actualizada correctamente.'    
+            response['X-Up-Location'] = reverse('companies:disabilities')           
+            return response
+    
+    return render (request, './companies/partials/create_disabilities_modal_edit.html',{'form' :form, 'data':data})
 
+
+def disabilities_ibc(contract,date):
+    ibc = 0
+    
+
+
+    date_obj = datetime.strptime(date, "%Y-%m-%d")
+    mes = date_obj.month
+    a = date_obj.year
+    sum = 0
+
+    conceptos = Nomina.objects.filter(idcontrato_id = contract ,idnomina__mesacumular = 'ENERO',idnomina__anoacumular__ano = a , idconcepto__indicador__nombre='IBC')
+    print('--------------------------')
+    for data in conceptos:
+        print(f"{data.idconcepto.nombreconcepto}  - {data.idnomina.nombrenomina} - {data.idconcepto.codigo} - {data.idconcepto.idconcepto}  : {data.valor}  ")
+        sum += data.valor
+    print('--------------------------')
+    print(sum)
+    print("Mes:", mes)
+    print(c)
+    return ibc
 
 
 @login_required
