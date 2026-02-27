@@ -59,9 +59,11 @@ class DisabilitiesForm(forms.Form):
             # Convertir dias a entero si es necesario
             fechafinal = fechainicial + timedelta(days=int(dias))
 
-             # Ampliar el rango de búsqueda a un mes antes y un mes después
+            # Ampliar el rango de búsqueda a un mes antes y un mes después
             fecha_inicio_busqueda = fechainicial - relativedelta(months=1)
             fecha_fin_busqueda = fechainicial + relativedelta(months=1)
+
+           
 
             overlapping = Incapacidades.objects.filter(
                 idcontrato=contrato,
@@ -71,9 +73,9 @@ class DisabilitiesForm(forms.Form):
 
             
             for data in overlapping:
-                data_fechafinal = data.fechainicial + timedelta(days=int(data.dias))
+                data_fechafinal = data.fechainicial + timedelta(days=int(data.dias - 1 ))
 
-                # Aquí validamos si hay cruce real de fechas
+                # Aquí validamos si hay cruce real de fechas    
                 if fechainicial <= data_fechafinal and fechafinal >= data.fechainicial:
                     self.add_error('initial_date', 'Ya existe una incapacidad que se cruza con este nuevo rango de fechas.')
                     break  # Ya con una sola basta para mostrar el error

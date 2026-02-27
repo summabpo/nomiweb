@@ -518,13 +518,34 @@ def get_entity(request):
 
     # Determinar la entidad seleccionada
     entidad_select = ''
-    if contrato_id:
-        contrato = Contratos.objects.filter(idcontrato=contrato_id).select_related('id_empresa__arl').first()
-        entidad_select = getattr(getattr(contrato, 'id_empresa', None), 'arl', None)
-        entidad_select = getattr(entidad_select, 'codigo', '') if entidad_select else ''
+    
 
     # Filtrar entidades según el tipo (2=ARL, otro=EPS)
-    tipo = 'ARL' if dato == '2' else 'EPS'
+
+    if dato == '2' :
+        tipo = 'ARL'
+        if contrato_id:
+            contrato = (
+                Contratos.objects
+                .filter(idcontrato=contrato_id)
+                .select_related('id_empresa__arl')
+                .first()
+            )
+            entidad = getattr(getattr(contrato, 'id_empresa', None), 'arl', None)
+
+    else:
+        tipo = 'EPS'
+        if contrato_id:
+            contrato = (
+                Contratos.objects
+                .filter(idcontrato=contrato_id)
+                .select_related('codeps')
+                .first()
+            ) if contrato_id else None
+            entidad = getattr(contrato, 'codeps', None)
+
+    entidad_select = entidad.codigo if entidad else ''
+
     entidad_list = list(
         Entidadessegsocial.objects
         .filter(tipoentidad=tipo)
@@ -538,9 +559,6 @@ def get_entity(request):
     })
 
 
-  
-  
-  
 def intentar_fecha(valor):
     if isinstance(valor, str) and '/' in valor:
         try:
