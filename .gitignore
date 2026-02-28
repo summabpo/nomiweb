@@ -132,3 +132,7 @@ requirements*.txt
 *.rst
 
 *.code-workspace
+
+# macOS
+.DS_Store
+**/.DS_Store

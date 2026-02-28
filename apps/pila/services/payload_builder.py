@@ -5,24 +5,7 @@ import calendar
 from decimal import Decimal
 from django.db import connection
 from datetime import timedelta
-from math import ceil
 from apps.common.models import Empresa
-
-
-def _redondear_ibc(valor: Decimal | float | int | str) -> int:
-    """
-    Redondea el IBC al peso superior más cercano según Decreto 1990 de 2016.
-    """
-    if valor is None:
-        return 0
-    if isinstance(valor, Decimal):
-        return int(ceil(float(valor)))
-    if isinstance(valor, str):
-        try:
-            return int(ceil(float(valor)))
-        except (ValueError, TypeError):
-            return 0
-    return int(ceil(float(valor)))
 
 
 _MESES = {
@@ -42,52 +25,6 @@ _MESES = {
 _MESES_INV = {v: k for k, v in _MESES.items()}
 
 
-def _codigo_centro_trabajo_from_tarifa_arl(tarifa_arl):
-    """
-    Mapeo tarifa ARL → código centro de trabajo (campo 62 TXT, pos 390-398).
-    0.522 → 0, 4.350 → 1, 2.436 → 3, 6.960 → 5; otro → 0.
-    """
-    if tarifa_arl is None:
-        return 0
-    try:
-        v = float(str(tarifa_arl).strip())
-        if abs(v - 0.522) < 0.01:
-            return 0
-        if abs(v - 4.350) < 0.01:
-            return 1
-        if abs(v - 2.436) < 0.01:
-            return 3
-        if abs(v - 6.960) < 0.01:
-            return 5
-    except (ValueError, TypeError):
-        pass
-    return 0
-
-
-def _clase_riesgo_from_tarifa_arl(tarifa_arl):
-    """
-    Mapeo tarifa ARL (%) → clase de riesgo (campo 78 TXT, pos 513).
-    0.522 → "1", 1.044 → "2", 2.436 → "3", 4.350 → "4", 6.960 → "5"; otro → "1".
-    """
-    if tarifa_arl is None:
-        return "1"
-    try:
-        v = float(str(tarifa_arl).strip())
-        if abs(v - 0.522) < 0.01:
-            return "1"
-        if abs(v - 1.044) < 0.01:
-            return "2"
-        if abs(v - 2.436) < 0.01:
-            return "3"
-        if abs(v - 4.350) < 0.01:
-            return "4"
-        if abs(v - 6.960) < 0.01:
-            return "5"
-    except (ValueError, TypeError):
-        pass
-    return "1"
-
-
 def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
     """
     Payload mínimo v1 (loop real por contratos con movimiento).
@@ -101,9 +38,6 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
     mesacumular = _MESES_INV.get(mes_num)
     if not mesacumular:
         raise ValueError(f"Mes inválido en periodo={periodo}")
-
-    # Parámetros PILA (smmlv, factor_integral, etc.) para usarlos en el loop
-    params_pila = _get_parametros_pila(periodo)
 
     # Empresa: datos reales (ORM solo lectura, managed=False ok)
     empresa = Empresa.objects.only(
@@ -142,14 +76,6 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
     
     # 3.1) IBC del mes anterior (para novedades VAC, IGE, IRL, LMA)
     ibc_map_anterior = _get_ibc_mes_anterior(
-        empresa_id=empresa_id_interno,
-        mesacumular=mesacumular,
-        ano=ano,
-        ids_contrato=ids_contrato
-    )
-
-    # 3.2) VST por contrato (indicador 29) para línea NORMAL: IBC = salario + VST
-    vst_map = _get_vst_por_contrato_mes(
         empresa_id=empresa_id_interno,
         mesacumular=mesacumular,
         ano=ano,
@@ -204,18 +130,8 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         # --- IBC mes actual y anterior ---
         ibc_actual = ibc_map.get(idcontrato, {"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")})
         ibc_anterior = ibc_map_anterior.get(idcontrato, {"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")})
-        
-        # --- VST y salario para línea NORMAL ---
-        vst = vst_map.get(idcontrato, 0)
-        salario_contrato = int(row["salario_basico"] or 0)
 
         # --- Generar registros (uno o múltiples líneas tipo 02) ---
-        # Fecha del primer día del mes para VST (si aplica)
-        fecha_mes_ini = date(ano, mes_num, 1)
-        
-        salario_integral = (row["tiposalario_id"] == 2)
-        factor_integral = params_pila.get("factor_integral", 0.7)
-
         registros = _generar_registros_empleado(
             dias_base=dias_base,
             novedades_vac=novedades_vac,
@@ -223,23 +139,8 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             novedad_vsp=novedad_vsp,
             novedades_ing_ret=novedades_ing_ret,
             ibc_actual=ibc_actual,
-            ibc_anterior=ibc_anterior,
-            vst=vst,
-            salario_contrato=salario_contrato,
-            fecha_periodo=fecha_mes_ini,
-            salario_integral=salario_integral,
-            factor_integral=factor_integral,
+            ibc_anterior=ibc_anterior
         )
-
-        # Aplica pensión cuando subtipo está en blanco/0/00 o cuando subtipo == "12". Si subtipo tiene otro valor (ej. 01, 03): exonerado, tarifa 0, días AFP 0, IBC 0.
-        aplica_pension = bool(
-            flags_tc.get("aplica_pension", True)
-            and (subtipo_cot in ("", "0", "00", "12"))
-        )
-        if not aplica_pension:
-            for reg in registros:
-                reg.setdefault("dias", {})["pension"] = 0
-                reg.setdefault("ibc", {})["pension"] = "0"
 
         # --- Datos comunes del empleado ---
         empleado_base = {
@@ -265,15 +166,12 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
 
             "flags": {
                 **flags_tc,
-                "aplica_pension": aplica_pension,  # Solo True si subtipo_cotizante == "12"
                 "salario_integral": (row["tiposalario_id"] == 2),
             },
 
             "tarifas": {
                 "arl": str(row["tarifa_arl"]) if row["tarifa_arl"] else None
             },
-            "codigo_centro_trabajo": _codigo_centro_trabajo_from_tarifa_arl(row.get("tarifa_arl")),
-            "clase_riesgo": _clase_riesgo_from_tarifa_arl(row.get("tarifa_arl")),
             "actividad_economica_arl": row.get("actividad_economica_arl") or "",
             
             "registros": registros  # Array de registros (líneas tipo 02)
@@ -312,7 +210,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             "version_payload": "1.0",
             "usuario": "admin@nomiweb.com.co",
         },
-        "parametros": params_pila,
+        "parametros": _get_parametros_pila(periodo),
     }
 
     return payload
@@ -337,56 +235,10 @@ def _get_parametros_pila(periodo: str) -> dict:
             raise ValueError("No existe conceptosfijos idfijo=2 (MAXIMO IBC EN SMLV)")
         tope_ibc_smmlv = int(Decimal(str(row[0])))
 
-        # Factor integral: IBC = 70% del salario para tiposalario_id=2 (conceptosfijos idfijo=1)
-        cursor.execute("SELECT valorfijo FROM public.conceptosfijos WHERE idfijo = 1")
-        row = cursor.fetchone()
-        factor_integral = float(row[0]) if row and row[0] is not None else 0.7
-        # Si viene como porcentaje (ej: 70) convertir a decimal (0.7)
-        if factor_integral >= 1:
-            factor_integral = factor_integral / 100.0
-
-        # EPS: idfijo 8 = empleado (4%), idfijo 18 = empresa cuando IBC > 10 SMLV (8.5%)
-        cursor.execute("SELECT valorfijo FROM public.conceptosfijos WHERE idfijo = 8")
-        row = cursor.fetchone()
-        tasa_salud_emp = float(row[0]) / 100.0 if row and row[0] is not None else 0.04
-        cursor.execute("SELECT valorfijo FROM public.conceptosfijos WHERE idfijo = 18")
-        row = cursor.fetchone()
-        tasa_salud_empl_ibc_mayor_10 = float(row[0]) / 100.0 if row and row[0] is not None else 0.085
-
-        # Obtener porcentajes FSP desde conceptosfijos
-        # idfijo 12: FSP 4-16 SMLV
-        # idfijo 13: FSP 16-17 SMLV
-        # idfijo 14: FSP 17-18 SMLV
-        # idfijo 15: FSP 18-19 SMLV
-        # idfijo 16: FSP 19-20 SMLV
-        # idfijo 17: FSP >20 SMLV
-        fsp_porcentajes = {}
-        for idfijo, rango in [(12, "4-16"), (13, "16-17"), (14, "17-18"), (15, "18-19"), (16, "19-20"), (17, ">20")]:
-            cursor.execute("SELECT valorfijo FROM public.conceptosfijos WHERE idfijo = %s", [idfijo])
-            row = cursor.fetchone()
-            if row:
-                # valorfijo viene como porcentaje (ej: 1.0000 = 1%)
-                fsp_porcentajes[rango] = float(row[0]) / 100.0  # Convertir a decimal
-            else:
-                # Valores por defecto si no existen en BD
-                valores_defecto = {
-                    "4-16": 0.01,    # 1%
-                    "16-17": 0.012,  # 1.2%
-                    "17-18": 0.014,  # 1.4%
-                    "18-19": 0.016,  # 1.6%
-                    "19-20": 0.018,  # 1.8%
-                    ">20": 0.02,     # 2%
-                }
-                fsp_porcentajes[rango] = valores_defecto.get(rango, 0.01)
-
     return {
         "smmlv": smmlv,
         "tope_ibc_smmlv": tope_ibc_smmlv,
         "dias_base": 30,
-        "fsp_porcentajes": fsp_porcentajes,
-        "factor_integral": factor_integral,
-        "tasa_salud_emp": tasa_salud_emp,
-        "tasa_salud_empl_ibc_mayor_10": tasa_salud_empl_ibc_mayor_10,
     }
 
 
@@ -487,9 +339,9 @@ def _get_ficha_contratos(empresa_id: int, ids_contrato: list[int]) -> list[dict]
 
     JOIN public.entidadessegsocial eps
       ON eps.identidad = c.codeps_id
-    LEFT JOIN public.entidadessegsocial afp
+    JOIN public.entidadessegsocial afp
       ON afp.identidad = c.codafp_id
-    LEFT JOIN public.entidadessegsocial ccf
+    JOIN public.entidadessegsocial ccf
       ON ccf.identidad = c.codccf_id
 
     JOIN public.empresa e
@@ -576,45 +428,6 @@ def _get_ibc_mes_anterior(
         ano=ano_anterior,
         ids_contrato=ids_contrato
     )
-
-
-def _get_vst_por_contrato_mes(
-    empresa_id: int,
-    mesacumular: str,
-    ano: int,
-    ids_contrato: list[int],
-) -> dict[int, int]:
-    """
-    VST = suma de nomina.valor donde idconcepto tiene indicador_id=29
-    (Variación transitoria de salario PILA).
-    Misma lógica relacional que _get_ibc_por_contrato_mes con conceptosdenomina_indicador.
-    Retorna dict {idcontrato: valor_vst}
-    """
-    sql = """
-    SELECT
-      n.idcontrato_id,
-      COALESCE(SUM(n.valor), 0)::int AS vst
-    FROM public.nomina n
-    JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
-    JOIN public.anos a ON a.idano = cn.anoacumular_id
-    JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
-    JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto
-    WHERE cn.id_empresa_id = %s
-      AND cd.id_empresa_id = %s
-      AND cn.mesacumular = %s
-      AND a.ano = %s
-      AND cn.estadonomina = FALSE
-      AND n.estadonomina = 2
-      AND n.idcontrato_id = ANY(%s)
-      AND cdi.indicador_id = 29
-    GROUP BY n.idcontrato_id
-    ORDER BY n.idcontrato_id;
-    """
-    with connection.cursor() as cursor:
-        cursor.execute(sql, [empresa_id, empresa_id, mesacumular, ano, ids_contrato])
-        rows = cursor.fetchall()
-
-    return {int(r[0]): int(r[1] or 0) for r in rows}
 
 
 def _dias_base_contrato_mes(
@@ -909,12 +722,7 @@ def _generar_registros_empleado(
     novedad_vsp: dict | None,
     novedades_ing_ret: list[dict],
     ibc_actual: dict,
-    ibc_anterior: dict,
-    vst: int = 0,
-    salario_contrato: int = 0,
-    fecha_periodo: date | None = None,
-    salario_integral: bool = False,
-    factor_integral: float = 0.7,
+    ibc_anterior: dict
 ) -> list[dict]:
     """
     Genera uno o más registros tipo 02 por empleado según novedades.
@@ -923,110 +731,57 @@ def _generar_registros_empleado(
     - Novedades que generan líneas separadas: VAC, IGE, IRL, LMA, SLN, VSP
     - Novedades que van en línea normal: ING, RET
     - Cada línea tiene sus propios días e IBC
-    - Salario integral: IBC por línea = (70% salario [+ VST en NORMAL]) × (días de la línea / 30).
     """
-    def _prorratear_ibc(ibc_base: float, dias: int) -> int:
-        """IBC proporcional a los días cotizados (mes = 30). Decreto 1990 para IBC."""
-        if dias <= 0:
-            return 0
-        return _redondear_ibc(ibc_base * dias / 30)
-
     registros = []
     dias_usados = 0
-
-    # IBC base mensual para salario integral (70% = factor_integral); por línea se prorratea por días
-    if salario_integral:
-        ibc_integral_mes = salario_contrato * factor_integral  # sin VST para VAC/IGE/IRL/LMA
-        ibc_vac_incap = None  # se arma por línea con _prorratear_ibc(ibc_integral_mes, dias)
-    else:
-        ibc_vac_incap = None  # usar ibc_anterior
-
-    # 1. Líneas de vacaciones (IBC = salario básico proporcional a los días de vacaciones)
+    
+    # 1. Líneas de vacaciones (con IBC mes anterior)
     for nov_vac in novedades_vac:
         if nov_vac["codigo"] == "VAC":  # Solo vacaciones tipo 1
             dias_vac = nov_vac["dias"]
-            if salario_integral:
-                ibc_pror = _prorratear_ibc(ibc_integral_mes, dias_vac)
-                ibc_vac = {
-                    "salud": str(ibc_pror),
-                    "pension": str(ibc_pror),
-                    "arl": str(ibc_pror),  # IBC riesgos = IBC salud; tarifa ARL 0% en microservicio
-                    "parafiscales": str(ibc_pror),
-                }
-            else:
-                # VAC: IBC = salario básico del empleado × (días vac / 30), no IBC mes anterior
-                ibc_vac_pror = _prorratear_ibc(float(salario_contrato), dias_vac)
-                ibc_vac = {
-                    "salud": str(ibc_vac_pror),
-                    "pension": str(ibc_vac_pror),
-                    "arl": str(ibc_vac_pror),  # IBC riesgos = IBC salud; tarifa ARL 0% en microservicio
-                    "parafiscales": str(ibc_vac_pror),
-                }
             registros.append({
                 "tipo_linea": "VAC",
                 "dias": {
                     "salud": dias_vac,
                     "pension": dias_vac,
-                    "arl": dias_vac,  # Mismos días que salud; tarifa ARL 0% evita cotización
+                    "arl": dias_vac,
                     "caja": dias_vac,
                 },
-                "ibc": ibc_vac,
+                "ibc": {
+                    "salud": str(ibc_anterior["salud_pension"]),
+                    "pension": str(ibc_anterior["salud_pension"]),
+                    "arl": str(ibc_anterior["arl"]),
+                    "parafiscales": str(ibc_anterior["caja"]),
+                },
                 "novedades": [nov_vac],
             })
             dias_usados += dias_vac
-
-    # 2. Líneas de incapacidades (IBC = salario básico proporcional a días de la novedad)
+    
+    # 2. Líneas de incapacidades (con IBC mes anterior)
     for nov_incap in novedades_incap:
         dias_incap = nov_incap["dias"]
-        if salario_integral:
-            ibc_pror = _prorratear_ibc(ibc_integral_mes, dias_incap)
-            ibc_incap = {
-                "salud": str(ibc_pror),
-                "pension": str(ibc_pror),
-                "arl": str(ibc_pror),
-                "parafiscales": str(ibc_pror),
-            }
-        else:
-            # IGE/LMA/IRL/SLN: salario básico × (días novedad / 30), no IBC mes anterior
-            ibc_pror_incap = _prorratear_ibc(float(salario_contrato), dias_incap)
-            ibc_incap = {
-                "salud": str(ibc_pror_incap),
-                "pension": str(ibc_pror_incap),
-                "arl": str(ibc_pror_incap),  # IBC riesgos = IBC salud; tarifa 0% solo IGE/LMA en microservicio
-                "parafiscales": str(ibc_pror_incap),
-            }
-        # IGE/LMA/IRL: días ARL = días salud, IBC ARL = IBC salud; tarifa 0% solo IGE/LMA
-        dias_arl_incap = dias_incap
         registros.append({
             "tipo_linea": nov_incap["codigo"],  # IGE, IRL, LMA
             "dias": {
                 "salud": dias_incap,
                 "pension": dias_incap,
-                "arl": dias_arl_incap,
+                "arl": dias_incap,
                 "caja": dias_incap,
             },
-            "ibc": ibc_incap,
+            "ibc": {
+                "salud": str(ibc_anterior["salud_pension"]),
+                "pension": str(ibc_anterior["salud_pension"]),
+                "arl": str(ibc_anterior["arl"]),
+                "parafiscales": str(ibc_anterior["caja"]),
+            },
             "novedades": [nov_incap],
         })
         dias_usados += dias_incap
-
-    # 3. Línea de VSP (si aplica, con IBC mes actual; 0 días → IBC 0)
+    
+    # 3. Línea de VSP (si aplica, con IBC mes actual)
     if novedad_vsp:
-        if salario_integral:
-            ibc_vsp_val = _prorratear_ibc(ibc_integral_mes, 0)  # 0 días
-            ibc_vsp = {
-                "salud": str(ibc_vsp_val),
-                "pension": str(ibc_vsp_val),
-                "arl": str(ibc_vsp_val),
-                "parafiscales": str(ibc_vsp_val),
-            }
-        else:
-            ibc_vsp = {
-                "salud": str(_redondear_ibc(ibc_actual["salud_pension"])),
-                "pension": str(_redondear_ibc(ibc_actual["salud_pension"])),
-                "arl": str(_redondear_ibc(ibc_actual["arl"])),
-                "parafiscales": str(_redondear_ibc(ibc_actual["caja"])),
-            }
+        # VSP puede ir en línea separada o junto con días normales
+        # Por ahora la ponemos separada
         registros.append({
             "tipo_linea": "VSP",
             "dias": {
@@ -1035,11 +790,16 @@ def _generar_registros_empleado(
                 "arl": 0,
                 "caja": 0,
             },
-            "ibc": ibc_vsp,
+            "ibc": {
+                "salud": str(ibc_actual["salud_pension"]),
+                "pension": str(ibc_actual["salud_pension"]),
+                "arl": str(ibc_actual["arl"]),
+                "parafiscales": str(ibc_actual["caja"]),
+            },
             "novedades": [novedad_vsp],
         })
     
-    # 4. Línea normal (días trabajados con IBC mes actual o salario + VST)
+    # 4. Línea normal (días trabajados con IBC mes actual)
     dias_normales = dias_base - dias_usados
     if dias_normales < 0:
         dias_normales = 0
@@ -1047,68 +807,6 @@ def _generar_registros_empleado(
     # Si no hay novedades que generen líneas separadas, crear una línea normal con todos los días
     if not registros:
         dias_normales = dias_base
-    
-    # Calcular IBC para línea normal
-    novedades_normal = list(novedades_ing_ret)  # ING/RET van en línea normal
-
-    if salario_integral:
-        # Salario integral: IBC = (70% salario + VST) × (días cotizados / 30)
-        ibc_base_integral = salario_contrato * factor_integral + vst
-        ibc_pror_normal = _prorratear_ibc(ibc_base_integral, dias_normales)
-        ibc_normal = {
-            "salud": str(ibc_pror_normal),
-            "pension": str(ibc_pror_normal),
-            "arl": str(ibc_pror_normal),
-            "parafiscales": str(ibc_pror_normal),
-        }
-        if vst > 0:
-            fecha_vst = fecha_periodo.isoformat() if fecha_periodo else date.today().isoformat()
-            novedades_normal.append({
-                "codigo": "VST",
-                "fecha_desde": fecha_vst,
-                "fecha_hasta": fecha_vst,
-                "dias": None,
-                "valor_vst": vst,
-            })
-    elif vst > 0:
-        # VST sin integral: IBC = (salario + VST) × (días normales / 30)
-        ibc_base_vst = salario_contrato + vst
-        ibc_pror_normal = _prorratear_ibc(ibc_base_vst, dias_normales)
-        ibc_normal = {
-            "salud": str(ibc_pror_normal),
-            "pension": str(ibc_pror_normal),
-            "arl": str(ibc_pror_normal),
-            "parafiscales": str(ibc_pror_normal),
-        }
-        fecha_vst = fecha_periodo.isoformat() if fecha_periodo else date.today().isoformat()
-        novedades_normal.append({
-            "codigo": "VST",
-            "fecha_desde": fecha_vst,
-            "fecha_hasta": fecha_vst,
-            "dias": None,
-            "valor_vst": vst,
-        })
-    else:
-        # Sin VST y no integral: IBC proporcional a días normales
-        # Si hay múltiples líneas: salario básico × (días normales / 30)
-        # Si solo línea normal (30 días): IBC del mes desde nómina (basesegsocial)
-        if dias_normales < dias_base:
-            # Múltiples líneas: salario básico proporcional a días
-            ibc_pror = _prorratear_ibc(float(salario_contrato), dias_normales)
-            ibc_normal = {
-                "salud": str(ibc_pror),
-                "pension": str(ibc_pror),
-                "arl": str(ibc_pror),
-                "parafiscales": str(ibc_pror),
-            }
-        else:
-            # Solo línea normal (30 días): IBC completo del mes desde nómina
-            ibc_normal = {
-                "salud": str(_redondear_ibc(ibc_actual["salud_pension"])),
-                "pension": str(_redondear_ibc(ibc_actual["salud_pension"])),
-                "arl": str(_redondear_ibc(ibc_actual["arl"])),
-                "parafiscales": str(_redondear_ibc(ibc_actual["caja"])),
-            }
     
     # Línea normal siempre se crea (aunque tenga 0 días si hubo novedades)
     registros.append({
@@ -1119,8 +817,13 @@ def _generar_registros_empleado(
             "arl": dias_normales,
             "caja": dias_normales,
         },
-        "ibc": ibc_normal,
-        "novedades": novedades_normal,
+        "ibc": {
+            "salud": str(ibc_actual["salud_pension"]),
+            "pension": str(ibc_actual["salud_pension"]),
+            "arl": str(ibc_actual["arl"]),
+            "parafiscales": str(ibc_actual["caja"]),
+        },
+        "novedades": novedades_ing_ret,  # ING/RET van en línea normal
     })
     
     return registros
