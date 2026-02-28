@@ -16,7 +16,7 @@ ALLOWED_HOSTS = []
 
 SETTINGS_ENV = 'development'
 
-HOSTNAME = "http://127.0.0.1:8000/"
+HOSTNAME = "https://dev.nomiweb.com.co/"
 
 
 CSRF_TRUSTED_ORIGINS = [
@@ -31,7 +31,11 @@ CSRF_TRUSTED_ORIGINS = [
     'https://dev.nomiweb.com.co',
     'http://app.nomiweb.com.co',
     'http://dev.nomiweb.com.co',
-    'http://nomiweb.com.co'
+    'http://nomiweb.com.co', 
+    'http://payroll.nomiweb.co',
+
+
+
 ]
 
 DATABASES = {

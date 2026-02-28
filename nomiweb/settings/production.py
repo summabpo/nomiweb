@@ -5,7 +5,7 @@ from boto3.session import Session
 SECRET_KEY =  os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 SETTINGS_ENV = 'production'
@@ -13,7 +13,7 @@ SETTINGS_ENV = 'production'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'migra_003',
+        'NAME': 'nomiweb_payroll',
         'USER':  os.getenv('DB_USER_PROD'),
         'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
         'HOST':  os.getenv('DB_HOST_PROD'),
@@ -29,7 +29,8 @@ STATICFILES_DIRS = [
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-HOSTNAME = "https://dev.nomiweb.com.co/"
+HOSTNAME = "https://payroll.nomiweb.co/"
+
 
 CSRF_COOKIE_HTTPONLY = True
 
@@ -43,6 +44,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://app.nomiweb.com.co',
     'http://dev.nomiweb.com.co',
     'http://nomiweb.com.co'
+    'http://payroll.nomiweb.co',
 ]
 
 

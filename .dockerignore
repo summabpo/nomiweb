@@ -1,19 +1,32 @@
-# Ignorar archivos de control de versiones
+# Control de versiones
 .git
 .gitignore
 .dockerignore
 Dockerfile
 
+# Variables de entorno (secretos)
+.env
+.env.*
 
+# Python (innecesarios en imagen)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
 
-# Ignorar dependencias y archivos temporales
+# Dependencias y temporales
 node_modules/
 *.log
 *.tmp
 build/
 dist/
 
+# Documentación (reduce tamaño de imagen)
+docs/
+*.md
 
-# Archivos y directorios de Visual Studio Code
+# IDE
 .vscode/
 *.code-workspace
