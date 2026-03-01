@@ -34,6 +34,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://dev.nomiweb.com.co',
     'http://nomiweb.com.co', 
     'http://payroll.nomiweb.co',
+    'https://payroll.nomiweb.co',
+    
 ]
 
 DATABASES = {
