@@ -33,7 +33,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://dev.nomiweb.com.co',
     'http://app.nomiweb.com.co',
     'http://dev.nomiweb.com.co',
-    'http://nomiweb.com.co'
+    'http://nomiweb.com.co',
+    'http://payroll.nomiweb.co'
 ]
 
 

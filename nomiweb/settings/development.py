@@ -7,12 +7,13 @@ from .base import *
 #load_dotenv(dotenv_path)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'En_dev_no_importa'
+SECRET_KEY =  os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+
 
 SETTINGS_ENV = 'development'
 
@@ -33,9 +34,6 @@ CSRF_TRUSTED_ORIGINS = [
     'http://dev.nomiweb.com.co',
     'http://nomiweb.com.co', 
     'http://payroll.nomiweb.co',
-
-
-
 ]
 
 DATABASES = {
