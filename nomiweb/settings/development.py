@@ -47,6 +47,9 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD_DEV'),
         'HOST': os.getenv('DB_HOST_DEV'),
         'PORT': os.getenv('DB_PORT_DEV', '5432'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     },
 }
 STATICFILES_DIRS = [
@@ -58,7 +61,7 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Configuración de S3
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
