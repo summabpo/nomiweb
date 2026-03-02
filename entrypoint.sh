@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Export environment variables
-export DJANGO_SETTINGS_MODULE=nomiweb.settings.production
+# Usar DJANGO_SETTINGS_MODULE del env si ya está definido (ej. dev), sino production
+if [ -z "$DJANGO_SETTINGS_MODULE" ]; then
+  export DJANGO_SETTINGS_MODULE=nomiweb.settings.production
+fi
 
 # Apply migrations
 echo 'Applying migrations...'
