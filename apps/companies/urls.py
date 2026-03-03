@@ -43,6 +43,7 @@ from .views.viewsaux import send_nomina
 from .views.hr_changes import position_change , health_insurance_change ,occupational_risk_change , severance_fund_change
 from .views.companies import companies
 
+from .views.contract_management import reactivation 
 
 
 urlpatterns = [
@@ -52,11 +53,18 @@ urlpatterns = [
     path('employees/excel1', ContractsList.exportar_excel1, name='exportar_excel1'),
     path('employees/excel2', ContractsList.exportar_excel2, name='exportar_excel2'),
 
+
+
     #hiring new items 
     path('employees/hiring/', hiring.hiring, name='hiring'),
     path('employees/hiring/employee', hiring.hiring_employee, name='hiring_employee'),
     
     path('employees/hiring/contract/<str:idempleado>', hiring.hiring_contract, name='hiring_contract'),
+
+    #reactivation new items
+    path('reactivation/contract/', reactivation.reactivation, name='reactivation'),
+    path('reactivation/contract/modal/<int:id>', reactivation.reactivation_modal, name='reactivation_modal'),
+
     
     #path('employees/hiring/employee', hiring.process_forms_employee, name='process_forms_employee'),
     
