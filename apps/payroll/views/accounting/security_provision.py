@@ -28,7 +28,7 @@ def social_security_provision(request):
             mst_init = request.POST.get('mst_init')
             year_init = request.POST.get('year_init')
 
-            # 1️⃣ Contratos activos
+            # Contratos activos
             contratos_empleados = (
                 Contratos.objects
                 .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede', 'centrotrabajo')
@@ -43,7 +43,7 @@ def social_security_provision(request):
                 )
             )
 
-            # 2️⃣ Bases por contrato (una sola consulta agregada)
+            #  Bases por contrato (una sola consulta agregada)
             bases_por_contrato = (
                 Nomina.objects.filter(
                     estadonomina=2,
@@ -63,7 +63,40 @@ def social_security_provision(request):
                 )
             )
 
-            # 3️⃣ Convertir a diccionario para acceso rápido (sin queries adicionales)
+            
+            qs_debug = Nomina.objects.filter(
+                estadonomina=2,
+                idnomina__mesacumular=mst_init,
+                idnomina__anoacumular__ano=year_init,
+                idconcepto__id_empresa=idempresa
+            )
+            
+            print("\n--- Data Inicial ---")
+            for n in qs_debug:
+                print(n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
+                
+            print("\n--- BASE SEGURIDAD SOCIAL ---")
+            for n in qs_debug.filter(idconcepto__indicador__nombre='basesegsocial'):
+                print(n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
+
+            print("\n--- BASE ARL ---")
+            for n in qs_debug.filter(idconcepto__indicador__nombre='basearl'):
+                print(n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
+
+            print("\n--- BASE CAJA ---")
+            for n in qs_debug.filter(idconcepto__indicador__nombre='basecaja'):
+                print(n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
+
+            print("\n--- VARIABLES (extras / comisiones) ---")
+            for n in qs_debug.filter(
+                Q(idconcepto__indicador__nombre='extras') |
+                Q(idconcepto__indicador__nombre='comisiones')
+            ):
+                print(n.idcontrato, n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
+                
+                
+            
+            # Convertir a diccionario para acceso rápido (sin queries adicionales)
             bases_dict = {
                 b['idcontrato']: {
                     'base_ss': b['base_ss'] or 0,
@@ -72,11 +105,12 @@ def social_security_provision(request):
                 }
                 for b in bases_por_contrato
             }
-            
+
+
             
             
 
-            # 4️⃣ Filtrar contratos activos que estén en nómina
+            # Filtrar contratos activos que estén en nómina
             contratos_filtrados = [
                 c for c in contratos_empleados if c['idcontrato'] in bases_dict
             ]
