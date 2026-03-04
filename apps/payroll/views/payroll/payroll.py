@@ -87,12 +87,17 @@ def payroll_create_add(request):
 
                 # Calcular días de nómina, asegurando que nunca sea mayor a 30
                 if tiponomina.tipodenomina == 'Mensual':
-                    dias_nomina = min(30, (fechafinal - fechainicial).days + 1)
-                    
+                    if fechainicial.month == 2:
+                        dias_nomina = 30
+                    else:
+                        dias_nomina = min(30, (fechafinal - fechainicial).days + 1)
+
                 elif tiponomina.tipodenomina == 'Quincenal':
-                    dias_nomina = max(15, (fechafinal - fechainicial).days + 1)
+                    dias_nomina = 15
                 else:
-                    dias_nomina = (fechafinal - fechainicial).days + 1  # Incluir día inicial
+                    dias_nomina = (fechafinal - fechainicial).days + 1
+
+
                 
                 mes_numero = fechainicial.month  # Obtener el número del mes (1-12)
                 mes_acumular = MES_CHOICES[mes_numero][0] if mes_numero else ''
