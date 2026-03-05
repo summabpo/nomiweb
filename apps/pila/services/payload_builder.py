@@ -49,7 +49,9 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         "tipoaportante",
         "claseaportante",
         "tipo_presentacion_planilla",
-        "arl"
+        "arl",
+        "codigo_sucursal",
+        "nombre_sucursal",
     ).get(idempresa=empresa_id_interno)
     empresa_flags = {"empresa_exonerada": bool(empresa.empresa_exonerada)}
 
@@ -190,12 +192,14 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             "nit": empresa.nit or "",  # NIT sin DV
             "dv": empresa.dv or "",  # Dígito de verificación separado
             "razon_social": empresa.nombreempresa or "",
-            "sucursal": "",  # En blanco: tipo presentación única
+            "sucursal": "",  # En blanco: tipo presentación única (legacy)
             "tipo_documento_aportante": empresa.tipodoc or "NI",
             "tipo_aportante": str(empresa.tipoaportante or "1").zfill(2),  # 01=Empleador
             "clase_aportante": empresa.claseaportante or "A",
             "tipo_presentacion_planilla": empresa.tipo_presentacion_planilla or "U",  # U=única, S=sucursal
             "codigo_arl": codigo_arl_empresa,  # Código ARL de la empresa (6 caracteres)
+            "codigo_sucursal": (empresa.codigo_sucursal or ""),  # PILA encabezado campo 12
+            "nombre_sucursal": (empresa.nombre_sucursal or ""),  # PILA encabezado campo 13
             "flags": empresa_flags,
         },
         "periodo": periodo,
