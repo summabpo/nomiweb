@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.common.models  import Contratos , Contratosemp , Ciudades , Cargos , Entidadessegsocial ,Costos
+from apps.common.models  import Contratos , Contratosemp , Ciudades , Cargos , Entidadessegsocial ,Costos , Bancos
 from apps.components.decorators import custom_login_required ,custom_permission
 from django.db.models import OuterRef, Exists, Subquery
 from apps.components.decorators import  role_required
@@ -10,6 +10,32 @@ from django.urls import reverse
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment
+
+
+ModalidadSalario = (
+    ('1', 'Variable'),
+    ('2', 'Fijo'),
+    ('3', 'Mixto'),
+)
+
+FormaPago = (
+    ('1', 'Abono a cuenta'),
+    ('2', 'Cheque'),
+    ('3', 'Efectivo'),
+    ('4', 'Transferencia electrónica'),
+)
+
+
+Cercania = (
+    (True, 'Si'),
+    (False, 'No'),
+)
+
+TipoCcuenta = [
+    ('ahorros', 'Ahorros'),
+    ('corriente', 'Corriente'),
+]
+
 
 @login_required
 @role_required('company', 'accountant')
@@ -173,175 +199,141 @@ def ajustar_columnas(ws):
         adjusted_width = max_length + 2
         ws.column_dimensions[column_letter].width = adjusted_width
 
+
+
 @login_required
 @role_required('company', 'accountant')
 def reactivation_doc(request):
+    # ------------------------
+    # FUNCIONES AUXILIARES
+    # ------------------------
     def clean_value(value):
-        if isinstance(value, str):
-            if value.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"]:
-                return ""
+        if isinstance(value, str) and value.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"]:
+            return ""
         return value
 
-    usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
+    def crear_hoja(wb, title, headers, rows):
+        ws = wb.create_sheet(title=title)
+        ws.append(headers)
+        for row in rows:
+            ws.append(row)
+        ajustar_columnas(ws)
+        estilo_header(ws)
+        return ws
 
+    # ------------------------
+    # DATOS DEL USUARIO
+    # ------------------------
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario.get('idempresa')
+
+    # ------------------------
+    # CONSULTAS DE EMPLEADOS
+    # ------------------------
     contratos_activos = Contratos.objects.filter(
         idempleado=OuterRef('pk'),
         estadocontrato=1,
         id_empresa_id=idempresa
     )
-
     contratos_historicos = Contratos.objects.filter(
         idempleado=OuterRef('pk'),
         id_empresa_id=idempresa
     )
-
     ultimo_contrato = contratos_historicos.order_by('-idcontrato')
 
-    empleados = Contratosemp.objects.filter(
-        id_empresa_id=idempresa
-    ).annotate(
-        tiene_contrato_activo=Exists(contratos_activos),
-        tiene_contrato=Exists(contratos_historicos),
-        salario=Subquery(ultimo_contrato.values('salario')[:1]),
-    ).filter(
-        tiene_contrato_activo=False,
-        tiene_contrato=True
+    empleados = (
+        Contratosemp.objects.filter(id_empresa_id=idempresa)
+        .annotate(
+            tiene_contrato_activo=Exists(contratos_activos),
+            tiene_contrato=Exists(contratos_historicos),
+            salario=Subquery(ultimo_contrato.values('salario')[:1])
+        )
+        .filter(tiene_contrato_activo=False, tiene_contrato=True)
     )
 
+    # Preparar datos de empleados
+    empleados_data = []
     for e in empleados:
-        e.nombre = clean_value(
-            f"{e.pnombre or ''} {e.snombre or ''} {e.papellido or ''} {e.sapellido or ''}".strip()
-        )
+        nombre_completo = " ".join(filter(None, [e.pnombre, e.snombre, e.papellido, e.sapellido]))
+        empleados_data.append([
+            e.docidentidad,
+            clean_value(nombre_completo.strip()),
+            e.salario
+        ])
 
     # ------------------------
     # CREAR EXCEL
     # ------------------------
-
     wb = Workbook()
+    
+    # Reusar la hoja inicial para "Plantilla"
+    ws = wb.active
+    ws.title = "Plantilla"
 
-    # HOJA 1 (plantilla)
-    ws1 = wb.active
-    ws1.title = "Plantilla"
-
-    headers = [
-        
-        "Documento",
-        "Tipo de documento",
-        "Nombre",
-        "Fecha de ingreso",
-        "Fecha de retiro",
-        "Salario",
-        'Tipo Salario - ID',
-        "Modalidad Salario - ID",
-        "Cargo - ID",
-        "Tipo de Contrato - ID",
-        "Tipo de Nómina - ID",
-        "Modelo de Contrato - ID",
-        "Lugar de trabajo - ID",
-        "Forma de pago - ID",
-        "Banco de la Cuenta - ID",
-        "Tipo de Cuenta - ID",
-        "Cuenta de Nómina",
-        "Eps - ID",
-        "Pension - ID",
-        "Fondo Cesantias - ID",
-        "Sede de Trabajo - ID",
-        "Tipo de Cotizante - ID",
-        "Subtipo de Cotizante - ID",
-
+    plantilla_headers = [
+        "Documento","Fecha de ingreso", "Fecha de retiro", "Salario",
+        'Tipo Salario - ID', "Modalidad Salario - ID", "Cargo - ID", "Tipo de Contrato - ID",
+        "Tipo de Nómina - ID", "Modelo de Contrato - ID", "Lugar de trabajo - ID", "Forma de pago - ID",
+        "Banco de la Cuenta - ID", "Tipo de Cuenta - ID", "Cuenta de Nómina", "Eps - ID", "Pension - ID",
+        "Fondo Cesantias - ID", "Centro de Trabajo ARL - ID", "Sede de Trabajo - ID", "Tipo de Cotizante - ID",
+        "Subtipo de Cotizante - ID"
     ]
+    ws.append(plantilla_headers)
+    ajustar_columnas(ws)
+    estilo_header(ws)
 
-    ws1.append(headers)
+    # Hoja 2: Empleados
+    crear_hoja(wb, "Empleados", ["Documento", "Nombre", "Salario anterior"], empleados_data)
 
-    # HOJA 2 (listado empleados)
-    ws2 = wb.create_sheet(title="Empleados")
+    # Hoja 3: Cargos
+    cargos = Cargos.objects.filter(id_empresa__idempresa=idempresa).exclude(idcargo=241).order_by('idcargo')
+    crear_hoja(wb, "Cargos", ["ID", "Nombre"], [[c.idcargo, c.nombrecargo] for c in cargos])
 
-    ws2.append(["Documento", "Nombre","Salario anterior"])
-
-    for e in empleados:
-        ws2.append([
-            e.docidentidad,
-            e.nombre,
-            e.salario
-        ])
-
-    # HOJA 3 (Cargos)
-    cargos = Cargos.objects.filter(id_empresa__idempresa=usuario['idempresa']).exclude(idcargo=241).order_by('idcargo')
-
-    ws3 = wb.create_sheet(title="Cargos")
-
-
-    ws3.append(["ID", "Nombre"])
-
-    for c in cargos:
-        ws3.append([
-            c.idcargo,
-            c.nombrecargo,
-        ])
-
-    # HOJA 4 (Entidades)
-   
-    entidades = Entidadessegsocial.objects.all().exclude(
+    # Hoja 4: Entidades
+    entidades = Entidadessegsocial.objects.exclude(
         codigo__in=['000', '9999', '9988', '9998']
-    ).exclude(
-        nit=''
-    ).exclude(
-        nit__isnull=True
-    ).order_by('entidad')
+    ).exclude(nit__in=['', None]).order_by('entidad')
+    crear_hoja(wb, "Entidades", ["ID", "Codigo", "Nombre", "Tipo"], 
+                [[e.identidad, e.codigo, e.entidad, e.tipoentidad] for e in entidades])
 
-    ws4 = wb.create_sheet(title="Entidades")
-    ws4.append(["ID","Codigo", "Nombre","Tipo"])
+    # Hoja 5: Centros de Costos
+    costos = Costos.objects.filter(id_empresa__idempresa=idempresa).exclude(grupocontable=0, suficosto=0).order_by('idcosto')
+    crear_hoja(wb, "Centros de Costos", ["ID", "Nombre", "Grupo"], [[c.idcosto, c.nomcosto, c.grupocontable] for c in costos])
 
-    for e in entidades:
-        ws4.append([
-            e.identidad,
-            e.codigo,
-            e.entidad,
-            e.tipoentidad
-        ])
+    # Hoja 6: Bancos
+    costos = Bancos.objects.all().order_by('idbanco')
+    crear_hoja(wb, "Bancos", ["ID", "Nombre", "Codigo"], [[c.idbanco, c.nombanco, c.codbanco] for c in costos])
 
-    # HOJA 5 (Cargos)
-    costos = Costos.objects.filter(id_empresa__idempresa=usuario['idempresa'] ).exclude(grupocontable= 0 ,suficosto = 0 ).order_by('idcosto')
-    ws5 = wb.create_sheet(title="Centros de Costos")
+    # Hoja de Choices
+    choices_ws = wb.create_sheet(title="Choices")
 
-    ws5.append(["ID", "Nombre","Grupo"])
+    # Función auxiliar para escribir un bloque de choices
+    def escribir_choices(ws, titulo, data, start_row):
+        ws.cell(row=start_row, column=1, value=titulo)
+        row = start_row + 1
+        for key, value in data:
+            ws.cell(row=row, column=1, value=key)
+            ws.cell(row=row, column=2, value=value)
+            row += 1
+        return row + 1  # Dejar una fila vacía entre bloques
 
-    for c in costos:
-        ws5.append([
-            c.idcosto,
-            c.nomcosto,
-            c.grupocontable
-        ])
-
-    ## ajuste 
-    ajustar_columnas(ws1)
-    ajustar_columnas(ws2)
-    ajustar_columnas(ws3)
-    ajustar_columnas(ws4)
-    ajustar_columnas(ws5)
-
-    ## estilos 
-    estilo_header(ws1)
-    estilo_header(ws2)
-    estilo_header(ws3)
-    estilo_header(ws4)
-    estilo_header(ws5)
-
+    # Empezamos en la fila 1
+    fila = 1
+    fila = escribir_choices(choices_ws, "Modalidad Salario", ModalidadSalario, fila)
+    fila = escribir_choices(choices_ws, "Forma de Pago", FormaPago, fila)
+    fila = escribir_choices(choices_ws, "Tipo de Cuenta", TipoCcuenta, fila)
+    
+    # Ajustar columnas y estilo
+    ajustar_columnas(choices_ws)
+    estilo_header(choices_ws)
     # ------------------------
     # RESPUESTA HTTP
     # ------------------------
-
-
-
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
     response['Content-Disposition'] = 'attachment; filename="reactivacion_empleados.xlsx"'
-
     wb.save(response)
-
     return response
 
 
