@@ -25,6 +25,14 @@ _MESES = {
 _MESES_INV = {v: k for k, v in _MESES.items()}
 
 
+def _ultimo_dia_mes_pila(ano: int, mes_num: int) -> int:
+    """
+    Último día del mes para construir fechas válidas.
+    PILA usa mes comercial 1..30, pero febrero tiene 28/29 días: no se puede usar date(ano, 2, 30).
+    """
+    return min(30, calendar.monthrange(ano, mes_num)[1])
+
+
 def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
     """
     Payload mínimo v1 (loop real por contratos con movimiento).
@@ -448,7 +456,7 @@ def _dias_base_contrato_mes(
 
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, 30)  # PILA mes comercial
+    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))  # PILA mes comercial (feb 28/29)
 
     ini = max(fechainicio, ini_mes)
     fin = fin_mes if fechafin is None else min(fechafin, fin_mes)
@@ -542,7 +550,7 @@ def _novedades_ing_ret_mes(
     """
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, 30)
+    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))
 
     novs = []
 
@@ -573,7 +581,7 @@ def _novedades_vacaciones_mes(
 
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, 30)  # mes comercial PILA
+    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))  # mes comercial PILA (feb 28/29)
 
     sql = """
     SELECT
@@ -622,7 +630,7 @@ def _novedades_incapacidades_mes(
 ) -> list[dict]:
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, 30)
+    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))
 
     cod_map = {"1": "IGE", "2": "IRL", "3": "LMA"}
 
@@ -683,7 +691,7 @@ def _get_vsp_mes(
     """
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, 30)
+    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))
     
     sql = """
     SELECT
