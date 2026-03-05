@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import role_required
-from apps.common.models import Nomina, Contratos , Conceptosfijos
+from apps.common.models import Nomina, Contratos , Conceptosfijos , Salariominimoanual
 from apps.payroll.forms.filter_basic_form import FilterBasicForm
 from django.db.models import Sum, Q
 import calendar
@@ -63,154 +63,177 @@ def social_security_provision(request):
                 )
             )
 
-            
-            qs_debug = Nomina.objects.filter(
-                estadonomina=2,
-                idnomina__mesacumular=mst_init,
-                idnomina__anoacumular__ano=year_init,
-                idconcepto__id_empresa=idempresa
-            )
-            
-            print("\n--- Data Inicial ---")
-            for n in qs_debug:
-                print(n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
-                
-            print("\n--- BASE SEGURIDAD SOCIAL ---")
-            for n in qs_debug.filter(idconcepto__indicador__nombre='basesegsocial'):
-                print(n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
-
-            print("\n--- BASE ARL ---")
-            for n in qs_debug.filter(idconcepto__indicador__nombre='basearl'):
-                print(n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
-
-            print("\n--- BASE CAJA ---")
-            for n in qs_debug.filter(idconcepto__indicador__nombre='basecaja'):
-                print(n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
-
-            print("\n--- VARIABLES (extras / comisiones) ---")
-            for n in qs_debug.filter(
-                Q(idconcepto__indicador__nombre='extras') |
-                Q(idconcepto__indicador__nombre='comisiones')
-            ):
-                print(n.idcontrato, n.idconcepto.idconcepto, n.idconcepto.nombreconcepto, n.valor)
-                
-                
-            
+        
+        
+    
+            SMMLV = Salariominimoanual.objects.get( ano = year_init ).salariominimo
             # Convertir a diccionario para acceso rápido (sin queries adicionales)
+            
+            TOPE_PARAFISCALES = SMMLV * 10
+            TOPE_FSP = SMMLV * 4
+
+
             bases_dict = {
                 b['idcontrato']: {
-                    'base_ss': b['base_ss'] or 0,
-                    'base_arl': b['base_arl'] or 0,
-                    'base_caja': b['base_caja'] or 0,
+                    'base_ss': Decimal(str(b['base_ss'] or 0)),
+                    'base_arl': Decimal(str(b['base_arl'] or 0)),
+                    'base_caja': Decimal(str(b['base_caja'] or 0)),
                 }
                 for b in bases_por_contrato
             }
 
 
-            
-            
-
-            # Filtrar contratos activos que estén en nómina
             contratos_filtrados = [
                 c for c in contratos_empleados if c['idcontrato'] in bases_dict
             ]
-            
+
+
             cc = Decimal(Conceptosfijos.objects.get(conceptofijo='CESANTIAS').valorfijo)
             icc = Decimal(Conceptosfijos.objects.get(conceptofijo='Intereses de Cesantias').valorfijo)
             vac = Decimal(Conceptosfijos.objects.get(conceptofijo='Vacaciones').valorfijo)
 
-            
-            
-            # Tarifas empleador (ajústalas si usas otras)
+
             t_salud_empleador = Decimal(Conceptosfijos.objects.get(conceptofijo='EPS - EMPRESA').valorfijo)
             t_pension_empleador = Decimal(Conceptosfijos.objects.get(conceptofijo='PENSION - EMPRESA').valorfijo)
             t_sena = Decimal(Conceptosfijos.objects.get(conceptofijo='APORTE SENA').valorfijo)
             t_icbf = Decimal(Conceptosfijos.objects.get(conceptofijo='APORTE ICBF').valorfijo)
-            t_caja = Decimal(Conceptosfijos.objects.get(conceptofijo='APORTE CAJA DE COMPENSACION').valorfijo)  
-            t_fsp = 1  
+            t_caja = Decimal(Conceptosfijos.objects.get(conceptofijo='APORTE CAJA DE COMPENSACION').valorfijo)
+
 
             for contrato in contratos_filtrados:
 
                 bases = bases_dict.get(contrato['idcontrato'], {})
-                salario = contrato.get('salario', 0) or 0
-
-                cesantias = salario * (cc / Decimal(100))
-                intereses = salario * (icc / Decimal(100))
-                prima = salario * (cc / Decimal(100))
-                vacaciones = salario * (vac / Decimal(100))
-                provision = cesantias + intereses + prima + vacaciones
-
-                dias = dias_contrato(contrato, mst_init, year_init)
-                salud_trab, pension_trab = salud_pension(contrato, bases.get('base_ss', 0))
-
-                base_ss = bases.get('base_ss', 0)
-                base_arl = bases.get('base_arl', 0)
-                base_caja = bases.get('base_caja', 0)
-
-                # Aportes empleador
-                eps = base_ss * (t_salud_empleador / 100)
-                afp = base_ss * (t_pension_empleador / 100)
-                arl = base_arl * (contrato.get('centrotrabajo__tarifaarl', 0) / 100)
-                sena = base_ss * (t_sena / 100)
-                icbf = base_ss * (t_icbf / 100)
-                caja = base_caja * (t_caja / 100)
 
                 salario = Decimal(str(contrato.get('salario', 0) or 0))
-                base_ss = Decimal(str(bases.get('base_ss', 0)))
-                base_arl = Decimal(str(bases.get('base_arl', 0)))
-                base_caja = Decimal(str(bases.get('base_caja', 0)))
-                variable = Decimal(str(bases.get('variable', 0)))
-                # FSP
-                fsp = base_ss * (t_fsp / 100) if salario > 4 * 1300000 else 0  # Ajusta SMMLV
 
-                # Ajuste (opcional)
+                base_ss = bases.get('base_ss', Decimal(0))
+                base_arl = bases.get('base_arl', Decimal(0))
+                base_caja = bases.get('base_caja', Decimal(0))
+
+                dias = dias_contrato(contrato, mst_init, year_init)
+
+                salud_trab, pension_trab , salud_empresa , pension_empresa = salud_pension(contrato, base_ss , TOPE_PARAFISCALES)
+ 
+                # =========================
+                # PROVISIONES
+                # =========================
+
+                cesantias = base_ss * (cc / Decimal(100))
+                intereses = base_ss * (icc / Decimal(100))
+                prima = base_ss * (cc / Decimal(100))
+                vacaciones = base_ss * (vac / Decimal(100))
+
+                provision = cesantias + intereses + prima + vacaciones
+
+                # =========================
+                # APORTES EMPLEADOR
+                # =========================
+
+                afp = base_ss * (t_pension_empleador / 100)
+
+                arl = base_arl * (Decimal(str(contrato.get('centrotrabajo__tarifaarl', 0))) / 100)
+
+                caja = base_caja * (t_caja / 100)
+
+                # =========================
+                # VALIDACION PARAFISCALES
+                # =========================
+
+                if salario >= TOPE_PARAFISCALES:
+
+                    eps = base_ss * (t_salud_empleador / 100)
+                    sena = base_ss * (t_sena / 100)
+                    icbf = base_ss * (t_icbf / 100)
+
+                else:
+
+                    eps = Decimal(0)
+                    sena = Decimal(0)
+                    icbf = Decimal(0)
+
+                # =========================
+                # FONDO SOLIDARIDAD
+                # =========================
+
+                if salario >= TOPE_FSP:
+
+                    fsp = base_ss * Decimal("0.01")
+
+                else:
+
+                    fsp = Decimal(0)
+
+                # =========================
+                # AJUSTE BASE
+                # =========================
+
                 ajuste = base_ss - salario
 
-                total_aportes = 0
+                total_aportes = eps + afp + arl + sena + icbf + caja
 
                 empleado_data = {
+
                     'documento': clean_value(contrato.get('idempleado__docidentidad')),
+
                     'nombre': ' '.join(filter(None, map(clean_value, [
                         contrato.get('idempleado__papellido', ''),
                         contrato.get('idempleado__sapellido', ''),
                         contrato.get('idempleado__pnombre', ''),
                         contrato.get('idempleado__snombre', '')
                     ]))),
+
                     'fechainiciocontrato': clean_value(contrato.get('fechainiciocontrato')),
                     'cargo': clean_value(contrato.get('cargo__nombrecargo')),
+
                     'salario': salario,
+
                     'base_ss': base_ss,
                     'base_arl': base_arl,
                     'base_caja': base_caja,
+
                     'variable': bases.get('variable', 0),
+
                     'cesantias': cesantias,
                     'intereses': intereses,
-                    'dias': dias,
-                    'salud': salud_trab,
-                    'pension': pension_trab,
                     'prima': prima,
                     'vacaciones': vacaciones,
+
                     'total': provision,
-                    
+
+                    'dias': dias,
+
+                    'salud_empresa': salud_empresa,
+                    'pension_empresa': pension_empresa,
+
                     'suspension_contrato': 0,
+
                     'ajuste': ajuste,
+
                     'arl': arl,
                     'sena': sena,
                     'icbf': icbf,
+
                     'salud_trabajador': salud_trab,
                     'pension_trabajador': pension_trab,
+
                     'fsp': fsp,
+
                     'total_aportes': total_aportes,
+
                     'provision': provision,
+
                     'afp': afp,
                     'eps': eps,
                     'caja': caja,
+
                     'centro_costo': clean_value(contrato.get('idcosto__nomcosto')),
+
                     'idcontrato': contrato['idcontrato'],
                 }
 
                 empleados.append(empleado_data)
-
+                
+    print(empleados)
     return render(
         request,
         './payroll/social_security_provision.html',
@@ -278,14 +301,22 @@ def dias_contrato(contrato, month, year):
 
     return dias
 
-def salud_pension(contrato , base ):
+def salud_pension(contrato , base , salario ):
     salud  = pension  = 0
-    
     ps = Decimal(Conceptosfijos.objects.get(conceptofijo='EPS - Empleado').valorfijo)
     pp = Decimal(Conceptosfijos.objects.get(conceptofijo='PENSION - EMPLEADO').valorfijo)
-
+    pse = Decimal(Conceptosfijos.objects.get(conceptofijo='EPS - EMPRESA').valorfijo)
+    ppe = Decimal(Conceptosfijos.objects.get(conceptofijo='PENSION - EMPRESA').valorfijo)
+    pse2 = Decimal(Conceptosfijos.objects.get(conceptofijo='EPS - Empresa para SMLV > 10').valorfijo)
+    
+    if int(contrato["salario"]) > salario : 
+        aux = -(base * (pse2 / Decimal(100)))
+    else : 
+        aux = -(base * (pse / Decimal(100)))
     
     salud = -(base * (ps / Decimal(100)))
     pension = -(base * (pp / Decimal(100)))
+    salud_e = aux 
+    pension_e = -(base * (ppe / Decimal(100)))
     
-    return salud , pension 
+    return salud , pension , salud_e , pension_e 
