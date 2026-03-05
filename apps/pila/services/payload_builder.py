@@ -450,19 +450,25 @@ def _dias_base_contrato_mes(
 ) -> int:
     """
     Mes comercial PILA: 1..30.
+    Si el contrato abarca todo el mes (del día 1 al último día del mes), se reportan 30 días.
+    Si no, se reportan los días calendario del rango (máximo 30).
     """
     if not fechainicio:
         return 0
 
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))  # PILA mes comercial (feb 28/29)
+    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))  # fecha válida (feb 28/29)
 
     ini = max(fechainicio, ini_mes)
     fin = fin_mes if fechafin is None else min(fechafin, fin_mes)
 
     if fin < ini:
         return 0
+
+    # Mes completo en PILA = 30 días cotizados (Error 382 exige 30 en los 4 subsistemas)
+    if ini == ini_mes and fin == fin_mes:
+        return 30
 
     dias = (fin - ini).days + 1
     return _cap_30(dias)
