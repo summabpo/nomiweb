@@ -69,6 +69,7 @@ def abstractconcept(request):
                 'idcontrato__idempleado__idempleado': employee,
                 'idnomina__mesacumular': month,
                 'idnomina__anoacumular__ano': year,
+                'idcontrato__id_empresa__idempresa': idempresa,
             }
 
             # Eliminar filtros vacíos o con valores None
