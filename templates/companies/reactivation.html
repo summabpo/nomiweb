@@ -16,7 +16,15 @@
 
 
 {% block sub_titulo1 %} 
-    empleados
+    
+    {% if user.is_company %}
+        empleados  
+    {% elif user.is_accountant %}
+        Contrataciones
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}
+
 {% endblock %}
 
 
@@ -39,6 +47,27 @@ Reactivación de Empleado
 
 {% block titulo2 %} 
 Listado de Empleados Contratados Anteriormente
+{% endblock %}
+
+
+{% block actions %}
+<!-- Button trigger modal -->
+    
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        href="{% url "companies:reactivation_data" %}">
+        <i class="fa-solid fa-plus"></i> Importar contratos
+    </a> 
 {% endblock %}
 
 
@@ -151,9 +180,6 @@ Listado de Empleados Contratados Anteriormente
                                 </a> 
 
                             </div>
-
-                            
-                            
 
                         </td>
                     </tr>

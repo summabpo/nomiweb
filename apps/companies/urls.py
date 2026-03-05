@@ -63,7 +63,7 @@ urlpatterns = [
 
     #reactivation new items
     path('reactivation/contract/', reactivation.reactivation, name='reactivation'),
-    path('reactivation/contract/modal/<int:id>', reactivation.reactivation_modal, name='reactivation_modal'),
+    
 
     
     #path('employees/hiring/employee', hiring.process_forms_employee, name='process_forms_employee'),
@@ -238,6 +238,13 @@ urlunpolypatterns =[
     
     path('parameters/company/edit/<str:type>',  companies.company_edit, name='company_edit'),
     
+
+
+    ## masive 
+    path('reactivation/contract/modal/<int:id>', reactivation.reactivation_modal, name='reactivation_modal'),
+    path('reactivation/contract/modal/masive/doc', reactivation.reactivation_doc, name='reactivation_doc'),
+    path('reactivation/contract/modal/masive/data', reactivation.reactivation_data, name='reactivation_data'),
+
     #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
     #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),
     #path("employee/<int:employee_id>/change-severance-fund/", severance_fund_change.severance_fund_change_view, name="severance_fund_change"),

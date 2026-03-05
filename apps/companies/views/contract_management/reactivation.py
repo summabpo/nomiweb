@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.common.models  import Contratos , Contratosemp , Ciudades
+from apps.common.models  import Contratos , Contratosemp , Ciudades , Cargos , Entidadessegsocial ,Costos
 from apps.components.decorators import custom_login_required ,custom_permission
 from django.db.models import OuterRef, Exists, Subquery
 from apps.components.decorators import  role_required
@@ -7,6 +7,9 @@ from django.contrib.auth.decorators import login_required
 from apps.companies.forms.ReactivationForm import ReactivationForm
 from django.http import HttpResponse
 from django.urls import reverse
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, Alignment
 
 @login_required
 @role_required('company', 'accountant')
@@ -145,3 +148,211 @@ def reactivation_modal(request,id):
     else:
         form = ReactivationForm(idempresa=idempresa , initial=data , empleado_actual = True , idcontrato = id)
     return render(request, './companies/partials/reactivation_modal.html',{'form':form , 'idc':idc})
+
+
+
+
+def estilo_header(ws):
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+
+
+def ajustar_columnas(ws):
+    for column in ws.columns:
+        max_length = 0
+        column_letter = get_column_letter(column[0].column)
+
+        for cell in column:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+
+        adjusted_width = max_length + 2
+        ws.column_dimensions[column_letter].width = adjusted_width
+
+@login_required
+@role_required('company', 'accountant')
+def reactivation_doc(request):
+    def clean_value(value):
+        if isinstance(value, str):
+            if value.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"]:
+                return ""
+        return value
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+
+    contratos_activos = Contratos.objects.filter(
+        idempleado=OuterRef('pk'),
+        estadocontrato=1,
+        id_empresa_id=idempresa
+    )
+
+    contratos_historicos = Contratos.objects.filter(
+        idempleado=OuterRef('pk'),
+        id_empresa_id=idempresa
+    )
+
+    ultimo_contrato = contratos_historicos.order_by('-idcontrato')
+
+    empleados = Contratosemp.objects.filter(
+        id_empresa_id=idempresa
+    ).annotate(
+        tiene_contrato_activo=Exists(contratos_activos),
+        tiene_contrato=Exists(contratos_historicos),
+        salario=Subquery(ultimo_contrato.values('salario')[:1]),
+    ).filter(
+        tiene_contrato_activo=False,
+        tiene_contrato=True
+    )
+
+    for e in empleados:
+        e.nombre = clean_value(
+            f"{e.pnombre or ''} {e.snombre or ''} {e.papellido or ''} {e.sapellido or ''}".strip()
+        )
+
+    # ------------------------
+    # CREAR EXCEL
+    # ------------------------
+
+    wb = Workbook()
+
+    # HOJA 1 (plantilla)
+    ws1 = wb.active
+    ws1.title = "Plantilla"
+
+    headers = [
+        
+        "Documento",
+        "Tipo de documento",
+        "Nombre",
+        "Fecha de ingreso",
+        "Fecha de retiro",
+        "Salario",
+        'Tipo Salario - ID',
+        "Modalidad Salario - ID",
+        "Cargo - ID",
+        "Tipo de Contrato - ID",
+        "Tipo de Nómina - ID",
+        "Modelo de Contrato - ID",
+        "Lugar de trabajo - ID",
+        "Forma de pago - ID",
+        "Banco de la Cuenta - ID",
+        "Tipo de Cuenta - ID",
+        "Cuenta de Nómina",
+        "Eps - ID",
+        "Pension - ID",
+        "Fondo Cesantias - ID",
+        "Sede de Trabajo - ID",
+        "Tipo de Cotizante - ID",
+        "Subtipo de Cotizante - ID",
+
+    ]
+
+    ws1.append(headers)
+
+    # HOJA 2 (listado empleados)
+    ws2 = wb.create_sheet(title="Empleados")
+
+    ws2.append(["Documento", "Nombre","Salario anterior"])
+
+    for e in empleados:
+        ws2.append([
+            e.docidentidad,
+            e.nombre,
+            e.salario
+        ])
+
+    # HOJA 3 (Cargos)
+    cargos = Cargos.objects.filter(id_empresa__idempresa=usuario['idempresa']).exclude(idcargo=241).order_by('idcargo')
+
+    ws3 = wb.create_sheet(title="Cargos")
+
+
+    ws3.append(["ID", "Nombre"])
+
+    for c in cargos:
+        ws3.append([
+            c.idcargo,
+            c.nombrecargo,
+        ])
+
+    # HOJA 4 (Entidades)
+   
+    entidades = Entidadessegsocial.objects.all().exclude(
+        codigo__in=['000', '9999', '9988', '9998']
+    ).exclude(
+        nit=''
+    ).exclude(
+        nit__isnull=True
+    ).order_by('entidad')
+
+    ws4 = wb.create_sheet(title="Entidades")
+    ws4.append(["ID","Codigo", "Nombre","Tipo"])
+
+    for e in entidades:
+        ws4.append([
+            e.identidad,
+            e.codigo,
+            e.entidad,
+            e.tipoentidad
+        ])
+
+    # HOJA 5 (Cargos)
+    costos = Costos.objects.filter(id_empresa__idempresa=usuario['idempresa'] ).exclude(grupocontable= 0 ,suficosto = 0 ).order_by('idcosto')
+    ws5 = wb.create_sheet(title="Centros de Costos")
+
+    ws5.append(["ID", "Nombre","Grupo"])
+
+    for c in costos:
+        ws5.append([
+            c.idcosto,
+            c.nomcosto,
+            c.grupocontable
+        ])
+
+    ## ajuste 
+    ajustar_columnas(ws1)
+    ajustar_columnas(ws2)
+    ajustar_columnas(ws3)
+    ajustar_columnas(ws4)
+    ajustar_columnas(ws5)
+
+    ## estilos 
+    estilo_header(ws1)
+    estilo_header(ws2)
+    estilo_header(ws3)
+    estilo_header(ws4)
+    estilo_header(ws5)
+
+    # ------------------------
+    # RESPUESTA HTTP
+    # ------------------------
+
+
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    response['Content-Disposition'] = 'attachment; filename="reactivacion_empleados.xlsx"'
+
+    wb.save(response)
+
+    return response
+
+
+
+
+@login_required
+@role_required('company', 'accountant')
+def reactivation_data(request):
+
+
+    return render(request, './companies/partials/reactivation_data.html')
+
+
+
