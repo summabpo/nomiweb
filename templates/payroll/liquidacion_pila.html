@@ -2,23 +2,23 @@
 {% load static %}
 
 {% block navbar %}
-    {% include 'base/navbar_payroll.html' %}               
+    {% include 'base/navbar_payroll.html' %}
 {% endblock %}
 
 {% block title %}
-    Nomiweb.co - Aplicacion Contable - Liquidación PILA
+    Nomiweb.co - Liquidación PILA
 {% endblock %}
 
-{% block sub_titulo1 %} 
-Seg Social
+{% block sub_titulo1 %}
+    Seg Social
 {% endblock %}
 
-{% block sub_titulo2 %} 
-Liquidacion PILA
+{% block sub_titulo2 %}
+    Liquidacion PILA
 {% endblock %}
 
-{% block titulo2 %} 
-Liquidación detallada de aportes (PILA)
+{% block titulo2 %}
+    Liquidación detallada de aportes (PILA)
 {% endblock %}
 
 {% block content %}
@@ -31,7 +31,6 @@ Liquidación detallada de aportes (PILA)
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Empresa</label>
                         <div class="form-control-plaintext">
@@ -39,7 +38,6 @@ Liquidación detallada de aportes (PILA)
                         </div>
                         <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
                     </div>
-
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label for="id_year" class="form-label fw-semibold">Año</label>
@@ -60,7 +58,6 @@ Liquidación detallada de aportes (PILA)
                             </select>
                         </div>
                     </div>
-
                     <div class="mb-4">
                         <label for="id_tipo_planilla" class="form-label fw-semibold">Tipo de planilla</label>
                         <select id="id_tipo_planilla" name="tipo_planilla" class="form-select" required>
@@ -70,7 +67,6 @@ Liquidación detallada de aportes (PILA)
                             {% endfor %}
                         </select>
                     </div>
-
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-light-info">
                             <i class="fa-solid fa-file-invoice-dollar fs-5 me-2"></i>
@@ -103,22 +99,24 @@ Liquidación detallada de aportes (PILA)
                 {% endwith %}
 
                 {% if planilla_id %}
-                    <div class="mb-3">
-                        <a href="{% url 'payroll:pila_descargar_txt' planilla_id %}?tipo_planilla={{ tipo_planilla }}"
+                    <div class="mb-3 d-flex flex-wrap gap-2">
+                        <a href="{% url 'payroll:pila_descargar_txt' planilla_id %}?tipo_planilla={{ tipo_planilla|default:'' }}"
                            class="btn btn-light-primary">
                             <i class="fa-solid fa-download fs-5 me-2"></i>
                             Descargar TXT PILA
                         </a>
+                        <a href="{% url 'payroll:pila_vista_txt' planilla_id %}?tipo_planilla={{ tipo_planilla|default:'' }}"
+                           class="btn btn-light-info">
+                            <i class="fa-solid fa-table fs-5 me-2"></i>
+                            Ver plano TXT
+                        </a>
                     </div>
                 {% endif %}
 
-                <pre class="small bg-light p-3 rounded border" style="max-height: 320px; overflow:auto;">
-{{ resultado_planilla }}
-                </pre>
+                <pre class="small bg-light p-3 rounded border" style="max-height: 320px; overflow:auto;">{{ resultado_planilla }}</pre>
             </div>
         </div>
     </div>
 </div>
 {% endif %}
 {% endblock %}
-

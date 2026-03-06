@@ -1,4 +1,5 @@
 from datetime import date
+from io import BytesIO
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,6 +13,7 @@ from apps.pila.services.pila_cliente import (
     descargar_archivo,
     PilaServiceError,
 )
+from apps.pila.utils.parse_plano_txt import parse_plano_txt
 
 
 @login_required
@@ -84,7 +86,6 @@ def liquidacion_pila(request):
                     periodo=periodo,
                 )
 
-                # Usamos force=True como en el comando de prueba para permitir recrear planilla si existe
                 respuesta = crear_planilla(payload, force=True)
 
                 messages.success(
@@ -114,7 +115,6 @@ def liquidacion_pila(request):
 def descargar_pila_txt(request: HttpRequest, planilla_id: int) -> HttpResponse:
     """
     Descarga el archivo TXT PILA generado por el microservicio.
-    Reutiliza apps.pila.services.pila_cliente.descargar_archivo.
     """
     tipo_planilla = request.GET.get("tipo_planilla") or None
 
@@ -139,4 +139,111 @@ def descargar_pila_txt(request: HttpRequest, planilla_id: int) -> HttpResponse:
     return response
 
 
+def _get_planilla_txt_filas(planilla_id: int, tipo_planilla: str | None):
+    """Obtiene el TXT del microservicio y lo parsea en filas para grid/Excel."""
+    contenido = descargar_archivo(planilla_id, tipo_planilla=tipo_planilla)
+    return parse_plano_txt(contenido)
 
+
+@login_required
+@role_required("accountant")
+def vista_plano_pila(request: HttpRequest, planilla_id: int):
+    """
+    Muestra el contenido del plano TXT PILA en una grid (DataTable).
+    Incluye botón para descargar en Excel.
+    """
+    tipo_planilla = request.GET.get("tipo_planilla") or None
+    try:
+        filas = _get_planilla_txt_filas(planilla_id, tipo_planilla)
+    except PilaServiceError as e:
+        messages.error(request, f"Error al obtener plano PILA: {e}")
+        return redirect("payroll:pila_liquidacion")
+    except Exception as e:  # noqa: BLE001
+        messages.error(request, f"Error inesperado: {e}")
+        return redirect("payroll:pila_liquidacion")
+
+    encabezado = next((f for f in filas if f.get("tipo") == "01"), None)
+    filas_detalle = [f for f in filas if f.get("tipo") == "02"]
+
+    contexto = {
+        "planilla_id": planilla_id,
+        "tipo_planilla": tipo_planilla,
+        "encabezado": encabezado,
+        "filas": filas_detalle,
+    }
+    return render(request, "./payroll/vista_plano_pila.html", contexto)
+
+
+@login_required
+@role_required("accountant")
+def descargar_pila_excel(request: HttpRequest, planilla_id: int) -> HttpResponse:
+    """
+    Descarga el contenido del plano TXT PILA en formato Excel (.xlsx).
+    """
+    tipo_planilla = request.GET.get("tipo_planilla") or None
+    try:
+        filas = _get_planilla_txt_filas(planilla_id, tipo_planilla)
+    except PilaServiceError as e:
+        messages.error(request, f"Error al obtener plano PILA: {e}")
+        return redirect("payroll:pila_liquidacion")
+    except Exception as e:  # noqa: BLE001
+        messages.error(request, f"Error inesperado: {e}")
+        return redirect("payroll:pila_liquidacion")
+
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font
+    except ImportError:
+        messages.error(request, "No está disponible la exportación a Excel (openpyxl).")
+        from django.urls import reverse
+        url = reverse("payroll:pila_vista_txt", args=[planilla_id])
+        if tipo_planilla:
+            url += f"?tipo_planilla={tipo_planilla}"
+        return redirect(url)
+
+    wb = Workbook()
+    # Hoja encabezado (solo filas tipo 01)
+    filas_01 = [f for f in filas if f.get("tipo") == "01"]
+    filas_02 = [f for f in filas if f.get("tipo") == "02"]
+
+    if filas_01:
+        ws1 = wb.active
+        ws1.title = "Encabezado"
+        headers_01 = ["tipo", "secuencia", "razon_social", "tipo_doc", "nit", "tipo_planilla", "periodo_pago", "total_cotizantes", "valor_total_nomina"]
+        ws1.append(headers_01)
+        for row in filas_01:
+            ws1.append([str(row.get(h, "")) for h in headers_01])
+        for cell in ws1[1]:
+            cell.font = Font(bold=True)
+
+    headers_02 = [
+        "num_linea", "tipo", "secuencia", "tipo_doc", "numero_doc",
+        "primer_apellido", "segundo_apellido", "primer_nombre", "segundo_nombre",
+        "dias_pension", "dias_salud", "dias_arl", "dias_caja",
+        "salario_basico", "ibc_pension", "ibc_salud", "ibc_arl", "ibc_caja",
+        "marca_ing", "marca_ret", "marca_sln", "marca_ige", "marca_lma", "marca_vac_lr",
+        "cod_afp", "cod_eps", "cod_ccf",
+    ]
+    if filas_01:
+        ws2 = wb.create_sheet("Detalle", index=1)
+    else:
+        ws2 = wb.active
+        ws2.title = "Detalle"
+    ws2.append(headers_02)
+    for row in filas_02:
+        ws2.append([str(row.get(h, "")) for h in headers_02])
+    for cell in ws2[1]:
+        cell.font = Font(bold=True)
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    sufijo = f"_{tipo_planilla}" if tipo_planilla else ""
+    filename = f"PILA_plano_{planilla_id}{sufijo}.xlsx"
+
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
