@@ -65,6 +65,7 @@ Liquidacion Empleados
     <table id='tabla-settlement' class="table table-striped table-bordered">
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Contrato</th>
                 <th>Documento</th>
                 <th>Empleado</th>
@@ -90,6 +91,7 @@ Liquidacion Empleados
         <tbody>
             {% for item in settlements %}
                 <tr>
+                    <td>{{ item.idliquidacion }}</td>
                     <td>{{ item.idcontrato__idcontrato }}</td>
                     <td>{{ item.idcontrato__idempleado__docidentidad}}</td>
                     <td>{{ item.idcontrato__idempleado__papellido|none_to_empty }} {{ item.idcontrato__idempleado__sapellido|none_to_empty }} {{ item.idcontrato__idempleado__pnombre|none_to_empty }} {{ item.idcontrato__idempleado__snombre|none_to_empty }}</td>

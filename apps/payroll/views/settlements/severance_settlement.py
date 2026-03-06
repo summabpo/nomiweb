@@ -40,6 +40,7 @@ def settlement_list(request):
     settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa 
             ).order_by('-idliquidacion'
             ).values(   
+                'idliquidacion',
                 'idcontrato__idcontrato',
                 'idcontrato__idempleado__docidentidad',
                 'idcontrato__idempleado__papellido',
@@ -48,15 +49,14 @@ def settlement_list(request):
                 'idcontrato__idempleado__snombre',
                 'diastrabajados',
                 'idcontrato__fechainiciocontrato',
-                'idliquidacion',
                 'fechafincontrato',
                 'cesantias',
                 'intereses',
                 'prima',
                 'vacaciones',
                 'totalliq',
-                
-                
+                'estadoliquidacion',
+
                 )
 
 
@@ -336,7 +336,6 @@ def settlement_calculate(request):
     
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    
     
     contract_id = request.POST.get('contract')
     end_date_str = request.POST.get('end_date')
