@@ -250,10 +250,16 @@ document.addEventListener('up:fragment:inserted', function(event) {
     // --- Inicializar daterangepicker ---
     const dateInput = modalContent.querySelector('#kt_daterangepicker_1');
     if (dateInput && !$(dateInput).data('daterangepicker')) {
+        let startDate = moment();
+        // Si el input ya tiene valor (modo edit)
+        if (dateInput.value) {
+            startDate = moment(dateInput.value, 'YYYY-MM-DD');
+        }
         $(dateInput).daterangepicker({
             singleDatePicker: true,
             showDropdowns: true,
             minYear: 2000,
+            startDate: startDate, 
             maxYear: parseInt(moment().format("YYYY"), 12),
             endDate: moment(),
             minDate: '01/01/2020',

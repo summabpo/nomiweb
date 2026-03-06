@@ -32,7 +32,7 @@ def social_security_provision(request):
             contratos_empleados = (
                 Contratos.objects
                 .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede', 'centrotrabajo')
-                .filter(estadocontrato=1, id_empresa=idempresa)
+                .filter(estadocontrato=1, id_empresa=idempresa ,idcontrato = 8137)
                 .order_by('idempleado__papellido')
                 .values(
                     'idcontrato', 'idempleado__docidentidad', 'idempleado__papellido','fechainiciocontrato' ,'fechafincontrato',
@@ -63,6 +63,24 @@ def social_security_provision(request):
                 )
             )
 
+            
+            # Obtener los registros originales para depuración
+            nominas_filtradas = Nomina.objects.filter(
+                estadonomina=2,
+                idcontrato = 8137 ,
+                idnomina__mesacumular=mst_init,
+                idnomina__anoacumular__ano=year_init,
+                idconcepto__id_empresa=idempresa
+            ).select_related('idconcepto')
+
+            # Diccionario para acumular los sumandos por contrato
+            debug_bases = {}
+
+            for n in nominas_filtradas:
+                contrato_id = n.idcontrato
+                concepto = n.idconcepto.nombreconcepto
+                valor = n.valor
+                print(f"{concepto} - {valor} -> {contrato_id}")
         
         
     
@@ -233,7 +251,6 @@ def social_security_provision(request):
 
                 empleados.append(empleado_data)
                 
-    print(empleados)
     return render(
         request,
         './payroll/social_security_provision.html',
