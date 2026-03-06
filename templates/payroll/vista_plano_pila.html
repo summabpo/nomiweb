@@ -1,0 +1,128 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'base/navbar_payroll.html' %}
+{% endblock %}
+
+{% block title %}
+    Nomiweb.co - Plano TXT PILA
+{% endblock %}
+
+{% block sub_titulo1 %}
+    Seg Social
+{% endblock %}
+
+{% block sub_titulo2 %}
+    Plano TXT PILA
+{% endblock %}
+
+{% block titulo2 %}
+    Contenido del plano TXT (visualización)
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h3 class="card-title mb-0">Planilla ID: {{ planilla_id }}{% if tipo_planilla %} ({{ tipo_planilla }}){% endif %}</h3>
+        <div class="d-flex gap-2">
+            <a href="{% url 'payroll:pila_descargar_txt' planilla_id %}?tipo_planilla={{ tipo_planilla|default:'' }}"
+               class="btn btn-sm btn-light-primary">
+                <i class="fa-solid fa-file-lines me-1"></i> Descargar TXT
+            </a>
+            <a href="{% url 'payroll:pila_descargar_excel' planilla_id %}?tipo_planilla={{ tipo_planilla|default:'' }}"
+               class="btn btn-sm btn-success">
+                <i class="fa-solid fa-file-excel me-1"></i> Descargar Excel
+            </a>
+            <a href="{% url 'payroll:pila_liquidacion' %}" class="btn btn-sm btn-light-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i> Volver
+            </a>
+        </div>
+    </div>
+        <div class="card-body">
+        {% if encabezado %}
+            <div class="alert alert-secondary mb-4">
+                <strong>Encabezado (registro 01):</strong>
+                Razón social: {{ encabezado.razon_social|truncatechars:50 }} |
+                NIT: {{ encabezado.nit }} |
+                Tipo planilla: {{ encabezado.tipo_planilla }} |
+                Periodo: {{ encabezado.periodo_pago }} |
+                Total cotizantes: {{ encabezado.total_cotizantes }} |
+                Valor nómina: {{ encabezado.valor_total_nomina }}
+            </div>
+        {% endif %}
+        <div class="table-responsive">
+            <table id="tabla-plano-pila" class="table table-striped table-bordered table-sm">
+                <thead>
+                    <tr class="fw-bold fs-7 text-gray-800">
+                        <th>#</th>
+                        <th>Tipo</th>
+                        <th>Sec</th>
+                        <th>Tipo doc</th>
+                        <th>Número doc</th>
+                        <th>Apellidos</th>
+                        <th>Nombres</th>
+                        <th>Días Pen</th>
+                        <th>Días Sal</th>
+                        <th>Días ARL</th>
+                        <th>Días CCF</th>
+                        <th>IBC Pen</th>
+                        <th>IBC Sal</th>
+                        <th>IBC ARL</th>
+                        <th>IBC CCF</th>
+                        <th>VAC/SLN/IGE/LMA</th>
+                        <th>AFP</th>
+                        <th>EPS</th>
+                        <th>CCF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in filas %}
+                    <tr>
+                        <td>{{ f.num_linea|default:f.secuencia|default:forloop.counter }}</td>
+                        <td>{{ f.tipo }}</td>
+                        <td>{{ f.secuencia }}</td>
+                        <td>{{ f.tipo_doc }}</td>
+                        <td>{{ f.numero_doc }}</td>
+                        <td>{{ f.primer_apellido|default:"" }} {{ f.segundo_apellido|default:"" }}</td>
+                        <td>{{ f.primer_nombre|default:"" }} {{ f.segundo_nombre|default:"" }}</td>
+                        <td>{{ f.dias_pension }}</td>
+                        <td>{{ f.dias_salud }}</td>
+                        <td>{{ f.dias_arl }}</td>
+                        <td>{{ f.dias_caja }}</td>
+                        <td>{{ f.ibc_pension }}</td>
+                        <td>{{ f.ibc_salud }}</td>
+                        <td>{{ f.ibc_arl }}</td>
+                        <td>{{ f.ibc_caja }}</td>
+                        <td>
+                            {% if f.marca_vac_lr %}VAC-LR{% endif %}
+                            {% if f.marca_sln %} SLN{% endif %}
+                            {% if f.marca_ige %} IGE{% endif %}
+                            {% if f.marca_lma %} LMA{% endif %}
+                        </td>
+                        <td>{{ f.cod_afp }}</td>
+                        <td>{{ f.cod_eps }}</td>
+                        <td>{{ f.cod_ccf }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="19" class="text-center">Sin datos</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
+        $('#tabla-plano-pila').DataTable({
+            order: [[0, 'asc']],
+            pageLength: 25,
+            language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' },
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip'
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 from datetime import date
 import calendar
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from django.db import connection
 from datetime import timedelta
 from apps.common.models import Empresa
@@ -753,9 +753,10 @@ def _generar_registros_empleado(
     registros = []
     dias_usados = 0
     
-    # 1. Líneas de vacaciones (con IBC mes anterior)
+    # 1. Líneas de vacaciones, SLN y SUSP (con IBC mes anterior)
     for nov_vac in novedades_vac:
-        if nov_vac["codigo"] == "VAC":  # Solo vacaciones tipo 1
+        cod = nov_vac["codigo"]
+        if cod == "VAC":
             dias_vac = nov_vac["dias"]
             registros.append({
                 "tipo_linea": "VAC",
@@ -774,6 +775,25 @@ def _generar_registros_empleado(
                 "novedades": [nov_vac],
             })
             dias_usados += dias_vac
+        elif cod in ("SLN", "SUSP"):
+            dias_nov = nov_vac["dias"]
+            registros.append({
+                "tipo_linea": cod,
+                "dias": {
+                    "salud": dias_nov,
+                    "pension": dias_nov,
+                    "arl": dias_nov,
+                    "caja": dias_nov,
+                },
+                "ibc": {
+                    "salud": str(ibc_anterior["salud_pension"]),
+                    "pension": str(ibc_anterior["salud_pension"]),
+                    "arl": str(ibc_anterior["arl"]),
+                    "parafiscales": str(ibc_anterior["caja"]),
+                },
+                "novedades": [nov_vac],
+            })
+            dias_usados += dias_nov
     
     # 2. Líneas de incapacidades (con IBC mes anterior)
     for nov_incap in novedades_incap:
@@ -826,6 +846,23 @@ def _generar_registros_empleado(
     if not registros:
         dias_normales = dias_base
     
+    # IBC línea normal: si tiene 30 días se deja el IBC del mes; si tiene menos (por otras novedades), prorratear por días (proporción días/30)
+    if dias_normales >= 30:
+        ibc_normal = {
+            "salud": str(ibc_actual["salud_pension"]),
+            "pension": str(ibc_actual["salud_pension"]),
+            "arl": str(ibc_actual["arl"]),
+            "parafiscales": str(ibc_actual["caja"]),
+        }
+    else:
+        factor = Decimal(dias_normales) / Decimal(30)
+        ibc_normal = {
+            "salud": str(int((ibc_actual["salud_pension"] * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))),
+            "pension": str(int((ibc_actual["salud_pension"] * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))),
+            "arl": str(int((ibc_actual["arl"] * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))),
+            "parafiscales": str(int((ibc_actual["caja"] * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))),
+        }
+    
     # Línea normal siempre se crea (aunque tenga 0 días si hubo novedades)
     registros.append({
         "tipo_linea": "NORMAL",
@@ -835,12 +872,7 @@ def _generar_registros_empleado(
             "arl": dias_normales,
             "caja": dias_normales,
         },
-        "ibc": {
-            "salud": str(ibc_actual["salud_pension"]),
-            "pension": str(ibc_actual["salud_pension"]),
-            "arl": str(ibc_actual["arl"]),
-            "parafiscales": str(ibc_actual["caja"]),
-        },
+        "ibc": ibc_normal,
         "novedades": novedades_ing_ret,  # ING/RET van en línea normal
     })
     
