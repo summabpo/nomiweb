@@ -13,6 +13,8 @@ from .liquidacion_utils import *
 from django.db.models import Q
 from django.utils import timezone
 from datetime import date
+from decimal import Decimal
+
 
 
 MES_CHOICES = [

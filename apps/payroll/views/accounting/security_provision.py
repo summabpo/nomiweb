@@ -5,7 +5,7 @@ from apps.common.models import Nomina, Contratos , Conceptosfijos
 from apps.payroll.forms.filter_basic_form import FilterBasicForm
 from django.db.models import Sum, Q
 import calendar
-from datetime import date
+from datetime import date ,datetime
 from decimal import Decimal
 
 @login_required
