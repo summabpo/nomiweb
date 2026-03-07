@@ -83,7 +83,21 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         ano=ano,
         ids_contrato=ids_contrato
     )
-    
+
+    # 3.0) Exceso Ley 1393: si IBC < 60% total ingresos, exceso = 0.6*total - IBC. Se suma a salud, pensión, ARL
+    exceso_ley_1393 = _get_exceso_ley_1393_por_contrato(
+        empresa_id=empresa_id_interno,
+        mesacumular=mesacumular,
+        ano=ano,
+        ids_contrato=ids_contrato,
+        ibc_map=ibc_map,
+    )
+    for idc, exc in exceso_ley_1393.items():
+        if idc in ibc_map and exc > 0:
+            ibc_map[idc]["salud_pension"] += exc
+            ibc_map[idc]["arl"] += exc
+            # CCF/SENA/ICBF: NO se agrega el exceso (Ley 1393 solo aplica a salud, pensión, ARL)
+
     # 3.1) IBC del mes anterior (para novedades VAC, IGE, IRL, LMA)
     ibc_map_anterior = _get_ibc_mes_anterior(
         empresa_id=empresa_id_interno,
@@ -91,6 +105,18 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         ano=ano,
         ids_contrato=ids_contrato
     )
+    # Aplicar exceso Ley 1393 al mes anterior (para líneas de novedad)
+    exceso_anterior = _get_exceso_ley_1393_mes_anterior(
+        empresa_id=empresa_id_interno,
+        mesacumular=mesacumular,
+        ano=ano,
+        ids_contrato=ids_contrato,
+        ibc_map_anterior=ibc_map_anterior,
+    )
+    for idc, exc in exceso_anterior.items():
+        if idc in ibc_map_anterior and exc > 0:
+            ibc_map_anterior[idc]["salud_pension"] += exc
+            ibc_map_anterior[idc]["arl"] += exc
 
     # 4) Armar empleados reales con múltiples registros si tienen novedades
     empleados = []
@@ -183,7 +209,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
                 "arl": str(row["tarifa_arl"]) if row["tarifa_arl"] else None
             },
             "actividad_economica_arl": row.get("actividad_economica_arl") or "",
-            
+            "exceso_ley_1393": int(exceso_ley_1393.get(idcontrato, Decimal("0"))),
             "registros": registros  # Array de registros (líneas tipo 02)
         }
 
@@ -411,6 +437,87 @@ def _get_ibc_por_contrato_mes(
             "caja": Decimal(str(ibc_caja or 0)),
         }
     return out
+
+
+def _get_exceso_ley_1393_por_contrato(
+    empresa_id: int,
+    mesacumular: str,
+    ano: int,
+    ids_contrato: list[int],
+    ibc_map: dict[int, dict],
+) -> dict[int, Decimal]:
+    """
+    Ley 1393 art. 30: si IBC < 60% del total ingresos, hay exceso.
+    exceso_ley_1393 = max(0, 0.6 * total_ingresos - IBC).
+    Se suma al IBC de salud, pensión y ARL (NO a SENA, ICBF, CCF).
+    Salario integral: no aplica (se excluye).
+    """
+    out = {c: Decimal("0") for c in ids_contrato}
+    sql = """
+    SELECT
+      n.idcontrato_id,
+      COALESCE(SUM(CASE WHEN cd.tipoconcepto = 1 AND COALESCE(n.valor,0) > 0
+                   THEN n.valor ELSE 0 END), 0) AS total_ingresos
+    FROM public.nomina n
+    JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
+    JOIN public.anos a ON a.idano = cn.anoacumular_id
+    JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
+    WHERE cn.id_empresa_id = %s
+      AND cd.id_empresa_id = %s
+      AND cn.mesacumular = %s
+      AND a.ano = %s
+      AND cn.estadonomina = FALSE
+      AND n.estadonomina = 2
+      AND n.idcontrato_id = ANY(%s)
+    GROUP BY n.idcontrato_id;
+    """
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [empresa_id, empresa_id, mesacumular, ano, ids_contrato])
+            for idc, total_ing in cursor.fetchall():
+                if idc not in ibc_map:
+                    continue
+                ibc_sp = ibc_map[int(idc)]["salud_pension"]
+                total_ing = Decimal(str(total_ing or 0))
+                ibc_min = total_ing * Decimal("0.6")
+                if ibc_sp < ibc_min:
+                    exc = (ibc_min - ibc_sp).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+                    out[int(idc)] = exc
+
+        # Excluir salario integral
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT idcontrato FROM public.contratos WHERE tiposalario_id = 2 AND idcontrato = ANY(%s)",
+                [ids_contrato],
+            )
+            for (idc,) in cursor.fetchall():
+                out[int(idc)] = Decimal("0")
+    except Exception:
+        pass
+    return out
+
+
+def _get_exceso_ley_1393_mes_anterior(
+    empresa_id: int,
+    mesacumular: str,
+    ano: int,
+    ids_contrato: list[int],
+    ibc_map_anterior: dict[int, dict],
+) -> dict[int, Decimal]:
+    """Exceso Ley 1393 para el mes anterior (para líneas de novedad VAC, IGE, etc.)."""
+    mes_num = _MESES[mesacumular.upper().strip()]
+    if mes_num == 1:
+        mes_anterior_num, ano_anterior = 12, ano - 1
+    else:
+        mes_anterior_num, ano_anterior = mes_num - 1, ano
+    mesacumular_anterior = _MESES_INV.get(mes_anterior_num)
+    return _get_exceso_ley_1393_por_contrato(
+        empresa_id=empresa_id,
+        mesacumular=mesacumular_anterior,
+        ano=ano_anterior,
+        ids_contrato=ids_contrato,
+        ibc_map=ibc_map_anterior,
+    )
 
 
 def _get_ibc_mes_anterior(
@@ -753,11 +860,16 @@ def _generar_registros_empleado(
     registros = []
     dias_usados = 0
     
-    # 1. Líneas de vacaciones, SLN y SUSP (con IBC mes anterior)
+    # 1. Líneas de vacaciones, SLN y SUSP
+    # Regla IBC por subsistema:
+    # - Salud, pensión, ARL: IBC mes anterior (último salario reportado antes de la novedad)
+    # - CCF (parafiscales): VAC = IBC mes actual proporcional por días; SLN/SUSP = 0 (sin pago)
     for nov_vac in novedades_vac:
         cod = nov_vac["codigo"]
         if cod == "VAC":
             dias_vac = nov_vac["dias"]
+            # CCF: IBC mes ACTUAL proporcional (valor pagado por esos días)
+            ibc_ccf_vac = int((ibc_actual["caja"] * Decimal(dias_vac) / Decimal(30)).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
             registros.append({
                 "tipo_linea": "VAC",
                 "dias": {
@@ -770,13 +882,14 @@ def _generar_registros_empleado(
                     "salud": str(ibc_anterior["salud_pension"]),
                     "pension": str(ibc_anterior["salud_pension"]),
                     "arl": str(ibc_anterior["arl"]),
-                    "parafiscales": str(ibc_anterior["caja"]),
+                    "parafiscales": str(ibc_ccf_vac),
                 },
                 "novedades": [nov_vac],
             })
             dias_usados += dias_vac
         elif cod in ("SLN", "SUSP"):
             dias_nov = nov_vac["dias"]
+            # CCF: IBC = 0 (sin pago remunerado, sin base para caja)
             registros.append({
                 "tipo_linea": cod,
                 "dias": {
@@ -789,7 +902,7 @@ def _generar_registros_empleado(
                     "salud": str(ibc_anterior["salud_pension"]),
                     "pension": str(ibc_anterior["salud_pension"]),
                     "arl": str(ibc_anterior["arl"]),
-                    "parafiscales": str(ibc_anterior["caja"]),
+                    "parafiscales": "0",
                 },
                 "novedades": [nov_vac],
             })

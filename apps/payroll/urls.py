@@ -88,6 +88,7 @@ urlpatterns = [
     path('pila/planilla/<int:planilla_id>/txt/', liquidacion_pila.descargar_pila_txt, name='pila_descargar_txt'),
     path('pila/planilla/<int:planilla_id>/vista-txt/', liquidacion_pila.vista_plano_pila, name='pila_vista_txt'),
     path('pila/planilla/<int:planilla_id>/excel/', liquidacion_pila.descargar_pila_excel, name='pila_descargar_excel'),
+    path('pila/planilla/<int:planilla_id>/json/', liquidacion_pila.descargar_pila_json, name='pila_descargar_json'),
 
     path('history/salary', history.history_salary, name='history_salary'),
 
