@@ -190,15 +190,12 @@ def fixed_modal_edit(request,id):
         if form.is_valid():
             
             # Aquí obtienes los datos del formulario limpio
-            descrip = form.cleaned_data['descrip']
-            estado = form.cleaned_data['estado']
-            fecha = form.cleaned_data['fecha']
-
-
-            novfija.estado_novfija = estado
-            novfija.descripcion = descrip
-            novfija.fechafinnovedad = fecha
-            novfija.save()
+            NovFijos.objects.filter(pk=novfija.pk).update(
+                estado_novfija=form.cleaned_data['estado'],
+                descripcion=form.cleaned_data['descrip'],
+                fechafinnovedad=form.cleaned_data['fecha'],
+                valor=form.cleaned_data['valor'],
+            )
 
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal

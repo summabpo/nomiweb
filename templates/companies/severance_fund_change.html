@@ -31,7 +31,7 @@
 {% endblock %}
 
 {% block titulo2 %} 
-    Cambio de FPS
+    Cambio de FDC
 {% endblock %}
 
 {% block actions %}
@@ -47,7 +47,7 @@
     up-dismissable ="false"
     up-cache="false"
     href="{% url 'companies:severance_fund_change_add' %}">
-    <i class="fa-solid fa-plus"></i> Cambio de FPS
+    <i class="fa-solid fa-plus"></i> Cambio de FDC
 </a> 
 
 {% endblock %}
@@ -69,8 +69,8 @@
                     <th>Idcontrato</th>
                     <th>Documento</th>
                     <th>Nombre</th>
-                    <th>Cargo Anterior</th>
-                    <th>Cargo Actual</th>
+                    <th>Fondo Anterior</th>
+                    <th>Fondo Actual</th>
                     <th>Fecha de Cambio</th>
                     <th>Usuario</th>
                 </tr>
@@ -81,8 +81,8 @@
                         <td>{{ cargo.contrato_id }}</td>
                         <td>{{ cargo.documento }}</td>
                         <td>{{ cargo.nombre }}</td>
-                        <td>{{ cargo.cargo_anterior }}</td>
-                        <td>{{ cargo.cargo_actual }}</td>
+                        <td>{{ cargo.fondo_anterior }}</td>
+                        <td>{{ cargo.fondo_actual }}</td>
                         <td>{{ cargo.fecha_cambio|date:"d/m/Y H:i" }}</td>
                         <td>{{ cargo.user }} </td>
                     </tr>
@@ -153,17 +153,17 @@ document.addEventListener('up:fragment:inserted', function(event) {
     const form = modalContent.querySelector('form');
     const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
     const contractSelect = modalContent.querySelector('#id_contract');
-    const positionOldSelect = modalContent.querySelector('#id_position_oll');
+    const positionOldSelect = modalContent.querySelector('#id_fps_oll');
 
     if (!form || !positionOldSelect) return;
 
     // 🔹 Crear hidden para enviar el valor cuando esté disabled
-    let hiddenOldInput = modalContent.querySelector('#hidden_position_oll');
+    let hiddenOldInput = modalContent.querySelector('#hidden_fps_oll');
     if (!hiddenOldInput) {
         hiddenOldInput = document.createElement('input');
         hiddenOldInput.type = 'hidden';
-        hiddenOldInput.name = 'position_oll';
-        hiddenOldInput.id = 'hidden_position_oll';
+        hiddenOldInput.name = 'fps_oll';
+        hiddenOldInput.id = 'hidden_fps_oll';
         form.appendChild(hiddenOldInput);
     }
 

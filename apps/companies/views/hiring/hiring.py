@@ -278,6 +278,7 @@ def hiring_contract(request,idempleado):
                     codeps = eps, 
                     codafp = pen ,
                     codccf = cjc ,
+                    fondocesantias = cjc ,
                     auxiliotransporte = form_contratos.cleaned_data['livingPlace'],
                     dependientes = 0,
                     valordeduciblemedicina = 0,#manualmente 

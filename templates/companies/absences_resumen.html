@@ -260,10 +260,17 @@ Listado de ausencias
 
 
             if (date) { // Verificamos que el elemento exista antes de inicializar daterangepicker
+                let startDate = moment();
+                // Si el input ya tiene valor (modo edit)
+                if (date.value) {
+                    startDate = moment(date.value, 'YYYY-MM-DD');
+                }
+                
                 $(date).daterangepicker({
                     singleDatePicker: true,
                     showDropdowns: true,
                     minYear: 2000,
+                    startDate: startDate, 
                     maxYear: parseInt(moment().format("YYYY"), 12),
                     endDate: moment(),
                     maxDate: moment().add(10, 'days'),  // Fecha máxima sigue siendo 10 días después

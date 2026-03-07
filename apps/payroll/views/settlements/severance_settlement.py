@@ -12,8 +12,8 @@ from datetime import datetime , date
 from .liquidacion_utils import *
 from django.db.models import Q
 from django.utils import timezone
-from datetime import date
-
+from decimal import Decimal
+from apps.components.settlement_calculate import settlement_calculate_data
 
 MES_CHOICES = [
     ('', '--------------'),
@@ -32,14 +32,16 @@ MES_CHOICES = [
 ]
 
 
-@login_required
-@role_required('accountant')
+# @login_required
+# @role_required('accountant')
 def settlement_list(request):
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     settlements = Liquidacion.objects.filter(idcontrato__id_empresa = idempresa 
             ).order_by('-idliquidacion'
             ).values(   
+                'idliquidacion',
                 'idcontrato__idcontrato',
                 'idcontrato__idempleado__docidentidad',
                 'idcontrato__idempleado__papellido',
@@ -48,15 +50,14 @@ def settlement_list(request):
                 'idcontrato__idempleado__snombre',
                 'diastrabajados',
                 'idcontrato__fechainiciocontrato',
-                'idliquidacion',
                 'fechafincontrato',
                 'cesantias',
                 'intereses',
                 'prima',
                 'vacaciones',
                 'totalliq',
-                
-                
+                'estadoliquidacion',
+
                 )
 
 
@@ -217,112 +218,50 @@ def settlement_create(request):
             contract_id = request.POST.get('contract')
             end_date_str = request.POST.get('end_date')
             reason = request.POST.get('reason_for_termination')
-            if not (contract_id and end_date_str and reason):
-                return JsonResponse({'error': 'Datos incompletos'}, status=400)
+            contrato = Contratos.objects.get(idcontrato=contract_id)
+            data = settlement_calculate_data(contract_id,end_date_str,reason)
 
-            try:
-                contrato = Contratos.objects.get(idcontrato=contract_id)
-                fecha_inicio = contrato.fechainiciocontrato
-                fecha_fin = datetime.strptime(end_date_str, '%d-%m-%Y').date()
-            except Contratos.DoesNotExist:
-                return JsonResponse({'error': 'Contrato no encontrado'}, status=404)
-            except ValueError:
-                return JsonResponse({'error': 'Formato de fecha inválido'}, status=400)
-
-            if fecha_fin < fecha_inicio:
-                return JsonResponse({'error': 'La fecha final debe ser posterior al inicio del contrato'}, status=400)
-
-            # Datos base
-            salario = contrato.salario
-            salario_min_obj = Salariominimoanual.objects.filter(ano=fecha_fin.year).first()
-            if not salario_min_obj:
-                return JsonResponse({'error': 'No hay salario mínimo definido para ese año'}, status=400)
-
-            salario_minimo = salario_min_obj.salariominimo
-            aux_transporte = 0 if salario > (2 * salario_minimo) else salario_min_obj.auxtransporte
-
-            dias_trabajados = dias_360(fecha_inicio, fecha_fin)
-            fecha_cesantias = obtener_fecha_cesantias(fecha_inicio, fecha_fin)
-            dias_cesantias = dias_360_2(fecha_cesantias, fecha_fin)
-
-            fecha_prima = obtener_fecha_prima(fecha_inicio, fecha_fin)
-            dias_prima = dias_360_2(fecha_prima, fecha_fin)
-
-            # Conceptos
-            extras_y_comisiones_qs = Conceptosdenomina.objects.filter(Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones') ,id_empresa = idempresa)
-            suspensiones_qs = Conceptosdenomina.objects.filter( indicador__nombre = 'suspcontrato',id_empresa = idempresa)
-            recargos_qs = Conceptosdenomina.objects.filter(codigo=3 ,id_empresa = idempresa )
-
-            # Acumulados
-            acum_cesantias = acumular_por_mes(Nomina, extras_y_comisiones_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
-            acum_prima = acumular_por_mes(Nomina, extras_y_comisiones_qs, contrato.idcontrato, fecha_fin.year, fecha_prima.month, fecha_fin.month)
-            acum_susp = acumular_por_mes(Nomina, suspensiones_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month, campo='cantidad')
-            acum_recargos = acumular_por_mes(Nomina, recargos_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
-
-            # Días efectivos
-            dias_efectivos_cesantias = dias_cesantias - acum_susp
-            dias_efectivos_prima = dias_prima - acum_susp
-
-            # Bases
-            base_cesantias = calcular_base_promedio(acum_cesantias, dias_efectivos_cesantias, salario, aux_transporte)
-            base_prima = calcular_base_promedio(acum_prima, dias_efectivos_prima, salario, aux_transporte)
-            base_vacaciones = calcular_base_vacaciones(acum_recargos, dias_cesantias, salario)
-
-            # Vacaciones
-            dias_susp_vac = Nomina.objects.filter(
-                idcontrato=contrato.idcontrato,
-                estadonomina=2,
-                idconcepto__id_empresa = idempresa,
-                idconcepto__indicador__nombre='suspcontrato'
-            ).aggregate(total=Sum('cantidad'))['total'] or 0
-
-            dias_vac_generados = (dias_trabajados - dias_susp_vac) * 15 / 360
-            
-            dias_vac_tomados = Vacaciones.objects.filter(idcontrato=contrato.idcontrato).aggregate(total=Sum('diasvac'))['total'] or 0
-            dias_vacaciones = round(dias_vac_generados - (dias_vac_tomados or 0), 2)
-
-            
-            
-            # Componentes de liquidación
-            prima = calcular_prima(dias_prima, base_prima)
-            cesantias = calcular_cesantias(dias_efectivos_cesantias, base_cesantias)
-            vacaciones = calcular_vacaciones(dias_vacaciones, base_vacaciones)
-            intereses = calcular_intereses_cesantias(dias_cesantias, cesantias)
-            indemnizacion = calcular_indemnizacion(salario, dias_trabajados, reason)
-
-            total_liquidacion = prima + cesantias + vacaciones + intereses + indemnizacion
-            
-            liquidacion = Liquidacion.objects.create(
-                diastrabajados = dias_trabajados ,
-                cesantias = cesantias,
-                prima = prima,
-                vacaciones = vacaciones,
-                intereses = intereses,
-                totalliq = total_liquidacion,
-                diascesantias = dias_cesantias,
-                diasprimas = dias_prima,
-                diasvacaciones = dias_vacaciones,
-                baseprima = base_prima,
-                basecesantias = base_cesantias,
-                basevacaciones = base_vacaciones,
-                idcontrato = contrato ,  #fk principal 
-                fechainiciocontrato = fecha_inicio,
-                fechafincontrato = fecha_fin,
-                salario = salario,
-                motivoretiro = reason,
-                estadoliquidacion = '1',
-                diassusp = dias_susp_vac,
-                indemnizacion = indemnizacion,
-                diassuspv = dias_susp_vac,
+            liquidacion, created = Liquidacion.objects.get_or_create(
+                idcontrato=contrato,
+                defaults={
+                    'diastrabajados': data['dias_trabajados'],
+                    'cesantias': data['cesantias'],
+                    'prima': data['prima'],
+                    'vacaciones': data['vacaciones'],
+                    'intereses': data['intereses'],
+                    'totalliq': data['total_liquidacion'],
+                    'diascesantias': data['dias_cesantias'],
+                    'diasprimas': data['dias_prima'],
+                    'diasvacaciones': data['dias_vacaciones'],
+                    'baseprima': data['base_prima'],
+                    'basecesantias': data['base_cesantias'],
+                    'basevacaciones': data['base_vacaciones'],
+                    'fechainiciocontrato': data['inicio_contrato'],
+                    'fechafincontrato': data['fin_contrato'],
+                    'salario': data['salario'],
+                    'motivoretiro': reason,
+                    'estadoliquidacion': '1',
+                    'diassusp': data['dias_susp_vac'],
+                    'indemnizacion': data['indemnizacion'],
+                    'diassuspv': data['dias_susp_vac'],
+                }
             )
 
-            contrato = Contratos.objects.get(idcontrato=contract_id)
-            contrato.fechafincontrato = datetime.strptime(end_date_str, '%d-%m-%Y').date()
+            if not created:
+                response = HttpResponse()
+                response['X-Up-Accept-Layer'] = 'true'  
+                response['X-Up-icon'] = 'info'   
+                response['X-Up-message'] = 'La liquidación ya existía y fue actualizada con la información reciente.'    
+                response['X-Up-Location'] = reverse('payroll:settlement_list')           
+                return response
+            
+
+            contrato.fechafincontrato = datetime.strptime(end_date_str, '%Y-%m-%d').date()
             contrato.save()
             
             response = HttpResponse()
-            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
-            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-Accept-Layer'] = 'true'  
+            response['X-Up-icon'] = 'success' 
             response['X-Up-message'] = 'Liquidacion guardada exitosamente'    
             response['X-Up-Location'] = reverse('payroll:settlement_list')           
             return response
@@ -334,111 +273,12 @@ def settlement_create(request):
 @require_POST
 def settlement_calculate(request):
     
-    usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
-    
-    
     contract_id = request.POST.get('contract')
     end_date_str = request.POST.get('end_date')
     reason = request.POST.get('reason_for_termination')
 
-    if not (contract_id and end_date_str and reason):
-        return JsonResponse({'error': 'Datos incompletos'}, status=400)
+    data = settlement_calculate_data(contract_id,end_date_str,reason)
 
-    try:
-        contrato = Contratos.objects.get(idcontrato=contract_id)
-        fecha_inicio = contrato.fechainiciocontrato
-        fecha_fin = datetime.strptime(end_date_str, '%d-%m-%Y').date()
-    except Contratos.DoesNotExist:
-        return JsonResponse({'error': 'Contrato no encontrado'}, status=404)
-    except ValueError:
-        return JsonResponse({'error': 'Formato de fecha inválido'}, status=400)
-
-    if fecha_fin < fecha_inicio:
-        return JsonResponse({'error': 'La fecha final debe ser posterior al inicio del contrato'}, status=400)
-
-    # Datos base
-    salario = contrato.salario
-    salario_min_obj = Salariominimoanual.objects.filter(ano=fecha_fin.year).first()
-    if not salario_min_obj:
-        return JsonResponse({'error': 'No hay salario mínimo definido para ese año'}, status=400)
-        
-    dias_susp_vac = Nomina.objects.filter(
-        idcontrato=contrato.idcontrato,
-        estadonomina=2,
-        idconcepto__id_empresa = idempresa,
-        idconcepto__indicador__nombre='suspcontrato'
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
-    
-    
-    
-    salario_minimo = salario_min_obj.salariominimo
-    aux_transporte = 0 if salario > (2 * salario_minimo) else salario_min_obj.auxtransporte
-
-    dias_trabajados = dias_360(fecha_inicio, fecha_fin)
-    fecha_cesantias = obtener_fecha_cesantias(fecha_inicio, fecha_fin)
-    dias_cesantias = dias_360_2(fecha_cesantias, fecha_fin) + 1
-
-    fecha_prima = obtener_fecha_prima(fecha_inicio, fecha_fin)
-    dias_prima = dias_360_2(fecha_prima, fecha_fin) + 1 
-
-    # Conceptos
-    extras_y_comisiones_qs = Conceptosdenomina.objects.filter(Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones') ,id_empresa = idempresa)
-    suspensiones_qs = Conceptosdenomina.objects.filter( indicador__nombre = 'suspcontrato',id_empresa = idempresa)
-    recargos_qs = Conceptosdenomina.objects.filter(codigo=3 ,id_empresa = idempresa )
-
-    # Acumulados
-    acum_cesantias = acumular_por_mes(Nomina, extras_y_comisiones_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
-    acum_prima = acumular_por_mes(Nomina, extras_y_comisiones_qs, contrato.idcontrato, fecha_fin.year, fecha_prima.month, fecha_fin.month)
-    acum_susp = acumular_por_mes(Nomina, suspensiones_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month, campo='cantidad')
-    acum_recargos = acumular_por_mes(Nomina, recargos_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
-
-    # Días efectivos
-    dias_efectivos_cesantias = dias_cesantias - dias_susp_vac
-    
-    
-    dias_efectivos_prima = dias_prima - dias_susp_vac + 1 
-
-    # Bases
-    base_cesantias = calcular_base_promedio(acum_cesantias, dias_efectivos_cesantias, salario, aux_transporte)
-    base_prima = calcular_base_promedio(acum_prima, dias_efectivos_prima, salario, aux_transporte)
-    base_vacaciones = calcular_base_vacaciones(acum_recargos, dias_cesantias, salario)
-
-    # Vacaciones
-    
-
-    dias_vac_generados = (dias_trabajados - dias_susp_vac) * 15 / 360
-    dias_vac_tomados = Vacaciones.objects.filter(idcontrato=contrato.idcontrato).aggregate(total=Sum('diasvac'))['total'] or 0
-    dias_vacaciones = round(dias_vac_generados - (dias_vac_tomados or 0), 2)
-
-    # Componentes de liquidación
-    prima = calcular_prima(dias_prima, base_prima)
-    cesantias = calcular_cesantias(dias_efectivos_cesantias, base_cesantias)
-    vacaciones = calcular_vacaciones(dias_vacaciones, base_vacaciones)
-    intereses = calcular_intereses_cesantias(dias_cesantias + acum_susp, cesantias)
-    indemnizacion = calcular_indemnizacion(salario, dias_trabajados, reason)
-
-    total_liquidacion = prima + cesantias + vacaciones + intereses + indemnizacion
-    
-    return JsonResponse({
-        'dias_trabajados': safe_value(dias_trabajados),
-        'dias_prima': safe_value(dias_prima),
-        'dias_cesantias': safe_value(dias_cesantias),
-        'dias_vacaciones': safe_value(dias_vacaciones),
-        'salario': safe_value(salario),
-        'aux_transporte': safe_value(aux_transporte),
-        'base_prima': safe_value(base_prima),
-        'base_cesantias': safe_value(base_cesantias),
-        'base_vacaciones': safe_value(base_vacaciones),
-        'prima': safe_value(prima),
-        'cesantias': safe_value(cesantias),
-        'vacaciones': safe_value(vacaciones),
-        'intereses': safe_value(intereses),
-        'indemnizacion': safe_value(indemnizacion),
-        'total_liquidacion': safe_value(total_liquidacion),
-        'inicio_contrato': fecha_inicio or "",  # Aquí podrías usar "" si prefieres string vacío para fechas
-        'fin_contrato': fecha_fin or "",
-        'dias_susp_vac':dias_susp_vac,
-    })
+    return JsonResponse(data)
 
 

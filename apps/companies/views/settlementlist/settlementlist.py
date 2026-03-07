@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from apps.common.models  import Liquidacion
+from apps.common.models  import Liquidacion , Contratos 
 from io import BytesIO
 from xhtml2pdf import pisa
 from django.http import HttpResponse
@@ -18,7 +18,7 @@ from io import BytesIO
 from django.urls import reverse
 from apps.companies.forms.SettlementlistForm import SettlementlistForm
 from apps.payroll.forms.SettlementForm import SettlementForm
-
+from apps.components.settlement_calculate import settlement_calculate_data
 
 @login_required
 @role_required('company','accountant')
@@ -278,12 +278,16 @@ def settlementlistdownload(request,idliqui):
 @role_required('company','accountant')
 def settlementliststate(request,id):
 
-
     if request.method == "POST":
         nuevo_estado = request.POST.get("nuevo_estado")
         liquidacion = Liquidacion.objects.get(idliquidacion=id)
         liquidacion.estadoliquidacion = nuevo_estado
         liquidacion.save()
+
+        contrato = liquidacion.idcontrato
+        contrato.estadoliquidacion = 2
+        contrato.save()
+        
         response = HttpResponse()
         response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
         response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
@@ -312,12 +316,51 @@ def settlementlistedit(request, id):
 
     # Prepara datos iniciales para el formulario
     initial_data = {
-        'end_date': liquidacion.fechafincontrato.strftime('%d-%m-%Y') if liquidacion.fechafincontrato else '',
+        'end_date': liquidacion.fechafincontrato.strftime('%Y-%m-%d') if liquidacion.fechafincontrato else '',
         'reason_for_termination': liquidacion.motivoretiro,
         'contract': liquidacion.idcontrato_id,  # acceso directo al id
     }
 
     form = SettlementForm(idempresa=idempresa, initial=initial_data,recibida="edit")
+    if request.method == 'POST':
+        form = SettlementForm(request.POST , idempresa=idempresa,recibida="edit")
+        if form.is_valid():
+            liquidacion = Liquidacion.objects.get(idliquidacion=id)
+            contract_id = liquidacion.idcontrato_id
+            end_date_str = request.POST.get('end_date')
+            reason = request.POST.get('reason_for_termination')
+            data = settlement_calculate_data(contract_id,end_date_str,reason)
+
+            # actualizar campos
+            liquidacion.diastrabajados = data['dias_trabajados']
+            liquidacion.cesantias = data['cesantias']
+            liquidacion.prima = data['prima']
+            liquidacion.vacaciones = data['vacaciones']
+            liquidacion.intereses = data['intereses']
+            liquidacion.totalliq = data['total_liquidacion']
+            liquidacion.diascesantias = data['dias_cesantias']
+            liquidacion.diasprimas = data['dias_prima']
+            liquidacion.diasvacaciones = data['dias_vacaciones']
+            liquidacion.baseprima = data['base_prima']
+            liquidacion.basecesantias = data['base_cesantias']
+            liquidacion.basevacaciones = data['base_vacaciones']
+            liquidacion.fechainiciocontrato = data['inicio_contrato']
+            liquidacion.fechafincontrato = data['fin_contrato']
+            liquidacion.salario = data['salario']
+            liquidacion.motivoretiro = reason
+            liquidacion.estadoliquidacion = '1'
+            liquidacion.diassusp = data['dias_susp_vac']
+            liquidacion.diassuspv = data['dias_susp_vac']
+            liquidacion.indemnizacion = data['indemnizacion']
+
+            liquidacion.save()
+
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'Liquidacion Actualizada exitosamente'    
+            response['X-Up-Location'] = reverse('payroll:settlement_list')           
+            return response
 
     context = {
         'id': id,
@@ -325,30 +368,4 @@ def settlementlistedit(request, id):
     }
     return render(request, 'companies/partials/edit_liquidacion.html', context)
 
-# @login_required
-# @role_required('company','accountant')
-# def settlementlistdownload2(request,idliqui):
 
-#     usuario = request.session.get('usuario', {})
-#     idempresa = usuario['idempresa']
-    
-#     context = settlementgenerator(idliqui,idempresa)
-
-#     html_string = render(request, './html/liquidacion.html', context).content.decode('utf-8')
-    
-#     fecha_actual = datetime.now().strftime('%Y-%m-%d')
-    
-#     pdf = BytesIO()
-#     pisa_status = pisa.CreatePDF(html_string, dest=pdf)
-#     pdf.seek(0)
-
-#     if pisa_status.err:
-#         return HttpResponse('Error al generar el PDF', status=400)
-    
-#     nombre_archivo = f'Certificado_{context["cc"]}_{fecha_actual}.pdf'
-
-#     response = HttpResponse(pdf, content_type='application/pdf')
-#     response['Content-Disposition'] = f'inline; filename="{nombre_archivo}"'
-    
-#     return response
-    

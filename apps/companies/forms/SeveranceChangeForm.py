@@ -3,25 +3,25 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from django.core.exceptions import ValidationError
 from datetime import timedelta , datetime
-from apps.common.models  import Contratos,Cargos
+from apps.common.models  import Contratos,Entidadessegsocial
 from django.urls import reverse
 import os
 from django.core.cache import cache
 from django.db import models
 from dateutil.relativedelta import relativedelta
 
-class JobChangeForm(forms.Form):
+class SeveranceChangeForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
 
-        position_old = cleaned_data.get('position_oll')
-        position_new = cleaned_data.get('position_new')
+        fps_old = cleaned_data.get('fps_oll')
+        fps_new = cleaned_data.get('fps_new')
 
         # Validar que ambos estén seleccionados
-        if position_old and position_new:
-            if position_old == position_new:
+        if fps_old and fps_new:
+            if fps_old == fps_new:
                 raise ValidationError({
-                    'position_new': 'El cargo nuevo no puede ser igual al cargo actual.'
+                    'fps_new': 'El Fps nuevo no puede ser igual al Fps actual.'
                 })
 
         return cleaned_data
@@ -52,35 +52,35 @@ class JobChangeForm(forms.Form):
         )
         
         
-        self.fields['position_oll'] = forms.ChoiceField(
+        self.fields['fps_oll'] = forms.ChoiceField(
             choices=[('', '----------')] + [
-                (item['idcargo'], f"{item['nombrecargo']}")
-                for item in Cargos.objects.filter(id_empresa = idempresa )
-                .order_by('nombrecargo') 
-                .values('nombrecargo','idcargo')
+                (item['identidad'], f"{item['entidad']}")
+                for item in Entidadessegsocial.objects.filter(tipoentidad = 'AFP' )
+                .order_by('entidad') 
+                .values('entidad','identidad')
             ],
             required=False,
-            label="Cargo actual" , 
+            label="Fondo Actual" , 
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-placeholder': 'Cargo Anterior',
+                'data-placeholder': 'Fondo Actual',
                 'class': 'form-select'
                 
             })
         )
         
         
-        self.fields['position_new'] = forms.ChoiceField(
+        self.fields['fps_new'] = forms.ChoiceField(
             choices=[('', '----------')] + [
-                (item['idcargo'], f"{item['nombrecargo']}")
-                for item in Cargos.objects.filter(id_empresa = idempresa )
-                .order_by('nombrecargo') 
-                .values('nombrecargo','idcargo')
+                (item['identidad'], f"{item['entidad']}")
+                for item in Entidadessegsocial.objects.filter(tipoentidad = 'AFP' )
+                .order_by('entidad') 
+                .values('entidad','identidad')
             ],
-            label="Cargo Nuevo" , 
+            label="Fondo Nuevo" , 
             widget=forms.Select(attrs={
                 'data-control': 'select2',
-                'data-placeholder': 'Seleccione un nuevo Cargo',
+                'data-placeholder': 'Seleccione un nueva Fondo',
                 'class': 'form-select'
                 
             })
@@ -89,7 +89,7 @@ class JobChangeForm(forms.Form):
         
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.form_id = 'form_job'
+        self.helper.form_id = 'form_severance'
         self.helper.enctype = 'multipart/form-data'
         
         
@@ -97,8 +97,8 @@ class JobChangeForm(forms.Form):
             'up-target': '#modal-content',
             'up-mode': 'replace',
             'up-layer': 'current',  # Clave para resolver el error
-            'up-submit': reverse('companies:job_change_add'),
-            'up-accept-location': reverse('companies:job_change_add'),
+            'up-submit': reverse('companies:severance_fund_change_add'),
+            'up-accept-location': reverse('companies:severance_fund_change_add'),
             'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
         })
     
@@ -111,11 +111,11 @@ class JobChangeForm(forms.Form):
                 css_class='row'
             ),
             Row(
-                Column('position_oll', css_class=' form-group col-md-12 mb-3'),
+                Column('fps_oll', css_class=' form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             Row(
-                Column('position_new', css_class=' form-group col-md-12 mb-3'),
+                Column('fps_new', css_class=' form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             
@@ -123,6 +123,4 @@ class JobChangeForm(forms.Form):
         )
     
     
-
-
 

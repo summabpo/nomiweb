@@ -65,6 +65,7 @@ Liquidacion Empleados
     <table id='tabla-settlement' class="table table-striped table-bordered">
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Contrato</th>
                 <th>Documento</th>
                 <th>Empleado</th>
@@ -90,6 +91,7 @@ Liquidacion Empleados
         <tbody>
             {% for item in settlements %}
                 <tr>
+                    <td>{{ item.idliquidacion }}</td>
                     <td>{{ item.idcontrato__idcontrato }}</td>
                     <td>{{ item.idcontrato__idempleado__docidentidad}}</td>
                     <td>{{ item.idcontrato__idempleado__papellido|none_to_empty }} {{ item.idcontrato__idempleado__sapellido|none_to_empty }} {{ item.idcontrato__idempleado__pnombre|none_to_empty }} {{ item.idcontrato__idempleado__snombre|none_to_empty }}</td>
@@ -348,16 +350,22 @@ document.addEventListener('up:fragment:inserted', function(event) {
         // === Inicializar DateRangePicker ===
         const fechaInput = modalContent.querySelector('#kt_daterangepicker_2');
         if (fechaInput) {
-            // Si ya existe un valor (p.e. inicial), lo mantenemos; el widget lo mostrará.
+
+            let startDate = moment();
+            // Si el input ya tiene valor (modo edit)
+            if (fechaInput.value) {
+                startDate = moment(fechaInput.value, 'YYYY-MM-DD');
+            }
+
             $(fechaInput).daterangepicker({
                 singleDatePicker: true,
                 showDropdowns: true,
-                minYear: 2018,
-                maxYear: parseInt(moment().format("YYYY"), 10),
-                minDate: '01/01/2020',
+                minYear: 2000,
+                maxYear: parseInt(moment().format("YYYY"), 12),
+                startDate: startDate,   // ← usar fecha existente
                 autoApply: true,
                 locale: {
-                    format: 'DD-MM-YYYY',
+                    format: 'YYYY-MM-DD',
                     applyLabel: 'Aplicar',
                     cancelLabel: 'Cancelar',
                     daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
@@ -365,13 +373,24 @@ document.addEventListener('up:fragment:inserted', function(event) {
                         'Enero','Febrero','Marzo','Abril','Mayo','Junio',
                         'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
                     ]
-                }
-            }).off('apply.autocalc').on('apply.autocalc', function(ev, picker) {
-                $(this).val(picker.startDate.format('DD-MM-YYYY')).trigger('change');
-            });
+                },
+            })
+             // cuando el usuario selecciona fecha
+                .on('apply.daterangepicker', function(ev, picker) {
 
-            // Aseguramos que cambios manuales también disparen cálculo
-            fechaInput.addEventListener('change', triggerCalculation);
+                    const value = picker.startDate.format('YYYY-MM-DD');
+
+                    $(this).val(value);
+
+                    triggerCalculation(); // ← aquí llamamos directamente
+                });
+
+                // si el usuario escribe manualmente
+                fechaInput.addEventListener('change', triggerCalculation);
+
+                setTimeout(() => {
+                    $('.daterangepicker').css('z-index', 9999);
+                }, 10);
         }
 
         // === Campos ===
@@ -443,7 +462,13 @@ document.addEventListener('up:fragment:inserted', function(event) {
                     if (input) input.value = value ?? '';
                 }
                 function formatMoney(v) {
-                    return v ? parseFloat(v).toLocaleString('es-CO', { style: 'currency', currency: 'COP' }) : '';
+                    if (v === null || v === undefined || v === '') {
+                        return '';
+                    }
+                    return parseFloat(v).toLocaleString('es-CO', { 
+                        style: 'currency', 
+                        currency: 'COP' 
+                    });
                 }
 
                 if (resultsBox) {
@@ -455,6 +480,7 @@ document.addEventListener('up:fragment:inserted', function(event) {
                     setValue('dias_primas', payload.dias_prima);
                     setValue('dias_vacaciones', payload.dias_vacaciones);
                     setValue('dias_susp_vac', payload.dias_susp_vac);
+                    setValue('dias_susp_ces', payload.dias_susp_ces);
 
                     setValue('base_cesantias', formatMoney(payload.base_cesantias));
                     setValue('base_primas', formatMoney(payload.base_prima));

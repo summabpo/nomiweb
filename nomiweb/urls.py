@@ -28,6 +28,6 @@ if settings.DEBUG:
 
 #handler400 = custom_400  # Configura la vista custom_400 para manejar el error 400
 #handler403 = custom_403  # Configura la vista custom_403 para manejar el error 403
-handler404 = 'apps.login.views.custom_404' # Configura la vista custom_404 para manejar el error 404
-handler500 = 'apps.login.views.custom_500'  # Configura la vista custom_500 para manejar el error 500
+# handler404 = 'apps.login.views.custom_404' # Configura la vista custom_404 para manejar el error 404
+# handler500 = 'apps.login.views.custom_500'  # Configura la vista custom_500 para manejar el error 500
 

@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
-from apps.common.models import EditHistory , Contratos , Cargos , User
-from apps.companies.forms.JobChangeForm import JobChangeForm
+from apps.common.models import EditHistory , Contratos , Entidadessegsocial , User
+from apps.companies.forms.SeveranceChangeForm import SeveranceChangeForm
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -18,7 +18,7 @@ def severance_fund_change(request):
     cambios = EditHistory.objects.filter(
         operation_type='update',
         id_empresa_id=idempresa,
-        modified_model='Contratos-FPS'
+        modified_model='Contratos-Fdc'
     ).select_related('user').order_by('-modification_time')
 
 
@@ -26,7 +26,6 @@ def severance_fund_change(request):
 
     for item in cambios:
         try:
-            contrato = Contratos.objects.select_related('idempleado', 'cargo').get(idcontrato=item.modified_object_id)
             contrato = Contratos.objects.select_related('idempleado', 'cargo').get(idcontrato=item.modified_object_id)
 
             empleado = contrato.idempleado
@@ -36,8 +35,8 @@ def severance_fund_change(request):
                 'contrato_id': contrato.idcontrato,
                 'documento': empleado.docidentidad,
                 'nombre': nombre_completo,
-                'cargo_anterior': item.old_value,
-                'cargo_actual': item.new_value,
+                'fondo_anterior': item.old_value,
+                'fondo_actual': item.new_value,
                 'fecha_cambio': item.modification_time,
                 'user': item.user.email,
             })
@@ -58,32 +57,32 @@ def severance_fund_change_add(request):
     idempresa = usuario['idempresa']
     iduser =  usuario['id']
     
-    form = JobChangeForm(idempresa = idempresa)
+    form = SeveranceChangeForm(idempresa = idempresa)
     if request.method == 'POST':
-        form = JobChangeForm(request.POST , idempresa=idempresa )
+        form = SeveranceChangeForm(request.POST , idempresa=idempresa )
         if form.is_valid():
             idcontrato = form.cleaned_data['contract'] 
-            idcargo_oll = Cargos.objects.get(idcargo = form.cleaned_data['position_oll'] )
-            idcargo_new = Cargos.objects.get(idcargo = form.cleaned_data['position_new'] )
+            fps_oll = Entidadessegsocial.objects.get(identidad = form.cleaned_data['fps_oll'] )
+            fps_new = Entidadessegsocial.objects.get(identidad = form.cleaned_data['fps_new'] )
             
             contrato = Contratos.objects.get(idcontrato = idcontrato) 
             # Actualizar contrato
-            contrato.cargo = idcargo_new
+            contrato.cargo = fps_new
             contrato.save()
 
             usuario = User.objects.get(id = iduser)
             
 
             EditHistory.objects.create(
-                modified_model = 'Contratos-Cargos',  
+                modified_model = 'Contratos-Fdc',  
                 modified_object_id = idcontrato, # ID del objeto modificado
                 user = usuario ,  # Usuario que hizo la modificación
                 modification_time = timezone.now(),  # Fecha de la modificación
                 operation_type =  'update' , # Tipo de operación
-                field_name='cargo',
-                old_value=idcargo_oll.nombrecargo,
-                new_value=idcargo_new.nombrecargo,
-                description=f'Se cambió el cargo del contrato #{idcontrato}',
+                field_name='FDC',
+                old_value=fps_oll.entidad,
+                new_value=fps_new.entidad,
+                description=f'Se cambió el FDC del contrato #{idcontrato}',
                 id_empresa_id = idempresa
                 
             )
@@ -93,7 +92,7 @@ def severance_fund_change_add(request):
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
             response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
             response['X-Up-message'] = 'Cambio guardado correctamente'    
-            response['X-Up-Location'] = reverse('companies:job_change')           
+            response['X-Up-Location'] = reverse('companies:severance_fund_change')           
             return response
         
         else:
@@ -102,7 +101,7 @@ def severance_fund_change_add(request):
                 for error in errors:
                     print(request, f"Error en {field}: {error}")  
 
-    return render(request, "./companies/partials/job_change_add.html",{'form':form})
+    return render(request, "./companies/partials/severance_fund_change_add.html",{'form':form})
 
 
 
@@ -112,9 +111,17 @@ def get_fps(request):
 
     try:
         contrato = Contratos.objects.select_related('fondocesantias').get(idcontrato=contract_id)
+        cargo_id= contrato.fondocesantias.identidad if contrato.fondocesantias else ''
+        cargo_nombre =  contrato.fondocesantias.identidad if contrato.fondocesantias else ''
+
+        print('-------------')
+        print(cargo_id)
+        print(cargo_nombre)
+        print('-------------')
+
         return JsonResponse({
-            'cargo_id': contrato.fondocesantias.identidad if contrato.cargo else '',
-            'cargo_nombre': contrato.fondocesantias.identidad if contrato.cargo else ''
+            'cargo_id': contrato.fondocesantias.identidad if contrato.fondocesantias else '',
+            'cargo_nombre': contrato.fondocesantias.identidad if contrato.fondocesantias else ''
         })
     except Contratos.DoesNotExist:
         return JsonResponse({'error': 'Contrato no encontrado'}, status=404)

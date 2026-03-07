@@ -5,9 +5,6 @@ if [ -z "$DJANGO_SETTINGS_MODULE" ]; then
   export DJANGO_SETTINGS_MODULE=nomiweb.settings.production
 fi
 
-# Apply migrations
-echo 'Applying migrations...'
-python manage.py migrate --noinput
 
 # # Collect static files
 echo "Collecting static files..."

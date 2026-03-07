@@ -91,6 +91,5 @@ class SettlementForm(forms.Form):
                 Column('contract', css_class='form-group col-md-4 mb-0'),
                 Column('end_date', css_class='form-group col-md-4 mb-0'),
                 Column('reason_for_termination', css_class='form-group col-md-4 mb-0'),
-                css_class='row'
             )
         )

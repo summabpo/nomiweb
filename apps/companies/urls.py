@@ -41,8 +41,9 @@ from .views.update_salary import update_salary
 from .views.viewsaux import send_nomina
 
 from .views.hr_changes import position_change , health_insurance_change ,occupational_risk_change , severance_fund_change
+from .views.companies import companies
 
-
+from .views.contract_management import reactivation 
 
 
 urlpatterns = [
@@ -52,11 +53,18 @@ urlpatterns = [
     path('employees/excel1', ContractsList.exportar_excel1, name='exportar_excel1'),
     path('employees/excel2', ContractsList.exportar_excel2, name='exportar_excel2'),
 
+
+
     #hiring new items 
     path('employees/hiring/', hiring.hiring, name='hiring'),
     path('employees/hiring/employee', hiring.hiring_employee, name='hiring_employee'),
     
     path('employees/hiring/contract/<str:idempleado>', hiring.hiring_contract, name='hiring_contract'),
+
+    #reactivation new items
+    path('reactivation/contract/', reactivation.reactivation, name='reactivation'),
+    
+
     
     #path('employees/hiring/employee', hiring.process_forms_employee, name='process_forms_employee'),
     
@@ -83,6 +91,9 @@ urlpatterns = [
     path('employees/views/employee/<str:id>/', assetsview.resumeview, name='resumeview'),
 
     # ## Parameters URLs
+
+    path('parameters/company', companies.company, name='company'),
+
     path('parameters/charges', charges.charges, name='charges'),
     path('parameters/charges/activate/<int:id>/', charges.toggle_charge_active_status, {'activate': True}, name='chargeactivate'),
     path('parameters/charges/deactivate/<int:id>/', charges.toggle_charge_active_status, {'activate': False}, name='chargedeactivate'),
@@ -225,7 +236,15 @@ urlunpolypatterns =[
     path('payroll/change/severance/fund/add', severance_fund_change.severance_fund_change_add, name='severance_fund_change_add'),
     path('get-contract-fps/', severance_fund_change.get_fps, name='get_fps'),
     
+    path('parameters/company/edit/<str:type>',  companies.company_edit, name='company_edit'),
     
+
+
+    ## masive 
+    path('reactivation/contract/modal/<int:id>', reactivation.reactivation_modal, name='reactivation_modal'),
+    path('reactivation/contract/modal/masive/doc', reactivation.reactivation_doc, name='reactivation_doc'),
+    path('reactivation/contract/modal/masive/data', reactivation.reactivation_data, name='reactivation_data'),
+
     #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
     #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),
     #path("employee/<int:employee_id>/change-severance-fund/", severance_fund_change.severance_fund_change_view, name="severance_fund_change"),
