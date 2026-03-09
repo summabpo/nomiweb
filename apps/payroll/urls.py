@@ -14,6 +14,7 @@ from .views.accounting import benefits_provision
 from .views.accounting import security_provision
 from .views.severance import severance
 from .views.history import history 
+#from .views import liquidacion_pila
 
 # afsa fsa asfad 
 
@@ -81,6 +82,12 @@ urlpatterns = [
     # Accounting Module
     path('provisions/employee-benefits/', benefits_provision.employee_benefits_provision, name='employee_benefits_provision'),
     path('provisions/social-security/', security_provision.social_security_provision, name='social_security_provision'),
+
+    # PILA
+    # path('pila/liquidacion/', liquidacion_pila.liquidacion_pila, name='pila_liquidacion'),
+    # path('pila/planilla/<int:planilla_id>/txt/', liquidacion_pila.descargar_pila_txt, name='pila_descargar_txt'),
+    # path('pila/planilla/<int:planilla_id>/vista-txt/', liquidacion_pila.vista_plano_pila, name='pila_vista_txt'),
+    # path('pila/planilla/<int:planilla_id>/excel/', liquidacion_pila.descargar_pila_excel, name='pila_descargar_excel'),
 
     path('history/salary', history.history_salary, name='history_salary'),
 

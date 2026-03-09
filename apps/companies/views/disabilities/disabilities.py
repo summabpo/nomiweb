@@ -291,8 +291,8 @@ def disabilities_modal_edit(request , id ):
                         destination.write(chunk)
                     
                     
-            # ibc = disabilities_ibc(incapacidad.idcontrato.idcontrato , initial_date)
-            # print(ibc)
+            ibc = disabilities_ibc(incapacidad.idcontrato.idcontrato , initial_date)
+            print(ibc)
 
             # Guardar en la base de datos
             

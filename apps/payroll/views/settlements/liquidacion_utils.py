@@ -2,6 +2,22 @@ from datetime import date
 from math import ceil
 from django.db.models import Sum
 
+
+MESES = {
+    1: "ENERO",
+    2: "FEBRERO",
+    3: "MARZO",
+    4: "ABRIL",
+    5: "MAYO",
+    6: "JUNIO",
+    7: "JULIO",
+    8: "AGOSTO",
+    9: "SEPTIEMBRE",
+    10: "OCTUBRE",
+    11: "NOVIEMBRE",
+    12: "DICIEMBRE",
+}
+
 # --- Utilidades generales --- #
 
 def dias_360(date1: date, date2: date) -> int:
@@ -32,7 +48,7 @@ def dias_360_2(date1: date, date2: date) -> int:
     y1 = date1.year
     y2 = date2.year
 
-    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)
+    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1) + 1
 
 # --- Fechas base --- #
 
@@ -53,24 +69,37 @@ def obtener_fecha_prima(fecha_inicio, fecha_fin):
 
 # --- Cálculos acumulados --- #
 
-def obtener_acumulado_nomina(queryset, campo="valor"):
-    return queryset.aggregate(total=Sum(campo))["total"] or 0
-
 def acumular_por_mes(model, conceptos_qs, id_contrato, ano, mes_inicio, mes_fin, campo="valor"):
-    total = 0
-    for mes in range(mes_inicio, mes_fin + 1):
-        qset = model.objects.filter(
-            idcontrato=id_contrato,
-            idnomina__mesacumular=mes,
-            idnomina__anoacumular=ano,
-            estadonomina=2,
-            idconcepto__in=conceptos_qs
-        )
-        total += obtener_acumulado_nomina(qset, campo)
-        
-        
-    return total
 
+    total = 0
+    conceptos_ids = conceptos_qs.values_list("idconcepto", flat=True)
+
+    for mes in range(mes_inicio, mes_fin + 1):
+
+        nombre_mes = MESES[mes]
+        subtotal_mes = 0
+
+        for data in conceptos_ids:
+            qs = model.objects.filter(
+                idcontrato=id_contrato,
+                idconcepto_id=data,
+                estadonomina=1,
+                idnomina__anoacumular__ano=ano,
+                idnomina__mesacumular=nombre_mes
+            )
+
+            valor = qs.aggregate(total=Sum(campo))["total"] or 0
+
+            print(f"{data} -> {qs} -> {valor} --> {campo}")
+
+            subtotal_mes += valor
+
+
+        total += subtotal_mes
+
+    print("TOTAL FINAL:", total)
+
+    return total
 # --- Cálculo de bases --- #
 
 def calcular_base_promedio(acumulado: float, dias: int, salario: float, transporte: float = 0) -> int:

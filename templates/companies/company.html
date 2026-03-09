@@ -1,0 +1,387 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    Nomiweb.co - Portal Empresas - Empresa 
+{% endblock %}
+
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}    
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}
+               
+{% endblock %}
+
+{% block css %}
+    
+    .w-80 {
+        width: 75%;
+    }
+
+{% endblock %}
+
+{% block sub_titulo1 %} 
+    parametros
+{% endblock %}
+
+
+{% block sub_titulo2 %} 
+    Empresa
+{% endblock %}
+
+
+
+{% block titulo2 %} 
+    Empresa
+{% endblock %}
+
+
+{% block actions %}
+
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="card shadow-sm mb-5">
+    <div class="card-header">
+        <h3 class="card-title">Información General</h3>
+    </div>
+    <div class="card-body">
+
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <label class="fw-bold">NIT</label>
+                <p>{{ data.nit }} - {{ data.dv }}</p>
+            </div>
+            <div class="col-md-2">
+                <label class="fw-bold">Tipo Documento</label>
+                <p>{{ data.tipodoc }}</p>
+            </div>
+            <div class="col-md-3">
+                <label class="fw-bold">Nombre Empresa</label>
+                <p>{{ data.nombreempresa }}</p>
+            </div>
+
+            <div class="col-md-3">
+                <label class="fw-bold">Representante Legal</label>
+                <p>{{ data.replegal }}</p>
+            </div>
+            <div class="col-md-2">
+                <label class="fw-bold">ARL</label>
+                <p>{{ data.arl|default:"—" }}</p>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="card shadow-sm mb-5">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Información Bancaria</h3>
+
+        <a
+            class="btn btn-light-info btn-sm"
+            style="width: auto;"
+            up-layer="new modal"
+            up-target=".modal-content"
+            up-size="large"
+            up-align="center"
+            up-backdrop="true"
+            up-history="false"
+            up-dismissable="false"
+            up-cache="false"
+            href="{% url 'companies:company_edit' 2  %}">
+            <i class="fa-solid fa-plus"></i> Editar Información
+        </a>
+    </div>
+    <div class="card-body">
+
+        <div class="row">
+            <div class="col-md-4">
+                <label class="fw-bold">Banco</label>
+                <p>{{ data.banco|default:"—" }}</p>
+            </div>
+
+            <div class="col-md-4">
+                <label class="fw-bold">Número de Cuenta</label>
+                <p>{{ data.numcuenta|default:"—" }}</p>
+            </div>
+
+            <div class="col-md-4">
+                <label class="fw-bold">Tipo de Cuenta</label>
+                <p>{{ data.tipocuenta|default:"—" }}</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="card shadow-sm mb-5">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Ubicación y Contacto</h3>
+
+        <a
+            class="btn btn-light-info btn-sm"
+            style="width: auto;"
+            up-layer="new modal"
+            up-target=".modal-content"
+            up-size="large"
+            up-align="center"
+            up-backdrop="true"
+            up-history="false"
+            up-dismissable="false"
+            up-cache="false"
+            href="{% url 'companies:company_edit' 3 %}">
+            <i class="fa-solid fa-plus"></i> Editar Información
+        </a>
+    </div>
+    <div class="card-body">
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="fw-bold">Dirección</label>
+                <p>{{ data.direccionempresa }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Ciudad</label>
+                <p>{{ data.idciudad }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">País</label>
+                <p>{{ data.pais }}</p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="fw-bold">Teléfono</label>
+                <p>{{ data.telefono }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Email</label>
+                <p>{{ data.email }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Website</label>
+                <p>
+                    {% if data.website %}
+                        <a href="{{ data.website }}" target="_blank">{{ data.website }}</a>
+                    {% else %}
+                        —
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="card shadow-sm mb-5">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Contactos por Área</h3>
+
+        <a
+            class="btn btn-light-info btn-sm"
+            style="width: auto;"
+            up-layer="new modal"
+            up-target=".modal-content"
+            up-size="large"
+            up-align="center"
+            up-backdrop="true"
+            up-history="false"
+            up-dismissable="false"
+            up-cache="false"
+            href="{% url 'companies:company_edit' 4 %}">
+            <i class="fa-solid fa-plus"></i> Editar Información
+        </a>
+    </div>
+    <div class="card-body">
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="fw-bold">Contacto Nómina</label>
+                <p>{{ data.contactonomina }} ({{ data.emailnomina }})</p>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Contacto RRHH</label>
+                <p>{{ data.contactorrhh }} ({{ data.emailrrhh }})</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label class="fw-bold">Contacto Contabilidad</label>
+                <p>{{ data.contactocontab }} ({{ data.emailcontab }})</p>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Cargo Certificaciones</label>
+                <p>{{ data.cargocertificaciones }}</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="card shadow-sm mb-5">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Configuración Aportes y Parafiscales</h3>
+
+        <a
+            class="btn btn-light-info btn-sm"
+            style="width: auto;"
+            up-layer="new modal"
+            up-target=".modal-content"
+            up-size="large"
+            up-align="center"
+            up-backdrop="true"
+            up-history="false"
+            up-dismissable="false"
+            up-cache="false"
+            href="{% url 'companies:company_edit' 5 %}">
+            <i class="fa-solid fa-plus"></i> Editar Información
+        </a>
+    </div>
+    <div class="card-body">
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="fw-bold">Realiza Parafiscales</label>
+                <p>{{ data.realizarparafiscales|default:"—" }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">SENA / ICBF</label>
+                <p>{{ data.vstsenaicbf|default:"—" }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Caja Compensación</label>
+                <p>{{ data.vstccf|default:"—" }}</p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="fw-bold">Empresa Exonerada</label>
+                <p>
+                    {% if data.empresa_exonerada %}
+                        <span class="badge bg-success">Sí</span>
+                    {% else %}
+                        <span class="badge bg-danger">No</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="col-md-4">
+                <label class="fw-bold">Tipo Aportante</label>
+                <p>{{ data.tipoaportante|default:"—" }}</p>
+            </div>
+
+            <div class="col-md-4">
+                <label class="fw-bold">Clase Aportante</label>
+                <p>{{ data.claseaportante|default:"—" }}</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block js %}
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('up:layer:opened', function(event) {
+
+        const modalContent = event.target;
+        if (!modalContent) return;
+
+        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+
+        selectElements.forEach((select, index) => {
+
+            if (!select.id) {
+                select.id = `select2-${Date.now()}-${index}`;
+            }
+
+            if (!$(select).data('select2')) {
+
+                const options = {
+                    dropdownParent: $(modalContent),
+                    width: '100%'
+                };
+
+                if (select.hasAttribute('data-hide-search')) {
+                    options.minimumResultsForSearch = Infinity;
+                }
+
+                $(select).select2(options);
+            }
+        });
+
+    });
+
+
+</script>
+
+{% endblock %}
+
