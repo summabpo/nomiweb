@@ -98,6 +98,14 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             ibc_map[idc]["arl"] += exc
             # CCF/SENA/ICBF: NO se agrega el exceso (Ley 1393 solo aplica a salud, pensión, ARL)
 
+    # 3.2) VST por contrato (indicador 29) para línea NORMAL: si VST > 0, registrar novedad
+    vst_map = _get_vst_por_contrato_mes(
+        empresa_id=empresa_id_interno,
+        mesacumular=mesacumular,
+        ano=ano,
+        ids_contrato=ids_contrato,
+    )
+
     # 3.1) IBC del mes anterior (para novedades VAC, IGE, IRL, LMA)
     ibc_map_anterior = _get_ibc_mes_anterior(
         empresa_id=empresa_id_interno,
@@ -168,6 +176,9 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         ibc_anterior = ibc_map_anterior.get(idcontrato, {"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")})
 
         # --- Generar registros (uno o múltiples líneas tipo 02) ---
+        vst = vst_map.get(idcontrato, Decimal("0"))
+        salario_contrato = int(row["salario_basico"] or 0)
+        fecha_periodo = date(ano, mes_num, 1)
         registros = _generar_registros_empleado(
             dias_base=dias_base,
             novedades_vac=novedades_vac,
@@ -175,7 +186,10 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             novedad_vsp=novedad_vsp,
             novedades_ing_ret=novedades_ing_ret,
             ibc_actual=ibc_actual,
-            ibc_anterior=ibc_anterior
+            ibc_anterior=ibc_anterior,
+            vst=vst,
+            salario_contrato=salario_contrato,
+            fecha_periodo=fecha_periodo,
         )
 
         # --- Datos comunes del empleado ---
@@ -377,9 +391,9 @@ def _get_ficha_contratos(empresa_id: int, ids_contrato: list[int]) -> list[dict]
 
     JOIN public.entidadessegsocial eps
       ON eps.identidad = c.codeps_id
-    JOIN public.entidadessegsocial afp
+    LEFT JOIN public.entidadessegsocial afp
       ON afp.identidad = c.codafp_id
-    JOIN public.entidadessegsocial ccf
+    LEFT JOIN public.entidadessegsocial ccf
       ON ccf.identidad = c.codccf_id
 
     JOIN public.empresa e
@@ -436,6 +450,47 @@ def _get_ibc_por_contrato_mes(
             "arl": Decimal(str(ibc_arl or 0)),
             "caja": Decimal(str(ibc_caja or 0)),
         }
+    return out
+
+
+def _get_vst_por_contrato_mes(
+    empresa_id: int,
+    mesacumular: str,
+    ano: int,
+    ids_contrato: list[int],
+) -> dict[int, Decimal]:
+    """
+    VST = suma de nomina.valor donde idconcepto tiene indicador_id=29
+    (Variación transitoria de salario PILA).
+    Retorna dict {idcontrato: valor_vst}
+    """
+    sql = """
+    SELECT
+      n.idcontrato_id,
+      COALESCE(SUM(CASE WHEN cdi.indicador_id = 29 THEN COALESCE(n.valor,0) ELSE 0 END), 0) AS vst
+    FROM public.nomina n
+    JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
+    JOIN public.anos a ON a.idano = cn.anoacumular_id
+    JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
+    JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto
+    WHERE cn.id_empresa_id = %s
+      AND cd.id_empresa_id = %s
+      AND cn.mesacumular = %s
+      AND a.ano = %s
+      AND cn.estadonomina = FALSE
+      AND n.estadonomina = 2
+      AND n.idcontrato_id = ANY(%s)
+      AND cdi.indicador_id = 29
+    GROUP BY n.idcontrato_id;
+    """
+    out = {c: Decimal("0") for c in ids_contrato}
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [empresa_id, empresa_id, mesacumular, ano, ids_contrato])
+            for idc, vst in cursor.fetchall():
+                out[int(idc)] = Decimal(str(vst or 0))
+    except Exception:
+        pass
     return out
 
 
@@ -848,7 +903,10 @@ def _generar_registros_empleado(
     novedad_vsp: dict | None,
     novedades_ing_ret: list[dict],
     ibc_actual: dict,
-    ibc_anterior: dict
+    ibc_anterior: dict,
+    vst: Decimal = Decimal("0"),
+    salario_contrato: int = 0,
+    fecha_periodo: date | None = None,
 ) -> list[dict]:
     """
     Genera uno o más registros tipo 02 por empleado según novedades.
@@ -959,6 +1017,23 @@ def _generar_registros_empleado(
     # Si no hay novedades que generen líneas separadas, crear una línea normal con todos los días
     if not registros:
         dias_normales = dias_base
+
+    # VST: si IBC > salario, el validador exige novedad VST
+    novedades_normal = list(novedades_ing_ret)  # ING/RET van en línea normal
+    ibc_sp = ibc_actual.get("salud_pension", Decimal("0"))
+    vst_valor = vst
+    if vst_valor <= 0 and salario_contrato > 0 and ibc_sp > salario_contrato:
+        # VST no en indicador 29 pero IBC > salario (ej. VST incluida en basesegsocial)
+        vst_valor = ibc_sp - Decimal(str(salario_contrato))
+    if vst_valor > 0:
+        fecha_vst = (fecha_periodo or date.today()).isoformat()
+        novedades_normal.append({
+            "codigo": "VST",
+            "fecha_desde": fecha_vst,
+            "fecha_hasta": fecha_vst,
+            "dias": None,
+            "valor": int(vst_valor),
+        })
     
     # IBC línea normal: si tiene 30 días se deja el IBC del mes; si tiene menos (por otras novedades), prorratear por días (proporción días/30)
     if dias_normales >= 30:
@@ -987,7 +1062,7 @@ def _generar_registros_empleado(
             "caja": dias_normales,
         },
         "ibc": ibc_normal,
-        "novedades": novedades_ing_ret,  # ING/RET van en línea normal
+        "novedades": novedades_normal,
     })
     
     return registros
