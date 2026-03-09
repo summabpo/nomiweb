@@ -727,7 +727,7 @@ def _novedades_vacaciones_mes(
             "codigo": {
                 1: "VAC",
                 4: "SLN",
-                5: "SUSP",
+                5: "SLN",
             }.get(tipovac_id),
             "fecha_desde": max(f_ini, ini_mes).isoformat(),
             "fecha_hasta": min(f_fin, fin_mes).isoformat(),
