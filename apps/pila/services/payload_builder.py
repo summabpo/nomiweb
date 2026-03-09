@@ -192,6 +192,9 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             fecha_periodo=fecha_periodo,
         )
 
+        clase_riesgo = _tarifa_arl_a_clase_riesgo(row.get("tarifa_arl"))
+        codigo_centro_trabajo = row.get("codigo_centro_trabajo")  # centrotrabajo_id de contratos (campo 62)
+
         # --- Datos comunes del empleado ---
         empleado_base = {
             "id_empleado": idcontrato,
@@ -206,6 +209,8 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             "tipo_cotizante": tipo_cot,
             "subtipo_cotizante": subtipo_cot,
             "salario_basico": str(row["salario_basico"] or 0),
+            "clase_riesgo": clase_riesgo,
+            "codigo_centro_trabajo": codigo_centro_trabajo,  # De BD por empresa; None si no aplica
 
             "entidades": {
                 "eps": row["eps_codigo"],
@@ -316,6 +321,28 @@ def _get_flags_tipo_cotizante(tipo_cotizante: str) -> dict:
     }
 
 
+# Tarifa ARL % -> clase_riesgo (1-5) para PILA campo 78 pos 513
+# codigo_centro_trabajo (campo 62) viene de BD por empresa, no del diccionario
+_TARIFA_ARL_A_CLASE = {
+    Decimal("0.522"): "1",
+    Decimal("1.044"): "2",
+    Decimal("2.436"): "3",
+    Decimal("4.350"): "4",
+    Decimal("6.960"): "5",
+}
+
+
+def _tarifa_arl_a_clase_riesgo(tarifa) -> str:
+    """Tarifa ARL (porcentaje) -> clase_riesgo "1"-"5"."""
+    if tarifa is None:
+        return "1"
+    t = Decimal(str(tarifa)).quantize(Decimal("0.001"))
+    for k, clase in _TARIFA_ARL_A_CLASE.items():
+        if abs(t - k) < Decimal("0.001"):
+            return clase
+    return "1"
+
+
 def _get_contratos_con_movimiento_mes(empresa_id: int, mesacumular: str, ano: int) -> list[int]:
     with connection.cursor() as cursor:
         cursor.execute(
@@ -370,7 +397,9 @@ def _get_ficha_contratos(empresa_id: int, ids_contrato: list[int]) -> list[dict]
       arl.codigo                     AS arl_codigo,
 
       ct.tarifaarl::numeric          AS tarifa_arl,
-      ct.actividad_economica_arl     AS actividad_economica_arl
+      ct.actividad_economica_arl     AS actividad_economica_arl,
+
+      c.centrotrabajo_id             AS codigo_centro_trabajo
 
     FROM public.contratos c
     JOIN public.contratosemp ce
