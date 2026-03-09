@@ -1325,9 +1325,12 @@ def calcular_vacaciones(contrato,nomina):
             # 🔹 Validar si cruza de mes y el mes tiene 31 días
             cruza_mes = inicio_cruce.month != vac.ultimodiavac.month
 
-            if cruza_mes :
-                if dias_en_nomina > 1 : 
-                    dias_en_nomina -= 1
+            # 🔹 ajuste si el mes tiene 31 días
+            if dias_mes_nomina == 31 and dias_en_nomina > 1:
+                dias_en_nomina -= 1
+
+            if cruza_mes and dias_en_nomina > 1:
+                dias_en_nomina -= 1
 
             dias_vacaciones += dias_en_nomina
     return dias_vacaciones
@@ -1394,9 +1397,12 @@ def calcular_suspenciones(contrato,nomina ):
             # 🔹 Validar si cruza de mes y el mes tiene 31 días
             cruza_mes = inicio_cruce.month != vac.ultimodiavac.month
             
-            if cruza_mes :
-                if dias_en_nomina > 1 :  
-                    dias_en_nomina -= 1
+            # 🔹 ajuste si el mes tiene 31 días
+            if dias_mes_nomina == 31 and dias_en_nomina > 1:
+                dias_en_nomina -= 1
+
+            if cruza_mes and dias_en_nomina > 1: 
+                dias_en_nomina -= 1
 
             dias_vacaciones += dias_en_nomina
 
@@ -1422,16 +1428,19 @@ def calcular_suspenciones2(vac, nomina):
     inicio_cruce = max(vac.fechainicialvac, nomina.fechainicial)
     fin_cruce = min(vac.ultimodiavac, nomina.fechafinal)
 
-    if fin_cruce == inicio_cruce :
-        dias_en_nomina = 1 
-    else :
-        dias_en_nomina = (fin_cruce - inicio_cruce).days + 1
-    # 🔹 Validar si cruza de mes y el mes tiene 31 días
-    cruza_mes = inicio_cruce.month != vac.ultimodiavac.month
-    
-    if cruza_mes :
-        if dias_en_nomina > 1:  
-            dias_en_nomina -= 1
+    # cálculo de días cruzados
+    dias_en_nomina = (fin_cruce - inicio_cruce).days + 1
+
+    # validar si cruza de mes
+    cruza_mes = inicio_cruce.month != fin_cruce.month
+
+    # 🔹 ajuste si el mes tiene 31 días
+    if dias_mes_nomina == 31 and dias_en_nomina > 1:
+        dias_en_nomina -= 1
+
+    # 🔹 ajuste adicional si cruza de mes
+    if cruza_mes and dias_en_nomina > 1:
+        dias_en_nomina -= 1
 
     return dias_en_nomina
 
@@ -1552,18 +1561,31 @@ def Calculo_vacaciones(contrato, idn):
                     }
                 )
 
-            # 🔹 Manejar concepto2 (siempre existe en los 3 tipos)
-            Nomina.objects.update_or_create(
-                idnomina=nomina_actual,
-                idconcepto=concepto2,
-                control=vaca.idvacaciones,
-                defaults={
-                    "cantidad": dias_suspensiones,
-                    "estadonomina": 1,
-                    "valor": -valor_calculado,
-                    "idcontrato": vaca.idcontrato,
-                }
-            )
+                # 🔹 Manejar concepto2 (siempre existe en los 3 tipos)
+                Nomina.objects.update_or_create(
+                    idnomina=nomina_actual,
+                    idconcepto=concepto2,
+                    control=vaca.idvacaciones,
+                    defaults={
+                        "cantidad": dias_suspensiones,
+                        "estadonomina": 1,
+                        "valor": -valor_calculado,
+                        "idcontrato": vaca.idcontrato,
+                    }
+                )
+            else : 
+                # 🔹 Manejar concepto2 (siempre existe en los 3 tipos)
+                Nomina.objects.update_or_create(
+                    idnomina=nomina_actual,
+                    idconcepto=concepto2,
+                    control=vaca.idvacaciones,
+                    defaults={
+                        "cantidad": dias_suspensiones,
+                        "estadonomina": 1,
+                        "valor": valor_calculado,
+                        "idcontrato": vaca.idcontrato,
+                    }
+                )
 
 
 
