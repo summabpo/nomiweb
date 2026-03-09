@@ -83,7 +83,8 @@ def suspension_list_add(request):
                 idcontrato_id = contract , 
                 fechainicialvac = initial_date , 
                 ultimodiavac = end_date ,
-                diasvac = sus_days ,
+                diascalendario = sus_days ,
+                diasvac = 0 ,
                 basepago =  ibc.salario,
                 tipovac_id = type_vac ,
             )
