@@ -449,6 +449,7 @@ def _get_exceso_ley_1393_por_contrato(
     """
     Ley 1393 art. 30: si IBC < 60% del total ingresos, hay exceso.
     exceso_ley_1393 = max(0, 0.6 * total_ingresos - IBC).
+    total_ingresos = suma de conceptos vinculados al indicador base1393 (id=12).
     Se suma al IBC de salud, pensión y ARL (NO a SENA, ICBF, CCF).
     Salario integral: no aplica (se excluye).
     """
@@ -456,12 +457,12 @@ def _get_exceso_ley_1393_por_contrato(
     sql = """
     SELECT
       n.idcontrato_id,
-      COALESCE(SUM(CASE WHEN cd.tipoconcepto = 1 AND COALESCE(n.valor,0) > 0
-                   THEN n.valor ELSE 0 END), 0) AS total_ingresos
+      COALESCE(SUM(CASE WHEN COALESCE(n.valor,0) > 0 THEN n.valor ELSE 0 END), 0) AS total_ingresos
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
+    JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto AND cdi.indicador_id = 12
     WHERE cn.id_empresa_id = %s
       AND cd.id_empresa_id = %s
       AND cn.mesacumular = %s
