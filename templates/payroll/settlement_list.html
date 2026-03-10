@@ -103,8 +103,10 @@ Liquidacion Empleados
                     <td >{{ item.prima |format_currency }}</td>
                     <td >{{ item.vacaciones |format_currency }}</td>
                     <td >{{ item.totalliq |format_currency }}</td> 
-                    {% if item.estadoliquidacion == '1' %}
+                    {% if item.estadoliquidacion == '1'   %}
                         <td class="text-center"><span class="badge badge-light-success">En proceso</span></td>
+                    {% elif item.estadoliquidacion == '3' %}
+                        <td class="text-center"><span class="badge badge-light-warning">En Nomina</span></td>
                     {% else %}
                         <td class="text-center"><span class="badge badge-light-danger">Grabada</span> </td>
                     {% endif %}
@@ -135,7 +137,7 @@ Liquidacion Empleados
 
 
                             {% else %}
-                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="La liquidación ya fue grabada">
+                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="Nose puede editar despues de enviada a la nomina">
                                     <button
                                         type="button"
                                         class="btn btn-icon btn-sm btn-light-success"
@@ -162,7 +164,7 @@ Liquidacion Empleados
 
 
                             <!-- Grabar -->
-                            {% if item.estadoliquidacion == '1' %}
+                            {% if item.estadoliquidacion == '1' or item.estadoliquidacion == '3' %}
                                 <a
 
                                     class='btn btn-icon btn-sm btn-light-danger'

@@ -83,22 +83,15 @@ def acumular_por_mes(model, conceptos_qs, id_contrato, ano, mes_inicio, mes_fin,
             qs = model.objects.filter(
                 idcontrato=id_contrato,
                 idconcepto_id=data,
-                estadonomina=1,
+                estadonomina=2,
                 idnomina__anoacumular__ano=ano,
                 idnomina__mesacumular=nombre_mes
             )
 
             valor = qs.aggregate(total=Sum(campo))["total"] or 0
-
-            print(f"{data} -> {qs} -> {valor} --> {campo}")
-
             subtotal_mes += valor
 
-
         total += subtotal_mes
-
-    print("TOTAL FINAL:", total)
-
     return total
 # --- Cálculo de bases --- #
 
@@ -118,7 +111,7 @@ def calcular_base_vacaciones(acum_recargos: float, dias_cesantias: int, salario:
 # --- Cálculo de componentes de liquidación --- #
 
 def calcular_intereses_cesantias(dias_cesantias: int, cesantias: float) -> int:
-    return ceil(dias_cesantias * (12 / 100) / 360 * cesantias)
+    return ceil(cesantias * 0.12 * dias_cesantias / 360)
 
 def calcular_prima(dias_prima: int, base_prima: float) -> int:
     return ceil(dias_prima / 360 * base_prima)
