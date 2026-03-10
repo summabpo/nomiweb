@@ -958,6 +958,11 @@ def _generar_registros_empleado(
             dias_vac = nov_vac["dias"]
             # CCF: IBC mes ACTUAL proporcional (valor pagado por esos días)
             ibc_ccf_vac = int((ibc_actual["caja"] * Decimal(dias_vac) / Decimal(30)).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+            # Salud / pensión / ARL: IBC mes ANTERIOR proporcional por días (dias/30)
+            factor_vac = Decimal(dias_vac) / Decimal(30)
+            ibc_vac_salud = int((ibc_anterior["salud_pension"] * factor_vac).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+            ibc_vac_pension = ibc_vac_salud
+            ibc_vac_arl = int((ibc_anterior["arl"] * factor_vac).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
             registros.append({
                 "tipo_linea": "VAC",
                 "dias": {
@@ -967,9 +972,9 @@ def _generar_registros_empleado(
                     "caja": dias_vac,
                 },
                 "ibc": {
-                    "salud": str(ibc_anterior["salud_pension"]),
-                    "pension": str(ibc_anterior["salud_pension"]),
-                    "arl": str(ibc_anterior["arl"]),
+                    "salud": str(ibc_vac_salud),
+                    "pension": str(ibc_vac_pension),
+                    "arl": str(ibc_vac_arl),
                     "parafiscales": str(ibc_ccf_vac),
                 },
                 "novedades": [nov_vac],
@@ -996,9 +1001,12 @@ def _generar_registros_empleado(
             })
             dias_usados += dias_nov
     
-    # 2. Líneas de incapacidades (con IBC mes anterior)
+    # 2. Líneas de incapacidades (IGE, IRL, LMA) con salario proporcional por días
     for nov_incap in novedades_incap:
         dias_incap = nov_incap["dias"]
+        factor_incap = Decimal(dias_incap) / Decimal(30)
+        base_salario = Decimal(str(salario_contrato or 0))
+        ibc_incap_valor = int((base_salario * factor_incap).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
         registros.append({
             "tipo_linea": nov_incap["codigo"],  # IGE, IRL, LMA
             "dias": {
@@ -1008,10 +1016,10 @@ def _generar_registros_empleado(
                 "caja": dias_incap,
             },
             "ibc": {
-                "salud": str(ibc_anterior["salud_pension"]),
-                "pension": str(ibc_anterior["salud_pension"]),
-                "arl": str(ibc_anterior["arl"]),
-                "parafiscales": str(ibc_anterior["caja"]),
+                "salud": str(ibc_incap_valor),
+                "pension": str(ibc_incap_valor),
+                "arl": str(ibc_incap_valor),
+                "parafiscales": str(ibc_incap_valor),
             },
             "novedades": [nov_incap],
         })
@@ -1064,8 +1072,10 @@ def _generar_registros_empleado(
             "valor": int(vst_valor),
         })
     
-    # IBC línea normal: si tiene 30 días se deja el IBC del mes; si tiene menos (por otras novedades), prorratear por días (proporción días/30)
-    if dias_normales >= 30:
+    # IBC línea normal:
+    # - Si es la única línea y tiene 30 días, usar IBC del mes (ibc_actual).
+    # - Si tiene menos de 30 días (multi-línea) o hay VST, usar salario (salario_contrato + VST) proporcional por días.
+    if dias_normales >= 30 and not registros and vst_valor <= 0:
         ibc_normal = {
             "salud": str(ibc_actual["salud_pension"]),
             "pension": str(ibc_actual["salud_pension"]),
@@ -1074,11 +1084,13 @@ def _generar_registros_empleado(
         }
     else:
         factor = Decimal(dias_normales) / Decimal(30)
+        base_salario_normal = Decimal(str(salario_contrato or 0)) + Decimal(int(vst_valor))
+        ibc_normal_valor = int((base_salario_normal * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
         ibc_normal = {
-            "salud": str(int((ibc_actual["salud_pension"] * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))),
-            "pension": str(int((ibc_actual["salud_pension"] * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))),
-            "arl": str(int((ibc_actual["arl"] * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))),
-            "parafiscales": str(int((ibc_actual["caja"] * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))),
+            "salud": str(ibc_normal_valor),
+            "pension": str(ibc_normal_valor),
+            "arl": str(ibc_normal_valor),
+            "parafiscales": str(ibc_normal_valor),
         }
     
     # Línea normal siempre se crea (aunque tenga 0 días si hubo novedades)
