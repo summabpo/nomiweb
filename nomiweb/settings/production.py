@@ -29,7 +29,7 @@ STATICFILES_DIRS = [
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-HOSTNAME = "https://payroll.nomiweb.co/"
+HOSTNAME = os.getenv('HOSTNAME', 'https://payroll.nomiweb.co/')
 
 
 CSRF_COOKIE_HTTPONLY = True
@@ -47,6 +47,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://payroll.nomiweb.co',
     'http://payroll.nomiweb.co',
     'https://jes.nomiweb.com.co',
+    'http://jes.nomiweb.com.co',
 ]
 
 
