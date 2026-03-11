@@ -43,7 +43,7 @@ LOCAL_APPS = [
     'apps.administrator',
     'apps.payroll',       # Payroll application
     'apps.mar_ia',             # Chat IA empleados
-    'apps.pila',              #Ms liquidación de PILA
+    #'apps.pila',              #Ms liquidación de PILA
     # 'apps.api_database',  # API database applicatio#n
 ]
 THIRD_APPS = [

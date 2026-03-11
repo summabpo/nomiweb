@@ -10,8 +10,6 @@
     "clase_aportante": "B",
     "tipo_presentacion_planilla": "U",
     "codigo_arl": "14-11",
-    "codigo_sucursal": "",
-    "nombre_sucursal": "",
     "flags": {
       "empresa_exonerada": true
     }
@@ -20,7 +18,7 @@
   "planilla": {
     "tipo_planilla": "E",
     "numero_interno": "NW-EMP1-2025-12",
-    "fecha_generacion": "2026-03-04"
+    "fecha_generacion": "2026-02-26"
   },
   "empleados": [
     {
@@ -52,6 +50,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -63,10 +63,10 @@
             "caja": 15
           },
           "ibc": {
-            "salud": "5621693",
-            "pension": "5621693",
-            "arl": "3708198",
-            "parafiscales": "5621693"
+            "salud": "1750905",
+            "pension": "1750905",
+            "arl": "1750905",
+            "parafiscales": "1750905"
           },
           "novedades": [
             {
@@ -86,12 +86,20 @@
             "caja": 15
           },
           "ibc": {
-            "salud": "1634253",
-            "pension": "1634253",
-            "arl": "1634253",
-            "parafiscales": "1634253"
+            "salud": "1812705",
+            "pension": "1812705",
+            "arl": "1812705",
+            "parafiscales": "1812705"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 123599
+            }
+          ]
         }
       ]
     },
@@ -124,6 +132,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -135,12 +145,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3611528",
-            "pension": "3611528",
-            "arl": "3611528",
-            "parafiscales": "3611528"
+            "salud": "3771737",
+            "pension": "3771737",
+            "arl": "3771737",
+            "parafiscales": "3771737"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 707654
+            }
+          ]
         }
       ]
     },
@@ -173,6 +191,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -184,12 +204,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2629556",
-            "pension": "2629556",
-            "arl": "2629556",
-            "parafiscales": "2629556"
+            "salud": "2800218",
+            "pension": "2800218",
+            "arl": "2800218",
+            "parafiscales": "2800218"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 830450
+            }
+          ]
         }
       ]
     },
@@ -222,6 +250,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -233,10 +263,10 @@
             "caja": 9
           },
           "ibc": {
-            "salud": "4323369",
-            "pension": "4323369",
-            "arl": "4273369",
-            "parafiscales": "4273369"
+            "salud": "1050543",
+            "pension": "1050543",
+            "arl": "1050543",
+            "parafiscales": "1050543"
           },
           "novedades": [
             {
@@ -256,12 +286,20 @@
             "caja": 21
           },
           "ibc": {
-            "salud": "3628700",
-            "pension": "3628700",
-            "arl": "2622308",
-            "parafiscales": "3528700"
+            "salud": "2876442",
+            "pension": "2876442",
+            "arl": "2876442",
+            "parafiscales": "2876442"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 607392
+            }
+          ]
         }
       ]
     },
@@ -294,6 +332,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -305,12 +345,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "4505367",
-            "pension": "4505367",
-            "arl": "4505367",
-            "parafiscales": "4505367"
+            "salud": "4779633",
+            "pension": "4779633",
+            "arl": "4779633",
+            "parafiscales": "4779633"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 840097
+            }
+          ]
         }
       ]
     },
@@ -343,6 +391,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -354,12 +404,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3088203",
-            "pension": "3088203",
-            "arl": "3088203",
-            "parafiscales": "3088203"
+            "salud": "3420599",
+            "pension": "3420599",
+            "arl": "3420599",
+            "parafiscales": "3420599"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 575379
+            }
+          ]
         }
       ]
     },
@@ -392,6 +450,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -403,12 +463,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "4734536",
-            "pension": "4734536",
-            "arl": "4233016",
-            "parafiscales": "4233016"
+            "salud": "5434923",
+            "pension": "5434923",
+            "arl": "5434923",
+            "parafiscales": "5434923"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 707480
+            }
+          ]
         }
       ]
     },
@@ -441,6 +509,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -452,12 +522,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "4232290",
-            "pension": "4232290",
-            "arl": "4232290",
-            "parafiscales": "4232290"
+            "salud": "4712792",
+            "pension": "4712792",
+            "arl": "4712792",
+            "parafiscales": "4712792"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1210982
+            }
+          ]
         }
       ]
     },
@@ -490,6 +568,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -501,10 +581,10 @@
             "caja": 1
           },
           "ibc": {
-            "salud": "3424315",
-            "pension": "3424315",
-            "arl": "2807142",
-            "parafiscales": "4041488"
+            "salud": "87546",
+            "pension": "87546",
+            "arl": "87546",
+            "parafiscales": "87546"
           },
           "novedades": [
             {
@@ -524,12 +604,20 @@
             "caja": 29
           },
           "ibc": {
-            "salud": "2905437",
-            "pension": "2905437",
-            "arl": "2905437",
-            "parafiscales": "2905437"
+            "salud": "3184723",
+            "pension": "3184723",
+            "arl": "3184723",
+            "parafiscales": "3184723"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 668184
+            }
+          ]
         }
       ]
     },
@@ -562,6 +650,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -573,12 +663,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "5252561",
-            "pension": "5252561",
-            "arl": "5024561",
-            "parafiscales": "5024561"
+            "salud": "5952948",
+            "pension": "5952948",
+            "arl": "5952948",
+            "parafiscales": "5952948"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1225505
+            }
+          ]
         }
       ]
     },
@@ -611,6 +709,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -660,6 +760,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -709,6 +811,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -720,12 +824,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "1762624",
-            "pension": "1762624",
-            "arl": "1598932",
-            "parafiscales": "1598932"
+            "salud": "2079069",
+            "pension": "2079069",
+            "arl": "2079069",
+            "parafiscales": "2079069"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 328164
+            }
+          ]
         }
       ]
     },
@@ -758,6 +870,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -769,12 +883,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2711701",
-            "pension": "2711701",
-            "arl": "2711701",
-            "parafiscales": "2711701"
+            "salud": "3096930",
+            "pension": "3096930",
+            "arl": "3096930",
+            "parafiscales": "3096930"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 339255
+            }
+          ]
         }
       ]
     },
@@ -807,6 +929,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -818,12 +942,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2990298",
-            "pension": "2990298",
-            "arl": "2990298",
-            "parafiscales": "2990298"
+            "salud": "3322662",
+            "pension": "3322662",
+            "arl": "3322662",
+            "parafiscales": "3322662"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 477442
+            }
+          ]
         }
       ]
     },
@@ -856,6 +988,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -867,12 +1001,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "4040543",
-            "pension": "4040543",
-            "arl": "4040543",
-            "parafiscales": "4040543"
+            "salud": "4200752",
+            "pension": "4200752",
+            "arl": "4200752",
+            "parafiscales": "4200752"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1136669
+            }
+          ]
         }
       ]
     },
@@ -905,6 +1047,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -916,12 +1060,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2043437",
-            "pension": "2043437",
-            "arl": "2043437",
-            "parafiscales": "2043437"
+            "salud": "2359882",
+            "pension": "2359882",
+            "arl": "2359882",
+            "parafiscales": "2359882"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 608977
+            }
+          ]
         }
       ]
     },
@@ -954,6 +1106,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -965,12 +1119,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3217557",
-            "pension": "3217557",
-            "arl": "3217557",
-            "parafiscales": "3217557"
+            "salud": "3549953",
+            "pension": "3549953",
+            "arl": "3549953",
+            "parafiscales": "3549953"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 704733
+            }
+          ]
         }
       ]
     },
@@ -1003,6 +1165,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1014,12 +1178,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "4098028",
-            "pension": "4098028",
-            "arl": "3257026",
-            "parafiscales": "3257026"
+            "salud": "4534125",
+            "pension": "4534125",
+            "arl": "4534125",
+            "parafiscales": "4534125"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 769680
+            }
+          ]
         }
       ]
     },
@@ -1052,6 +1224,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1063,12 +1237,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3686016",
-            "pension": "3686016",
-            "arl": "4210356",
-            "parafiscales": "4210356"
+            "salud": "4074213",
+            "pension": "4074213",
+            "arl": "4074213",
+            "parafiscales": "4074213"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1010130
+            }
+          ]
         }
       ]
     },
@@ -1101,6 +1283,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1112,12 +1296,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "1927468",
-            "pension": "1927468",
-            "arl": "1927468",
-            "parafiscales": "1927468"
+            "salud": "2254873",
+            "pension": "2254873",
+            "arl": "2254873",
+            "parafiscales": "2254873"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 503968
+            }
+          ]
         }
       ]
     },
@@ -1150,6 +1342,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1161,12 +1355,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "4360210",
-            "pension": "4360210",
-            "arl": "3392253",
-            "parafiscales": "4360210"
+            "salud": "3552462",
+            "pension": "3552462",
+            "arl": "3552462",
+            "parafiscales": "3552462"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 488379
+            }
+          ]
         }
       ]
     },
@@ -1199,6 +1401,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1210,12 +1414,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2609930",
-            "pension": "2609930",
-            "arl": "2609930",
-            "parafiscales": "2609930"
+            "salud": "2780592",
+            "pension": "2780592",
+            "arl": "2780592",
+            "parafiscales": "2780592"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 810824
+            }
+          ]
         }
       ]
     },
@@ -1248,6 +1460,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1259,12 +1473,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2503382",
-            "pension": "2503382",
-            "arl": "2503382",
-            "parafiscales": "2503382"
+            "salud": "2674044",
+            "pension": "2674044",
+            "arl": "2674044",
+            "parafiscales": "2674044"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 704276
+            }
+          ]
         }
       ]
     },
@@ -1297,6 +1519,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1308,12 +1532,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3125515",
-            "pension": "3125515",
-            "arl": "3125515",
-            "parafiscales": "3125515"
+            "salud": "3294849",
+            "pension": "3294849",
+            "arl": "3294849",
+            "parafiscales": "3294849"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 449629
+            }
+          ]
         }
       ]
     },
@@ -1346,6 +1578,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1357,12 +1591,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "1746828",
-            "pension": "1746828",
-            "arl": "1746828",
-            "parafiscales": "1746828"
+            "salud": "2074233",
+            "pension": "2074233",
+            "arl": "2074233",
+            "parafiscales": "2074233"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 323328
+            }
+          ]
         }
       ]
     },
@@ -1395,6 +1637,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1406,12 +1650,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3959497",
-            "pension": "3959497",
-            "arl": "3959497",
-            "parafiscales": "3959497"
+            "salud": "4119706",
+            "pension": "4119706",
+            "arl": "4119706",
+            "parafiscales": "4119706"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1055623
+            }
+          ]
         }
       ]
     },
@@ -1444,6 +1696,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1455,12 +1709,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3029721",
-            "pension": "3029721",
-            "arl": "3029721",
-            "parafiscales": "3029721"
+            "salud": "3414950",
+            "pension": "3414950",
+            "arl": "3414950",
+            "parafiscales": "3414950"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 657275
+            }
+          ]
         }
       ]
     },
@@ -1493,6 +1755,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1504,12 +1768,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3698999",
-            "pension": "3698999",
-            "arl": "2899989",
-            "parafiscales": "2899989"
+            "salud": "4147110",
+            "pension": "4147110",
+            "arl": "4147110",
+            "parafiscales": "4147110"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 426437
+            }
+          ]
         }
       ]
     },
@@ -1542,6 +1814,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1553,12 +1827,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2806658",
-            "pension": "2806658",
-            "arl": "2806658",
-            "parafiscales": "2806658"
+            "salud": "3191887",
+            "pension": "3191887",
+            "arl": "3191887",
+            "parafiscales": "3191887"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 434212
+            }
+          ]
         }
       ]
     },
@@ -1591,6 +1873,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1602,12 +1886,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3426907",
-            "pension": "3426907",
-            "arl": "3426907",
-            "parafiscales": "3426907"
+            "salud": "3904299",
+            "pension": "3904299",
+            "arl": "3904299",
+            "parafiscales": "3904299"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 840216
+            }
+          ]
         }
       ]
     },
@@ -1640,6 +1932,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1651,12 +1945,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3613871",
-            "pension": "3613871",
-            "arl": "3613871",
-            "parafiscales": "3613871"
+            "salud": "3774080",
+            "pension": "3774080",
+            "arl": "3774080",
+            "parafiscales": "3774080"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 709997
+            }
+          ]
         }
       ]
     },
@@ -1689,6 +1991,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1700,12 +2004,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "1967604",
-            "pension": "1967604",
-            "arl": "1967604",
-            "parafiscales": "1967604"
+            "salud": "2295009",
+            "pension": "2295009",
+            "arl": "2295009",
+            "parafiscales": "2295009"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 544104
+            }
+          ]
         }
       ]
     },
@@ -1738,6 +2050,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1749,12 +2063,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2993838",
-            "pension": "2993838",
-            "arl": "2993838",
-            "parafiscales": "2993838"
+            "salud": "3160204",
+            "pension": "3160204",
+            "arl": "3160204",
+            "parafiscales": "3160204"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 621392
+            }
+          ]
         }
       ]
     },
@@ -1787,6 +2109,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1798,12 +2122,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2585314",
-            "pension": "2585314",
-            "arl": "2585314",
-            "parafiscales": "2585314"
+            "salud": "2755976",
+            "pension": "2755976",
+            "arl": "2755976",
+            "parafiscales": "2755976"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 786208
+            }
+          ]
         }
       ]
     },
@@ -1836,6 +2168,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1847,12 +2181,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2515273",
-            "pension": "2515273",
-            "arl": "2515273",
-            "parafiscales": "2515273"
+            "salud": "2685935",
+            "pension": "2685935",
+            "arl": "2685935",
+            "parafiscales": "2685935"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 716167
+            }
+          ]
         }
       ]
     },
@@ -1885,6 +2227,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1896,12 +2240,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3356504",
-            "pension": "3356504",
-            "arl": "3356504",
-            "parafiscales": "3356504"
+            "salud": "3688900",
+            "pension": "3688900",
+            "arl": "3688900",
+            "parafiscales": "3688900"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 843680
+            }
+          ]
         }
       ]
     },
@@ -1934,6 +2286,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -1945,10 +2299,10 @@
             "caja": 2
           },
           "ibc": {
-            "salud": "3297161",
-            "pension": "3297161",
-            "arl": "3297161",
-            "parafiscales": "3297161"
+            "salud": "183845",
+            "pension": "183845",
+            "arl": "183845",
+            "parafiscales": "183845"
           },
           "novedades": [
             {
@@ -1968,12 +2322,20 @@
             "caja": 28
           },
           "ibc": {
-            "salud": "2875752",
-            "pension": "2875752",
-            "arl": "2729212",
-            "parafiscales": "2875752"
+            "salud": "3054431",
+            "pension": "3054431",
+            "arl": "3054431",
+            "parafiscales": "3054431"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 514929
+            }
+          ]
         }
       ]
     },
@@ -2006,6 +2368,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2017,12 +2381,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3683627",
-            "pension": "3683627",
-            "arl": "3683627",
-            "parafiscales": "3683627"
+            "salud": "3849993",
+            "pension": "3849993",
+            "arl": "3849993",
+            "parafiscales": "3849993"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1311181
+            }
+          ]
         }
       ]
     },
@@ -2055,6 +2427,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2066,10 +2440,10 @@
             "caja": 5
           },
           "ibc": {
-            "salud": "2852467",
-            "pension": "2852467",
-            "arl": "2852467",
-            "parafiscales": "2852467"
+            "salud": "430431",
+            "pension": "430431",
+            "arl": "430431",
+            "parafiscales": "430431"
           },
           "novedades": [
             {
@@ -2089,10 +2463,69 @@
             "caja": 25
           },
           "ibc": {
-            "salud": "2645194",
-            "pension": "2645194",
-            "arl": "2328253",
-            "parafiscales": "2645194"
+            "salud": "2485142",
+            "pension": "2485142",
+            "arl": "2485142",
+            "parafiscales": "2485142"
+          },
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 399586
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id_empleado": 8104,
+      "tipo_doc": "CC",
+      "num_doc": "1140890479",
+      "primer_apellido": "CUERVO",
+      "segundo_apellido": "MARTINEZ",
+      "primer_nombre": "HENRY",
+      "segundo_nombre": "",
+      "cod_departamento": "08",
+      "cod_municipio": "001",
+      "tipo_cotizante": "01",
+      "subtipo_cotizante": "03",
+      "salario_basico": "4814988",
+      "entidades": {
+        "eps": "EPS002",
+        "afp": null,
+        "arl": "14-11",
+        "caja": "CCF07"
+      },
+      "flags": {
+        "aplica_salud": true,
+        "aplica_pension": false,
+        "aplica_arl": true,
+        "aplica_caja": true,
+        "salario_integral": false
+      },
+      "tarifas": {
+        "arl": "4.350"
+      },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
+      "actividad_economica_arl": "4522901",
+      "registros": [
+        {
+          "tipo_linea": "NORMAL",
+          "dias": {
+            "salud": 30,
+            "pension": 0,
+            "arl": 30,
+            "caja": 30
+          },
+          "ibc": {
+            "salud": "4208000",
+            "pension": "0",
+            "arl": "4208000",
+            "parafiscales": "4208000"
           },
           "novedades": []
         }
@@ -2127,6 +2560,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2176,6 +2611,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2225,6 +2662,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2236,12 +2675,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "1823319",
-            "pension": "1823319",
-            "arl": "1823319",
-            "parafiscales": "1823319"
+            "salud": "1993087",
+            "pension": "1993087",
+            "arl": "1993087",
+            "parafiscales": "1993087"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 23319
+            }
+          ]
         }
       ]
     },
@@ -2274,6 +2721,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2323,6 +2772,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2334,12 +2785,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2526164",
-            "pension": "2526164",
-            "arl": "2526164",
-            "parafiscales": "2526164"
+            "salud": "2908206",
+            "pension": "2908206",
+            "arl": "2908206",
+            "parafiscales": "2908206"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 369394
+            }
+          ]
         }
       ]
     },
@@ -2372,6 +2831,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2383,12 +2844,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2904898",
-            "pension": "2904898",
-            "arl": "2904898",
-            "parafiscales": "2904898"
+            "salud": "3333900",
+            "pension": "3333900",
+            "arl": "3333900",
+            "parafiscales": "3333900"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 532452
+            }
+          ]
         }
       ]
     },
@@ -2421,6 +2890,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2432,12 +2903,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3284017",
-            "pension": "3284017",
-            "arl": "3284017",
-            "parafiscales": "3284017"
+            "salud": "3444226",
+            "pension": "3444226",
+            "arl": "3444226",
+            "parafiscales": "3444226"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 380143
+            }
+          ]
         }
       ]
     },
@@ -2470,6 +2949,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2481,10 +2962,10 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "18505776",
-            "pension": "18505776",
-            "arl": "16872776",
-            "parafiscales": "16872776"
+            "salud": "15933236",
+            "pension": "15933236",
+            "arl": "15933236",
+            "parafiscales": "15933236"
           },
           "novedades": []
         }
@@ -2519,6 +3000,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2530,12 +3013,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3825648",
-            "pension": "3825648",
-            "arl": "3825648",
-            "parafiscales": "3825648"
+            "salud": "4213845",
+            "pension": "4213845",
+            "arl": "4213845",
+            "parafiscales": "4213845"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1149762
+            }
+          ]
         }
       ]
     },
@@ -2568,6 +3059,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2579,12 +3072,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3370051",
-            "pension": "3370051",
-            "arl": "3370051",
-            "parafiscales": "3370051"
+            "salud": "3530260",
+            "pension": "3530260",
+            "arl": "3530260",
+            "parafiscales": "3530260"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 466177
+            }
+          ]
         }
       ]
     },
@@ -2617,6 +3118,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2628,12 +3131,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3540799",
-            "pension": "3540799",
-            "arl": "3540799",
-            "parafiscales": "3540799"
+            "salud": "3873194",
+            "pension": "3873194",
+            "arl": "3873194",
+            "parafiscales": "3873194"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1027973
+            }
+          ]
         }
       ]
     },
@@ -2666,6 +3177,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2677,12 +3190,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3023412",
-            "pension": "3023412",
-            "arl": "2411866",
-            "parafiscales": "2411866"
+            "salud": "3452414",
+            "pension": "3452414",
+            "arl": "3452414",
+            "parafiscales": "3452414"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 650966
+            }
+          ]
         }
       ]
     },
@@ -2715,6 +3236,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2726,12 +3249,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3001143",
-            "pension": "3001143",
-            "arl": "3001143",
-            "parafiscales": "3001143"
+            "salud": "3430145",
+            "pension": "3430145",
+            "arl": "3430145",
+            "parafiscales": "3430145"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 628697
+            }
+          ]
         }
       ]
     },
@@ -2764,6 +3295,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2775,12 +3308,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2658097",
-            "pension": "2658097",
-            "arl": "2658097",
-            "parafiscales": "2658097"
+            "salud": "2828759",
+            "pension": "2828759",
+            "arl": "2828759",
+            "parafiscales": "2828759"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 858991
+            }
+          ]
         }
       ]
     },
@@ -2813,6 +3354,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2824,12 +3367,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3152668",
-            "pension": "3152668",
-            "arl": "3152668",
-            "parafiscales": "3152668"
+            "salud": "3736318",
+            "pension": "3736318",
+            "arl": "3736318",
+            "parafiscales": "3736318"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 891098
+            }
+          ]
         }
       ]
     },
@@ -2862,6 +3413,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2873,10 +3426,10 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "18505776",
-            "pension": "18505776",
-            "arl": "16874776",
-            "parafiscales": "16874776"
+            "salud": "15933236",
+            "pension": "15933236",
+            "arl": "15933236",
+            "parafiscales": "15933236"
           },
           "novedades": []
         }
@@ -2911,6 +3464,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -2922,10 +3477,10 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "18505776",
-            "pension": "18505776",
-            "arl": "16674776",
-            "parafiscales": "16674776"
+            "salud": "15933236",
+            "pension": "15933236",
+            "arl": "15933236",
+            "parafiscales": "15933236"
           },
           "novedades": []
         }
@@ -2960,6 +3515,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3009,6 +3566,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3020,12 +3579,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3160201",
-            "pension": "3160201",
-            "arl": "3160201",
-            "parafiscales": "3160201"
+            "salud": "3492565",
+            "pension": "3492565",
+            "arl": "3492565",
+            "parafiscales": "3492565"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 647345
+            }
+          ]
         }
       ]
     },
@@ -3058,6 +3625,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3069,12 +3638,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2713052",
-            "pension": "2713052",
-            "arl": "2713052",
-            "parafiscales": "2713052"
+            "salud": "3142054",
+            "pension": "3142054",
+            "arl": "3142054",
+            "parafiscales": "3142054"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 340606
+            }
+          ]
         }
       ]
     },
@@ -3107,6 +3684,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3118,12 +3697,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2678706",
-            "pension": "2678706",
-            "arl": "2678706",
-            "parafiscales": "2678706"
+            "salud": "3107708",
+            "pension": "3107708",
+            "arl": "3107708",
+            "parafiscales": "3107708"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 306260
+            }
+          ]
         }
       ]
     },
@@ -3156,6 +3743,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3167,12 +3756,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "4709205",
-            "pension": "4709205",
-            "arl": "4709205",
-            "parafiscales": "4709205"
+            "salud": "4983471",
+            "pension": "4983471",
+            "arl": "4983471",
+            "parafiscales": "4983471"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1043935
+            }
+          ]
         }
       ]
     },
@@ -3205,6 +3802,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3216,10 +3815,10 @@
             "caja": 7
           },
           "ibc": {
-            "salud": "3158988",
-            "pension": "3158988",
-            "arl": "3158988",
-            "parafiscales": "3158988"
+            "salud": "643458",
+            "pension": "643458",
+            "arl": "643458",
+            "parafiscales": "643458"
           },
           "novedades": [
             {
@@ -3239,12 +3838,20 @@
             "caja": 23
           },
           "ibc": {
-            "salud": "2801372",
-            "pension": "2801372",
-            "arl": "2230893",
-            "parafiscales": "2722291"
+            "salud": "2551356",
+            "pension": "2551356",
+            "arl": "2551356",
+            "parafiscales": "2551356"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 570180
+            }
+          ]
         }
       ]
     },
@@ -3277,6 +3884,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3288,12 +3897,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2413304",
-            "pension": "2413304",
-            "arl": "2413304",
-            "parafiscales": "2413304"
+            "salud": "2583966",
+            "pension": "2583966",
+            "arl": "2583966",
+            "parafiscales": "2583966"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 614198
+            }
+          ]
         }
       ]
     },
@@ -3326,6 +3943,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3337,12 +3956,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2297666",
-            "pension": "2297666",
-            "arl": "2297666",
-            "parafiscales": "2297666"
+            "salud": "2468328",
+            "pension": "2468328",
+            "arl": "2468328",
+            "parafiscales": "2468328"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 498560
+            }
+          ]
         }
       ]
     },
@@ -3375,6 +4002,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3386,10 +4015,10 @@
             "caja": 10
           },
           "ibc": {
-            "salud": "428705",
-            "pension": "428705",
-            "arl": "428705",
-            "parafiscales": "764178"
+            "salud": "506685",
+            "pension": "506685",
+            "arl": "506685",
+            "parafiscales": "506685"
           },
           "novedades": [
             {
@@ -3397,6 +4026,13 @@
               "fecha_desde": "2025-12-10",
               "fecha_hasta": "2025-12-10",
               "dias": 1
+            },
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 96555
             }
           ]
         }
@@ -3431,13 +4067,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -3480,13 +4118,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -3529,21 +4169,23 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "IRL",
           "dias": {
             "salud": 8,
-            "pension": 8,
+            "pension": 0,
             "arl": 8,
             "caja": 8
           },
           "ibc": {
-            "salud": "0",
+            "salud": "189800",
             "pension": "0",
-            "arl": "711750",
-            "parafiscales": "0"
+            "arl": "189800",
+            "parafiscales": "189800"
           },
           "novedades": [
             {
@@ -3558,15 +4200,15 @@
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 22,
-            "pension": 22,
+            "pension": 0,
             "arl": 22,
             "caja": 22
           },
           "ibc": {
-            "salud": "379600",
-            "pension": "379600",
-            "arl": "362518",
-            "parafiscales": "379600"
+            "salud": "521950",
+            "pension": "0",
+            "arl": "521950",
+            "parafiscales": "521950"
           },
           "novedades": []
         }
@@ -3601,6 +4243,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3612,12 +4256,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2013352",
-            "pension": "2013352",
-            "arl": "2013352",
-            "parafiscales": "2013352"
+            "salud": "2301983",
+            "pension": "2301983",
+            "arl": "2301983",
+            "parafiscales": "2301983"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 113352
+            }
+          ]
         }
       ]
     },
@@ -3650,6 +4302,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3661,12 +4315,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3406885",
-            "pension": "3406885",
-            "arl": "3406885",
-            "parafiscales": "3406885"
+            "salud": "3792114",
+            "pension": "3792114",
+            "arl": "3792114",
+            "parafiscales": "3792114"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 1034439
+            }
+          ]
         }
       ]
     },
@@ -3699,6 +4361,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3748,6 +4412,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3759,12 +4425,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "1843270",
-            "pension": "1843270",
-            "arl": "1843270",
-            "parafiscales": "1843270"
+            "salud": "2170675",
+            "pension": "2170675",
+            "arl": "2170675",
+            "parafiscales": "2170675"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 419770
+            }
+          ]
         }
       ]
     },
@@ -3797,6 +4471,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3808,12 +4484,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2421228",
-            "pension": "2421228",
-            "arl": "2421228",
-            "parafiscales": "2421228"
+            "salud": "2591890",
+            "pension": "2591890",
+            "arl": "2591890",
+            "parafiscales": "2591890"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 622122
+            }
+          ]
         }
       ]
     },
@@ -3846,6 +4530,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3857,12 +4543,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3326790",
-            "pension": "3326790",
-            "arl": "3326790",
-            "parafiscales": "3326790"
+            "salud": "3587617",
+            "pension": "3587617",
+            "arl": "3587617",
+            "parafiscales": "3587617"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 961260
+            }
+          ]
         }
       ]
     },
@@ -3895,6 +4589,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3906,12 +4602,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3679670",
-            "pension": "3679670",
-            "arl": "3679670",
-            "parafiscales": "3679670"
+            "salud": "3839879",
+            "pension": "3839879",
+            "arl": "3839879",
+            "parafiscales": "3839879"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 775796
+            }
+          ]
         }
       ]
     },
@@ -3944,6 +4648,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -3955,12 +4661,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2561163",
-            "pension": "2561163",
-            "arl": "2561163",
-            "parafiscales": "2561163"
+            "salud": "2990165",
+            "pension": "2990165",
+            "arl": "2990165",
+            "parafiscales": "2990165"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 188717
+            }
+          ]
         }
       ]
     },
@@ -3993,6 +4707,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4004,12 +4720,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "3418200",
-            "pension": "3418200",
-            "arl": "3418200",
-            "parafiscales": "3418200"
+            "salud": "3750596",
+            "pension": "3750596",
+            "arl": "3750596",
+            "parafiscales": "3750596"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 905376
+            }
+          ]
         }
       ]
     },
@@ -4042,13 +4766,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -4091,13 +4817,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -4140,13 +4868,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -4189,13 +4919,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -4238,13 +4970,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -4287,6 +5021,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4336,6 +5072,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4385,6 +5123,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4434,13 +5174,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -4483,13 +5225,15 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -4532,13 +5276,15 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
           "tipo_linea": "NORMAL",
           "dias": {
             "salud": 30,
-            "pension": 30,
+            "pension": 0,
             "arl": 30,
             "caja": 30
           },
@@ -4581,6 +5327,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4592,12 +5340,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2992175",
-            "pension": "2992175",
-            "arl": "2992175",
-            "parafiscales": "2992175"
+            "salud": "3253002",
+            "pension": "3253002",
+            "arl": "3253002",
+            "parafiscales": "3253002"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 626645
+            }
+          ]
         }
       ]
     },
@@ -4630,6 +5386,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4641,12 +5399,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2831502",
-            "pension": "2831502",
-            "arl": "2831502",
-            "parafiscales": "2831502"
+            "salud": "3092329",
+            "pension": "3092329",
+            "arl": "3092329",
+            "parafiscales": "3092329"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 465972
+            }
+          ]
         }
       ]
     },
@@ -4679,6 +5445,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4690,12 +5458,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2166696",
-            "pension": "2166696",
-            "arl": "2166696",
-            "parafiscales": "2166696"
+            "salud": "2337358",
+            "pension": "2337358",
+            "arl": "2337358",
+            "parafiscales": "2337358"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 367590
+            }
+          ]
         }
       ]
     },
@@ -4728,6 +5504,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4739,12 +5517,20 @@
             "caja": 30
           },
           "ibc": {
-            "salud": "2574970",
-            "pension": "2574970",
-            "arl": "2574970",
-            "parafiscales": "2574970"
+            "salud": "2745632",
+            "pension": "2745632",
+            "arl": "2745632",
+            "parafiscales": "2745632"
           },
-          "novedades": []
+          "novedades": [
+            {
+              "codigo": "VST",
+              "fecha_desde": "2025-12-01",
+              "fecha_hasta": "2025-12-01",
+              "dias": null,
+              "valor_vst": 775864
+            }
+          ]
         }
       ]
     },
@@ -4777,6 +5563,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4826,6 +5614,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4875,6 +5665,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4931,6 +5723,8 @@
       "tarifas": {
         "arl": "0.522"
       },
+      "codigo_centro_trabajo": 0,
+      "clase_riesgo": "1",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -4987,6 +5781,8 @@
       "tarifas": {
         "arl": "4.350"
       },
+      "codigo_centro_trabajo": 1,
+      "clase_riesgo": "4",
       "actividad_economica_arl": "4522901",
       "registros": [
         {
@@ -5023,6 +5819,17 @@
   "parametros": {
     "smmlv": 1423500,
     "tope_ibc_smmlv": 25,
-    "dias_base": 30
+    "dias_base": 30,
+    "fsp_porcentajes": {
+      "4-16": 0.01,
+      "16-17": 0.012,
+      "17-18": 0.013999999999999999,
+      "18-19": 0.016,
+      "19-20": 0.018000000000000002,
+      ">20": 0.02
+    },
+    "factor_integral": 0.7,
+    "tasa_salud_emp": 0.04,
+    "tasa_salud_empl_ibc_mayor_10": 0.085
   }
 }

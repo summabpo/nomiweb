@@ -13,47 +13,60 @@
         
         <div class="d-flex justify-content-center">
             <div class="col-md-12">
-              <form method="post" action="{% url 'payroll:automatic_systems'  type_payroll  idnomina %}"  id="form_automatic" class="form-group">
-                {% csrf_token %}
-                
-                <div class="row mb-3 justify-content-center">
-                  <div class="col-md-12 input-group-sm text-center">
-                    <label for="cost-center">
-                      <input type="checkbox"  id="need-comment" name="need_comment" up-change="toggleCommentField()">
-                      Cálculo por centro de costo?
-                    </label>
-                  </div>
-                </div>
-                <input type="hidden" name="idnomina" value={{idnomina}}>
-                <br>
-                <div class="row mb-3 justify-content-center" id="comment-field" style="display: none;">
-                  <div class="col-md-12 input-group-sm text-center">
-                    <select id="costos" name="costos" class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un Centro de Costo">
-                      <option value=""></option>
-                      {% for centro in centros %}
-                        <option value="{{ centro.idcosto }}">{{ centro.nomcosto }}</option>
-                      {% endfor %}
-                    </select>
+              {% if type_payroll == 5 %}
+                <form method="post" action="{% url 'payroll:automatic_systems'  type_payroll  idnomina %}"  id="form_automatic" class="form-group">
+                  {% csrf_token %}
 
-                  </div>
-                </div>
-                <br>
-                <select class="form-select form-select-sm" 
-                data-control="select2" 
-                data-placeholder="Seleccione un empleado"  
-                data-allow-clear="true" 
-                multiple="multiple" 
-                data-minimum-results-for-search="0" 
-                id = 'empleados'
-                name = 'empleados'
-                >
-                      <option value="" ></option>
-                      {% for empleado in empleados %}
-                        <option value="{{ empleado.idcontrato}}">{{empleado.idempleado__docidentidad}} - {{ empleado.idempleado__pnombre }} {{ empleado.idempleado__papellido }} {{ empleado.idempleado__sapellido }} - {{ empleado.idcontrato}}</option>
-                      {% endfor %}
-                </select>
+                  <small class="form-text text-muted d-block mt-2">
+                    El recálculo de nómina permite actualizar los valores salariales de los empleados incluidos en esta nómina,
+                    recalculando automáticamente aportes a seguridad social (EPS, pensión), salario y demás conceptos asociados.
+                  </small>
 
-              </form>
+                </form>
+
+              {% else %}
+                <form method="post" action="{% url 'payroll:automatic_systems'  type_payroll  idnomina %}"  id="form_automatic" class="form-group">
+                  {% csrf_token %}
+                  
+                  <div class="row mb-3 justify-content-center">
+                    <div class="col-md-12 input-group-sm text-center">
+                      <label for="cost-center">
+                        <input type="checkbox"  id="need-comment" name="need_comment" up-change="toggleCommentField()">
+                        Cálculo por centro de costo?
+                      </label>
+                    </div>
+                  </div>
+                  <input type="hidden" name="idnomina" value={{idnomina}}>
+                  <br>
+                  <div class="row mb-3 justify-content-center" id="comment-field" style="display: none;">
+                    <div class="col-md-12 input-group-sm text-center">
+                      <select id="costos" name="costos" class="form-select form-select-sm" data-control="select2" data-placeholder="Seleccione un Centro de Costo">
+                        <option value=""></option>
+                        {% for centro in centros %}
+                          <option value="{{ centro.idcosto }}">{{ centro.nomcosto }}</option>
+                        {% endfor %}
+                      </select>
+
+                    </div>
+                  </div>
+                  <br>
+                  <select class="form-select form-select-sm" 
+                  data-control="select2" 
+                  data-placeholder="Seleccione un empleado"  
+                  data-allow-clear="true" 
+                  multiple="multiple" 
+                  data-minimum-results-for-search="0" 
+                  id = 'empleados'
+                  name = 'empleados'
+                  >
+                        <option value="" ></option>
+                        {% for empleado in empleados %}
+                          <option value="{{ empleado.idcontrato}}">{{empleado.idempleado__docidentidad}} - {{ empleado.idempleado__pnombre }} {{ empleado.idempleado__papellido }} {{ empleado.idempleado__sapellido }} - {{ empleado.idcontrato}}</option>
+                        {% endfor %}
+                  </select>
+
+                </form>
+              {% endif %}
             </div>
         </div>
 

@@ -38,7 +38,7 @@ error_messages = {
 def update_salary(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
-    
+
     # Obtener fecha actual
     from datetime import date
     fecha_hoy = date.today()
@@ -68,8 +68,7 @@ def update_salary(request):
     for i in novsalarios:
         contrato = Contratos.objects.get(idcontrato=i.idcontrato.idcontrato)
         
-        # Validar que la fecha del nuevo salario sea igual a hoy
-        if i.fechanuevosalario == fecha_hoy and contrato.salario != i.nuevosalario:
+        if i.fechanuevosalario <= fecha_hoy and contrato.salario != i.nuevosalario:
             contrato.salario = i.nuevosalario
             contrato.save()
     
@@ -84,20 +83,21 @@ def actualizacion():
     return('ok')
 
 
-# @login_required
-# @role_required('company','accountant').
-@csrf_exempt
+@login_required
+@role_required('company','accountant')
 def update_salary_add(request):
-    
+    existe_historial = False
     usuario = request.session.get('usuario', {})
-    idempresa = 16
-    
+    idempresa = usuario['idempresa']
+
     form = updatesalaryForm(idempresa = idempresa)
     if request.method == 'POST':
         
         form = updatesalaryForm(request.POST , idempresa=idempresa )
         if form.is_valid():
             
+            print(request.POST)
+
             contrato_id = form.cleaned_data['contract']
             nuevosalario = form.cleaned_data['Salario_nuevo']
             fecha_nuevo = form.cleaned_data['fecha_nuevo']
@@ -114,12 +114,14 @@ def update_salary_add(request):
                 dataaux =  NovSalarios.objects.filter(nuevosalario = contrato.salario , idcontrato_id = form.cleaned_data['contract'] ).first()
                 
                 # validar existencia
-                existe_historial = HistorialSalario.objects.filter(
-                    contrato_id=contrato_id,
-                    salario=salario_nuevo,
-                    fecha_inicio=dataaux.fechanuevosalario,
-                    fecha_fin=fecha_nuevo
-                ).exists()
+                if dataaux : 
+                    existe_historial = HistorialSalario.objects.filter(
+                        contrato_id=contrato_id,
+                        salario=salario_nuevo,
+                        fecha_inicio=dataaux.fechanuevosalario,
+                        fecha_fin=fecha_nuevo
+                    ).exists()
+                
 
 
                 existe_novsalario = NovSalarios.objects.filter(
@@ -146,7 +148,7 @@ def update_salary_add(request):
                             historial = HistorialSalario.objects.create(
                                 contrato_id=contrato_id,
                                 salario=contrato.salario,
-                                fecha_inicio=dataaux.fechanuevosalario,
+                                fecha_inicio=novsalario.fechanuevosalario,
                                 es_actual=True,
                             )
                         else:
@@ -298,22 +300,42 @@ def update_salary_add_masive(request):
         # =========================
         # 2GUARDAR (SIN ERRORES)
         # =========================
-        for r in pending_rows:
-            print('--------5--------------')
-            NovSalarios.objects.create(
-                idcontrato=r["contrato"],
-                salarioactual=r["contrato"].salario,
-                nuevosalario=r["nuevo_salario"],
-                fechanuevosalario=r["fecha"],
-                tiposalario=r["contrato"].tiposalario.idtiposalario
+        # =========================
+        # GUARDAR
+        # =========================
+        try:
+            with transaction.atomic():
+                for r in pending_rows:
+                    NovSalarios.objects.create(
+                        idcontrato=r["contrato"],
+                        salarioactual=r["contrato"].salario,
+                        nuevosalario=r["nuevo_salario"],
+                        fechanuevosalario=r["fecha"],
+                        tiposalario=r["contrato"].tiposalario.idtiposalario
+                    )
+
+        except Exception as e:
+
+            return render(
+                request,
+                './companies/partials/update_salary_add_masive_error.html',
+                {
+                    "errores": [{"error": str(e)}],
+                    "message": "Ocurrió un error al guardar."
+                }
             )
 
+        # =========================
+        # SUCCESS
+        # =========================
         return render(
-                request,
-                './companies/partials/update_salary_add_masive_success.html',
-                {"errores": errores,
-                "message": "No se guardó ningún registro"}
-            )
+            request,
+            './companies/partials/update_salary_add_masive_success.html',
+            {
+                "total": len(pending_rows),
+                "message": f"Se guardaron {len(pending_rows)} registros correctamente."
+            }
+        )
 
 
     return render(

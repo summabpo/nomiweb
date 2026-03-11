@@ -14,7 +14,7 @@ from .views.accounting import benefits_provision
 from .views.accounting import security_provision
 from .views.severance import severance
 from .views.history import history 
-from .views import liquidacion_pila
+#from .views import liquidacion_pila
 
 # afsa fsa asfad 
 

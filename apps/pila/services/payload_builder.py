@@ -2,7 +2,7 @@
 
 from datetime import date
 import calendar
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 from django.db import connection
 from datetime import timedelta
 from apps.common.models import Empresa
@@ -23,14 +23,6 @@ _MESES = {
     "DICIEMBRE": 12,
 }
 _MESES_INV = {v: k for k, v in _MESES.items()}
-
-
-def _ultimo_dia_mes_pila(ano: int, mes_num: int) -> int:
-    """
-    Último día del mes para construir fechas válidas.
-    PILA usa mes comercial 1..30, pero febrero tiene 28/29 días: no se puede usar date(ano, 2, 30).
-    """
-    return min(30, calendar.monthrange(ano, mes_num)[1])
 
 
 def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
@@ -57,9 +49,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         "tipoaportante",
         "claseaportante",
         "tipo_presentacion_planilla",
-        "arl",
-        "codigo_sucursal",
-        "nombre_sucursal",
+        "arl"
     ).get(idempresa=empresa_id_interno)
     empresa_flags = {"empresa_exonerada": bool(empresa.empresa_exonerada)}
 
@@ -245,14 +235,12 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             "nit": empresa.nit or "",  # NIT sin DV
             "dv": empresa.dv or "",  # Dígito de verificación separado
             "razon_social": empresa.nombreempresa or "",
-            "sucursal": "",  # En blanco: tipo presentación única (legacy)
+            "sucursal": "",  # En blanco: tipo presentación única
             "tipo_documento_aportante": empresa.tipodoc or "NI",
             "tipo_aportante": str(empresa.tipoaportante or "1").zfill(2),  # 01=Empleador
             "clase_aportante": empresa.claseaportante or "A",
             "tipo_presentacion_planilla": empresa.tipo_presentacion_planilla or "U",  # U=única, S=sucursal
             "codigo_arl": codigo_arl_empresa,  # Código ARL de la empresa (6 caracteres)
-            "codigo_sucursal": (empresa.codigo_sucursal or ""),  # PILA encabezado campo 12
-            "nombre_sucursal": (empresa.nombre_sucursal or ""),  # PILA encabezado campo 13
             "flags": empresa_flags,
         },
         "periodo": periodo,
@@ -642,25 +630,19 @@ def _dias_base_contrato_mes(
 ) -> int:
     """
     Mes comercial PILA: 1..30.
-    Si el contrato abarca todo el mes (del día 1 al último día del mes), se reportan 30 días.
-    Si no, se reportan los días calendario del rango (máximo 30).
     """
     if not fechainicio:
         return 0
 
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))  # fecha válida (feb 28/29)
+    fin_mes = date(ano, mes_num, 30)  # PILA mes comercial
 
     ini = max(fechainicio, ini_mes)
     fin = fin_mes if fechafin is None else min(fechafin, fin_mes)
 
     if fin < ini:
         return 0
-
-    # Mes completo en PILA = 30 días cotizados (Error 382 exige 30 en los 4 subsistemas)
-    if ini == ini_mes and fin == fin_mes:
-        return 30
 
     dias = (fin - ini).days + 1
     return _cap_30(dias)
@@ -748,7 +730,7 @@ def _novedades_ing_ret_mes(
     """
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))
+    fin_mes = date(ano, mes_num, 30)
 
     novs = []
 
@@ -779,7 +761,7 @@ def _novedades_vacaciones_mes(
 
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))  # mes comercial PILA (feb 28/29)
+    fin_mes = date(ano, mes_num, 30)  # mes comercial PILA
 
     sql = """
     SELECT
@@ -828,7 +810,7 @@ def _novedades_incapacidades_mes(
 ) -> list[dict]:
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))
+    fin_mes = date(ano, mes_num, 30)
 
     cod_map = {"1": "IGE", "2": "IRL", "3": "LMA"}
 
@@ -889,7 +871,7 @@ def _get_vsp_mes(
     """
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))
+    fin_mes = date(ano, mes_num, 30)
     
     sql = """
     SELECT
@@ -953,8 +935,7 @@ def _generar_registros_empleado(
     # - Salud, pensión, ARL: IBC mes anterior (último salario reportado antes de la novedad)
     # - CCF (parafiscales): VAC = IBC mes actual proporcional por días; SLN/SUSP = 0 (sin pago)
     for nov_vac in novedades_vac:
-        cod = nov_vac["codigo"]
-        if cod == "VAC":
+        if nov_vac["codigo"] == "VAC":  # Solo vacaciones tipo 1
             dias_vac = nov_vac["dias"]
             # CCF: IBC mes ACTUAL proporcional (valor pagado por esos días)
             ibc_ccf_vac = int((ibc_actual["caja"] * Decimal(dias_vac) / Decimal(30)).quantize(Decimal("1"), rounding=ROUND_HALF_UP))

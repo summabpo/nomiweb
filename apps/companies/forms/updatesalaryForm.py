@@ -54,7 +54,7 @@ class updatesalaryForm(forms.Form):
                     f"{item['cargo__nombrecargo']} - Contrato #{item['idcontrato']}"
                 )
                 for item in Contratos.objects.filter(
-                    estadocontrato=1,
+                    estadoliquidacion=3,
                     id_empresa=idempresa
                 
                 ).order_by('idempleado__papellido')
