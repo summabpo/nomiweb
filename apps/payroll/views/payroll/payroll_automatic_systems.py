@@ -370,7 +370,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             codigo_aux = '1'
 
         diasnomina = caclular_dias(contrato,nomina,int(codigo_aux))
-
         calculo_prestamo(contrato, idn)
         Calculo_vacaciones(contrato, idn)
         calculo_novfija(contrato, idn)
