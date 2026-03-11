@@ -268,12 +268,15 @@ def payrollview(request, id):
     nombre = Crearnomina.objects.get(idnomina=id)
 
     nomina = Nomina.objects.filter(idnomina_id=id, estadonomina=1).order_by('idregistronom')
+    
+    recal = nomina.exists()
 
     return render(request, './payroll/payrollviews.html', {
         'nomina': nomina,
         'nombre': nombre,
         'empleados': empleados,
-        'id': id
+        'id': id,
+        'recal':recal, 
     })
 
 

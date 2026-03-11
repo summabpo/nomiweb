@@ -64,25 +64,8 @@ def settlement_calculate_data(contract_id , end_date , reason):
         return data 
     
     
-    dias_susp_vac = Nomina.objects.filter(
-        idcontrato=contrato.idcontrato,
-        estadonomina=2,
-        idconcepto__id_empresa = contrato.id_empresa ,
-        idconcepto__indicador__nombre='suspcontrato'
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
-
-
-    dias_susp_vac = Nomina.objects.filter(
-        idcontrato=contrato.idcontrato,
-        estadonomina=2,
-        idconcepto__id_empresa = contrato.id_empresa ,
-        idconcepto__indicador__nombre='suspcontrato'
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
-
     salario_minimo = salario_min_obj.salariominimo
     aux_transporte = 0 if salario > (2 * salario_minimo) else salario_min_obj.auxtransporte
-
-    
 
     # Conceptos
     extras_y_comisiones_qs = Conceptosdenomina.objects.filter(Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones') ,id_empresa = contrato.id_empresa)
@@ -90,15 +73,15 @@ def settlement_calculate_data(contract_id , end_date , reason):
     recargos_qs = Conceptosdenomina.objects.filter(codigo=3 ,id_empresa = contrato.id_empresa )
     
     # Acumulados
-    
-    acum_cesantias = 0
-    acum_prima = 0
+
+    acum_cesantias = acumular_por_mes(Nomina, extras_y_comisiones_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
+    acum_prima = acumular_por_mes(Nomina, extras_y_comisiones_qs, contrato.idcontrato, fecha_fin.year, fecha_prima.month, fecha_fin.month)
     acum_susp = acumular_por_mes(Nomina, suspensiones_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month, campo='cantidad')
-    acum_recargos = 0
+    acum_recargos = acumular_por_mes(Nomina, recargos_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
 
     # Días efectivos
     dias_efectivos_cesantias = dias_cesantias - acum_susp
-    dias_efectivos_prima = dias_prima - acum_susp
+    dias_efectivos_prima = dias_prima
 
     # Bases
     base_cesantias = calcular_base_promedio(acum_cesantias, dias_efectivos_cesantias, salario, aux_transporte)
@@ -106,40 +89,39 @@ def settlement_calculate_data(contract_id , end_date , reason):
     base_vacaciones = calcular_base_vacaciones(acum_recargos, dias_cesantias, salario)
 
     # Vacaciones
-    dias_susp_vac = Nomina.objects.filter(
+    dias_susp_ces = Nomina.objects.filter(
         idcontrato=contrato.idcontrato,
         estadonomina=2,
         idconcepto__id_empresa = contrato.id_empresa ,
         idconcepto__indicador__nombre='suspcontrato'
     ).aggregate(total=Sum('cantidad'))['total'] or 0
 
-    dias_vac_generados = (dias_trabajados - dias_susp_vac) * 15 / 360
+    dias_vac = Nomina.objects.filter(
+        idcontrato=contrato.idcontrato,
+        estadonomina=2,
+        idconcepto__id_empresa = contrato.id_empresa ,
+        idconcepto__indicador__nombre='Vacaciones_Ausent'
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+
+    dias_vac_generados = (dias_trabajados - dias_vac - int(acum_susp) ) * (15 / 360) 
     
     dias_vac_tomados = Vacaciones.objects.filter(idcontrato=contrato.idcontrato).aggregate(total=Sum('diasvac'))['total'] or 0
-    dias_vacaciones = round(dias_vac_generados - (dias_vac_tomados or 0), 2)
+    dias_vacaciones = round(dias_vac_generados - (dias_vac_tomados or 0) , 2)
 
-
-    # Componentes de liquidación
-    prima = calcular_prima(dias_prima, base_prima)
-    cesantias = calcular_cesantias(dias_efectivos_cesantias, base_cesantias)
-    vacaciones = calcular_vacaciones(dias_vacaciones, base_vacaciones)
-    intereses = calcular_intereses_cesantias(dias_cesantias, cesantias)
-    indemnizacion = calcular_indemnizacion(salario, dias_trabajados, reason)
-
-
-    prima = calcular_prima(dias_prima, base_prima)
-    cesantias = calcular_cesantias(dias_efectivos_cesantias, base_cesantias)
-    vacaciones = calcular_vacaciones(dias_vacaciones, base_vacaciones)
-    intereses = calcular_intereses_cesantias(dias_cesantias, cesantias)
-    indemnizacion = calcular_indemnizacion(salario, dias_trabajados, reason)
     
+    # Componentes de liquidación
+    prima = calcular_prima(int(dias_efectivos_prima), base_prima)
+    cesantias = calcular_cesantias(int(dias_efectivos_cesantias), base_cesantias)
+    vacaciones = calcular_vacaciones(dias_vacaciones, base_vacaciones)
+    intereses = calcular_intereses_cesantias(dias_cesantias, cesantias)
+    indemnizacion = calcular_indemnizacion(salario, dias_trabajados, reason)
 
     total_liquidacion = prima + cesantias + vacaciones + intereses + indemnizacion
     
     data = {
         'dias_trabajados': safe_value(dias_trabajados),
-        'dias_prima': safe_value(dias_prima),
-        'dias_cesantias': safe_value(dias_cesantias),
+        'dias_prima': safe_value(dias_efectivos_prima),
+        'dias_cesantias': safe_value(dias_efectivos_cesantias),
         'dias_vacaciones': safe_value(dias_vacaciones),
         'salario': safe_value(salario),
         'aux_transporte': safe_value(aux_transporte),
@@ -154,7 +136,8 @@ def settlement_calculate_data(contract_id , end_date , reason):
         'total_liquidacion': safe_value(total_liquidacion),
         'inicio_contrato': fecha_inicio or "", 
         'fin_contrato': fecha_fin or "",
-        'dias_susp_vac':dias_susp_vac,
+        'dias_susp_vac':dias_vac,
+        'dias_susp_ces':dias_susp_ces,
     }
 
     return data 

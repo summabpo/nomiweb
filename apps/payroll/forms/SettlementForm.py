@@ -33,20 +33,19 @@ class SettlementForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         idempresa = kwargs.pop('idempresa', None)
-        recibida = kwargs.pop('recibida', None)  # ✅ palabra clave para controlar edición
+        recibida = kwargs.pop('recibida', None)  # palabra clave para controlar edición
         super().__init__(*args, **kwargs)
 
-        # 🧩 Construcción dinámica de contratos activos
+        # Construcción dinámica de contratos activos
         contratos_choices = [('', '----------')] + [
             (
                 idcontrato,
-                f"{(pap or '').strip()} {(sap or '').strip()} {(pnom or '').strip()} {(snom or '').strip()} - {idcontrato}"
+                f"{(pap or '').strip()} {(pnom or '').strip()} - {idcontrato} -  {cc}"
             )
-            for pnom, snom, pap, sap, idcontrato in
+            for pnom, pap, idcontrato , cc in
             Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa)
             .order_by('idempleado__papellido')
-            .values_list('idempleado__pnombre', 'idempleado__snombre',
-                         'idempleado__papellido', 'idempleado__sapellido', 'idcontrato')
+            .values_list('idempleado__pnombre','idempleado__papellido', 'idcontrato' , 'idempleado__docidentidad')
         ]
 
         self.fields['contract'] = forms.ChoiceField(
@@ -58,12 +57,12 @@ class SettlementForm(forms.Form):
             })
         )
 
-        # 🧠 Si la acción es editar, se bloquea el campo contrato
+        # Si la acción es editar, se bloquea el campo contrato
         if recibida == "edit":
             self.fields['contract'].widget.attrs['disabled'] = True
             self.fields['contract'].required = False
 
-        # ✅ Configuración adicional del select motivo
+        # Configuración adicional del select motivo
         self.fields['reason_for_termination'].widget.attrs.update({
             'data-control': 'select2',
             'data-tags': 'true',
@@ -71,7 +70,7 @@ class SettlementForm(forms.Form):
             'data-hide-search': "true",
         })
 
-        # 🧱 Configuración del helper Crispy
+        # Configuración del helper Crispy
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_settlement'
