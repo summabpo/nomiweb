@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models import Crearnomina , Tipodenomina , EditHistory , Conceptosfijos , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
+from apps.common.models import Crearnomina , Tipodenomina , Liquidacion , EditHistory , Conceptosfijos , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
 from apps.payroll.forms.PayrollForm import PayrollForm
 from django.contrib import messages
 from .common import generar_nombre_nomina , MES_CHOICES
@@ -168,6 +168,14 @@ def payroll_closet(request,id):
                     close_employee_payroll(data.idcontrato,id)
                     if data.idconcepto.codigo == 1 : 
                         guardar_historico_nomina(data)
+
+
+                if data.idconcepto.codigo == 20 :
+                    
+                    liquidacion = get_object_or_404(Liquidacion, idliquidacion = data.control )
+                    liquidacion.estadoliquidacion = 2
+                    liquidacion.save(update_fields=['estadoliquidacion'])
+
                 data.estadonomina = 2
                 novedades_to_update.append(data)
 
