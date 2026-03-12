@@ -979,11 +979,11 @@ def _generar_registros_empleado(
                 "novedades": [nov_vac],
             })
             dias_usados += dias_vac
-        elif cod in ("SLN", "SUSP"):
+        elif nov_vac["codigo"] in ("SLN", "SUSP"):
             dias_nov = nov_vac["dias"]
             # CCF: IBC = 0 (sin pago remunerado, sin base para caja)
             registros.append({
-                "tipo_linea": cod,
+                "tipo_linea": nov_vac["codigo"],
                 "dias": {
                     "salud": dias_nov,
                     "pension": dias_nov,
