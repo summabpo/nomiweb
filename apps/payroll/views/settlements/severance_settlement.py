@@ -176,6 +176,7 @@ def settlement_list_payroll(request, id,url):
                 idconcepto=conceptos_dict.get(codigo),
                 idnomina=nomina_final,
                 estadonomina=1,
+                control = id , 
                 idcontrato=liquidacion.idcontrato,
             )
 

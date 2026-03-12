@@ -69,17 +69,23 @@ def obtener_fecha_prima(fecha_inicio, fecha_fin):
 
 # --- Cálculos acumulados --- #
 
-def acumular_por_mes(model, conceptos_qs, id_contrato, ano, mes_inicio, mes_fin, campo="valor"):
+def acumular_por_mes(model, conceptos_qs, id_contrato, ano_inicio, mes_inicio, ano_fin, mes_fin, campo="valor"):
 
     total = 0
     conceptos_ids = conceptos_qs.values_list("idconcepto", flat=True)
 
-    for mes in range(mes_inicio, mes_fin + 1):
+    ano = ano_inicio
+    mes = mes_inicio
+
+    while (ano < ano_fin) or (ano == ano_fin and mes <= mes_fin):
 
         nombre_mes = MESES[mes]
         subtotal_mes = 0
 
+        print(f"-------------- {nombre_mes} {ano} --------------")
+
         for data in conceptos_ids:
+
             qs = model.objects.filter(
                 idcontrato=id_contrato,
                 idconcepto_id=data,
@@ -89,9 +95,21 @@ def acumular_por_mes(model, conceptos_qs, id_contrato, ano, mes_inicio, mes_fin,
             )
 
             valor = qs.aggregate(total=Sum(campo))["total"] or 0
+
+            print(f"{data} -> {valor} --> {campo}")
+
             subtotal_mes += valor
 
         total += subtotal_mes
+
+        # avanzar mes
+        mes += 1
+        if mes > 12:
+            mes = 1
+            ano += 1
+
+    print("TOTAL FINAL:", total)
+
     return total
 # --- Cálculo de bases --- #
 
@@ -103,10 +121,15 @@ def calcular_base_promedio(acumulado: float, dias: int, salario: float, transpor
 
 
 
-def calcular_base_vacaciones(acum_recargos: float, dias_cesantias: int, salario: float) -> int:
-    if dias_cesantias <= 0:
+def calcular_base_vacaciones(acum_recargos: float, dias_trabajados: int, salario: float) -> int:
+    
+    if dias_trabajados <= 0:
         return ceil(salario)
-    return ceil((acum_recargos / dias_cesantias * 30) + salario)
+
+    promedio_diario = acum_recargos / dias_trabajados
+    promedio_mensual = promedio_diario * 30
+
+    return ceil(salario + promedio_mensual)
 
 # --- Cálculo de componentes de liquidación --- #
 

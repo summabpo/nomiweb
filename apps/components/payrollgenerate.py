@@ -167,7 +167,7 @@ def genera_comprobante(idnomina, idcontrato, date=1):
             'cargo': (cargo[:32] + '...') if len(cargo) > 32 else cargo,
             'salario': format_value(contrato.salario),
             'cuenta': contrato.cuentanomina,
-            'ccostos': centro,
+            'ccostos':  (centro[:12] + '...') if len(centro) > 15 else centro , 
             'periodos': periodo,
             'eps': (eps[:12] + '...') if len(eps) > 15 else eps,
             'pension': (pension[:12] + '...') if len(pension) > 15 else pension,

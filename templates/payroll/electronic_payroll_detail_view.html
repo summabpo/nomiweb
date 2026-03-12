@@ -170,7 +170,7 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                                                 <th class="text-center">Valor</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody >
                                             {% if json_data.Devengados.Basico.SueldoTrabajado %}
                                             <tr>
                                                 <td>Básico</td>
@@ -179,7 +179,6 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                                             </tr>
                                             {% endif %}
 
-
                                             {% if json_data.Devengados.Transporte.AuxilioTransporte %}
                                             <tr>
                                                 <td>Auxilio Transporte</td>
@@ -187,6 +186,16 @@ Detalle Envio Nómina: {{ detail_payroll.employee_name }}
                                                 <td class="text-end">{{ json_data.Devengados.Transporte.AuxilioTransporte|floatformat:2|intcomma }}</td>
                                             </tr>
                                             {% endif %}
+
+                                            {% if json_data.Devengados.Auxilio.AuxilioNS %}
+                                            <tr>
+                                                <td>Auxilio No Salariales</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-end">{{ json_data.Devengados.Auxilio.AuxilioNS|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endif %}
+
+
                                             {% if json_data.Devengados.Transporte.ViaticoManuAlojS %}
                                             <tr>
                                                 <td>Viático Manutención y Alojamiento (S)</td>
