@@ -129,7 +129,7 @@ class ContractForm(forms.Form):
         self.fields['subContributor'] = forms.ChoiceField(
             choices=[('', '----------')] + [(subtipo.subtipocotizante, f"{subtipo.subtipocotizante} - {subtipo.descripcion}"   ) for subtipo in Subtipocotizantes.objects.all().order_by('descripcion')], 
             label='Subtipo de Cotizante' , 
-            required=True ,
+            required=False,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
                     'class': 'form-select',
@@ -224,6 +224,7 @@ class ContractForm(forms.Form):
         self.fields['bankAccount'] = forms.ChoiceField(
             choices=[('', '----------')] + [(banco.idbanco, banco.nombanco) for banco in Bancos.objects.all().exclude(idbanco=27).order_by('nombanco')], 
             label='Banco de la Cuenta', 
+            required=False,
             widget=forms.Select(attrs={
                     'data-control': 'select2',
 
