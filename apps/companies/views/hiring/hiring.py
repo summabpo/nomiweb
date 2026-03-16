@@ -237,6 +237,7 @@ def hiring_contract(request,idempleado):
             sedes = get_or_none(Sedes, idsede=form_contratos.cleaned_data['workPlace'])
             eps = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['eps'])
             pen = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['pensionFund'])
+            ccf = get_or_none(Entidadessegsocial, codsgp = sedes.codccf )
             cjc = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['CesanFund'])
             modelo = get_or_none(ModelosContratos, idmodelo=form_contratos.cleaned_data['contractModel'])
             
@@ -277,7 +278,7 @@ def hiring_contract(request,idempleado):
                     salariovariable = form_contratos.cleaned_data['salaryMode'],
                     codeps = eps, 
                     codafp = pen ,
-                    codccf = cjc ,
+                    codccf = ccf ,
                     fondocesantias = cjc ,
                     auxiliotransporte = form_contratos.cleaned_data['livingPlace'],
                     dependientes = 0,

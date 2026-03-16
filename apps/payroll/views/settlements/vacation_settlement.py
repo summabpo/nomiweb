@@ -87,6 +87,9 @@ def vacation_settlement_add(request):
         fecha_inicio = request.POST.get("fecha_inicio-1")
         fecha_fin = request.POST.get("fecha_fin-1")
         sabados = request.POST.get("sabados-1")
+        periodo1 = request.POST.get("fecha_periodo-1")
+        periodo2 = request.POST.get("fecha_periodo-2")
+
         salario = Contratos.objects.get(idcontrato = contrato).salario
         
 
@@ -155,6 +158,8 @@ def vacation_settlement_add(request):
             #idnomina = nomina,
             cuentasabados= csabado ,
             tipovac= Tipoavacaus.objects.get(idvac = novedad ) ,
+            perinicio = periodo1,
+            perfinal = periodo2, 
             fechapago = fecha_pago , 
             idvacmaster = id_master
             
