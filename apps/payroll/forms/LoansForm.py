@@ -10,8 +10,6 @@ class LoansForm(forms.Form):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'required': True,
-            'x-model': 'loanAmount',
-            '@input': 'calculateInstallmentValue',
             'x-mask:dynamic': "$money($input, '.', ',', 4)"
         })
     )
@@ -21,8 +19,6 @@ class LoansForm(forms.Form):
         label="Cuotas del Préstamo",
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'x-model': 'installmentsNumber',
-            '@input': 'calculateInstallmentValue',
             'x-mask:dynamic': "$money($input, '.', ',', 0)"
         })
     )
@@ -32,8 +28,6 @@ class LoansForm(forms.Form):
         label="Valor de la Cuota",
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'x-model': 'installmentsNumber',
-            '@input': 'calculateInstallmentValue',
             'x-mask:dynamic': "$money($input, '.', ',', 0)"
         })
     )
@@ -46,8 +40,24 @@ class LoansForm(forms.Form):
         })
     )
 
+    state = forms.ChoiceField(
+        required=False,
+        label="estado prestamo",
+        choices=[
+            (1, 'Activo'),
+            (0, 'Pagado'),
+        ],
+        widget=forms.Select(attrs={
+            'data-choices': '',
+            'data-control': 'select2',
+            'data-hide-search': 'true',
+            'data-choices-sorting-false': ''
+        })
+    )
+
     def __init__(self, *args, **kwargs):
         id_empresa = kwargs.pop('id_empresa', None)  
+        modo = kwargs.pop('modo', 0)  
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -55,6 +65,10 @@ class LoansForm(forms.Form):
         self.helper.form_id = 'form_loans'
         self.helper.enctype = 'multipart/form-data'
         
+
+        
+
+
         self.helper.attrs.update({
             'up-target': '#modal-content',
             'up-mode': 'replace',
@@ -96,23 +110,53 @@ class LoansForm(forms.Form):
             })
         )
 
-        self.helper.layout = Layout(
+
+        if modo == 1: 
+            self.fields['contract'].disabled = True
+            self.fields['loan_amount'].disabled = True
+            self.fields['loan_date'].disabled = True
+            for field in self.fields.values():
+                field.required = False
+
+
+        layout_fields = [
+
+            ##Información General ( va bloqueada )
             Row(
                 Column('contract', css_class='form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             Row(
-                Column('loan_amount', css_class='form-group col-md-4 mb-3'),
-                Column('installments_number', css_class='form-group col-md-4 mb-3'),
-                Column('installment_value', css_class='form-group col-md-4 mb-3'),
+                Column('loan_amount', css_class='form-group col-md-6 mb-3'),
+                Column('installment_value', css_class='form-group col-md-6 mb-3'),
                 css_class='row'
             ),
-            Row(
-                Column('loan_date', css_class='form-group col-md-12 mb-3'),
-                css_class='row'
+
+        ]
+
+
+        if modo == 1 :
+            layout_fields.append(
+                ## Información Bancaria
+                Row(
+                    Column('loan_date', css_class='form-group col-md-6 mb-'),
+                    Column('state', css_class='form-group col-md-6 mb-'),
+                    css_class='row'
+                )
             )
-        )
-        
+
+        else : 
+            layout_fields.append(
+                ## Información Bancaria
+                Row(
+                    Column('loan_date', css_class='form-group col-md-12 mb-3'),
+                    css_class='row'
+                )
+            )
+
+
+
+        self.helper.layout = Layout(*layout_fields)
         
     def clean(self):
         cleaned_data = super().clean()
@@ -126,16 +170,7 @@ class LoansForm(forms.Form):
         except ValueError:
             self.add_error('loan_amount', 'Ingrese un valor numérico válido para el préstamo.')
             loan_amount = 0  # Asignar valor predeterminado en caso de error
-
-        # Convertir installments_number a entero asegurando que no sea menor que 1
-        try:
-            installments_number = int(float(installments_number.replace(',', '').strip()))
-            if installments_number < 1:
-                self.add_error('installments_number', 'El número de cuotas debe ser mayor a 0.')
-        except ValueError:
-            self.add_error('installments_number', 'Ingrese un número válido de cuotas.')
-            installments_number = 0  # Asignar valor predeterminado en caso de error
-
+        
         # Validar que loan_amount sea mayor o igual a installment_value
         if installment_value:
             try:

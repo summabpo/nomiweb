@@ -44,25 +44,54 @@
                 </td>
                 <td  class="text-center align-middle">
                     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                        <a 
-                            up-layer="new modal"
-                            up-target=".modal-content"
-                            up-size="medium"
-                            up-align="center"
-                            up-backdrop="true"
-                            up-history="false"
-                            up-dismissable="false"
-                            up-cache="false"
 
-                            data-bs-toggle="tooltip" 
-                            data-bs-custom-class="tooltip-inverse" 
-                            data-bs-placement="top" 
-                            title="Ver datos del préstamo"
+                            <a
+                                class='btn btn-icon btn-sm btn-light-facebook me-2 '
 
-                            href="{% url 'payroll:detail_employee_loans_modal' loan.idprestamo %}" 
-                            class="btn btn-icon btn-light-info" >
-                            <i class="fa-regular fa-eye fs-3"></i>
-                        </a>
+                                data-bs-toggle="tooltip"
+                                data-bs-custom-class="tooltip-inverse"
+                                data-bs-placement="top" 
+                                title="Editar"
+
+                                up-layer='new modal'
+                                up-target=".modal-content2"
+                                up-size="medium"
+                                up-align="center"
+                                up-backdrop="true"
+                                up-history="false"
+                                up-dismissable="false"
+                                up-cache="false"
+
+                                href="{% url 'payroll:edit_employee_loans_modal' loan.idprestamo %}">
+
+                                <span class="notification-dot"></span>
+
+                                <i class="fa-solid fa-pen-to-square fs-4"></i>
+
+                            </a>
+                            <div style="width: 5px;"></div>
+                            <a
+                                class='btn btn-icon btn-sm me-2 btn-light-instagram'
+
+                                data-bs-toggle="tooltip"
+                                data-bs-custom-class="tooltip-inverse"
+                                data-bs-placement="top" 
+                                title="Ver data"
+
+                                up-layer='new modal'
+                                up-target=".modal-content"
+                                up-size = "medium"
+                                up-align = "center"
+                                up-backdrop = "true"
+                                up-history = "false"
+                                up-dismissable ="false"
+                                up-cache="false"
+
+                                href="{% url 'payroll:detail_employee_loans_modal' loan.idprestamo %}">
+                                <i class="fas fa-solid fa-eye fs-3 "></i>
+                            </a> 
+
+
                     </div>
                 </td>
             </tr>

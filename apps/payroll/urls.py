@@ -169,6 +169,7 @@ urlunpolypatterns =[
     ## loans 
     path('payroll/loans/add', loans.employee_loans_modal_add, name='employee_loans_modal_add'),
     path('payroll/loans/data/<int:id>', loans.detail_employee_loans_modal, name='detail_employee_loans_modal'),
+    path('payroll/loans/edit/<int:id>', loans.edit_employee_loans_modal, name='edit_employee_loans_modal'),
     
     
     ## vaca 
