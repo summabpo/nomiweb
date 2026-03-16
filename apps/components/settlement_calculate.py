@@ -74,11 +74,12 @@ def settlement_calculate_data(contract_id , end_date , reason):
     
     # Acumulados
 
-    #acum_cesantias = acumular_por_mes(Nomina, extras_y_comisiones_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month)
-    #acum_prima = acumular_por_mes(Nomina, extras_y_comisiones_qs, contrato.idcontrato, fecha_fin.year, fecha_prima.month, fecha_fin.month)
-    #acum_susp = acumular_por_mes(Nomina, suspensiones_qs, contrato.idcontrato, fecha_fin.year, fecha_cesantias.month, fecha_fin.month, campo='cantidad')
+    acum_cesantias = acumular_por_mes(Nomina,extras_y_comisiones_qs,contrato.idcontrato,fecha_cesantias.year,fecha_cesantias.month,fecha_fin.year,fecha_fin.month)
+    acum_prima = acumular_por_mes(Nomina,extras_y_comisiones_qs,contrato.idcontrato,fecha_prima.year,fecha_prima.month,fecha_fin.year,fecha_fin.month)
+    acum_susp = acumular_por_mes(Nomina,suspensiones_qs,contrato.idcontrato,fecha_cesantias.year,fecha_cesantias.month,fecha_fin.year,fecha_fin.month,campo="cantidad")
     acum_recargos = acumular_por_mes(Nomina,recargos_qs,contrato.idcontrato,fecha_cesantias.year,fecha_cesantias.month,fecha_fin.year,fecha_fin.month)
-    acum_susp = acum_prima = acum_cesantias = 0 
+    
+    #acum_susp = acum_prima = acum_cesantias = 0 
 
 
 

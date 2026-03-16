@@ -309,8 +309,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    #  , idcontrato = 8018 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
+    #  , idcontrato = 10731
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa ) 
     
 
     if parte_nomina != 0:
