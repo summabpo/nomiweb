@@ -355,13 +355,67 @@ class Centrotrabajo(models.Model):
 #* tablas espesificas - revisadas 
 
 class Empresa(models.Model):
+
+    CHOICE_TIPODOC = [
+        ('', '---------------------'),
+        ('CC', 'Cédula de Ciudadanía'),
+        ('CE', 'Cédula de Extranjería'),
+        ('TI', 'Tarjeta de Identidad'),
+        ('PA', 'Pasaporte'),
+        ('CD', 'Carné Diplomático'),
+        ('SC', 'Salvoconducto de Permanencia'),
+        ('PT', 'Permiso por Protección Temporal'),
+        ('NI', 'NIT'),
+    ]
+
+
+    CHOICE_TIPO_PERSONA = [
+        ('N', 'Natural'),
+        ('J', 'Jurídica'),
+    ]
+
+    CHOICE_PRESENTACION_PLANILLA = [
+        ('U', 'Único'),
+        ('S', 'Sucursal'),
+    ]
+
+    CHOICE_NATURALEZA_JURIDICA = [
+        (1, 'Pública'),
+        (2, 'Privada'),
+        (3, 'Mixta'),
+        (4, 'Organismos multilaterales'),
+        (5, 'Entidades de derecho público no sometidas a la legislación colombiana'),
+    ]
+
+    CHOICE_TIPODOC_REP = [
+        ('CC', 'Cédula de Ciudadanía'),
+        ('CE', 'Cédula de Extranjería'),
+        ('PA', 'Pasaporte'),
+        ('CD', 'Carné Diplomático'),
+    ]
+
+
     idempresa = models.AutoField(primary_key=True)
     nit = models.CharField(max_length=20)
     nombreempresa = models.CharField(max_length=255)
     dv = models.CharField(max_length=10) 
-    tipodoc = models.CharField(max_length=2)# Tipo de documento de empresa NI O CC o PP 
+
+    tipodoc = models.SmallIntegerField(blank=True,choices=CHOICE_TIPODOC, null=True,default=2) 
     # Representante legal
     replegal = models.CharField(max_length=255)
+    # Tipo de persona
+    tipo_persona = models.CharField(max_length=1, choices=CHOICE_TIPO_PERSONA, blank=True, null=True)
+    # Naturaleza jurídica
+    naturaleza_juridica = models.SmallIntegerField(choices=CHOICE_NATURALEZA_JURIDICA,blank=True,null=True)
+    # Representante legal (estructura DIAN)
+    tipo_identificacion_rep_legal = models.CharField(max_length=2,choices=CHOICE_TIPODOC_REP, blank=True,null=True ) 
+    numero_identificacion_rep_legal = models.CharField(max_length=20, blank=True, null=True)
+
+    # Datos de rep legal
+    papellido_rep_legal = models.CharField(max_length=50, blank=True, null=True)
+    sapellido_rep_legal = models.CharField(max_length=50, blank=True, null=True)
+    pnombre_rep_legal = models.CharField(max_length=50, blank=True, null=True)
+    snombre_rep_legal = models.CharField(max_length=50, blank=True, null=True)
 
     # Datos de contacto principales
     direccionempresa = models.CharField(max_length=255)

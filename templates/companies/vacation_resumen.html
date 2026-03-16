@@ -638,13 +638,13 @@ Listado de vacaciones
                 }
             },
             dom: 'frtip',
-            order: [[3, 'desc']], 
+            order: [[4, 'desc']], 
             pageLength: 20,
 
             // 👇 Aquí está la corrección del columnDefs
             columnDefs: [
                 {
-                    targets: 3, // índice de la columna "Fecha"
+                    targets: 4, // índice de la columna "Fecha"
                     render: function (data, type, row) {
                         if (!data) return '';
                         if (type === 'sort' || type === 'type') {

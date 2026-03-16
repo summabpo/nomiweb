@@ -18,6 +18,11 @@ CHOICE_TIPODOC = [
     ('', '---------------------'),
     ('CC', 'Cédula de Ciudadanía'),
     ('CE', 'Cédula de Extranjería'),
+    ('TI', 'Tarjeta de Identidad'),
+    ('PA', 'Pasaporte'),
+    ('CD', 'Carné Diplomático'),
+    ('SC', 'Salvoconducto de Permanencia'),
+    ('PT', 'Permiso por Protección Temporal'),
     ('NI', 'NIT'),
 ]
 
@@ -50,6 +55,34 @@ CLASE_APORTANTE_CHOICES = [
     ('D', 'Beneficiaria Ley 1429 de 2010 (progresividad en aportes parafiscales)'),
     ('I', 'Independientes'),
 ]
+
+
+TIPO_PERSONA_CHOICES = [
+    ('N', 'Natural'),
+    ('J', 'Jurídica'),
+]
+
+TIPO_PRESENTACION_PLANILLA_CHOICES = [
+    ('U', 'Único'),
+    ('S', 'Sucursal'),
+]
+
+NATURALEZA_JURIDICA_CHOICES = [
+    (1, 'Pública'),
+    (2, 'Privada'),
+    (3, 'Mixta'),
+    (4, 'Organismos multilaterales'),
+    (5, 'Entidades de derecho público no sometidas a la legislación colombiana'),
+]
+
+TIPODOC_REP_CHOICES = [
+    ('CC', 'Cédula de Ciudadanía'),
+    ('CE', 'Cédula de Extranjería'),
+    ('PA', 'Pasaporte'),
+    ('CD', 'Carné Diplomático'),
+]
+
+
 
 class  CompaniesForm(forms.Form):# Campos de identificación y datos básicos
     nit = forms.CharField(label='NIT', max_length=20)
@@ -135,7 +168,79 @@ class  CompaniesForm(forms.Form):# Campos de identificación y datos básicos
     codigosuc = forms.CharField(label='Código Sucursal', max_length=10, required=False ,validators=[lambda v: validate_text_length(v, 10)])
     nombresuc = forms.CharField(label='Nombre Sucursal', max_length=40, required=False,validators=[lambda v: validate_text_length(v, 40)])
     
-   
+    # Tipo de persona
+    tipo_persona = forms.ChoiceField(
+        label='Tipo Persona',
+        choices=[('', '----------')] + TIPO_PERSONA_CHOICES,
+        required=False
+    )
+
+    naturaleza_juridica = forms.ChoiceField(
+        label='Naturaleza Jurídica',
+        choices=[('', '----------')] + NATURALEZA_JURIDICA_CHOICES,
+        required=False
+    )
+
+    empresa_exonerada = forms.BooleanField(
+        label='Empresa Exonerada',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    tipo_presentacion_planilla = forms.ChoiceField(
+        label='Tipo Presentación Planilla',
+        choices=[('', '----------')] + TIPO_PRESENTACION_PLANILLA_CHOICES,
+        required=False
+    )
+
+    codigo_sucursal = forms.CharField(
+        label='Código Sucursal',
+        max_length=10,
+        required=False
+    )
+
+    nombre_sucursal = forms.CharField(
+        label='Nombre Sucursal',
+        max_length=40,
+        required=False
+    )
+
+    # Representante legal estructurado
+    tipo_identificacion_rep_legal = forms.ChoiceField(
+        label='Tipo Documento Representante Legal',
+        choices=[('', '----------')] + TIPODOC_REP_CHOICES,
+        required=False
+    )
+
+    numero_identificacion_rep_legal = forms.CharField(
+        label='Número Identificación Representante Legal',
+        max_length=20,
+        required=False
+    )
+
+    papellido_rep_legal = forms.CharField(
+        label='Primer Apellido Representante Legal',
+        max_length=50,
+        required=False
+    )
+
+    sapellido_rep_legal = forms.CharField(
+        label='Segundo Apellido Representante Legal',
+        max_length=50,
+        required=False
+    )
+
+    pnombre_rep_legal = forms.CharField(
+        label='Primer Nombre Representante Legal',
+        max_length=50,
+        required=False
+    )
+
+    snombre_rep_legal = forms.CharField(
+        label='Segundo Nombre Representante Legal',
+        max_length=50,
+        required=False
+    )
     
     
     
@@ -241,6 +346,27 @@ class  CompaniesForm(forms.Form):# Campos de identificación y datos básicos
                 css_class='form-row'
             ),
             Row(
+                Column('tipo_persona', css_class='form-group col-md-6 mb-0'),
+                Column('naturaleza_juridica', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            HTML('<h3>Representante Legal</h3>'),
+
+            Row(
+                Column('tipo_identificacion_rep_legal', css_class='form-group col-md-4 mb-0'),
+                Column('numero_identificacion_rep_legal', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
+
+            Row(
+                Column('pnombre_rep_legal', css_class='form-group col-md-3 mb-0'),
+                Column('snombre_rep_legal', css_class='form-group col-md-3 mb-0'),
+                Column('papellido_rep_legal', css_class='form-group col-md-3 mb-0'),
+                Column('sapellido_rep_legal', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
+            ),
+
+            Row(
                 Column('direccionempresa', css_class='form-group col-md-6 mb-0'),
                 Column('telefono', css_class='form-group col-md-3 mb-0'),
                 Column('email', css_class='form-group col-md-3 mb-0'),
@@ -294,6 +420,20 @@ class  CompaniesForm(forms.Form):# Campos de identificación y datos básicos
                 
                 css_class='form-row'
             ),
+            HTML('<h3>Configuración PILA</h3>'),
+
+            Row(
+                Column('tipo_presentacion_planilla', css_class='form-group col-md-6 mb-0'),
+                Column('empresa_exonerada', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+
+            Row(
+                Column('codigo_sucursal', css_class='form-group col-md-6 mb-0'),
+                Column('nombre_sucursal', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+
             HTML('<h3>Ajustes</h3>'),
             Row(
                 
