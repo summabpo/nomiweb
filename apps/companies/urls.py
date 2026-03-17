@@ -137,6 +137,7 @@ urlpatterns = [
     path('payroll/new/disabilities/', disabilities.disabilities, name='disabilities'),
     path('payroll/new/disabilities/edit/', disabilities.edit_disabilities, name='edit_disabilities'),
     path('payroll/new/disabilities/entity/', disabilities.get_entity, name='get_entity'),
+    path('payroll/new/disabilities/ibc/', disabilities.ibc_data_get, name='ibc_data_get'),
     path('payroll/new/disabilities/upload/', disabilities.disability_upload_view, name='disability_upload_view'),
     path('payroll/vacation/historical', vacation.vacation, name='vacation'),
     path('payroll/vacation/general/', vacation_general.vacation_general, name='vacation_general'),
@@ -240,7 +241,7 @@ urlunpolypatterns =[
     
 
 
-    ## masive 
+    # masive 
     path('reactivation/contract/modal/<int:id>', reactivation.reactivation_modal, name='reactivation_modal'),
     path('reactivation/contract/modal/masive/doc', reactivation.reactivation_doc, name='reactivation_doc'),
     path('reactivation/contract/modal/masive/data', reactivation.reactivation_data, name='reactivation_data'),

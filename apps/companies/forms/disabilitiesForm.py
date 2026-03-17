@@ -63,7 +63,7 @@ class DisabilitiesForm(forms.Form):
             fecha_inicio_busqueda = fechainicial - relativedelta(months=1)
             fecha_fin_busqueda = fechainicial + relativedelta(months=1)
 
-           
+
 
             overlapping = Incapacidades.objects.filter(
                 idcontrato=contrato,
@@ -126,11 +126,25 @@ class DisabilitiesForm(forms.Form):
         required=False ,
         help_text="Solo archivos PDF. Tamaño máximo: 5MB."
     )
+
+    sueldo = forms.CharField(
+        label='Sueldo',
+        max_length=100,
+        required=False,
+        disabled=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'disabled': True
+        })
+    )
+    ibc = forms.CharField(label='ibc', max_length=100 , required=False)
     
     
     def __init__(self, *args, **kwargs):
         # Obtener la variable externa pasada al formulario
         idempresa = kwargs.pop('idempresa', None)
+        id = kwargs.pop('id', None)
+        modo = kwargs.pop('modo', 0 )
         
         super().__init__(*args, **kwargs)
         self.fields['entity'] = forms.ChoiceField(
@@ -165,14 +179,8 @@ class DisabilitiesForm(forms.Form):
         self.helper.enctype = 'multipart/form-data'
         
         
-        self.helper.attrs.update({
-            'up-target': '#modal-content',
-            'up-mode': 'replace',
-            'up-layer': 'current',  # Clave para resolver el error
-            'up-submit': reverse('companies:disabilities_modal'),
-            'up-accept-location': reverse('companies:disabilities'),
-            'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
-        })
+        
+        
         
         
         
@@ -192,6 +200,35 @@ class DisabilitiesForm(forms.Form):
                     'data-hide-search': 'true' ,
                 })
                 
+
+        if modo == 1:
+
+            for field in self.fields.values():
+                field.required = False
+
+            # deshabilitar el contrato
+            if 'contract' in self.fields:
+                self.fields['contract'].disabled = True
+
+            self.helper.attrs.update({
+                'up-target': '#modal-content-edit',
+                'up-mode': 'replace',
+                'up-layer': 'current',  # Clave para resolver el error
+                'up-submit': reverse('companies:disabilities_modal_edit',kwargs={'id': id} ),
+                'up-accept-location': reverse('companies:disabilities'),
+                'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
+            })
+
+        else : 
+            self.helper.attrs.update({
+                'up-target': '#modal-content',
+                'up-mode': 'replace',
+                'up-layer': 'current',  # Clave para resolver el error
+                'up-submit': reverse('companies:disabilities_modal'),
+                'up-accept-location': reverse('companies:disabilities'),
+                'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
+            })
+
                 
         self.helper.layout = Layout(
             Row(
@@ -215,13 +252,19 @@ class DisabilitiesForm(forms.Form):
                 Column('extension', css_class=' form-group col-md-4 mb-3'),
                 css_class='row'
             ),
+
+            Row(
+                Column('sueldo', css_class=' form-group col-md-6 mb-3'),
+                Column('ibc', css_class=' form-group col-md-6 mb-3'),
+                css_class='row'
+            ),
+
             Row(
                 Column('pdf_file', css_class=' form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             
         )
-    
     
 
 
@@ -320,8 +363,10 @@ class DisabilitiesEditForm(forms.Form):
         # Obtener la variable externa pasada al formulario
         idempresa = kwargs.pop('idempresa', None)
         id = kwargs.pop('id', None)
+        modo = kwargs.pop('modo', 0 )
         
         super().__init__(*args, **kwargs)
+
         self.fields['entity'] = forms.ChoiceField(
             choices=[('', '----------')] + [
                 (item['codigo'], f"{item['entidad']}")
