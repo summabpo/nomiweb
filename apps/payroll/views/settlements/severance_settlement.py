@@ -335,17 +335,12 @@ def settlement_accrued_values(request,id,fecha):
 
     for i in range(0, 13):
 
-        mes_texto = meses[mes_actual - 1]
+        mes_texto = meses[mes_actual-1]
+
         salario = salario_mes(contrato , mes_actual , ano_actual) 
         # calcular mes anterior
-        if mes_actual == 1:
-            mes_actual = 12
-            ano_actual -= 1
-        else:
-            mes_actual -= 1
-
-
         
+
         totales = Nomina.objects.filter(
             estadonomina=2,
             idcontrato_id=id,
@@ -408,9 +403,22 @@ def settlement_accrued_values(request,id,fecha):
             idcontrato_id=id,
             idnomina__mesacumular=mes_texto,
             idnomina__anoacumular__ano=ano_actual,
-            idconcepto__codigo__in= [3, 7, 16]
+            idconcepto__codigo__in= [3, 16]
 
         ).aggregate(total=Sum('valor'))
+
+        # # Obtiene todos los valores individuales
+        # registros = Nomina.objects.filter(
+        #     estadonomina=2,
+        #     idcontrato_id=id,
+        #     idnomina__mesacumular=mes_texto,
+        #     idnomina__anoacumular__ano=ano_actual,
+        #     idconcepto__codigo__in=[3, 16]
+        # ).values('valor', 'idconcepto__codigo', 'idnomina__mesacumular', 'idnomina__anoacumular__ano')
+
+        # print("Registros que se van a sumar:")
+        # for r in registros:
+        #     print(f"Valor: {r['valor']}, Código: {r['idconcepto__codigo']}, Mes: {r['idnomina__mesacumular']}, Año: {r['idnomina__anoacumular__ano']}")
 
         total_no_sal = Nomina.objects.filter(
             estadonomina=2,
@@ -436,6 +444,12 @@ def settlement_accrued_values(request,id,fecha):
             "total_ingresos":totales['total'] or 0 ,
             
         })
+
+        if mes_actual == 1:
+            mes_actual = 12
+            ano_actual -= 1
+        else:
+            mes_actual -= 1
 
     data = {
         "id": id,

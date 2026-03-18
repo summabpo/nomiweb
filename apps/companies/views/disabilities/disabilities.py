@@ -313,7 +313,7 @@ def disabilities_modal_edit(request , id ):
         'end_date': incapacidad.fechainicial + timedelta(days=(incapacidad.dias - 1 )),
         'extension' : '1' if incapacidad.prorroga  else '0',  
         'sueldo':incapacidad.idcontrato.salario ,
-        'ibc': incapacidad.ibc
+        'ibc': disabilities_ibc(incapacidad.idcontrato,  incapacidad.fechainicial.strftime("%Y-%m-%d"))
 
     }
     
