@@ -47,6 +47,17 @@ def company_edit(request,type = 1 ):
             'arl':empresa.arl.identidad if empresa.arl else None ,
             'replegal':empresa.replegal ,
 
+
+            ## Información General - 2 
+            'tipo_identificacion_rep_legal':empresa.tipo_identificacion_rep_legal ,
+            'naturaleza_juridica':empresa.naturaleza_juridica ,
+            'numero_identificacion_rep_legal':empresa.numero_identificacion_rep_legal ,
+            'papellido_rep_legal':empresa.papellido_rep_legal ,
+            'sapellido_rep_legal':empresa.sapellido_rep_legal ,
+            'pnombre_rep_legal':empresa.pnombre_rep_legal ,
+            'snombre_rep_legal':empresa.snombre_rep_legal ,
+
+
             ## Información Bancaria
             'bankAccount':empresa.banco.idbanco  if empresa.banco else None,
             'accountType':empresa.tipocuenta ,
@@ -71,6 +82,7 @@ def company_edit(request,type = 1 ):
             ## Configuración Aportes y Parafiscales
             'claseaportante':empresa.claseaportante ,
             'tipoaportante':empresa.tipoaportante ,
+            'tipo_presentacion_planilla':empresa.tipo_presentacion_planilla ,
             'vstccf':  True if  empresa.vstccf == 'SI' else False,
             'vstsenaicbf':True if  empresa.vstsenaicbf == 'SI' else False,
             'ige100':True if  empresa.ige100 == 'SI' else False,
@@ -78,15 +90,53 @@ def company_edit(request,type = 1 ):
             'ajustarnovedad':True if  empresa.ajustarnovedad == 'SI' else False,
             'metodoextras':True if  empresa.metodoextras == 'SI' else False,
             'realizarparafiscales':True if  empresa.realizarparafiscales == 'SI' else False,
+            'empresa_exonerada': empresa.empresa_exonerada  ,
 
         }
-    
+        
     form = CompanyForm(initial = data ,edit = type ) 
 
     if request.method == 'POST':
         form = CompanyForm(request.POST, edit = type)
         if form.is_valid():
             cleaned = form.cleaned_data
+
+
+            # =========================
+            # BLOQUE 1 → Información General - 2
+            # =========================
+            if str(type) == '1':
+                changes = {}
+
+                # Campos de Información General - 2
+                fields = [
+                    'tipo_identificacion_rep_legal',
+                    'naturaleza_juridica',
+                    'numero_identificacion_rep_legal',
+                    'papellido_rep_legal',
+                    'sapellido_rep_legal',
+                    'pnombre_rep_legal',
+                    'snombre_rep_legal'
+                ]
+
+                for field in fields:
+                    old_value = getattr(empresa, field)
+                    new_value = cleaned.get(field)
+                    if old_value != new_value:
+                        changes[field] = (old_value, new_value)
+                        setattr(empresa, field, new_value)
+
+                # Guardamos solo los campos que cambiamos
+                empresa.save(update_fields=fields)
+
+                register_history(
+                    instance=empresa,
+                    user=request.user,
+                    changed_fields=changes
+                )
+
+
+
             # =========================
             # BLOQUE 2 → Información Bancaria
             # =========================

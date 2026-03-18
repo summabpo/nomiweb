@@ -459,15 +459,15 @@ class Empresa(models.Model):
     numcuenta = models.CharField(max_length=255, blank=True, null=True)
     tipocuenta = models.CharField(max_length=10, blank=True, null=True)
 
-    # Sucursales y aportantes #redundante y posible nueva tabla 
     codigosuc = models.CharField(max_length=10, blank=True, null=True)  # uso cuenta bancaria
     nombresuc = models.CharField(max_length=40, blank=True, null=True)  # uso cuenta bancaria
+    
     # PILA: código y nombre sucursal (archivo tipo 2 encabezado, campos 12-13)
     codigo_sucursal = models.CharField(max_length=10, blank=True, null=True)
     nombre_sucursal = models.CharField(max_length=40, blank=True, null=True)
+    
     claseaportante = models.CharField(max_length=1, blank=True, null=True)
     tipoaportante = models.SmallIntegerField(blank=True, null=True)
-    empresa_exonerada = models.BooleanField(default=False)
     ajustarnovedad = models.CharField(max_length=2, blank=True, null=True)
     tipo_presentacion_planilla = models.CharField(max_length=1, blank=True, null=True)
     

@@ -24,6 +24,15 @@ CHOICE_TIPODOC = [
 ]
 
 
+CLASE_APORTANTE_CHOICES = [
+    ('A', '200 o más cotizantes'),
+    ('B', 'Menos de 200 cotizantes'),
+    ('C', 'MiPyme Ley 590 de 2000 (menos de 200 cotizantes - descuentos parafiscales)'),
+    ('D', 'Beneficiaria Ley 1429 de 2010 (progresividad en aportes parafiscales)'),
+    ('I', 'Independientes'),
+]
+
+
 TIPO_APORTANTE_CHOICES = [
     (1, '1 - Empleador'),
     (2, '2 - Independiente'),
@@ -45,13 +54,29 @@ TIPO_APORTANTE_CHOICES = [
     (20, '20 - Entidades religiosas'),
 ]
 
-CLASE_APORTANTE_CHOICES = [
-    ('A', '200 o más cotizantes'),
-    ('B', 'Menos de 200 cotizantes'),
-    ('C', 'MiPyme Ley 590 de 2000 (menos de 200 cotizantes - descuentos parafiscales)'),
-    ('D', 'Beneficiaria Ley 1429 de 2010 (progresividad en aportes parafiscales)'),
-    ('I', 'Independientes'),
+CHOICE_TIPO_PRESENTACION_PLANILLA = [
+    ('U', 'Única'),
+    ('C', 'Consolidado'),
+    ('S', 'Por Sucursal'),
+    ('D', 'Por Dependencia'),
 ]
+
+CHOICE_NATURALEZA_JURIDICA = [
+    (1, 'Pública'),
+    (2, 'Privada'),
+    (3, 'Mixta'),
+    (4, 'Organismos multilaterales'),
+    (5, 'Entidades de derecho público no sometidas a la legislación colombiana'),
+]
+
+CHOICE_TIPODOC_REP = [
+    ('CC', 'Cédula de Ciudadanía'),
+    ('CE', 'Cédula de Extranjería'),
+    ('PA', 'Pasaporte'),
+    ('CD', 'Carné Diplomático'),
+]
+
+
 
 def validate_text_length(value, max_length):
     if len(value) > max_length:
@@ -90,6 +115,40 @@ class CompanyForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
 
+
+    ## campos de informacion general inicio 
+    
+    # Número de identificación del representante legal
+    numero_identificacion_rep_legal = forms.CharField(
+        label='Número Identificación R Legal',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+    # Datos personales del representante legal
+    papellido_rep_legal = forms.CharField(
+        label='Primer Apellido R Legal',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    sapellido_rep_legal = forms.CharField(
+        label='Segundo Apellido R Legal',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    pnombre_rep_legal = forms.CharField(
+        label='Primer Nombre R Legal',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    snombre_rep_legal = forms.CharField(
+        label='Segundo Nombre R Legal',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+
+    ## campos de informacion general  fin 
     direccionempresa = forms.CharField(
         label='Dirección',
         max_length=255,
@@ -122,6 +181,9 @@ class CompanyForm(forms.Form):
     # Contabilidad y certificaciones
     contactocontab = forms.CharField(label='Contacto Contabilidad',required=False, max_length=50,validators=[lambda v: validate_text_length(v,50)])
     emailcontab = forms.EmailField(label='Correo Contabilidad',required=False, max_length=50,validators=[lambda v: validate_text_length(v,50)])
+
+
+
 
     # Parafiscales 
     metodoextras = forms.BooleanField(
@@ -165,6 +227,19 @@ class CompanyForm(forms.Form):
         required=False,
         widget=forms.CheckboxInput()
     )
+
+    ajustarnovedad =  forms.BooleanField(
+        label='Ajustar Novedad',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
+    empresa_exonerada =  forms.BooleanField(
+        label='Empresa Exonerada',
+        required=False,
+        widget=forms.CheckboxInput()
+    )
+
 
     def __init__(self, *args, **kwargs):
         self.idempresa = kwargs.pop('idempresa', None)
@@ -256,6 +331,19 @@ class CompanyForm(forms.Form):
                     
                 }),) 
         
+
+        self.fields['tipo_presentacion_planilla'] = forms.ChoiceField(
+            choices=[('', '----------')] + CHOICE_TIPO_PRESENTACION_PLANILLA,
+            label='Tipo Presentación Planilla',
+            required=False , 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    
+                }),) 
+        
         self.fields['arl'] = forms.ChoiceField(
             choices=[('', '----------')] + [(entidad.identidad, entidad.entidad) for entidad in Entidadessegsocial.objects.filter(tipoentidad='ARL').order_by('entidad')],
             label='ARL',
@@ -267,6 +355,30 @@ class CompanyForm(forms.Form):
                     
                 }),) 
 
+        self.fields['naturaleza_juridica'] = forms.ChoiceField(
+            choices=[('', '----------')] + CHOICE_NATURALEZA_JURIDICA,
+            label='Naturaleza Jurídica',
+            required=False , 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    
+                }),) 
+        
+
+        self.fields['tipo_identificacion_rep_legal'] = forms.ChoiceField(
+            choices=[('', '----------')] + CHOICE_TIPODOC_REP,
+            label='Tipo Identificación',
+            required=False , 
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                    
+                }),) 
         
 
         self.helper = FormHelper()
@@ -316,6 +428,29 @@ class CompanyForm(forms.Form):
 
         ]
         
+        if edit == '1':
+            layout_fields.append(
+                ## Información Bancaria
+                Row(
+                    Column('naturaleza_juridica', css_class='form-group col-md-4 mb-0'),
+                    Column('tipo_identificacion_rep_legal', css_class='form-group col-md-4 mb-0'),
+                    Column('numero_identificacion_rep_legal', css_class='form-group col-md-4 mb-0'),
+                    css_class='row'
+                )
+            )
+
+            layout_fields.append(
+
+                Row(
+                    Column('papellido_rep_legal', css_class='col-md-3'),
+                    Column('sapellido_rep_legal', css_class='col-md-3'),
+                    Column('pnombre_rep_legal', css_class='col-md-3'),
+                    Column('snombre_rep_legal', css_class='col-md-3'),
+                    css_class='row'
+                )
+            )
+
+
         
         if edit == '2':
             layout_fields.append(
@@ -372,8 +507,9 @@ class CompanyForm(forms.Form):
             ## Ubicación y Contacto
             layout_fields.append(
                 Row(
-                    Column('claseaportante', css_class='form-group col-md-6 mb-0'),
-                    Column('tipoaportante', css_class='form-group col-md-6 mb-0'),
+                    Column('claseaportante', css_class='form-group col-md-4 mb-0'),
+                    Column('tipoaportante', css_class='form-group col-md-4 mb-0'),
+                    Column('tipo_presentacion_planilla', css_class='form-group col-md-4 mb-0'),
                 )
             )
 
@@ -405,9 +541,13 @@ class CompanyForm(forms.Form):
             layout_fields.append(
                 Row(
                     Column('realizarparafiscales', css_class='form-group col-md-6 mb-0'),
+                    Column('empresa_exonerada', css_class='form-group col-md-6 mb-0'),
                     css_class='row'
                 ),
             )
+
+
+
 
 
 
