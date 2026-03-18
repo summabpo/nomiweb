@@ -53,6 +53,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
     # Empresa: datos reales (ORM solo lectura, managed=False ok)
     empresa = Empresa.objects.only(
         "empresa_exonerada",
+        "ige100",
         "nit",
         "dv",
         "nombreempresa",
@@ -65,6 +66,12 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         "nombre_sucursal",
     ).get(idempresa=empresa_id_interno)
     empresa_flags = {"empresa_exonerada": bool(empresa.empresa_exonerada)}
+
+    # Incapacidades: 100% si ige100=SI, si no => 2/3 (66,67%)
+    ige100_val = (empresa.ige100 or "").strip().upper()
+    factor_incapacidad = Decimal("1") if ige100_val == "SI" else (Decimal("2") / Decimal("3"))
+
+    smmlv_dec = Decimal(str(parametros_pila["smmlv"]))
 
     # 1) Contratos con movimiento en el mes/año
     ids_contrato = _get_contratos_con_movimiento_mes(
@@ -190,14 +197,6 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         vst = vst_map.get(idcontrato, Decimal("0"))
         salario_contrato = int(row["salario_basico"] or 0)
 
-        # Regla mínima: si el IBC del mes anterior es menor al salario básico,
-        # subirlo al salario básico (salud/pensión y ARL).
-        if salario_contrato > 0:
-            salario_dec = Decimal(str(salario_contrato))
-            if ibc_anterior["salud_pension"] < salario_dec:
-                ibc_anterior["salud_pension"] = salario_dec
-            if ibc_anterior["arl"] < salario_dec:
-                ibc_anterior["arl"] = salario_dec
         fecha_periodo = date(ano, mes_num, 1)
         registros = _generar_registros_empleado(
             dias_base=dias_base,
@@ -210,6 +209,8 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             vst=vst,
             salario_contrato=salario_contrato,
             fecha_periodo=fecha_periodo,
+            factor_incapacidad=factor_incapacidad,
+            smmlv=smmlv_dec,
         )
 
         clase_riesgo = _tarifa_arl_a_clase_riesgo(row.get("tarifa_arl"))
@@ -977,6 +978,8 @@ def _generar_registros_empleado(
     vst: Decimal = Decimal("0"),
     salario_contrato: int = 0,
     fecha_periodo: date | None = None,
+    factor_incapacidad: Decimal = Decimal("1"),
+    smmlv: Decimal = Decimal("0"),
 ) -> list[dict]:
     """
     Genera uno o más registros tipo 02 por empleado según novedades.
@@ -1046,9 +1049,23 @@ def _generar_registros_empleado(
     # 2. Líneas de incapacidades (IGE, IRL, LMA) con salario proporcional por días
     for nov_incap in novedades_incap:
         dias_incap = nov_incap["dias"]
-        factor_incap = Decimal(dias_incap) / Decimal(30)
-        base_salario = Decimal(str(salario_contrato or 0))
-        ibc_incap_valor = int((base_salario * factor_incap).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+        factor_dias = Decimal(dias_incap) / Decimal(30)
+
+        # Incapacidades: base seg social del mes anterior = indicador 6
+        # (en el payload se guarda como ibc_anterior["salud_pension"]).
+        #
+        # Regla por tipo:
+        # - IGE: 100% si empresa.ige100=SI, si NO => 2/3
+        # - IRL y LMA: siempre 100%
+        ibc_mes_anterior_base = ibc_anterior.get("salud_pension", Decimal("0"))
+        factor_aplicar = factor_incapacidad if nov_incap.get("codigo") == "IGE" else Decimal("1")
+        ibc_ajustado_mes = ibc_mes_anterior_base * factor_aplicar
+
+        ibc_calc = ibc_ajustado_mes * factor_dias
+        smmlv_prop = smmlv * factor_dias
+        ibc_final = ibc_calc if ibc_calc >= smmlv_prop else smmlv_prop
+
+        ibc_incap_valor = int(ibc_final.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
         registros.append({
             "tipo_linea": nov_incap["codigo"],  # IGE, IRL, LMA
             "dias": {
