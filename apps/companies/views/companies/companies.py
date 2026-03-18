@@ -83,6 +83,8 @@ def company_edit(request,type = 1 ):
             'claseaportante':empresa.claseaportante ,
             'tipoaportante':empresa.tipoaportante ,
             'tipo_presentacion_planilla':empresa.tipo_presentacion_planilla ,
+            'codigo_sucursal':empresa.codigo_sucursal ,
+            'nombre_sucursal':empresa.nombre_sucursal ,
             'vstccf':  True if  empresa.vstccf == 'SI' else False,
             'vstsenaicbf':True if  empresa.vstsenaicbf == 'SI' else False,
             'ige100':True if  empresa.ige100 == 'SI' else False,
@@ -145,62 +147,57 @@ def company_edit(request,type = 1 ):
 
                 # Banco
                 old_banco = empresa.banco_id
-                new_banco = cleaned.get('bankAccount') or None
-                changes['banco'] = (old_banco, new_banco)
-                empresa.banco_id = new_banco
+                new_banco = cleaned.get('bankAccount') or 0
+                if old_banco != new_banco:
+                    changes['banco'] = (old_banco, new_banco)
+                    empresa.banco_id = new_banco
 
                 # Tipo cuenta
                 old_tipo = empresa.tipocuenta
-                new_tipo = cleaned.get('accountType')
-                changes['tipocuenta'] = (old_tipo, new_tipo)
-                empresa.tipocuenta = new_tipo
+                new_tipo = cleaned.get('accountType') or ''
+                if old_tipo != new_tipo:
+                    changes['tipocuenta'] = (old_tipo, new_tipo)
+                    empresa.tipocuenta = new_tipo
 
                 # Número cuenta
                 old_num = empresa.numcuenta
-                new_num = cleaned.get('payrollAccount')
-                changes['numcuenta'] = (old_num, new_num)
-                empresa.numcuenta = new_num
+                new_num = cleaned.get('payrollAccount') or ''
+                if old_num != new_num:
+                    changes['numcuenta'] = (old_num, new_num)
+                    empresa.numcuenta = new_num
 
-                empresa.save()
-
-                register_history(
-                    instance=empresa,
-                    user=request.user,
-                    changed_fields=changes
-                )
+                empresa.save(update_fields=list(changes.keys()))
+                register_history(instance=empresa, user=request.user, changed_fields=changes)
 
             # =========================
             # BLOQUE 3 → Ubicación
             # =========================
             elif str(type) == '3':
                 changes = {}
-
-                fields = [
-                    'direccionempresa',
-                    'telefono',
-                    'email',
-                    'website'
-                ]
+                fields = ['direccionempresa', 'telefono', 'email', 'website']
 
                 for field in fields:
                     old = getattr(empresa, field)
-                    new = cleaned.get(field)
-                    changes[field] = (old, new)
-                    setattr(empresa, field, new)
+                    new = cleaned.get(field) or ''
+                    if old != new:
+                        changes[field] = (old, new)
+                        setattr(empresa, field, new)
 
                 # Ciudad
                 old = empresa.idciudad_id
-                new = cleaned.get('city')
-                changes['idciudad'] = (old, new)
-                empresa.idciudad_id = new
+                new = cleaned.get('city') or 0
+                if old != new:
+                    changes['idciudad'] = (old, new)
+                    empresa.idciudad_id = new
 
                 # País
                 old = empresa.pais_id
-                new = cleaned.get('country')
-                changes['pais'] = (old, new)
-                empresa.pais_id = new
+                new = cleaned.get('country') or 0
+                if old != new:
+                    changes['pais'] = (old, new)
+                    empresa.pais_id = new
 
-                empresa.save()
+                empresa.save(update_fields=list(changes.keys()))
                 register_history(empresa, request.user, changes)
 
 
@@ -209,7 +206,6 @@ def company_edit(request,type = 1 ):
             # =========================
             elif str(type) == '4':
                 changes = {}
-
                 fields = [
                     'contactonomina', 'emailnomina',
                     'contactorrhh', 'emailrrhh',
@@ -218,11 +214,12 @@ def company_edit(request,type = 1 ):
 
                 for field in fields:
                     old = getattr(empresa, field)
-                    new = cleaned.get(field)
-                    changes[field] = (old, new)
-                    setattr(empresa, field, new)
+                    new = cleaned.get(field) or ''
+                    if old != new:
+                        changes[field] = (old, new)
+                        setattr(empresa, field, new)
 
-                empresa.save()
+                empresa.save(update_fields=list(changes.keys()))
                 register_history(empresa, request.user, changes)
 
 
@@ -230,36 +227,39 @@ def company_edit(request,type = 1 ):
             # =========================
             # BLOQUE 5 → Parafiscales
             # =========================
-            elif str(type) == '5':
-
+            if str(type) == '5':
                 changes = {}
 
                 boolean_fields = [
                     'metodoextras', 'realizarparafiscales',
                     'vstccf', 'vstsenaicbf',
                     'ige100', 'slntarifapension',
-                    'ajustarnovedad'
+                    'ajustarnovedad',
                 ]
 
                 for field in boolean_fields:
                     old = getattr(empresa, field)
                     new = "SI" if cleaned.get(field) else "NO"
-                    changes[field] = (old, new)
-                    setattr(empresa, field, new)
+                    if old != new:
+                        changes[field] = (old, new)
+                        setattr(empresa, field, new)
 
-                # Clase aportante
-                old = empresa.claseaportante
-                new = cleaned.get('claseaportante')
-                changes['claseaportante'] = (old, new)
-                empresa.claseaportante = new
+                # Campos obligatorios, reemplazar None por valores por defecto
+                required_fields_defaults = {
+                    'claseaportante': cleaned.get('claseaportante') or '',
+                    'tipoaportante': cleaned.get('tipoaportante') or '',
+                    'codigo_sucursal': cleaned.get('codigo_sucursal') or '',
+                    'nombre_sucursal': cleaned.get('nombre_sucursal') or '',
+                    'tipo_presentacion_planilla': cleaned.get('tipo_presentacion_planilla') or ''
+                }
 
-                # Tipo aportante
-                old = empresa.tipoaportante
-                new = cleaned.get('tipoaportante') or None
-                changes['tipoaportante'] = (old, new)
-                empresa.tipoaportante = new
+                for field, value in required_fields_defaults.items():
+                    old = getattr(empresa, field)
+                    if old != value:
+                        changes[field] = (old, value)
+                        setattr(empresa, field, value)
 
-                empresa.save()
+                empresa.save(update_fields=list(changes.keys()))
                 register_history(empresa, request.user, changes)
 
                 

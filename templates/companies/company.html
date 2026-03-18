@@ -154,19 +154,11 @@
         </div>
 
         <div class="row mb-4">
-            <div class="col-md-3">
-                <label class="fw-bold">Código Sucursal</label>
-                <p>{{ data.codigo_sucursal|default:"—" }}</p>
-            </div>
-            <div class="col-md-3">
-                <label class="fw-bold">Nombre Sucursal</label>
-                <p>{{ data.nombre_sucursal|default:"—" }}</p>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <label class="fw-bold">Clase Aportante</label>
                 <p>{{ data.claseaportante|default:"—" }}</p>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <label class="fw-bold">Tipo Aportante</label>
                 <p>{{ data.tipoaportante|default:"—" }}</p>
             </div>
@@ -364,6 +356,15 @@
             <div class="col-md-4">
                 <label class="fw-bold">Tipo Presentación Planilla</label>
                 <p>{{ data.tipo_presentacion_planilla|default:"—" }}</p>
+            </div>
+
+            <div class="col-md-4">
+                <label class="fw-bold">Código Sucursal</label>
+                <p>{{ data.codigo_sucursal|default:"—" }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Nombre Sucursal</label>
+                <p>{{ data.nombre_sucursal|default:"—" }}</p>
             </div>
         </div>
 

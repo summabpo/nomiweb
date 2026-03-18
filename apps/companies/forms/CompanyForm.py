@@ -55,10 +55,8 @@ TIPO_APORTANTE_CHOICES = [
 ]
 
 CHOICE_TIPO_PRESENTACION_PLANILLA = [
-    ('U', 'Única'),
-    ('C', 'Consolidado'),
-    ('S', 'Por Sucursal'),
-    ('D', 'Por Dependencia'),
+    ('U', 'Único'),
+    ('S', 'Sucursal'),
 ]
 
 CHOICE_NATURALEZA_JURIDICA = [
@@ -238,6 +236,20 @@ class CompanyForm(forms.Form):
         label='Empresa Exonerada',
         required=False,
         widget=forms.CheckboxInput()
+    )
+
+
+    codigo_sucursal = forms.CharField(
+        label='Código Sucursal',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+
+    nombre_sucursal = forms.CharField(
+        label='Nombre Sucursal',
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
 
 
@@ -510,6 +522,13 @@ class CompanyForm(forms.Form):
                     Column('claseaportante', css_class='form-group col-md-4 mb-0'),
                     Column('tipoaportante', css_class='form-group col-md-4 mb-0'),
                     Column('tipo_presentacion_planilla', css_class='form-group col-md-4 mb-0'),
+                )
+            )
+
+            layout_fields.append(
+                Row(
+                    Column('codigo_sucursal', css_class='form-group col-md-3 mb-0'),
+                    Column('nombre_sucursal', css_class='form-group col-md-9 mb-0'),
                 )
             )
 
