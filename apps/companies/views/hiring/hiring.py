@@ -237,7 +237,10 @@ def hiring_contract(request,idempleado):
             sedes = get_or_none(Sedes, idsede=form_contratos.cleaned_data['workPlace'])
             eps = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['eps'])
             pen = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['pensionFund'])
-            ccf = get_or_none(Entidadessegsocial, codsgp = sedes.codccf )
+            ccf = get_or_none(Entidadessegsocial, codigo = sedes.codccf )
+            print('--------------')
+            print(sedes.codccf) 
+            print('--------------')
             cjc = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['CesanFund'])
             modelo = get_or_none(ModelosContratos, idmodelo=form_contratos.cleaned_data['contractModel'])
             
@@ -292,6 +295,7 @@ def hiring_contract(request,idempleado):
             contratos_instance.save()
             empleado.estadocontrato = 1
             empleado.save()
+
             
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
