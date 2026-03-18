@@ -182,8 +182,9 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         # Ajuste por salario integral: aplicar factor conceptosfijos.idfijo=1
         factor_integral = parametros_pila.get("factor_integral")
         if salario_integral_flag and factor_integral:
-            ibc_actual = _ajustar_ibc_salario_integral(ibc_actual, factor_integral)
-            ibc_anterior = _ajustar_ibc_salario_integral(ibc_anterior, factor_integral)
+            factor_dec = Decimal(str(factor_integral))
+            ibc_actual = _ajustar_ibc_salario_integral(ibc_actual, factor_dec)
+            ibc_anterior = _ajustar_ibc_salario_integral(ibc_anterior, factor_dec)
 
         # --- Generar registros (uno o múltiples líneas tipo 02) ---
         vst = vst_map.get(idcontrato, Decimal("0"))
@@ -322,7 +323,9 @@ def _get_parametros_pila(periodo: str) -> dict:
         "smmlv": smmlv,
         "tope_ibc_smmlv": tope_ibc_smmlv,
         "dias_base": 30,
-        "factor_integral": factor_integral,
+        # En el payload debe ser JSON‑serializable (float). Para cálculos internos
+        # se convierte de nuevo a Decimal.
+        "factor_integral": float(factor_integral),
     }
 
 
