@@ -1002,13 +1002,15 @@ def _generar_registros_empleado(
             factor_vac = Decimal(dias_vac) / Decimal(30)
             ibc_vac_salud = int((ibc_anterior["salud_pension"] * factor_vac).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
             ibc_vac_pension = ibc_vac_salud
-            ibc_vac_arl = int((ibc_anterior["arl"] * factor_vac).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+            # En ausencias el riesgo no aplica (tarifa/cotización ARL = 0),
+            # pero el IBC se mantiene consistente entre subsistemas en la línea.
+            ibc_vac_arl = ibc_vac_salud
             registros.append({
                 "tipo_linea": "VAC",
                 "dias": {
                     "salud": dias_vac,
                     "pension": dias_vac,
-                    "arl": dias_vac,
+                    "arl": 0,
                     "caja": dias_vac,
                 },
                 "ibc": {
@@ -1028,13 +1030,13 @@ def _generar_registros_empleado(
                 "dias": {
                     "salud": dias_nov,
                     "pension": dias_nov,
-                    "arl": dias_nov,
+                    "arl": 0,
                     "caja": dias_nov,
                 },
                 "ibc": {
                     "salud": str(ibc_anterior["salud_pension"]),
                     "pension": str(ibc_anterior["salud_pension"]),
-                    "arl": str(ibc_anterior["arl"]),
+                    "arl": str(ibc_anterior["salud_pension"]),
                     "parafiscales": "0",
                 },
                 "novedades": [nov_vac],
@@ -1052,7 +1054,7 @@ def _generar_registros_empleado(
             "dias": {
                 "salud": dias_incap,
                 "pension": dias_incap,
-                "arl": dias_incap,
+                "arl": 0,
                 "caja": dias_incap,
             },
             "ibc": {
