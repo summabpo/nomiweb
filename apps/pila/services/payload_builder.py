@@ -47,6 +47,9 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
     if not mesacumular:
         raise ValueError(f"Mes inválido en periodo={periodo}")
 
+    # Parámetros generales PILA (incluye SMMLV, tope IBC y factor salarial integral)
+    parametros_pila = _get_parametros_pila(periodo)
+
     # Empresa: datos reales (ORM solo lectura, managed=False ok)
     empresa = Empresa.objects.only(
         "empresa_exonerada",
@@ -134,6 +137,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         tipo_cot = str(row["tipo_cotizante"]).zfill(2)
         subtipo_cot = str(row["subtipo_cotizante"]).zfill(2)
         flags_tc = _get_flags_tipo_cotizante(tipo_cot)
+        salario_integral_flag = (row["tiposalario_id"] == 2)
 
         # --- Días base (mes comercial) ---
         dias_base = _dias_base_contrato_mes(
@@ -175,9 +179,24 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         ibc_actual = ibc_map.get(idcontrato, {"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")})
         ibc_anterior = ibc_map_anterior.get(idcontrato, {"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")})
 
+        # Ajuste por salario integral: aplicar factor conceptosfijos.idfijo=1
+        factor_integral = parametros_pila.get("factor_integral")
+        if salario_integral_flag and factor_integral:
+            ibc_actual = _ajustar_ibc_salario_integral(ibc_actual, factor_integral)
+            ibc_anterior = _ajustar_ibc_salario_integral(ibc_anterior, factor_integral)
+
         # --- Generar registros (uno o múltiples líneas tipo 02) ---
         vst = vst_map.get(idcontrato, Decimal("0"))
         salario_contrato = int(row["salario_basico"] or 0)
+
+        # Regla mínima: si el IBC del mes anterior es menor al salario básico,
+        # subirlo al salario básico (salud/pensión y ARL).
+        if salario_contrato > 0:
+            salario_dec = Decimal(str(salario_contrato))
+            if ibc_anterior["salud_pension"] < salario_dec:
+                ibc_anterior["salud_pension"] = salario_dec
+            if ibc_anterior["arl"] < salario_dec:
+                ibc_anterior["arl"] = salario_dec
         fecha_periodo = date(ano, mes_num, 1)
         registros = _generar_registros_empleado(
             dias_base=dias_base,
@@ -221,7 +240,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
 
             "flags": {
                 **flags_tc,
-                "salario_integral": (row["tiposalario_id"] == 2),
+                "salario_integral": salario_integral_flag,
             },
 
             "tarifas": {
@@ -267,7 +286,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             "version_payload": "1.0",
             "usuario": "admin@nomiweb.com.co",
         },
-        "parametros": _get_parametros_pila(periodo),
+        "parametros": parametros_pila,
     }
 
     return payload
@@ -292,10 +311,29 @@ def _get_parametros_pila(periodo: str) -> dict:
             raise ValueError("No existe conceptosfijos idfijo=2 (MAXIMO IBC EN SMLV)")
         tope_ibc_smmlv = int(Decimal(str(row[0])))
 
+        # Factor salarial integral (ej. 70%): conceptosfijos.idfijo = 1
+        cursor.execute("SELECT valorfijo FROM public.conceptosfijos WHERE idfijo = 1")
+        row = cursor.fetchone()
+        if not row:
+            raise ValueError("No existe conceptosfijos idfijo=1 (FACTOR SALARIO INTEGRAL)")
+        factor_integral = Decimal(str(row[0])) / Decimal("100")
+
     return {
         "smmlv": smmlv,
         "tope_ibc_smmlv": tope_ibc_smmlv,
         "dias_base": 30,
+        "factor_integral": factor_integral,
+    }
+
+
+def _ajustar_ibc_salario_integral(ibc: dict, factor_integral: Decimal) -> dict:
+    """
+    Aplica el factor de salario integral al IBC por subsistema.
+    """
+    return {
+        "salud_pension": (ibc["salud_pension"] * factor_integral),
+        "arl": (ibc["arl"] * factor_integral),
+        "caja": (ibc["caja"] * factor_integral),
     }
 
 
@@ -1073,7 +1111,8 @@ def _generar_registros_empleado(
     
     # IBC línea normal:
     # - Si es la única línea y tiene 30 días, usar IBC del mes (ibc_actual).
-    # - Si tiene menos de 30 días (multi-línea) o hay VST, usar salario (salario_contrato + VST) proporcional por días.
+    # - Si tiene menos de 30 días (multi-línea) o hay VST:
+    #   salario proporcional por días + VST completo (sin prorratear).
     if dias_normales >= 30 and not registros and vst_valor <= 0:
         ibc_normal = {
             "salud": str(ibc_actual["salud_pension"]),
@@ -1083,8 +1122,8 @@ def _generar_registros_empleado(
         }
     else:
         factor = Decimal(dias_normales) / Decimal(30)
-        base_salario_normal = Decimal(str(salario_contrato or 0)) + Decimal(int(vst_valor))
-        ibc_normal_valor = int((base_salario_normal * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+        salario_prop = (Decimal(str(salario_contrato or 0)) * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+        ibc_normal_valor = int((salario_prop + Decimal(int(vst_valor))))
         ibc_normal = {
             "salud": str(ibc_normal_valor),
             "pension": str(ibc_normal_valor),
