@@ -194,6 +194,65 @@ def detail_employee_loans_modal(request, id=None):
         'loan': loan
     })
 
+
+
+
+@login_required
+@role_required('accountant', 'company', 'employee')
+def edit_employee_loans_modal(request, id=None):
+    prestamo = Prestamos.objects.get(idprestamo = id )
+
+
+
+    data = {
+        'loan_amount':prestamo.valorprestamo ,
+        'installment_value': prestamo.valorcuota ,
+        'loan_date':prestamo.fechaprestamo ,
+        'contract':prestamo.idcontrato.idcontrato ,
+        'state':prestamo.estadoprestamo ,
+
+    }
+    
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    if request.method == 'POST':
+        form = LoansForm(request.POST, id_empresa=idempresa, initial = data , modo = 1)
+        if form.is_valid():
+            
+            updated = False
+
+            state = form.cleaned_data['state']
+            valor_cuota = form.cleaned_data['installment_value']
+
+            if prestamo.estadoprestamo != state:
+                prestamo.estadoprestamo = state
+                updated = True
+
+            if prestamo.valorcuota != valor_cuota:
+                prestamo.valorcuota = valor_cuota
+                updated = True
+
+            if updated:
+                prestamo.save(update_fields=['estadoprestamo', 'valorcuota'])
+
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'Prestamo Actualizado exitosamente'    
+            response['X-Up-Location'] = reverse('payroll:loans_list')           
+            return response
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")  
+    else:
+        form = LoansForm(id_empresa=idempresa ,modo = 1 , initial = data)
+
+    return render(request, 'payroll/partials/loans_max_edit.html', {'form': form, })
+
+
 @login_required
 @role_required('accountant', 'company', 'employee')
 def employee_loans_modal_add(request):
@@ -206,14 +265,11 @@ def employee_loans_modal_add(request):
             
             valor_prestamo = form.cleaned_data['loan_amount']
             valor_cuota = form.cleaned_data['installment_value']
-            num_cuotas = form.cleaned_data.get('installments_number')
 
-            # Si no hay número de cuotas, calcularlo automáticamente
-            if not num_cuotas:
-                if valor_cuota and valor_cuota > 0:
-                    num_cuotas = int(valor_prestamo / valor_cuota)
-                else:
-                    num_cuotas = 0  # o podrías lanzar un error si prefieres
+            if valor_cuota and valor_cuota > 0:
+                num_cuotas = int(valor_prestamo / valor_cuota)
+            else:
+                num_cuotas = 0 
 
             Prestamos.objects.create(
                 idcontrato=Contratos.objects.get(idcontrato=form.cleaned_data['contract']),

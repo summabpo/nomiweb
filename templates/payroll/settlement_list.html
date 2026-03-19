@@ -329,32 +329,41 @@ document.addEventListener('up:fragment:inserted', function(event) {
     const modalContent = up.layer?.current?.element;
     if (!modalContent) return;
 
-    // pequeño helper para esperar elementos que se inicializan
     function wait(ms) { return new Promise(res => setTimeout(res, ms)); }
 
     setTimeout(async () => {
+
         // === Inicializar Select2 ===
         modalContent.querySelectorAll('[data-control="select2"]').forEach((select, index) => {
             if (!select.id) select.id = `select2-${Date.now()}-${index}`;
+
             if (!$(select).data('select2')) {
+
                 const options = {
                     dropdownParent: $(modalContent),
                     width: '100%',
                     minimumResultsForSearch: select.hasAttribute('data-hide-search') ? Infinity : 0
                 };
-                $(select).select2(options).on('change', triggerCalculation);
+
+                $(select).select2(options)
+                    .on('change', triggerCalculation);
+
             } else {
-                // por si ya venía inicializado, igual enganchar listener
-                $(select).off('change.autocalc').on('change.autocalc', triggerCalculation);
+
+                $(select)
+                    .off('change.autocalc')
+                    .on('change.autocalc', triggerCalculation);
             }
         });
 
+
         // === Inicializar DateRangePicker ===
         const fechaInput = modalContent.querySelector('#kt_daterangepicker_2');
+
         if (fechaInput) {
 
             let startDate = moment();
-            // Si el input ya tiene valor (modo edit)
+
             if (fechaInput.value) {
                 startDate = moment(fechaInput.value, 'YYYY-MM-DD');
             }
@@ -364,119 +373,161 @@ document.addEventListener('up:fragment:inserted', function(event) {
                 showDropdowns: true,
                 minYear: 2000,
                 maxYear: parseInt(moment().format("YYYY"), 12),
-                startDate: startDate,   // ← usar fecha existente
+                startDate: startDate,
                 autoApply: true,
                 locale: {
                     format: 'YYYY-MM-DD',
                     applyLabel: 'Aplicar',
                     cancelLabel: 'Cancelar',
-                    daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                    daysOfWeek: ['Do','Lu','Ma','Mi','Ju','Vi','Sa'],
                     monthNames: [
                         'Enero','Febrero','Marzo','Abril','Mayo','Junio',
                         'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
                     ]
                 },
             })
-             // cuando el usuario selecciona fecha
-                .on('apply.daterangepicker', function(ev, picker) {
 
-                    const value = picker.startDate.format('YYYY-MM-DD');
+            .on('apply.daterangepicker', function(ev, picker) {
 
-                    $(this).val(value);
+                const value = picker.startDate.format('YYYY-MM-DD');
+                $(this).val(value);
 
-                    triggerCalculation(); // ← aquí llamamos directamente
-                });
+                triggerCalculation();
 
-                // si el usuario escribe manualmente
-                fechaInput.addEventListener('change', triggerCalculation);
+            });
 
-                setTimeout(() => {
-                    $('.daterangepicker').css('z-index', 9999);
-                }, 10);
+            fechaInput.addEventListener('change', triggerCalculation);
+
+            setTimeout(() => {
+                $('.daterangepicker').css('z-index', 9999);
+            }, 10);
         }
+
 
         // === Campos ===
         const contract = modalContent.querySelector('select[name="contract"]');
         const reason = modalContent.querySelector('select[name="reason_for_termination"]');
         const end_date = modalContent.querySelector('input[name="end_date"]');
 
-        // Si por alguna razón los selects nativos existen, enganchar listeners también
+
         [contract, reason, end_date].forEach(el => {
             if (el && !(el.getAttribute && el.getAttribute('data-control') === 'select2')) {
                 el.addEventListener('change', triggerCalculation);
             }
         });
 
-        // Debounce para evitar spam de solicitudes
+
         let calcTimeout = null;
+
         function triggerCalculation() {
+
             clearTimeout(calcTimeout);
             calcTimeout = setTimeout(checkAndPost, 300);
+
         }
 
-        // Helper: leer valor considerando Select2
+
         function readVal(el) {
+
             if (!el) return '';
-            // si tiene instancia select2, usar su valor (string o array)
+
             if ($(el).data('select2') !== undefined) {
                 const v = $(el).val();
                 return Array.isArray(v) ? v.join(',') : (v ?? '');
             }
-            // para input normal
+
             return (el.value ?? '').trim();
         }
 
-        // función principal: envía POST si los 3 están llenos
+
+        // === NUEVA FUNCION PARA ACTUALIZAR LINK ===
+        function updateAccruedLink(contractVal, endDateVal) {
+
+            const link = modalContent.querySelector('#accrued-link');
+
+            if (!link) return;
+
+            if (!contractVal || !endDateVal) {
+                link.href = "#";
+                return;
+            }
+
+            const baseUrl = "{% url 'payroll:settlement_accrued_values' 'CONTRACT' 'DATE' %}";
+
+            const finalUrl = baseUrl
+                .replace('CONTRACT', contractVal)
+                .replace('DATE', endDateVal);
+
+            link.href = finalUrl;
+        }
+
+
+        // === FUNCIÓN PRINCIPAL ===
         async function checkAndPost() {
+
             const contractVal = readVal(contract);
             const reasonVal = readVal(reason);
             const endDateVal = readVal(end_date) || (fechaInput ? $(fechaInput).val() : '');
 
+            // actualizar botón acumulados
+            updateAccruedLink(contractVal, endDateVal);
+
             if (!contractVal || !reasonVal || !endDateVal) {
-                // no hay los 3, no hacemos nada
                 return;
             }
 
-            // opcional: mostrar un spinner o texto "Calculando..." si tienes un contenedor
             const resultsBox = modalContent.querySelector('#settlement-results');
+            const buttonBox = modalContent.querySelector('#settlement-results-button');
             const loader = modalContent.querySelector('#settlement-loader');
+
             if (loader) loader.style.display = 'block';
 
             try {
+
                 const csrf = modalContent.querySelector('[name="csrfmiddlewaretoken"]')?.value || '';
 
                 const response = await up.request({
+
                     url: "{% url 'payroll:settlement_calculate' %}",
                     method: "POST",
+
                     params: {
                         contract: contractVal,
                         end_date: endDateVal,
                         reason_for_termination: reasonVal,
                         csrfmiddlewaretoken: csrf
                     }
+
                 });
 
-                // up.request devuelve un objeto; el contenido puede estar en response.text
                 const payload = response && response.text ? JSON.parse(response.text) : {};
 
+
                 function setValue(id, value) {
+
                     const input = modalContent.querySelector(`#${id}`);
                     if (input) input.value = value ?? '';
-                }
-                function formatMoney(v) {
-                    if (v === null || v === undefined || v === '') {
-                        return '';
-                    }
-                    return parseFloat(v).toLocaleString('es-CO', { 
-                        style: 'currency', 
-                        currency: 'COP' 
-                    });
+
                 }
 
+
+                function formatMoney(v) {
+
+                    if (v === null || v === undefined || v === '') return '';
+
+                    return parseFloat(v).toLocaleString('es-CO', {
+                        style: 'currency',
+                        currency: 'COP'
+                    });
+
+                }
+
+
                 if (resultsBox) {
+
                     setValue('dias_trabajados', payload.dias_trabajados);
                     setValue('fecha_inicio', payload.inicio_contrato);
-                    setValue('salario_base', formatMoney(payload.salario));
+                    setValue('salario_base', payload.salario);
 
                     setValue('dias_cesantias', payload.dias_cesantias);
                     setValue('dias_primas', payload.dias_prima);
@@ -484,33 +535,41 @@ document.addEventListener('up:fragment:inserted', function(event) {
                     setValue('dias_susp_vac', payload.dias_susp_vac);
                     setValue('dias_susp_ces', payload.dias_susp_ces);
 
-                    setValue('base_cesantias', formatMoney(payload.base_cesantias));
-                    setValue('base_primas', formatMoney(payload.base_prima));
-                    setValue('base_vacaciones', formatMoney(payload.base_vacaciones));
-                    setValue('base_susp_vac', formatMoney(payload.base_susp_vac));
+                    setValue('base_cesantias', payload.base_cesantias);
+                    setValue('base_primas', payload.base_prima);
+                    setValue('base_vacaciones', payload.base_vacaciones);
 
-                    setValue('valor_cesantias', formatMoney(payload.cesantias));
-                    setValue('valor_intereses', formatMoney(payload.intereses));
-                    setValue('valor_vacaciones', formatMoney(payload.vacaciones));
-                    setValue('valor_indemnizacion', formatMoney(payload.indemnizacion));
-                    setValue('valor_prima', formatMoney(payload.prima));
-                    setValue('total_liquidacion', formatMoney(payload.total_liquidacion));
+                    setValue('valor_cesantias', payload.cesantias);
+                    setValue('valor_intereses', payload.intereses);
+                    setValue('valor_vacaciones', payload.vacaciones);
+                    setValue('valor_indemnizacion', payload.indemnizacion);
+                    setValue('valor_prima', payload.prima);
+                    setValue('total_liquidacion', payload.total_liquidacion);
 
                     resultsBox.style.display = 'block';
+                    buttonBox.style.display = 'block';
                 }
+
             } catch (err) {
+
                 console.error('Error al calcular liquidación:', err);
+
             } finally {
+
                 if (loader) loader.style.display = 'none';
+
             }
+
         }
 
-        // === 1) Si ya vienen los 3 valores en el HTML al cargar, activamos la comprobación automáticamente.
-        // Esperamos un poquito para que Select2 y DatePicker terminen de inicializar.
+
         await wait(250);
+
         triggerCalculation();
 
+
     }, 300);
+
 });
 </script>
 

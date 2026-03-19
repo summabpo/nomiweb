@@ -286,6 +286,7 @@ def settlementliststate(request,id):
 
         contrato = liquidacion.idcontrato
         contrato.estadoliquidacion = 2
+        contrato.estadocontrato = 2
         contrato.save()
         
         response = HttpResponse()

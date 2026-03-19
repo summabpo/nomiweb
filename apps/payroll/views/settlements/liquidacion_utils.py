@@ -82,8 +82,6 @@ def acumular_por_mes(model, conceptos_qs, id_contrato, ano_inicio, mes_inicio, a
         nombre_mes = MESES[mes]
         subtotal_mes = 0
 
-        print(f"-------------- {nombre_mes} {ano} --------------")
-
         for data in conceptos_ids:
 
             qs = model.objects.filter(
@@ -95,9 +93,6 @@ def acumular_por_mes(model, conceptos_qs, id_contrato, ano_inicio, mes_inicio, a
             )
 
             valor = qs.aggregate(total=Sum(campo))["total"] or 0
-
-            print(f"{data} -> {valor} --> {campo}")
-
             subtotal_mes += valor
 
         total += subtotal_mes
@@ -107,9 +102,7 @@ def acumular_por_mes(model, conceptos_qs, id_contrato, ano_inicio, mes_inicio, a
         if mes > 12:
             mes = 1
             ano += 1
-
-    print("TOTAL FINAL:", total)
-
+            
     return total
 # --- Cálculo de bases --- #
 

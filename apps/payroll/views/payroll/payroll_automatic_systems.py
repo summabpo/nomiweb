@@ -77,7 +77,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
     titulo = titles.get(type_payroll, 'Sistemas Automáticos')
     centros = Costos.objects.filter(id_empresa_id=idempresa)
-    empleados = Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa).exclude(estadoliquidacion=3).order_by('idempleado__papellido').values('idcontrato','idempleado__docidentidad','idempleado__papellido','idempleado__pnombre','idempleado__sapellido')
+    empleados = Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa).order_by('idempleado__papellido').values('idcontrato','idempleado__docidentidad','idempleado__papellido','idempleado__pnombre','idempleado__sapellido')
     
     
     
@@ -194,7 +194,6 @@ def recalcular_nomina(idn):
             contratos_procesados.add(contrato.idcontrato)
 
         diasnomina = calcular_dias(contrato, nomina, codigo)
-
         if diasnomina <= 0:
             continue
 
@@ -260,46 +259,6 @@ def procesar_nomina_reset(idn, parte_nomina, idempresa, empleados, iduser):
     return True
 
 
-def calcular_dias_nomina(idn):
-    try:
-        nomina = Crearnomina.objects.get(idnomina=idn)
-    except Crearnomina.DoesNotExist:
-        return "Error: nómina no encontrada"
-
-    fecha_inicio_nomina = nomina.fechainicial
-    fecha_fin_nomina = nomina.fechafinal
-
-    # Contratos vigentes según fechas
-    contratos_vigentes = Contratos.objects.filter(
-        Q(fechainiciocontrato__lte=fecha_fin_nomina) &
-        (Q(fechafincontrato__isnull=True) | Q(fechafincontrato__gte=fecha_inicio_nomina)) &
-        Q(id_empresa=nomina.id_empresa)
-    )
-
-    # Excluir contratos liquidados o retirados antes del inicio de la nómina
-    contratos_excluir = contratos_vigentes.filter(
-        Q(estadoliquidacion='1') | Q(estadoliquidacion='2'),
-        fechafincontrato__lt=fecha_inicio_nomina
-    )
-
-    contratos_finales = contratos_vigentes.exclude(
-        idcontrato__in=contratos_excluir.values_list('idcontrato', flat=True)
-    )
-
-    resultado = {}
-
-    for contrato in contratos_finales:
-        # Fecha inicial efectiva
-        inicio = max(contrato.fechainiciocontrato, fecha_inicio_nomina)
-        # Fecha final efectiva
-        fin = contrato.fechafincontrato if contrato.fechafincontrato else fecha_fin_nomina
-        fin = min(fin, fecha_fin_nomina)
-
-        # Días dentro de la nómina
-        dias = (fin - inicio).days + 1
-        resultado[contrato.idcontrato] = dias
-
-    return resultado
 
 def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     """
@@ -350,8 +309,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    #  , idcontrato = 8128
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
+    #  , idcontrato = 10731
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa ) 
     
 
     if parte_nomina != 0:
@@ -737,45 +696,11 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
             idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
         ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
         
-        # ======================== DEBUG base_ss_fsp ========================
-
-        # registros_fsp = Nomina.objects.filter(
-        #     idcontrato = contrato,
-        #     idnomina__mesacumular = nomina.mesacumular ,
-        #     idnomina__anoacumular = nomina.anoacumular ,
-        #     idconcepto__indicador__nombre='basesegsocial'
-        # ).exclude(
-        #     idconcepto__codigo__in=[60, 70, 90]
-        # )
-        # print('==============================================')
-        # print(base_ss_fsp)
-        # print('==============================================')
-
-        # if not registros_fsp.exists():
-        #     print("  ⚠️  Sin registros encontrados con esos filtros.")
-        # else:
-        #     for r in registros_fsp:
-        #         print(f"  → idregistronom : {r.idregistronom}")
-        #         print(f"     idnomina      : {r.idnomina.idnomina}")
-        #         print(f"     concepto cod  : {r.idconcepto.codigo}")
-        #         print(f"     concepto nom  : {r.idconcepto.nombreconcepto}")
-        #         print(f"     valor         : {r.valor}")
-        #         print(f"     estadonomina  : {r.estadonomina}")
-
-        # ======================== FIN DEBUG ================================
-
         
-        from decimal import Decimal
-
         if contrato.tiposalario.idtiposalario == 2:
             base_ss_fsp2 = base_ss_fsp * Decimal('0.7')
         else : 
             base_ss_fsp2 = base_ss_fsp
-
-        # print('==============================================')
-        # print(base_ss_fsp2)
-        # print(sal_min * 4)
-        # print('==============================================')
 
 
         if total_base_ss > 0:
@@ -1140,7 +1065,7 @@ def calcular_vacaciones(contrato,nomina):
     EmpVacaciones : Modelo maestro de solicitudes de vacaciones.
     Vacaciones : Modelo con el detalle de fechas por solicitud de vacaciones.
     """
-    dias_vacaciones = 0
+    dias_vacaciones = dias_en_nomina = 0
 
     vacaciones = Vacaciones.objects.filter(
         idcontrato_id=contrato,
@@ -1150,7 +1075,7 @@ def calcular_vacaciones(contrato,nomina):
     if not vacaciones.exists():
         return 0
 
-    dias_nomina = (nomina.fechafinal - nomina.fechainicial).days + 1
+    dias_nomina = (nomina.diasnomina)
 
     for vac in vacaciones:
 
@@ -1168,10 +1093,11 @@ def calcular_vacaciones(contrato,nomina):
                 dias_en_nomina = dias_nomina
             else:
                 dias_en_nomina = dias_360(inicio_cruce, fin_cruce)
-
+    
             dias_vacaciones += dias_en_nomina
 
-    return dias_vacaciones
+
+    return min(dias_vacaciones, dias_nomina)
 
 
 
@@ -1212,7 +1138,7 @@ def calcular_suspenciones(contrato,nomina ):
     if not vacaciones.exists():
         return 0
 
-    dias_nomina = (nomina.fechafinal - nomina.fechainicial).days + 1
+    dias_nomina = (nomina.diasnomina)
 
     for vac in vacaciones:
         
@@ -1233,7 +1159,7 @@ def calcular_suspenciones(contrato,nomina ):
 
             dias_vacaciones += dias_en_nomina
 
-    return dias_vacaciones
+    return min(dias_vacaciones, dias_nomina)
 
 def calcular_suspenciones2(vac, nomina):
     """
@@ -1246,7 +1172,7 @@ def calcular_suspenciones2(vac, nomina):
     if not (vac.fechainicialvac <= nomina.fechafinal and vac.ultimodiavac >= nomina.fechainicial):
         return 0
     
-    dias_nomina = (nomina.fechafinal - nomina.fechainicial).days + 1
+    dias_nomina = (nomina.diasnomina)
 
     inicio_cruce = max(vac.fechainicialvac, nomina.fechainicial)
     fin_cruce = min(vac.ultimodiavac, nomina.fechafinal)
@@ -1303,7 +1229,7 @@ def calculo_incapacidad(contrato,nomina):
                 inicio = max(fechaini, nomina.fechainicial)
                 fin = min(fechafin, nomina.fechafinal)
                 dias_incapacidad += (fin - inicio).days + 1
-
+    
     return dias_incapacidad
 
 
@@ -1649,6 +1575,13 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
     - Febrero quincenal: siempre 15 días  
     - Mes 31 días: máximo 30 (mensual) o 15 (quincenal)
     
+        1 calcular diasnomina
+        2 ajustar febrero (NUEVO)
+        3 restar vacaciones
+        4 restar incapacidades
+        5 restar suspensiones
+        6 validaciones finales
+
     Parameters
     ----------
     contrato : Contratos
@@ -1682,9 +1615,9 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
         (fin_contrato is None or fin_contrato >= fin_nomina)
     )
 
-    # 1. VERIFICAR SI CONTRATO ESTÁ VIGENTE EN TODO EL PERIODO 
     max_dias = 30 if tipo_nomina == 1 else 15
 
+    # 1. VERIFICAR SI CONTRATO ESTÁ VIGENTE EN TODO EL PERIODO
     if contrato_vigente:
         diasnomina = max_dias
     else:
@@ -1697,6 +1630,20 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
 
         dias_reales = dias_360(inicio_periodo, fin_periodo)
         diasnomina = min(dias_reales, max_dias)
+
+    # ==========================================
+    # AJUSTE ESPECIAL: FEBRERO SEGUNDA QUINCENA
+    # ==========================================
+    if tipo_nomina == 2 and inicio_nomina.month == 2:
+
+        # si el contrato inicia dentro de esta nómina
+        if inicio_contrato >= inicio_nomina and inicio_contrato <= fin_nomina:
+
+            dias_febrero = calendar.monthrange(inicio_nomina.year, 2)[1]
+
+            if dias_febrero < 30:
+                ajuste = 30 - dias_febrero
+                diasnomina += ajuste
 
     # DESCUENTOS
     dias_vacaciones = calcular_vacaciones(contrato.idcontrato, nomina)
@@ -1715,11 +1662,11 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
     diasnomina -= dias_incapacidad
     diasnomina -= dias_suspensiones
 
-    # 6. VALIDACIONES FINALES
+    # VALIDACIONES FINALES
     if diasnomina > 30:
         diasnomina = 30
     
-    if diasnomina > nomina.diasnomina :
+    if diasnomina > nomina.diasnomina:
         diasnomina = nomina.diasnomina
 
     return max(0, diasnomina)  # Nunca negativo

@@ -91,64 +91,95 @@ def addcompanies_admin(request):
     if request.method == 'POST':
         form = CompaniesForm(request.POST, request.FILES)
         if form.is_valid():
+
             vstccf = form.cleaned_data.get('vstccf', '')
             vstsenaicbf = form.cleaned_data.get('vstsenaicbf', '')
             ige100 = form.cleaned_data.get('ige100', '')
             ajustarnovedad = form.cleaned_data.get('ajustarnovedad', '')
-            
+
             metodoextras = "SI" if form.cleaned_data.get('metodoextras') else "NO"
             realizarparafiscales = "SI" if form.cleaned_data.get('realizarparafiscales') else "NO"
             vstccf = "SI" if form.cleaned_data.get('vstccf') else "NO"
             vstsenaicbf = "SI" if form.cleaned_data.get('vstsenaicbf') else "NO"
             ige100 = "SI" if form.cleaned_data.get('ige100') else "NO"
             slntarifapension = "SI" if form.cleaned_data.get('slntarifapension') else "NO"
-                        
+
+            empresa_exonerada = "SI" if form.cleaned_data.get('empresa_exonerada') else "NO"
+
             empresa = Empresa(
                 nit=form.cleaned_data['nit'],
                 nombreempresa=form.cleaned_data['nombreempresa'],
                 dv=form.cleaned_data['dv'],
                 tipodoc=form.cleaned_data['tipodoc'],
+
+                # NUEVOS CAMPOS
+                tipo_persona=form.cleaned_data.get('tipo_persona'),
+                naturaleza_juridica=form.cleaned_data.get('naturaleza_juridica'),
+
                 replegal=form.cleaned_data['replegal'],
+
+                tipo_identificacion_rep_legal=form.cleaned_data.get('tipo_identificacion_rep_legal'),
+                numero_identificacion_rep_legal=form.cleaned_data.get('numero_identificacion_rep_legal'),
+                papellido_rep_legal=form.cleaned_data.get('papellido_rep_legal'),
+                sapellido_rep_legal=form.cleaned_data.get('sapellido_rep_legal'),
+                pnombre_rep_legal=form.cleaned_data.get('pnombre_rep_legal'),
+                snombre_rep_legal=form.cleaned_data.get('snombre_rep_legal'),
+
                 direccionempresa=form.cleaned_data['direccionempresa'],
                 telefono=form.cleaned_data['telefono'],
                 email=form.cleaned_data['email'],
+
                 idciudad=Ciudades.objects.get(idciudad=form.cleaned_data['codciudad']),
                 pais=Paises.objects.get(idpais=form.cleaned_data['pais']),
                 arl=Entidadessegsocial.objects.get(identidad=form.cleaned_data['arl']),
+
                 contactonomina=form.cleaned_data['contactonomina'],
                 emailnomina=form.cleaned_data['emailnomina'],
                 contactorrhh=form.cleaned_data['contactorrhh'],
                 emailrrhh=form.cleaned_data['emailrrhh'],
+
                 contactocontab=form.cleaned_data['contactocontab'],
                 emailcontab=form.cleaned_data['emailcontab'],
+
                 cargocertificaciones=form.cleaned_data['cargocertificaciones'],
-                firmacertificaciones= form.cleaned_data.get('firmacertificaciones') or "" ,
+                firmacertificaciones=form.cleaned_data.get('firmacertificaciones') or "",
+
                 website=form.cleaned_data['website'],
                 logo=form.cleaned_data['logo'],
-                metodoextras= metodoextras,
-                realizarparafiscales=realizarparafiscales ,
-                vstccf= vstccf  ,
-                vstsenaicbf=vstsenaicbf ,
+
+                metodoextras=metodoextras,
+                realizarparafiscales=realizarparafiscales,
+                vstccf=vstccf,
+                vstsenaicbf=vstsenaicbf,
                 ige100=ige100,
                 slntarifapension=slntarifapension,
+
+                empresa_exonerada=empresa_exonerada,
+
                 banco=Bancos.objects.get(idbanco=form.cleaned_data['banco']) if form.cleaned_data['banco'] else None,
                 numcuenta=form.cleaned_data['numcuenta'],
                 tipocuenta=form.cleaned_data['tipocuenta'],
+
                 codigosuc=form.cleaned_data['codigosuc'],
                 nombresuc=form.cleaned_data['nombresuc'],
+
+                # NUEVOS CAMPOS PILA
+                tipo_presentacion_planilla=form.cleaned_data.get('tipo_presentacion_planilla'),
+                codigo_sucursal=form.cleaned_data.get('codigo_sucursal'),
+                nombre_sucursal=form.cleaned_data.get('nombre_sucursal'),
+
                 claseaportante=form.cleaned_data['claseaportante'],
-                tipoaportante=form.cleaned_data.get('tipoaportante') or None, 
-                ajustarnovedad=str(ajustarnovedad)[:2] if ajustarnovedad else '',	
+                tipoaportante=form.cleaned_data.get('tipoaportante') or None,
+
+                ajustarnovedad=str(ajustarnovedad)[:2] if ajustarnovedad else '',
             )
-            
+
             empresa.save()
-            # return JsonResponse({'status': 'success', 'message': 'Empresa creada exitosamente'})
-            
+
             data1 = proceso_conceptos(empresa.idempresa)
             data2 = proceso_indicadores(empresa.idempresa)
 
-            # Determinar mensaje según los datos de retorno
-            if data1 or data2:  # Si alguno trae error
+            if data1 or data2:
                 mensaje = f"Hubo problemas al guardar la empresa: {data1} {data2}".strip()
                 icono = 'error'
             else:
@@ -160,6 +191,7 @@ def addcompanies_admin(request):
             response['X-Up-icon'] = icono
             response['X-Up-message'] = mensaje
             response['X-Up-Location'] = reverse('admin:companies')
+
             return response
             
         else:

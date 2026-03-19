@@ -54,11 +54,26 @@
 
 
 <div class="card shadow-sm mb-5">
-    <div class="card-header">
-        <h3 class="card-title">Información General</h3>
-    </div>
-    <div class="card-body">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Información General</h3>
 
+        <a
+            class="btn btn-light-info btn-sm"
+            style="width: auto;"
+            up-layer="new modal"
+            up-target=".modal-content"
+            up-size="large"
+            up-align="center"
+            up-backdrop="true"
+            up-history="false"
+            up-dismissable="false"
+            up-cache="false"
+            href="{% url 'companies:company_edit' 1  %}">
+            <i class="fa-solid fa-plus"></i> Editar Información
+        </a>
+    </div>
+    
+    <div class="card-body">
         <div class="row mb-4">
             <div class="col-md-2">
                 <label class="fw-bold">NIT</label>
@@ -66,24 +81,40 @@
             </div>
             <div class="col-md-2">
                 <label class="fw-bold">Tipo Documento</label>
-                <p>{{ data.tipodoc }}</p>
+                <p>{{ data.get_tipodoc_display|default:"—" }}</p>
             </div>
             <div class="col-md-3">
                 <label class="fw-bold">Nombre Empresa</label>
                 <p>{{ data.nombreempresa }}</p>
             </div>
-
             <div class="col-md-3">
                 <label class="fw-bold">Representante Legal</label>
                 <p>{{ data.replegal }}</p>
             </div>
             <div class="col-md-2">
-                <label class="fw-bold">ARL</label>
-                <p>{{ data.arl|default:"—" }}</p>
+                <label class="fw-bold">Tipo Persona</label>
+                <p>{{ data.get_tipo_persona_display|default:"—" }}</p>
             </div>
-
         </div>
 
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label class="fw-bold">Naturaleza Jurídica</label>
+                <p>{{ data.get_naturaleza_juridica_display|default:"—" }}</p>
+            </div>
+            <div class="col-md-3">
+                <label class="fw-bold">Tipo ID Rep. Legal</label>
+                <p>{{ data.get_tipo_identificacion_rep_legal_display|default:"—" }}</p>
+            </div>
+            <div class="col-md-3">
+                <label class="fw-bold">Número ID Rep. Legal</label>
+                <p>{{ data.numero_identificacion_rep_legal|default:"—" }}</p>
+            </div>
+            <div class="col-md-3">
+                <label class="fw-bold">Nombres Rep. Legal</label>
+                <p>{{ data.pnombre_rep_legal }} {{ data.snombre_rep_legal }} {{ data.papellido_rep_legal }} {{ data.sapellido_rep_legal }}</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -107,24 +138,31 @@
         </a>
     </div>
     <div class="card-body">
-
-        <div class="row">
+        <div class="row mb-4">
             <div class="col-md-4">
                 <label class="fw-bold">Banco</label>
                 <p>{{ data.banco|default:"—" }}</p>
             </div>
-
             <div class="col-md-4">
                 <label class="fw-bold">Número de Cuenta</label>
                 <p>{{ data.numcuenta|default:"—" }}</p>
             </div>
-
             <div class="col-md-4">
                 <label class="fw-bold">Tipo de Cuenta</label>
                 <p>{{ data.tipocuenta|default:"—" }}</p>
             </div>
         </div>
 
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="fw-bold">Clase Aportante</label>
+                <p>{{ data.claseaportante|default:"—" }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Tipo Aportante</label>
+                <p>{{ data.tipoaportante|default:"—" }}</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -259,6 +297,7 @@
     </div>
     <div class="card-body">
 
+        <!-- Primera fila: Parafiscales básicos -->
         <div class="row mb-4">
             <div class="col-md-4">
                 <label class="fw-bold">Realiza Parafiscales</label>
@@ -274,6 +313,23 @@
             </div>
         </div>
 
+        <!-- Segunda fila: IGE y Tarifa Pensión -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="fw-bold">IGE 100</label>
+                <p>{{ data.ige100|default:"—" }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Tarifa Pensión SLN</label>
+                <p>{{ data.slntarifapension|default:"—" }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Ajustar Novedad</label>
+                <p>{{ data.ajustarnovedad|default:"—" }}</p>
+            </div>
+        </div>
+
+        <!-- Tercera fila: Empresa Exonerada y Aportantes -->
         <div class="row mb-4">
             <div class="col-md-4">
                 <label class="fw-bold">Empresa Exonerada</label>
@@ -285,15 +341,30 @@
                     {% endif %}
                 </p>
             </div>
-
             <div class="col-md-4">
                 <label class="fw-bold">Tipo Aportante</label>
                 <p>{{ data.tipoaportante|default:"—" }}</p>
             </div>
-
             <div class="col-md-4">
                 <label class="fw-bold">Clase Aportante</label>
                 <p>{{ data.claseaportante|default:"—" }}</p>
+            </div>
+        </div>
+
+        <!-- Cuarta fila: Tipo Presentación Planilla -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="fw-bold">Tipo Presentación Planilla</label>
+                <p>{{ data.tipo_presentacion_planilla|default:"—" }}</p>
+            </div>
+
+            <div class="col-md-4">
+                <label class="fw-bold">Código Sucursal</label>
+                <p>{{ data.codigo_sucursal|default:"—" }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="fw-bold">Nombre Sucursal</label>
+                <p>{{ data.nombre_sucursal|default:"—" }}</p>
             </div>
         </div>
 
