@@ -57,6 +57,7 @@ def settlement_list(request):
                 'intereses',
                 'prima',
                 'vacaciones',
+                'indemnizacion',
                 'totalliq',
                 'estadoliquidacion',
 
