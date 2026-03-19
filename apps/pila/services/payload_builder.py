@@ -692,19 +692,24 @@ def _dias_base_contrato_mes(
 
     mes_num = _MESES[mesacumular.upper().strip()]
     ini_mes = date(ano, mes_num, 1)
-    fin_mes = date(ano, mes_num, _ultimo_dia_mes_pila(ano, mes_num))  # PILA mes comercial (feb 28/29)
+    last_day_real = calendar.monthrange(ano, mes_num)[1]
 
+    # Recorte del rango al mes real (evita contar días fuera del mes real)
     ini = max(fechainicio, ini_mes)
-    fin = fin_mes if fechafin is None else min(fechafin, fin_mes)
-
-    if fin < ini:
+    fin_mes_real = date(ano, mes_num, last_day_real)
+    fin_real_date = fin_mes_real if fechafin is None else min(fechafin, fin_mes_real)
+    if fin_real_date < ini:
         return 0
 
+    # En PILA se contabiliza el "mes comercial" hasta el día 30:
+    # si el contrato llega al final del mes real (o no tiene fin), se extiende a 30.
+    fin_pila_day = 30 if fin_real_date == fin_mes_real else fin_real_date.day
+
     # Mes completo en PILA = 30 días cotizados (Error 382 exige 30 en los 4 subsistemas)
-    if ini == ini_mes and fin == fin_mes:
+    if ini == ini_mes and fin_real_date == fin_mes_real:
         return 30
 
-    dias = (fin - ini).days + 1
+    dias = fin_pila_day - ini.day + 1
     return _cap_30(dias)
 
 
@@ -1118,17 +1123,26 @@ def _generar_registros_empleado(
     novedades_normal = list(novedades_ing_ret)  # ING/RET van en línea normal
     ibc_sp = ibc_actual.get("salud_pension", Decimal("0"))
     vst_valor = vst
+    # Tolerancia por redondeo: el validor puede exigir VST cuando IBC > salario,
+    # pero diferencias "menores" (ej. 1 peso) pueden ser solo efecto de redondeos.
+    tolerancia_vst = Decimal("1")
     if vst_valor <= 0 and salario_contrato > 0 and ibc_sp > salario_contrato:
         # VST no en indicador 29 pero IBC > salario (ej. VST incluida en basesegsocial)
-        vst_valor = ibc_sp - Decimal(str(salario_contrato))
+        diff = ibc_sp - Decimal(str(salario_contrato))
+        if diff <= tolerancia_vst:
+            vst_valor = Decimal("0")
+        else:
+            vst_valor = diff
+
     if vst_valor > 0:
         fecha_vst = (fecha_periodo or date.today()).isoformat()
+        vst_pesos = int(vst_valor.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
         novedades_normal.append({
             "codigo": "VST",
             "fecha_desde": fecha_vst,
             "fecha_hasta": fecha_vst,
             "dias": None,
-            "valor": int(vst_valor),
+            "valor": vst_pesos,
         })
     
     # IBC línea normal:
