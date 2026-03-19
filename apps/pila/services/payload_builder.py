@@ -493,7 +493,7 @@ def _get_ibc_por_contrato_mes(
       n.idcontrato_id,
       SUM(CASE WHEN cdi.indicador_id = 6  THEN COALESCE(n.valor,0) ELSE 0 END) AS ibc_salud_pension,
       SUM(CASE WHEN cdi.indicador_id = 16 THEN COALESCE(n.valor,0) ELSE 0 END) AS ibc_arl,
-      SUM(CASE WHEN cdi.indicador_id = 17 THEN COALESCE(n.valor,0) ELSE 0 END) AS ibc_caja
+      SUM(CASE WHEN cdi.indicador_id IN (17,31) THEN COALESCE(n.valor,0) ELSE 0 END) AS ibc_caja
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
@@ -506,7 +506,7 @@ def _get_ibc_por_contrato_mes(
       AND cn.estadonomina = FALSE
       AND n.estadonomina = 2
       AND n.idcontrato_id = ANY(%s)
-      AND cdi.indicador_id IN (6,16,17)
+      AND cdi.indicador_id IN (6,16,17,31)
     GROUP BY n.idcontrato_id
     ORDER BY n.idcontrato_id;
     """
