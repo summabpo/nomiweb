@@ -16,6 +16,7 @@
     <!-- Theme Styles -->
     <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet"/>
     <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet"/>
+    <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
 </head>
 
 
@@ -35,7 +36,7 @@
 
                     <div class="row justify-content-center">
 
-                        <div class="col-xl-10 col-lg-11">
+                        <div class="col-xl-18 col-lg-15">
 
                             <!-- CARD -->
                             <div class="card shadow-sm">
@@ -47,51 +48,57 @@
                                 </div>
 
                                 <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" id = "tabla-settlement">
 
-                                    <table class="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" id = "tabla-settlement">
+                                            <thead>
+                                                <tr class="fw-bold text-muted">
+                                                    <th>Idcontrato</th>
+                                                    <th>Mes</th>
+                                                    <th>Año</th>
+                                                    <th>Sueldo Basico</th>
+                                                    <th>Transporte</th>
+                                                    <th>Horas Extras</th>
+                                                    <th>Otros Salario</th>
+                                                    <th>Incapacidades</th>
+                                                    <th>Vacaciones</th>
+                                                    <th>Recargos</th>
+                                                    <th>C. Suspensiones</th>
+                                                    <th>C. Vacaciones</th>
+                                                    <th>C. Dias</th>
+                                                    <th>No Salario</th>
+                                                    <th>Total Ingresos</th>
+                                                </tr>
+                                            </thead>
 
-                                        <thead>
-                                            <tr class="fw-bold text-muted">
-                                                <th>Idcontrato</th>
-                                                <th>Mes</th>
-                                                <th>Año</th>
-                                                <th>Sueldo Basico</th>
-                                                <th>Transporte</th>
-                                                <th>Horas Extras</th>
-                                                <th>Otros Salario</th>
-                                                <th>Incapacidades</th>
-                                                <th>Vacaciones</th>
-                                                <th>Recargos</th>
-                                                <th>No Salario</th>
-                                                <th>Total Ingresos</th>
-                                            </tr>
-                                        </thead>
+                                            <tbody>
 
-                                        <tbody>
+                                                {% for item in data.nomina %}
 
-                                            {% for item in data.nomina %}
+                                                <tr>
+                                                    <td>{{ data.id }}</td>
+                                                    <td>{{ item.mes }}</td>
+                                                    <td>{{ item.ano }}</td>
+                                                    <td>{{ item.sueldo_basico|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.transporte|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.hextras|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.otros|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.incapacidades|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.vacaciones|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.recargos|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.suspensions|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.vacaciones_cantidad|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.transporte_cantidad|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.no_salario|default:"0"|format_currency }}</td>
+                                                    <td>{{ item.total_ingresos|default:"0"|format_currency }}</td>
+                                                </tr>
 
-                                            <tr>
-                                                <td>{{ data.id }}</td>
-                                                <td>{{ item.mes }}</td>
-                                                <td>{{ item.ano }}</td>
-                                                <td>{{ item.sueldo_basico|default:"0"|format_currency }}</td>
-                                                <td>{{ item.transporte|default:"0"|format_currency }}</td>
-                                                <td>{{ item.hextras|default:"0"|format_currency }}</td>
-                                                <td>{{ item.hextras|default:"0"|format_currency }}</td>
-                                                <td>{{ item.incapacidades|default:"0"|format_currency }}</td>
-                                                <td>{{ item.vacaciones|default:"0"|format_currency }}</td>
-                                                <td>{{ item.recargos|default:"0"|format_currency }}</td>
-                                                <td>{{ item.no_salario|default:"0"|format_currency }}</td>
-                                                <td>{{ item.total_ingresos|default:"0"|format_currency }}</td>
-                                            </tr>
+                                                {% endfor %}
 
-                                            {% endfor %}
+                                            </tbody>
 
-                                        </tbody>
-
-                                    </table>
-
+                                        </table>
+                                    </div>
                                 </div>
 
                             </div>
