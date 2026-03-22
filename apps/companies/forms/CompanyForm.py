@@ -12,7 +12,7 @@ TipoCcuenta = [
     ('', '---------------------'),
     ('CC', 'Cédula de Ciudadanía'),
     ('CE', 'Cédula de Extranjería'),
-    ('NI', 'NIT'),
+    ('NI', 'NI'),
 ]
 
 
@@ -20,7 +20,7 @@ CHOICE_TIPODOC = [
     ('', '---------------------'),
     ('CC', 'Cédula de Ciudadanía'),
     ('CE', 'Cédula de Extranjería'),
-    ('NI', 'NIT'),
+    ('NI', 'NI'),
 ]
 
 

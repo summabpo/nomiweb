@@ -44,7 +44,7 @@ from .views.hr_changes import position_change , health_insurance_change ,occupat
 from .views.companies import companies
 
 from .views.contract_management import reactivation 
-
+from .views.contract_management import masive_contract 
 
 urlpatterns = [
     # ## Employee Contract URLs
@@ -63,6 +63,7 @@ urlpatterns = [
 
     #reactivation new items
     path('reactivation/contract/', reactivation.reactivation, name='reactivation'),
+    
     
 
     
@@ -245,6 +246,9 @@ urlunpolypatterns =[
     path('reactivation/contract/modal/<int:id>', reactivation.reactivation_modal, name='reactivation_modal'),
     path('reactivation/contract/modal/masive/doc', reactivation.reactivation_doc, name='reactivation_doc'),
     path('reactivation/contract/modal/masive/data', reactivation.reactivation_data, name='reactivation_data'),
+    path('masive/contract/modal/masive/data', masive_contract.masive_contract_modal, name='masive_contract_modal'),
+    path('masive/contract/modal/masive/doc', masive_contract.masive_contract_doc, name='masive_contract_doc'),
+
 
     #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
     #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),

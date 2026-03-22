@@ -58,16 +58,46 @@ Listado de Empleados Contratados Anteriormente
 
         up-layer='new modal'
         up-target=".modal-content"
-        up-size = "large"
-        up-align = "center"
-        up-backdrop = "true"
-        up-history = "false"
-        up-dismissable ="false"
+        up-size="large"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
         up-cache="false"
 
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top" 
+        title="Importar contratos para procesos de reactivación"
+
         href="{% url "companies:reactivation_data" %}">
-        <i class="fa-solid fa-plus"></i> Importar contratos
-    </a> 
+        <i class="fa-solid fa-file-import"></i> Reactivación
+    </a>
+
+    <div style="width: 10px;"></div>
+    
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size="large"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false"
+
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top" 
+        title="Crea empleados nuevos y carga contrato y hoja de vida de forma masiva"
+
+        href="{% url "companies:masive_contract_modal" %}">
+        <i class="fa-solid fa-file-import"></i> Nuevos empleados
+    </a>
+
+
 {% endblock %}
 
 

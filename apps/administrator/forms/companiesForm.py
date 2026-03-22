@@ -23,7 +23,7 @@ CHOICE_TIPODOC = [
     ('CD', 'Carné Diplomático'),
     ('SC', 'Salvoconducto de Permanencia'),
     ('PT', 'Permiso por Protección Temporal'),
-    ('NI', 'NIT'),
+    ('NI', 'NI'),
 ]
 
 

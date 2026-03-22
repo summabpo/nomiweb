@@ -13,123 +13,170 @@
     <div class="separator my-5"></div> 
     <!--begin::Input group-->        
     <div class="modal-body">
+        <form id="form_settlement_edit" 
 
-        <div class="container">
+            up-accept-location="{% url "companies:settlementlistedit" id%}" 
+            up-layer="current" 
+            up-mode="replace" 
+            up-on-accepted="up.modal.close()" 
+            up-submit="{% url "companies:settlementlistedit" id %}" 
+            up-target="#modal-content" 
+            method="post"
+            
+            > 
+
             {% csrf_token %}
-            {% crispy form %}
 
-
-        </div>
-
-        <div id="settlement-results" class="mt-5" style="display: none;">
-        <h4 class="mb-3">Resumen de Liquidación</h4>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Días trabajados</span>
-                    <input type="text" readonly class="form-control" id="dias_trabajados">
-                </div>
-            </div>  
-            <div class="col-md-4">
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Fecha Inicio Contrato</span>
-                    <input type="text" readonly class="form-control" id="fecha_inicio">
-                </div>
-            </div> 
-            <div class="col-md-4">
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Salario base</span>
-                    <input type="text" readonly class="form-control" id="salario_base">
-                </div>
-            </div> 
-        </div>
-
-        <div class="separator separator-content border-dark my-15"><span class="w-250px fw-bold">Resumen Completo</span></div>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Días Cesantías</span>
-                    <input type="text" readonly class="form-control" id="dias_cesantias">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Días Primas</span>
-                    <input type="text" readonly class="form-control" id="dias_primas">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Días Vacaciones</span>
-                    <input type="text" readonly class="form-control" id="dias_vacaciones">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Días Susp. Vac.</span>
-                    <input type="text" readonly class="form-control" id="dias_susp_vac">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Dias Susp. Ces.</span>
-                    <input type="text" readonly class="form-control" id="dias_susp_ces">
+            <div class="d-flex justify-content-end ">
+                <div id="settlement-results-button" style="display: none;">
+                    <a id="accrued-link"  href="#" target="_blank" class="btn btn-sm btn-light-info" >
+                        <i class="fa-solid fa-table-list"></i> Acomulados
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Base Cesantías</span>
-                    <input type="text" readonly class="form-control" id="base_cesantias">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Base Primas</span>
-                    <input type="text" readonly class="form-control" id="base_primas">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Base Vacaciones</span>
-                    <input type="text" readonly class="form-control" id="base_vacaciones">
-                </div>
-            </div>
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="form-group col-md-4 mb-0">
+                        <select class="form-select" data-control="select2" data-placeholder="Seleccione un contrato" id = "id_contract" name="contract">
+                            <option></option>
+                            {% for value, label in e_choices %}
+                                <option value="{{ value }}" {% if value == data_edit.contract %}selected{% endif %}  >{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-            <div class="col-md-4">
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Cesantías</span>
-                    <input type="text" readonly class="form-control" id="valor_cesantias">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Intereses</span>
-                    <input type="text" readonly class="form-control" id="valor_intereses">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Primas</span>
-                    <input type="text" readonly class="form-control" id="valor_prima">
-                </div>
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Vacaciones</span>
-                    <input type="text" readonly class="form-control" id="valor_vacaciones">
+                    <div class="form-group col-md-4 mb-0">
+                        <input type="text"  class="form-control" id="kt_daterangepicker_2" name="end_date" value="{{ data_edit.end_date }}" >
+                    </div>
+
+                    <div class="form-group col-md-4 mb-0">
+                        <select class="form-select" data-control="select2" data-placeholder="Motivo de Retiro" name="reason_for_termination" >
+                            <option></option>
+                            {% for value, label in type_choices %}
+                                <option value="{{ value }}" {% if value == data_edit.reason_for_termination|stringformat:"s" %}selected{% endif %} >
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
                 </div>
 
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Indemnización</span>
-                    <input type="text" readonly class="form-control" id="valor_indemnizacion">
-                </div>
 
             </div>
-        </div>
 
-        <div class="separator separator-content border-dark my-15"><span class="w-250px fw-bold">Total</span></div>
+            <div id="settlement-results" class="mt-5">
+                <h4 class="mb-3">Resumen de Liquidación</h4>
 
-        <div class="row">
-            <div class="col-md-4">
-                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Días trabajados</span>
+                            <input type="text"  class="form-control" name="dias_trabajados" value="{{ data_edit.diastrabajados }}" >
+                        </div>
+                    </div>  
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Fecha Inicio Contrato</span>
+                            <input type="text"  class="form-control" name="fecha_inicio" value="{{ data_edit.fechainiciocontrato|date:'Y-m-d'}}" >
+                        </div>
+                    </div> 
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Salario base</span>
+                            <input type="text"  class="form-control" name="salario_base" value="{{ data_edit.salario }}">
+                        </div>
+                    </div> 
+                </div>
+
+                <div class="separator separator-content border-dark my-15"><span class="w-250px fw-bold">Resumen Completo</span></div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Días Cesantías</span>
+                            <input type="text"  class="form-control"  name="dias_cesantias" value="{{ data_edit.diascesantias }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Días Primas</span>
+                            <input type="text"  class="form-control"  name="dias_primas" value="{{ data_edit.diasprimas }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Días Vacaciones</span>
+                            <input type="text"  class="form-control"  name="dias_vacaciones" value="{{ data_edit.diasvacaciones }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Días Susp. Vac.</span>
+                            <input type="text"  class="form-control"  name="dias_susp_vac" value="{{ data_edit.diassusp }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Dias Susp. Ces.</span>
+                            <input type="text"  class="form-control"  name="dias_susp_ces" value="{{ data_edit.diassuspv }}" >
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Base Cesantías</span>
+                            <input type="text"  class="form-control"  name="base_cesantias" value="{{ data_edit.baseprima }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Base Primas</span>
+                            <input type="text"  class="form-control"  name="base_primas" value="{{ data_edit.basecesantias }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Base Vacaciones</span>
+                            <input type="text"  class="form-control"  name="base_vacaciones" value="{{ data_edit.basevacaciones }}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Cesantías</span>
+                            <input type="text"  class="form-control"  name="valor_cesantias" value="{{ data_edit.cesantias }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Intereses</span>
+                            <input type="text"  class="form-control"  name="valor_intereses" value="{{ data_edit.intereses }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Primas</span>
+                            <input type="text"  class="form-control"  name="valor_prima" value="{{ data_edit.prima }}" >
+                        </div>
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Vacaciones</span>
+                            <input type="text"  class="form-control"  name="valor_vacaciones" value="{{ data_edit.vacaciones }}" >
+                        </div>
+
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Indemnización</span>
+                            <input type="text"  class="form-control"  name="valor_indemnizacion" value="{{ data_edit.indemnizacion }}">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="separator separator-content border-dark my-15"><span class="w-250px fw-bold">Total</span></div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        
+                    </div>
+
+                    <div class="col-md-4">
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm mb-5">
+                            <span class="input-group-text">Total Liquidación</span>
+                            <input type="text"  class="form-control fw-bold text-success" name="total_liquidacion" value="{{ data_edit.totalliq }}" >
+                        </div> 
+                    </div>
+
             </div>
 
-            <div class="col-md-4">
-            </div>
-
-            <div class="col-md-4">
-                <div class="input-group input-group-sm mb-5">
-                    <span class="input-group-text">Total Liquidación</span>
-                    <input type="text" readonly class="form-control fw-bold text-success" id="total_liquidacion">
-                </div> 
-            </div>
-
-        </div>
+        </form>
     </div>
 
     <div class="separator my-5"></div>.
@@ -137,7 +184,7 @@
     <div class="modal-footer btn-group">
         <button type="button" class="btn btn-light-danger ms-auto" up-dismiss>Cerrar</button>
         <div style="width: 10px;"></div>
-        <button type="submit" form="form_settlement" class="btn btn-primary">Editar</button>
+        <button type="submit" form="form_settlement_edit" class="btn btn-primary">Editar</button>
     </div>
 </div>
 

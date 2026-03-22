@@ -57,6 +57,7 @@ def settlement_list(request):
                 'intereses',
                 'prima',
                 'vacaciones',
+                'indemnizacion',
                 'totalliq',
                 'estadoliquidacion',
 
@@ -315,149 +316,129 @@ def settlement_create(request):
 
 @login_required
 @role_required('accountant')
-def settlement_accrued_values(request,id,fecha):
-
-
+def settlement_accrued_values(request, id, fecha):
     date_obj = datetime.strptime(fecha, "%Y-%m-%d")
-    mes_num = date_obj.month
-    ano = date_obj.year
-    contrato = Contratos.objects.get(idcontrato = id)
+    mes_actual, ano_actual = date_obj.month, date_obj.year
+
+    contrato = get_object_or_404(Contratos, idcontrato=id)
+
     meses = [
         "ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO",
         "JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"
     ]
+
+    # Diccionario de códigos para cada categoría
+    conceptos = {
+        'transporte': [2],
+        'hextras': [5, 6, 7, 8, 9, 18],
+        'otros': [18, 42],
+        'incapacidades': [25, 26, 27, 28, 87],
+        'vacaciones_valor': [24, 32],
+        'recargos': [3, 16],
+        'suspensions': [30],
+        'vacaciones_cantidad': [24],
+        'transporte_cantidad': [2],
+        'no_salario': [24, 32],
+    }
+
     nomina = []
-
+    # depuracion 
+    # resultados = detalles_conceptos(contrato.idcontrato, conceptos['hextras'], 2, 2026)
     
+    # print('-------------------------------')
+    # for r in resultados:
+    #     print(r)
+    # print('-------------------------------')
 
-    mes_actual = mes_num
-    ano_actual = ano
+    for _ in range(12):
+        mes_texto = meses[mes_actual - 1]
+        salario = salario_mes(contrato, mes_actual, ano_actual)
 
-    for i in range(0, 13):
+        # Consulta base
+        base_filter = {
+            'estadonomina': 2,
+            'idcontrato_id': id,
+            'idnomina__mesacumular': mes_texto,
+            'idnomina__anoacumular__ano': ano_actual
+        }
 
-        mes_texto = meses[mes_actual-1]
-
-        salario = salario_mes(contrato , mes_actual , ano_actual) 
-        # calcular mes anterior
+        # Totales generales
+        totales = Nomina.objects.filter(**base_filter).aggregate(total=Sum('valor'))
         
 
-        totales = Nomina.objects.filter(
-            estadonomina=2,
-            idcontrato_id=id,
-            idnomina__mesacumular=mes_texto,
-            idnomina__anoacumular__ano=ano_actual
-        ).aggregate(total=Sum('valor'))
+        
 
-
-        total_trans = Nomina.objects.filter(
-            estadonomina=2,
-            idcontrato_id=id,
-            idnomina__mesacumular=mes_texto,
-            idnomina__anoacumular__ano=ano_actual,
-            idconcepto__codigo = 2 
-
-        ).aggregate(total=Sum('valor'))
-
-
-        total_extras = Nomina.objects.filter(
-            estadonomina=2,
-            idcontrato_id=id,
-            idnomina__mesacumular=mes_texto,
-            idnomina__anoacumular__ano=ano_actual,
-            idconcepto__codigo__in=[5, 6, 7, 8, 9, 18]
-
-        ).aggregate(total=Sum('valor'))
-
-
-        total_otros = Nomina.objects.filter(
-            estadonomina=2,
-            idcontrato_id=id,
-            idnomina__mesacumular=mes_texto,
-            idnomina__anoacumular__ano=ano_actual,
-            idconcepto__codigo__in=[5, 18]
-
-        ).aggregate(total=Sum('valor'))
-
-
-        total_incapa = Nomina.objects.filter(
-            estadonomina=2,
-            idcontrato_id=id,
-            idnomina__mesacumular=mes_texto,
-            idnomina__anoacumular__ano=ano_actual,
-            idconcepto__codigo__in= [25, 26, 27, 28, 87]
-
-        ).aggregate(total=Sum('valor'))
-
-
-        total_vacas = Nomina.objects.filter(
-            estadonomina=2,
-            idcontrato_id=id,
-            idnomina__mesacumular=mes_texto,
-            idnomina__anoacumular__ano=ano_actual,
-            idconcepto__codigo__in= [24, 32]
-
-        ).aggregate(total=Sum('valor'))
-
-        total_recargo = Nomina.objects.filter(
-            estadonomina=2,
-            idcontrato_id=id,
-            idnomina__mesacumular=mes_texto,
-            idnomina__anoacumular__ano=ano_actual,
-            idconcepto__codigo__in= [3, 16]
-
-        ).aggregate(total=Sum('valor'))
-
-        # # Obtiene todos los valores individuales
-        # registros = Nomina.objects.filter(
-        #     estadonomina=2,
-        #     idcontrato_id=id,
-        #     idnomina__mesacumular=mes_texto,
-        #     idnomina__anoacumular__ano=ano_actual,
-        #     idconcepto__codigo__in=[3, 16]
-        # ).values('valor', 'idconcepto__codigo', 'idnomina__mesacumular', 'idnomina__anoacumular__ano')
-
-        # print("Registros que se van a sumar:")
-        # for r in registros:
-        #     print(f"Valor: {r['valor']}, Código: {r['idconcepto__codigo']}, Mes: {r['idnomina__mesacumular']}, Año: {r['idnomina__anoacumular__ano']}")
-
-        total_no_sal = Nomina.objects.filter(
-            estadonomina=2,
-            idcontrato_id=id,
-            idnomina__mesacumular=mes_texto,
-            idnomina__anoacumular__ano=ano_actual,
-            idconcepto__codigo__in= [24, 32]
-
-        ).aggregate(total=Sum('valor'))
-
+        # Función auxiliar para sumar por códigos
+        def total_by_codigo(codigo_list, field='valor'):
+            return Nomina.objects.filter(**base_filter, idconcepto__codigo__in=codigo_list).aggregate(total=Sum(field))['total'] or 0
 
         nomina.append({
             "mes": mes_texto,
             "ano": ano_actual,
-            "sueldo_basico": salario, 
-            "transporte":total_trans['total'] or 0 ,
-            "hextras":total_extras['total'] or 0 ,
-            "otros":total_otros['total'] or 0 ,
-            "incapacidades":total_incapa['total'] or 0 ,
-            "vacaciones":total_vacas['total'] or 0 ,
-            "recargos":total_recargo['total'] or 0 ,
-            "no_salario":total_no_sal['total'] or 0 ,
-            "total_ingresos":totales['total'] or 0 ,
-            
+            "sueldo_basico": salario,
+            "transporte": total_by_codigo(conceptos['transporte']),
+            "hextras": total_by_codigo(conceptos['hextras']),
+            "otros": total_by_codigo(conceptos['otros']),
+            "incapacidades": total_by_codigo(conceptos['incapacidades']),
+            "vacaciones": total_by_codigo(conceptos['vacaciones_valor']),
+            "recargos": total_by_codigo(conceptos['recargos']),
+            "suspensions": total_by_codigo(conceptos['suspensions'], field='cantidad'),
+            "vacaciones_cantidad": total_by_codigo(conceptos['vacaciones_cantidad'], field='cantidad'),
+            "transporte_cantidad": total_by_codigo(conceptos['transporte_cantidad'], field='cantidad'),
+            "no_salario": total_by_codigo(conceptos['no_salario']),
+            "total_ingresos": totales['total'] or 0,
         })
 
+        # Ajustar mes y año
         if mes_actual == 1:
             mes_actual = 12
             ano_actual -= 1
         else:
             mes_actual -= 1
 
-    data = {
-        "id": id,
-        "nomina": nomina
+    return render(request, './payroll/settlement_accrued_values.html', {'data': {'id': id, 'nomina': nomina}})
+
+
+
+def detalles_conceptos(contrato_id, conceptos_a_buscar, mes, ano):
+    """
+    Retorna para cada concepto dado:
+    - La nómina a la que pertenece
+    - Valor
+    - Cantidad
+    """
+    # Convertimos mes numérico a texto
+    meses = [
+        "ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO",
+        "JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"
+    ]
+    mes_texto = meses[mes-1]
+
+    base_filter = {
+        'estadonomina': 2,
+        'idcontrato_id': contrato_id,
+        'idnomina__mesacumular': mes_texto,
+        'idnomina__anoacumular__ano': ano
     }
 
-    return render(request, './payroll/settlement_accrued_values.html',{'data':data})
+    # Resultado final
+    resultados = []
 
+    for concepto_codigo in conceptos_a_buscar:
+        registros = Nomina.objects.filter(**base_filter, idconcepto__codigo=concepto_codigo)
+
+        for reg in registros:
+            resultados.append({
+                "mes": mes_texto,
+                "ano": ano,
+                "concepto": reg.idconcepto.nombreconcepto,
+                "codigo": reg.idconcepto.codigo,
+                "valor": reg.valor,
+                "cantidad": reg.cantidad,
+                "nomina_id": reg.idnomina.idnomina
+            })
+
+    return resultados
 
 def salario_mes(contrato, mes, ano):
     """
