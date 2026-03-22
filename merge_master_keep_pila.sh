@@ -59,10 +59,14 @@ echo "  - apps/payroll/urls.py  → si Master añadió rutas, fusiónalas a mano
 echo "  - templates/base/navbar_payroll.html  → si hubo cambios PILA en menú, comparar con Master"
 echo ""
 read -r -p "¿Confirmar commit del merge? [y/N] " ok
-if [[ "${ok,,}" != "y" ]]; then
-  echo "Abortado. Estado: merge en curso. Para deshacer: git merge --abort"
-  exit 1
-fi
+# Sin ${var,,}: en macOS el bash suele ser 3.2 y no soporta minúsculas así.
+case "$ok" in
+  y|Y|yes|YES) ;;
+  *)
+    echo "Abortado. Estado: merge en curso. Para deshacer: git merge --abort"
+    exit 1
+    ;;
+esac
 
 git commit -m "Merge origin/Master into pilanomiweb; mantener integración PILA (apps/pila, liquidacion_pila, urls/templates PILA)"
 
