@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from apps.common.models import Nomina
+from apps.common.models import Nomina , Conceptosdenomina
 from apps.companies.forms.ReportFilterForm import ReportFilterForm
 from django.contrib import messages
 from django.http import HttpResponse
@@ -10,9 +10,10 @@ from .parse_dates import parse_dates
 from django.db.models import Q
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
-import openpyxl
+from openpyxl.styles import Font
 from openpyxl import Workbook
 from io import BytesIO
+from openpyxl.styles import Font, PatternFill, Alignment
 
 
 @login_required
@@ -176,7 +177,7 @@ def payrollaccumulations(request):
                 else:
                     concepto_existente = next(
                         (concepto for concepto in acumulados[docidentidad]["data"]
-                         if concepto["idconcepto"] == data.idconcepto.codigo),
+                            if concepto["idconcepto"] == data.idconcepto.codigo),
                         None
                     )
 
@@ -369,10 +370,6 @@ def descargar_excel_empleados_2(request):
     # Filtros
     # -------------------------
 
-    print('---------------')
-    print(request.POST)
-    print('---------------')
-
     post = request.POST
     filtros = {}
     filtros['idcontrato__id_empresa'] = idempresa
@@ -392,7 +389,7 @@ def descargar_excel_empleados_2(request):
     if city:
         filtros['idcontrato__idsede'] = city
     
-    filtros['idcontrato'] = 12064
+    #filtros['idcontrato'] = 12081
 
     # -------------------------
     # Query base
@@ -453,6 +450,8 @@ def descargar_excel_empleados_2(request):
 
 
     # for n in nominas:
+    #     #if n.idconcepto.codigo == 31 or n.idconcepto.codigo == 83 :
+
     #     print(
     #         f"Empleado: {n.idcontrato} | "
     #         f"Contrato: {n.idcontrato.idcontrato} | "
@@ -464,10 +463,22 @@ def descargar_excel_empleados_2(request):
     #         f"Cantidad: {n.cantidad}"
     #     )
 
+
+    # -------------------------
+    # Conceptos Ley 1393
+    # -------------------------
+    conceptos_1393_ids = set(
+        Conceptosdenomina.objects.filter(
+            indicador__nombre="base1393",
+            id_empresa = idempresa,
+        ).values_list("codigo", flat=True)
+    )
+
     # -------------------------
     # Acumulados
     # -------------------------
     acumulados = {}
+    especiales = {1, 2, 4,34,25,26,27,28,31,83,82}
 
     for data in nominas:
         contrato = data.idcontrato
@@ -486,34 +497,37 @@ def descargar_excel_empleados_2(request):
                 "Documento": doc, 
                 "Empleado": nombre_completo,
                 "Cargo": contrato.cargo.nombrecargo if contrato.cargo else "",
-                "Centro": contrato.centrotrabajo.nombrecentrotrabajo if contrato.centrotrabajo else "",
+                "Costo": contrato.idcosto.nomcosto if contrato.idcosto else "",
                 "Fecha_inicio": contrato.fechainiciocontrato,
                 "Fecha_retiro": contrato.fechafincontrato,
                 "Salario": contrato.salario,
                 "conceptos": {},  
             }
 
-        concepto_nombre = data.idconcepto.nombreconcepto
+        concepto_nombre = f"{data.idconcepto.nombreconcepto} ({data.idconcepto.codigo})"
         codigo = data.idconcepto.codigo
         conceptos = acumulados[doc]['conceptos']
 
         if concepto_nombre not in conceptos:
             conceptos[concepto_nombre] = {"valor": 0, "cantidad": 0}
 
-        # Acumular valor y cantidad
-        conceptos[concepto_nombre]["valor"] = data.valor
-        conceptos[concepto_nombre]["cantidad"] = data.cantidad
+        # ✅ Acumular valor SIEMPRE
+        conceptos[concepto_nombre]["valor"] += data.valor
+
+        # ✅ Acumular cantidad SOLO si es especial
+        if codigo in especiales:
+            conceptos[concepto_nombre]["cantidad"] += data.cantidad
 
     # -------------------------
-    # Columnas dinámicas en orden: conceptos 1,2,3 primero
+    # Columnas dinámicas
     # -------------------------
     conceptos_ordenados = []
-    especiales = {1,2,3,60}  # códigos de conceptos que siempre van primero
     otros = []
 
     for data in nominas:
-        nombre = data.idconcepto.nombreconcepto
+        nombre = f"{data.idconcepto.nombreconcepto} ({data.idconcepto.codigo})"
         codigo = data.idconcepto.codigo
+
         if codigo in especiales and nombre not in conceptos_ordenados:
             conceptos_ordenados.append(nombre)
         elif codigo not in especiales and nombre not in otros:
@@ -522,48 +536,189 @@ def descargar_excel_empleados_2(request):
     conceptos_ordenados.extend(otros)
 
     # -------------------------
+    # Mapa concepto -> código
+    # -------------------------
+    concepto_codigo_map = {}
+
+    for data in nominas:
+        nombre = f"{data.idconcepto.nombreconcepto} ({data.idconcepto.codigo})"
+        concepto_codigo_map[nombre] = data.idconcepto.codigo
+
+    # -------------------------
+    # Separar conceptos positivos y negativos
+    # -------------------------
+    conceptos_pos = []
+    conceptos_neg = []
+
+    for concepto in conceptos_ordenados:
+        total = 0
+        for emp in acumulados.values():
+            total += emp['conceptos'].get(concepto, {}).get("valor", 0)
+
+        if total >= 0:
+            conceptos_pos.append(concepto)
+        else:
+            conceptos_neg.append(concepto)
+
+    # -------------------------
     # Crear Excel
     # -------------------------
+
+    header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")  # azul oscuro
+    header_font = Font(bold=True, color="FFFFFF")  # blanco
+    header_alignment = Alignment(horizontal="center", vertical="center")
+
     wb = Workbook()
     ws = wb.active
     ws.title = "Nómina"
 
-    # Header
     headers = ["Documento", "Empleado","Cargo","Centro de Costo","Fecha Ingreso","Fecha Retiro","Sueldo"]
-    for concepto in conceptos_ordenados:
-        headers.append(f"{concepto} Valor")
-        headers.append(f"{concepto} Cantidad")
+
+    # -------- POSITIVOS --------
+    for concepto in conceptos_pos:
+        headers.append(f"{concepto} - Valor")
+        if concepto_codigo_map.get(concepto) in especiales:
+            headers.append(f"{concepto} - Cantidad")
+
+    headers.append("TOTAL DEVENGADOS")
+
+    # -------- NEGATIVOS --------
+    for concepto in conceptos_neg:
+        headers.append(f"{concepto} - Valor")
+        if concepto_codigo_map.get(concepto) in especiales:
+            headers.append(f"{concepto} - Cantidad")
+
+    headers.append("TOTAL DEDUCCIONES")
+
+    # -------- TOTAL FINAL --------
+    headers.append("TOTAL NETO")
+
+    headers.append("")  # columna vacía (espacio)
+    headers.append("LEY 1393")
+
     ws.append(headers)
 
+    for col_num, _ in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = header_alignment
+
+    # -------------------------
+    # Inicializar totales por columna
+    # -------------------------
+    totales_columnas = [0] * len(headers)
+
+    # -------------------------
     # Data
+    # -------------------------
     for emp in acumulados.values():
         fila = [
             emp["Documento"],
             emp["Empleado"],
             emp["Cargo"],
-            emp["Centro"],
+            emp["Costo"],
             emp["Fecha_inicio"],
             emp["Fecha_retiro"],
             emp["Salario"]
         ]
 
-        for concepto in conceptos_ordenados:
+        total_devengados = 0
+        total_deducciones = 0
+        valor_1393 = 0
+        aux_1393 = 0
+        list_aux = {1,4}
+
+        # -------- POSITIVOS --------
+        for concepto in conceptos_pos:
             valor = emp['conceptos'].get(concepto, {}).get("valor", 0)
-            cantidad = emp['conceptos'].get(concepto, {}).get("cantidad", 0)
             fila.append(valor)
-            fila.append(cantidad)
+            total_devengados += valor
+
+            codigo = concepto_codigo_map.get(concepto)
+
+            if codigo in list_aux:
+                aux_1393 += valor
+
+            if codigo in conceptos_1393_ids:
+                valor_1393 += valor
+
+            if concepto_codigo_map.get(concepto) in especiales:
+                cantidad = emp['conceptos'].get(concepto, {}).get("cantidad", 0)
+                fila.append(cantidad)
+
+        fila.append(total_devengados)
+
+        # -------- NEGATIVOS --------
+        for concepto in conceptos_neg:
+            valor = emp['conceptos'].get(concepto, {}).get("valor", 0)
+            fila.append(-valor)
+            total_deducciones += valor
+
+            codigo = concepto_codigo_map.get(concepto)
+
+            if codigo in conceptos_1393_ids:
+                valor_1393 += valor
+
+            if concepto_codigo_map.get(concepto) in especiales:
+                cantidad = emp['conceptos'].get(concepto, {}).get("cantidad", 0)
+                fila.append(cantidad)
+
+        fila.append(-total_deducciones)
+
+        # -------- TOTAL FINAL --------
+        fila.append(total_devengados + total_deducciones)
+
+        fila.append("")  # columna vacía
+
+        def calcular_1393(valor_1393, aux_1393):
+            base = valor_1393 + aux_1393
+            return max(0, valor_1393 - (base * 0.4))
+
+        fila.append(calcular_1393(valor_1393, aux_1393))
+
+        # -------------------------
+        # Acumular totales por columna
+        # -------------------------
+        for i, val in enumerate(fila):
+            try:
+                totales_columnas[i] += float(val)
+            except (TypeError, ValueError):
+                pass
 
         ws.append(fila)
 
     # -------------------------
-    # Ajuste automático de columnas
+    # Fila de totales (negrita)
+    # -------------------------
+    fila_totales = []
+
+    for i, val in enumerate(totales_columnas):
+        if i == 1:
+            fila_totales.append("TOTALES")
+        elif i < 7:
+            fila_totales.append("")
+        else:
+            fila_totales.append(val)
+
+    ws.append(fila_totales)
+
+    # Aplicar negrita
+    bold_font = Font(bold=True)
+    for cell in ws[ws.max_row]:
+        cell.font = bold_font
+
+    # -------------------------
+    # Auto width
     # -------------------------
     for col in ws.columns:
         max_length = 0
         col_letter = col[0].column_letter
+
         for cell in col:
             if cell.value:
                 max_length = max(max_length, len(str(cell.value)))
+
         ws.column_dimensions[col_letter].width = max_length + 2
 
     # -------------------------
@@ -578,7 +733,6 @@ def descargar_excel_empleados_2(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         headers={'Content-Disposition': 'attachment; filename="empleados_pivot.xlsx"'}
     )
-
 
 
 

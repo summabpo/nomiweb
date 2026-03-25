@@ -59,7 +59,7 @@ class ReportFilterForm(forms.Form):
         widget=forms.Select(attrs={'data-control': 'select2'})
     )
 
-    
+
     
     # Cambiar los campos a ChoiceField
     
@@ -173,12 +173,12 @@ class ReportFilterForm(forms.Form):
                 css_class='row'
             ),
             Row(
-                Column('employee', css_class='form-group mb-0'),
-                Column('cost_center', css_class='form-group mb-0'),
+                Column('employee', css_class='form-group col-md-12 mb-3'),
                 css_class='row'
             ),
             Row(
-                Column('city', css_class='form-group mb-0'),
+                Column('city', css_class='form-group col-md-6 mb-3'),
+                Column('cost_center', css_class='form-group col-md-6 mb-3'),
                 css_class='row'
             ),
             Row(
@@ -186,10 +186,10 @@ class ReportFilterForm(forms.Form):
                 css_class='row'
             ),
             Row(
-                Column('year_init', css_class='form-group mb-0'),
-                Column('mst_init', css_class='form-group mb-0'),
-                Column('year_end', css_class='form-group mb-0'),
-                Column('mst_end', css_class='form-group mb-0'),
+                Column('year_init', css_class='form-group col-md-3 mb-3'),
+                Column('mst_init', css_class='form-group col-md-3 mb-3'),
+                Column('year_end', css_class='form-group col-md-3 mb-3'),
+                Column('mst_end', css_class='form-group col-md-3 mb-3'),
                 css_class='row'
             ),
             Row(
@@ -197,16 +197,6 @@ class ReportFilterForm(forms.Form):
                 css_class='row'
             ),
             
-            # Row(
-            #     Column('start_date', css_class='form-group mb-0'),
-            #     Column('end_date', css_class='form-group mb-0'),
-            #     css_class='row'
-            # year_init = forms.ChoiceField(choices=AÑO_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
-            # mst_init = forms.ChoiceField(choices=MES_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
-            
-            # year_end = forms.ChoiceField(choices=AÑO_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
-            # mst_end = forms.ChoiceField(choices=MES_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
-            # ),
             Row(
                 Column(
                     Button('button', 'Limpiar filtrado', css_class='btn btn-light-primary w-100', id='my-custom-button'), # 100% ancho de la columna

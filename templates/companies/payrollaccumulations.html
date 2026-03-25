@@ -133,137 +133,139 @@
     </div>
 </div>
 
+
 {% endblock %}
 
 {% block js %}
 
-<script>
-    $(document).ready(function() {
-        $('#Filter_report').on('submit', function() {
-            $('#loadingModal').modal('show');
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var clearButton = document.getElementById('button-id-button');
-        if (clearButton) {
-            clearButton.addEventListener('click', function() {
-                var form = document.getElementById('Filter_report');
-                if (form) {
-                    form.reset();
-                    // Limpiar los campos de fecha manualmente
-                    var dateInputs = form.querySelectorAll('input[type="date"]');
-                    dateInputs.forEach(function(input) {
-                        input.value = '';
-                    });
-                    // Opcional: Reconfigurar select2 si se usa
-                    $(form).find('select[data-control="select2"]').val(null).trigger('change');
-                    $('#loadingModal').modal('show');
-                    // Recargar la página para eliminar el POST
-                    window.location.href = window.location.pathname;
-                }
+    <script>
+        // Loader al enviar filtros
+        $(document).ready(function() {
+            $('#Filter_report').on('submit', function() {
+                $('#loadingModal').modal('show');
             });
-        }
-    });
-</script>
+        });
+    </script>
 
-<script>
-    $(document).ready(function() {
-        // Inicializar DataTable
-        var table = $('#tabla-liquidacion').DataTable({
-            language: {
-                "decimal": "",
-                "emptyTable": "No se encontraron registros coincidentes",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
-                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
-                "thousands": ",",
-                "lengthMenu": "Mostrar _MENU_ entradas",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "search": "Buscar:",
-                "zeroRecords": "No se encontraron registros coincidentes",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                },
-                "aria": {
-                    "sortAscending": ": activar para ordenar la columna ascendente",
-                    "sortDescending": ": activar para ordenar la columna descendente"
-                }
-            },
-            dom: 'Bfrtip',
-            buttons: [
-                {
-                    text: 'Descargar Acumulados',
-                    action: function (e, dt, node, config) {
-                        // Activar indicador
-                        $(node).attr("data-kt-indicator", "on");
+    <script>
+        // Botón limpiar filtros
+        document.addEventListener('DOMContentLoaded', function() {
+            var clearButton = document.getElementById('button-id-button');
 
-                        $.ajax({
-                            url: '{% url "companies:descargar_excel_empleados" %}', // Reemplaza "handle_post_request" con el nombre de tu URL
-                            type: 'POST',
-                            data: {
-                                'csrfmiddlewaretoken': '{{ csrf_token }}', // Incluye el token CSRF
-                                'start_date': $('#id_start_date').val(),
-                                'end_date': $('#id_end_date').val(),
-                                'employee': $('#id_employee').val(),
-                                'cost_center': $('#id_cost_center').val(),
-                                'city': $('#id_city').val()
-                            },
-                            xhrFields: {
-                                responseType: 'blob'
-                            },
-                            success: function(response) {
-                                var url = window.URL.createObjectURL(new Blob([response]));
-                                var a = document.createElement('a');
-                                a.href = url;
-                                a.download = 'filtered_data.xlsx';
-                                document.body.appendChild(a);
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-                                
-                                // Desactivar indicador
-                                $(node).removeAttr("data-kt-indicator");
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('Error:', error);
-                                alert('Error al realizar el Documento');
-                                
-                                // Desactivar indicador
-                                $(node).removeAttr("data-kt-indicator");
-                            }
+            if (clearButton) {
+                clearButton.addEventListener('click', function() {
+                    var form = document.getElementById('Filter_report');
+
+                    if (form) {
+                        form.reset();
+
+                        // Limpiar fechas manualmente
+                        var dateInputs = form.querySelectorAll('input[type="date"]');
+                        dateInputs.forEach(function(input) {
+                            input.value = '';
                         });
-                    },
-                    className: 'btn btn-light-info',
-                    attr: {
-                        id: 'kt_button_1'
+
+                        // Reset select2 si existe
+                        $(form).find('select[data-control="select2"]').val(null).trigger('change');
+
+                        $('#loadingModal').modal('show');
+
+                        // Recargar sin POST
+                        window.location.href = window.location.pathname;
                     }
-                }
-            ],
-
-            
-            order: [[0, 'asc']], // Cambia el índice de la columna por defecto para ordenar
-            pageLength: 10
+                });
+            }
         });
+    </script>
 
-        // Manejar clic en el botón para activar el indicador
-        $(document).on('click', '#kt_button_1', function() {
-            var button = $(this);
+    <script>
+        $(document).ready(function() {
 
-            // Activar indicador
-            button.attr("data-kt-indicator", "on");
+            var table = $('#tabla-liquidacion').DataTable({
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No se encontraron registros coincidentes",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                    "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "No se encontraron registros coincidentes",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
 
-            // Desactivar indicador después de 3 segundos o cuando la solicitud se completa
-            setTimeout(function() {
-                button.removeAttr("data-kt-indicator");
-            }, 3000);
+                dom: 'Bfrtip',
+
+                buttons: [
+                    {
+                        text: 'Descargar Acumulados',
+                        className: 'btn btn-light-info',
+                        attr: {
+                            id: 'kt_button_1'
+                        },
+
+                        action: function (e, dt, node, config) {
+
+                            var button = $(node);
+                            button.attr("data-kt-indicator", "on");
+
+                            let filterForm = document.getElementById('Filter_report');
+
+                            if (!filterForm) {
+                                console.error("No se encontró el formulario Filter_report");
+                                return;
+                            }
+
+                            let formData = new FormData(filterForm);
+
+                            // 🔥 Crear form dinámico (solución clave)
+                            let tempForm = document.createElement("form");
+                            tempForm.method = "POST";
+                            tempForm.action = "{% url 'companies:descargar_excel_empleados' %}";
+                            //tempForm.target = "_blank";
+
+                            // CSRF
+                            let csrfInput = document.createElement("input");
+                            csrfInput.type = "hidden";
+                            csrfInput.name = "csrfmiddlewaretoken";
+                            csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                            tempForm.appendChild(csrfInput);
+
+                            // Pasar todos los campos
+                            for (let [key, value] of formData.entries()) {
+                                let input = document.createElement("input");
+                                input.type = "hidden";
+                                input.name = key;
+                                input.value = value;
+                                tempForm.appendChild(input);
+                            }
+
+                            document.body.appendChild(tempForm);
+
+                            tempForm.submit();
+
+                            // limpiar form después
+                            setTimeout(() => {
+                                document.body.removeChild(tempForm);
+                                button.removeAttr("data-kt-indicator");
+                            }, 1500);
+                        }
+                    }
+                ],
+
+                order: [[0, 'asc']],
+                pageLength: 10
+            });
+
         });
-    });
-</script>
+    </script>
 
 {% endblock %}
