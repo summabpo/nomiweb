@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from apps.common.models import Nomina , Conceptosdenomina
-from apps.companies.forms.ReportFilterForm import ReportFilterForm
+from apps.companies.forms.ReportFilterForm import ReportFilterForm , ReportFilter2Form
 from django.contrib import messages
 from django.http import HttpResponse
 from apps.components.generate_employee_excel import generate_employee_excel
@@ -212,6 +212,157 @@ def payrollaccumulations(request):
     
     
     
+@login_required
+@role_required('company','accountant')
+def payrollaccumulations2(request):
+    """
+    Vista para consultar los acumulados de nómina de los empleados de una empresa.
+
+    Esta vista permite a usuarios con el rol 'company' o 'accountant' aplicar filtros como empleado, centro de costos, ciudad,
+    año y mes para generar una lista de conceptos acumulados por empleado en el periodo seleccionado. La información es agrupada
+    por empleado y concepto, sumando cantidad y valor. También se formatea el valor antes de enviarlo al template.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        Objeto de solicitud HTTP que puede contener parámetros POST con los filtros seleccionados por el usuario.
+
+    Returns
+    -------
+    HttpResponse
+        Devuelve una respuesta renderizada con el template 'companies/payrollaccumulations.html', que incluye el formulario de filtros
+        y los datos acumulados por empleado y concepto.
+
+    Notes
+    -----
+    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
+    En caso de errores de validación en el formulario, se muestran mensajes de error al usuario.
+    """
+
+    acumulados = {}
+    compects = []
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+
+    form = ReportFilter2Form(idempresa=idempresa)
+
+    # --- Función auxiliar ---
+    def clean_value(value):
+        if not value:
+            return ''
+        return str(value).replace('no data', '').strip()
+
+    # Orden de meses
+    MES_ORDER = {
+        'ENERO': 1,
+        'FEBRERO': 2,
+        'MARZO': 3,
+        'ABRIL': 4,
+        'MAYO': 5,
+        'JUNIO': 6,
+        'JULIO': 7,
+        'AGOSTO': 8,
+        'SEPTIEMBRE': 9,
+        'OCTUBRE': 10,
+        'NOVIEMBRE': 11,
+        'DICIEMBRE': 12
+    }
+
+    if request.method == 'POST':
+        form = ReportFilter2Form(request.POST, idempresa=idempresa)
+
+        if form.is_valid():
+            year_init = form.cleaned_data.get('year_init')
+            mst_init = form.cleaned_data.get('mst_init')
+
+            nominas = Nomina.objects.filter(
+                idnomina__id_empresa_id=idempresa
+            ).select_related(
+                'idcontrato',
+                'idcontrato__idempleado',
+                'idconcepto'
+            ).order_by('idconcepto__codigo')
+
+            # -------------------------
+            # FILTRO POR AÑO Y MES
+            # -------------------------
+            if year_init and mst_init:
+                try:
+                    year_init = int(year_init)
+                except ValueError:
+                    messages.error(request, "El año debe ser un número válido.")
+                    year_init = None
+
+                inicio_num = MES_ORDER.get(mst_init.upper())
+
+                if inicio_num and year_init:
+                    nominas = nominas.filter(
+                        idnomina__anoacumular__ano=year_init,
+                        idnomina__mesacumular=mst_init.upper()
+                    )
+
+            # -------------------------
+            # ACUMULADOS
+            # -------------------------
+            for data in nominas:
+                contrato = data.idcontrato
+                empleado = contrato.idempleado
+                doc = empleado.docidentidad
+
+                if doc not in acumulados:
+                    nombre_completo = " ".join(filter(None, [
+                        clean_value(empleado.papellido),
+                        clean_value(empleado.sapellido),
+                        clean_value(empleado.pnombre),
+                        clean_value(empleado.snombre),
+                    ]))
+
+                    acumulados[doc] = {
+                        'documento': doc,
+                        'empleado': nombre_completo,
+                        'contrato': contrato.idcontrato,
+                        'data': []
+                    }
+
+                conceptos = acumulados[doc]['data']
+
+                concepto_existente = next(
+                    (c for c in conceptos if c["idconcepto"] == data.idconcepto.codigo),
+                    None
+                )
+
+                if concepto_existente:
+                    concepto_existente["cantidad"] += data.cantidad or 0
+                    concepto_existente["valor"] += data.valor or 0
+                else:
+                    conceptos.append({
+                        "idconcepto": data.idconcepto.codigo,
+                        "nombreconcepto": clean_value(data.idconcepto.nombreconcepto),
+                        "cantidad": data.cantidad or 0,
+                        "valor": data.valor or 0,
+                    })
+
+            # -------------------------
+            # FORMATEAR VALORES
+            # -------------------------
+            for datos in acumulados.values():
+                for concepto in datos['data']:
+                    concepto['valor'] = format_value(concepto['valor'])
+
+            compects = list(acumulados.values())
+
+        else:
+            for error in form.errors.values():
+                for e in error:
+                    messages.error(request, e)
+
+    return render(request, 'companies/payrollaccumulations2.html', {
+        'compects': compects,
+        'form': form,
+    })
+
+
     
 @login_required
 @role_required('company','accountant')  
@@ -357,95 +508,54 @@ def descargar_excel_empleados(request):
 @login_required
 @role_required('company', 'accountant')  
 def descargar_excel_empleados_2(request):
+    
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
 
     def clean_value(value):
         return str(value).replace('no data', '').strip() if value else ''
 
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-    # -------------------------
-    # Filtros
-    # -------------------------
-
     post = request.POST
-    filtros = {}
-    filtros['idcontrato__id_empresa'] = idempresa
 
-    employee = post.get('employee')
-    cost_center = post.get('cost_center')
-    city = post.get('city')
     year_init = post.get('year_init')
     mst_init = post.get('mst_init')
-    year_end = post.get('year_end')
-    mst_end = post.get('mst_end')
-
-    if employee:
-        filtros['idcontrato__idempleado__idempleado'] = employee
-    if cost_center:
-        filtros['idcontrato__idcosto'] = cost_center
-    if city:
-        filtros['idcontrato__idsede'] = city
-    
-    #filtros['idcontrato'] = 12081
 
     # -------------------------
     # Query base
     # -------------------------
-    nominas = Nomina.objects.filter(**filtros).order_by('idconcepto__codigo')
+    nominas = Nomina.objects.filter(
+        idcontrato__id_empresa=idempresa,
+    ).select_related(
+        'idcontrato',
+        'idcontrato__idempleado',
+        'idconcepto',
+        'idnomina__anoacumular'
+    ).order_by('idconcepto__codigo')
 
     # -------------------------
-    # Filtrado por rango de meses y años
+    # Filtro por año/mes (ACUMULADO)
     # -------------------------
     MES_ORDER = {
         'ENERO': 1,'FEBRERO': 2,'MARZO': 3,'ABRIL': 4,'MAYO': 5,'JUNIO': 6,
         'JULIO': 7,'AGOSTO': 8,'SEPTIEMBRE': 9,'OCTUBRE': 10,'NOVIEMBRE': 11,'DICIEMBRE': 12
     }
 
-    if year_init and mst_init and year_end and mst_end:
+    if year_init and mst_init:
         try:
             year_init = int(year_init)
-            year_end = int(year_end)
         except ValueError:
-            year_init = year_end = None
+            year_init = None
 
         inicio_num = MES_ORDER.get(mst_init.upper())
-        fin_num = MES_ORDER.get(mst_end.upper())
 
-        if inicio_num and fin_num and year_init and year_end:
-            if year_init == year_end:
-                meses_rango = [mes for mes, num in MES_ORDER.items() if inicio_num <= num <= fin_num]
-                nominas = nominas.filter(
-                    idnomina__anoacumular__ano=year_init,
-                    idnomina__mesacumular__in=meses_rango
-                )
-            else:
-                # Año inicial
-                meses_inicio = [mes for mes, num in MES_ORDER.items() if inicio_num <= num <= 12]
-                nominas_inicio = nominas.filter(
-                    idnomina__anoacumular__ano=year_init,
-                    idnomina__mesacumular__in=meses_inicio
-                )
-
-                # Años intermedios
-                if year_end - year_init > 1:
-                    nominas_intermedios = nominas.filter(
-                        idnomina__anoacumular__ano__gt=year_init,
-                        idnomina__anoacumular__ano__lt=year_end
-                    )
-                else:
-                    nominas_intermedios = nominas.none()
-
-                # Año final
-                meses_fin = [mes for mes, num in MES_ORDER.items() if 1 <= num <= fin_num]
-                nominas_fin = nominas.filter(
-                    idnomina__anoacumular__ano=year_end,
-                    idnomina__mesacumular__in=meses_fin
-                )
-
-                nominas = (nominas_inicio | nominas_intermedios | nominas_fin).distinct()
+        if inicio_num and year_init:
+            nominas = nominas.filter(
+                idnomina__anoacumular__ano=year_init,
+                idnomina__mesacumular=mst_init.upper()
+            )
 
 
 
@@ -478,7 +588,7 @@ def descargar_excel_empleados_2(request):
     # Acumulados
     # -------------------------
     acumulados = {}
-    especiales = {1, 2, 4,34,25,26,27,28,31,83,82}
+    especiales = {1, 2, 4, 34, 25, 26, 27, 28, 31, 83, 82}
 
     for data in nominas:
         contrato = data.idcontrato
@@ -652,7 +762,7 @@ def descargar_excel_empleados_2(request):
         # -------- NEGATIVOS --------
         for concepto in conceptos_neg:
             valor = emp['conceptos'].get(concepto, {}).get("valor", 0)
-            fila.append(-valor)
+            fila.append(valor)
             total_deducciones += valor
 
             codigo = concepto_codigo_map.get(concepto)
@@ -664,7 +774,7 @@ def descargar_excel_empleados_2(request):
                 cantidad = emp['conceptos'].get(concepto, {}).get("cantidad", 0)
                 fila.append(cantidad)
 
-        fila.append(-total_deducciones)
+        fila.append(total_deducciones)
 
         # -------- TOTAL FINAL --------
         fila.append(total_devengados + total_deducciones)
@@ -728,12 +838,19 @@ def descargar_excel_empleados_2(request):
     wb.save(output)
     output.seek(0)
 
+    # -------------------------
+    # Nombre dinámico del archivo
+    # -------------------------
+    mes = mst_init.lower() if mst_init else "todos"
+    anio = year_init if year_init else "todos"
+
+    nombre_archivo = f"acumulados_{mes}_{anio}.xlsx"
+
     return HttpResponse(
         output,
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        headers={'Content-Disposition': 'attachment; filename="empleados_pivot.xlsx"'}
+        headers={'Content-Disposition': f'attachment; filename="{nombre_archivo}"'}
     )
-
 
 
 

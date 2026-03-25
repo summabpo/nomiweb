@@ -211,3 +211,72 @@ class ReportFilterForm(forms.Form):
             ),
             
         )
+
+
+
+
+
+class ReportFilter2Form(forms.Form):
+        
+    # Cambiar los campos a ChoiceField
+    
+    mst_init = forms.ChoiceField(
+        choices=MES_CHOICES,
+        required=True,
+        label='Mes Inicial',
+        widget=forms.Select(attrs={'class': 'form-control'}))
+    
+
+    def __init__(self, *args, **kwargs):
+        idempresa = kwargs.pop('idempresa', None)
+        super().__init__(*args, **kwargs)        
+        
+        self.fields['year_init'] = forms.ChoiceField(
+            choices=[('', '----------')] + [(n.ano, n.ano) for n in Anos.objects.all().order_by('-ano')], 
+            label='Año Inicial' , 
+            required=True ,
+            widget=forms.Select(attrs={
+                    'data-control': 'select2',
+                    'data-tags': 'true',
+                    'class': 'form-select',
+                    'data-hide-search': 'true',
+                }),
+            )
+        
+        
+        self.fields['mst_init'].widget.attrs.update({
+            'data-control': 'select2',
+            'data-hide-search': 'true' ,
+            'class': 'form-select',
+            
+        })
+        
+
+        self.helper = FormHelper()
+        self.helper.form_id = 'Filter_report'
+        self.helper.layout = Layout(
+            
+            Row(
+                Column('year_init', css_class='form-group col-md-6 mb-3'),
+                Column('mst_init', css_class='form-group col-md-6 mb-3'),
+                css_class='row'
+            ),
+            Row(
+                HTML('<div class="separator border-3 my-5"></div>'),
+                css_class='row'
+            ),
+            
+            Row(
+                Column(
+                    Button('button', 'Limpiar filtrado', css_class='btn btn-light-primary w-100', id='my-custom-button'), # 100% ancho de la columna
+                    css_class='col-md-6'  # Ancho especificado
+                ),
+                Column(
+                    Submit('submit', 'Filtrar', css_class='btn btn-light-info w-100'),  # 100% ancho de la columna
+                    css_class='col-md-6'  # Ancho especificado
+                ),
+                
+                css_class='row'
+            ),
+            
+        )
