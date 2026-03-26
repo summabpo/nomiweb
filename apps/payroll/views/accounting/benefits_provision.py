@@ -51,12 +51,6 @@ def employee_benefits_provision(request):
             mst_init = form.cleaned_data['mst_init']
             year_init = int(form.cleaned_data['year_init'])
 
-            print('---------------------')
-            print(mst_init)
-            print(year_init)
-            print('---------------------')
-
-
             # 🔹 Traer conceptos fijos UNA SOLA VEZ
             conceptos = Conceptosfijos.objects.filter(
                 conceptofijo__in=[
@@ -72,10 +66,10 @@ def employee_benefits_provision(request):
             icc = conceptos_dict.get('Intereses de Cesantias', 0)
             vac = conceptos_dict.get('Vacaciones', 0)
 
-            # 🔹 Query de contratos
+            # 🔹 Query de contratos idcontrato__in=[8137, 12070, 8132 ,7961]
             contratos_empleados = (
                 Contratos.objects
-                .filter(estadocontrato=1, id_empresa=idempresa ,  idcontrato__in=[8137, 12070, 8132 ,7961])
+                .filter(estadocontrato=1, id_empresa=idempresa )
                 .select_related(
                     'idempleado',
                     'idcosto',
