@@ -22,6 +22,7 @@ from django.urls import reverse
 from django.http import HttpResponse
 import pandas as pd
 
+
 def generate_random_filename(extension="pdf"):
     """Genera un nombre aleatorio de 80 caracteres con la extensión adecuada."""
     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=80))
@@ -94,9 +95,7 @@ def disabilities(request):
         cleaned_inc = {k: clean_value(v) for k, v in inc.items()}
         cleaned_incapacidades.append(cleaned_inc)
 
-    return render(request, './companies/disabilities.html', {
-        'incapacidades': cleaned_incapacidades
-    })
+    return render(request, './companies/disabilities.html', {'incapacidades': cleaned_incapacidades})
 
 
 
@@ -169,13 +168,11 @@ def disabilities_modal(request):
                 with open(pdf_path, 'wb+') as destination:
                     for chunk in pdf_file.chunks():
                         destination.write(chunk)
-                    
-            ibc = NominaComprobantes.objects.filter(idcontrato_id=contract).order_by('-idhistorico').first()
-
-            if not ibc:
-                ibc = Contratos.objects.get(idcontrato=contract)
                 
-            
+
+            contrato = Contratos.objects.get(idcontrato=contract)
+            ibc = disabilities_ibc(contrato , initial_date )
+
 
         #Guardar en la base de datos
             Incapacidades.objects.create(
@@ -187,7 +184,7 @@ def disabilities_modal(request):
                 certificadoincapacidad = pdf_file if pdf_file else "", 
                 idcontrato_id  = contract ,  
                 prorroga = prorroga ,
-                ibc =  ibc.salario ,
+                ibc =  ibc ,
                 origenincap = origin , 
             )
         
@@ -202,6 +199,68 @@ def disabilities_modal(request):
 
 
 
+
+def ibc_data_get(request):
+    ibc = 0
+
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+    contrato_id = request.GET.get('contract')
+    fecha = request.GET.get('date')
+
+    contract = Contratos.objects.get(idcontrato = contrato_id)
+
+    ibc = disabilities_ibc(contract,fecha)
+    sueldo = contract.salario
+
+    
+    return JsonResponse({
+        'ibc': ibc,
+        'sueldo':sueldo,
+    })
+
+
+def disabilities_ibc(contract, date):
+    ibc = 0
+
+    date_obj = datetime.strptime(date, "%Y-%m-%d")
+    mes_num = date_obj.month
+    ano = date_obj.year
+
+    meses = [
+        "ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO",
+        "JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"
+    ]
+
+    # calcular mes anterior
+    if mes_num == 1:
+        mes_anterior_num = 12
+        ano -= 1
+    else:
+        mes_anterior_num = mes_num - 1
+
+    mes_texto = meses[mes_anterior_num - 1]
+
+    suma = 0
+
+    conceptos = Nomina.objects.filter(
+        idcontrato_id=contract,
+        estadonomina = 2 , 
+        idnomina__mesacumular=mes_texto,
+        idnomina__anoacumular__ano=ano,
+        idconcepto__indicador__nombre='basesegsocial'
+    )
+
+    for data in conceptos:        
+        if data.idconcepto.codigo == 4 : 
+            suma += data.valor * 0.7
+        else:
+            suma += data.valor
+
+    ibc = suma
+    return ibc
 
 @login_required
 @role_required('company','accountant')
@@ -251,68 +310,67 @@ def disabilities_modal_edit(request , id ):
         'initial_date' :incapacidad.fechainicial ,  
         'incapacity_days' :incapacidad.dias ,  
         'diagnosis_code' :incapacidad.coddiagnostico ,  
+        'end_date': incapacidad.fechainicial + timedelta(days=(incapacidad.dias - 1 )),
         'extension' : '1' if incapacidad.prorroga  else '0',  
-        'id':incapacidad.idincapacidad 
+        'sueldo':incapacidad.idcontrato.salario ,
+        'ibc': disabilities_ibc(incapacidad.idcontrato,  incapacidad.fechainicial.strftime("%Y-%m-%d"))
+
     }
     
     
     
-    form = DisabilitiesEditForm(idempresa = idempresa ,initial= data ,id=id)
+    form = DisabilitiesForm(idempresa = idempresa ,initial= data,id=id , modo = 1 )
     
     if request.method == 'POST':
-        form = DisabilitiesEditForm(request.POST, request.FILES ,idempresa = idempresa,id=id)
+        form = DisabilitiesForm(request.POST, request.FILES ,idempresa = idempresa,id=id , modo = 1)
         if form.is_valid():
-            #Obtener datos del formulario
-            origin = form.cleaned_data['origin']
-            entity = form.cleaned_data['entity']
-            initial_date = form.cleaned_data['initial_date']
-            incapacity_days = form.cleaned_data['incapacity_days']
-            diagnosis_code = form.cleaned_data['diagnosis_code']
-            extension = form.cleaned_data['extension'] #Convierte a string y usa '0' como valor predeterminado
-            prorroga = extension == '1'  #Devuelve True si extension es '1'
-            pdf_file = form.cleaned_data['pdf_file']
+            cd = form.cleaned_data
+
+            # convertir extensión a boolean
+            prorroga = cd['extension'] == '1'
+
+            # calcular IBC
+            ibc = disabilities_ibc(incapacidad.idcontrato_id, cd['initial_date'])
                     
-            entidad = Entidadessegsocial.objects.get(codigo = entity)
-            dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = diagnosis_code)
-            
-            #* Funcion de guardado de pdf 
+            # ----------- GUARDAR PDF -----------
+            pdf_file = cd.get('pdf_file')
             new_filename = ''
-            
-            if pdf_file :
-                # Generar un nuevo nombre aleatorio
+
+            entidad = Entidadessegsocial.objects.get(codigo = cd['entity'])
+            dianostico = Diagnosticosenfermedades.objects.get(coddiagnostico = cd['diagnosis_code'])
+
+            if pdf_file:
+
                 new_filename = generate_random_filename("pdf")
                 pdf_folder = os.path.join(settings.MEDIA_ROOT, 'pdfs')
-                # ✅ Crear la carpeta si no existe
                 os.makedirs(pdf_folder, exist_ok=True)
-                # Guardar el archivo con el nuevo nombre
                 pdf_path = os.path.join(pdf_folder, new_filename)
                 with open(pdf_path, 'wb+') as destination:
                     for chunk in pdf_file.chunks():
                         destination.write(chunk)
                     
-                    
-            ibc = disabilities_ibc(incapacidad.idcontrato.idcontrato , initial_date)
-            print(ibc)
+            # ----------- COMPARACIONES -----------
 
-            # Guardar en la base de datos
-            
             if incapacidad.entidad != entidad:
                 incapacidad.entidad = entidad  # enlace segsocial
 
-            if incapacidad.coddiagnostico != dianostico:
-                incapacidad.coddiagnostico = dianostico
+            if incapacidad.coddiagnostico != dianostico :
+                incapacidad.coddiagnostico = dianostico 
 
-            if incapacidad.fechainicial != initial_date:
-                incapacidad.fechainicial = initial_date
+            if incapacidad.fechainicial != cd['initial_date']:
+                incapacidad.fechainicial = cd['initial_date']
 
-            if incapacidad.dias != incapacity_days:
-                incapacidad.dias = incapacity_days
+            if incapacidad.dias != cd['incapacity_days']:
+                incapacidad.dias = cd['incapacity_days']
 
             if incapacidad.prorroga != prorroga:
                 incapacidad.prorroga = prorroga
 
-            if incapacidad.origenincap != origin:
-                incapacidad.origenincap = origin
+            if incapacidad.origenincap != cd['origin']:
+                incapacidad.origenincap = cd['origin']
+
+            if incapacidad.ibc != ibc:
+                incapacidad.ibc = ibc
 
             incapacidad.save()
             
@@ -326,26 +384,6 @@ def disabilities_modal_edit(request , id ):
     return render (request, './companies/partials/create_disabilities_modal_edit.html',{'form' :form, 'data':data})
 
 
-def disabilities_ibc(contract,date):
-    ibc = 0
-    
-
-
-    date_obj = datetime.strptime(date, "%Y-%m-%d")
-    mes = date_obj.month
-    a = date_obj.year
-    sum = 0
-
-    conceptos = Nomina.objects.filter(idcontrato_id = contract ,idnomina__mesacumular = 'ENERO',idnomina__anoacumular__ano = a , idconcepto__indicador__nombre='IBC')
-    print('--------------------------')
-    for data in conceptos:
-        print(f"{data.idconcepto.nombreconcepto}  - {data.idnomina.nombrenomina} - {data.idconcepto.codigo} - {data.idconcepto.idconcepto}  : {data.valor}  ")
-        sum += data.valor
-    print('--------------------------')
-    print(sum)
-    print("Mes:", mes)
-    print(c)
-    return ibc
 
 
 @login_required
@@ -440,18 +478,18 @@ def edit_disabilities(request):
 
     
     data ={ 
-          'data': {
-            'origin':origin,
-            "contract": incapacidad.idcontrato.idcontrato,
-            "entity": entidad.codigo ,
-            "initial_date": incapacidad.fechainicial,
-            "id":str(incapacidad.idincapacidad),
-            "diagnosis_code":incapacidad.coddiagnostico.coddiagnostico,
-            "incapacity_days":incapacidad.dias,
-            "extension": incapacidad.prorroga,
-            "end_date": incapacidad.finincap ,
-          },
-          'status': 'success',
+            'data': {
+                'origin':origin,
+                "contract": incapacidad.idcontrato.idcontrato,
+                "entity": entidad.codigo ,
+                "initial_date": incapacidad.fechainicial,
+                "id":str(incapacidad.idincapacidad),
+                "diagnosis_code":incapacidad.coddiagnostico.coddiagnostico,
+                "incapacity_days":incapacidad.dias,
+                "extension": incapacidad.prorroga,
+                "end_date": incapacidad.finincap ,
+            },
+            'status': 'success',
         }
     return JsonResponse(data)
 

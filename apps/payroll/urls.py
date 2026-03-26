@@ -70,6 +70,7 @@ urlpatterns = [
     path('settlements/bonus/p/add/<str:fecha_init>/<str:fecha_fin>/<str:p>', bonus_settlement.bonus_p_settlement_add, name='bonus_p_settlement_add'),
     
     path('settlements/termination', severance_settlement.settlement_list, name='settlement_list'),
+    path('settlements/termination/accrued/<str:id>/<str:fecha>', severance_settlement.settlement_accrued_values, name='settlement_accrued_values'),
     path('settlements/termination/payroll/<str:id>/<int:url>', severance_settlement.settlement_list_payroll, name='settlement_list_payroll'),
     
     
@@ -169,6 +170,7 @@ urlunpolypatterns =[
     ## loans 
     path('payroll/loans/add', loans.employee_loans_modal_add, name='employee_loans_modal_add'),
     path('payroll/loans/data/<int:id>', loans.detail_employee_loans_modal, name='detail_employee_loans_modal'),
+    path('payroll/loans/edit/<int:id>', loans.edit_employee_loans_modal, name='edit_employee_loans_modal'),
     
     
     ## vaca 

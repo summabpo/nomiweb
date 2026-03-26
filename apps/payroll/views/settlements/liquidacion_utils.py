@@ -1,7 +1,7 @@
 from datetime import date
 from math import ceil
 from django.db.models import Sum
-
+from apps.common.models import Salariominimoanual
 
 MESES = {
     1: "ENERO",
@@ -82,8 +82,6 @@ def acumular_por_mes(model, conceptos_qs, id_contrato, ano_inicio, mes_inicio, a
         nombre_mes = MESES[mes]
         subtotal_mes = 0
 
-        print(f"-------------- {nombre_mes} {ano} --------------")
-
         for data in conceptos_ids:
 
             qs = model.objects.filter(
@@ -95,9 +93,6 @@ def acumular_por_mes(model, conceptos_qs, id_contrato, ano_inicio, mes_inicio, a
             )
 
             valor = qs.aggregate(total=Sum(campo))["total"] or 0
-
-            print(f"{data} -> {valor} --> {campo}")
-
             subtotal_mes += valor
 
         total += subtotal_mes
@@ -107,9 +102,7 @@ def acumular_por_mes(model, conceptos_qs, id_contrato, ano_inicio, mes_inicio, a
         if mes > 12:
             mes = 1
             ano += 1
-
-    print("TOTAL FINAL:", total)
-
+            
     return total
 # --- Cálculo de bases --- #
 
@@ -145,12 +138,24 @@ def calcular_cesantias(dias_cesantias: int, base_cesantias: float) -> int:
 def calcular_vacaciones(dias_vacaciones: float, base_vacaciones: float) -> int:
     return ceil(base_vacaciones * dias_vacaciones / 30)
 
-def calcular_indemnizacion(salario: float, dias_trabajados: int, motivo_retiro: str) -> float:
-    if motivo_retiro != 'Despido sin justa causa':
+
+def calcular_indemnizacion(salario: float, dias_trabajados: int, motivo_retiro: str, fecha_fin) -> float:
+    if motivo_retiro != '2':
         return 0
+
+    salamin = Salariominimoanual.objects.get(ano=fecha_fin.year).salariominimo
+    tope = salamin * 10
+    es_alto = salario >= tope
+
+    salario_dia = salario / 30
+
     if dias_trabajados <= 360:
-        return salario
-    return salario + (((dias_trabajados - 360) / 360) * 20) * (salario / 30)
+        dias = 20 if es_alto else 30
+    else:
+        dias_extras = dias_trabajados - 360
+        dias = (20 if es_alto else 30) + (15 if es_alto else 20) * (dias_extras / 360)
+
+    return dias * salario_dia
 
 
 def safe_value(value):

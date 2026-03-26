@@ -74,9 +74,11 @@ def settlementlist(request):
             'intereses': format_value(liq.intereses or 0),
             'prima': format_value(liq.prima or 0),
             'vacaciones': format_value(liq.vacaciones or 0),
+            'indemnizacion': format_value(liq.indemnizacion or 0),
             'totalliq': format_value(liq.totalliq or 0),
             'idliquidacion': liq.idliquidacion,
             'estadoliquidacion': liq.estadoliquidacion or '1',
+            
         })
 
     return render(request, 'companies/settlementlist.html', {
@@ -286,6 +288,7 @@ def settlementliststate(request,id):
 
         contrato = liquidacion.idcontrato
         contrato.estadoliquidacion = 2
+        contrato.estadocontrato = 2
         contrato.save()
         
         response = HttpResponse()
@@ -302,8 +305,33 @@ def settlementliststate(request,id):
 @login_required
 @role_required('company', 'accountant')
 def settlementlistedit(request, id):
+    TIPE_CHOICES = [
+        ('', '-------------'),
+        ('1', 'Renuncia Voluntaria'),
+        ('2', 'Despido sin justa causa'),
+        ('3', 'Despido con justa causa'),
+        ('4', 'Finalización del contrato'),
+        ('5', 'Cambio a salario integral'),
+        ('6', 'Muerte del trabajador'),
+        ('7', 'Despido en periodo de prueba'),
+    ]
+    
     usuario = request.session.get('usuario', {})
-    idempresa = usuario.get('idempresa')
+    idempresa = usuario['idempresa']
+
+
+    contratos_choices = [('', '----------')] + [
+            (
+                idcontrato,
+                f"{(pap or '').strip()} {(pnom or '').strip()} - {idcontrato} -  {cc}"
+            )
+            for pnom, pap, idcontrato , cc in
+            Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa)
+            .order_by('idempleado__papellido')
+            .values_list('idempleado__pnombre','idempleado__papellido', 'idcontrato' , 'idempleado__docidentidad')
+        ]
+
+
 
     try:
         liquidacion = (
@@ -321,39 +349,93 @@ def settlementlistedit(request, id):
         'contract': liquidacion.idcontrato_id,  # acceso directo al id
     }
 
+
+    data_edit = {
+        'end_date': liquidacion.fechafincontrato.strftime('%Y-%m-%d') if liquidacion.fechafincontrato else '',
+        'reason_for_termination': liquidacion.motivoretiro,
+        'contract': liquidacion.idcontrato_id,
+        'diastrabajados': liquidacion.diastrabajados,  # acceso directo al id
+        'cesantias': liquidacion.cesantias,
+        'prima': liquidacion.prima,
+        'vacaciones': liquidacion.vacaciones,
+        'intereses': liquidacion.intereses,
+        'totalliq': liquidacion.totalliq,
+        'diascesantias': liquidacion.diascesantias,
+        'diasprimas': liquidacion.diasprimas,
+        'diasvacaciones': liquidacion.diasvacaciones,
+        'baseprima': liquidacion.baseprima,
+        'basecesantias': liquidacion.basecesantias,
+        'basevacaciones': liquidacion.basevacaciones,
+        'fechainiciocontrato': liquidacion.fechainiciocontrato,
+        'salario': liquidacion.salario,
+        'diassusp': liquidacion.diassusp,
+        'diassuspv': liquidacion.diassuspv,
+        'indemnizacion': liquidacion.indemnizacion,
+
+    }
+
     form = SettlementForm(idempresa=idempresa, initial=initial_data,recibida="edit")
     if request.method == 'POST':
         form = SettlementForm(request.POST , idempresa=idempresa,recibida="edit")
         if form.is_valid():
+            data = request.POST
             liquidacion = Liquidacion.objects.get(idliquidacion=id)
             contract_id = liquidacion.idcontrato_id
             end_date_str = request.POST.get('end_date')
             reason = request.POST.get('reason_for_termination')
-            data = settlement_calculate_data(contract_id,end_date_str,reason)
 
-            # actualizar campos
-            liquidacion.diastrabajados = data['dias_trabajados']
-            liquidacion.cesantias = data['cesantias']
-            liquidacion.prima = data['prima']
-            liquidacion.vacaciones = data['vacaciones']
-            liquidacion.intereses = data['intereses']
-            liquidacion.totalliq = data['total_liquidacion']
-            liquidacion.diascesantias = data['dias_cesantias']
-            liquidacion.diasprimas = data['dias_prima']
-            liquidacion.diasvacaciones = data['dias_vacaciones']
-            liquidacion.baseprima = data['base_prima']
-            liquidacion.basecesantias = data['base_cesantias']
-            liquidacion.basevacaciones = data['base_vacaciones']
-            liquidacion.fechainiciocontrato = data['inicio_contrato']
-            liquidacion.fechafincontrato = data['fin_contrato']
-            liquidacion.salario = data['salario']
+            #contrato = Contratos.objects.get(idcontrato=data.get('contract'))
+
+
+            # # actualizar campos
+            liquidacion.diastrabajados = data.get('dias_trabajados')
+            liquidacion.cesantias = data.get('valor_cesantias')
+            liquidacion.prima = data.get('valor_prima')
+            liquidacion.vacaciones = data.get('valor_vacaciones')
+            liquidacion.intereses = data.get('valor_intereses')
+            liquidacion.indemnizacion = data.get('valor_indemnizacion')
+            liquidacion.totalliq = data.get('total_liquidacion')
+            liquidacion.diascesantias = data.get('dias_cesantias')
+            liquidacion.diasprimas = data.get('dias_primas')
+            liquidacion.diasvacaciones = data.get('dias_vacaciones')
+            liquidacion.baseprima = data.get('base_primas')
+            liquidacion.basecesantias = data.get('base_cesantias')
+            liquidacion.basevacaciones = data.get('base_vacaciones')
+            liquidacion.fechainiciocontrato = data.get('fecha_inicio')
+            liquidacion.fechafincontrato = data.get('end_date')
+            liquidacion.salario = data.get('salario_base')
             liquidacion.motivoretiro = reason
             liquidacion.estadoliquidacion = '1'
-            liquidacion.diassusp = data['dias_susp_vac']
-            liquidacion.diassuspv = data['dias_susp_vac']
-            liquidacion.indemnizacion = data['indemnizacion']
+            liquidacion.diassusp = data.get('dias_susp_vac')
+            liquidacion.diassuspv = data.get('dias_susp_vac')
 
             liquidacion.save()
+
+            # data = settlement_calculate_data(contract_id,end_date_str,reason)
+
+            # # actualizar campos
+            # liquidacion.diastrabajados = data['dias_trabajados']
+            # liquidacion.cesantias = data['cesantias']
+            # liquidacion.prima = data['prima']
+            # liquidacion.vacaciones = data['vacaciones']
+            # liquidacion.intereses = data['intereses']
+            # liquidacion.totalliq = data['total_liquidacion']
+            # liquidacion.diascesantias = data['dias_cesantias']
+            # liquidacion.diasprimas = data['dias_prima']
+            # liquidacion.diasvacaciones = data['dias_vacaciones']
+            # liquidacion.baseprima = data['base_prima']
+            # liquidacion.basecesantias = data['base_cesantias']
+            # liquidacion.basevacaciones = data['base_vacaciones']
+            # liquidacion.fechainiciocontrato = data['inicio_contrato']
+            # liquidacion.fechafincontrato = data['fin_contrato']
+            # liquidacion.salario = data['salario']
+            # liquidacion.motivoretiro = reason
+            # liquidacion.estadoliquidacion = '1'
+            # liquidacion.diassusp = data['dias_susp_vac']
+            # liquidacion.diassuspv = data['dias_susp_vac']
+            # liquidacion.indemnizacion = data['indemnizacion']
+
+            #liquidacion.save()
 
             response = HttpResponse()
             response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
@@ -362,9 +444,13 @@ def settlementlistedit(request, id):
             response['X-Up-Location'] = reverse('payroll:settlement_list')           
             return response
 
+
     context = {
         'id': id,
         'form': form,
+        "type_choices": TIPE_CHOICES , 
+        "e_choices": contratos_choices, 
+        "data_edit":data_edit
     }
     return render(request, 'companies/partials/edit_liquidacion.html', context)
 

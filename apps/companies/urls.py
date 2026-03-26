@@ -44,7 +44,7 @@ from .views.hr_changes import position_change , health_insurance_change ,occupat
 from .views.companies import companies
 
 from .views.contract_management import reactivation 
-
+from .views.contract_management import masive_contract 
 
 urlpatterns = [
     # ## Employee Contract URLs
@@ -63,6 +63,7 @@ urlpatterns = [
 
     #reactivation new items
     path('reactivation/contract/', reactivation.reactivation, name='reactivation'),
+    
     
 
     
@@ -128,7 +129,9 @@ urlpatterns = [
     
     path('payroll/settlement/download/<int:idliqui>.pdf/', settlementlist.settlementlistdownload, name='settlementlistdownload'),
     path('payroll/payroll/accumulations/', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
+    path('payroll/payroll/accumulations/monthly', payrollaccumulations.payrollaccumulations2, name='payrollaccumulations2'),
     path('payroll/payroll/accumulations/download/', payrollaccumulations.descargar_excel_empleados, name='descargar_excel_empleados'),
+    path('payroll/payroll/accumulations/download/monthly/report', payrollaccumulations.descargar_excel_empleados_2, name='descargar_excel_empleados_2'),
     path('payroll/payroll/abstract/concept/', abstractconcept.abstractconcept, name='abstractconcept'),
 
     # ## Payroll News URLs
@@ -137,6 +140,7 @@ urlpatterns = [
     path('payroll/new/disabilities/', disabilities.disabilities, name='disabilities'),
     path('payroll/new/disabilities/edit/', disabilities.edit_disabilities, name='edit_disabilities'),
     path('payroll/new/disabilities/entity/', disabilities.get_entity, name='get_entity'),
+    path('payroll/new/disabilities/ibc/', disabilities.ibc_data_get, name='ibc_data_get'),
     path('payroll/new/disabilities/upload/', disabilities.disability_upload_view, name='disability_upload_view'),
     path('payroll/vacation/historical', vacation.vacation, name='vacation'),
     path('payroll/vacation/general/', vacation_general.vacation_general, name='vacation_general'),
@@ -240,10 +244,13 @@ urlunpolypatterns =[
     
 
 
-    ## masive 
+    # masive 
     path('reactivation/contract/modal/<int:id>', reactivation.reactivation_modal, name='reactivation_modal'),
     path('reactivation/contract/modal/masive/doc', reactivation.reactivation_doc, name='reactivation_doc'),
     path('reactivation/contract/modal/masive/data', reactivation.reactivation_data, name='reactivation_data'),
+    path('masive/contract/modal/masive/data', masive_contract.masive_contract_modal, name='masive_contract_modal'),
+    path('masive/contract/modal/masive/doc', masive_contract.masive_contract_doc, name='masive_contract_doc'),
+
 
     #path("employee/<int:employee_id>/change-health-insurance/", health_insurance_change.health_insurance_change_view, name="health_insurance_change"),
     #path("employee/<int:employee_id>/change-occupational-risk/", occupational_risk_change.occupational_risk_change_view, name="occupational_risk_change"),

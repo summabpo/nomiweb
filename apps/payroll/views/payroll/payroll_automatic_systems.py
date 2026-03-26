@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import date, timedelta
 import calendar
+from apps.components.salary import salario_mes
 from decimal import Decimal, ROUND_HALF_UP , getcontext , ROUND_CEILING , ROUND_UP
 from apps.components.salary_nomina import salary_nomina_update
 
@@ -197,8 +198,13 @@ def recalcular_nomina(idn):
         if diasnomina <= 0:
             continue
 
+        mes = nomina.fechainicial.month
+        anio = nomina.fechainicial.year
+
+        salario = salario_mes(contrato,mes,anio)
+
         valorsalario = (
-            Decimal(str(contrato.salario))
+            Decimal(str(salario))
             * Decimal(str(diasnomina))
             / Decimal('30')
         ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
@@ -309,8 +315,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    #  , idcontrato = 8018 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa) 
+    #  , idcontrato = 10731
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa ) 
     
 
     if parte_nomina != 0:
@@ -341,9 +347,13 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
 
             getcontext().prec = 50
 
+            mes = nomina.fechainicial.month
+            anio = nomina.fechainicial.year
+
+            salario = salario_mes(contrato,mes,anio)
 
             valorsalario = (
-                Decimal(str(contrato.salario))
+                Decimal(str(salario))
                 * Decimal(str(diasnomina))
                 / Decimal('30')
             ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
@@ -1650,13 +1660,13 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
     dias_incapacidad = calculo_incapacidad(contrato.idcontrato, nomina)
     dias_suspensiones = calcular_suspenciones(contrato.idcontrato, nomina)
 
-    if dias_vacaciones > 0 or dias_incapacidad > 0 or dias_suspensiones > 0:
-        print(
-            f"Vacaciones: {dias_vacaciones}, "
-            f"Incapacidad: {dias_incapacidad}, "
-            f"Suspensiones: {dias_suspensiones} "
-            f"dias : {diasnomina} id {contrato.idcontrato}"
-        )
+    # if dias_vacaciones > 0 or dias_incapacidad > 0 or dias_suspensiones > 0:
+    #     print(
+    #         f"Vacaciones: {dias_vacaciones}, "
+    #         f"Incapacidad: {dias_incapacidad}, "
+    #         f"Suspensiones: {dias_suspensiones} "
+    #         f"dias : {diasnomina} id {contrato.idcontrato}"
+    #     )
 
     diasnomina -= dias_vacaciones
     diasnomina -= dias_incapacidad

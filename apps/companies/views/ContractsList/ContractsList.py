@@ -59,7 +59,7 @@ def startCompanies(request):
         Contratos.objects
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede', 'centrotrabajo')
         .order_by('idempleado__papellido')
-        .filter(estadocontrato=1, id_empresa=idempresa)
+        .filter(estadocontrato=1,estadoliquidacion=3, id_empresa=idempresa)
         .values(
             'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__pnombre',
             'idempleado__snombre', 'fechainiciocontrato', 'cargo__nombrecargo', 'salario',

@@ -170,6 +170,10 @@ Listado de vacaciones
         const fecha0 = modalContent.querySelector('#id_pay_date');
         const fecha1 = modalContent.querySelector('#fecha_inicio-1');
         const fecha2 = modalContent.querySelector('#fecha_fin-1');
+        const fecha3 = modalContent.querySelector('#fecha_periodo-1');
+        const fecha4 = modalContent.querySelector('#fecha_periodo-2');
+
+
 
         const tabla = modalContent.querySelector('#tabla-lista-novedad');
 
@@ -214,6 +218,14 @@ Listado de vacaciones
 
         if (fecha2) {
             $(fecha2).flatpickr();
+        }
+
+        if (fecha3) {
+            $(fecha3).flatpickr();
+        }
+
+        if (fecha4) {
+            $(fecha4).flatpickr();
         }
 
 
@@ -626,13 +638,13 @@ Listado de vacaciones
                 }
             },
             dom: 'frtip',
-            order: [[3, 'desc']], 
+            order: [[4, 'desc']], 
             pageLength: 20,
 
             // 👇 Aquí está la corrección del columnDefs
             columnDefs: [
                 {
-                    targets: 3, // índice de la columna "Fecha"
+                    targets: 4, // índice de la columna "Fecha"
                     render: function (data, type, row) {
                         if (!data) return '';
                         if (type === 'sort' || type === 'type') {

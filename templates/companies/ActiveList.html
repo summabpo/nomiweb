@@ -194,9 +194,8 @@ Listado de Contratos Activos
             },
             dom: 'Bfrtip',
             columnDefs: [
-                    { targets: [0], orderable: false }, // la 1ª columna sin orden
                     {
-                        targets: 2, // 👈 columna de fecha (recuerda: índices empiezan en 0)
+                        targets: 3, // 👈 columna de fecha (recuerda: índices empiezan en 0)
                         render: function (data, type, row) {
                             if (type === 'sort' || type === 'type') {
                                 // data = "08-05-2003"
@@ -208,17 +207,27 @@ Listado de Contratos Activos
                         }
                     },
                     {
-                        targets: 4, // 👈 columna de salarios
+                        targets: 5, // 👈 columna de salarios
                         render: function (data, type, row) {
                             if (type === 'sort' || type === 'type') {
                                 return parseInt(data.replace(/\./g, ''), 10) || 0;
                             }
                             return data;
                         }
-                    }
+                    },
+                    {
+                        targets: 8, // 👈 columna de salarios
+                        render: function (data, type, row) {
+                            if (type === 'sort' || type === 'type') {
+                                return parseInt(data.replace(/\./g, ''), 10) || 0;
+                            }
+                            return data;
+                        }
+                    },
+
                 ],
             order: [],
-            "pageLength": 10,     
+            "pageLength": 25,     
             buttons: [
                 {
                     
