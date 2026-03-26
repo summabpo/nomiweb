@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models  import Contratosemp , Vacaciones ,Contratos , Tipoavacaus , EmpVacaciones
+from apps.common.models  import Contratosemp , Vacaciones ,Contratos , Tipoavacaus , EmpVacaciones,Nomina
 from apps.payroll.forms.VacationSettlementForm import VacationSettlementForm , BenefitFormSet
 from datetime import datetime, timedelta
 from django.http import JsonResponse
@@ -90,8 +90,12 @@ def vacation_settlement_add(request):
         periodo1 = request.POST.get("fecha_periodo-1")
         periodo2 = request.POST.get("fecha_periodo-2")
 
-        salario = Contratos.objects.get(idcontrato = contrato).salario
-        
+
+        salario = disabilities_ibc(contrato , fecha_inicio )
+
+        if salario == 0 :
+            salario = Contratos.objects.get(idcontrato = contrato).salario
+        #salario = Contratos.objects.get(idcontrato = contrato).salario
 
         if sabados == 'on':
             dias = 6
@@ -179,7 +183,48 @@ def vacation_settlement_add(request):
         
     })
     
-    
+
+
+
+def disabilities_ibc(contract, date):
+    ibc = 0
+
+    date_obj = datetime.strptime(date, "%Y-%m-%d")
+    mes_num = date_obj.month
+    ano = date_obj.year
+
+    meses = [
+        "ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO",
+        "JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"
+    ]
+
+    # calcular mes anterior
+    if mes_num == 1:
+        mes_anterior_num = 12
+        ano -= 1
+    else:
+        mes_anterior_num = mes_num - 1
+
+    mes_texto = meses[mes_anterior_num - 1]
+
+    suma = 0
+
+    conceptos = Nomina.objects.filter(
+        idcontrato_id=contract,
+        estadonomina = 2 , 
+        idnomina__mesacumular=mes_texto,
+        idnomina__anoacumular__ano=ano,
+        idconcepto__indicador__nombre='basevacaciones'
+    )
+
+    for data in conceptos:        
+        if data.idconcepto.codigo == 4 : 
+            suma += data.valor * 0.7
+        else:
+            suma += data.valor
+
+    ibc = suma
+    return ibc
 
 @login_required
 @role_required('accountant')
@@ -250,10 +295,16 @@ def vacation_days_calc(request):
     fecha_fin = request.POST.get('fecha_fin')
     incluir_sabados = request.POST.get('incluir_sabados')
     contrato = request.POST.get('idc')
-    salario = Contratos.objects.get(idcontrato = contrato).salario
+    
     dias_c = ''
     dias_v = ''
 
+
+    salario = disabilities_ibc(contrato , fecha_inicio )
+
+    if salario == 0 :
+        salario = Contratos.objects.get(idcontrato = contrato).salario
+    
     if incluir_sabados == 'true':
         dias = 6
     else :

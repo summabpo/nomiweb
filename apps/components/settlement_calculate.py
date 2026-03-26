@@ -105,7 +105,7 @@ def settlement_calculate_data(contract_id , end_date , reason):
     resultado = depurar_suspension_contrato(contrato)
 
     # Imprimir total de días de suspensión
-    print("Total días de suspensión:", resultado["total_dias_susp"])
+    #print("Total días de suspensión:", resultado["total_dias_susp"])
 
     # Imprimir detalle registro por registro
     for reg in resultado["detalle"]:
