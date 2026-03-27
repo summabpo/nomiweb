@@ -453,17 +453,12 @@ def payroll_create(request):
                 ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
             elif concept1.formula == '2':
-                print('--- 1 ---')
-                print(conceptfi.valorfijo)
                 contract = Contratos.objects.get(idcontrato=id)
                 salario = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
-                print(salario)
                 multiplier = (
                     Decimal(salario) /
                     Decimal(conceptfi.valorfijo)
                 )
-
-                print(multiplier)
 
                 valor = (
                     Decimal(cantidad) *

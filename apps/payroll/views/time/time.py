@@ -249,6 +249,9 @@ def time_list(request):
     accion = request.GET.get('accion')
     accion2 = request.GET.get('accion2')
 
+
+    nomina = Crearnomina.objects.get( idnomina = selected_nomina_id)
+
     contratos_empleados = (
         Contratos.objects
         .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede')
@@ -390,7 +393,7 @@ def time_list(request):
                 continue
 
             data = data_time(registro)
-            salario = salario_mes(registro.idcontrato ,registro.fechaingreso.month ,registro.fechaingreso.year) 
+            
             # =============================
             # ✅ SOLO APPEND A EMPLEADOS
             # =============================            
@@ -409,7 +412,9 @@ def time_list(request):
             emp['dyf'] += round(data['dyf'], 2)   
         
         for e in empleados:
-        
+
+            salario = salario_mes(Contratos.objects.get(idcontrato = int(e['idcontrato'])),nomina.fechainicial.month ,nomina.fechainicial.year)
+            
             aux = ( salario / jmm )
             e['salario'] = salario
             e['horas_trabajadas'] = round(e['horas_trabajadas'], 3)
@@ -526,6 +531,9 @@ def time_list(request):
 
         
         for data in tiempos:
+
+            salario = salario_mes(data.idcontrato,nomina.fechainicial.month ,nomina.fechainicial.year)
+            
             for campo, concepto in campos_a_concepto.items():
                 cantidad = getattr(data, campo, 0)
                 valor_campo = f"v{campo}" if hasattr(data, f"v{campo}") else None
@@ -533,12 +541,13 @@ def time_list(request):
                 
                 
                 try:
+                    
                     # 🔹 Normalizar valores None
                     cantidad = Decimal(cantidad) if cantidad is not None else Decimal('0')
 
                     # 🔹 Redondear a 2 decimales
                     cantidad = cantidad.quantize(Decimal('0.01'))
-                    valor = Decimal(data.idcontrato.salario / jmm ) * Decimal(cantidad) * Decimal(concepto.multiplicadorconcepto)
+                    valor = Decimal(salario / jmm ) * Decimal(cantidad) * Decimal(concepto.multiplicadorconcepto)
 
                     # 🔹 Validar rango
                     if cantidad > 0 and valor < Decimal('9999999999.99'):
