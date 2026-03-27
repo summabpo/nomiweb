@@ -250,7 +250,7 @@ def time_list(request):
     accion2 = request.GET.get('accion2')
 
 
-    nomina = Crearnomina.objects.get( idnomina = selected_nomina_id)
+    
 
     contratos_empleados = (
         Contratos.objects
@@ -310,6 +310,7 @@ def time_list(request):
     # ---------- Función auxiliar para calcular extras --------
 
     if selected_nomina_id:
+        nomina = Crearnomina.objects.get( idnomina = selected_nomina_id)
         # Traer tiempos de la nómina seleccionada
         # ,idcontrato_id = 8050 , idmarcacion = 18288 
         tiempos = Tiempos.objects.filter(idnomina=selected_nomina_id).select_related(
