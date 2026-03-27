@@ -17,7 +17,7 @@ from django.urls import reverse
 from decimal import Decimal, ROUND_HALF_UP
 from apps.components.close_employee_payroll import close_employee_payroll , guardar_historico_nomina
 from django.db import transaction
-
+from apps.components.salary import salario_mes
 
 def get_empleado_name(empleado):
     papellido = empleado.get('idempleado__papellido', '') if empleado.get('idempleado__papellido') is not None else ""
@@ -442,7 +442,8 @@ def payroll_create(request):
                     multiplier = Decimal(aux) / Decimal('30')
 
                 else:
-                    salario = Contratos.objects.get(idcontrato=id).salario
+                    contract = Contratos.objects.get(idcontrato=id)
+                    salario = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
                     multiplier = Decimal(salario) / Decimal('30')
 
                 valor = (
@@ -452,12 +453,17 @@ def payroll_create(request):
                 ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
             elif concept1.formula == '2':
-                salario = Contratos.objects.get(idcontrato=id).salario
-
+                print('--- 1 ---')
+                print(conceptfi.valorfijo)
+                contract = Contratos.objects.get(idcontrato=id)
+                salario = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
+                print(salario)
                 multiplier = (
                     Decimal(salario) /
                     Decimal(conceptfi.valorfijo)
                 )
+
+                print(multiplier)
 
                 valor = (
                     Decimal(cantidad) *
@@ -1014,10 +1020,13 @@ def payroll_concept_info(request):
                         aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
                         multiplier = (aux/30) * float(concept1.multiplicadorconcepto)
                     else :
-                        multiplier = Contratos.objects.get(idcontrato=idempleado).salario
+                        contract = Contratos.objects.get(idcontrato=idempleado)
+                        multiplier = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
                         multiplier = (multiplier/30) * float(concept1.multiplicadorconcepto)
                 elif concept1.formula == '2':
-                    multiplier = Contratos.objects.get(idcontrato=idempleado).salario
+
+                    contract = Contratos.objects.get(idcontrato=idempleado)
+                    multiplier = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
                     salariohoras = (float(multiplier) / float(conceptfi.valorfijo))
                 
                     multiplier =  salariohoras * float(concept1.multiplicadorconcepto)
@@ -1149,14 +1158,21 @@ def payroll_info_edit(request):
                     aux =Salariominimoanual.objects.get(ano = nomina.anoacumular.ano ).auxtransporte
                     multiplier = (aux/30) * float(concept1.multiplicadorconcepto)
                 else :
-                    multiplier = Contratos.objects.get(idcontrato=concepto_obj.idcontrato.idcontrato).salario
+                    contract = Contratos.objects.get(idcontrato=concepto_obj.idcontrato.idcontrato)
+                    multiplier = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
+                    print(multiplier)
                     multiplier = (multiplier/30) * float(concept1.multiplicadorconcepto)
             elif concept1.formula == '2':
-                multiplier = Contratos.objects.get(idcontrato=concepto_obj.idcontrato.idcontrato).salario
-                multiplier = (float(multiplier) / float(conceptfi.valorfijo)) * float(concept1.multiplicadorconcepto)
+
+                contract = Contratos.objects.get(idcontrato=concepto_obj.idcontrato.idcontrato)
+                multiplier = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
+                print(multiplier)
+                salariohoras = (float(multiplier) / float(conceptfi.valorfijo))
+            
+                multiplier =  salariohoras * float(concept1.multiplicadorconcepto)
             else:
                 multiplier = 0
-        else:    
+        else:
             multiplier = 0
         
         if not concept:
