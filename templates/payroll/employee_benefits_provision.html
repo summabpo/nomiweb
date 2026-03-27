@@ -87,6 +87,7 @@ Listado de Prestaciones Sociales
                         <th class="text-center">Documento</th>
                         <th class="text-center">Nombre</th>
                         <th class="text-center">ID costos</th>
+                        <th class="text-center">Salario</th>
                         <th class="text-center">Base PS</th>
                         <th class="text-center">Cesantias</th>
                         <th class="text-center">Int Cesantias</th>
@@ -103,6 +104,7 @@ Listado de Prestaciones Sociales
                             <td class="text-center align-middle">{{ empleado.nombre }}</td>
                             <td class="text-center align-middle">{{ empleado.centrocostos }}</td>
                             <td class="text-center align-middle">{{ empleado.salario|format_currency }}</td>
+                            <td class="text-center align-middle">{{ empleado.base|format_currency }}</td>
                             <td class="text-center align-middle">{{ empleado.cesantias|format_currency }}</td>
                             <td class="text-center align-middle">{{ empleado.intereses|format_currency }}</td>
                             <td class="text-center align-middle">{{ empleado.prima|format_currency }}</td>

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
@@ -6,23 +6,19 @@ from django.contrib import messages
 from apps.common.models import Tiempos ,Anos, Crearnomina , Contratos ,Nomina,Conceptosdenomina, Empresa ,Conceptosfijos ,TiemposTotales ,Sedes, Costos, Subcostos, Empresa
 from django.http import HttpResponse
 from django.urls import reverse
-from apps.payroll.forms.SettlementForm import SettlementForm
-from django.contrib import messages
-from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from datetime import datetime, date, time, timedelta
-from django.db.models import Q
+from datetime import datetime, time, timedelta
 import pandas as pd
-from django.db import transaction
-from django.db.models import Sum
 import holidays
+from apps.components.salary import salario_mes
 from openpyxl import Workbook
+from openpyxl.styles import PatternFill, Font
 from io import BytesIO
 from django.db.models import F, Value, CharField
 from django.db.models.functions import Concat
 from apps.payroll.forms.TimeForm import TimeForm
 from urllib.parse import urlencode
-from openpyxl.styles import PatternFill, Font
+
 
 
 def aplicar_descanso(descanso_minutos, horas):
@@ -169,7 +165,7 @@ def data_time(r):
         
         # avanzar
         actual += paso
-   
+    
 
     descuento_horas = round(descuento_horas,2)
     horas_ordinarias = round( horas_ordinarias / 60.0, 2) 
@@ -233,6 +229,8 @@ def time_list(request):
     tiempos = []
     anio_actual = datetime.now().year
     ano_obj = Anos.objects.get(ano =  anio_actual )
+
+
 
     inicio_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO INICIO").valorfijo)
     fin_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO FIN").valorfijo)
@@ -384,7 +382,7 @@ def time_list(request):
         
         
         for registro in tiempos.order_by('idcontrato__idcontrato'):
-
+            
             contrato_id = registro.idcontrato.idcontrato
             emp = empleados_map.get(contrato_id)
 
@@ -392,7 +390,7 @@ def time_list(request):
                 continue
 
             data = data_time(registro)
-
+            salario = salario_mes(registro.idcontrato ,registro.fechaingreso.month ,registro.fechaingreso.year) 
             # =============================
             # ✅ SOLO APPEND A EMPLEADOS
             # =============================            
@@ -412,7 +410,8 @@ def time_list(request):
         
         for e in empleados:
         
-            aux = ( e['salario'] / jmm )
+            aux = ( salario / jmm )
+            e['salario'] = salario
             e['horas_trabajadas'] = round(e['horas_trabajadas'], 3)
             e['horas_normales'] = round(e['horas_normales'], 3)
             e['horas_domfes'] = round(e['horas_domfes'], 3)
