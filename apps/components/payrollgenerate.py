@@ -3,7 +3,7 @@ from apps.common.models import  Contratos, Nomina ,Crearnomina , Nomina , Nomina
 from django.db.models import Sum
 from .datacompanies import datos_cliente
 from apps.components.humani import format_value ,format_value_float , format_value_void
-
+from apps.components.salary import salario_mes
 
 """
 Funciones para la Gestión de Nómina y Comprobantes
@@ -154,6 +154,11 @@ def genera_comprobante(idnomina, idcontrato, date=1):
         eps = (contrato.codeps.entidad or '').replace('no data', '').strip()
         pension = ((getattr(contrato, "codafp", None) and (contrato.codafp.entidad or '')) or '').replace('no data', '').strip()
 
+        mes = crear.fechainicial.month
+        anio = crear.fechainicial.year
+
+        salario = salario_mes(contrato,mes,anio)
+
         context = {
             'empresa': datac['nombreempresa'],
             'nit': datac['nit'],
@@ -165,7 +170,7 @@ def genera_comprobante(idnomina, idcontrato, date=1):
             'idnomi': idnomina,
             'fecha1': str(contrato.fechainiciocontrato),
             'cargo': (cargo[:32] + '...') if len(cargo) > 32 else cargo,
-            'salario': format_value(contrato.salario),
+            'salario': format_value(salario), 
             'cuenta': contrato.cuentanomina,
             'ccostos':  (centro[:12] + '...') if len(centro) > 15 else centro , 
             'periodos': periodo,

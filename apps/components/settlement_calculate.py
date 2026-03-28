@@ -105,7 +105,7 @@ def settlement_calculate_data(contract_id , end_date , reason):
     resultado = depurar_suspension_contrato(contrato)
 
     # Imprimir total de días de suspensión
-    print("Total días de suspensión:", resultado["total_dias_susp"])
+    #print("Total días de suspensión:", resultado["total_dias_susp"])
 
     # Imprimir detalle registro por registro
     for reg in resultado["detalle"]:
@@ -128,7 +128,7 @@ def settlement_calculate_data(contract_id , end_date , reason):
     cesantias = calcular_cesantias(int(dias_efectivos_cesantias), base_cesantias)
     vacaciones = calcular_vacaciones(dias_vacaciones, base_vacaciones)
     intereses = calcular_intereses_cesantias(dias_cesantias, cesantias)
-    indemnizacion = calcular_indemnizacion(salario, dias_trabajados, reason)
+    indemnizacion = calcular_indemnizacion(salario, dias_trabajados, reason ,fecha_fin)
 
     total_liquidacion = prima + cesantias + vacaciones + intereses + indemnizacion
     

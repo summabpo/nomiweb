@@ -129,7 +129,9 @@ urlpatterns = [
     
     path('payroll/settlement/download/<int:idliqui>.pdf/', settlementlist.settlementlistdownload, name='settlementlistdownload'),
     path('payroll/payroll/accumulations/', payrollaccumulations.payrollaccumulations, name='payrollaccumulations'),
+    path('payroll/payroll/accumulations/monthly', payrollaccumulations.payrollaccumulations2, name='payrollaccumulations2'),
     path('payroll/payroll/accumulations/download/', payrollaccumulations.descargar_excel_empleados, name='descargar_excel_empleados'),
+    path('payroll/payroll/accumulations/download/monthly/report', payrollaccumulations.descargar_excel_empleados_2, name='descargar_excel_empleados_2'),
     path('payroll/payroll/abstract/concept/', abstractconcept.abstractconcept, name='abstractconcept'),
 
     # ## Payroll News URLs
