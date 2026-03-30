@@ -2,15 +2,49 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
-from apps.common.models  import Contratosemp , Vacaciones ,Contratos , Tipoavacaus , EmpVacaciones,Nomina
+from apps.common.models  import Contratosemp , Vacaciones ,Contratos , Tipoavacaus , EmpVacaciones,Nomina, Festivos
 from apps.payroll.forms.VacationSettlementForm import VacationSettlementForm , BenefitFormSet
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.http import JsonResponse
+import holidays
 from apps.components.humani import format_value_float
 
 
 vacaciones_list = []
 vacaemp = {}
+
+
+def _festivos_colombia_fecha_range(d0: date, d1: date) -> set:
+    """Festivos ley Colombia (holidays.CO) unidos a la tabla Festivos."""
+    if d0 > d1:
+        return set()
+    years = list(range(d0.year, d1.year + 1))
+    co = holidays.CO(years=years)
+    db_dates = Festivos.objects.values_list('dia', flat=True)
+    return set(co) | {d for d in db_dates if d is not None}
+
+
+def calcular_dias_habiles_vacaciones(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
+    """
+    Días hábiles entre dos fechas: sin domingos, sin festivos, sábados solo si cuentasabados=1.
+    Alineado con solicitudes de vacaciones (empleados).
+    """
+    if isinstance(fechainicialvac, datetime):
+        fechainicialvac = fechainicialvac.date()
+    if isinstance(fechafinalvac, datetime):
+        fechafinalvac = fechafinalvac.date()
+    fest = dias_festivos if isinstance(dias_festivos, set) else set(dias_festivos)
+    total_dias = 0
+    dia_actual = fechainicialvac
+    while dia_actual <= fechafinalvac:
+        if (
+            dia_actual.weekday() != 6
+            and dia_actual not in fest
+            and (dia_actual.weekday() != 5 or cuentasabados == 1)
+        ):
+            total_dias += 1
+        dia_actual += timedelta(days=1)
+    return total_dias
 
 @login_required
 @role_required('accountant')
@@ -98,10 +132,8 @@ def vacation_settlement_add(request):
         #salario = Contratos.objects.get(idcontrato = contrato).salario
 
         if sabados == 'on':
-            dias = 6
             csabado = 1
         else :
-            dias = 5
             csabado = 0
     
         if fecha_inicio and fecha_fin:
@@ -112,12 +144,9 @@ def vacation_settlement_add(request):
                 # Días calendario
                 dias_c = (ff - fi).days + 1 if ff >= fi else 0
 
-                # Días hábiles (lunes a viernes o lunes a sábado)
-                delta = ff - fi
-                dias_v = sum(
-                    1 for i in range(delta.days + 1)
-                    if (fi + timedelta(days=i)).weekday() < (dias)
-                )
+                # Días hábiles: excluye domingos, festivos Colombia (ley) y tabla Festivos; sábados según cuentasabados
+                festivos = _festivos_colombia_fecha_range(fi.date(), ff.date())
+                dias_v = calcular_dias_habiles_vacaciones(fi, ff, csabado, festivos)
 
                 valor = round((salario / 30) * dias_c)
                 
@@ -305,10 +334,7 @@ def vacation_days_calc(request):
     if salario == 0 :
         salario = Contratos.objects.get(idcontrato = contrato).salario
     
-    if incluir_sabados == 'true':
-        dias = 6
-    else :
-        dias = 5
+    csabado = 1 if incluir_sabados == 'true' else 0
     
     if fecha_inicio and fecha_fin:
         try:
@@ -318,12 +344,8 @@ def vacation_days_calc(request):
             # Días calendario
             dias_c = (ff - fi).days + 1 if ff >= fi else 0
 
-            # Días hábiles (lunes a viernes o lunes a sábado)
-            delta = ff - fi
-            dias_v = sum(
-                1 for i in range(delta.days + 1)
-                if (fi + timedelta(days=i)).weekday() < (dias)
-            )
+            festivos = _festivos_colombia_fecha_range(fi.date(), ff.date())
+            dias_v = calcular_dias_habiles_vacaciones(fi, ff, csabado, festivos)
 
             valor = round((salario / 30) * dias_c)
             valor = format_value_float(valor)
