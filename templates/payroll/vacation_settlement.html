@@ -44,7 +44,7 @@ Listado de Liquidaciones
         class='btn btn-light-info'
         up-layer='new modal'
         up-target=".modal-content"
-        up-size = "large"
+        up-size = "full"
         up-align = "center"
         up-backdrop = "true"
         up-history = "false"
@@ -129,8 +129,47 @@ Listado de Liquidaciones
 
 {% block js %}
 <script>
+    function confirmDeleteVacation(idvacaciones) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Se eliminará este registro de liquidación.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar'
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
+            var tokenEl = document.querySelector('#modal-content [name="csrfmiddlewaretoken"]');
+            var csrftoken = tokenEl ? tokenEl.value : '{{ csrf_token }}';
+            up.request("{% url 'payroll:vacation_settlement_delete' %}", {
+                method: 'POST',
+                params: {
+                    idvacaciones: idvacaciones,
+                    csrfmiddlewaretoken: csrftoken
+                },
+                fail: false
+            }).then(function () {
+                toastr.success('Registro eliminado', 'Éxito');
+                up.reload();
+            }).catch(function () {
+                toastr.error('No se pudo eliminar', 'Error');
+            });
+        });
+    }
+
     document.addEventListener('up:fragment:inserted', function(event) {
-        const modalContent = up.layer?.current?.element;
+        // El fragmento insertado es #modal-content; no depender solo de up.layer.current (puede ser null y romper el script).
+        let modalContent = event.target?.closest?.('#modal-content')
+            || (event.target?.id === 'modal-content' ? event.target : null);
+        if (!modalContent && up.layer?.current?.element) {
+            const le = up.layer.current.element;
+            modalContent = le?.matches?.('#modal-content') ? le : le?.querySelector?.('#modal-content');
+        }
+        if (!modalContent || !modalContent.querySelector('#form-fila-1')) {
+            return;
+        }
+
         const fecha0 = modalContent.querySelector('#id_pay_date');
         const fecha1 = modalContent.querySelector('#fecha_inicio-1');
         const fecha2 = modalContent.querySelector('#fecha_fin-1');
@@ -175,32 +214,185 @@ Listado de Liquidaciones
         if (fecha3) flatpickr(fecha3);
         if (fecha4) flatpickr(fecha4);
 
-
-        if (!modalContent) return;
-        
-            setTimeout(() => {      
+            setTimeout(() => {
 
             const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            const vacationContractHireUrl = "{% url 'payroll:vacation_contract_hire' %}";
 
             const pay_date = modalContent.querySelector('#id_pay_date');
             const type_novedad = modalContent.querySelector('#id_type_novedad');
             const contract = modalContent.querySelector('#id_contract');
             const extraSection = modalContent.querySelector('#extra-section');
             const novedadSelect = modalContent.querySelector('#novedad');
-
+            const hireBanner = modalContent.querySelector('#contract-hire-banner');
+            const hireDateEl = modalContent.querySelector('#contract-hire-date');
+            const historyLink = modalContent.querySelector('#vacation-contract-history-link');
 
             
-            const fecha_inicio = modalContent.querySelector('#fecha_inicio-1')
+            const fecha_inicio = modalContent.querySelector('#fecha_inicio-1');
             const sabados_checkbox = modalContent.querySelector('#sabados-1');
-            const incluir_sabados = sabados_checkbox && sabados_checkbox.checked ? '1' : '0';
-            const fecha_fin = modalContent.querySelector('#fecha_fin-1')
+            const fecha_fin = modalContent.querySelector('#fecha_fin-1');
             const dias_c_input = modalContent.querySelector('#dias_c-1');
             const dias_v_input = modalContent.querySelector('#dias_v-1');
             const salario_input = modalContent.querySelector('#base-1');
             const valor_input = modalContent.querySelector('#valor-1');
-            
+            const csrfToken = modalContent.querySelector('[name="csrfmiddlewaretoken"]')?.value;
+
+            function periodoFinDesdeInicio(ymd) {
+                if (!ymd || String(ymd).length < 10) return '';
+                const parts = String(ymd).split('-');
+                if (parts.length !== 3) return '';
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return '';
+                const fin = new Date(y + 1, m, d);
+                fin.setDate(fin.getDate() - 1);
+                const pad = function (n) { return String(n).padStart(2, '0'); };
+                return fin.getFullYear() + '-' + pad(fin.getMonth() + 1) + '-' + pad(fin.getDate());
+            }
+
+            function esModoCompensada() {
+                return type_novedad && type_novedad.value === '1' && novedadSelect && novedadSelect.value === '2';
+            }
+
+            function calcularCompensada() {
+                if (!esModoCompensada() || !contract || !pay_date || !dias_v_input) return;
+                const dias = parseInt(dias_v_input.value, 10);
+                if (!pay_date.value || !contract.value || !Number.isFinite(dias) || dias < 1) {
+                    if (dias_c_input) dias_c_input.value = '';
+                    if (valor_input) valor_input.value = '';
+                    if (salario_input) salario_input.value = '';
+                    return;
+                }
+                up.request({
+                    url: "{% url 'payroll:vacation_days_calc' %}",
+                    method: "POST",
+                    params: {
+                        modo: 'compensada',
+                        dias_v: String(dias),
+                        fecha_ref: pay_date.value,
+                        idc: contract.value,
+                        csrfmiddlewaretoken: csrfToken
+                    }
+                }).then(function (response) {
+                    const data = JSON.parse(response.text);
+                    if (dias_c_input) dias_c_input.value = data.dias_c;
+                    if (salario_input) salario_input.value = data.salario;
+                    if (valor_input) valor_input.value = data.valor;
+                });
+            }
+
+            function fetchContractHire() {
+                if (!contract || !contract.value || !hireBanner || !hireDateEl) {
+                    if (hireBanner) hireBanner.classList.add('d-none');
+                    if (historyLink) historyLink.classList.add('d-none');
+                    return;
+                }
+                up.request({
+                    url: vacationContractHireUrl,
+                    method: "POST",
+                    params: {
+                        idcontrato: contract.value,
+                        csrfmiddlewaretoken: csrfToken
+                    }
+                }).then(function (response) {
+                    const data = JSON.parse(response.text);
+                    const historyBase = hireBanner.getAttribute('data-history-base');
+                    if (data.valid_contract) {
+                        hireDateEl.textContent = data.fechainiciocontrato || '—';
+                        hireBanner.classList.remove('d-none');
+                        if (historyLink && historyBase) {
+                            historyLink.href = historyBase.replace(/\/0\/$/, '/' + contract.value + '/');
+                            historyLink.classList.remove('d-none');
+                        }
+                    } else {
+                        hireDateEl.textContent = '—';
+                        hireBanner.classList.add('d-none');
+                        if (historyLink) historyLink.classList.add('d-none');
+                    }
+                });
+            }
+
+            function syncNovedadModo() {
+                if (!novedadSelect || !type_novedad) return;
+                const compensada = esModoCompensada();
+
+                if (compensada) {
+                    if (fecha_inicio) {
+                        fecha_inicio.disabled = true;
+                        fecha_inicio.value = '';
+                        if (fecha_inicio._flatpickr) fecha_inicio._flatpickr.clear();
+                    }
+                    if (fecha_fin) {
+                        fecha_fin.disabled = true;
+                        fecha_fin.value = '';
+                        if (fecha_fin._flatpickr) fecha_fin._flatpickr.clear();
+                    }
+                    if (sabados_checkbox) {
+                        sabados_checkbox.disabled = true;
+                        sabados_checkbox.checked = false;
+                    }
+                    if (dias_c_input) {
+                        dias_c_input.value = '';
+                        dias_c_input.type = 'text';
+                        dias_c_input.disabled = true;
+                        dias_c_input.removeAttribute('name');
+                        dias_c_input.tabIndex = -1;
+                        dias_c_input.classList.add('bg-light', 'text-muted');
+                        dias_c_input.style.pointerEvents = 'none';
+                        dias_c_input.style.cursor = 'not-allowed';
+                    }
+                    if (valor_input) valor_input.value = '';
+                    if (salario_input) salario_input.value = '';
+                    if (dias_v_input) {
+                        dias_v_input.value = '';
+                        dias_v_input.type = 'text';
+                        dias_v_input.setAttribute('name', 'dias_v-1');
+                        dias_v_input.setAttribute('inputmode', 'numeric');
+                        dias_v_input.setAttribute('pattern', '[0-9]*');
+                        dias_v_input.setAttribute('placeholder', 'Días hábiles');
+                        dias_v_input.setAttribute('autocomplete', 'off');
+                        dias_v_input.removeAttribute('min');
+                        dias_v_input.removeAttribute('step');
+                        dias_v_input.disabled = false;
+                        dias_v_input.classList.remove('bg-light', 'text-muted');
+                        dias_v_input.style.pointerEvents = '';
+                        dias_v_input.style.cursor = '';
+                    }
+                } else {
+                    if (fecha_inicio) fecha_inicio.disabled = false;
+                    if (fecha_fin) fecha_fin.disabled = false;
+                    if (sabados_checkbox) sabados_checkbox.disabled = false;
+                    if (dias_c_input) {
+                        dias_c_input.type = 'text';
+                        dias_c_input.disabled = true;
+                        dias_c_input.setAttribute('name', 'dias_c-1');
+                        dias_c_input.removeAttribute('tabindex');
+                        dias_c_input.classList.remove('bg-light', 'text-muted');
+                        dias_c_input.style.pointerEvents = '';
+                        dias_c_input.style.cursor = '';
+                    }
+                    if (dias_v_input) {
+                        dias_v_input.disabled = true;
+                        dias_v_input.type = 'text';
+                        dias_v_input.setAttribute('name', 'dias_v-1');
+                        dias_v_input.removeAttribute('placeholder');
+                        dias_v_input.removeAttribute('pattern');
+                        dias_v_input.removeAttribute('inputmode');
+                        dias_v_input.classList.remove('bg-light', 'text-muted');
+                        dias_v_input.style.pointerEvents = '';
+                        dias_v_input.style.cursor = '';
+                    }
+                    if (fecha_inicio && fecha_fin && fecha_inicio.value && fecha_fin.value) {
+                        calcularDias();
+                    }
+                }
+            }
+
             function calcularDias() {
-                if (fecha_inicio.value && fecha_fin.value) {
+                if (esModoCompensada()) return;
+                if (fecha_inicio && fecha_fin && fecha_inicio.value && fecha_fin.value) {
                         up.request({
                         url: "{% url 'payroll:vacation_days_calc' %}",
                         method: "POST",
@@ -209,14 +401,14 @@ Listado de Liquidaciones
                             fecha_fin: fecha_fin.value,
                             idc: contract.value , 
                             incluir_sabados: sabados_checkbox.checked,
-                            csrfmiddlewaretoken: modalContent.querySelector('[name="csrfmiddlewaretoken"]').value
+                            csrfmiddlewaretoken: csrfToken
                         }
                         }).then(function(response) {
-                            const data = JSON.parse(response.text);  // Suponiendo que tu view retorna JSON
-                            dias_c_input.value = data.dias_c;
-                            dias_v_input.value = data.dias_v;
-                            salario_input.value = data.salario;
-                            valor_input.value = data.valor;
+                            const data = JSON.parse(response.text);
+                            if (dias_c_input) dias_c_input.value = data.dias_c;
+                            if (dias_v_input) dias_v_input.value = data.dias_v;
+                            if (salario_input) salario_input.value = data.salario;
+                            if (valor_input) valor_input.value = data.valor;
 
                         });
                     }
@@ -226,6 +418,48 @@ Listado de Liquidaciones
                 fecha_inicio.addEventListener('change', calcularDias);
                 fecha_fin.addEventListener('change', calcularDias);
                 sabados_checkbox.addEventListener('change', calcularDias);
+            }
+
+            function aplicarPeriodoFinDesdeInicio() {
+                const fin = periodoFinDesdeInicio(fecha3.value);
+                if (fin && fecha4) {
+                    fecha4.value = fin;
+                    if (fecha4._flatpickr) {
+                        fecha4._flatpickr.setDate(fin, true, 'Y-m-d');
+                    }
+                }
+            }
+            if (fecha3) {
+                fecha3.addEventListener('change', aplicarPeriodoFinDesdeInicio);
+                if (fecha3._flatpickr) {
+                    const fp3 = fecha3._flatpickr;
+                    const origOnChange = fp3.config.onChange;
+                    fp3.config.onChange = function (selDates, dateStr, instance) {
+                        if (typeof origOnChange === 'function') {
+                            origOnChange(selDates, dateStr, instance);
+                        } else if (Array.isArray(origOnChange)) {
+                            origOnChange.forEach(function (fn) {
+                                if (typeof fn === 'function') fn(selDates, dateStr, instance);
+                            });
+                        }
+                        aplicarPeriodoFinDesdeInicio();
+                    };
+                }
+            }
+
+            if (dias_v_input) {
+                dias_v_input.addEventListener('input', function () {
+                    if (!esModoCompensada()) return;
+                    const only = String(dias_v_input.value).replace(/\D/g, '');
+                    if (dias_v_input.value !== only) dias_v_input.value = only;
+                    calcularCompensada();
+                });
+            }
+
+            if (pay_date) {
+                pay_date.addEventListener('change', function () {
+                    if (esModoCompensada()) calcularCompensada();
+                });
             }
             
 
@@ -254,9 +488,15 @@ Listado de Liquidaciones
                 const payDateFilled = pay_date?.value?.trim() !== '';
                 const typeFilled = type_novedad?.value?.trim() !== '';
                 const contractFilled = contract?.value?.trim() !== '';
+                const visible = payDateFilled && typeFilled && contractFilled;
 
                 if (extraSection) {
-                    extraSection.style.display = (payDateFilled && typeFilled && contractFilled) ? 'block' : 'none';
+                    extraSection.style.display = visible ? 'block' : 'none';
+                }
+                if (visible) {
+                    fetchContractHire();
+                } else if (hireBanner) {
+                    hireBanner.classList.add('d-none');
                 }
             }
 
@@ -315,6 +555,9 @@ Listado de Liquidaciones
                     dropdownParent: $(modalContent),
                     width: '100%'
                 });
+
+                $(novedadSelect).off('change.vacSync select2:select.vacSync').on('change.vacSync select2:select.vacSync', syncNovedadModo);
+                syncNovedadModo();
             }
 
             // Función para ocultar/mostrar columnas
@@ -357,6 +600,7 @@ Listado de Liquidaciones
                     } else {
                         toggleColumnas([4, 6, 9, 10], false); // Ocultar en otros casos
                     }
+                    syncNovedadModo();
                 });
 
                 // Verifica si ya hay valor y aplica la visibilidad
@@ -367,12 +611,15 @@ Listado de Liquidaciones
                     } else {
                         toggleColumnas([4, 6, 9, 10], false);
                     }
+                    syncNovedadModo();
                 }
 
 
             }
+
         }, 300);
     });
+</script>
 </script>
 
 
@@ -410,7 +657,6 @@ Listado de Liquidaciones
         });
     });
 </script>
-
 
 
 {% endblock %}
