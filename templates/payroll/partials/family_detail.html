@@ -26,13 +26,13 @@
                         <td>{{ data.descrip }}</td>
                     </tr>
 
-                    <tr>
+                    <tr >
                         <th>Conceptos</th>
-                        <td>
+                        <td class="text-start" >
                             {% if data.concepts %}
                                 <ul>
                                     {% for concepto in data.concepts %}
-                                        <li>{{ concepto.nombreconcepto }}</li>
+                                        <li>{{ concepto.codigo }} - {{ concepto.nombreconcepto }} </li>
                                     {% endfor %}
                                 </ul>
                             {% else %}

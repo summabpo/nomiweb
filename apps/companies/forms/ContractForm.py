@@ -304,7 +304,7 @@ class ContractForm(forms.Form):
                 }), 
             required=True)
         self.fields['arlWorkCenter'] = forms.ChoiceField(
-            choices=[('', '----------')] + [(centro.centrotrabajo, centro.nombrecentrotrabajo) for centro in Centrotrabajo.objects.filter(id_empresa__idempresa =  idempresa ).exclude(centrotrabajo=11 ).order_by('nombrecentrotrabajo')], 
+            choices=[('', '----------')] + [(centro.centrotrabajo, f"{centro.nombrecentrotrabajo} - {centro.tarifaarl}") for centro in Centrotrabajo.objects.filter(id_empresa__idempresa =  idempresa ).exclude(centrotrabajo=11 ).order_by('nombrecentrotrabajo')], 
             label='Centro de Trabajo ARL', 
             widget=forms.Select(attrs={
                     'data-control': 'select2',
