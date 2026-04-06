@@ -5,12 +5,14 @@ from apps.common.models import Crearnomina , Contratos,NovFijos , EditHistory ,I
 from django.contrib import messages
 from django.db import transaction, models
 from datetime import datetime
-from django.db.models import Sum , Q
-from datetime import timedelta
+from django.db.models import Sum, Q
+from types import SimpleNamespace
+
+from apps.payroll.views.payroll.common import MES_CHOICES
+from datetime import date, timedelta
 from apps.components.humani import format_value
 from django.http import JsonResponse
 from django.utils import timezone
-from datetime import date, timedelta
 import calendar
 from apps.components.salary import salario_mes
 from decimal import Decimal, ROUND_HALF_UP , getcontext , ROUND_CEILING , ROUND_UP
@@ -882,14 +884,156 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
 
 
 
-def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
+def _mes_numero_desde_mesacumular(mesacumular_str):
+    if not mesacumular_str or not str(mesacumular_str).strip():
+        return None
+    target = str(mesacumular_str).strip().upper()
+    for idx, (key, _lbl) in enumerate(MES_CHOICES):
+        if key and key.upper() == target:
+            return idx
+    return None
+
+
+def _nominas_mismo_periodo_acumulado_qs(nomina):
+    qs = Crearnomina.objects.filter(id_empresa_id=nomina.id_empresa_id)
+    if nomina.anoacumular_id:
+        qs = qs.filter(anoacumular_id=nomina.anoacumular_id)
+    elif nomina.fechainicial:
+        qs = qs.filter(fechainicial__year=nomina.fechainicial.year)
+    if nomina.mesacumular:
+        qs = qs.filter(mesacumular=nomina.mesacumular)
+    elif nomina.fechainicial:
+        qs = qs.filter(fechainicial__month=nomina.fechainicial.month)
+    return qs
+
+
+def _dias_auxilio_transporte_otras_nominas_mes(contrato, nomina, idnomina_actual):
+    ids_otras = list(
+        _nominas_mismo_periodo_acumulado_qs(nomina)
+        .exclude(idnomina=idnomina_actual)
+        .values_list('idnomina', flat=True)
+    )
+    if not ids_otras:
+        return 0
+    total = Nomina.objects.filter(
+        idcontrato=contrato,
+        estadonomina=1,
+        idconcepto__codigo=2,
+        idnomina_id__in=ids_otras,
+    ).aggregate(s=Sum('cantidad'))['s']
+    if total is None:
+        return 0
+    return int(total)
+
+
+def _codigo_sueldo_basico_contrato(contrato):
+    if contrato.tiposalario and contrato.tiposalario.idtiposalario == 2:
+        return 4
+    if contrato.tipocontrato_id == 6:
+        return 34
+    return 1
+
+
+def dias_sueldo_basico_nomina_actual(contrato, nomina, idn):
+    codigo = _codigo_sueldo_basico_contrato(contrato)
+    codigo_str = str(codigo)
+    reg = Nomina.objects.filter(
+        idnomina_id=idn,
+        idcontrato=contrato,
+        estadonomina=1,
+        idconcepto__codigo=codigo_str,
+    ).first()
+    if reg is not None and reg.cantidad is not None and reg.cantidad > 0:
+        return int(reg.cantidad)
+    return calcular_dias(contrato, nomina, codigo)
+
+
+def derecho_auxilio_transporte_mes_calendario(contrato, nomina):
+    mes_num = _mes_numero_desde_mesacumular(nomina.mesacumular)
+    if nomina.anoacumular_id:
+        ano = nomina.anoacumular.ano
+    else:
+        ano = nomina.fechainicial.year if nomina.fechainicial else date.today().year
+    if not mes_num and nomina.fechainicial:
+        mes_num = nomina.fechainicial.month
+    if not mes_num:
+        mes_num = 1
+    ultimo = calendar.monthrange(ano, mes_num)[1]
+    inicio = date(ano, mes_num, 1)
+    fin = date(ano, mes_num, ultimo)
+    shadow = SimpleNamespace(
+        fechainicial=inicio,
+        fechafinal=fin,
+        diasnomina=30,
+        tiponomina=SimpleNamespace(idtiponomina=1),
+    )
+    return calcular_dias_en_nomina(contrato, inicio, fin, 1, shadow)
+
+
+def liquidar_auxilio_transporte_contrato(contrato, nomina, idempresa, idn, sal_min, aux_tra):
+    """
+    Calcula días y valor de auxilio de transporte para un contrato y una nómina.
+
+    Detecta si ya hubo pago de transporte (concepto 2) en otras nóminas del mismo mes y año
+    acumulado; el tope mensual es 30 días o proporcional (mismo criterio que ``calcular_dias_en_nomina``
+    sobre el mes calendario). Los días de esta nómina no superan los del sueldo básico del periodo.
+
+    Returns
+    -------
+    tuple[int, Decimal]
+        (días, valor). Sin derecho o sin liquidación en esta nómina: (0, Decimal('0')).
+    """
+    if contrato.tipocontrato_id in (5, 6):
+        return 0, Decimal('0')
+    if contrato.auxiliotransporte:
+        return 0, Decimal('0')
+    if contrato.salario >= (sal_min * 2):
+        return 0, Decimal('0')
+
+    total_base_trans = (
+        Nomina.objects.filter(
+            idcontrato=contrato,
+            idnomina_id=idn,
+            estadonomina=1,
+            idconcepto__indicador__nombre='basetransporte',
+        )
+        .exclude(idconcepto__codigo=2)
+        .aggregate(total=Sum('valor'))['total']
+        or 0
+    )
+
+    dias_basico = dias_sueldo_basico_nomina_actual(contrato, nomina, idn)
+
+    if total_base_trans >= (sal_min * 2):
+        return 0, Decimal('0')
+    if total_base_trans <= 0 and dias_basico <= 0:
+        return 0, Decimal('0')
+
+    # Tope del mes (30 o proporcional por ingreso/vacaciones/incap.): mismo criterio que días devengados mensuales.
+    tope_mes = derecho_auxilio_transporte_mes_calendario(contrato, nomina)
+    ya_pagado = _dias_auxilio_transporte_otras_nominas_mes(contrato, nomina, idn)
+    pendiente_mes = max(0, min(30, tope_mes) - ya_pagado)
+
+    # Si en el mes aún no hubo transporte: hasta los días del básico (típ. 15 o 30). Si ya hubo: saldo del mes, sin pasar del básico de esta nómina.
+    dias_t = min(dias_basico, pendiente_mes)
+
+    dias_t = min(30, max(0, int(dias_t)))
+    if dias_t <= 0:
+        return 0, Decimal('0')
+
+    valor = (
+        Decimal(dias_t) * (Decimal(str(aux_tra)) / Decimal('30'))
+    ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+    return dias_t, valor
+
+
+def procesar_nomina_transporte(idn, parte_nomina, idempresa, empleados):
     """
     Procesa el auxilio de transporte para los contratos activos dentro de una nómina.
 
-    Esta función calcula y registra el valor correspondiente al auxilio de transporte, 
-    teniendo en cuenta si el empleado tiene derecho a este beneficio según su salario 
-    y condiciones del contrato. El valor es proporcional a los días efectivamente laborados, 
-    excluyendo vacaciones e incapacidades.
+    Por cada nómina se usan los mismos días que el sueldo básico del periodo (típicamente 15 o 30).
+    Si en el mes acumulado ya hubo auxilio de transporte en otra nómina, se liquida el saldo del mes
+    (hasta 30 días o proporcional por contrato) restando lo ya pagado, sin superar el básico de la nómina actual.
 
     Parameters
     ----------
@@ -917,115 +1061,76 @@ def procesar_nomina_transporte(idn, parte_nomina,idempresa,empleados):
 
     Notes
     -----
-    - Solo se liquida el auxilio si el salario es igual o inferior a dos salarios mínimos y 
-        si el contrato tiene activado el beneficio (`auxiliotransporte`).
-    - No se liquida auxilio durante días de vacaciones o incapacidades.
-    - El cálculo es proporcional a los días efectivamente laborados, con un tope de 30 días.
-    - Si ya existe un registro del auxilio y no ha sido editado, se actualiza; si no, se crea uno nuevo.
-    - El concepto usado para registrar el auxilio tiene código `2`.
-    - Se excluyen conceptos específicos con indicador 25 para calcular la base del auxilio.
+    - Solo se liquida el auxilio si el salario es inferior a dos salarios mínimos y el contrato
+      no tiene ``auxiliotransporte`` (vive en el lugar de trabajo).
+    - Requiere base ``basetransporte`` por debajo de 2 SMMLV o días de básico calculables en la nómina.
+    - El concepto usado tiene código ``2``.
     """
-
 
     if not parte_nomina:
         parte_nomina = 0
 
-    # , idcontrato = 8128
-    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa =  idempresa  )
+    contratos = Contratos.objects.filter(estadocontrato=1, id_empresa=idempresa)
 
     if parte_nomina != 0:
-        contratos = contratos.filter(idcosto = parte_nomina)
+        contratos = contratos.filter(idcosto=parte_nomina)
 
-    if empleados: 
-        contratos = contratos.filter(idcontrato__in = empleados)
-        
+    if empleados:
+        contratos = contratos.filter(idcontrato__in=empleados)
+
     try:
         nomina = Crearnomina.objects.get(idnomina=idn)
     except Crearnomina.DoesNotExist:
         return "Error de creación de nómina"
-    
-    sal_min = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).salariominimo
-    aux_tra = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).auxtransporte
-    
-    for contrato in contratos:
 
-        diasnomina = calcular_dias(
-            contrato,
-            nomina,
-            2
+    sal_min = Salariominimoanual.objects.get(ano=nomina.anoacumular.ano).salariominimo
+    aux_tra = Salariominimoanual.objects.get(ano=nomina.anoacumular.ano).auxtransporte
+    concepto = Conceptosdenomina.objects.get(codigo=2, id_empresa_id=idempresa)
+
+    for contrato in contratos:
+        diasnomina, transporte = liquidar_auxilio_transporte_contrato(
+            contrato, nomina, idempresa, idn, sal_min, aux_tra
         )
 
-        if contrato.auxiliotransporte :
-            transporte = 0
-            diasnomina = 0
-                
-        if contrato.salario < (sal_min * 2):
-            # Obtener la suma de las deducciones de la eps 
-            total_base_trans = Nomina.objects.filter(
-                idcontrato=contrato,
-                idnomina_id=idn,
-                estadonomina = 1 ,
-                idconcepto__indicador__nombre='basetransporte'  
-            ).exclude(
-                idconcepto__codigo=2
-            ).distinct().aggregate(total=Sum('valor'))['total'] or 0 
+        if contrato.tipocontrato.idtipocontrato in [5, 6]:
+            continue
 
-            if total_base_trans > 0 : 
-                transporte = (diasnomina  * aux_tra ) / 30 
-                if total_base_trans < (sal_min * 2):
-                    transporte = (
-                        Decimal(diasnomina) *
-                        (Decimal(aux_tra) / Decimal('30'))
-                    ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        aux_pass = Nomina.objects.filter(
+            idconcepto=concepto,
+            idcontrato=contrato,
+            estadonomina=1,
+            idnomina_id=idn,
+        ).first()
 
-                else:
-                    transporte = 0
-                    diasnomina = 0
+        if diasnomina > 0 and transporte > 0:
+            if aux_pass:
+                if not EditHistory.objects.filter(
+                    id_empresa_id=idempresa,
+                    modified_object_id=aux_pass.idregistronom,
+                    modified_model='Nomina',
+                ).exists():
+                    aux_pass.cantidad = diasnomina
+                    aux_pass.valor = transporte
+                    aux_pass.save()
+            else:
+                Nomina.objects.create(
+                    idconcepto=concepto,
+                    cantidad=diasnomina,
+                    valor=transporte,
+                    estadonomina=1,
+                    idcontrato_id=contrato.idcontrato,
+                    idnomina_id=idn,
+                )
+        elif aux_pass and not EditHistory.objects.filter(
+            id_empresa_id=idempresa,
+            modified_object_id=aux_pass.idregistronom,
+            modified_model='Nomina',
+        ).exists():
+            aux_pass.cantidad = 0
+            aux_pass.valor = Decimal('0')
+            aux_pass.save()
 
-
-                concepto = Conceptosdenomina.objects.get(codigo= 2 , id_empresa_id = idempresa)
-                
-                
-                if contrato.tipocontrato.idtipocontrato not in [5, 6]:
-                    
-                    if diasnomina > 0 and transporte > 0  :
-                        
-                        if diasnomina > 30:
-                            diasnomina = 30
-                        
-                        aux_pass = Nomina.objects.filter(
-                            idconcepto=concepto,
-                            idcontrato=contrato,
-                            estadonomina = 1,
-                            idnomina_id=idn
-                            
-                        ).first()
-                        
-                        
-                        
-                        if aux_pass:
-                            if not EditHistory.objects.filter(
-                                id_empresa_id=idempresa,
-                                modified_object_id=aux_pass.idregistronom,
-                                modified_model='Nomina',
-                            ).exists():
-                                aux_pass.cantidad = diasnomina
-                                aux_pass.valor = transporte
-                                aux_pass.save()     
-
-                        else:
-                            
-                            
-                            Nomina.objects.create(
-                                idconcepto = concepto ,#*
-                                cantidad=diasnomina ,#*
-                                valor=transporte , #*
-                                estadonomina = 1,
-                                idcontrato_id=contrato.idcontrato ,
-                                idnomina_id = idn ,
-                            )  
     return True
-        
 
 
 
