@@ -142,14 +142,14 @@ def family_detail(request,id):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     family = Indicador.objects.get(id = id)
-    conceptos = Conceptosdenomina.objects.filter(indicador=family ,id_empresa = idempresa )
+    conceptos = Conceptosdenomina.objects.filter(indicador=family ,id_empresa = idempresa ).order_by('nombreconcepto')
     data = {
         'name': family.nombre,
         'descrip': family.descripcion,
         'concepts': conceptos,  # Lista de conceptos relacionados
     }
     return render(request, './payroll/partials/family_detail.html',{'data': data})
-   
+    
 
 
 @login_required
