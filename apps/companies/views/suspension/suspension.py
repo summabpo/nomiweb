@@ -10,7 +10,7 @@ from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 from apps.companies.forms.SuspensionForm import SuspensionForm
 from django.urls import reverse
-
+from apps.components.salary import salario_mes
 
 
 @login_required
@@ -72,7 +72,7 @@ def suspension_list_add(request):
             type_vac = form.cleaned_data['absence_type']
 
             sus_days = int(form.cleaned_data['sus_days'])
-            end_date = initial_date + timedelta(days=sus_days)
+            end_date = initial_date + timedelta(days=(sus_days - 1 )) 
             
             ibc = NominaComprobantes.objects.filter(idcontrato_id=contract).order_by('-idhistorico').first()
 

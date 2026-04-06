@@ -315,8 +315,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    #  , idcontrato = 10731
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa ) 
+    #  , idcontrato = 10353
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa  ) 
     
 
     if parte_nomina != 0:
@@ -1166,9 +1166,10 @@ def calcular_suspenciones(contrato,nomina ):
                 dias_en_nomina = dias_nomina
             else:
                 dias_en_nomina = dias_360(inicio_cruce, fin_cruce)
-
+            
             dias_vacaciones += dias_en_nomina
-
+            #print(f"id {vac.idvacaciones}  ds {dias_en_nomina} ddb {vac.diascalendario}")
+    
     return min(dias_vacaciones, dias_nomina)
 
 def calcular_suspenciones2(vac, nomina):
@@ -1297,7 +1298,13 @@ def Calculo_vacaciones(contrato, idn):
             if dias_suspensiones <= 0:
                 continue
 
-            dias = vaca.basepago / 30
+
+            mes = vaca.fechainicialvac.month
+            anio = vaca.fechainicialvac.year
+
+            salario = salario_mes(contrato,mes,anio)
+
+            dias =  salario / 30
             valor_calculado = dias * dias_suspensiones
 
             # 🔹 Si NO es tipo 3, manejar concepto1
@@ -1721,7 +1728,7 @@ def calcular_dias(contrato,nomina ,concep):
 
     d = diasnomina1 + diasnomina2
     
-    
+
     return d
 
     

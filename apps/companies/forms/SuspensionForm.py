@@ -58,7 +58,7 @@ class SuspensionForm(forms.Form):
                 (
                     item['idcontrato'],
                     f"{item['idempleado__papellido']} {item['idempleado__pnombre']} - "
-                    f"{item['cargo__nombrecargo']} - Contrato #{item['idcontrato']}"
+                    f"{item['idempleado__docidentidad']} - Contrato #{item['idcontrato']}"
                 )
                 for item in Contratos.objects.filter(
                     estadocontrato=1,
@@ -71,7 +71,7 @@ class SuspensionForm(forms.Form):
                     'idempleado__papellido',
                     'idempleado__sapellido',
                     'idcontrato',
-                    'cargo__nombrecargo'
+                    'idempleado__docidentidad'
                 )
             ],
             widget=forms.Select(attrs={
