@@ -935,6 +935,10 @@ def _codigo_sueldo_basico_contrato(contrato):
 
 
 def dias_sueldo_basico_nomina_actual(contrato, nomina, idn):
+    """
+    Días del sueldo básico alineados al periodo de esta nómina (lectura de Nomina o cálculo solo
+    sobre fechainicial/fechafinal). No usa el criterio #1/#2 del nombre: sirve para liquidar transporte.
+    """
     codigo = _codigo_sueldo_basico_contrato(contrato)
     codigo_str = str(codigo)
     reg = Nomina.objects.filter(
@@ -945,7 +949,13 @@ def dias_sueldo_basico_nomina_actual(contrato, nomina, idn):
     ).first()
     if reg is not None and reg.cantidad is not None and reg.cantidad > 0:
         return int(reg.cantidad)
-    return calcular_dias(contrato, nomina, codigo)
+    return calcular_dias_en_nomina(
+        contrato,
+        nomina.fechainicial,
+        nomina.fechafinal,
+        nomina.tiponomina.idtiponomina,
+        nomina,
+    )
 
 
 def derecho_auxilio_transporte_mes_calendario(contrato, nomina):
@@ -1814,15 +1824,15 @@ def calcular_dias(contrato,nomina ,concep):
     
     if not existe2 and '#2' in nombre_original:
         nuevo_nombre = nombre_original.replace('#2', '#1')
-        nomina2 = Crearnomina.objects.filter(nombrenomina = nuevo_nombre).first()
-
-        diasnomina2 = calcular_dias_en_nomina(
-            contrato,
-            nomina2.fechainicial,
-            nomina2.fechafinal,
-            nomina2.tiponomina.idtiponomina,
-            nomina2,
-        )
+        nomina2 = Crearnomina.objects.filter(nombrenomina=nuevo_nombre).first()
+        if nomina2 is not None:
+            diasnomina2 = calcular_dias_en_nomina(
+                contrato,
+                nomina2.fechainicial,
+                nomina2.fechafinal,
+                nomina2.tiponomina.idtiponomina,
+                nomina2,
+            )
 
     d = diasnomina1 + diasnomina2
     
