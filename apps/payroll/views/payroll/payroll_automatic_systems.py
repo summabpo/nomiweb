@@ -926,6 +926,36 @@ def _dias_auxilio_transporte_otras_nominas_mes(contrato, nomina, idnomina_actual
     return int(total)
 
 
+def _hay_periodo_anterior_en_mes_sin_auxilio_transporte(contrato, nomina):
+    """
+    True si existe otra nómina del mismo mes acumulado cuyo periodo empieza antes que el de
+    ``nomina`` y en esa nómina el contrato no tiene días de auxilio transporte (código 2)
+    o la suma de cantidad es 0. En ese caso la liquidación actual puede completar el mes aunque
+    el sueldo básico de esta nómina sea solo 15 (segunda quincena sin transporte en la primera).
+    """
+    if not nomina.fechainicial:
+        return False
+    otras_ids = (
+        _nominas_mismo_periodo_acumulado_qs(nomina)
+        .exclude(idnomina=nomina.pk)
+        .filter(fechainicial__lt=nomina.fechainicial)
+        .values_list('idnomina', flat=True)
+    )
+    for oid in otras_ids:
+        dias_otra = (
+            Nomina.objects.filter(
+                idcontrato=contrato,
+                idnomina_id=oid,
+                estadonomina=1,
+                idconcepto__codigo=2,
+            ).aggregate(s=Sum('cantidad'))['s']
+        )
+        dias_otra = int(dias_otra) if dias_otra is not None else 0
+        if dias_otra <= 0:
+            return True
+    return False
+
+
 def _codigo_sueldo_basico_contrato(contrato):
     if contrato.tiposalario and contrato.tiposalario.idtiposalario == 2:
         return 4
@@ -986,7 +1016,9 @@ def liquidar_auxilio_transporte_contrato(contrato, nomina, idempresa, idn, sal_m
 
     Detecta si ya hubo pago de transporte (concepto 2) en otras nóminas del mismo mes y año
     acumulado; el tope mensual es 30 días o proporcional (mismo criterio que ``calcular_dias_en_nomina``
-    sobre el mes calendario). Los días de esta nómina no superan los del sueldo básico del periodo.
+    sobre el mes calendario). Por defecto los días no superan el sueldo básico del periodo; si hay
+    una nómina anterior en el mes sin días de transporte y aún no se pagó nada en otras nóminas,
+    se liquida el saldo del mes aunque el básico de esta nómina sea solo 15.
 
     Returns
     -------
@@ -1024,8 +1056,14 @@ def liquidar_auxilio_transporte_contrato(contrato, nomina, idempresa, idn, sal_m
     ya_pagado = _dias_auxilio_transporte_otras_nominas_mes(contrato, nomina, idn)
     pendiente_mes = max(0, min(30, tope_mes) - ya_pagado)
 
-    # Si en el mes aún no hubo transporte: hasta los días del básico (típ. 15 o 30). Si ya hubo: saldo del mes, sin pasar del básico de esta nómina.
-    dias_t = min(dias_basico, pendiente_mes)
+    # Segunda (o posterior) quincena sin transporte en la primera: completar mes aunque básico=15.
+    completa_mes = ya_pagado == 0 and _hay_periodo_anterior_en_mes_sin_auxilio_transporte(
+        contrato, nomina
+    )
+    if completa_mes:
+        dias_t = pendiente_mes
+    else:
+        dias_t = min(dias_basico, pendiente_mes)
 
     dias_t = min(30, max(0, int(dias_t)))
     if dias_t <= 0:
@@ -1041,9 +1079,10 @@ def procesar_nomina_transporte(idn, parte_nomina, idempresa, empleados):
     """
     Procesa el auxilio de transporte para los contratos activos dentro de una nómina.
 
-    Por cada nómina se usan los mismos días que el sueldo básico del periodo (típicamente 15 o 30).
-    Si en el mes acumulado ya hubo auxilio de transporte en otra nómina, se liquida el saldo del mes
-    (hasta 30 días o proporcional por contrato) restando lo ya pagado, sin superar el básico de la nómina actual.
+    En general los días se alinean al sueldo básico del periodo (típicamente 15 o 30). Si ya hubo
+    transporte en otra nómina del mes, se liquida el saldo restando lo pagado, sin superar el básico
+    actual. Si la primera quincena del mes no tiene días de transporte y en otras nóminas del mes
+    tampoco se pagó, en la segunda se liquida el saldo del mes completo aunque el básico sea 15.
 
     Parameters
     ----------
