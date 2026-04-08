@@ -1692,13 +1692,11 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
     # ==========================================
     # AJUSTE ESPECIAL: FEBRERO SEGUNDA QUINCENA
     # ==========================================
-    if tipo_nomina == 2 and inicio_nomina.month == 2:
-
+    if tipo_nomina == 2 and inicio_nomina.month == 2 :
         # si el contrato inicia dentro de esta nómina
-        if inicio_contrato >= inicio_nomina and inicio_contrato <= fin_nomina:
+        if inicio_contrato >= inicio_nomina and inicio_contrato <= fin_nomina and inicio_nomina.day > 15 :
 
             dias_febrero = calendar.monthrange(inicio_nomina.year, 2)[1]
-
             if dias_febrero < 30:
                 ajuste = 30 - dias_febrero
                 diasnomina += ajuste
