@@ -163,7 +163,7 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
 
 
-
+@transaction.atomic
 def recalcular_nomina(idn):
 
     getcontext().prec = 50

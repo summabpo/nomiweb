@@ -343,10 +343,8 @@ def calcular_periodos_vacaciones(idcontrato, idempresa, dias_vacaciones_actuales
                 fecha_inicio_periodo = fecha_inicio_periodo + timedelta(days=365)
         
         # Encontrar el mejor período para los días solicitados
-        print(f"🎯 Períodos disponibles encontrados: {len(periodos_disponibles)}")
         
         if not periodos_disponibles:
-            print("❌ No hay períodos disponibles")
             return None, None
         
         # Ordenar períodos por fecha de inicio (cronológicamente)
@@ -531,7 +529,7 @@ def vacation_calculate_periods(request):
                     'idempresa': idempresa
                 }
             }
-            print(f"✅ Enviando respuesta exitosa: {resultado}")
+
             return JsonResponse(resultado)
         else:
             error_response = {
@@ -543,11 +541,11 @@ def vacation_calculate_periods(request):
                     'idempresa': idempresa
                 }
             }
-            print(f"❌ Enviando respuesta de error: {error_response}")
+
             return JsonResponse(error_response)
             
     except Exception as e:
-        print(f"❌ ERROR GENERAL calculando períodos: {str(e)}")
+
         import traceback
         traceback.print_exc()
         return JsonResponse({
@@ -645,7 +643,7 @@ def vacation_modal_data(request,id,t):
         'novedad' : novedad ,
 
     }
-   
+    
     return render(request, './payroll/partials/vacation_modal_data.html', {
         'data': data,
         
