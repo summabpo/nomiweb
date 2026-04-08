@@ -112,31 +112,31 @@ def update_salary(request):
     )
     
 
-    for doc in data:
-        obj = novsalarios.filter(
-            idcontrato__idempleado__docidentidad=doc,
-            fechanuevosalario=date(2026, 1, 1)
-        ).first()
+    # for doc in data:
+    #     obj = novsalarios.filter(
+    #         idcontrato__idempleado__docidentidad=doc,
+    #         fechanuevosalario=date(2026, 1, 1)
+    #     ).first()
         
-        if obj:
-            obj.fechanuevosalario = date(2026, 1, 1)
-            obj.save()
-        else:
-            print(f"✘ {doc} -> NO existe")
-            cc = Contratos.objects.filter(
-                idempleado__docidentidad=doc
-            ).order_by('-idcontrato').first()  # o '-id' según tu PK
+    #     if obj:
+    #         obj.fechanuevosalario = date(2026, 1, 1)
+    #         obj.save()
+    #     else:
+    #         #print(f"✘ {doc} -> NO existe")
+    #         cc = Contratos.objects.filter(
+    #             idempleado__docidentidad=doc
+    #         ).order_by('-idcontrato').first()  # o '-id' según tu PK
 
-            if cc:
-                NovSalarios.objects.create(
-                    idcontrato=cc,
-                    salarioactual=1506052,
-                    nuevosalario=1750905,
-                    fechanuevosalario=date(2026, 1, 1),
-                    tiposalario=1
-                )
-            else:
-                print(f"No se encontró contrato para {doc}")
+    #         if cc:
+    #             NovSalarios.objects.create(
+    #                 idcontrato=cc,
+    #                 salarioactual=1506052,
+    #                 nuevosalario=1750905,
+    #                 fechanuevosalario=date(2026, 1, 1),
+    #                 tiposalario=1
+    #             )
+    #         else:
+    #             print(f"No se encontró contrato para {doc}")
 
 
 

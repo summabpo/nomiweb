@@ -74,7 +74,7 @@ class DisabilitiesForm(forms.Form):
             
             for data in overlapping:
                 data_fechafinal = data.fechainicial + timedelta(days=int(data.dias - 1 ))
-    
+
 
                 # Aquí validamos si hay cruce real de fechas    
                 if fechainicial <= data_fechafinal and fechafinal >= data.fechainicial:

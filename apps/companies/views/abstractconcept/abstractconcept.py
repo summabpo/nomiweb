@@ -64,7 +64,7 @@ def abstractconcept(request):
             
             # Construir los filtros dinámicamente
             filters = {
-                'idconcepto__nombreconcepto': sconcept,
+                'idconcepto__codigo': sconcept,
                 'idnomina__idnomina': int(payroll) if payroll else None,
                 'idcontrato__idempleado__idempleado': employee,
                 'idnomina__mesacumular': month,
