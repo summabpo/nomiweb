@@ -217,7 +217,13 @@ def edit_employee_loans_modal(request, id=None):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     if request.method == 'POST':
-        form = LoansForm(request.POST, id_empresa=idempresa, initial = data , modo = 1)
+        form = LoansForm(
+            request.POST,
+            id_empresa=idempresa,
+            initial=data,
+            modo=1,
+            prestamo_id=id,
+        )
         if form.is_valid():
             
             updated = False
@@ -248,7 +254,7 @@ def edit_employee_loans_modal(request, id=None):
                 for error in errors:
                     print(request, f"Error en {field}: {error}")  
     else:
-        form = LoansForm(id_empresa=idempresa ,modo = 1 , initial = data)
+        form = LoansForm(id_empresa=idempresa, modo=1, initial=data, prestamo_id=id)
 
     return render(request, 'payroll/partials/loans_max_edit.html', {'form': form, })
 
