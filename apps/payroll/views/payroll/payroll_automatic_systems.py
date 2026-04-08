@@ -166,66 +166,128 @@ def automatic_systems(request, type_payroll=0,idnomina=0):
 
 def recalcular_nomina(idn):
 
-    nomina = Crearnomina.objects.get(idnomina=idn)
-    
-    # precisión decimal solo una vez
     getcontext().prec = 50
 
-    # conceptos de sueldo basico 
+    nomina = Crearnomina.objects.select_related('anoacumular').get(idnomina=idn)
 
-    conceptos = [1, 4, 34]
+    salario_anual = Salariominimoanual.objects.get(ano=nomina.anoacumular.ano)
+    sal_min = salario_anual.salariominimo
+    aux_tra = salario_anual.auxtransporte
 
-    registros = Nomina.objects.select_related('idcontrato').filter(
+    mes = nomina.fechainicial.month
+    anio = nomina.fechainicial.year
+
+    conceptos = [1, 2, 4, 34]
+
+    registros = Nomina.objects.select_related(
+        'idcontrato', 'idconcepto'
+    ).filter(
         idnomina_id=idn,
         idconcepto__codigo__in=conceptos
     )
 
-    contratos_procesados = set()
+    contratos_procesados = {}
+    updates = []
+    deletes = []
 
     for data in registros:
 
         contrato = data.idcontrato
         codigo = data.idconcepto.codigo
+        contrato_id = contrato.idcontrato
 
-        # evitar recalcular novedades varias veces para el mismo contrato
-        if contrato.idcontrato not in contratos_procesados:
+        # ==========================================
+        # PROCESAR CONTRATO UNA SOLA VEZ
+        # ==========================================
+        if contrato_id not in contratos_procesados:
 
             calculo_prestamo(contrato, idn)
             Calculo_vacaciones(contrato, idn)
             calculo_novfija(contrato, idn)
 
-            contratos_procesados.add(contrato.idcontrato)
+            acumulados = precargar_acumulados(nomina, int(codigo))
 
-        diasnomina = calcular_dias(contrato, nomina, codigo)
+            salario = salario_mes(contrato, mes, anio)
+
+            contratos_procesados[contrato_id] = {
+                "acumulados": acumulados,
+                "salario": salario
+            }
+
+        else:
+            acumulados = contratos_procesados[contrato_id]["acumulados"]
+            salario = contratos_procesados[contrato_id]["salario"]
+
+        # ==========================================
+        # CALCULO DE DIAS
+        # ==========================================
+        diasnomina = calcular_dias(contrato, nomina, codigo, acumulados)
+
         if diasnomina <= 0:
+            deletes.append(data.id)
             continue
 
-        mes = nomina.fechainicial.month
-        anio = nomina.fechainicial.year
+        # ==========================================
+        # SUELDO BASE
+        # ==========================================
+        if codigo in [1, 4, 34]:
 
-        salario = salario_mes(contrato,mes,anio)
+            valor = (
+                Decimal(salario) * Decimal(diasnomina) / Decimal('30')
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
-        valorsalario = (
-            Decimal(str(salario))
-            * Decimal(str(diasnomina))
-            / Decimal('30')
-        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        # ==========================================
+        # TRANSPORTE
+        # ==========================================
+        elif codigo == 2:
 
-        if valorsalario != data.valor:
+            if contrato.salario >= (sal_min * 2):
+                deletes.append(data.id)
+                continue
 
+            total_base_trans = Nomina.objects.filter(
+                idcontrato=contrato,
+                idnomina_id=idn,
+                estadonomina=1,
+                idconcepto__indicador__nombre='basetransporte'
+            ).exclude(
+                idconcepto__codigo=2
+            ).aggregate(total=Sum('valor'))['total'] or 0
+
+            if total_base_trans <= 0:
+                deletes.append(data.id)
+                continue
+
+            if total_base_trans >= (sal_min * 2):
+                deletes.append(data.id)
+                continue
+
+            valor = (
+                Decimal(diasnomina) *
+                (Decimal(aux_tra) / Decimal('30'))
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+        else:
+            continue
+
+        # ==========================================
+        # ACTUALIZAR SOLO SI CAMBIA
+        # ==========================================
+        if data.valor != valor or data.cantidad != diasnomina:
+            data.valor = valor
             data.cantidad = diasnomina
-            data.valor = valorsalario
-            data.save(update_fields=["cantidad", "valor"])
+            updates.append(data)
 
+    # ==========================================
+    # BULK OPERATIONS (MUCHO MÁS RÁPIDO)
+    # ==========================================
+    if updates:
+        Nomina.objects.bulk_update(updates, ["valor", "cantidad"])
 
-    # recalculo de aportes 
-    
-
-
-
+    if deletes:
+        Nomina.objects.filter(id__in=deletes).delete()
 
     return True
-
 
 
 
@@ -340,7 +402,6 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             codigo_aux = '1'
 
         acumulados = precargar_acumulados(nomina, int(codigo_aux))
-        print(acumulados)
         concepto = Conceptosdenomina.objects.get(codigo=codigo_aux, id_empresa_id = idempresa)
 
         diasnomina = calcular_dias(contrato,nomina,int(codigo_aux),acumulados)
@@ -1087,8 +1148,6 @@ def liquidar_auxilio_transporte_contrato(contrato, nomina, idempresa, idn, sal_m
         Decimal(dias_t) * (Decimal(str(aux_tra)) / Decimal('30'))
     ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
-    print('---- salida ----')
-    print(dias_t)
     return dias_t, valor
 
 
@@ -1825,10 +1884,10 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
     # ==========================================
     # AJUSTE ESPECIAL: FEBRERO SEGUNDA QUINCENA
     # ==========================================
-    if tipo_nomina == 2 and inicio_nomina.month == 2:
+    if  inicio_nomina.month == 2:
 
         # si el contrato inicia dentro de esta nómina
-        if inicio_contrato >= inicio_nomina and inicio_contrato <= fin_nomina and  inicio_nomina.day > 15:
+        if inicio_contrato >= inicio_nomina and inicio_contrato <= fin_nomina and  ( inicio_nomina.day > 15 or tipo_nomina == 1 ):
 
             dias_febrero = calendar.monthrange(inicio_nomina.year, 2)[1]
 
@@ -1859,7 +1918,9 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
 def calcular_dias(contrato,nomina ,concep,data): 
     d = 0 
     if nomina.tiponomina.idtiponomina == 2 :
-        d = calculate_monthly_days(contrato,nomina ,concep,data)
+        d = calculate_biweekly_days(contrato,nomina ,concep,data)
+    elif nomina.tiponomina.idtiponomina == 1 :
+        d = calculate_monthly_days(contrato,nomina ,concep)
     return d
 
 
@@ -1880,7 +1941,9 @@ def precargar_acumulados(nomina, concep):
     return {row['idcontrato']: row['total'] or 0 for row in data}
 
 
-def calculate_monthly_days(contrato, nomina, concep,acumulados_dict):
+
+
+def calculate_biweekly_days(contrato, nomina, concep,acumulados_dict):
     diasnomina2 = acumulados_dict.get(contrato.idcontrato, 0)
 
     diasnomina1 = calcular_dias_en_nomina(
@@ -1935,11 +1998,23 @@ def calculate_monthly_days(contrato, nomina, concep,acumulados_dict):
             shadow
         )
 
-        print(f"RECONSTRUCCIÓN → d1: {diasnomina1} - d2: {diasnomina2}")
 
     return diasnomina1 + diasnomina2
 
 
+
+def calculate_monthly_days(contrato, nomina, concep):
+    diasnomina1 =  0
+
+    diasnomina1 = calcular_dias_en_nomina(
+        contrato,
+        nomina.fechainicial,
+        nomina.fechafinal,
+        nomina.tiponomina.idtiponomina,
+        nomina
+    )
+
+    return diasnomina1 
 
 def return_transporte(contrato, nomina, diasnomina , sal_min, aux_tra):
     value = Decimal('0')
@@ -1973,9 +2048,5 @@ def return_transporte(contrato, nomina, diasnomina , sal_min, aux_tra):
     value = (
         Decimal(diasnomina) * (Decimal(str(aux_tra)) / Decimal('30'))
     ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-
-    print('---- salida ----')
-    print(value)
-    print(diasnomina)
 
     return value
