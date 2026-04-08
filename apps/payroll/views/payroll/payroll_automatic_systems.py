@@ -15,6 +15,8 @@ import calendar
 from apps.components.salary import salario_mes
 from decimal import Decimal, ROUND_HALF_UP , getcontext , ROUND_CEILING , ROUND_UP
 from apps.components.salary_nomina import salary_nomina_update
+from apps.companies.views.disabilities.disabilities import disabilities_ibc
+
 
 #prueba git
 @login_required
@@ -169,7 +171,10 @@ def recalcular_nomina(idn):
     # precisión decimal solo una vez
     getcontext().prec = 50
 
-    # conceptos de sueldo basico 
+    # ==========================================
+    # AJUSTE ESPECIAL: conceptos de sueldo basico 
+    # ==========================================
+
 
     conceptos = [1, 4, 34]
 
@@ -196,6 +201,7 @@ def recalcular_nomina(idn):
 
         diasnomina = calcular_dias(contrato, nomina, codigo)
         if diasnomina <= 0:
+            data.delete()  
             continue
 
         mes = nomina.fechainicial.month
@@ -216,8 +222,9 @@ def recalcular_nomina(idn):
             data.save(update_fields=["cantidad", "valor"])
 
 
-    # recalculo de aportes 
-    
+    # ==========================================
+    # AJUSTE ESPECIAL: aportes 
+    # ==========================================
 
 
 
@@ -315,8 +322,8 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
 
-    #  , idcontrato = 10731
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa ) 
+    #  , idcontrato = 10353
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa  ) 
     
 
     if parte_nomina != 0:
@@ -437,11 +444,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     
     if not parte_nomina:
         parte_nomina = 0
-        
-    if empleados: 
-        contratos = contratos.filter(idcontrato__in = empleados)
-        
-        
+    
     nomina = Crearnomina.objects.get(idnomina=idn)
     inicio_nomina, fin_nomina = nomina.fechainicial, nomina.fechafinal
     ano = nomina.anoacumular.ano 
@@ -453,160 +456,198 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
-    
-    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3 )
-    
-    
-    
-    if parte_nomina != 0:
-        incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
-    
-    for incapacidad in incapacidades:
-        dias_incapacidad = 0 
-        dias_asumidos = 0
-        ini = incapacidad.fechainicial
-        fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
-        
-        
-        ibc = incapacidad.ibc
-        tipo = incapacidad.origenincap
-        prorroga = incapacidad.prorroga
-        dias = incapacidad.dias
 
-        segundo_dia = ini + timedelta(days=1)
-        dia_asumido_1 = int(inicio_nomina <= ini <= fin_nomina)
-        dia_asumido_2 = int(inicio_nomina <= segundo_dia <= fin_nomina)
-        dias_asumidos = dia_asumido_1 + dia_asumido_2 if dias != 1 else dia_asumido_1
-        
-        
-        if ini <= inicio_nomina <= fin <= fin_nomina:
-            # Incapacidad empieza antes de la nómina y termina dentro de ella
-            dias_incapacidad = (fin - inicio_nomina).days + 1   # ✅ antes estaba (fin_nomina - inicio_nomina)
-        elif ini <= inicio_nomina <= fin_nomina <= fin:
-            # Incapacidad cubre toda la nómina
-            dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
-        elif inicio_nomina <= ini <= fin <= fin_nomina:
-            # Incapacidad completamente dentro de la nómina
-            dias_incapacidad = (fin - ini).days + 1
-        elif ini >= inicio_nomina and fin >= fin_nomina:
-            # Incapacidad empieza en la nómina y sigue después
-            dias_incapacidad = (fin_nomina - ini).days + 1
+    if empleados: 
 
-        else:
-            dias_incapacidad = 0
-                
-        #Calculo del IBC
-        if pago_incapacidad == "NO":
-            ibc = round(ibc * 2 / 3, 0)
-            
-        if ibc < salario_minimo:
-            ibc = salario_minimo
-        
+        contratos = contratos.filter(idcontrato__in = empleados)
 
-        #Tipo de incapacidad
-        if tipo == '1':
-            idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
-            idconceptoa = Conceptosdenomina.objects.get(codigo=26, id_empresa_id = idempresa) 
+    for contract in contratos : 
+        incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato = contract ).order_by('fechainicial')
+        if parte_nomina != 0:
+            incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
+        
+        for incapacidad in incapacidades:
+            dias_incapacidad = 0 
+            dias_asumidos = 0
+            ini = incapacidad.fechainicial
+            fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
             
-        elif tipo == '2':
             
-            dias_asumidos = dia_asumido_1
             ibc = incapacidad.ibc
-            
-            idconceptoi = Conceptosdenomina.objects.get(codigo=27, id_empresa_id = idempresa)
-            idconceptoa = Conceptosdenomina.objects.get(codigo=28, id_empresa_id = idempresa) 
-            
-        elif tipo == '3':
-            dias_asumidos = 0
-            idconceptoi = Conceptosdenomina.objects.get(codigo=29, id_empresa_id = idempresa)
-        
-        else :
-            idconceptoa = None
-            idconceptoi = None
-        
-            
-        if prorroga:
-            dias_asumidos = 0
-        
-        
-        
-        dias_incapacidad -= dias_asumidos
+            tipo = incapacidad.origenincap
+            prorroga = incapacidad.prorroga
+            dias = incapacidad.dias
 
-        
-        horas_incapacidad = dias_incapacidad * 8
-        horas_asumidas = dias_asumidos * 8
+            segundo_dia = ini + timedelta(days=1)
+            dia_asumido_1 = int(inicio_nomina <= ini <= fin_nomina)
+            dia_asumido_2 = int(inicio_nomina <= segundo_dia <= fin_nomina)
+            dias_asumidos = dia_asumido_1 + dia_asumido_2 if dias != 1 else dia_asumido_1
+            
+            
+            if ini <= inicio_nomina <= fin <= fin_nomina:
+                # Incapacidad empieza antes de la nómina y termina dentro de ella
+                dias_incapacidad = (fin - inicio_nomina).days + 1   # ✅ antes estaba (fin_nomina - inicio_nomina)
+            elif ini <= inicio_nomina <= fin_nomina <= fin:
+                # Incapacidad cubre toda la nómina
+                dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
+            elif inicio_nomina <= ini <= fin <= fin_nomina:
+                # Incapacidad completamente dentro de la nómina
+                dias_incapacidad = (fin - ini).days + 1
+            elif ini >= inicio_nomina and fin >= fin_nomina:
+                # Incapacidad empieza en la nómina y sigue después
+                dias_incapacidad = (fin_nomina - ini).days + 1
 
-        valor_incapacidad = (
-            Decimal(ibc) / Decimal('240') * Decimal(horas_incapacidad)
-        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-
-        valor_asumido = (
-            Decimal(ibc) / Decimal('240') * Decimal(horas_asumidas)
-        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-        
-        
-        if dias_asumidos > 0 :
-            if idconceptoa :
+            else:
+                dias_incapacidad = 0
+                    
+            #Calculo del IBC
+            if pago_incapacidad == "NO":
+                ibc = round(ibc * 2 / 3, 0)
                 
-                aux_pass = Nomina.objects.filter(
-                    idconcepto = idconceptoa,
-                    idcontrato = incapacidad.idcontrato , 
-                    estadonomina = 1,
-                    idnomina_id=idn
-                ).first()
+            if ibc < salario_minimo:
+                ibc = salario_minimo
+            
+
+            #Tipo de incapacidad
+            if tipo == '1':
+                idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
+                idconceptoa = Conceptosdenomina.objects.get(codigo=26, id_empresa_id = idempresa) 
+                
+            elif tipo == '2':
+                
+                dias_asumidos = dia_asumido_1
+                ibc = incapacidad.ibc
+                
+                idconceptoi = Conceptosdenomina.objects.get(codigo=27, id_empresa_id = idempresa)
+                idconceptoa = Conceptosdenomina.objects.get(codigo=28, id_empresa_id = idempresa) 
+                
+            elif tipo == '3':
+                dias_asumidos = 0
+                idconceptoi = Conceptosdenomina.objects.get(codigo=29, id_empresa_id = idempresa)
+            
+            else :
+                idconceptoa = None
+                idconceptoi = None
+            
+                
+            if prorroga:
+
+                dias_incapacidad = calculo_incapacidad(contract.idcontrato, nomina)
+                ibc = disabilities_ibc(contract , str(inicio_nomina) )
+                valor_incapacidad = (ibc / 30 ) * dias_incapacidad
+
+                if idconceptoi  and dias_incapacidad > 0 :
+                    aux_pass = Nomina.objects.filter(
+                        idconcepto = idconceptoi,
+                        idcontrato = contract , 
+                        idnomina_id=idn
+                    ).first()
+                    
+                    if aux_pass:
+                        if not EditHistory.objects.filter(
+                            id_empresa_id=idempresa,
+                            modified_object_id=aux_pass.idregistronom,
+                            modified_model='Nomina',
+                        ).exists():
+                            print('llege aqui 1 ')
+                            aux_pass.cantidad = dias_incapacidad
+                            aux_pass.valor =  valor_incapacidad
+                            aux_pass.save()  
+                                        
+                    else:
+                        print('llege aqui 1.2 ')
+                        Nomina.objects.create(
+                            valor = valor_incapacidad,
+                            cantidad = dias_incapacidad ,
+                            idconcepto = idconceptoi, 
+                            idnomina = nomina, 
+                            estadonomina = 1,
+                            idcontrato = contract, 
+                            control = incapacidad.idincapacidad,
+                        )  
+            
+            else : 
+
+                dias_incapacidad -= dias_asumidos
+
+                
+                horas_incapacidad = dias_incapacidad * 8
+                horas_asumidas = dias_asumidos * 8
+
+                valor_incapacidad = (
+                    Decimal(ibc) / Decimal('240') * Decimal(horas_incapacidad)
+                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+                valor_asumido = (
+                    Decimal(ibc) / Decimal('240') * Decimal(horas_asumidas)
+                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+                
+                
+                if dias_asumidos > 0 :
+                    if idconceptoa :
+                        aux_pass = Nomina.objects.filter(
+                            idconcepto = idconceptoa,
+                            idcontrato = incapacidad.idcontrato , 
+                            estadonomina = 1,
+                            idnomina_id=idn
+                        ).first()
+
+                        if aux_pass:
+                            if not EditHistory.objects.filter(
+                                id_empresa_id=idempresa,
+                                modified_object_id=aux_pass.idregistronom,
+                                modified_model='Nomina',
+                            ).exists():
 
 
-                if aux_pass:
-                    if not EditHistory.objects.filter(
-                        id_empresa_id=idempresa,
-                        modified_object_id=aux_pass.idregistronom,
-                        modified_model='Nomina',
-                    ).exists():
-                        aux_pass.cantidad = horas_asumidas/8
-                        aux_pass.valor =  valor_asumido
-                        aux_pass.save() 
+                                aux_pass.cantidad = horas_asumidas/8
+                                aux_pass.valor =  valor_asumido
+                                aux_pass.save() 
+                                
+                        else:
+                            Nomina.objects.create(
+                                valor = valor_asumido,
+                                cantidad = horas_asumidas/8,
+                                idconcepto = idconceptoa , 
+                                idnomina = nomina , 
+                                estadonomina = 1,
+                                idcontrato = incapacidad.idcontrato , 
+                                control = incapacidad.idincapacidad,
+                            ) 
                         
-                else:
-                    Nomina.objects.create(
-                        valor = valor_asumido,
-                        cantidad = horas_asumidas/8,
-                        idconcepto = idconceptoa , 
-                        idnomina = nomina , 
-                        estadonomina = 1,
-                        idcontrato = incapacidad.idcontrato , 
-                        control = incapacidad.idincapacidad,
-                    ) 
-                
 
-        if dias_incapacidad > 0:
-            if idconceptoi :
-                aux_pass = Nomina.objects.filter(
-                    idconcepto = idconceptoi,
-                    idcontrato = incapacidad.idcontrato , 
-                    idnomina_id=idn
-                ).first()
-                
-                if aux_pass:
-                    if not EditHistory.objects.filter(
-                        id_empresa_id=idempresa,
-                        modified_object_id=aux_pass.idregistronom,
-                        modified_model='Nomina',
-                    ).exists():
-                        aux_pass.cantidad = horas_incapacidad/8
-                        aux_pass.valor =  valor_incapacidad
-                        aux_pass.save()  
-                                    
-                else:
-                    Nomina.objects.create(
-                        valor = valor_incapacidad,
-                        cantidad = horas_incapacidad/8,
-                        idconcepto = idconceptoi, 
-                        idnomina = nomina, 
-                        estadonomina = 1,
-                        idcontrato = incapacidad.idcontrato, 
-                        control = incapacidad.idincapacidad,
-                    )  
-                
+                if dias_incapacidad > 0:
+                    if idconceptoi :
+                        aux_pass = Nomina.objects.filter(
+                            idconcepto = idconceptoi,
+                            idcontrato = incapacidad.idcontrato , 
+                            idnomina_id=idn
+                        ).first()
+                        
+                        if aux_pass:
+                            if not EditHistory.objects.filter(
+                                id_empresa_id=idempresa,
+                                modified_object_id=aux_pass.idregistronom,
+                                modified_model='Nomina',
+                            ).exists():
+                                aux_pass.cantidad = horas_incapacidad/8
+                                aux_pass.valor =  valor_incapacidad
+                                aux_pass.save()  
+                                            
+                        else:
+                            Nomina.objects.create(
+                                valor = valor_incapacidad,
+                                cantidad = horas_incapacidad/8,
+                                idconcepto = idconceptoi, 
+                                idnomina = nomina, 
+                                estadonomina = 1,
+                                idcontrato = incapacidad.idcontrato, 
+                                control = incapacidad.idincapacidad,
+                            )  
+                        
+        
+        
+    
     return True
 
 
@@ -1166,9 +1207,10 @@ def calcular_suspenciones(contrato,nomina ):
                 dias_en_nomina = dias_nomina
             else:
                 dias_en_nomina = dias_360(inicio_cruce, fin_cruce)
-
+            
             dias_vacaciones += dias_en_nomina
-
+            #print(f"id {vac.idvacaciones}  ds {dias_en_nomina} ddb {vac.diascalendario}")
+    
     return min(dias_vacaciones, dias_nomina)
 
 def calcular_suspenciones2(vac, nomina):
@@ -1239,7 +1281,7 @@ def calculo_incapacidad(contrato,nomina):
                 inicio = max(fechaini, nomina.fechainicial)
                 fin = min(fechafin, nomina.fechafinal)
                 dias_incapacidad += (fin - inicio).days + 1
-    
+                #print(f"id {inc.idincapacidad}  ds {dias_incapacidad} ddb {inc.dias}")
     return dias_incapacidad
 
 
@@ -1297,7 +1339,13 @@ def Calculo_vacaciones(contrato, idn):
             if dias_suspensiones <= 0:
                 continue
 
-            dias = vaca.basepago / 30
+
+            mes = vaca.fechainicialvac.month
+            anio = vaca.fechainicialvac.year
+
+            salario = salario_mes(contrato,mes,anio)
+
+            dias =  salario / 30
             valor_calculado = dias * dias_suspensiones
 
             # 🔹 Si NO es tipo 3, manejar concepto1
@@ -1531,15 +1579,15 @@ def calculo_novfija(contrato, idn):
 
             cantidad = 1
 
-            # Lógica de fecha fin de novedad
-            if nov.fechafinnovedad:
-                # Si la fecha fin cae dentro del periodo de la nómina => cantidad 0
-                if nomina.fechainicial <= nov.fechafinnovedad <= nomina.fechafinal:
-                    cantidad = 0
-                else:
-                    # Si la fecha fin ya pasó marcamos la novedad como inactiva
-                    nov.estado_novfija = False
-                    nov.save()
+            # # Lógica de fecha fin de novedad
+            # if nov.fechafinnovedad:
+            #     # Si la fecha fin cae dentro del periodo de la nómina => cantidad 0
+            #     if nomina.fechainicial <= nov.fechafinnovedad <= nomina.fechafinal:
+            #         cantidad = 0
+            #     else:
+            #         # Si la fecha fin ya pasó marcamos la novedad como inactiva
+            #         nov.estado_novfija = False
+            #         nov.save()
 
             if nov.idconcepto.codigo == 91:
                 nuevo = Nomina(
@@ -1644,13 +1692,11 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
     # ==========================================
     # AJUSTE ESPECIAL: FEBRERO SEGUNDA QUINCENA
     # ==========================================
-    if tipo_nomina == 2 and inicio_nomina.month == 2:
-
+    if tipo_nomina == 2 and inicio_nomina.month == 2 :
         # si el contrato inicia dentro de esta nómina
-        if inicio_contrato >= inicio_nomina and inicio_contrato <= fin_nomina:
+        if inicio_contrato >= inicio_nomina and inicio_contrato <= fin_nomina and inicio_nomina.day > 15 :
 
             dias_febrero = calendar.monthrange(inicio_nomina.year, 2)[1]
-
             if dias_febrero < 30:
                 ajuste = 30 - dias_febrero
                 diasnomina += ajuste
@@ -1660,13 +1706,13 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
     dias_incapacidad = calculo_incapacidad(contrato.idcontrato, nomina)
     dias_suspensiones = calcular_suspenciones(contrato.idcontrato, nomina)
 
-    # if dias_vacaciones > 0 or dias_incapacidad > 0 or dias_suspensiones > 0:
-    #     print(
-    #         f"Vacaciones: {dias_vacaciones}, "
-    #         f"Incapacidad: {dias_incapacidad}, "
-    #         f"Suspensiones: {dias_suspensiones} "
-    #         f"dias : {diasnomina} id {contrato.idcontrato}"
-    #     )
+    #if dias_vacaciones > 0 or dias_incapacidad > 0 or dias_suspensiones > 0:
+    print(
+        f"Vacaciones: {dias_vacaciones}, "
+        f"Incapacidad: {dias_incapacidad}, "
+        f"Suspensiones: {dias_suspensiones} "
+        f"dias : {diasnomina} id {contrato.idcontrato}"
+    )
 
     diasnomina -= dias_vacaciones
     diasnomina -= dias_incapacidad
@@ -1721,7 +1767,7 @@ def calcular_dias(contrato,nomina ,concep):
 
     d = diasnomina1 + diasnomina2
     
-    
+
     return d
 
     

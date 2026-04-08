@@ -83,7 +83,7 @@ class AbstractConceptForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Actualizar choices dinámicamente
-        self.fields['sconcept'].choices = [('', '----------')] + [(concepto, concepto) for concepto in Nomina.objects.filter(idnomina__id_empresa = idempresa ).values_list('idconcepto__nombreconcepto', flat=True).distinct().order_by('idconcepto__nombreconcepto') ]
+        self.fields['sconcept'].choices = [('', '----------')] + [(codigo, f"{codigo} - {nombreconcepto} ") for nombreconcepto , codigo in Nomina.objects.filter(idnomina__id_empresa = idempresa ).select_related('idconcepto').values_list('idconcepto__nombreconcepto','idconcepto__codigo').distinct().order_by('idconcepto__codigo') ]
         self.fields['payroll'].choices = [('', '----------')] + [(idnomina, nombrenomina) for nombrenomina, idnomina in Nomina.objects.filter(idnomina__id_empresa = idempresa ).select_related('idnomina').values_list('idnomina__nombrenomina', 'idnomina').distinct().order_by('-idnomina')]
         
         

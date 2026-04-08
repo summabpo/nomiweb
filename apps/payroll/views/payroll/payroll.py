@@ -264,7 +264,7 @@ def payrollview(request, id):
             n.strip() for n in nombres
             if n and n.strip().lower() != "no data"
         ])
-
+        
         empleados.append({
             'documento': doc,
             'nombre_completo': full_name,

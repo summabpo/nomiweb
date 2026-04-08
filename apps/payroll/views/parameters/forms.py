@@ -277,7 +277,7 @@ class PayrollConceptsForm(forms.Form):
     )
     multiplicadorconcepto = forms.DecimalField(
         label='Multiplicador',
-        max_digits=4,
+        max_digits=7,
         decimal_places=2,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el multiplicador'})
     )
@@ -415,11 +415,12 @@ class PayrollConceptsForm2(forms.Form):
     )
     multiplicadorconcepto = forms.DecimalField(
         label='Multiplicador',
-        max_digits=4,
+        max_digits=7,
         decimal_places=2,
         required=False ,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el multiplicador'})
     )
+
     
     tipoconcepto = forms.ChoiceField(
         label='Tipo de Concepto',
