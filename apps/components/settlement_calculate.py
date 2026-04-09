@@ -69,14 +69,38 @@ def settlement_calculate_data(contract_id , end_date , reason):
 
     # Conceptos
     extras_y_comisiones_qs = Conceptosdenomina.objects.filter(Q(indicador__nombre='extras') | Q(indicador__nombre='comisiones') ,id_empresa = contrato.id_empresa)
-    suspensiones_qs = Conceptosdenomina.objects.filter( indicador__nombre = 'suspcontrato',id_empresa = contrato.id_empresa)
+    suspensiones_qs = Conceptosdenomina.objects.filter(
+        indicador__nombre='suspcontrato',
+        id_empresa=contrato.id_empresa,
+    )
     recargos_qs = Conceptosdenomina.objects.filter(indicador__nombre = 'basevacaciones',id_empresa = contrato.id_empresa)
     
     # Acumulados
 
     acum_cesantias = acumular_por_mes(Nomina,extras_y_comisiones_qs,contrato.idcontrato,fecha_cesantias.year,fecha_cesantias.month,fecha_fin.year,fecha_fin.month)
     acum_prima = acumular_por_mes(Nomina,extras_y_comisiones_qs,contrato.idcontrato,fecha_prima.year,fecha_prima.month,fecha_fin.year,fecha_fin.month)
-    acum_susp = acumular_por_mes(Nomina,suspensiones_qs,contrato.idcontrato,fecha_cesantias.year,fecha_cesantias.month,fecha_fin.year,fecha_fin.month,campo="cantidad")
+    # Suspensiones: desde 1 enero del año de retiro o desde ingreso si es posterior (misma ventana que días cesantías).
+    acum_susp_ces_periodo = acumular_por_mes(
+        Nomina,
+        suspensiones_qs,
+        contrato.idcontrato,
+        fecha_cesantias.year,
+        fecha_cesantias.month,
+        fecha_fin.year,
+        fecha_fin.month,
+        campo="cantidad",
+    )
+    # Suspensiones para vacaciones: todo el contrato hasta la fecha de terminación.
+    acum_susp_contrato = acumular_por_mes(
+        Nomina,
+        suspensiones_qs,
+        contrato.idcontrato,
+        fecha_inicio.year,
+        fecha_inicio.month,
+        fecha_fin.year,
+        fecha_fin.month,
+        campo="cantidad",
+    )
     acum_recargos = acumular_por_mes(Nomina,recargos_qs,contrato.idcontrato,fecha_cesantias.year,fecha_cesantias.month,fecha_fin.year,fecha_fin.month)
     
     #acum_susp = acum_prima = acum_cesantias = 0 
@@ -84,7 +108,7 @@ def settlement_calculate_data(contract_id , end_date , reason):
 
 
     # Días efectivos
-    dias_efectivos_cesantias = dias_cesantias - acum_susp
+    dias_efectivos_cesantias = dias_cesantias - acum_susp_ces_periodo
     dias_efectivos_prima = dias_prima
 
     # Bases
@@ -92,17 +116,10 @@ def settlement_calculate_data(contract_id , end_date , reason):
     base_prima = calcular_base_promedio(acum_prima, dias_efectivos_prima, salario, aux_transporte)
     base_vacaciones = calcular_base_vacaciones(acum_recargos, dias_trabajados, salario)
 
-    # Vacaciones
-    dias_susp_ces = Nomina.objects.filter(
-        idcontrato=contrato.idcontrato,
-        estadonomina=2,
-        idconcepto__id_empresa = contrato.id_empresa ,
-        idconcepto__indicador__nombre='suspcontrato'
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
+    # Vacaciones — días de suspensión mostrados para cesantías = acumulado del periodo de cesantías
+    dias_susp_ces = float(acum_susp_ces_periodo or 0)
 
-
-    # Supongamos que tienes un objeto contrato
-    resultado = depurar_suspension_contrato(contrato)
+    resultado = depurar_suspension_contrato(contrato, suspensiones_qs)
 
     # Imprimir total de días de suspensión
     #print("Total días de suspensión:", resultado["total_dias_susp"])
@@ -115,9 +132,9 @@ def settlement_calculate_data(contract_id , end_date , reason):
     dias_vac = depurar_vacaciones(contrato)
     dias_trabajados = float(dias_trabajados or 0)
     dias_vac = float(dias_vac or 0)
-    acum_susp = float(acum_susp or 0)
+    acum_susp_contrato_f = float(acum_susp_contrato or 0)
 
-    dias_vac_generados = (dias_trabajados - dias_vac - acum_susp) * (15 / 360)
+    dias_vac_generados = (dias_trabajados - dias_vac - acum_susp_contrato_f) * (15 / 360)
     
     dias_vac_tomados = Vacaciones.objects.filter(idcontrato=contrato.idcontrato).aggregate(total=Sum('diasvac'))['total'] or 0
     dias_vacaciones = round(dias_vac_generados - (dias_vac_tomados or 0) , 2)
@@ -150,22 +167,29 @@ def settlement_calculate_data(contract_id , end_date , reason):
         'total_liquidacion': safe_value(total_liquidacion),
         'inicio_contrato': fecha_inicio or "", 
         'fin_contrato': fecha_fin or "",
-        'dias_susp_vac':dias_vac,
-        'dias_susp_ces':dias_susp_ces,
+        # Días susp. vacaciones = suma nómina suspcontrato en todo el contrato hasta retiro
+        # (misma magnitud que descuenta en el cálculo de días de vacaciones).
+        'dias_susp_vac': safe_value(acum_susp_contrato_f),
+        'dias_susp_ces': dias_susp_ces,
     }
 
     return data 
 
-def depurar_suspension_contrato(contrato):
+def depurar_suspension_contrato(contrato, suspensiones_qs=None):
     """
-    Depura los registros de suspensión de contrato (suspcontrato) de un contrato.
+    Depura los registros de suspensión de contrato (familia indicador suspcontrato) de un contrato.
     Retorna total de días y detalle de cada nómina involucrada.
     """
+    if suspensiones_qs is None:
+        suspensiones_qs = Conceptosdenomina.objects.filter(
+            indicador__nombre='suspcontrato',
+            id_empresa=contrato.id_empresa,
+        )
     registros = Nomina.objects.filter(
         idcontrato=contrato.idcontrato,
         estadonomina=2,
         idconcepto__id_empresa=contrato.id_empresa,
-        idconcepto__indicador__nombre='suspcontrato'
+        idconcepto__in=suspensiones_qs,
     )
 
     resultados = []

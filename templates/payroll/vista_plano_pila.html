@@ -34,6 +34,10 @@
                class="btn btn-sm btn-success">
                 <i class="fa-solid fa-file-excel me-1"></i> Descargar Excel
             </a>
+            <a href="{% url 'payroll:pila_descargar_json' planilla_id %}"
+               class="btn btn-sm btn-info">
+                <i class="fa-solid fa-file-code me-1"></i> Descargar JSON
+            </a>
             <a href="{% url 'payroll:pila_liquidacion' %}" class="btn btn-sm btn-light-secondary">
                 <i class="fa-solid fa-arrow-left me-1"></i> Volver
             </a>
@@ -62,6 +66,12 @@
                         <th>Número doc</th>
                         <th>Apellidos</th>
                         <th>Nombres</th>
+                        <th>ING</th>
+                        <th>RET</th>
+                        <th>F.Ingreso</th>
+                        <th>F.Retiro</th>
+                        <th>VSP</th>
+                        <th>VST</th>
                         <th>Días Pen</th>
                         <th>Días Sal</th>
                         <th>Días ARL</th>
@@ -86,6 +96,12 @@
                         <td>{{ f.numero_doc }}</td>
                         <td>{{ f.primer_apellido|default:"" }} {{ f.segundo_apellido|default:"" }}</td>
                         <td>{{ f.primer_nombre|default:"" }} {{ f.segundo_nombre|default:"" }}</td>
+                        <td>{% if f.marca_ing %}✕{% else %}—{% endif %}</td>
+                        <td>{% if f.marca_ret %}✕{% else %}—{% endif %}</td>
+                        <td>{{ f.fecha_ingreso|default:"" }}</td>
+                        <td>{{ f.fecha_retiro|default:"" }}</td>
+                        <td>{% if f.marca_vsp %}✕{% else %}—{% endif %}</td>
+                        <td>{% if f.marca_vst %}✕{% else %}—{% endif %}</td>
                         <td>{{ f.dias_pension }}</td>
                         <td>{{ f.dias_salud }}</td>
                         <td>{{ f.dias_arl }}</td>
@@ -105,7 +121,7 @@
                         <td>{{ f.cod_ccf }}</td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="19" class="text-center">Sin datos</td></tr>
+                    <tr><td colspan="25" class="text-center">Sin datos</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

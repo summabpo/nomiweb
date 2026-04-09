@@ -1,11 +1,13 @@
 from .base import *
 from boto3.session import Session
 
+import logging
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY =  os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 SETTINGS_ENV = 'production'
@@ -13,7 +15,7 @@ SETTINGS_ENV = 'production'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nomiweb_payroll',
+        'NAME': os.getenv('DB_NAME_DEV', 'nomiweb_payroll'),
         'USER':  os.getenv('DB_USER_PROD'),
         'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
         'HOST':  os.getenv('DB_HOST_PROD'),
@@ -29,7 +31,7 @@ STATICFILES_DIRS = [
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-HOSTNAME = "https://payroll.nomiweb.co/"
+HOSTNAME = os.getenv('HOSTNAME', 'https://payroll.nomiweb.co/')
 
 
 CSRF_COOKIE_HTTPONLY = True
@@ -46,6 +48,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://nomiweb.com.co',
     'https://payroll.nomiweb.co',
     'http://payroll.nomiweb.co',
+    'https://jes.nomiweb.com.co',
+    'http://jes.nomiweb.com.co',
 ]
 
 
@@ -75,3 +79,23 @@ MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 # Configuración de caché
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_FILE_OVERWRITE = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+    },
+}

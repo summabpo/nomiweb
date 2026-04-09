@@ -407,7 +407,7 @@ def settlementlistedit(request, id):
             liquidacion.motivoretiro = reason
             liquidacion.estadoliquidacion = '1'
             liquidacion.diassusp = data.get('dias_susp_vac')
-            liquidacion.diassuspv = data.get('dias_susp_vac')
+            liquidacion.diassuspv = data.get('dias_susp_ces')
 
             liquidacion.save()
 

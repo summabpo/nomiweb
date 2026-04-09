@@ -11,6 +11,7 @@ from apps.pila.services.payload_builder import build_payload_pila_minimo
 from apps.pila.services.pila_cliente import (
     crear_planilla,
     descargar_archivo,
+    descargar_payload_json,
     PilaServiceError,
 )
 from apps.pila.utils.parse_plano_txt import parse_plano_txt
@@ -176,6 +177,29 @@ def vista_plano_pila(request: HttpRequest, planilla_id: int):
 
 @login_required
 @role_required("accountant")
+def descargar_pila_json(request: HttpRequest, planilla_id: int) -> HttpResponse:
+    """
+    Descarga el payload JSON generado en la liquidación de esta planilla PILA.
+    """
+    try:
+        contenido = descargar_payload_json(planilla_id)
+    except PilaServiceError as e:
+        messages.error(request, f"Error al obtener JSON PILA: {e}")
+        return redirect("payroll:pila_liquidacion")
+    except Exception as e:
+        messages.error(request, f"Error inesperado: {e}")
+        return redirect("payroll:pila_liquidacion")
+
+    response = HttpResponse(
+        contenido,
+        content_type="application/json; charset=utf-8",
+    )
+    response["Content-Disposition"] = 'attachment; filename="PILA_payload.json"'
+    return response
+
+
+@login_required
+@role_required("accountant")
 def descargar_pila_excel(request: HttpRequest, planilla_id: int) -> HttpResponse:
     """
     Descarga el contenido del plano TXT PILA en formato Excel (.xlsx).
@@ -219,9 +243,10 @@ def descargar_pila_excel(request: HttpRequest, planilla_id: int) -> HttpResponse
     headers_02 = [
         "num_linea", "tipo", "secuencia", "tipo_doc", "numero_doc",
         "primer_apellido", "segundo_apellido", "primer_nombre", "segundo_nombre",
+        "marca_ing", "marca_ret", "fecha_ingreso", "fecha_retiro", "marca_vsp", "marca_vst",
         "dias_pension", "dias_salud", "dias_arl", "dias_caja",
         "salario_basico", "ibc_pension", "ibc_salud", "ibc_arl", "ibc_caja",
-        "marca_ing", "marca_ret", "marca_sln", "marca_ige", "marca_lma", "marca_vac_lr",
+        "marca_sln", "marca_ige", "marca_lma", "marca_vac_lr",
         "cod_afp", "cod_eps", "cod_ccf",
     ]
     if filas_01:

@@ -559,207 +559,51 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
     
     sal_min = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).salariominimo
     aux_tra = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).auxtransporte
-    
-    # --- opcional: normalizar a date si hubiera datetimes ---
-    def _to_date(d):
-        if d is None:
-            return None
-        if isinstance(d, datetime):
-            return d.date()
-        return d
 
-    nombre_original = nomina.nombrenomina or ""
+    diasnomina, transporte = liquidar_auxilio_transporte_contrato(
+        contrato, nomina, idempresa, idnomina, sal_min, aux_tra
+    )
 
-    
-    #passs = nomina.
-    existe = Nomina.objects.filter(
-        idnomina__mesacumular=nomina.mesacumular,
-        idnomina__id_empresa=nomina.id_empresa,
+    concepto = Conceptosdenomina.objects.get(codigo= 2 , id_empresa_id = idempresa)
+
+    if contrato.tipocontrato.idtipocontrato in [5, 6]:
+        return True
+
+    aux_pass = Nomina.objects.filter(
+        idconcepto=concepto,
         idcontrato=contrato,
-        idconcepto__codigo=2
-    ).exists()
+        estadonomina = 1,
+        idnomina_id=idnomina
+    ).first()
 
-    # Solo entra si NO existe el concepto en esa nómina
-    if not existe and '#2' in nombre_original:
-        
-        nuevo_nombre = nombre_original.replace('#2', '#1')
-
-        nomina2 = Crearnomina.objects.filter(nombrenomina = nuevo_nombre).first()
-        diasnomina2 = nomina2.diasnomina
-        
-        inicio_nomina2 = _to_date(nomina2.fechainicial)
-        fin_nomina2 = _to_date(nomina2.fechafinal)
-        inicio_contrato2 = _to_date(contrato.fechainiciocontrato)
-        fin_contrato2 = _to_date(contrato.fechafincontrato) or fin_nomina2
-        
-        inicio_periodo2 = max(inicio_nomina2, inicio_contrato2)
-        fin_periodo2 = min(fin_nomina2, fin_contrato2)
-        
-        
-        if fin_periodo2 < inicio_periodo2:
-            diasnomina2 = 0
+    if diasnomina > 0 and transporte > 0:
+        if aux_pass:
+            if not EditHistory.objects.filter(
+                id_empresa_id=idempresa,
+                modified_object_id=aux_pass.idregistronom,
+                modified_model='Nomina',
+            ).exists():
+                aux_pass.cantidad = diasnomina
+                aux_pass.valor = transporte
+                aux_pass.save()
         else:
-            diasnomina2 = (fin_periodo2 - inicio_periodo2).days + 1 
+            Nomina.objects.create(
+                idconcepto = concepto ,
+                cantidad=diasnomina ,
+                valor=transporte ,
+                estadonomina = 1,
+                idcontrato_id=contrato.idcontrato ,
+                idnomina_id = idnomina ,
+            )
+    elif aux_pass and not EditHistory.objects.filter(
+        id_empresa_id=idempresa,
+        modified_object_id=aux_pass.idregistronom,
+        modified_model='Nomina',
+    ).exists():
+        aux_pass.cantidad = 0
+        aux_pass.valor = Decimal('0')
+        aux_pass.save()
 
-            if diasnomina2 > nomina2.diasnomina :
-                diasnomina2 = nomina2.diasnomina
-
-        dias_vacaciones = calcular_vacaciones(contrato,nomina2)
-        dias_incapacidad = calculo_incapacidad(contrato,nomina2)
-        dias_suspensiones = calcular_suspenciones(contrato,nomina2)
-        
-        diasnomina2 -= dias_vacaciones 
-        diasnomina2 -= dias_incapacidad 
-        diasnomina2 -= dias_suspensiones 
-
-    else :
-        diasnomina2 = 0
-
-    
-    
-    
-    
-    inicio_nomina = _to_date(nomina.fechainicial)
-    fin_nomina = _to_date(nomina.fechafinal)
-    inicio_contrato = _to_date(contrato.fechainiciocontrato)
-    fin_contrato = _to_date(contrato.fechafincontrato) or fin_nomina
-
-    # --- calcular intersección del intervalo [inicio_nomina, fin_nomina] con [inicio_contrato, fin_contrato]
-    diasnomina1 = nomina.diasnomina
-    inicio_periodo = max(inicio_nomina, inicio_contrato)
-    fin_periodo = min(fin_nomina, fin_contrato)
-    
-    
-    if fin_periodo < inicio_periodo:
-        diasnomina1 = 0
-    else:
-        
-        if nomina.tiponomina.idtiponomina == 1 :
-            dias_base = (fin_periodo - inicio_periodo).days
-            mes = fin_periodo.month
-            ano = fin_periodo.year
-            
-            if mes == 12:
-                dias_en_mes = 31
-            else:
-                dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
-
-            if dias_en_mes == 31:
-                diasnomina1 = dias_base + 2
-            else:
-                diasnomina1 = dias_base + 1
-                
-        elif nomina.tiponomina.idtiponomina == 2 :
-            nombre_original = nomina.nombrenomina or ""
-            if '#2' in nombre_original:
-                mes = fin_periodo.month
-                ano = fin_periodo.year
-                
-                if mes == 12:
-                    dias_en_mes = 31
-                else:
-                    dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
-
-                if dias_en_mes == 31:
-                    diasnomina1 = (fin_periodo - inicio_periodo).days 
-                else:
-                    diasnomina1 = (fin_periodo - inicio_periodo).days  + 1 
-            else : 
-                diasnomina1 = (fin_periodo - inicio_periodo).days + 1 
-
-    
-    
-    diasnomina =  diasnomina1 + diasnomina2
-    
-    mes = fin_periodo.month
-    
-    if mes == 2 : 
-        if nomina.tiponomina.idtiponomina == 2 : 
-            diasnomina = 15 
-        elif nomina.tiponomina.idtiponomina == 1 : 
-            diasnomina = 30 
-        else:
-            diasnomina = diasnomina
-    
-    # --- tope de 30 días (y si quieres, también tope por nomina.diasnomina) ---
-    if diasnomina > 30:
-        diasnomina = 30
-
-    dias_vacaciones = calcular_vacaciones(contrato,nomina)
-    dias_incapacidad = calculo_incapacidad(contrato,nomina)
-    dias_suspensiones = calcular_suspenciones(contrato,nomina)
-    
-    
-    diasnomina -= dias_vacaciones 
-    diasnomina -= dias_incapacidad 
-    diasnomina -= dias_suspensiones 
-    
-
-    if contrato.auxiliotransporte :
-        transporte = 0
-        diasnomina = 0
-            
-    if contrato.salario <= (sal_min * 2):
-        # Obtener la suma de las deducciones de la eps 
-        total_base_trans = Nomina.objects.filter(
-            idcontrato=contrato,
-            idnomina_id=idnomina,
-            estadonomina = 1 ,
-            idconcepto__indicador__nombre='basetransporte'  
-        ).exclude(
-            idconcepto__codigo=2
-        ).distinct().aggregate(total=Sum('valor'))['total'] or 0# Reemplaza 'monto' con el nombre correcto de la columna
-        
-                    
-        if total_base_trans < (sal_min * 2):
-            transporte = (
-                    Decimal(diasnomina) *
-                    (Decimal(aux_tra) / Decimal('30'))
-                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-        else:
-            transporte = 0
-            diasnomina = 0
-    
-        concepto = Conceptosdenomina.objects.get(codigo= 2 , id_empresa_id = idempresa)
-        
-        
-        if contrato.tipocontrato.idtipocontrato not in [5, 6]:
-            
-            if diasnomina > 0 and transporte > 0 :
-                
-                if diasnomina > 30:
-                    diasnomina = 30
-                
-                aux_pass = Nomina.objects.filter(
-                    idconcepto=concepto,
-                    idcontrato=contrato,
-                    estadonomina = 1,
-                    idnomina_id=idnomina
-                    
-                ).first()
-                
-                
-                
-                if aux_pass:
-                    if not EditHistory.objects.filter(
-                        id_empresa_id=idempresa,
-                        modified_object_id=aux_pass.idregistronom,
-                        modified_model='Nomina',
-                    ).exists():
-                        aux_pass.cantidad = diasnomina
-                        aux_pass.valor = transporte
-                        aux_pass.save()                  
-                else:
-                    
-                    
-                    Nomina.objects.create(
-                        idconcepto = concepto ,#*
-                        cantidad=diasnomina ,#*
-                        valor=transporte , #*
-                        estadonomina = 1,
-                        idcontrato_id=contrato.idcontrato ,
-                        idnomina_id = idnomina ,
-                    )  
     return True
         
 

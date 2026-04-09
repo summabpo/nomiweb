@@ -1,9 +1,9 @@
 # nomiweb/apps/pila/tests/test_payload_builder.py
 
 import json
-from decimal import Decimal
-from django.test import TestCase
-from apps.pila.services.payload_builder import build_payload_pila_minimo
+from decimal import Decimal, ROUND_HALF_UP
+from django.test import TestCase, SimpleTestCase
+from apps.pila.services.payload_builder import build_payload_pila_minimo, _generar_registros_empleado
 
 
 class PayloadPILATestCase(TestCase):
@@ -19,7 +19,7 @@ class PayloadPILATestCase(TestCase):
     
     # Configurar aquí los datos de prueba
     EMPRESA_ID_TEST = 1  # Cambiar por un ID válido en tu BD
-    PERIODO_TEST = "2025-12"  # Cambiar por un periodo válido
+    PERIODO_TEST = "2026-02"  # Cambiar por un periodo válido
     
     def setUp(self):
         """Se ejecuta antes de cada test"""
@@ -304,3 +304,148 @@ class PayloadPILATestCase(TestCase):
             print(f"  • Novedades: {len(emp['novedades'])}")
         
         print("\n" + "="*60 + "\n")
+
+
+class IncapacidadIBCUnitTestCase(SimpleTestCase):
+    def test_ige_aplica_2_3_y_piso_smmlv_proporcional(self):
+        dias_incap = 10
+        factor_incapacidad = Decimal("2") / Decimal("3")  # empresa.ige100=NO
+
+        ibc_base_mes_anterior = Decimal("3000000")  # indicador 6
+        smmlv = Decimal("1200000")
+        factor_dias = Decimal(dias_incap) / Decimal(30)
+
+        ibc_calc = ibc_base_mes_anterior * factor_incapacidad * factor_dias
+        smmlv_prop = smmlv * factor_dias
+        ibc_final = ibc_calc if ibc_calc >= smmlv_prop else smmlv_prop
+        expected = int(ibc_final.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+        registros = _generar_registros_empleado(
+            dias_base=30,
+            novedades_vac=[],
+            novedades_incap=[{"codigo": "IGE", "dias": dias_incap}],
+            novedad_vsp=None,
+            novedades_ing_ret=[],
+            ibc_actual={"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")},
+            ibc_anterior={"salud_pension": ibc_base_mes_anterior, "arl": Decimal("0"), "caja": Decimal("0")},
+            vst=Decimal("0"),
+            salario_contrato=0,
+            fecha_periodo=None,
+            factor_incapacidad=factor_incapacidad,
+            smmlv=smmlv,
+        )
+
+        self.assertGreaterEqual(len(registros), 1)
+        linea_incap = registros[0]
+        self.assertEqual(linea_incap["tipo_linea"], "IGE")
+        self.assertEqual(linea_incap["dias"]["arl"], 0)
+        self.assertEqual(int(linea_incap["ibc"]["salud"]), expected)
+        # En la línea, el IBC debe ser consistente entre subsistemas.
+        self.assertEqual(int(linea_incap["ibc"]["arl"]), expected)
+
+    def test_irl_no_aplica_2_3(self):
+        dias_incap = 10
+        factor_incapacidad = Decimal("2") / Decimal("3")  # aunque sea NO, IRL paga 100%
+
+        ibc_base_mes_anterior = Decimal("3000000")
+        smmlv = Decimal("1000000")
+        factor_dias = Decimal(dias_incap) / Decimal(30)
+
+        ibc_calc = ibc_base_mes_anterior * Decimal("1") * factor_dias  # IRL al 100%
+        smmlv_prop = smmlv * factor_dias
+        ibc_final = ibc_calc if ibc_calc >= smmlv_prop else smmlv_prop
+        expected = int(ibc_final.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+        registros = _generar_registros_empleado(
+            dias_base=30,
+            novedades_vac=[],
+            novedades_incap=[{"codigo": "IRL", "dias": dias_incap}],
+            novedad_vsp=None,
+            novedades_ing_ret=[],
+            ibc_actual={"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")},
+            ibc_anterior={"salud_pension": ibc_base_mes_anterior, "arl": Decimal("0"), "caja": Decimal("0")},
+            vst=Decimal("0"),
+            salario_contrato=0,
+            fecha_periodo=None,
+            factor_incapacidad=factor_incapacidad,
+            smmlv=smmlv,
+        )
+
+        linea_incap = registros[0]
+        self.assertEqual(linea_incap["tipo_linea"], "IRL")
+        self.assertEqual(linea_incap["dias"]["arl"], 0)
+        self.assertEqual(int(linea_incap["ibc"]["salud"]), expected)
+        self.assertEqual(int(linea_incap["ibc"]["arl"]), expected)
+
+    def test_ige_aplica_piso_cuando_2_3_trae_por_debajo(self):
+        dias_incap = 10
+        factor_incapacidad = Decimal("2") / Decimal("3")  # empresa.ige100=NO
+
+        ibc_base_mes_anterior = Decimal("1000000")
+        smmlv = Decimal("900000")
+        factor_dias = Decimal(dias_incap) / Decimal(30)
+
+        ibc_calc = ibc_base_mes_anterior * factor_incapacidad * factor_dias
+        smmlv_prop = smmlv * factor_dias
+        self.assertLess(ibc_calc, smmlv_prop)  # asegurar que cae al piso
+
+        expected = int(smmlv_prop.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+        registros = _generar_registros_empleado(
+            dias_base=30,
+            novedades_vac=[],
+            novedades_incap=[{"codigo": "IGE", "dias": dias_incap}],
+            novedad_vsp=None,
+            novedades_ing_ret=[],
+            ibc_actual={"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")},
+            ibc_anterior={"salud_pension": ibc_base_mes_anterior, "arl": Decimal("0"), "caja": Decimal("0")},
+            vst=Decimal("0"),
+            salario_contrato=0,
+            fecha_periodo=None,
+            factor_incapacidad=factor_incapacidad,
+            smmlv=smmlv,
+        )
+
+        linea_incap = registros[0]
+        self.assertEqual(linea_incap["tipo_linea"], "IGE")
+        self.assertEqual(linea_incap["dias"]["arl"], 0)
+        self.assertEqual(int(linea_incap["ibc"]["salud"]), expected)
+        self.assertEqual(int(linea_incap["ibc"]["arl"]), expected)
+
+    def test_lma_paga_100_y_aplica_piso_proporcional(self):
+        dias_incap = 10
+        factor_incapacidad = Decimal("2") / Decimal("3")  # empresa.ige100=NO, pero LMA paga 100%
+
+        ibc_base_mes_anterior = Decimal("500000")  # indicador 6 (suficiente para caer al piso con 2/3, pero aquí se aplica 100%)
+        smmlv = Decimal("900000")
+        factor_dias = Decimal(dias_incap) / Decimal(30)
+
+        ibc_calc = ibc_base_mes_anterior * Decimal("1") * factor_dias  # LMA al 100%
+        smmlv_prop = smmlv * factor_dias
+        ibc_final = ibc_calc if ibc_calc >= smmlv_prop else smmlv_prop
+        expected = int(ibc_final.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+        registros = _generar_registros_empleado(
+            dias_base=30,
+            novedades_vac=[],
+            novedades_incap=[{"codigo": "LMA", "dias": dias_incap}],
+            novedad_vsp=None,
+            novedades_ing_ret=[],
+            ibc_actual={"salud_pension": Decimal("0"), "arl": Decimal("0"), "caja": Decimal("0")},
+            ibc_anterior={
+                "salud_pension": ibc_base_mes_anterior,
+                "arl": Decimal("0"),
+                "caja": Decimal("0"),
+            },
+            vst=Decimal("0"),
+            salario_contrato=0,
+            fecha_periodo=None,
+            factor_incapacidad=factor_incapacidad,
+            smmlv=smmlv,
+        )
+
+        linea_incap = registros[0]
+        self.assertEqual(linea_incap["tipo_linea"], "LMA")
+        self.assertEqual(linea_incap["dias"]["arl"], 0)
+        self.assertEqual(int(linea_incap["ibc"]["salud"]), expected)
+        self.assertEqual(int(linea_incap["ibc"]["arl"]), expected)

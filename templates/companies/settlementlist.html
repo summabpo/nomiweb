@@ -228,7 +228,9 @@
 
 {% block js %}
 
-
+<script>
+{% include 'payroll/partials/settlement_recalc_js.html' %}
+</script>
 
 <script>
   // 👇 Controlar la visibilidad del selector según el checkbox
@@ -328,6 +330,10 @@
                         $(select).select2(options);
                     }
                 });
+
+                if (window.NomiwebSettlementRecalc) {
+                    window.NomiwebSettlementRecalc.bind(modalContent);
+                }
             }, 300); // Aumentamos un poco el tiempo para mayor seguridad
         }
         else 

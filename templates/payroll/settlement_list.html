@@ -14,9 +14,6 @@
     {% endif %}
 {% endblock %}
 
-{% load static %}
-
-
 {% block title %}
     Nomiweb.co - Aplicacion Contable - Prestaciones - Liquidacion Empleados
 {% endblock %}
@@ -259,6 +256,9 @@ Liquidacion Empleados
 
 {% block js %}
 
+<script>
+{% include 'payroll/partials/settlement_recalc_js.html' %}
+</script>
 
 <script>
   // 👇 Controlar la visibilidad del selector según el checkbox
@@ -362,6 +362,10 @@ document.addEventListener('up:fragment:inserted', function(event) {
 
         if (fechaInput) {
 
+            if ($(fechaInput).data('daterangepicker')) {
+                $(fechaInput).data('daterangepicker').remove();
+            }
+
             let startDate = moment();
 
             if (fechaInput.value) {
@@ -391,12 +395,14 @@ document.addEventListener('up:fragment:inserted', function(event) {
 
                 const value = picker.startDate.format('YYYY-MM-DD');
                 $(this).val(value);
+                fechaInput.dispatchEvent(new Event('input', { bubbles: true }));
 
                 triggerCalculation();
 
             });
 
             fechaInput.addEventListener('change', triggerCalculation);
+            fechaInput.addEventListener('input', triggerCalculation);
 
             setTimeout(() => {
                 $('.daterangepicker').css('z-index', 9999);
@@ -461,65 +467,9 @@ document.addEventListener('up:fragment:inserted', function(event) {
             link.href = finalUrl;
         }
 
-        // ===============================
-        // 🔥 CALCULO FRONTEND EN TIEMPO REAL
-        // ===============================
-
-        function getNumber(id) {
-            const el = modalContent.querySelector(`#${id}`);
-            if (!el) return 0;
-            return parseFloat(el.value) || 0;
+        if (window.NomiwebSettlementRecalc) {
+            window.NomiwebSettlementRecalc.bind(modalContent);
         }
-
-        function setMoney(id, value) {
-            const el = modalContent.querySelector(`#${id}`);
-            if (el) el.value = Math.round(value);
-        }
-
-        function recalculateTotals() {
-
-            const diasCes = getNumber('dias_cesantias');
-            const diasPri = getNumber('dias_primas');
-            const diasVac = getNumber('dias_vacaciones');
-
-            const baseCes = getNumber('base_cesantias');
-            const basePri = getNumber('base_primas');
-            const baseVac = getNumber('base_vacaciones');
-
-            const cesantias = (baseCes * diasCes) / 360;
-            const intereses = cesantias * 0.12 * (diasCes / 360);
-            const prima = (basePri * diasPri) / 360;
-            const vacaciones = (baseVac * diasVac) / 720;
-
-            setMoney('valor_cesantias', cesantias);
-            setMoney('valor_intereses', intereses);
-            setMoney('valor_prima', prima);
-            setMoney('valor_vacaciones', vacaciones);
-
-            const indemnizacion = getNumber('valor_indemnizacion');
-
-            const total = cesantias + intereses + prima + vacaciones + indemnizacion;
-
-            setMoney('total_liquidacion', total);
-        }
-
-        // === Escuchar cambios en inputs editables ===
-        const editableFields = [
-            'dias_cesantias',
-            'dias_primas',
-            'dias_vacaciones',
-            'base_cesantias',
-            'base_primas',
-            'base_vacaciones'
-        ];
-
-        editableFields.forEach(id => {
-            const el = modalContent.querySelector(`#${id}`);
-            if (el) {
-                el.addEventListener('input', recalculateTotals);
-            }
-        });
-
 
         // ===============================
         // 🔥 POST PRINCIPAL
@@ -529,7 +479,13 @@ document.addEventListener('up:fragment:inserted', function(event) {
 
             const contractVal = readVal(contract);
             const reasonVal = readVal(reason);
-            const endDateVal = readVal(end_date) || (fechaInput ? $(fechaInput).val() : '');
+            let endDateVal = '';
+            if (fechaInput && $(fechaInput).val()) {
+                endDateVal = String($(fechaInput).val()).trim();
+            }
+            if (!endDateVal && end_date) {
+                endDateVal = readVal(end_date);
+            }
 
             // actualizar botón acumulados
             updateAccruedLink(contractVal, endDateVal);
@@ -607,6 +563,10 @@ document.addEventListener('up:fragment:inserted', function(event) {
                     setValue('valor_indemnizacion', payload.indemnizacion);
                     setValue('valor_prima', payload.prima);
                     setValue('total_liquidacion', payload.total_liquidacion);
+
+                    if (window.NomiwebSettlementRecalc && window.NomiwebSettlementRecalc.snapBaselines) {
+                        window.NomiwebSettlementRecalc.snapBaselines(modalContent);
+                    }
 
                     resultsBox.style.display = 'block';
                     buttonBox.style.display = 'block';
