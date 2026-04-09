@@ -505,8 +505,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
         
-    if empleados: 
-        contratos = contratos.filter(idcontrato__in = empleados)
+
         
         
     nomina = Crearnomina.objects.get(idnomina=idn)
@@ -521,6 +520,9 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
     
+    if empleados: 
+        contratos = contratos.filter(idcontrato__in = empleados)
+    
     incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato__estadoliquidacion=3 )
     
     
@@ -529,6 +531,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
         incapacidades = incapacidades.filter(idcontrato__idcosto = parte_nomina)
     
     for incapacidad in incapacidades:
+        #salario_minimo = Salariominimoanual.objects.get( ano = incapacidad.fechainicial.year ).salariominimo
         dias_incapacidad = 0 
         dias_asumidos = 0
         ini = incapacidad.fechainicial

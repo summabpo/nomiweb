@@ -384,7 +384,7 @@ def calcular_periodos_vacaciones(idcontrato, idempresa, dias_vacaciones_actuales
 
 
 def disabilities_ibc(contract, date):
-    ibc = 0
+    ibc = contract.salario
 
     date_obj = datetime.strptime(date, "%Y-%m-%d")
     mes_num = date_obj.month
@@ -420,7 +420,8 @@ def disabilities_ibc(contract, date):
         else:
             suma += data.valor
 
-    ibc = suma
+    if suma > 0:
+        ibc = suma
     return ibc
 
 @login_required
