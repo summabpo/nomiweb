@@ -93,6 +93,8 @@ def settlement_list_payroll(request, id,url):
             return 0
 
     if request.method == 'POST':
+        liquidacion = get_object_or_404(Liquidacion, idliquidacion=id)
+        fecha_liquidacion = liquidacion.fechafincontrato
         ahora = timezone.localtime(timezone.now())
         hoy = date.today()
         
@@ -104,13 +106,13 @@ def settlement_list_payroll(request, id,url):
         # 🔹 Caso 1: crear nueva nómina automática
         if nueva_nomina_flag:
             nomina_final = Crearnomina.objects.create(
-                nombrenomina=f"Nomina Aut. Liqui - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
-                fechainicial=hoy,
-                fechafinal=hoy,
-                fechapago=ahora.date(),
+                nombrenomina=f"Nomina Aut. Liqui - {fecha_liquidacion.strftime('%Y-%m-%d %H:%M:%S')}",
+                fechainicial=fecha_liquidacion,
+                fechafinal=fecha_liquidacion,
+                fechapago=fecha_liquidacion,
                 tiponomina=Tipodenomina.objects.get(tipodenomina='Liquidación'),
-                mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
-                anoacumular=Anos.objects.get(ano=ahora.year),
+                mesacumular= MES_CHOICES[fecha_liquidacion.month][0] if fecha_liquidacion.month else '',
+                anoacumular=Anos.objects.get(ano=fecha_liquidacion.year),
                 estadonomina=True,
                 diasnomina=1,
                 id_empresa_id=idempresa,
@@ -125,20 +127,20 @@ def settlement_list_payroll(request, id,url):
             # Validar: si no existe la nómina seleccionada → crear una nueva automática
             if not nomina_final:
                 nomina_final = Crearnomina.objects.create(
-                    nombrenomina=f"Nomina Aut. Liqui - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
-                    fechainicial=hoy,
-                    fechafinal=hoy,
-                    fechapago=ahora.date(),
+                    nombrenomina=f"Nomina Aut. Liqui - {fecha_liquidacion.strftime('%Y-%m-%d %H:%M:%S')}",
+                    fechainicial=fecha_liquidacion,
+                    fechafinal=fecha_liquidacion,
+                    fechapago=fecha_liquidacion,
                     tiponomina=Tipodenomina.objects.get(tipodenomina='Liquidación'),
-                    mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
-                    anoacumular=Anos.objects.get(ano=ahora.year),
+                    mesacumular= MES_CHOICES[fecha_liquidacion.month][0] if fecha_liquidacion.month else '',
+                    anoacumular=Anos.objects.get(ano=fecha_liquidacion.year),
                     estadonomina=True,
                     diasnomina=1,
                     id_empresa_id=idempresa,
                 )
 
         #nomina_creada = get_object_or_404(Crearnomina, idnomina=id_nomina)
-        liquidacion = get_object_or_404(Liquidacion, idliquidacion=id)
+        
 
         conceptos = {
             'prima': 23,

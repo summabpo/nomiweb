@@ -19,7 +19,7 @@ from django.db.models import F, Value, CharField
 from django.db.models.functions import Concat
 from apps.payroll.forms.TimeForm import TimeForm
 from urllib.parse import urlencode
-
+import os
 
 
 def aplicar_descanso(descanso_minutos, horas):
@@ -228,16 +228,7 @@ def time_list(request):
     value2 = False
     value3 = False
     tiempos = []
-    anio_actual = datetime.now().year
-    ano_obj = Anos.objects.get(ano =  anio_actual )
-
-
-
-    inicio_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO INICIO").valorfijo)
-    fin_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO FIN").valorfijo)
-
-    CO_HOLIDAYS = holidays.CO(years=ano_obj.ano)
-
+    
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
 
@@ -251,7 +242,6 @@ def time_list(request):
     accion2 = request.GET.get('accion2')
 
 
-    
 
     contratos_empleados = (
         Contratos.objects
@@ -843,6 +833,36 @@ def time_add(request):
         file = request.FILES['file']
         idnomina = request.POST.get('idnomina')
 
+        # =========================
+        # VALIDACIONES INICIALES
+        # =========================
+        # Extensión
+        ext = os.path.splitext(file.name)[1].lower()
+        if ext != '.csv':
+            errors.append("Solo se permiten archivos CSV.")
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        # =========================
+        # LECTURA SEGURA CSV
+        # =========================
+
+        try:
+            df = pd.read_csv(
+                file,
+                header=None,
+                sep=";",
+                encoding="utf-8",
+                dtype=str,
+                engine='python'
+            )
+        except Exception as e:
+            errors.append("Error al leer el archivo.")
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        # # MIME (básico)
+        # if file.content_type not in ['text/csv', 'application/vnd.ms-excel']:
+        #     logger.warning(f"Archivo con MIME sospechoso: {file.content_type}")
+
         if not idnomina:
             errors.append("Debe seleccionar una nómina.")
             return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
@@ -853,12 +873,6 @@ def time_add(request):
             errors.append("La nómina seleccionada no es válida o no está activa.")
             return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
 
-        try:
-            df = pd.read_csv(file, header=None,sep=";", encoding="utf-8")
-            df = df.dropna(axis=1, how='all')
-        except Exception as e:
-            errors.append(f"Error al leer el archivo: {str(e)}")
-            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
         df = df.dropna(how="all")
 
         try:
@@ -869,6 +883,10 @@ def time_add(request):
 
         validated_rows = []
 
+        # =========================
+        # VALIDACIÓN FILA A FILA
+        # =========================
+
         for idx, fila in df.iterrows():
             try:
                 contrato = fila[0]
@@ -878,8 +896,19 @@ def time_add(request):
                 hora_salida = fila[4]
                 horas_descuentos = fila[5]
 
+
+                EXPECTED_COLUMNS = 6
+
+                if df.shape[1] < EXPECTED_COLUMNS:
+                    errors.append("El archivo no tiene la estructura esperada.")
+                    return render(...)
+
                 if not contrato:
                     errors.append(f"Fila {idx+1}: El contrato es obligatorio.")
+                    continue
+
+                if not contrato.isdigit():
+                    errors.append(f"Fila {idx+1}: contrato inválido.")
                     continue
 
                 if not fecha_ingreso:
