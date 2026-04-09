@@ -280,8 +280,8 @@ def settlement_create(request):
                     'motivoretiro': reason,
                     'estadoliquidacion': '1',
 
-                    'diassusp': data.get('dias_susp_ces'),
-                    'diassuspv': data.get('dias_susp_vac'),
+                    'diassusp': data.get('dias_susp_vac'),
+                    'diassuspv': data.get('dias_susp_ces'),
 
                     'indemnizacion': data.get('valor_indemnizacion'),
                 }
