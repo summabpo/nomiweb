@@ -98,11 +98,14 @@ def settlement_calculate_data(contract_id , end_date , reason):
         })
         return data
 
-    # Solo conceptos de ingreso: no sumar líneas de deducción u otros tipos con el mismo indicador.
+    # Suspensión / licencia no remunerada: indicador suspcontrato.
+    # Ingreso (1): días informativos. Deducción (2): lo habitual en muchas nóminas. No aporte/otro.
+    # Si un mismo hecho tiene dos conceptos (ingreso + deducción) con el mismo indicador, podría duplicarse;
+    # en ese caso dejar solo uno en el catálogo o quitar el indicador duplicado.
     suspensiones_qs = Conceptosdenomina.objects.filter(
         indicador__nombre='suspcontrato',
         id_empresa=contrato.id_empresa,
-        tipoconcepto=TiposConcepto.INGRESO,
+        tipoconcepto__in=[TiposConcepto.INGRESO, TiposConcepto.DEDUCCION],
     )
     basecesantias_qs = Conceptosdenomina.objects.filter(
         indicador__nombre='basecesantias',
@@ -262,7 +265,7 @@ def depurar_suspension_contrato(contrato, suspensiones_qs=None):
         suspensiones_qs = Conceptosdenomina.objects.filter(
             indicador__nombre='suspcontrato',
             id_empresa=contrato.id_empresa,
-            tipoconcepto=TiposConcepto.INGRESO,
+            tipoconcepto__in=[TiposConcepto.INGRESO, TiposConcepto.DEDUCCION],
         )
     registros = Nomina.objects.filter(
         idcontrato=contrato.idcontrato,
