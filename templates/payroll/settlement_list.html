@@ -260,22 +260,37 @@ Liquidacion Empleados
 {% include 'payroll/partials/settlement_recalc_js.html' %}
 </script>
 
-<script>
-  // 👇 Controlar la visibilidad del selector según el checkbox
-    document.addEventListener('change', function(e) {
-        if (e.target && e.target.id === 'nueva_nomina') {
-        const selectDiv = document.getElementById('selector_nomina');
-        const select = document.getElementById('nomina');
+script>
+    document.addEventListener('up:fragment:inserted', function(event) {
 
-        if (e.target.checked) {
-            selectDiv.style.display = 'none';
-            select.removeAttribute('required');
-            select.value = ''; // Limpia selección previa
-        } else {
-            selectDiv.style.display = 'block';
-            select.setAttribute('required', 'required');
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
+
+        const checkbox = modalContent.querySelector('#nueva_nomina');
+        const selectDiv = modalContent.querySelector('#selector_nomina');
+        const dateDiv = modalContent.querySelector('#fecha_nomina_container');
+        const select = modalContent.querySelector('#nomina');
+
+        if (!checkbox || !selectDiv || !dateDiv || !select) return;
+
+        function toggleNomina() {
+            if (checkbox.checked) {
+                selectDiv.style.display = 'none';
+                dateDiv.style.display = 'block';
+                select.removeAttribute('required');
+                select.value = '';
+            } else {
+                selectDiv.style.display = 'block';
+                dateDiv.style.display = 'none';
+                select.setAttribute('required', 'required');
+            }
         }
-        }
+
+        // ✅ Ejecutar al cargar el modal
+        toggleNomina();
+
+        // ✅ Evento change
+        checkbox.addEventListener('change', toggleNomina);
     });
 </script>
 

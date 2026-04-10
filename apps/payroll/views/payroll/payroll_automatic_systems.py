@@ -507,9 +507,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     if not parte_nomina:
         parte_nomina = 0
         
-
-        
-        
     nomina = Crearnomina.objects.get(idnomina=idn)
     inicio_nomina, fin_nomina = nomina.fechainicial, nomina.fechafinal
     ano = nomina.anoacumular.ano 

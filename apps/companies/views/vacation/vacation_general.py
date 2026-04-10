@@ -223,16 +223,35 @@ def vacation_resumen_send(request, id):
 
         nomina_final = None
 
+        # 🔹 IMPORTANTE: Enviar TODAS las líneas del idvacmaster, no solo una
+        # Obtener todas las vacaciones del mismo idvacmaster
+        vacacion_principal = Vacaciones.objects.filter(
+            idvacaciones=id,
+            idcontrato__id_empresa=idempresa
+        ).first()
+        
+        if not vacacion_principal or not vacacion_principal.idvacmaster:
+            return HttpResponse("Error: No se encontró el registro o no tiene idvacmaster", status=400)
+
+        fecha_vacacion = (
+            vacacion_principal.fechainicialvac
+            or vacacion_principal.fechapago
+            or vacacion_principal.ultimodiavac
+        )
+
+        if not fecha_vacacion:
+            return HttpResponse("Error: la vacación no tiene fechas válidas", status=400)
+
         # 🔹 Caso 1: crear nueva nómina automática
         if nueva_nomina_flag:
             nomina_final = Crearnomina.objects.create(
                 nombrenomina=f"Nomina Aut. Vacas - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
-                fechainicial=hoy,
-                fechafinal=hoy,
-                fechapago=ahora.date(),
+                fechainicial=fecha_vacacion,
+                fechafinal=fecha_vacacion,
+                fechapago=fecha_vacacion,
                 tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
-                mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
-                anoacumular=Anos.objects.get(ano=ahora.year),
+                mesacumular=MES_CHOICES[fecha_vacacion.month][0],
+                anoacumular=Anos.objects.get(ano=fecha_vacacion.year),
                 estadonomina=True,
                 diasnomina=1,
                 id_empresa_id=idempresa,
@@ -248,27 +267,19 @@ def vacation_resumen_send(request, id):
             # Validar: si no existe la nómina seleccionada → crear una nueva automática
             if not nomina_final:
                 nomina_final = Crearnomina.objects.create(
-                    nombrenomina=f"Nomina Aut. Vacas - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
-                    fechainicial=hoy,
-                    fechafinal=hoy,
-                    fechapago=ahora.date(),
-                    tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
-                    mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
-                    anoacumular=Anos.objects.get(ano=ahora.year),
-                    estadonomina=True,
-                    diasnomina=1,
-                    id_empresa_id=idempresa,
-                )
+                        nombrenomina=f"Nomina Aut. Vacas - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
+                        fechainicial=fecha_vacacion,
+                        fechafinal=fecha_vacacion,
+                        fechapago=fecha_vacacion,
+                        tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
+                        mesacumular=MES_CHOICES[fecha_vacacion.month][0],
+                        anoacumular=Anos.objects.get(ano=fecha_vacacion.year),
+                        estadonomina=True,
+                        diasnomina=1,
+                        id_empresa_id=idempresa,
+                    )
 
-        # 🔹 IMPORTANTE: Enviar TODAS las líneas del idvacmaster, no solo una
-        # Obtener todas las vacaciones del mismo idvacmaster
-        vacacion_principal = Vacaciones.objects.filter(
-            idvacaciones=id,
-            idcontrato__id_empresa=idempresa
-        ).first()
         
-        if not vacacion_principal or not vacacion_principal.idvacmaster:
-            return HttpResponse("Error: No se encontró el registro o no tiene idvacmaster", status=400)
         
         # Obtener todas las líneas del mismo idvacmaster
         todas_lineas = Vacaciones.objects.filter(

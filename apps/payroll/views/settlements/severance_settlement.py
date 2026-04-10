@@ -100,6 +100,7 @@ def settlement_list_payroll(request, id,url):
         
         id_nomina = request.POST.get('nomina')
         nueva_nomina_flag = request.POST.get('nueva_nomina') == 'on'
+        fecha = request.POST.get('fecha_nomina') 
         
         nomina_final = None
         
@@ -203,11 +204,7 @@ def settlement_list_payroll(request, id,url):
             
         return response
 
-    return render(request, './payroll/partials/settlement_payroll.html', {
-        'nominas': nominas,
-        'id': id,
-        'url':url,
-    })
+    return render(request, './payroll/partials/settlement_payroll.html', {'nominas': nominas, 'id': id, 'url':url, })
 
 
 
