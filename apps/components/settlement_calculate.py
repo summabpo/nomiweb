@@ -1,7 +1,18 @@
 
 from math import ceil
 
-from apps.common.models import Tipodenomina , Conceptosdenomina ,Nomina, Crearnomina , Contratos , Anos, Liquidacion , Salariominimoanual , Nomina,Vacaciones
+from apps.common.models import (
+    Tipodenomina,
+    Conceptosdenomina,
+    Nomina,
+    Crearnomina,
+    Contratos,
+    Anos,
+    Liquidacion,
+    Salariominimoanual,
+    Vacaciones,
+    TiposConcepto,
+)
 from apps.payroll.views.settlements.liquidacion_utils import *
 from django.db.models import Sum
 from datetime import datetime , date
@@ -87,9 +98,11 @@ def settlement_calculate_data(contract_id , end_date , reason):
         })
         return data
 
+    # Solo conceptos de ingreso: no sumar líneas de deducción u otros tipos con el mismo indicador.
     suspensiones_qs = Conceptosdenomina.objects.filter(
         indicador__nombre='suspcontrato',
         id_empresa=contrato.id_empresa,
+        tipoconcepto=TiposConcepto.INGRESO,
     )
     basecesantias_qs = Conceptosdenomina.objects.filter(
         indicador__nombre='basecesantias',
@@ -249,6 +262,7 @@ def depurar_suspension_contrato(contrato, suspensiones_qs=None):
         suspensiones_qs = Conceptosdenomina.objects.filter(
             indicador__nombre='suspcontrato',
             id_empresa=contrato.id_empresa,
+            tipoconcepto=TiposConcepto.INGRESO,
         )
     registros = Nomina.objects.filter(
         idcontrato=contrato.idcontrato,

@@ -176,7 +176,7 @@ def calcular_vacaciones(dias_vacaciones: float, base_vacaciones: float) -> int:
     return ceil(base_vacaciones * dias_vacaciones / 30)
 
 
-def calcular_indemnizacion(salario: float, dias_trabajados: int, motivo_retiro: str, fecha_fin) -> float:
+def calcular_indemnizacion(salario: float, dias_trabajados: int, motivo_retiro: str, fecha_fin) -> int:
     if motivo_retiro != '2':
         return 0
 
@@ -192,7 +192,7 @@ def calcular_indemnizacion(salario: float, dias_trabajados: int, motivo_retiro: 
         dias_extras = dias_trabajados - 360
         dias = (20 if es_alto else 30) + (15 if es_alto else 20) * (dias_extras / 360)
 
-    return dias * salario_dia
+    return ceil(dias * salario_dia)
 
 
 def safe_value(value):
