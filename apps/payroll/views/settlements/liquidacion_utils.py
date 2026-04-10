@@ -67,6 +67,43 @@ def obtener_fecha_prima(fecha_inicio, fecha_fin):
         else:
             return fecha_inicio
 
+
+def inicio_semestre_liquidacion(fecha_fin: date) -> date:
+    """Primer día del semestre en curso respecto a la fecha de terminación (1-ene o 1-jul)."""
+    if fecha_fin.month <= 6:
+        return date(fecha_fin.year, 1, 1)
+    return date(fecha_fin.year, 7, 1)
+
+
+def rango_meses_acumulacion_prima_semestre(fecha_inicio: date, fecha_fin: date) -> tuple[int, int, int, int]:
+    """
+    Rango año/mes para sumar conceptos variables de prima: semestre en curso,
+    o desde ingreso si es posterior al inicio del semestre.
+    """
+    sem = inicio_semestre_liquidacion(fecha_fin)
+    real_start = max(fecha_inicio, sem)
+    return real_start.year, real_start.month, fecha_fin.year, fecha_fin.month
+
+
+def rango_meses_acumulacion_basevacaciones_12m(fecha_inicio: date, fecha_fin: date) -> tuple[int, int, int, int]:
+    """
+    Últimos 12 meses calendario hasta el mes de terminación (inclusive),
+    o desde el mes de ingreso si el contrato es más corto.
+    """
+    y, m = fecha_fin.year, fecha_fin.month - 11
+    while m < 1:
+        m += 12
+        y -= 1
+    start = date(y, m, 1)
+    real_start = max(fecha_inicio, start)
+    return real_start.year, real_start.month, fecha_fin.year, fecha_fin.month
+
+
+def fecha_desde_rango_acumulacion_vacaciones(fecha_inicio: date, fecha_fin: date) -> date:
+    """Primer día del primer mes del rango de base vacaciones (12m o proporcional)."""
+    y0, m0, _, _ = rango_meses_acumulacion_basevacaciones_12m(fecha_inicio, fecha_fin)
+    return max(fecha_inicio, date(y0, m0, 1))
+
 # --- Cálculos acumulados --- #
 
 def acumular_por_mes(model, conceptos_qs, id_contrato, ano_inicio, mes_inicio, ano_fin, mes_fin, campo="valor"):
