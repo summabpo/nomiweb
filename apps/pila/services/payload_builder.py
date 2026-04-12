@@ -390,19 +390,24 @@ def _tarifa_arl_a_clase_riesgo(tarifa) -> str:
 
 
 def _get_contratos_con_movimiento_mes(empresa_id: int, mesacumular: str, ano: int) -> list[int]:
+    """
+    Contratos con líneas de nómina en el periodo.
+    El alcance es por empresa del contrato y de la liquidación (no por conceptosdenomina.id_empresa_id),
+    para no excluir empleados cuyos conceptos no repiten id_empresa (p. ej. liquidación vs nómina regular).
+    """
     with connection.cursor() as cursor:
         cursor.execute(
             """
             SELECT DISTINCT n.idcontrato_id
             FROM public.nomina n
-            JOIN public.conceptosdenomina cd
-              ON cd.idconcepto = n.idconcepto_id
             JOIN public.crearnomina cn
               ON cn.idnomina = n.idnomina_id
             JOIN public.anos a
               ON a.idano = cn.anoacumular_id
-            WHERE cd.id_empresa_id = %s
-              AND cn.id_empresa_id = %s
+            JOIN public.contratos c
+              ON c.idcontrato = n.idcontrato_id
+             AND c.id_empresa_id = %s
+            WHERE cn.id_empresa_id = %s
               AND cn.mesacumular = %s
               AND a.ano = %s
               AND cn.estadonomina = FALSE
@@ -506,10 +511,10 @@ def _get_ibc_por_contrato_mes(
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
+    JOIN public.contratos c ON c.idcontrato = n.idcontrato_id AND c.id_empresa_id = %s
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
     JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto
     WHERE cn.id_empresa_id = %s
-      AND cd.id_empresa_id = %s
       AND cn.mesacumular = %s
       AND a.ano = %s
       AND cn.estadonomina = FALSE
@@ -565,9 +570,9 @@ def _get_vst_por_contrato_mes(
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
+    JOIN public.contratos c ON c.idcontrato = n.idcontrato_id AND c.id_empresa_id = %s
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
     WHERE cn.id_empresa_id = %s
-      AND cd.id_empresa_id = %s
       AND cn.mesacumular = %s
       AND a.ano = %s
       AND cn.estadonomina = FALSE
@@ -614,10 +619,10 @@ def _get_exceso_ley_1393_por_contrato(
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
+    JOIN public.contratos c ON c.idcontrato = n.idcontrato_id AND c.id_empresa_id = %s
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
     JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto AND cdi.indicador_id = 12
     WHERE cn.id_empresa_id = %s
-      AND cd.id_empresa_id = %s
       AND cn.mesacumular = %s
       AND a.ano = %s
       AND cn.estadonomina = FALSE
@@ -1146,10 +1151,12 @@ def _generar_registros_empleado(
     if not registros:
         dias_normales = dias_base
 
-    # VST: si IBC > salario, el validador exige novedad VST
+    # VST (línea NORMAL):
+    # - Si suma(indicador 29) > 0: novedad VST con ese valor e IBC = salario_básico×(días/30)+VST (VST sin prorratear).
+    # - Si no hay ind.29 pero IBC(ind.6) > salario contractual: VST = diferencia (tolerancia 1 $).
     novedades_normal = list(novedades_ing_ret)  # ING/RET van en línea normal
     ibc_sp = ibc_actual.get("salud_pension", Decimal("0"))
-    vst_valor = vst
+    vst_valor = max(Decimal("0"), vst)
     # Tolerancia por redondeo: el validor puede exigir VST cuando IBC > salario,
     # pero diferencias "menores" (ej. 1 peso) pueden ser solo efecto de redondeos.
     tolerancia_vst = Decimal("1")
@@ -1172,10 +1179,9 @@ def _generar_registros_empleado(
             "valor": vst_pesos,
         })
     
-    # IBC línea normal:
-    # - Si es la única línea y tiene 30 días, usar IBC del mes (ibc_actual).
-    # - Si tiene menos de 30 días (multi-línea) o hay VST:
-    #   salario proporcional por días + VST completo (sin prorratear).
+    # IBC línea NORMAL:
+    # - Sin VST (vst_valor=0) y única línea 30 días: usar IBC del mes desde nómina (ind. 6/16/17).
+    # - Con VST > 0: siempre salario proporcional (días/30) + importe VST (no se prorratea por días).
     if dias_normales >= 30 and not registros and vst_valor <= 0:
         ibc_normal = {
             "salud": str(ibc_actual["salud_pension"]),
