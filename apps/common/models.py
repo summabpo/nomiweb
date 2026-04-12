@@ -343,7 +343,9 @@ class Centrotrabajo(models.Model):
     ctanterior = models.CharField(max_length=30,blank=True, null=True)
     id_empresa = models.ForeignKey('Empresa', on_delete=models.DO_NOTHING)
     actividad_economica_arl = models.CharField(max_length=7, blank=True, null=True)
-    
+    # Código del centro ante el operador (PILA / Aportes en línea, registro tipo 2 campo 62)
+    codigo_operador = models.CharField(max_length=7, blank=True, null=True)
+
     def __str__(self):
         return  f"{self.nombrecentrotrabajo} - {self.id_empresa}"
     

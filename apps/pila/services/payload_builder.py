@@ -214,7 +214,8 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         )
 
         clase_riesgo = _tarifa_arl_a_clase_riesgo(row.get("tarifa_arl"))
-        codigo_centro_trabajo = row.get("codigo_centro_trabajo")  # centrotrabajo_id de contratos (campo 62)
+        # Campo 62 TXT: centrotrabajo.codigo_operador si viene informado; si no, centrotrabajo_id del contrato
+        codigo_centro_trabajo = row.get("codigo_centro_trabajo")
 
         # --- Datos comunes del empleado ---
         empleado_base = {
@@ -231,7 +232,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             "subtipo_cotizante": subtipo_cot,
             "salario_basico": str(row["salario_basico"] or 0),
             "clase_riesgo": clase_riesgo,
-            "codigo_centro_trabajo": codigo_centro_trabajo,  # De BD por empresa; None si no aplica
+            "codigo_centro_trabajo": codigo_centro_trabajo,  # ct.codigo_operador o fallback centrotrabajo_id
 
             "entidades": {
                 "eps": row["eps_codigo"],
@@ -364,7 +365,7 @@ def _get_flags_tipo_cotizante(tipo_cotizante: str) -> dict:
 
 
 # Tarifa ARL % -> clase_riesgo (1-5) para PILA campo 78 pos 513
-# codigo_centro_trabajo (campo 62) viene de BD por empresa, no del diccionario
+# codigo_centro_trabajo (campo 62): centrotrabajo.codigo_operador si existe; si no, centrotrabajo_id
 _TARIFA_ARL_A_CLASE = {
     Decimal("0.522"): "1",
     Decimal("1.044"): "2",
@@ -441,7 +442,12 @@ def _get_ficha_contratos(empresa_id: int, ids_contrato: list[int]) -> list[dict]
       ct.tarifaarl::numeric          AS tarifa_arl,
       ct.actividad_economica_arl     AS actividad_economica_arl,
 
-      c.centrotrabajo_id             AS codigo_centro_trabajo
+      CASE
+        WHEN ct.codigo_operador IS NOT NULL
+             AND NULLIF(BTRIM(ct.codigo_operador::text), '') IS NOT NULL
+        THEN CAST(NULLIF(BTRIM(ct.codigo_operador::text), '') AS INTEGER)
+        ELSE c.centrotrabajo_id
+      END                            AS codigo_centro_trabajo
 
     FROM public.contratos c
     JOIN public.contratosemp ce
