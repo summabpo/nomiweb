@@ -2,7 +2,10 @@
 
 from datetime import date
 import calendar
+import logging
 from decimal import Decimal, ROUND_HALF_UP
+
+logger = logging.getLogger(__name__)
 from django.db import connection
 from datetime import timedelta
 from apps.common.models import Empresa
@@ -539,17 +542,30 @@ def _get_vst_por_contrato_mes(
     """
     VST = suma de nomina.valor donde idconcepto tiene indicador_id=29
     (Variación transitoria de salario PILA).
+    Cada línea de nomina se cuenta una sola vez (EXISTS), aunque el concepto tenga más indicadores.
     Retorna dict {idcontrato: valor_vst}
     """
+    if not ids_contrato:
+        return {}
     sql = """
     SELECT
       n.idcontrato_id,
-      COALESCE(SUM(CASE WHEN cdi.indicador_id = 29 THEN COALESCE(n.valor,0) ELSE 0 END), 0) AS vst
+      COALESCE(SUM(
+        CASE
+          WHEN EXISTS (
+            SELECT 1
+            FROM public.conceptosdenomina_indicador cdi
+            WHERE cdi.conceptosdenomina_id = cd.idconcepto
+              AND cdi.indicador_id = 29
+          )
+          THEN COALESCE(n.valor, 0)
+          ELSE 0
+        END
+      ), 0) AS vst
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
-    JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto
     WHERE cn.id_empresa_id = %s
       AND cd.id_empresa_id = %s
       AND cn.mesacumular = %s
@@ -557,7 +573,6 @@ def _get_vst_por_contrato_mes(
       AND cn.estadonomina = FALSE
       AND n.estadonomina = 2
       AND n.idcontrato_id = ANY(%s)
-      AND cdi.indicador_id = 29
     GROUP BY n.idcontrato_id;
     """
     out = {c: Decimal("0") for c in ids_contrato}
@@ -567,7 +582,13 @@ def _get_vst_por_contrato_mes(
             for idc, vst in cursor.fetchall():
                 out[int(idc)] = Decimal(str(vst or 0))
     except Exception:
-        pass
+        logger.exception(
+            "PILA: falló _get_vst_por_contrato_mes (empresa_id=%s mes=%s año=%s contratos=%s)",
+            empresa_id,
+            mesacumular,
+            ano,
+            ids_contrato[:20],
+        )
     return out
 
 
