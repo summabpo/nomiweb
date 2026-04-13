@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
+{% load custom_filters %}
 {% block navbar %}
     {% include 'base/navbar_payroll.html' %}               
 {% endblock %}
@@ -64,6 +65,7 @@ Detalle Nómina Electrónica | {{ container_id }}
             <th class="text-left">Documento</th>
             <th class="text-left">Nombre</th>
             <th class="text-center">Cargo</th>
+            <th class="text-center">Total</th>
             <th class="text-center">Fecha Creación</th>
             <th class="text-center">Fecha Modificación</th>
             <th class="text-center">Estado</th>
@@ -87,6 +89,7 @@ Detalle Nómina Electrónica | {{ container_id }}
                 <td class="text-left align-middle">{{ record.employee_document }} </td>
                 <td class="text-left align-middle">{{ record.employee_name }} </td>
                 <td class="text-center align-middle">{{ record.employee_position }} </td>
+                <td class="text-center align-middle">{{ record.total_pagar|format_currency }} </td>
                 <td class="text-center align-middle">{{ record.fecha_creacion|date:"d/m/Y" }}</td>
                 <td class="text-center align-middle">{{ record.fecha_modificacion|date:"d/m/Y"|default:"" }}</td>
                 <td class="text-center align-middle">

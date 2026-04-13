@@ -3,6 +3,104 @@
 
 
 {
+    "2020": {
+      "pdf": "220_2020.pdf",
+      "meta": {
+        "version": "DIAN 220",
+        "descripcion": "Certificado ingresos 2023"
+      },
+
+      "fields": {
+        "anio": { "x": 325, "y": 740 },
+        "nformulario": { "x": 360, "y": 711 },
+
+        "empresa": {
+          "nit": { "x": 85, "y": 687 },
+          "dv": { "x": 190, "y": 687 },
+          "razon": { "x": 90, "y": 669 }
+        },
+
+        "pagado":{
+          "razon": { "x": 100, "y": 335 }
+        },
+
+        "empleado": {
+          "tipodni": { "x": 55, "y": 650 },
+          "dni": { "x": 90, "y": 650 },
+          "papellido": { "x": 280 , "y": 640 },
+          "sapellido": { "x": 350 , "y": 640 },
+          "pnombre": { "x": 420 , "y": 640 },
+          "snombre": { "x": 478, "y": 640 }
+        },
+
+        "periodo": {
+          "inicio": [
+            { "x": 57, "y": 627 },
+            { "x": 94, "y": 627 },
+            { "x": 113, "y": 627 }
+          ],
+          "fin": [
+            { "x": 167, "y": 627 },
+            { "x": 204, "y": 627 },
+            { "x": 223, "y": 627 }
+          ]
+        },
+
+        "fecha_expedicion": [
+          { "x": 257, "y": 627 },
+          { "x": 295, "y": 627 },
+          { "x": 317, "y": 627 }
+        ],
+
+        "ubicacion": {
+          "lugar": { "x": 380, "y": 627 },
+          "departamento": { "x": 525, "y": 627 },
+          "municipio": { "x": 560, "y": 627 }
+        },
+
+        "firma": {
+          "retenedor": { "x": 246, "y": 795 }
+        }
+      },
+
+      "value_blocks": {
+        "value1": {
+          "x": 525,
+          "y_start": 570,
+          "step": 12,
+          "fields": {
+            "36": "salarios",
+            "37": "0",
+            "39": "honorarios",
+            "40": "servicios",
+            "41": "comisiones",
+            "42": "prestacionessociales",
+            "43": "viaticos",
+            "44": "gastosderepresentacion",
+            "45": "compensacioncta",
+            "46": "otrospagos",
+            "47": "cesantiasintereses",
+            "52": "totalingresosbrutos"
+          }
+        },
+
+        "value2": {
+          "x": 520,
+          "y_start": 428,
+          "step": 12,
+          "fields": {
+            "53": "aportessalud",
+            "54": "aportespension",
+            "55": "aportesvoluntarios",
+            "56": "aportesvoluntarios",
+            "57": "aportesafc",
+            "58": "aportesavc",
+            "60": "retefuente"
+          }
+        }
+      }
+    },
+
     "2023": {
       "pdf": "220_2023.pdf",
       "meta": {
@@ -67,18 +165,147 @@
         "value1": {
           "x": 575,
           "y_start": 602,
-          "step": 12
+          "step": 12,
+          "fields": {
+            "36": "salarios",
+            "37": "0",
+            "38": "0",
+            "39": "honorarios",
+            "40": "servicios",
+            "41": "comisiones",
+            "42": "prestacionessociales",
+            "43": "viaticos",
+            "44": "gastosderepresentacion",
+            "45": "compensacioncta",
+            "46": "otrospagos",
+            "47": "cesantiasintereses",
+            "48": "0",
+            "49": "fondocesantias",
+            "50": "pensiones",
+            "51": "apoyoeconomico",
+            "52": "totalingresosbrutos"
+          }
         },
 
         "value2": {
           "x": 575,
           "y_start": 387,
-          "step": 12
+          "step": 12,
+          "fields": {
+            "53": "aportessalud",
+            "54": "aportespension",
+            "55": "aportesvoluntarios",
+            "56": "aportesvoluntarios",
+            "57": "aportesafc",
+            "58": "aportesavc",
+            "59": "ingresolaboralpromedio",
+            "60": "retefuente"
+          }
         }
       }
     },
 
-  "2024": {
+    "2024": {
+      "pdf": "220_2024.pdf",
+      "meta": {
+        "version": "DIAN 220",
+        "descripcion": "Certificado ingresos 2024"
+      },
+
+      "fields": {
+        "anio": { "x": 325, "y": 740 },
+        "nformulario": { "x": 360, "y": 711 },
+
+        "empresa": {
+          "nit": { "x": 85, "y": 687 },
+          "dv": { "x": 190, "y": 687 },
+          "razon": { "x": 85, "y": 675 }
+        },
+
+        "empleado": {
+          "tipodni": { "x": 55, "y": 650 },
+          "dni": { "x": 90, "y": 650 },
+          "papellido": { "x": 255, "y": 650 },
+          "sapellido": { "x": 340, "y": 650 },
+          "pnombre": { "x": 440, "y": 650 },
+          "snombre": { "x": 520, "y": 650 }
+        },
+
+        "periodo": {
+          "inicio": [
+            { "x": 57, "y": 627 },
+            { "x": 94, "y": 627 },
+            { "x": 113, "y": 627 }
+          ],
+          "fin": [
+            { "x": 167, "y": 627 },
+            { "x": 204, "y": 627 },
+            { "x": 223, "y": 627 }
+          ]
+        },
+
+        "fecha_expedicion": [
+          { "x": 257, "y": 627 },
+          { "x": 295, "y": 627 },
+          { "x": 317, "y": 627 }
+        ],
+
+        "ubicacion": {
+          "lugar": { "x": 380, "y": 627 },
+          "departamento": { "x": 525, "y": 627 },
+          "municipio": { "x": 560, "y": 627 }
+        },
+
+        "firma": {
+          "retenedor": { "x": 246, "y": 795 }
+        }
+      },
+
+    "value_blocks": {
+        "value1": {
+          "x": 575,
+          "y_start": 602,
+          "step": 12,
+          "fields": {
+            "36": "salarios",
+            "37": "0",
+            "38": "0",
+            "39": "honorarios",
+            "40": "servicios",
+            "41": "comisiones",
+            "42": "prestacionessociales",
+            "43": "viaticos",
+            "44": "gastosderepresentacion",
+            "45": "compensacioncta",
+            "46": "otrospagos",
+            "47": "cesantiasintereses",
+            "48": "0",
+            "49": "fondocesantias",
+            "50": "pensiones",
+            "51": "apoyoeconomico",
+            "52": "totalingresosbrutos"
+          }
+        },
+
+        "value2": {
+          "x": 575,
+          "y_start": 387,
+          "step": 12,
+          "fields": {
+            "53": "aportessalud",
+            "54": "aportespension",
+            "55": "aportesvoluntarios",
+            "56": "aportesvoluntarios",
+            "57": "aportesafc",
+            "58": "aportesavc",
+            "59": "ingresolaboralpromedio",
+            "60": "retefuente"
+          }
+        }
+      }
+    },
+
+    "2025": {
       "pdf": "220_2024.pdf",
       "meta": {
         "version": "DIAN 220",
@@ -138,84 +365,42 @@
         "value1": {
           "x": 575,
           "y_start": 602,
-          "step": 12
+          "step": 12,
+          "fields": {
+            "36": "salarios",
+            "37": "0",
+            "38": "0",
+            "39": "honorarios",
+            "40": "servicios",
+            "41": "comisiones",
+            "42": "prestacionessociales",
+            "43": "viaticos",
+            "44": "gastosderepresentacion",
+            "45": "compensacioncta",
+            "46": "otrospagos",
+            "47": "cesantiasintereses",
+            "48": "0",
+            "49": "fondocesantias",
+            "50": "pensiones",
+            "51": "apoyoeconomico",
+            "52": "totalingresosbrutos"
+          }
         },
 
         "value2": {
           "x": 575,
           "y_start": 387,
-          "step": 12
-        }
-      }
-    },
-
-  "2025": {
-      "pdf": "220_2024.pdf",
-      "meta": {
-        "version": "DIAN 220",
-        "descripcion": "Certificado ingresos 2024"
-      },
-
-      "fields": {
-        "anio": { "x": 325, "y": 740 },
-        "nformulario": { "x": 360, "y": 711 },
-
-        "empresa": {
-          "nit": { "x": 85, "y": 687 },
-          "dv": { "x": 190, "y": 687 },
-          "razon": { "x": 85, "y": 675 }
-        },
-
-        "empleado": {
-          "tipodni": { "x": 55, "y": 650 },
-          "dni": { "x": 90, "y": 650 },
-          "papellido": { "x": 255, "y": 650 },
-          "sapellido": { "x": 340, "y": 650 },
-          "pnombre": { "x": 440, "y": 650 },
-          "snombre": { "x": 520, "y": 650 }
-        },
-
-        "periodo": {
-          "inicio": [
-            { "x": 57, "y": 627 },
-            { "x": 94, "y": 627 },
-            { "x": 113, "y": 627 }
-          ],
-          "fin": [
-            { "x": 167, "y": 627 },
-            { "x": 204, "y": 627 },
-            { "x": 223, "y": 627 }
-          ]
-        },
-
-        "fecha_expedicion": [
-          { "x": 257, "y": 627 },
-          { "x": 295, "y": 627 },
-          { "x": 317, "y": 627 }
-        ],
-
-        "ubicacion": {
-          "lugar": { "x": 380, "y": 627 },
-          "departamento": { "x": 525, "y": 627 },
-          "municipio": { "x": 560, "y": 627 }
-        },
-
-        "firma": {
-          "retenedor": { "x": 246, "y": 795 }
-        }
-      },
-
-      "value_blocks": {
-        "value1": {
-          "x": 575,
-          "y_start": 602,
-          "step": 12
-        },
-
-        "value2": {
-          "x": 575,
-          "y_start": 387,
-          "step": 12
+          "step": 12,
+          "fields": {
+            "53": "aportessalud",
+            "54": "aportespension",
+            "55": "aportesvoluntarios",
+            "56": "aportesvoluntarios",
+            "57": "aportesafc",
+            "58": "aportesavc",
+            "59": "ingresolaboralpromedio",
+            "60": "retefuente"
+          }
         }
       }
     }

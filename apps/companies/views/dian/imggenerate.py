@@ -134,9 +134,13 @@ def imggenerate1(idingret , idempresa):
 # Pdf Dian 2.0
 # =========================
 def pdfgenerate(idingret, idempresa):
-    
+
     certificado = Ingresosyretenciones.objects.filter(idingret=idingret).first()
     dataempresa = datos_cliente(idempresa)
+
+    if not certificado:
+        raise Exception("Certificado no encontrado")
+
     year, month, day = last_business_day_of_march(certificado.anoacumular.ano)
 
     # =========================
@@ -145,9 +149,14 @@ def pdfgenerate(idingret, idempresa):
     with open("apps/companies/views/dian/formatos_220.json", encoding="utf-8") as f:
         formatos = json.load(f)
 
-    config = formatos[str(certificado.anoacumular.ano)]
-    coords = config["fields"]
-    pdf_base_path = settings.STATICFILES_DIRS[0] + "/pdf/" + config["pdf"]
+    anio = str(certificado.anoacumular.ano)
+
+    if anio not in formatos:
+        raise Exception(f"No existe configuración para el año {anio}")
+
+    config = formatos[anio]
+    coords = config.get("fields", {})
+    pdf_base_path = settings.STATICFILES_DIRS[0] + "/pdf/" + config.get("pdf")
 
     # =========================
     # DATOS DINÁMICOS
@@ -175,9 +184,6 @@ def pdfgenerate(idingret, idempresa):
             "snombre": str(certificado.idempleado.snombre),
         },
 
-
-
-
         "periodo": {
             "inicio": [certificado.anoacumular.ano, "01", "01"],
             "fin": [certificado.anoacumular.ano, "12", "31"]
@@ -197,44 +203,8 @@ def pdfgenerate(idingret, idempresa):
     }
 
     # =========================
-    # VALUE BLOCKS DESDE JSON
+    # FORMATOS
     # =========================
-    value_blocks = config.get("value_blocks", {})
-
-    value1_block = value_blocks.get("value1", {})
-    value2_block = value_blocks.get("value2", {})
-
-    value1 = {
-        '36': certificado.salarios,
-        '37': 0,
-        '38': 0,
-        '39': certificado.honorarios,
-        '40': certificado.servicios,
-        '41': certificado.comisiones,
-        '42': certificado.prestacionessociales,
-        '43': certificado.viaticos,
-        '44': certificado.gastosderepresentacion,
-        '45': certificado.compensacioncta,
-        '46': certificado.otrospagos,
-        '47': certificado.cesantiasintereses,
-        '48': 0,
-        '49': certificado.fondocesantias,
-        '50': certificado.pensiones,
-        '51': certificado.apoyoeconomico,
-        '52': certificado.totalingresosbrutos,
-    }
-
-    value2 = {
-        '53': certificado.aportessalud,
-        '54': certificado.aportespension,
-        '55': certificado.aportesvoluntarios,
-        '56': certificado.aportesvoluntarios,
-        '57': certificado.aportesafc,
-        '58': certificado.aportesavc,
-        '59': certificado.ingresolaboralpromedio,
-        '60': certificado.retefuente,
-    }
-
     def fmt(v):
         try:
             return "{:,.0f}".format(float(v))
@@ -242,19 +212,35 @@ def pdfgenerate(idingret, idempresa):
             return "0"
 
     # =========================
-    # FUNCION GENERICA VALUE BLOCK
+    # BUILD DINÁMICO DE VALORES
     # =========================
-    def draw_value_block(block, values_dict):
-        x = block["x"]          # punto DERECHO fijo
-        y = block["y_start"]
-        step = block["step"]
+    def build_values(block_fields, certificado):
+        values = {}
 
-        for key in sorted(values_dict.keys(), key=int):
-            value = fmt(values_dict[key])
+        for key, attr in block_fields.items():
 
-            c.drawRightString(x, y, value)
+            # valor fijo tipo "0"
+            if isinstance(attr, str) and attr.isdigit():
+                values[key] = int(attr)
 
-            y -= step
+            else:
+                values[key] = getattr(certificado, attr, 0)
+
+        return values
+
+    # =========================
+    # VALUE BLOCKS
+    # =========================
+    value_blocks = config.get("value_blocks", {})
+
+    value1_block = value_blocks.get("value1", {})
+    value2_block = value_blocks.get("value2", {})
+
+    value1_fields = value1_block.get("fields", {})
+    value2_fields = value2_block.get("fields", {})
+
+    value1 = build_values(value1_fields, certificado)
+    value2 = build_values(value2_fields, certificado)
 
     # =========================
     # CREAR OVERLAY
@@ -264,7 +250,7 @@ def pdfgenerate(idingret, idempresa):
     c.setFont("Courier", 9)
 
     # =========================
-    # CAMPOS JSON
+    # DIBUJAR CAMPOS
     # =========================
     def draw_fields(data_block, coord_block):
         for key, value in data_block.items():
@@ -290,8 +276,22 @@ def pdfgenerate(idingret, idempresa):
     draw_fields(datos, coords)
 
     # =========================
-    # VALUE BLOCKS (AUTO STEP)
+    # DIBUJAR VALUE BLOCK
     # =========================
+    def draw_value_block(block, values_dict):
+
+        if not block:
+            return
+
+        x = block.get("x", 0)
+        y = block.get("y_start", 0)
+        step = block.get("step", 10)
+
+        for key in sorted(values_dict.keys(), key=int):
+            value = fmt(values_dict[key])
+            c.drawRightString(x, y, value)
+            y -= step
+
     draw_value_block(value1_block, value1)
     draw_value_block(value2_block, value2)
 
@@ -308,8 +308,10 @@ def pdfgenerate(idingret, idempresa):
 
     for i in range(len(base_pdf.pages)):
         page = base_pdf.pages[i]
+
         if i < len(overlay_pdf.pages):
             page.merge_page(overlay_pdf.pages[i])
+
         writer.add_page(page)
 
     output_buffer = BytesIO()
@@ -317,6 +319,11 @@ def pdfgenerate(idingret, idempresa):
     output_buffer.seek(0)
 
     return output_buffer
+
+
+# =========================
+# VIEW HTTP PARA PROBAR
+# =========================
 
 
 """ 
