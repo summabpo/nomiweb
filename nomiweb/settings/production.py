@@ -3,6 +3,11 @@ from boto3.session import Session
 
 import logging
 
+# Cargar .env.production para settings de producción (sobrescribe variables de .env de base.py)
+from dotenv import load_dotenv
+_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+load_dotenv(dotenv_path=os.path.join(_project_root, '.env.production'), override=True)
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY =  os.getenv('SECRET_KEY')
 
@@ -15,7 +20,7 @@ SETTINGS_ENV = 'production'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME_DEV', 'nomiweb_payroll'),
+        'NAME': os.getenv('DB_NAME_PROD', 'nomiweb_payroll'),
         'USER':  os.getenv('DB_USER_PROD'),
         'PASSWORD':  os.getenv('DB_PASSWORD_PROD'),
         'HOST':  os.getenv('DB_HOST_PROD'),

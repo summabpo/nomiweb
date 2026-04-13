@@ -159,9 +159,9 @@ def payroll_closet(request,id):
             nomina.estadonomina = False
             nomina.save(update_fields=['estadonomina'])
             
-            # Obtener solo campos necesarios (optimizado)
-            novedades = Nomina.objects.filter(idnomina_id = id ).only('idcontrato')
-            novedades_to_update = []
+            # CRÍTICO: Cargar todos los campos necesarios para bulk_update
+            # Incluir: idregistronom (PK), estadonomina (campo a actualizar), idcontrato, idconcepto
+            novedades = Nomina.objects.filter(idnomina_id = id).select_related('idcontrato', 'idconcepto')
 
             for data in novedades:
                 if nomina.tiponomina.idtiponomina in (1, 2, 11):
@@ -169,21 +169,14 @@ def payroll_closet(request,id):
                     if data.idconcepto.codigo == 1 : 
                         guardar_historico_nomina(data)
 
-
                 if data.idconcepto.codigo == 20 :
-                    
                     liquidacion = get_object_or_404(Liquidacion, idliquidacion = data.control )
                     liquidacion.estadoliquidacion = 2
                     liquidacion.save(update_fields=['estadoliquidacion'])
 
-                data.estadonomina = 2
-                novedades_to_update.append(data)
-
-            # Guardar todo en UNA sola query
-            Nomina.objects.bulk_update(
-                novedades_to_update,
-                ['estadonomina']
-            )
+            # ACTUALIZACIÓN MASIVA: Actualizar TODAS las líneas de la nómina a estado 2
+            # Esto asegura que todas las líneas se actualicen, incluso si hubo errores en el loop anterior
+            Nomina.objects.filter(idnomina_id=id).update(estadonomina=2)
         
         response = HttpResponse()
         response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal

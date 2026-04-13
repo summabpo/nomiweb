@@ -41,6 +41,8 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
     Payload mínimo v1 (loop real por contratos con movimiento).
     - empresa_id_interno: idempresa en tu BD
     - periodo: 'YYYY-MM'
+
+    Nómina cerrada: crearnomina.estadonomina = FALSE. Líneas definitivas: nomina.estadonomina = 2.
     """
     hoy = date.today().isoformat()
 
@@ -1042,15 +1044,15 @@ def _generar_registros_empleado(
             factor_vac = Decimal(dias_vac) / Decimal(30)
             ibc_vac_salud = int((ibc_anterior["salud_pension"] * factor_vac).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
             ibc_vac_pension = ibc_vac_salud
-            # En ausencias el riesgo no aplica (tarifa/cotización ARL = 0),
-            # pero el IBC se mantiene consistente entre subsistemas en la línea.
+            # ARL: Aportesenlinea EXIGE que días e IBC de ARL sean IGUALES a salud/pensión
+            # aunque no se cobra ARL (tarifa/cotización=0). La novedad VAC indica al operador que no cobre.
             ibc_vac_arl = ibc_vac_salud
             registros.append({
                 "tipo_linea": "VAC",
                 "dias": {
                     "salud": dias_vac,
                     "pension": dias_vac,
-                    "arl": 0,
+                    "arl": dias_vac,
                     "caja": dias_vac,
                 },
                 "ibc": {
@@ -1065,12 +1067,13 @@ def _generar_registros_empleado(
         elif nov_vac["codigo"] in ("SLN", "SUSP"):
             dias_nov = nov_vac["dias"]
             # CCF: IBC = 0 (sin pago remunerado, sin base para caja)
+            # ARL: Aportesenlinea EXIGE días e IBC iguales a salud (novedad SLN indica no cobro)
             registros.append({
                 "tipo_linea": nov_vac["codigo"],
                 "dias": {
                     "salud": dias_nov,
                     "pension": dias_nov,
-                    "arl": 0,
+                    "arl": dias_nov,
                     "caja": dias_nov,
                 },
                 "ibc": {
@@ -1108,7 +1111,7 @@ def _generar_registros_empleado(
             "dias": {
                 "salud": dias_incap,
                 "pension": dias_incap,
-                "arl": 0,
+                "arl": dias_incap,
                 "caja": dias_incap,
             },
             "ibc": {
