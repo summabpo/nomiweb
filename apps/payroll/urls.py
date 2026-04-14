@@ -15,6 +15,7 @@ from .views.accounting import security_provision
 from .views.severance import severance
 from .views.history import history 
 from .views import liquidacion_pila
+from .views.audit import ugpp_audit , payroll_excel
 
 # afsa fsa asfad 
 
@@ -25,6 +26,8 @@ urlpatterns = [
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),
     path('payroll/closet/<str:id>', payroll.payroll_closet, name='payroll_closet'),
     path('payroll/open/<str:id>', payroll.payroll_open, name='payroll_open'),
+    path('payroll/audit/ugpp/<str:payroll_id>/', ugpp_audit.UgppPayrollAudit, name='UgppPayrollAudit'),
+    path('payroll/audit/excel/<str:payroll_id>/', payroll_excel.PayrollAuditExcel, name='PayrollAuditExcel'),
 
 
     #electronic_payroll
