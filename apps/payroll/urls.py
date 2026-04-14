@@ -79,6 +79,7 @@ urlpatterns = [
     
     
     path('severance/annual/', severance.severance_annual_calculation, name='severance_annual_calculation'),
+    path('severance/monthly/<int:idc>/<int:year>', severance.severance_monthly_detail, name='severance_monthly_detail'),
     
     ### time 
     path('time/list', time.time_list, name='time_list'),
