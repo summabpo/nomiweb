@@ -43,7 +43,7 @@
 
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        Informacion de Liquidacion
+                                        Informacion de Cesantias
                                     </h3>
                                 </div>
 
@@ -61,6 +61,7 @@
                                                     <th>Base mes </th>
                                                     <th>Extras</th>
                                                     <th>Cesantias</th>
+                                                    <th>Valcesaacum</th>
                                                     <th>Intereses</th>
                                                     <th>C. Suspensiones</th>
                                                     <th>C. Dias</th>
@@ -80,9 +81,9 @@
                                                     <td>{{ item.transporte|format_currency }}</td>
                                                     <td>{{ item.base_mes|format_currency }}</td>
                                                     <td>{{ item.extras|format_currency }}</td>
-                                                    <td>{{ item.cesantias|format_currency }}</td>
+                                                    <td>{{ item.cesantias_real|format_currency }}</td>
+                                                    <td>{{ item.cesantias_sum|format_currency }}</td>
                                                     <td>{{ item.intereses|format_currency }}</td>
-                                    
                                                     <td>{{ item.suspensiones }}</td>
                                                     <td>{{ item.dias }}</td>
                                     
