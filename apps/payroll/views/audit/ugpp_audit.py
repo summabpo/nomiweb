@@ -1,21 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
 from apps.common.models import Crearnomina , Tipodenomina , Liquidacion , EditHistory , Conceptosfijos , Salariominimoanual,Conceptosdenomina , Empresa , Anos , Nomina , Contratos
-from apps.payroll.forms.PayrollForm import PayrollForm
-from django.contrib import messages
-from django.http import JsonResponse
-from apps.components.humani import format_value
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from decimal import Decimal
-import json
-from django.http import QueryDict
-from django.urls import reverse
 from decimal import Decimal, ROUND_HALF_UP
-from apps.components.close_employee_payroll import close_employee_payroll , guardar_historico_nomina
-from django.db import transaction
 from apps.components.salary import salario_mes
 from decimal import Decimal, ROUND_HALF_UP , getcontext , ROUND_CEILING , ROUND_UP
 from django.db.models import Sum, Count, Q
@@ -51,11 +39,11 @@ def get_audit_total_errors(payroll_id):
     errors_list = []
 
     errors_count1 , errors_list1 = error_salary_audit(payroll_id)
-    errors_count2 , errors_list2 = error_contributions_audit(payroll_id)
-    errors_count3 , errors_list3 = error_transport_audit(payroll_id)
+    #errors_count2 , errors_list2 = error_contributions_audit(payroll_id)
+    #errors_count3 , errors_list3 = error_transport_audit(payroll_id)
     
-    errors_count = errors_count1 + errors_count2 + errors_count3
-    errors_list = errors_list1 + errors_list2 + errors_list3
+    errors_count = errors_count1 
+    errors_list = errors_list1 
 
     return errors_count , errors_list
 
@@ -85,8 +73,7 @@ def error_salary_audit(payroll_id):
     ).filter(
         idnomina_id=payroll_id,
         idconcepto__codigo__in=conceptos,
-        estadonomina=1
-    )
+    )[:2]
 
     for data in registros:
 
@@ -100,7 +87,7 @@ def error_salary_audit(payroll_id):
         # ==========================================
         if contrato_id not in contratos_cache:
             salario = salario_mes(contrato, mes, anio)
-            acumulados = precargar_acumulados(nomina, contrato_id)
+            acumulados = precargar_acumulados(nomina,codigo)
 
             contratos_cache[contrato_id] = {
                 "salario": Decimal(salario),
@@ -109,12 +96,11 @@ def error_salary_audit(payroll_id):
 
         salario = contratos_cache[contrato_id]["salario"]
         acumulados = contratos_cache[contrato_id]["acumulados"]
-
+        
         # ==========================================
         # DIAS
         # ==========================================
         diasnomina = calcular_dias(contrato, nomina, codigo, acumulados)
-
         # ==========================================
         # VALIDACIONES BASE
         # ==========================================
@@ -205,7 +191,6 @@ def error_transport_audit(payroll_id):
     ).filter(
         idnomina_id=payroll_id,
         idconcepto__codigo=2,
-        estadonomina=1
     )
 
     for data in registros:
@@ -252,7 +237,6 @@ def error_transport_audit(payroll_id):
         total_base_trans = Nomina.objects.filter(
             idcontrato=contrato,
             idnomina_id=payroll_id,
-            estadonomina=1,
             idconcepto__indicador__nombre='basetransporte'
         ).exclude(
             idconcepto__codigo=2
@@ -342,7 +326,6 @@ def error_contributions_audit(payroll_id):
         'idconcepto'
     ).filter(
         idnomina_id=payroll_id,
-        estadonomina=1,
         idconcepto__codigo__in=[60, 70, 90]
     )
 
@@ -360,7 +343,7 @@ def error_contributions_audit(payroll_id):
             total_base_ss = Nomina.objects.filter(
                 idcontrato=contrato,
                 idnomina_id=payroll_id,
-                estadonomina=1,
+                
                 idconcepto__indicador__nombre='basesegsocial'
             ).exclude(
                 idconcepto__codigo__in=[60, 70, 90]
