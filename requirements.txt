@@ -20,3 +20,4 @@ django-import-export==4.4.0
 django-debug-toolbar==4.4.6
 django-allauth[socialaccount]==0.63.1
 psycopg[binary]==3.1.18
+PyPDF2==3.0.1
