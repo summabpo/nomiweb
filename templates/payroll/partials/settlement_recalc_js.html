@@ -108,7 +108,10 @@
   function recalculateSettlementTotals(modalContent) {
     if (!modalContent || !getById(modalContent, 'dias_cesantias')) return;
 
-    var diasCes = Math.trunc(getNumber(modalContent, 'dias_cesantias'));
+    var diasCesEfectivos = Math.trunc(getNumber(modalContent, 'dias_cesantias'));
+    var diasSuspCes = Math.trunc(getNumber(modalContent, 'dias_susp_ces'));
+    var diasInteresesCes = diasCesEfectivos + diasSuspCes;
+
     var diasPri = Math.trunc(getNumber(modalContent, 'dias_primas'));
     var diasVac = getNumber(modalContent, 'dias_vacaciones');
 
@@ -116,10 +119,10 @@
     var basePri = getNumber(modalContent, 'base_primas');
     var baseVac = getNumber(modalContent, 'base_vacaciones');
 
-    var cesantias = Math.ceil((baseCes * diasCes) / 360);
+    var cesantias = Math.ceil((baseCes * diasCesEfectivos) / 360);
     var prima = Math.ceil((diasPri / 360) * basePri);
     var vacaciones = Math.ceil((baseVac * diasVac) / 30);
-    var intereses = Math.ceil(cesantias * 0.12 * (diasCes / 360));
+    var intereses = Math.ceil(cesantias * 0.12 * (diasInteresesCes / 360));
 
     setIntegerField(modalContent, 'valor_cesantias', cesantias);
     setIntegerField(modalContent, 'valor_intereses', intereses);

@@ -43,7 +43,7 @@ LOCAL_APPS = [
     'apps.administrator',
     'apps.payroll',       # Payroll application
     'apps.mar_ia',             # Chat IA empleados
-    #'apps.pila',              #Ms liquidación de PILA
+    'apps.pila',  # Liquidación PILA (payload, comandos manage.py: probar_pila_payload, verificar_ibc_empleado, …)
     # 'apps.api_database',  # API database applicatio#n
 ]
 THIRD_APPS = [

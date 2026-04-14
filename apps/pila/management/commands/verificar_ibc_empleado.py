@@ -112,7 +112,51 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'   TOTAL IBC: ${total_ibc:,.0f}'))
             else:
                 self.stdout.write(self.style.WARNING('   ⚠️  No hay conceptos con indicador 6 (basesegsocial)'))
-        
+
+        # 2b. VST (indicador 29) — mismo criterio que payload_builder._get_vst_por_contrato_mes
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT cd.nombreconcepto, COALESCE(n.valor, 0)
+                FROM public.nomina n
+                JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
+                JOIN public.anos a ON a.idano = cn.anoacumular_id
+                JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
+                WHERE n.idcontrato_id = %s
+                  AND cn.mesacumular = %s
+                  AND a.ano = %s
+                  AND cn.estadonomina = FALSE
+                  AND n.estadonomina = 2
+                  AND EXISTS (
+                    SELECT 1
+                    FROM public.conceptosdenomina_indicador cdi
+                    WHERE cdi.conceptosdenomina_id = cd.idconcepto
+                      AND cdi.indicador_id = 29
+                  )
+                ORDER BY cd.nombreconcepto
+                """,
+                [idcontrato, mesacumular, ano],
+            )
+            vst_rows = cursor.fetchall()
+        self.stdout.write(f'\n📌 VST (indicador 29 - variación transitoria salario):')
+        if vst_rows:
+            total_vst = 0
+            for nombreconcepto, valor in vst_rows:
+                total_vst += valor or 0
+                self.stdout.write(f'   + {nombreconcepto}: ${valor or 0:,.0f}')
+            self.stdout.write(self.style.SUCCESS(f'   TOTAL VST (payload PILA): ${total_vst:,.0f}'))
+            self.stdout.write(
+                '   Si TOTAL VST es 0 pero esperas valor > 0, vincula los conceptos en '
+                'conceptosdenomina_indicador con indicador_id = 29.'
+            )
+        else:
+            self.stdout.write(
+                self.style.WARNING(
+                    '   ⚠️  Sin movimientos con indicador 29: no habrá novedad VST salvo '
+                    'fallback IBC > salario (indicador 6 > contratos.salario).'
+                )
+            )
+
         # 3. Verificar qué hay en el payload.json
         import json
         import os

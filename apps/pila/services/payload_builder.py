@@ -2,7 +2,10 @@
 
 from datetime import date
 import calendar
+import logging
 from decimal import Decimal, ROUND_HALF_UP
+
+logger = logging.getLogger(__name__)
 from django.db import connection
 from datetime import timedelta
 from apps.common.models import Empresa
@@ -38,6 +41,8 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
     Payload mínimo v1 (loop real por contratos con movimiento).
     - empresa_id_interno: idempresa en tu BD
     - periodo: 'YYYY-MM'
+
+    Nómina cerrada: crearnomina.estadonomina = FALSE. Líneas definitivas: nomina.estadonomina = 2.
     """
     hoy = date.today().isoformat()
 
@@ -214,7 +219,8 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
         )
 
         clase_riesgo = _tarifa_arl_a_clase_riesgo(row.get("tarifa_arl"))
-        codigo_centro_trabajo = row.get("codigo_centro_trabajo")  # centrotrabajo_id de contratos (campo 62)
+        # Campo 62 TXT: centrotrabajo.codigo_operador si viene informado; si no, centrotrabajo_id del contrato
+        codigo_centro_trabajo = row.get("codigo_centro_trabajo")
 
         # --- Datos comunes del empleado ---
         empleado_base = {
@@ -231,7 +237,7 @@ def build_payload_pila_minimo(*, empresa_id_interno: int, periodo: str) -> dict:
             "subtipo_cotizante": subtipo_cot,
             "salario_basico": str(row["salario_basico"] or 0),
             "clase_riesgo": clase_riesgo,
-            "codigo_centro_trabajo": codigo_centro_trabajo,  # De BD por empresa; None si no aplica
+            "codigo_centro_trabajo": codigo_centro_trabajo,  # ct.codigo_operador o fallback centrotrabajo_id
 
             "entidades": {
                 "eps": row["eps_codigo"],
@@ -364,7 +370,7 @@ def _get_flags_tipo_cotizante(tipo_cotizante: str) -> dict:
 
 
 # Tarifa ARL % -> clase_riesgo (1-5) para PILA campo 78 pos 513
-# codigo_centro_trabajo (campo 62) viene de BD por empresa, no del diccionario
+# codigo_centro_trabajo (campo 62): centrotrabajo.codigo_operador si existe; si no, centrotrabajo_id
 _TARIFA_ARL_A_CLASE = {
     Decimal("0.522"): "1",
     Decimal("1.044"): "2",
@@ -386,19 +392,24 @@ def _tarifa_arl_a_clase_riesgo(tarifa) -> str:
 
 
 def _get_contratos_con_movimiento_mes(empresa_id: int, mesacumular: str, ano: int) -> list[int]:
+    """
+    Contratos con líneas de nómina en el periodo.
+    El alcance es por empresa del contrato y de la liquidación (no por conceptosdenomina.id_empresa_id),
+    para no excluir empleados cuyos conceptos no repiten id_empresa (p. ej. liquidación vs nómina regular).
+    """
     with connection.cursor() as cursor:
         cursor.execute(
             """
             SELECT DISTINCT n.idcontrato_id
             FROM public.nomina n
-            JOIN public.conceptosdenomina cd
-              ON cd.idconcepto = n.idconcepto_id
             JOIN public.crearnomina cn
               ON cn.idnomina = n.idnomina_id
             JOIN public.anos a
               ON a.idano = cn.anoacumular_id
-            WHERE cd.id_empresa_id = %s
-              AND cn.id_empresa_id = %s
+            JOIN public.contratos c
+              ON c.idcontrato = n.idcontrato_id
+             AND c.id_empresa_id = %s
+            WHERE cn.id_empresa_id = %s
               AND cn.mesacumular = %s
               AND a.ano = %s
               AND cn.estadonomina = FALSE
@@ -441,7 +452,12 @@ def _get_ficha_contratos(empresa_id: int, ids_contrato: list[int]) -> list[dict]
       ct.tarifaarl::numeric          AS tarifa_arl,
       ct.actividad_economica_arl     AS actividad_economica_arl,
 
-      c.centrotrabajo_id             AS codigo_centro_trabajo
+      CASE
+        WHEN ct.codigo_operador IS NOT NULL
+             AND NULLIF(BTRIM(ct.codigo_operador::text), '') IS NOT NULL
+        THEN CAST(NULLIF(BTRIM(ct.codigo_operador::text), '') AS INTEGER)
+        ELSE c.centrotrabajo_id
+      END                            AS codigo_centro_trabajo
 
     FROM public.contratos c
     JOIN public.contratosemp ce
@@ -497,10 +513,10 @@ def _get_ibc_por_contrato_mes(
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
+    JOIN public.contratos c ON c.idcontrato = n.idcontrato_id AND c.id_empresa_id = %s
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
     JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto
     WHERE cn.id_empresa_id = %s
-      AND cd.id_empresa_id = %s
       AND cn.mesacumular = %s
       AND a.ano = %s
       AND cn.estadonomina = FALSE
@@ -533,25 +549,37 @@ def _get_vst_por_contrato_mes(
     """
     VST = suma de nomina.valor donde idconcepto tiene indicador_id=29
     (Variación transitoria de salario PILA).
+    Cada línea de nomina se cuenta una sola vez (EXISTS), aunque el concepto tenga más indicadores.
     Retorna dict {idcontrato: valor_vst}
     """
+    if not ids_contrato:
+        return {}
     sql = """
     SELECT
       n.idcontrato_id,
-      COALESCE(SUM(CASE WHEN cdi.indicador_id = 29 THEN COALESCE(n.valor,0) ELSE 0 END), 0) AS vst
+      COALESCE(SUM(
+        CASE
+          WHEN EXISTS (
+            SELECT 1
+            FROM public.conceptosdenomina_indicador cdi
+            WHERE cdi.conceptosdenomina_id = cd.idconcepto
+              AND cdi.indicador_id = 29
+          )
+          THEN COALESCE(n.valor, 0)
+          ELSE 0
+        END
+      ), 0) AS vst
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
+    JOIN public.contratos c ON c.idcontrato = n.idcontrato_id AND c.id_empresa_id = %s
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
-    JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto
     WHERE cn.id_empresa_id = %s
-      AND cd.id_empresa_id = %s
       AND cn.mesacumular = %s
       AND a.ano = %s
       AND cn.estadonomina = FALSE
       AND n.estadonomina = 2
       AND n.idcontrato_id = ANY(%s)
-      AND cdi.indicador_id = 29
     GROUP BY n.idcontrato_id;
     """
     out = {c: Decimal("0") for c in ids_contrato}
@@ -561,7 +589,13 @@ def _get_vst_por_contrato_mes(
             for idc, vst in cursor.fetchall():
                 out[int(idc)] = Decimal(str(vst or 0))
     except Exception:
-        pass
+        logger.exception(
+            "PILA: falló _get_vst_por_contrato_mes (empresa_id=%s mes=%s año=%s contratos=%s)",
+            empresa_id,
+            mesacumular,
+            ano,
+            ids_contrato[:20],
+        )
     return out
 
 
@@ -587,10 +621,10 @@ def _get_exceso_ley_1393_por_contrato(
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
+    JOIN public.contratos c ON c.idcontrato = n.idcontrato_id AND c.id_empresa_id = %s
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
     JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto AND cdi.indicador_id = 12
     WHERE cn.id_empresa_id = %s
-      AND cd.id_empresa_id = %s
       AND cn.mesacumular = %s
       AND a.ano = %s
       AND cn.estadonomina = FALSE
@@ -1010,15 +1044,15 @@ def _generar_registros_empleado(
             factor_vac = Decimal(dias_vac) / Decimal(30)
             ibc_vac_salud = int((ibc_anterior["salud_pension"] * factor_vac).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
             ibc_vac_pension = ibc_vac_salud
-            # En ausencias el riesgo no aplica (tarifa/cotización ARL = 0),
-            # pero el IBC se mantiene consistente entre subsistemas en la línea.
+            # ARL: Aportesenlinea EXIGE que días e IBC de ARL sean IGUALES a salud/pensión
+            # aunque no se cobra ARL (tarifa/cotización=0). La novedad VAC indica al operador que no cobre.
             ibc_vac_arl = ibc_vac_salud
             registros.append({
                 "tipo_linea": "VAC",
                 "dias": {
                     "salud": dias_vac,
                     "pension": dias_vac,
-                    "arl": 0,
+                    "arl": dias_vac,
                     "caja": dias_vac,
                 },
                 "ibc": {
@@ -1033,12 +1067,13 @@ def _generar_registros_empleado(
         elif nov_vac["codigo"] in ("SLN", "SUSP"):
             dias_nov = nov_vac["dias"]
             # CCF: IBC = 0 (sin pago remunerado, sin base para caja)
+            # ARL: Aportesenlinea EXIGE días e IBC iguales a salud (novedad SLN indica no cobro)
             registros.append({
                 "tipo_linea": nov_vac["codigo"],
                 "dias": {
                     "salud": dias_nov,
                     "pension": dias_nov,
-                    "arl": 0,
+                    "arl": dias_nov,
                     "caja": dias_nov,
                 },
                 "ibc": {
@@ -1076,7 +1111,7 @@ def _generar_registros_empleado(
             "dias": {
                 "salud": dias_incap,
                 "pension": dias_incap,
-                "arl": 0,
+                "arl": dias_incap,
                 "caja": dias_incap,
             },
             "ibc": {
@@ -1119,10 +1154,12 @@ def _generar_registros_empleado(
     if not registros:
         dias_normales = dias_base
 
-    # VST: si IBC > salario, el validador exige novedad VST
+    # VST (línea NORMAL):
+    # - Si suma(indicador 29) > 0: novedad VST con ese valor e IBC = salario_básico×(días/30)+VST (VST sin prorratear).
+    # - Si no hay ind.29 pero IBC(ind.6) > salario contractual: VST = diferencia (tolerancia 1 $).
     novedades_normal = list(novedades_ing_ret)  # ING/RET van en línea normal
     ibc_sp = ibc_actual.get("salud_pension", Decimal("0"))
-    vst_valor = vst
+    vst_valor = max(Decimal("0"), vst)
     # Tolerancia por redondeo: el validor puede exigir VST cuando IBC > salario,
     # pero diferencias "menores" (ej. 1 peso) pueden ser solo efecto de redondeos.
     tolerancia_vst = Decimal("1")
@@ -1145,10 +1182,9 @@ def _generar_registros_empleado(
             "valor": vst_pesos,
         })
     
-    # IBC línea normal:
-    # - Si es la única línea y tiene 30 días, usar IBC del mes (ibc_actual).
-    # - Si tiene menos de 30 días (multi-línea) o hay VST:
-    #   salario proporcional por días + VST completo (sin prorratear).
+    # IBC línea NORMAL:
+    # - Sin VST (vst_valor=0) y única línea 30 días: usar IBC del mes desde nómina (ind. 6/16/17).
+    # - Con VST > 0: siempre salario proporcional (días/30) + importe VST (no se prorratea por días).
     if dias_normales >= 30 and not registros and vst_valor <= 0:
         ibc_normal = {
             "salud": str(ibc_actual["salud_pension"]),
