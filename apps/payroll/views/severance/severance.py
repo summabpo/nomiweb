@@ -247,9 +247,9 @@ def severance_annual_calculation(request):
             contratos_activos = Contratos.objects.filter(
                 estadocontrato=1,
                 estadoliquidacion='3',
-                idcontrato__in=[7934,7938,7939],
+                #idcontrato__in=[7934,7938,7939],
                 #idcontrato__in=[7962,7974,12071],
-                #idcontrato = 7938, 
+                #idcontrato = 8137, 
                 tipocontrato__idtipocontrato__in=[1, 2, 3, 4],
                 fechainiciocontrato__lte=last_day,
                 id_empresa = idempresa,
@@ -271,7 +271,16 @@ def severance_annual_calculation(request):
                 salario_basico = salario_mes(c , fecha_inicio.month, fecha_inicio.year)
                 transporte_mes = transporte_auxiliar(c,sal_min, aux_tra, fecha_inicio.month, fecha_inicio.year)
 
-                cc , intr ,ccr , extras = valor_cesantias(c,year,fecha_inicio,fecha_fin, iccp, ccp , salario_basico , transporte_mes)  
+                
+                
+                if c.tiposalario.idtiposalario == 2 or c.tipocontrato_id == 6:
+                    cc = 0
+                    intr = 0
+                    ccr = 0
+                    extras = 0
+                else :
+                    cc , intr ,ccr , extras = valor_cesantias(c,year,fecha_inicio,fecha_fin, iccp, ccp , salario_basico , transporte_mes)  
+
                 
                 contratos_empleados.append({
                         'idcontrato': c.idcontrato,
@@ -321,7 +330,12 @@ def severance_monthly_detail(request, idc, year):
 
     conceptos_dict = {c[0]: c[1] for c in conceptos}
 
-    icc = to_decimal(conceptos_dict.get('Intereses de Cesantias'), '12')  # 12% anual
+    iccp = to_decimal(conceptos_dict.get('Intereses de Cesantias'), '12')  # 12% anual
+    ccp = to_decimal(conceptos_dict.get('CESANTIAS'), '8.3333')
+
+    
+
+    data = Decimal(30)/Decimal(360)
 
     contrato = Contratos.objects.get(idcontrato=idc)
     year_obj = Anos.objects.get(ano=year)
@@ -341,10 +355,13 @@ def severance_monthly_detail(request, idc, year):
     nomina_list = []
 
     total_cesantias_acumuladas = Decimal('0.0')
+    salario_basico = salario_mes(contrato, fecha_inicio.month, fecha_inicio.year)
+    transporte_mes = transporte_auxiliar(contrato,sal_min, aux_tra, fecha_inicio.month, fecha_inicio.year)
 
+    
     for mes_nombre, dias in dias_por_mes.items():
 
-        dias = Decimal(dias)
+        
 
         base_mes = (
             Nomina.objects.filter(
@@ -352,30 +369,10 @@ def severance_monthly_detail(request, idc, year):
                 estadonomina=2,
                 idnomina__anoacumular__ano=year,
                 idnomina__mesacumular=mes_nombre,
-                idconcepto__indicador__nombre='baseprima'
+                idconcepto__indicador__nombre='basecesantias'
             ).aggregate(total=Sum('valor'))['total'] or 0
         )
 
-
-        transporte_mes = (
-            Nomina.objects.filter(
-                idcontrato=contrato,
-                estadonomina=2,
-                idnomina__anoacumular__ano=year,
-                idnomina__mesacumular=mes_nombre,
-                idconcepto__codigo= 2 # Transporte
-                #idconcepto__codigo__in=[1,4,42]
-            )
-            .aggregate(total=Sum('valor'))['total']
-            or 0
-        )
-        
-    
-
-        #for base_mes_aux in base_mes_aux:
-
-            #print(f"Concepto: {base_mes_aux.idconcepto.nombreconcepto} | Valor: {base_mes_aux.valor} | cantidad: {base_mes_aux.cantidad} - mes: {base_mes_aux.idnomina.mesacumular} ")
-        
         salarios_mes = (
             Nomina.objects.filter(
                 idcontrato=contrato,
@@ -389,33 +386,49 @@ def severance_monthly_detail(request, idc, year):
             or 0
         )
 
+
+        suspensiones_mes = (
+            Nomina.objects.filter(
+                idcontrato=contrato,
+                estadonomina=2,
+                idnomina__anoacumular__ano=year,
+                idnomina__mesacumular=mes_nombre,
+                idconcepto__indicador__nombre='suspcontrato'
+            )
+            .aggregate(total=Sum('cantidad'))['total']
+            or 0
+        )
+
+
         if salarios_mes != 0:
             extras = salarios_mes 
         else:
             extras = 0
 
-        
+        dias = Decimal(dias) - Decimal(suspensiones_mes)
 
         sueldo_basico = Decimal(salario_mes(contrato, fecha_inicio.month, fecha_inicio.year))
 
         transporte = Decimal(transporte_auxiliar(contrato, sal_min, aux_tra, fecha_inicio.month, fecha_inicio.year)) or 0
 
-        #base_mes = Decimal(base_mes) + Decimal(transporte_mes)
-        # 
-        cesantias_mes = (base_mes) * (Decimal(30) / Decimal(360))
+        #base_mes =  Decimal( base_mes /  Decimal(30) ) * Decimal(dias)
+        cesantias_mes = (base_mes * (ccp / Decimal('100'))).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP) 
 
-        # 🔹 Acumular cesantías
-        total_cesantias_acumuladas += cesantias_mes
+        # INTERESES CORRECTOS (sobre cesantías acumuladas)
+        intereses_mes = (base_mes * (iccp / Decimal('100'))).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP) # 12% anual proporcional mensual
 
-        # ✅ INTERESES CORRECTOS (sobre cesantías acumuladas)
-        intereses_mes = (
-            total_cesantias_acumuladas * (icc / Decimal('100')) * (dias / Decimal(360))
-        ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-        suspensiones = Decimal('0')
-        vacaciones = Decimal('0')
 
+        intereses_real = (salarios_mes + salario_basico  + transporte_mes ) * ( dias / Decimal(360))
+
+        
         total = cesantias_mes + intereses_mes
+
+        if contrato.tiposalario.idtiposalario == 2 or contrato.tipocontrato_id == 6:
+            cesantias_mes = 0
+            intereses_mes = 0
+            intereses_real = 0
+            total = 0   
 
         nomina_list.append({
             "mes": mes_nombre,
@@ -424,10 +437,10 @@ def severance_monthly_detail(request, idc, year):
             "base_mes": float(base_mes),
             "extras":extras,
             "transporte": float(transporte),
-            "cesantias": float(cesantias_mes),
+            "cesantias_real": float(intereses_real),
+            "cesantias_sum": float(cesantias_mes),
             "intereses": float(intereses_mes),
-            "suspensiones": float(suspensiones),
-            "vacaciones": float(vacaciones),
+            "suspensiones": float(suspensiones_mes),
             "dias": int(dias),
             "total": float(total),
         })
@@ -440,57 +453,6 @@ def severance_monthly_detail(request, idc, year):
     }
 
     return render(request, 'payroll/severance_monthly_detail.html', context)
-
-
-def extras(contrato,year, fecha_inicio, fecha_fin):
-    dias_por_mes = dias_por_mes_360(fecha_inicio, fecha_fin)
-
-
-    dias_por_mes = dias_por_mes_360(fecha_inicio, fecha_fin)
-
-    resultado = {}
-    total_cesantias = Decimal('0.0')
-    dias_cesantias = 0
-
-    for mes_nombre, dias in dias_por_mes.items():
-
-        base_mes = (
-            Nomina.objects.filter(
-                idcontrato=contrato,
-                estadonomina=2,
-                idnomina__anoacumular__ano=year,
-                idnomina__mesacumular=mes_nombre,
-                idconcepto__indicador__nombre='baseprima'
-            )
-            .aggregate(total=Sum('valor'))['total']
-            or 0
-        )
-
-
-        salarios_mes = (
-            Nomina.objects.filter(
-                idcontrato=contrato,
-                estadonomina=2,
-                idnomina__anoacumular__ano=year,
-                idnomina__mesacumular=mes_nombre,
-                idconcepto_codigo__in=[1,2,4,42]
-            )
-            .aggregate(total=Sum('valor'))['total']
-            or 0
-        )
-
-        extras = salarios_mes - base_mes
-
-        resultado[mes_nombre] = {
-            'dias': dias,
-            'base': float(base_mes),
-            'extras': float(extras)
-        }
-
-        total_cesantias += extras
-        dias_cesantias += dias
-
-    return 0
 
 
 def dias_suspension(contrato,year, fecha_inicio, fecha_fin):
@@ -539,7 +501,6 @@ def valor_cesantias(contrato, year, fecha_inicio, fecha_fin , cons_int , cons_ce
     dias_por_mes = dias_por_mes_360(fecha_inicio, fecha_fin)
 
     resultado = {}
-
 
     total_cesantias = Decimal('0.0')
     total_intereses_base = Decimal('0.0')
