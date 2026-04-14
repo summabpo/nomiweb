@@ -140,7 +140,7 @@ Listado de Empleados
             up-dismissable ="false"
             up-cache="false"
 
-            href="{% url 'payroll:bonus_p_settlement_add' date_init_str date_end_str proy %}" 
+            href="" 
             
             >
             <i class="fa-solid fa-plus"></i> Agregar
@@ -158,9 +158,19 @@ Listado de Empleados
                         <th>Transporte</th>
                         <th>Promedio Extra</th>
                         <th>Dias cesantias</th>
-                        <th>Valor Cesantias</th>
-                        <th>int. Cesantias</th>
+                        <th>Dias suspension</th>|
+                        <th>Cesantias</th>
+                        <th>Intereses de Ces.</th>
+                        <th>Valcesaacum</th>
                         <th>Fondo Cesantias</th>
+                        <th>
+                            <div class="container d-flex justify-content-center align-items-center">
+                                <i class="ki-duotone ki-chart fs-3">
+                                    <i class="path1"></i>
+                                    <i class="path2"></i>
+                                </i>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -172,11 +182,25 @@ Listado de Empleados
                             <td >{{ item.fechainiciocontrato |date:'d/m/Y' }}</td>
                             <td >{{ item.salario |format_currency }}</td>
                             <td >{{ item.trans |format_currency }}</td>
-                            <td >{{ item.extra|format_currency }}</td>
+                            <td >{{ item.extras|format_currency }}</td>
                             <td >{{ item.dias_cesantias |format_currency }}</td>
+                            <td >{{ item.dias_suspension |format_currency }}</td>
                             <td >{{ item.valor_cesantias |format_currency }}</td>
                             <td >{{ item.intereses_cesantias |format_currency }}</td>
+                            <td >{{ item.valor_cesantias_r |format_currency }}</td>
                             <td >{{ item.fondo_cesantias |default:"N/A" }}</td>
+                            <td >
+                                <a 
+                                    target="_blank" 
+                                    href="{% url 'payroll:severance_monthly_detail' item.idcontrato year %}"
+                                    class="btn btn-icon btn-light-info"
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-custom-class="tooltip-inverse" 
+                                    data-bs-placement="top"
+                                    title="Resumen de Cesantias">
+                                    <i class="fa-regular fa-eye fs-3"></i>
+                                </a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
