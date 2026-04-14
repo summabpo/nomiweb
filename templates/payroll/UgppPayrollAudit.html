@@ -1,0 +1,1008 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+{% load custom_filters %}
+
+
+
+{% block navbar %}
+    {% include 'base/navbar_payroll.html' %}               
+{% endblock %}
+
+{% block cssarch %}
+
+{% endblock %}
+
+{% load static %}
+
+{% block title %}
+    Nomiweb.co - Auditoría UGPP de Nómina
+{% endblock %}
+
+{% block sub_titulo1 %} 
+Auditoría de Nómina
+{% endblock %}
+
+{% block sub_titulo2 %} 
+Auditoría UGPP - Nómina #{{ payroll.idnomina }}
+{% endblock %}
+
+{% block titulo2 %} 
+    {{ payroll.nombrenomina }}
+{% endblock %}
+
+
+{% block css %}
+
+
+
+{% endblock %}
+
+
+
+{% block actions %}
+    
+    <!-- Separación entre grupos -->
+    <!-- Botón para activar modal -->
+    <a href="{% url 'payroll:payroll' %}"  class="btn btn-light-primary"   >
+        <i class="ki-duotone ki-exit-left fs-2 ">             
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+        Atrás
+    </a>  
+    
+    <div style="width: 10px;"></div>
+    
+    <a
+        class='btn btn-light-info'
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "small"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="bottom" 
+        href="">
+        <i class="fa-solid fa-arrow-rotate-right fs-2"></i>
+        Recalcular Auditoría
+
+    </a>
+
+
+{% endblock %}
+
+{% block content %}
+
+
+<!-- 🔹 CARDS SALARIOS -->
+<div class="row mb-5">
+
+    <!-- Salarios normales -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Salarios Ordinarios</h6>
+                <h3 class="fw-bold text-primary">
+                    {{ salaries.normales|format_currency }}
+                </h3>
+                <span class="text-muted">
+                    {{ salaries.normales_count }} empleados
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Salarios integrales -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Salarios Integrales</h6>
+                <h3 class="fw-bold text-success">
+                    {{ salaries.integral|format_currency }}
+                </h3>
+                <span class="text-muted">
+                    {{ salaries.integral_count }} empleados
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aprendices -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Aprendices</h6>
+                <h3 class="fw-bold text-warning">
+                    {{ salaries.aprendices|format_currency }}
+                </h3>
+                <span class="text-muted">
+                    {{ salaries.aprendices_count }} aprendices
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Otros (servicios, temporales, etc.) -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-secondary">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Otros Tipos</h6>
+                <h3 class="fw-bold text-dark">
+                    {{ salaries.otros|format_currency }}
+                </h3>
+                <span class="text-muted">
+                    {{ salaries.otros_count }} registros
+                </span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- 🔹 CARDS SALARIOS -->
+<div class="row mb-5">
+
+    <!-- Salarios normales -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">EPS (Salud)</h6>
+                <h3 class="fw-bold text-primary">
+                    {{ contributions.eps|format_currency }}
+                </h3>
+                <span class="text-muted">
+                    {{ contributions.eps_count }} 
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Salarios integrales -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Pensión</h6>
+                <h3 class="fw-bold text-success">
+                    {{ contributions.pension|format_currency }}
+                </h3>
+                <span class="text-muted">
+                    {{ contributions.pension_count }} 
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aprendices -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Incapacidades</h6>
+                <h3 class="fw-bold text-warning">
+                    {{ contributions.incapacidades|format_currency }}
+                </h3>
+                <span class="text-muted">
+                    {{ contributions.incapacidades_count }} 
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row mb-5">
+
+    <!-- Empleados auditados -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Empleados</h6>
+                <h3 class="fw-bold">
+                    {{ total_employees |format_currency}}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Empleados auditados -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Total a pagar</h6>
+                <h3 class="fw-bold">
+                    {{ total_to_pay |format_currency}}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Parafiscales -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Total esperado</h6>
+                <h3 class="fw-bold text-dark">
+                    {{ total_to_pay |format_currency}}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Errores -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-danger">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Errores Detectados</h6>
+                <h3 class="fw-bold text-danger">
+                    {{ total_errors|format_currency |default:0 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    
+
+
+<!-- 🔻 ACORDEÓN DE ERRORES -->
+<div class="accordion" id="accordionErrors">
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingErrors">
+            <button class="accordion-button text-danger fw-bold" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseErrors">
+                
+                Errores detectados ({{ total_errors }})
+            </button>
+        </h2>
+
+        <div id="collapseErrors"
+             class="accordion-collapse collapse show"
+             data-bs-parent="#accordionErrors">
+
+            <div class="accordion-body">
+
+                {% if errors_list %}
+                    <ul class="list-group">
+                        {% for error in errors_list %}
+                            <li class="list-group-item text-danger">
+                                {{ error }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-success text-center">
+                        ✅ No se encontraron errores en la auditoría
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+{% endblock content %}
+
+{% block js %}
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = event.target.querySelector('#modal-content');
+        if (modalContent) {
+            const checkbox = modalContent.querySelector('#need-comment');
+            if (checkbox) {
+            checkbox.addEventListener('change', toggleCommentField);
+            }
+        }
+        });
+    
+        function toggleCommentField() {
+        const checkbox = document.getElementById('need-comment');
+        const commentField = document.getElementById('comment-field');
+        if (checkbox && commentField) {
+            commentField.style.display = checkbox.checked ? 'block' : 'none';
+        }
+    }
+</script>
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        // Verifica si el target actualizado es #item-list
+        if (event.target.id === 'item-list') {
+            
+            clearFormFields();
+            
+        }
+    });
+
+    function clearFormFields() {
+        const conceptSelect = document.querySelector('#concept');
+        if (conceptSelect) {
+            $(conceptSelect).val(null).trigger('change'); // Para Select2
+            
+        }
+    
+        const cantidadInput = document.querySelector('#cantidad');
+        if (cantidadInput) {
+            cantidadInput.value = '';
+            
+        }
+    
+        const valorInput = document.querySelector('#valor');
+        if (valorInput) {
+            valorInput.value = '';
+        }
+    }
+</script>
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        console.log('Evento up:fragment:inserted disparado'); // Verifica que el evento se esté disparando
+        console.log('Elemento objetivo:', event.target); // Muestra el elemento objetivo del evento
+
+        // Verifica si el fragmento insertado es #item-list
+        if (event.target.matches("#item-list")) {
+            console.log('El elemento #item-list coincide'); // Verifica que el selector coincida
+            var selectedValue = $('#contrato_empleado').val();
+            if (selectedValue) {
+
+                up.reload().then(() => {
+                    // Esperar un breve momento para asegurarse de que el select se renderizó
+                    setTimeout(() => {
+                        if (selectedValue) {
+                            $('#contrato_empleado').val(selectedValue).trigger('change');
+                        }
+                    }, 200); // Espera 500ms para que el select2 se inicialice correctamente
+                });
+
+            } else {
+                const accordion = document.querySelector('#kt_accordion_1_body_1');
+                    if (accordion) {
+                        console.log('Recargando acordeón');
+                        up.reload('#kt_accordion_1_body_1', { failSilently: true }); // Recarga el acordeón
+                    } else {
+                        console.log('El acordeón no existe en el DOM');
+                    }
+            }
+
+        }
+    });
+</script>
+
+
+<script> 
+    
+
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const conceptSelect = document.getElementById('concept');
+        const conceptAmount = document.getElementById('cantidad');
+        const conceptValue = document.getElementById('valor');
+        const conceptId = document.getElementById('idempleado');
+        const conceptPayroll = document.getElementById('idnomina');
+
+        const csrftoken = '{{ csrf_token }}';
+
+        if (conceptSelect) {
+    
+            // Deshabilitar campos inicialmente
+            if (conceptAmount && conceptValue) {
+                conceptAmount.value = '';
+                conceptValue.value = '';
+                conceptAmount.disabled = true;
+                conceptValue.disabled = true;
+            }
+    
+            $(conceptSelect).on('select2:select', function(e) {
+                const selectedValue = e.params.data.id;
+                // Deshabilitar campos inicialmente
+                if (conceptAmount && conceptValue) {
+                    conceptAmount.value = '';
+                    conceptValue.value = '';
+                    conceptAmount.disabled = true;
+                    conceptValue.disabled = true;
+                }
+    
+                
+
+                // Hacer un POST con Unpoly a una URL de Django
+                up.request('{% url "payroll:payroll_concept_info" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    params: {
+                        concept: selectedValue,
+                        idempleado: conceptId.value,
+                        payroll: conceptPayroll.value
+                    },
+                    feedback: true
+                }).then(function(response) {
+                    const data = JSON.parse(response.text);
+
+                    if (data.concept) {
+                        const conceptSelect = document.getElementById('concept');
+                        conceptSelect.value = data.concept;
+                        if (data.formula) {
+                            if (conceptAmount && conceptValue) {
+                                conceptAmount.value = '';
+                                conceptValue.value = '';
+                                conceptAmount.disabled = true;
+                                conceptValue.disabled = true;
+                            }
+                            // Habilitar campos solo si se selecciona algo
+                            if (conceptAmount) {
+                                conceptAmount.disabled = !selectedValue;
+                            }
+                        } else {
+                            if (conceptValue) {
+                                conceptValue.disabled = !selectedValue;
+                            }
+                        }                        
+                        // Si usas Select2, también hay que actualizarlo así:
+                        $(conceptSelect).val(data.concept).trigger('change');
+
+
+                       conceptAmount.addEventListener('input', (event) => {
+                            const cantidad = parseFloat(event.target.value) || 0;
+                            const resultado = cantidad * data.multiplier;
+
+                            conceptValue.value = Math.ceil(resultado);
+                        });
+
+
+
+                    }
+                }).catch(function(error) {
+                    console.error('Error en la petición:', error);
+                });
+
+            });
+            
+            
+
+
+            $(conceptSelect).on('select2:clear', function() {
+                // Deshabilitar campos si se limpia la selección
+                if (conceptAmount && conceptValue) {
+                    conceptAmount.value = '';
+                    conceptValue.value = '';
+                    conceptAmount.disabled = true;
+                    conceptValue.disabled = true;
+                }
+            });
+
+
+        }
+    });
+    
+
+</script> 
+
+    
+<script>
+    function confirmDelete(itemId) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¡No podrás deshacer esta acción!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const csrftoken = '{{ csrf_token }}';
+                // Guardar el valor seleccionado antes del reload
+                var selectedValue = $('#contrato_empleado').val();
+                up.request("{% url 'payroll:payroll_delete' %}", {
+                    method: 'POST',
+                    params: {
+                        idn: itemId,
+                        csrfmiddlewaretoken: csrftoken
+                    },
+                    fail: false
+                }).then((response) => {
+                    // Recargar la página o fragmento con Unpoly
+                    up.reload().then(() => {
+                        // Esperar un breve momento para asegurarse de que el select se renderizó
+                        setTimeout(() => {
+                            if (selectedValue) {
+                                $('#contrato_empleado').val(selectedValue).trigger('change');
+                            }
+                        }, 500); // Espera 500ms para que el select2 se inicialice correctamente
+                    });
+    
+                    toastr.success("Concepto eliminado correctamente", "Éxito");
+                }).catch((response) => {
+                    toastr.error("Ocurrió un error inesperado", "Error"); 
+                    console.error('Error en la solicitud:', response);
+                });
+            }
+        });
+    }
+    
+</script>
+
+
+
+    
+<script>
+    function confirmautomatic(data, idnomina, id) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Se generará el valor automáticamente',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, generar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var selectedValue = $('#contrato_empleado').val();
+
+            // Construyes la URL manualmente
+            let url = `/payroll/payroll/automatic_systems_2/${data}/${idnomina}/${id}/modal`;
+
+            up.request(url, {
+                method: 'GET',
+                fail: false
+            }).then((response) => {
+                up.reload().then(() => {
+                    setTimeout(() => {
+                        if (selectedValue) {
+                            $('#contrato_empleado').val(selectedValue).trigger('change');
+                        }
+                    }, 500);
+                });
+
+                toastr.success("Valor generado automáticamente", "Éxito");
+            }).catch((response) => {
+                toastr.error("Ocurrió un error inesperado", "Error");
+                console.error('Error en la solicitud:', response);
+            });
+        }
+    });
+}
+
+</script>
+
+    
+
+
+<script>
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toastr-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
+    up.on('edit-concepto', function(event) {
+        const idn = event.target.dataset.idn;
+    
+        const select = document.getElementById(`select-${idn}`);
+        const amount = document.getElementById(`amount-${idn}`);
+        const value = document.getElementById(`value-${idn}`);
+        const saveButton = event.target.nextElementSibling;
+        const csrftoken = '{{ csrf_token }}';
+
+        up.request('{% url "payroll:payroll_info_edit" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            params: {
+                concept: select.value,
+                idn: idn,
+            },
+            feedback: true
+        }).then(function(response) {
+            const data = JSON.parse(response.text);
+            console.log('Respuesta exitosa:', data);
+            if (data.formula) {
+                // Habilitar campos solo si se selecciona algo
+                if (amount) {
+                    amount.disabled = false;
+
+                    event.target.hidden = true;
+                    saveButton.hidden = false;
+            
+                    // Volver a habilitar el botón de save por si quedó deshabilitado
+                    saveButton.disabled = false;
+                    saveButton.style.pointerEvents = 'auto';
+                    saveButton.style.opacity = '1';
+
+                    amount.addEventListener('input', (event) => {
+                        const cantidad = parseFloat(event.target.value) || 0;
+                        const resultado = cantidad * data.multiplier;
+                        value.value = Math.ceil(resultado);
+                    });
+
+                }
+            } else {
+                if (value) {
+                    value.disabled = false;
+
+                    event.target.hidden = true;
+                    saveButton.hidden = false;
+            
+                    // Volver a habilitar el botón de save por si quedó deshabilitado
+                    saveButton.disabled = false;
+                    saveButton.style.pointerEvents = 'auto';
+                    saveButton.style.opacity = '1';
+
+                }
+            }
+
+
+
+
+        }).catch(function(error) {
+            console.error('Error en la petición:', error);
+        });
+
+
+
+
+        
+
+
+    });
+
+    up.on('save-concepto', function(event) {
+        
+        const idn = event.target.dataset.idn;
+        // Deshabilitar el botón de save inmediatamente
+        event.target.disabled = true;
+        event.target.style.pointerEvents = 'none';
+        event.target.style.opacity = '0.5';
+
+
+        const data = {
+            idn: idn,
+            amount: document.getElementById(`amount-${idn}`).value,
+            value: document.getElementById(`value-${idn}`).value,
+            concept: document.getElementById(`select-${idn}`).value
+        };
+        
+
+
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        up.request("{% url 'payroll:payroll_edit' %}", {
+            method: 'POST',
+            params: {
+                ...data,
+                csrfmiddlewaretoken: csrftoken
+            },
+            fail: false
+        }).then((response) => {
+            console.log('Respuesta exitosa:', response);
+
+            const res = response.json;
+
+            if (res.mensaje === 'Concepto actualizado correctamente') {
+                const select = document.getElementById(`select-${data.idn}`);
+                const amount = document.getElementById(`amount-${data.idn}`);
+                const value = document.getElementById(`value-${data.idn}`);
+                if (select && amount && value) {
+                    select.disabled = true;
+                    amount.disabled = true;
+                    value.disabled = true;
+
+                    event.target.hidden = true;
+                    event.target.previousElementSibling.hidden = false;
+                    
+                    toastr.success(res.mensaje, "Éxito");
+                    // Verifica si el acordeón existe en el DOM
+                    const accordion = document.querySelector('#kt_accordion_1_body_1');
+                    if (accordion) {
+                        console.log('Recargando acordeón');
+                        up.reload('#kt_accordion_1_body_1', { failSilently: true }); // Recarga el acordeón
+                    } else {
+                        console.log('El acordeón no existe en el DOM');
+                    }
+
+                } else {
+                    toastr.error("Ocurrio un error inesperado", "Error"); 
+                    console.warn('No se encontraron los elementos en el DOM');
+
+                    select.disabled = true;
+                    amount.disabled = true;
+                    value.disabled = true;
+
+                    event.target.hidden = true;
+                    event.target.previousElementSibling.hidden = false;
+                }
+            } else {
+                toastr.error("Ocurrio un error inesperado", "Error"); 
+                console.warn(res.error || 'Ocurrió un error inesperado');
+
+                select.disabled = true;
+                amount.disabled = true;
+                value.disabled = true;
+
+                event.target.hidden = true;
+                event.target.previousElementSibling.hidden = false;
+
+            }
+        }).catch((response) => {
+            toastr.error("Ocurrio un error inesperado", "Error"); 
+            console.error('Error en la solicitud:', response);
+            select.disabled = true;
+            amount.disabled = true;
+            value.disabled = true;
+
+            event.target.hidden = true;
+            event.target.previousElementSibling.hidden = false;
+        });
+
+
+
+    });
+</script>
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+        const modalContent = up.layer.current.element;
+
+        if (modalContent) {
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            
+            // Usamos un pequeño retraso para asegurar el renderizado completo
+            setTimeout(() => {
+                selectElements.forEach((select, index) => {
+                    // Aseguramos un ID único si no tiene uno
+                    if (!select.id) {
+                        select.id = `select2-unique-${Date.now()}-${index}`;
+                    }
+
+                    if (!$(select).data('select2')) {
+                        $(select).select2({
+                            dropdownParent: $(modalContent),
+                            width: '100%'
+                        });
+                    }
+                });
+            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
+        } else {
+            console.log('Contenido completo del fragmento:', event.target.innerHTML);
+        }
+    });
+</script>
+
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-contrato-activos').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 10
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const PAYROLL_MODAL_URL = "{% url 'payroll:flat_modal' %}";
+        const sendRequestButton = document.getElementById("send-request");
+        const csrftoken = '{{ csrf_token }}';
+
+
+            // Enviar solicitud con Unpoly cuando se haga clic en "Enviar"
+            sendRequestButton.addEventListener("click", function () {
+                up.request(PAYROLL_MODAL_URL, {
+                    method: "POST",
+                    params: { key: "valor desde JS" },
+                    headers: { 
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    } // Para seguridad en Django
+
+                    }).then(response => {
+                        console.log("Respuesta del servidor:", response.json);
+                        alert(response.json.message);
+                    }).catch(error => {
+                        console.error("Error en la solicitud:", error);
+                        alert("Error al enviar la solicitud");
+                    });
+                });    
+
+        });
+
+
+
+
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const PAYROLL_MODAL_URL = "{% url 'payroll:flat_modal' %}";
+        const csrftoken = '{{ csrf_token }}';
+        
+
+        // Configuración global para modales (opcional pero recomendado)
+        up.on('up:layer:open', function(event) {
+            if (event.layerOptions.content?.classList?.contains('custom-modal')) {
+                Object.assign(event.layerOptions, {
+                    class: 'custom-modal', // Clase base
+                    animation: 'fade-in',
+                    duration: 250,
+                    dismissable: true,
+                    backdrop: 'dimmed',
+                    position: 'center'
+                });
+            }
+        });
+
+        up.on('click', '#send-request', function(event) {
+            event.preventDefault();
+        
+            const fileInput = document.getElementById("file-upload");
+            const hiddenField = document.getElementById("hidden-field");
+        
+            if (!fileInput) {
+                console.error("No se encontró el input de archivo.");
+                return;
+            }
+        
+            if (!hiddenField) {
+                console.error("No se encontró el campo oculto.");
+                return;
+            }
+        
+            // Crear objeto FormData para enviar archivos
+            const formData = new FormData();
+            formData.append("key", "{{ nombre.idnomina }}");
+            
+            if (fileInput.files.length > 0) {
+                formData.append("file", fileInput.files[0]); // Se envía el archivo correctamente
+            }
+        
+        
+            fetch(PAYROLL_MODAL_URL, {
+                method: "POST",
+                body: formData,
+                headers: { "X-CSRFToken": csrftoken }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Respuesta del servidor:", data);
+            
+                let modalContent = "";
+                
+                if (data?.errors?.length > 0 || data?.general_error) {
+                    // Construir lista de errores en HTML si existen errores específicos
+                    let errorsHtml = "";
+                    if (data.errors?.length > 0) {
+                        errorsHtml = "<ul>";
+                        data.errors.forEach(error => {
+                            errorsHtml += `<li><strong>Línea ${error.line}:</strong> ${error.error}</li>`;
+                        });
+                        errorsHtml += "</ul>";
+                    }
+                
+                    // Agregar error general si existe
+                    let generalErrorHtml = data.general_error ? `<p class="general-error"><strong>Error general:</strong> ${data.general_error}</p>` : "";
+                
+                    modalContent = `
+                        <div class="custom-modal">
+                            <div class="modal-content">
+                                <h2 class="modal-title">Errores encontrados</h2>
+                                <div class="modal-body scroll h-400px ">
+                                    <p>Se encontraron los siguientes errores en el archivo:</p>
+                                    ${generalErrorHtml}
+                                    ${errorsHtml}
+                                </div>
+                                <div class="modal-actions">
+                                    <button class="btn up-close" onclick="up.layer.dismiss()">Entendido</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    modalContent = `
+                        <div class="custom-modal">
+                            <div class="modal-content">
+                                <h2 class="modal-title">Éxito</h2>
+                                <p>${data.message}</p>
+                                <button class="btn up-close" onclick="up.layer.dismiss()">Cerrar</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            
+                // Abrir el modal con el contenido generado
+                up.layer.open({
+                    content: modalContent,
+                    mode: "modal",
+                    backdrop: true,
+                    dismissable: true,
+                    position: "center"
+                });
+            })
+            .catch(error => {
+                console.error("Error en la solicitud:", error);
+                up.layer.open({
+                    content: `
+                        <div class="custom-modal">
+                            <div class="modal-content error">
+                                <h2>Error</h2>
+                                <p>Ocurrió un error al procesar la solicitud</p>
+                                <button class="btn up-close" up-dismiss>Cerrar</button>
+                            </div>
+                        </div>
+                    `,
+                    mode: "modal"
+                });
+            });
+            
+        });
+        
+        
+    });
+</script>
+
+
+{% endblock %}

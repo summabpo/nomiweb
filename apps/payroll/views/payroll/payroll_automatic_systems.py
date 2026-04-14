@@ -896,13 +896,13 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                     modified_object_id=aux_pass.idregistronom,
                     modified_model='Nomina',
                 ).exists():
-                    aux_pass.cantidad = 1
+                    aux_pass.cantidad = 0
                     aux_pass.valor = -1*valoreps
                     aux_pass.save() 
             else:
                 Nomina.objects.create(
                         idconcepto = concepto1 ,#*
-                        cantidad= 1 ,#*
+                        cantidad= 0 ,#*
                         estadonomina = 1,
                         valor=-1*valoreps , #*
                         idcontrato_id=contrato.idcontrato ,
@@ -926,7 +926,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                     modified_object_id=aux_pass.idregistronom,
                     modified_model='Nomina',
                 ).exists():
-                    aux_pass.cantidad = 1
+                    aux_pass.cantidad = 0
                     aux_pass.valor = -1*valorafp
                     aux_pass.save() 
                                 
@@ -935,7 +935,7 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
 
                 Nomina.objects.create(
                         idconcepto = concepto2 ,#*
-                        cantidad= 1 ,#*
+                        cantidad= 0,#*
                         estadonomina = 1,
                         valor=-1*valorafp , #*
                         idcontrato_id=contrato.idcontrato ,
@@ -974,14 +974,14 @@ def procesar_nomina_aportes(idn, parte_nomina,idempresa,empleados):
                         modified_object_id=aux_pass.idregistronom,
                         modified_model='Nomina',
                     ).exists():
-                        aux_pass.cantidad = 1
+                        aux_pass.cantidad = 0
                         aux_pass.valor = -1*valorfsp
                         aux_pass.save() 
                                     
                 else:
                     Nomina.objects.create(
                             idconcepto = concepto3 ,#*
-                            cantidad= 1 ,#*
+                            cantidad= 0,#*
                             estadonomina = 1,
                             valor=-1*valorfsp , #*
                             idcontrato_id=contrato.idcontrato ,

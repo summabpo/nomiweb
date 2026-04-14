@@ -130,6 +130,28 @@ Plantilla de Nóminas
                             </a>
 
                             <a 
+                                target="_blank" 
+                                href="{% url 'payroll:UgppPayrollAudit' nomina.idnomina %}" 
+                                class="btn btn-icon btn-light-info"
+                                data-bs-toggle="tooltip" 
+                                data-bs-custom-class="tooltip-inverse" 
+                                data-bs-placement="top" 
+                                title="Informe de auditoría de nómina">
+                                <i class="fa-solid fa-chart-line fs-3"></i>
+                            </a>
+
+                            <a 
+                                href="{% url 'payroll:PayrollAuditExcel' nomina.idnomina %}" 
+                                class="btn btn-icon btn-light-info"
+                                data-bs-toggle="tooltip" 
+                                data-bs-custom-class="tooltip-inverse" 
+                                data-bs-placement="top" 
+                                title="Descargar auditoría en Excel">
+                                <i class="fa-solid fa-file-excel fs-3"></i>
+
+                            </a>
+                            
+                            <a 
 
                                 up-layer="new modal"
                                 up-target=".modal-content"
