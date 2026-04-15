@@ -237,7 +237,7 @@ def hiring_contract(request,idempleado):
             sedes = get_or_none(Sedes, idsede=form_contratos.cleaned_data['workPlace'])
             eps = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['eps'])
             pen = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['pensionFund'])
-            ccf = get_or_none(Entidadessegsocial, codigo = centrotrabajo.codccf )
+            ccf = get_or_none(Entidadessegsocial, codigo = sedes.codccf )
             cjc = get_or_none(Entidadessegsocial, identidad=form_contratos.cleaned_data['CesanFund'])
             modelo = get_or_none(ModelosContratos, idmodelo=form_contratos.cleaned_data['contractModel'])
             
@@ -261,7 +261,7 @@ def hiring_contract(request,idempleado):
                     salario = salario, 
                     idempleado = empleado ,
                     tipocotizante =  tiposdecotizantes ,
-                    subtipocotizante =  subtipocotizantes ,
+                    subtipocotizante =  subtipocotizantes  if subtipocotizantes else Subtipocotizantes.objects.get(subtipocotizante = 0) ,
                     formapago = form_contratos.cleaned_data['paymentMethod'], 
                     metodoretefuente = '' , ## validar calculo 
                     porcentajeretefuente = 0, ## validar calculo 

@@ -732,7 +732,7 @@ class Contratos(models.Model):
     salario = models.IntegerField(blank=True, null=True) 
     idempleado = models.ForeignKey(Contratosemp, models.DO_NOTHING, blank=True, null=True) 
     tipocotizante =  models.ForeignKey(Tiposdecotizantes, on_delete=models.DO_NOTHING)  
-    subtipocotizante =  models.ForeignKey(Subtipocotizantes, on_delete=models.DO_NOTHING)  
+    subtipocotizante =  models.ForeignKey(Subtipocotizantes, on_delete=models.DO_NOTHING, blank=True, null=True)  
     formapago = models.CharField(max_length=25, blank=True, null=True)#Choice 
     metodoretefuente = models.CharField(max_length=25, blank=True, null=True) #choice - formula o  calculo por año
     porcentajeretefuente = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True) 
