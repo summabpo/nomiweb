@@ -39,11 +39,11 @@ def get_audit_total_errors(payroll_id):
     errors_list = []
 
     errors_count1 , errors_list1 = error_salary_audit(payroll_id)
-    #errors_count2 , errors_list2 = error_contributions_audit(payroll_id)
-    #errors_count3 , errors_list3 = error_transport_audit(payroll_id)
+    errors_count2 , errors_list2 = error_contributions_audit(payroll_id)
+    errors_count3 , errors_list3 = error_transport_audit(payroll_id)
     
-    errors_count = errors_count1 
-    errors_list = errors_list1 
+    errors_count = errors_count1 + errors_count2 + errors_count3
+    errors_list = errors_list1 + errors_list2 + errors_list3
 
     return errors_count , errors_list
 

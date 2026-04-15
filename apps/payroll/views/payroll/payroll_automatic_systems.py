@@ -18,7 +18,7 @@ from apps.components.salary import salario_mes
 from decimal import Decimal, ROUND_HALF_UP , getcontext , ROUND_CEILING , ROUND_UP
 from apps.components.salary_nomina import salary_nomina_update
 from apps.companies.views.disabilities.disabilities import disabilities_ibc
-
+from apps.payroll.views.payroll.auto_recalculate import auto_recalculate
 
 #prueba git
 @login_required
@@ -288,6 +288,18 @@ def recalcular_nomina(idn):
 
     if deletes:
         Nomina.objects.filter(id__in=deletes).delete()
+
+
+    empleados_raw = Nomina.objects \
+        .select_related('idcontrato') \
+        .filter(idnomina=id, estadonomina=1) \
+        .values(
+            'idcontrato'
+        ) \
+        .distinct()
+
+    for empleado in empleados_raw:
+        auto_recalculate(idn, empleado['idcontrato'])
 
     return True
 

@@ -18,6 +18,8 @@ from decimal import Decimal, ROUND_HALF_UP
 from apps.components.close_employee_payroll import close_employee_payroll , guardar_historico_nomina
 from django.db import transaction
 from apps.components.salary import salario_mes
+from apps.payroll.views.payroll.auto_recalculate import auto_recalculate
+
 
 def get_empleado_name(empleado):
     papellido = empleado.get('idempleado__papellido', '') if empleado.get('idempleado__papellido') is not None else ""
@@ -599,7 +601,7 @@ def payroll_edit(request):
             concepto_obj.valor = value_decimal
             concepto_obj.save()
             
-            
+            auto_recalculate(concepto_obj.idnomina.idnomina, concepto_obj.idcontrato.idcontrato)
             
             
             if amount != before_amount  and value_decimal == before_value : 
@@ -1148,13 +1150,11 @@ def payroll_info_edit(request):
                 else :
                     contract = Contratos.objects.get(idcontrato=concepto_obj.idcontrato.idcontrato)
                     multiplier = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
-                    print(multiplier)
                     multiplier = (multiplier/30) * float(concept1.multiplicadorconcepto)
             elif concept1.formula == '2':
 
                 contract = Contratos.objects.get(idcontrato=concepto_obj.idcontrato.idcontrato)
                 multiplier = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
-                print(multiplier)
                 salariohoras = (float(multiplier) / float(conceptfi.valorfijo))
             
                 multiplier =  salariohoras * float(concept1.multiplicadorconcepto)
