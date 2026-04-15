@@ -56,25 +56,27 @@ class LoansForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        id_empresa = kwargs.pop('id_empresa', None)  
-        modo = kwargs.pop('modo', 0)  
+        id_empresa = kwargs.pop('id_empresa', None)
+        modo = kwargs.pop('modo', 0)
+        prestamo_id = kwargs.pop('prestamo_id', None)
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_id = 'form_loans'
         self.helper.enctype = 'multipart/form-data'
-        
 
-        
-
+        if modo == 1 and prestamo_id is not None:
+            submit_url = reverse('payroll:edit_employee_loans_modal', args=[prestamo_id])
+        else:
+            submit_url = reverse('payroll:employee_loans_modal_add')
 
         self.helper.attrs.update({
             'up-target': '#modal-content',
             'up-mode': 'replace',
             'up-layer': 'current',  # Clave para resolver el error
-            'up-submit': reverse('payroll:employee_loans_modal_add'),
-            'up-accept-location': reverse('payroll:employee_loans_modal_add'),
+            'up-submit': submit_url,
+            'up-accept-location': submit_url,
             'up-on-accepted': 'up.modal.close()',  # Cierra el modal al aceptar
         })
 

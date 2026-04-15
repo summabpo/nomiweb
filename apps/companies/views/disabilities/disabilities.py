@@ -246,7 +246,7 @@ def disabilities_ibc(contract, date):
     suma = 0
 
     conceptos = Nomina.objects.filter(
-        idcontrato_id=contract,
+        idcontrato=contract,
         estadonomina = 2 , 
         idnomina__mesacumular=mes_texto,
         idnomina__anoacumular__ano=ano,
@@ -331,7 +331,7 @@ def disabilities_modal_edit(request , id ):
             prorroga = cd['extension'] == '1'
 
             # calcular IBC
-            ibc = disabilities_ibc(incapacidad.idcontrato_id, cd['initial_date'])
+            ibc = disabilities_ibc(incapacidad.idcontrato, cd['initial_date'])
                     
             # ----------- GUARDAR PDF -----------
             pdf_file = cd.get('pdf_file')

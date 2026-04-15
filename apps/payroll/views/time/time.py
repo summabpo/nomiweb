@@ -14,11 +14,12 @@ from apps.components.salary import salario_mes
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Font
 from io import BytesIO
+from django.db import transaction
 from django.db.models import F, Value, CharField
 from django.db.models.functions import Concat
 from apps.payroll.forms.TimeForm import TimeForm
 from urllib.parse import urlencode
-
+import os
 
 
 def aplicar_descanso(descanso_minutos, horas):
@@ -227,16 +228,7 @@ def time_list(request):
     value2 = False
     value3 = False
     tiempos = []
-    anio_actual = datetime.now().year
-    ano_obj = Anos.objects.get(ano =  anio_actual )
-
-
-
-    inicio_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO INICIO").valorfijo)
-    fin_int = int(Conceptosfijos.objects.get(conceptofijo="HORARIO NOCTURNO FIN").valorfijo)
-
-    CO_HOLIDAYS = holidays.CO(years=ano_obj.ano)
-
+    
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
 
@@ -250,7 +242,6 @@ def time_list(request):
     accion2 = request.GET.get('accion2')
 
 
-    
 
     contratos_empleados = (
         Contratos.objects
@@ -842,29 +833,82 @@ def time_add(request):
         file = request.FILES['file']
         idnomina = request.POST.get('idnomina')
 
-        try:
-            df = pd.read_csv(file, header=None,sep=";", encoding="utf-8")
-            df = df.dropna(axis=1, how='all')
-        except Exception as e:
-            errors.append(f"Error al leer el archivo: {str(e)}")
+        # =========================
+        # VALIDACIONES INICIALES
+        # =========================
+        # Extensión
+        ext = os.path.splitext(file.name)[1].lower()
+        if ext != '.csv':
+            errors.append("Solo se permiten archivos CSV.")
             return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        # =========================
+        # LECTURA SEGURA CSV
+        # =========================
+
+        try:
+            df = pd.read_csv(
+                file,
+                header=None,
+                sep=";",
+                encoding="utf-8",
+                dtype=str,
+                engine='python'
+            )
+        except Exception as e:
+            errors.append("Error al leer el archivo.")
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        # # MIME (básico)
+        # if file.content_type not in ['text/csv', 'application/vnd.ms-excel']:
+        #     logger.warning(f"Archivo con MIME sospechoso: {file.content_type}")
+
+        if not idnomina:
+            errors.append("Debe seleccionar una nómina.")
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        if not Crearnomina.objects.filter(
+            idnomina=idnomina, id_empresa_id=idempresa, estadonomina=True
+        ).exists():
+            errors.append("La nómina seleccionada no es válida o no está activa.")
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
         df = df.dropna(how="all")
-        
-        
-        registros_validados = []
+
+        try:
+            empresa = Empresa.objects.get(idempresa=idempresa)
+        except Empresa.DoesNotExist:
+            errors.append("Empresa no encontrada en sesión.")
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        validated_rows = []
+
+        # =========================
+        # VALIDACIÓN FILA A FILA
+        # =========================
 
         for idx, fila in df.iterrows():
             try:
-                contrato      = fila[0]
+                contrato = fila[0]
                 fecha_ingreso = formatear_fecha(fila[1])
-                fecha_salida  = formatear_fecha(fila[2])
-                hora_ingreso  = fila[3]
-                hora_salida   = fila[4]
-                horas_descuentos  = fila[5]
+                fecha_salida = formatear_fecha(fila[2])
+                hora_ingreso = fila[3]
+                hora_salida = fila[4]
+                horas_descuentos = fila[5]
 
-                # --- Validaciones ---
+
+                EXPECTED_COLUMNS = 6
+
+                if df.shape[1] < EXPECTED_COLUMNS:
+                    errors.append("El archivo no tiene la estructura esperada.")
+                    return render(...)
+
                 if not contrato:
                     errors.append(f"Fila {idx+1}: El contrato es obligatorio.")
+                    continue
+
+                if not contrato.isdigit():
+                    errors.append(f"Fila {idx+1}: contrato inválido.")
                     continue
 
                 if not fecha_ingreso:
@@ -879,59 +923,51 @@ def time_add(request):
                     errors.append(f"Fila {idx+1}: Hora de ingreso y salida son obligatorias.")
                     continue
 
-                empresa = Empresa.objects.get(idempresa =  idempresa )
-                
-                # Verificar que el contrato exista
                 if not Contratos.objects.filter(old_idcontrato=contrato, id_empresa=idempresa).exists():
-                    errors.append(f"Fila {idx+1}: El contrato {contrato} no existe en la empresa {empresa.nombreempresa}.")
+                    errors.append(
+                        f"Fila {idx+1}: El contrato {contrato} no existe en la empresa {empresa.nombreempresa}."
+                    )
                     continue
-            
+
                 contr = (
-                    Contratos.objects
-                    .filter(old_idcontrato=contrato, id_empresa=idempresa)
-                    .first()
+                    Contratos.objects.filter(old_idcontrato=contrato, id_empresa=idempresa).first()
                 )
 
                 if not contr:
-                    contr = (
-                        Contratos.objects
-                        .filter(idcontrato=contrato, id_empresa=idempresa)
-                        .first()
-                    )
-                                
-                
-                
-                # Si pasa todas las validaciones, lo agregamos a lista
-                tiempo, created = Tiempos.objects.update_or_create(
-                    # 🔍 Campos para buscar si ya existe
-                    fechaingreso=fecha_ingreso,
-                    horaingreso=hora_ingreso,
-                    fechasalida=fecha_salida,
-                    horasalida=hora_salida,
-                    idcontrato=contr,
-                    idnomina_id=idnomina,
-                    idempresa_id=idempresa,
+                    contr = Contratos.objects.filter(idcontrato=contrato, id_empresa=idempresa).first()
 
-                    # ✏️ Campos que se actualizan si existe
-                    defaults={
+                if not contr:
+                    errors.append(f"Fila {idx+1}: No se pudo resolver el contrato {contrato}.")
+                    continue
+
+                validated_rows.append(
+                    {
+                        'fechaingreso': fecha_ingreso,
                         'horaingreso': hora_ingreso,
                         'fechasalida': fecha_salida,
                         'horasalida': hora_salida,
                         'horasdescuentos': horas_descuentos,
+                        'idcontrato': contr,
+                        'idnomina_id': int(idnomina),
+                        'idempresa_id': idempresa,
                     }
                 )
 
-                
             except Exception as e:
                 errors.append(f"Fila {idx+1}: Error inesperado -> {str(e)}")
 
-        # Si hubo errores: no se guarda nada
         if errors:
-            return render(request, './companies/partials/disability_upload_errors.html', {
-                'errors': errors
-            })
-        else:
-            return render(request, 'payroll/partials/success_time.html')
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        try:
+            with transaction.atomic():
+                Tiempos.objects.filter(idnomina_id=idnomina, idempresa_id=idempresa).delete()
+                Tiempos.objects.bulk_create([Tiempos(**row) for row in validated_rows])
+        except Exception as e:
+            errors.append(f"Error al guardar los tiempos: {str(e)}")
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
+
+        return render(request, 'payroll/partials/success_time.html')
         
 
     return render(request, 'payroll/partials/time_add.html', {'nominas': nominas})

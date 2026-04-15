@@ -73,19 +73,19 @@
                     <div class="col-md-4">
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Días trabajados</span>
-                            <input type="text"  class="form-control" name="dias_trabajados" value="{{ data_edit.diastrabajados }}" >
+                            <input type="text"  class="form-control" id="dias_trabajados" name="dias_trabajados" value="{{ data_edit.diastrabajados }}" >
                         </div>
                     </div>  
                     <div class="col-md-4">
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Fecha Inicio Contrato</span>
-                            <input type="text"  class="form-control" name="fecha_inicio" value="{{ data_edit.fechainiciocontrato|date:'Y-m-d'}}" >
+                            <input type="text"  class="form-control" id="fecha_inicio" name="fecha_inicio" value="{{ data_edit.fechainiciocontrato|date:'Y-m-d'}}" >
                         </div>
                     </div> 
                     <div class="col-md-4">
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Salario base</span>
-                            <input type="text"  class="form-control" name="salario_base" value="{{ data_edit.salario }}">
+                            <input type="text"  class="form-control" id="salario_base" name="salario_base" value="{{ data_edit.salario }}">
                         </div>
                     </div> 
                 </div>
@@ -96,62 +96,62 @@
                     <div class="col-md-4">
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Días Cesantías</span>
-                            <input type="text"  class="form-control"  name="dias_cesantias" value="{{ data_edit.diascesantias }}" >
+                            <input type="text"  class="form-control" id="dias_cesantias" name="dias_cesantias" value="{{ data_edit.diascesantias }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Días Primas</span>
-                            <input type="text"  class="form-control"  name="dias_primas" value="{{ data_edit.diasprimas }}" >
+                            <input type="text"  class="form-control" id="dias_primas" name="dias_primas" value="{{ data_edit.diasprimas }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Días Vacaciones</span>
-                            <input type="text"  class="form-control"  name="dias_vacaciones" value="{{ data_edit.diasvacaciones }}" >
+                            <input type="text"  class="form-control" id="dias_vacaciones" name="dias_vacaciones" value="{{ data_edit.diasvacaciones }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Días Susp. Vac.</span>
-                            <input type="text"  class="form-control"  name="dias_susp_vac" value="{{ data_edit.diassusp }}" >
+                            <input type="text"  class="form-control" id="dias_susp_vac" name="dias_susp_vac" value="{{ data_edit.diassusp }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Dias Susp. Ces.</span>
-                            <input type="text"  class="form-control"  name="dias_susp_ces" value="{{ data_edit.diassuspv }}" >
+                            <input type="text"  class="form-control" id="dias_susp_ces" name="dias_susp_ces" value="{{ data_edit.diassuspv }}" >
                         </div>
                     </div>
 
                     <div class="col-md-4">
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Base Cesantías</span>
-                            <input type="text"  class="form-control"  name="base_cesantias" value="{{ data_edit.baseprima }}" >
+                            <input type="text"  class="form-control" id="base_cesantias" name="base_cesantias" value="{{ data_edit.baseprima }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Base Primas</span>
-                            <input type="text"  class="form-control"  name="base_primas" value="{{ data_edit.basecesantias }}" >
+                            <input type="text"  class="form-control" id="base_primas" name="base_primas" value="{{ data_edit.basecesantias }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Base Vacaciones</span>
-                            <input type="text"  class="form-control"  name="base_vacaciones" value="{{ data_edit.basevacaciones }}">
+                            <input type="text"  class="form-control" id="base_vacaciones" name="base_vacaciones" value="{{ data_edit.basevacaciones }}">
                         </div>
                     </div>
 
                     <div class="col-md-4">
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Cesantías</span>
-                            <input type="text"  class="form-control"  name="valor_cesantias" value="{{ data_edit.cesantias }}" >
+                            <input type="text"  class="form-control" id="valor_cesantias" name="valor_cesantias" value="{{ data_edit.cesantias }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Intereses</span>
-                            <input type="text"  class="form-control"  name="valor_intereses" value="{{ data_edit.intereses }}" >
+                            <input type="text"  class="form-control" id="valor_intereses" name="valor_intereses" value="{{ data_edit.intereses }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Primas</span>
-                            <input type="text"  class="form-control"  name="valor_prima" value="{{ data_edit.prima }}" >
+                            <input type="text"  class="form-control" id="valor_prima" name="valor_prima" value="{{ data_edit.prima }}" >
                         </div>
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Vacaciones</span>
-                            <input type="text"  class="form-control"  name="valor_vacaciones" value="{{ data_edit.vacaciones }}" >
+                            <input type="text"  class="form-control" id="valor_vacaciones" name="valor_vacaciones" value="{{ data_edit.vacaciones }}" >
                         </div>
 
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Indemnización</span>
-                            <input type="text"  class="form-control"  name="valor_indemnizacion" value="{{ data_edit.indemnizacion }}">
+                            <input type="text"  class="form-control" id="valor_indemnizacion" name="valor_indemnizacion" value="{{ data_edit.indemnizacion }}">
                         </div>
 
                     </div>
@@ -170,7 +170,7 @@
                     <div class="col-md-4">
                         <div class="input-group input-group-sm mb-5">
                             <span class="input-group-text">Total Liquidación</span>
-                            <input type="text"  class="form-control fw-bold text-success" name="total_liquidacion" value="{{ data_edit.totalliq }}" >
+                            <input type="text"  class="form-control fw-bold text-success" id="total_liquidacion" name="total_liquidacion" value="{{ data_edit.totalliq }}" >
                         </div> 
                     </div>
 

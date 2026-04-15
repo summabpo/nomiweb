@@ -93,24 +93,27 @@ def settlement_list_payroll(request, id,url):
             return 0
 
     if request.method == 'POST':
+        liquidacion = get_object_or_404(Liquidacion, idliquidacion=id)
+        fecha_liquidacion = liquidacion.fechafincontrato
         ahora = timezone.localtime(timezone.now())
         hoy = date.today()
         
         id_nomina = request.POST.get('nomina')
         nueva_nomina_flag = request.POST.get('nueva_nomina') == 'on'
+        fecha = request.POST.get('fecha_nomina') 
         
         nomina_final = None
         
         # 🔹 Caso 1: crear nueva nómina automática
         if nueva_nomina_flag:
             nomina_final = Crearnomina.objects.create(
-                nombrenomina=f"Nomina Aut. Liqui - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
-                fechainicial=hoy,
-                fechafinal=hoy,
-                fechapago=ahora.date(),
+                nombrenomina=f"Nomina Aut. Liqui - {fecha_liquidacion.strftime('%Y-%m-%d %H:%M:%S')}",
+                fechainicial=fecha_liquidacion,
+                fechafinal=fecha_liquidacion,
+                fechapago=fecha_liquidacion,
                 tiponomina=Tipodenomina.objects.get(tipodenomina='Liquidación'),
-                mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
-                anoacumular=Anos.objects.get(ano=ahora.year),
+                mesacumular= MES_CHOICES[fecha_liquidacion.month][0] if fecha_liquidacion.month else '',
+                anoacumular=Anos.objects.get(ano=fecha_liquidacion.year),
                 estadonomina=True,
                 diasnomina=1,
                 id_empresa_id=idempresa,
@@ -125,20 +128,20 @@ def settlement_list_payroll(request, id,url):
             # Validar: si no existe la nómina seleccionada → crear una nueva automática
             if not nomina_final:
                 nomina_final = Crearnomina.objects.create(
-                    nombrenomina=f"Nomina Aut. Liqui - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
-                    fechainicial=hoy,
-                    fechafinal=hoy,
-                    fechapago=ahora.date(),
+                    nombrenomina=f"Nomina Aut. Liqui - {fecha_liquidacion.strftime('%Y-%m-%d %H:%M:%S')}",
+                    fechainicial=fecha_liquidacion,
+                    fechafinal=fecha_liquidacion,
+                    fechapago=fecha_liquidacion,
                     tiponomina=Tipodenomina.objects.get(tipodenomina='Liquidación'),
-                    mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
-                    anoacumular=Anos.objects.get(ano=ahora.year),
+                    mesacumular= MES_CHOICES[fecha_liquidacion.month][0] if fecha_liquidacion.month else '',
+                    anoacumular=Anos.objects.get(ano=fecha_liquidacion.year),
                     estadonomina=True,
                     diasnomina=1,
                     id_empresa_id=idempresa,
                 )
 
         #nomina_creada = get_object_or_404(Crearnomina, idnomina=id_nomina)
-        liquidacion = get_object_or_404(Liquidacion, idliquidacion=id)
+        
 
         conceptos = {
             'prima': 23,
@@ -201,11 +204,7 @@ def settlement_list_payroll(request, id,url):
             
         return response
 
-    return render(request, './payroll/partials/settlement_payroll.html', {
-        'nominas': nominas,
-        'id': id,
-        'url':url,
-    })
+    return render(request, './payroll/partials/settlement_payroll.html', {'nominas': nominas, 'id': id, 'url':url, })
 
 
 
@@ -280,8 +279,8 @@ def settlement_create(request):
                     'motivoretiro': reason,
                     'estadoliquidacion': '1',
 
-                    'diassusp': data.get('dias_susp_ces'),
-                    'diassuspv': data.get('dias_susp_vac'),
+                    'diassusp': data.get('dias_susp_vac'),
+                    'diassuspv': data.get('dias_susp_ces'),
 
                     'indemnizacion': data.get('valor_indemnizacion'),
                 }

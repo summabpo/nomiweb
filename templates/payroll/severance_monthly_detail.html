@@ -1,0 +1,255 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla</title>
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700"/>
+
+    <!-- Datatables -->
+    <link href="{% static 'plugins/custom/datatables/datatables.bundle.css' %}" rel="stylesheet"/>
+
+    <!-- Theme Styles -->
+    <link href="{% static 'plugins/global/plugins.bundle.css' %}" rel="stylesheet"/>
+    <link href="{% static 'css/style.bundle.css' %}" rel="stylesheet"/>
+    <link rel="icon" href="{% static 'img/logonomiweb.ico' %}" type="image/x-icon">
+</head>
+
+
+<body id="kt_app_body" class="app-default">
+
+<div class="app-page flex-column flex-column-fluid">
+
+    <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
+
+        <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
+
+            <!-- CONTENEDOR PRINCIPAL CENTRADO -->
+            <div class="d-flex flex-column flex-column-fluid align-items-center justify-content-center"
+                 style="min-height:100vh;">
+
+                <div class="container">
+
+                    <div class="row justify-content-center">
+
+                        <div class="col-xl-18 col-lg-15">
+
+                            <!-- CARD -->
+                            <div class="card shadow-sm">
+
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        Informacion de Cesantias
+                                    </h3>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" id = "tabla-settlement">
+
+                                            <thead>
+                                                <tr class="fw-bold text-muted">
+                                                    <th>Idcontrato</th>
+                                                    <th>Mes</th>
+                                                    <th>Año</th>
+                                                    <th>Sueldo Basico</th>
+                                                    <th>Transporte</th>
+                                                    <th>Base mes </th>
+                                                    <th>Extras</th>
+                                                    <th>Cesantias</th>
+                                                    <th>Valcesaacum</th>
+                                                    <th>Intereses</th>
+                                                    <th>C. Suspensiones</th>
+                                                    <th>C. Dias</th>
+                                                    <th>Total</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+
+                                                {% for item in data.nomina %}
+                                                <tr>
+                                                    <td>{{ data.id }}</td>
+                                                    <td>{{ item.mes }}</td>
+                                                    <td>{{ item.ano }}</td>
+                                                    <td>{{ item.sueldo_basico|format_currency }}</td>
+                                                    
+                                                    <td>{{ item.transporte|format_currency }}</td>
+                                                    <td>{{ item.base_mes|format_currency }}</td>
+                                                    <td>{{ item.extras|format_currency }}</td>
+                                                    <td>{{ item.cesantias_real|format_currency }}</td>
+                                                    <td>{{ item.cesantias_sum|format_currency }}</td>
+                                                    <td>{{ item.intereses|format_currency }}</td>
+                                                    <td>{{ item.suspensiones }}</td>
+                                                    <td>{{ item.dias }}</td>
+                                    
+                                                    <td class="fw-bold text-success">
+                                                        {{ item.total|format_currency }}
+                                                    </td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="11" class="text-center text-muted">
+                                                        No hay datos para este periodo
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                    
+                                            </tbody>
+                                            
+                                            <tfoot>
+                                                <tr class="fw-bold text-dark">
+                                                    <th colspan="3" class="text-end">Totales:</th>
+                                                    <th></th> <!-- Sueldo -->
+                                                    <th></th> <!-- Transporte -->
+                                                    <th></th> <!-- Base -->
+                                                    <th></th> <!-- Extras -->
+                                                    <th></th> <!-- Cesantias -->
+                                                    <th></th> <!-- Intereses -->
+                                                    <th></th> <!-- Suspensiones -->
+                                                    <th></th> <!-- Dias -->
+                                                    <th></th> <!-- Total -->
+                                                </tr>
+                                            </tfoot>
+
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!-- END CARD -->
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- FIN CONTENEDOR -->
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- JS -->
+<script src="{% static 'plugins/global/plugins.bundle.js' %}"></script>
+<script src="{% static 'js/scripts.bundle.js' %}"></script>
+<script src="{% static 'plugins/custom/datatables/datatables.bundle.js' %}"></script>
+
+<script>
+
+/* Tipo numérico español robusto */
+$.fn.dataTable.ext.type.order['num-es-pre'] = function (data) {
+
+    if (!data) return 0;
+
+    // eliminar html
+    data = data.toString().replace(/<.*?>/g, '');
+
+    // eliminar espacios
+    data = data.trim();
+
+    // eliminar simbolos moneda
+    data = data.replace(/[^0-9,.-]/g, '');
+
+    // quitar separador miles
+    data = data.replace(/\./g, '');
+
+    // convertir decimal
+    data = data.replace(',', '.');
+
+    return parseFloat(data) || 0;
+};
+
+</script>
+
+<script>
+$(document).ready(function() {
+
+    $('#tabla-settlement').DataTable({
+
+        language: {
+            decimal: "",
+            emptyTable: "No hay datos disponibles en la tabla",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+            infoEmpty: "Mostrando 0 a 0 de 0 entradas",
+            infoFiltered: "(filtrado de _MAX_ entradas totales)",
+            thousands: ",",
+            lengthMenu: "Mostrar _MENU_ entradas",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No se encontraron registros coincidentes",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        },
+    
+        columnDefs: [
+            { type: 'num-es', targets: [3,4,5,6,7,8,9,10,11] }
+        ],
+    
+        footerCallback: function (row, data, start, end, display) {
+    
+            let api = this.api();
+    
+            const parseNumber = function (i) {
+                if (!i) return 0;
+                return typeof i === 'string'
+                    ? parseFloat(
+                        i.replace(/[^0-9,.-]/g, '')
+                         .replace(/\./g, '')
+                         .replace(',', '.')
+                      ) || 0
+                    : typeof i === 'number'
+                    ? i
+                    : 0;
+            };
+    
+            const formatCurrency = function (num) {
+                return num.toLocaleString('es-CO', {
+                    minimumFractionDigits: 0
+                });
+            };
+    
+            // Columnas a sumar
+            let columns = [3,4,5,6,7,8,9,10,11];
+    
+            columns.forEach(function(colIndex) {
+    
+                let total = api
+                    .column(colIndex, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return parseNumber(a) + parseNumber(b);
+                    }, 0);
+    
+                $(api.column(colIndex).footer()).html(
+                    formatCurrency(total)
+                );
+            });
+        },
+    
+        dom: 'frtip',
+        order: [],
+        pageLength: 15
+    
+    });
+
+});
+</script>
+
+
+</body>
+</html>

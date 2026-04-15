@@ -109,7 +109,7 @@ def vacation_resumen(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    vacaciones = (
+    vacaciones_qs = (
         Vacaciones.objects.filter(
             idcontrato__id_empresa=idempresa,
             tipovac__idvac__in=[1, 2]
@@ -130,18 +130,24 @@ def vacation_resumen(request):
             "idcontrato__idempleado__snombre",
             "idcontrato",
             "fechainicialvac",
+            "ultimodiavac",
             "fechapago",
             "tipovac__nombrevacaus",
+            "tipovac__idvac",
             "idvacaciones",
             "fecha_orden",
             "idvacmaster",
+            "diascalendario",
+            "diasvac",
+            "pagovac",
+            "perinicio",
+            "perfinal",
         )
         .order_by('-fecha_orden')
     )
 
-
     # Limpiar los valores "no data" y None
-    vacaciones = [
+    vacaciones_list = [
         {
             k: (
                 "" if (v is None or str(v).strip().lower() == "no data") 
@@ -149,11 +155,43 @@ def vacation_resumen(request):
             )
             for k, v in vac.items()
         }
-        for vac in vacaciones
+        for vac in vacaciones_qs
     ]
     
+    # Agrupar por idvacmaster para mostrar una fila principal por grupo
+    # y permitir expandir para ver todas las líneas del mismo idvacmaster
+    vacaciones_agrupadas = {}
+    for vac in vacaciones_list:
+        master_id = vac.get('idvacmaster')
+        if master_id:
+            if master_id not in vacaciones_agrupadas:
+                vacaciones_agrupadas[master_id] = {
+                    'principal': vac,
+                    'lineas': []
+                }
+            vacaciones_agrupadas[master_id]['lineas'].append(vac)
+        else:
+            # Si no tiene idvacmaster, mostrar como línea individual
+            if f"sin_master_{vac['idvacaciones']}" not in vacaciones_agrupadas:
+                vacaciones_agrupadas[f"sin_master_{vac['idvacaciones']}"] = {
+                    'principal': vac,
+                    'lineas': [vac]
+                }
+    
+    # Convertir a lista ordenada
+    # Usar fecha mínima para valores None/vacíos para evitar error de comparación str vs date
+    from datetime import date as date_class
+    fecha_minima = date_class(1900, 1, 1)
+    
+    vacaciones_grouped = sorted(
+        vacaciones_agrupadas.values(),
+        key=lambda x: x['principal'].get('fecha_orden') if x['principal'].get('fecha_orden') else fecha_minima,
+        reverse=True
+    )
+    
     context = {
-        'vacaciones': vacaciones
+        'vacaciones': vacaciones_list,
+        'vacaciones_grouped': vacaciones_grouped
     }
     
     return render(request, './companies/vacation_resumen.html', context)
@@ -185,16 +223,35 @@ def vacation_resumen_send(request, id):
 
         nomina_final = None
 
+        # 🔹 IMPORTANTE: Enviar TODAS las líneas del idvacmaster, no solo una
+        # Obtener todas las vacaciones del mismo idvacmaster
+        vacacion_principal = Vacaciones.objects.filter(
+            idvacaciones=id,
+            idcontrato__id_empresa=idempresa
+        ).first()
+        
+        if not vacacion_principal or not vacacion_principal.idvacmaster:
+            return HttpResponse("Error: No se encontró el registro o no tiene idvacmaster", status=400)
+
+        fecha_vacacion = (
+            vacacion_principal.fechainicialvac
+            or vacacion_principal.fechapago
+            or vacacion_principal.ultimodiavac
+        )
+
+        if not fecha_vacacion:
+            return HttpResponse("Error: la vacación no tiene fechas válidas", status=400)
+
         # 🔹 Caso 1: crear nueva nómina automática
         if nueva_nomina_flag:
             nomina_final = Crearnomina.objects.create(
                 nombrenomina=f"Nomina Aut. Vacas - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
-                fechainicial=hoy,
-                fechafinal=hoy,
-                fechapago=ahora.date(),
+                fechainicial=fecha_vacacion,
+                fechafinal=fecha_vacacion,
+                fechapago=fecha_vacacion,
                 tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
-                mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
-                anoacumular=Anos.objects.get(ano=ahora.year),
+                mesacumular=MES_CHOICES[fecha_vacacion.month][0],
+                anoacumular=Anos.objects.get(ano=fecha_vacacion.year),
                 estadonomina=True,
                 diasnomina=1,
                 id_empresa_id=idempresa,
@@ -210,35 +267,52 @@ def vacation_resumen_send(request, id):
             # Validar: si no existe la nómina seleccionada → crear una nueva automática
             if not nomina_final:
                 nomina_final = Crearnomina.objects.create(
-                    nombrenomina=f"Nomina Aut. Vacas - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
-                    fechainicial=hoy,
-                    fechafinal=hoy,
-                    fechapago=ahora.date(),
-                    tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
-                    mesacumular= MES_CHOICES[ahora.month][0] if ahora.month else '',
-                    anoacumular=Anos.objects.get(ano=ahora.year),
-                    estadonomina=True,
-                    diasnomina=1,
-                    id_empresa_id=idempresa,
-                )
+                        nombrenomina=f"Nomina Aut. Vacas - {ahora.strftime('%Y-%m-%d %H:%M:%S')}",
+                        fechainicial=fecha_vacacion,
+                        fechafinal=fecha_vacacion,
+                        fechapago=fecha_vacacion,
+                        tiponomina=Tipodenomina.objects.get(tipodenomina='Vacaciones'),
+                        mesacumular=MES_CHOICES[fecha_vacacion.month][0],
+                        anoacumular=Anos.objects.get(ano=fecha_vacacion.year),
+                        estadonomina=True,
+                        diasnomina=1,
+                        id_empresa_id=idempresa,
+                    )
 
-        status, mensaje = Calculo_vacaciones_por_id(
-            idnomina=nomina_final.idnomina,
-            idvacaciones=id
-        )
-
-        # Seleccionar icono según el estado
-        if status == "success":
-            icon = "success"
-        elif status in ("duplicate", "out_of_range", "invalid"):
-            icon = "warning"
-        else:
-            icon = "error"
         
+        
+        # Obtener todas las líneas del mismo idvacmaster
+        todas_lineas = Vacaciones.objects.filter(
+            idvacmaster=vacacion_principal.idvacmaster,
+            idcontrato__id_empresa=idempresa
+        )
+        
+        resultados = []
+        for linea in todas_lineas:
+            status, mensaje = Calculo_vacaciones_por_id(
+                idnomina=nomina_final.idnomina,
+                idvacaciones=linea.idvacaciones
+            )
+            resultados.append({'id': linea.idvacaciones, 'status': status, 'mensaje': mensaje})
+        
+        # Determinar el resultado general
+        errores = [r for r in resultados if r['status'] == 'error']
+        duplicados = [r for r in resultados if r['status'] == 'duplicate']
+        exitosos = [r for r in resultados if r['status'] == 'success']
+        
+        if errores:
+            icon = "error"
+            mensaje = f"Error al enviar {len(errores)} línea(s). {exitosos.__len__()} enviadas correctamente."
+        elif duplicados:
+            icon = "warning"
+            mensaje = f"{len(duplicados)} línea(s) ya estaban en nómina. {exitosos.__len__()} enviadas correctamente."
+        else:
+            icon = "success"
+            mensaje = f"Todas las líneas ({len(exitosos)}) enviadas correctamente a nómina."
 
         response = HttpResponse()
-        response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
-        response['X-Up-Icon'] = icon  # URL para recargar la página principal   
+        response['X-Up-Accept-Layer'] = 'true'
+        response['X-Up-Icon'] = icon
         response['X-Up-Message'] = mensaje    
         response['X-Up-Location'] = reverse('companies:vacation_resumen')           
         return response
@@ -449,6 +523,27 @@ def vacation_resumen_doc(request, id):
         y = height - 100
 
     table.drawOn(p, 20, y - table_height)
+    
+    # Calcular posición después de la tabla
+    y_after_table = y - table_height - 60
+
+    # --- Espacio para firma del empleado ---
+    if y_after_table > 150:
+        # Línea para firma
+        firma_y = y_after_table - 40
+        p.setStrokeColor(colors.black)
+        p.setLineWidth(1)
+        p.line(width / 2 - 150, firma_y, width / 2 + 150, firma_y)
+        
+        # Texto debajo de la línea: "Apellidos y Nombres del Empleado"
+        p.setFont("Courier", 10)
+        p.setFillColor(colors.black)
+        p.drawCentredString(width / 2, firma_y - 15, "Apellidos y Nombres del Empleado")
+        
+        # Nombre del empleado
+        p.setFont("Courier-Bold", 11)
+        empleado_nombre = context.get('empleado') or "---"
+        p.drawCentredString(width / 2, firma_y - 30, empleado_nombre)
 
     # --- Footer institucional ---
     p.setFont("Helvetica", 8)
@@ -477,7 +572,8 @@ def vacation_resumen_doc(request, id):
 def generate_vacation_doc(idempresa, id):
     # Obtener datos del cliente
     datac = datos_cliente(idempresa)
-    vaca_qs = Vacaciones.objects.filter(idvacmaster=id , tipovac__idvac__in=[1, 2])
+    # Incluir TODAS las líneas del idvacmaster (disfrutadas Y compensadas)
+    vaca_qs = Vacaciones.objects.filter(idvacmaster=id).order_by('idvacaciones')
 
     # Tomar el primer registro de vacaciones (si existe)
     vaca_obj = vaca_qs.first()
@@ -539,6 +635,46 @@ def vacation_resumen_data(request,id):
     }
     
     return render(request, './companies/partials/vacation_resumen_data.html', context)
+
+
+@login_required
+@role_required('company', 'accountant')
+def vacation_master_lines(request, idvacmaster):
+    """API para obtener todas las líneas de un idvacmaster."""
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    lineas = Vacaciones.objects.filter(
+        idvacmaster=idvacmaster,
+        idcontrato__id_empresa=idempresa
+    ).select_related('tipovac')
+    
+    result = []
+    for linea in lineas:
+        # Verificar si ya fue enviada a nómina
+        # Filtrar por empresa y contrato específico para evitar falsos positivos
+        enviada_nomina = Nomina.objects.filter(
+            control=linea.idvacaciones,
+            estadonomina__in=[1, 2],
+            idcontrato=linea.idcontrato,  # Verificar que sea el mismo contrato
+            idcontrato__id_empresa=idempresa
+        ).exists()
+        
+        item = {
+            'idvacaciones': linea.idvacaciones,
+            'tipovac__nombrevacaus': linea.tipovac.nombrevacaus if linea.tipovac else '',
+            'fechainicialvac': linea.fechainicialvac.strftime('%Y-%m-%d') if linea.fechainicialvac else None,
+            'ultimodiavac': linea.ultimodiavac.strftime('%Y-%m-%d') if linea.ultimodiavac else None,
+            'diascalendario': linea.diascalendario,
+            'diasvac': linea.diasvac,
+            'pagovac': linea.pagovac,
+            'perinicio': linea.perinicio.strftime('%Y-%m-%d') if linea.perinicio else None,
+            'perfinal': linea.perfinal.strftime('%Y-%m-%d') if linea.perfinal else None,
+            'enviada_nomina': enviada_nomina
+        }
+        result.append(item)
+    
+    return JsonResponse({'lineas': result})
 
 
 @login_required

@@ -60,6 +60,20 @@ def consultar_planilla(planilla_id: int) -> dict:
     return r.json()
 
 
+def descargar_payload_json(planilla_id: int) -> bytes:
+    """
+    Obtiene el payload JSON de la planilla (liquidación).
+    """
+    base = getattr(settings, "PILA_BASE_URL", "").rstrip("/")
+    url = f"{base}/api/v1/pila/planillas/{planilla_id}/payload/"
+    r = requests.get(url, headers=_headers(), timeout=_timeouts())
+
+    if r.status_code >= 400:
+        raise PilaServiceError(f"PILA {r.status_code}: {r.text}")
+
+    return r.content
+
+
 def descargar_archivo(planilla_id: int, tipo_planilla: str | None = None) -> bytes:
     """
     Descarga el archivo TXT PILA.

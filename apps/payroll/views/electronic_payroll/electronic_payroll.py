@@ -139,7 +139,7 @@ def electronic_payroll_detail(request, pk=None):
         'id_contrato__idempleado',
         'id_contrato__cargo',
     ).filter(id_ne_datos_mensual=pk).annotate(
-        contract_id = F('id_contrato'), 
+        contract_id=F('id_contrato'), 
         employee_name=Concat(
             clean_field('id_contrato__idempleado__pnombre'), Value(' '),
             clean_field('id_contrato__idempleado__snombre'), Value(' '),
@@ -150,8 +150,18 @@ def electronic_payroll_detail(request, pk=None):
         employee_position=F('id_contrato__cargo__nombrecargo'),
     )
 
+    # =========================
+    # SOLO TOTAL A PAGAR
+    # =========================
+    for item in detail_payroll:
+        try:
+            data = json.loads(item.json_nomina)
+            item.total_pagar = data.get("ComprobanteTotal", 0)
+        except:
+            item.total_pagar = 0
+
     context =  {
-        'container_id' : pk,
+        'container_id': pk,
         'detail_payroll': detail_payroll
     }
 
@@ -827,6 +837,7 @@ def classify_concepts(concept_details):
                 deducciones["Libranzas"] = {
                     "Deduccion": 0
                 }
+
             deducciones["Libranzas"]["Deduccion"] += concept['valor_anotado']
             deduccionesSum += concept['valor_anotado']
 
@@ -1268,48 +1279,166 @@ def electronic_payroll_validate_masive_send(request, pk=None):
     return redirect('payroll:detalle_nomina_electronica',  pk=pk)  # Cambia a la vista deseada después de guardar 
 
 
+
+def build_devengados_list(data):
+    dev = data.get("Devengados", {})
+    items = []
+
+    # Básico
+    if dev.get("Basico"):
+        items.append({
+            "concepto": "Básico",
+            "cantidad": dev["Basico"].get("DiasTrabajados"),
+            "valor": dev["Basico"].get("SueldoTrabajado"),
+        })
+
+    # Transporte
+    if dev.get("Transporte", {}).get("AuxilioTransporte"):
+        items.append({
+            "concepto": "Auxilio Transporte",
+            "cantidad": "",
+            "valor": dev["Transporte"]["AuxilioTransporte"],
+        })
+
+    # Auxilios
+    if dev.get("Auxilio", {}).get("AuxilioNS"):
+        items.append({
+            "concepto": "Auxilio No Salarial",
+            "cantidad": "",
+            "valor": dev["Auxilio"]["AuxilioNS"],
+        })
+
+    # EXTRAS (GENÉRICO 🔥)
+    extras_map = {
+        "HoraExtraDiurna": "Hora Extra Diurna",
+        "HoraExtraNocturna": "Hora Extra Nocturna",
+        "HoraExtraDiurnaDominicalFestivo": "HED Dominical/Festivo",
+        "HoraExtraNocturnaDominicalFestiva": "HEN Dominical/Festivo",
+        "RecargoNocturno": "Recargo Nocturno",
+    }
+
+    for key, label in extras_map.items():
+        if dev.get(key):
+            for e in dev[key]:
+                items.append({
+                    "concepto": label,
+                    "cantidad": e.get("Cantidad"),
+                    "valor": e.get("Pago"),
+                })
+
+    # Vacaciones
+    vac = dev.get("Vacaciones", {})
+    for tipo, label in {
+        "VacacionesComunes": "Vacaciones Comunes",
+        "VacacionesCompensadas": "Vacaciones Compensadas"
+    }.items():
+        if vac.get(tipo):
+            for v in vac[tipo]:
+                items.append({
+                    "concepto": label,
+                    "cantidad": v.get("Cantidad"),
+                    "valor": v.get("Pago"),
+                })
+
+    # Incapacidad
+    if dev.get("Incapacidad"):
+        for i in dev["Incapacidad"]:
+            items.append({
+                "concepto": f"Incapacidad ({i.get('Tipo')})",
+                "cantidad": i.get("Cantidad"),
+                "valor": i.get("Pago"),
+            })
+
+    return items
+
+
+def build_deducciones_list(data):
+    ded = data.get("Deducciones", {})
+    items = []
+
+    if ded.get("Salud"):
+        items.append({
+            "concepto": "Salud",
+            "valor": ded["Salud"].get("Deduccion"),
+        })
+
+    if ded.get("FondoPension"):
+        items.append({
+            "concepto": "Fondo de Pensión",
+            "valor": ded["FondoPension"].get("Deduccion"),
+        })
+
+    if ded.get("Libranzas"):
+        items.append({
+            "concepto": "Libranza",
+            "valor": ded["Libranzas"].get("Deduccion"),
+        })
+
+    if ded.get("Sindicato"):
+        for s in ded["Sindicato"]:
+            items.append({
+                "concepto": "Sindicato",
+                "valor": s.get("Deduccion"),
+            })
+
+    return items
+
+
 def electronic_payroll_detail_view(request, pk=None):
+
     detail_payroll = NeDetalleNominaElectronica.objects.select_related(
         'id_contrato__idempleado',
         'id_contrato__cargo',
     ).annotate(
-        contract_id = F('id_contrato'),
-        container_id = F('id_ne_datos_mensual'),
-        detail_id = F('id_detalle_nomina_electronica'),
-        state_send = F('estado'),
-         employee_name=Concat(
+        contract_id=F('id_contrato'),
+        container_id=F('id_ne_datos_mensual'),
+        detail_id=F('id_detalle_nomina_electronica'),
+        state_send=F('estado'),
+        employee_name=Concat(
             clean_field('id_contrato__idempleado__pnombre'), Value(' '),
             clean_field('id_contrato__idempleado__snombre'), Value(' '),
             clean_field('id_contrato__idempleado__papellido'), Value(' '),
             clean_field('id_contrato__idempleado__sapellido'),
         ),
-        employee_document=F('id_contrato__idempleado__docidentidad'), 
-        employee_position = F('id_contrato__cargo__nombrecargo'),
-        employee_salary = F('id_contrato__salario'),
-        employee_entry_date = F('id_contrato__fechainiciocontrato'),
+        employee_document=F('id_contrato__idempleado__docidentidad'),
+        employee_position=F('id_contrato__cargo__nombrecargo'),
+        employee_salary=F('id_contrato__salario'),
+        employee_entry_date=F('id_contrato__fechainiciocontrato'),
     ).get(id_detalle_nomina_electronica=pk)
-    
-    detail_payroll_response = NeRespuestaDian.objects.filter(id_ne_detalle_nomina_electronica=pk)
+
+    detail_payroll_response = NeRespuestaDian.objects.filter(
+        id_ne_detalle_nomina_electronica=pk
+    )
 
     cune = None
     qr_url = None
+
     for response in detail_payroll_response:
         if response.codigo_respuesta == 'EXITOSO':
             response_data = json.loads(response.json_respuesta)
             cune = response_data.get("cune")
-            qr_url =  f"https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey={cune}"
+            qr_url = f"https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey={cune}"
             break
-            
 
-    # Aquí asumimos que el campo con el JSON se llama `json_data`
-    json_data = json.loads(detail_payroll.json_nomina)  # Convertir el JSON en diccionario
+    # =========================
+    # JSON
+    # =========================
+    json_data = json.loads(detail_payroll.json_nomina)
+
+    devengados_list = build_devengados_list(json_data)
+    deducciones_list = build_deducciones_list(json_data)
+
     context = {
         'detail_payroll': detail_payroll,
         'detail_payroll_response': detail_payroll_response,
-        'json_data': json_data,
-        'cune': cune , 
-        'qr_url':qr_url , 
-        'id':pk
+        'devengados_list': devengados_list,
+        'deducciones_list': deducciones_list,
+        'total_devengados': json_data.get("DevengadosTotal", 0),
+        'total_deducciones': json_data.get("DeduccionesTotal", 0),
+        'ComprobanteTotal': json_data.get("ComprobanteTotal", 0),
+        'cune': cune,
+        'qr_url': qr_url,
+        'id': pk
     }
 
     return render(request, 'payroll/electronic_payroll_detail_view.html', context)

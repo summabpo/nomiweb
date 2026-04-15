@@ -6,7 +6,6 @@ from apps.payroll.forms.filter_basic_form import FilterBasicForm
 from django.db.models import Sum, Q
 import calendar
 from datetime import date ,datetime
-from decimal import Decimal
 from decimal import Decimal, ROUND_HALF_UP
 from apps.components.salary import salario_mes
 
@@ -40,7 +39,7 @@ def social_security_provision(request):
             contratos_empleados = (
                 Contratos.objects
                 .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede', 'centrotrabajo')
-                .filter(estadocontrato=1, id_empresa=idempresa )
+                .filter(estadocontrato=1, id_empresa=idempresa)
                 .order_by('idempleado__papellido')
                 .values(
                     'idcontrato', 'idempleado__docidentidad', 'idempleado__papellido','fechainiciocontrato' ,'fechafincontrato',
@@ -57,7 +56,7 @@ def social_security_provision(request):
                     estadonomina=2,
                     idnomina__mesacumular=mst_init,
                     idnomina__anoacumular__ano=year_init,
-                    idconcepto__id_empresa=idempresa
+                    idconcepto__id_empresa=idempresa,
                 )
                 .values('idcontrato')
                 .annotate(

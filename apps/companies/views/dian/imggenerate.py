@@ -6,6 +6,16 @@ from PIL import Image, ImageDraw, ImageFont
 from django.conf import settings
 from apps.components.humani import format_value
 
+import json
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from PyPDF2 import PdfReader, PdfWriter
+
+from apps.components.datacompanies import datos_cliente
+from django.conf import settings
+from .diangenerate import last_business_day_of_march 
+from apps.common.models import Ingresosyretenciones 
+from apps.components.humani import format_value
 
 
 def imggenerate1(idingret , idempresa):
@@ -117,3 +127,214 @@ def imggenerate1(idingret , idempresa):
         y += text_height + line_spacing 
     
     return image
+
+
+
+# =========================
+# Pdf Dian 2.0
+# =========================
+def pdfgenerate(idingret, idempresa):
+
+    certificado = Ingresosyretenciones.objects.filter(idingret=idingret).first()
+    dataempresa = datos_cliente(idempresa)
+
+    if not certificado:
+        raise Exception("Certificado no encontrado")
+
+    year, month, day = last_business_day_of_march(certificado.anoacumular.ano)
+
+    # =========================
+    # CARGAR JSON
+    # =========================
+    with open("apps/companies/views/dian/formatos_220.json", encoding="utf-8") as f:
+        formatos = json.load(f)
+
+    anio = str(certificado.anoacumular.ano)
+
+    if anio not in formatos:
+        raise Exception(f"No existe configuración para el año {anio}")
+
+    config = formatos[anio]
+    coords = config.get("fields", {})
+    pdf_base_path = settings.STATICFILES_DIRS[0] + "/pdf/" + config.get("pdf")
+
+    # =========================
+    # DATOS DINÁMICOS
+    # =========================
+    datos = {
+        "anio": certificado.anoacumular.ano,
+        "nformulario": str(certificado.idingret),
+
+        "empresa": {
+            "nit": str(dataempresa['nit']),
+            "dv": str(dataempresa['dv']),
+            "razon": str(dataempresa['nombreempresa'])
+        },
+
+        "pagado": {
+            "razon": str(dataempresa['nombreempresa'])
+        },
+
+        "empleado": {
+            "tipodni": str(certificado.idempleado.tipodocident.codigo),
+            "dni": "{:,}".format(int(certificado.idempleado.docidentidad)).replace(",", "."),
+            "papellido": str(certificado.idempleado.papellido),
+            "sapellido": str(certificado.idempleado.sapellido),
+            "pnombre": str(certificado.idempleado.pnombre),
+            "snombre": str(certificado.idempleado.snombre),
+        },
+
+        "periodo": {
+            "inicio": [certificado.anoacumular.ano, "01", "01"],
+            "fin": [certificado.anoacumular.ano, "12", "31"]
+        },
+
+        "fecha_expedicion": [year, month, day],
+
+        "ubicacion": {
+            "lugar": str(dataempresa['ciudad']),
+            "departamento": str(dataempresa['coddpto']),
+            "municipio": str(dataempresa['codciudad'])
+        },
+
+        "firma": {
+            "retenedor": str(dataempresa['nombreempresa'])
+        }
+    }
+
+    # =========================
+    # FORMATOS
+    # =========================
+    def fmt(v):
+        try:
+            return "{:,.0f}".format(float(v))
+        except:
+            return "0"
+
+    # =========================
+    # BUILD DINÁMICO DE VALORES
+    # =========================
+    def build_values(block_fields, certificado):
+        values = {}
+
+        for key, attr in block_fields.items():
+
+            # valor fijo tipo "0"
+            if isinstance(attr, str) and attr.isdigit():
+                values[key] = int(attr)
+
+            else:
+                values[key] = getattr(certificado, attr, 0)
+
+        return values
+
+    # =========================
+    # VALUE BLOCKS
+    # =========================
+    value_blocks = config.get("value_blocks", {})
+
+    value1_block = value_blocks.get("value1", {})
+    value2_block = value_blocks.get("value2", {})
+
+    value1_fields = value1_block.get("fields", {})
+    value2_fields = value2_block.get("fields", {})
+
+    value1 = build_values(value1_fields, certificado)
+    value2 = build_values(value2_fields, certificado)
+
+    # =========================
+    # CREAR OVERLAY
+    # =========================
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer)
+    c.setFont("Courier", 9)
+
+    # =========================
+    # DIBUJAR CAMPOS
+    # =========================
+    def draw_fields(data_block, coord_block):
+        for key, value in data_block.items():
+
+            if key not in coord_block:
+                continue
+
+            if isinstance(value, dict):
+                draw_fields(value, coord_block[key])
+
+            elif isinstance(value, list):
+                for i, v in enumerate(value):
+                    try:
+                        pos = coord_block[key][i]
+                        c.drawString(pos["x"], pos["y"], str(v))
+                    except:
+                        continue
+
+            else:
+                pos = coord_block[key]
+                c.drawString(pos["x"], pos["y"], str(value))
+
+    draw_fields(datos, coords)
+
+    # =========================
+    # DIBUJAR VALUE BLOCK
+    # =========================
+    def draw_value_block(block, values_dict):
+
+        if not block:
+            return
+
+        x = block.get("x", 0)
+        y = block.get("y_start", 0)
+        step = block.get("step", 10)
+
+        for key in sorted(values_dict.keys(), key=int):
+            value = fmt(values_dict[key])
+            c.drawRightString(x, y, value)
+            y -= step
+
+    draw_value_block(value1_block, value1)
+    draw_value_block(value2_block, value2)
+
+    c.save()
+    buffer.seek(0)
+
+    # =========================
+    # MERGE PDF
+    # =========================
+    base_pdf = PdfReader(pdf_base_path)
+    overlay_pdf = PdfReader(buffer)
+
+    writer = PdfWriter()
+
+    for i in range(len(base_pdf.pages)):
+        page = base_pdf.pages[i]
+
+        if i < len(overlay_pdf.pages):
+            page.merge_page(overlay_pdf.pages[i])
+
+        writer.add_page(page)
+
+    output_buffer = BytesIO()
+    writer.write(output_buffer)
+    output_buffer.seek(0)
+
+    return output_buffer
+
+
+# =========================
+# VIEW HTTP PARA PROBAR
+# =========================
+
+
+""" 
+
+"empleado": {
+        "tipodni": { "x": 55, "y": 650 },
+        "dni": { "x": 85, "y": 650 },
+        "papellido": { "x": 230, "y": 687 },
+        "sapellido": { "x":310, "y": 687 },
+        "pnombre": { "x": 400, "y": 687 },
+        "snombre": { "x": 500, "y": 687 }
+      },
+
+"""

@@ -14,7 +14,8 @@ from .views.accounting import benefits_provision
 from .views.accounting import security_provision
 from .views.severance import severance
 from .views.history import history 
-#from .views import liquidacion_pila
+from .views import liquidacion_pila
+from .views.audit import ugpp_audit , payroll_excel
 
 # afsa fsa asfad 
 
@@ -25,6 +26,8 @@ urlpatterns = [
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),
     path('payroll/closet/<str:id>', payroll.payroll_closet, name='payroll_closet'),
     path('payroll/open/<str:id>', payroll.payroll_open, name='payroll_open'),
+    path('payroll/audit/ugpp/<str:payroll_id>/', ugpp_audit.UgppPayrollAudit, name='UgppPayrollAudit'),
+    path('payroll/audit/excel/<str:payroll_id>/', payroll_excel.PayrollAuditExcel, name='PayrollAuditExcel'),
 
 
     #electronic_payroll
@@ -64,6 +67,10 @@ urlpatterns = [
     path('settlements/vacation', vacation_settlement.vacation_settlement, name='vacation_settlement'),
     path('settlements/vacation/add', vacation_settlement.vacation_settlement_add, name='vacation_settlement_add'),
     path('settlements/vacation/data/<str:id>/<str:t>', vacation_settlement.vacation_modal_data, name='vacation_modal_data'),
+    path('settlements/vacation/contract-info', vacation_settlement.vacation_contract_hire, name='vacation_contract_hire'),
+    path('settlements/vacation/contract-history/<int:idcontrato>/', vacation_settlement.vacation_contract_history, name='vacation_contract_history'),
+    path('settlements/vacation/calculate-periods', vacation_settlement.vacation_calculate_periods, name='vacation_calculate_periods'),
+    path('settlements/vacation/delete', vacation_settlement.vacation_settlement_delete, name='vacation_settlement_delete'),
     path('settlements/vacation/', vacation_settlement.vacation_days_calc, name='vacation_days_calc'),
     
     path('settlements/bonus/p', bonus_settlement.bonus_p_settlement, name='bonus_p_settlement'),
@@ -75,6 +82,7 @@ urlpatterns = [
     
     
     path('severance/annual/', severance.severance_annual_calculation, name='severance_annual_calculation'),
+    path('severance/monthly/<int:idc>/<int:year>', severance.severance_monthly_detail, name='severance_monthly_detail'),
     
     ### time 
     path('time/list', time.time_list, name='time_list'),
@@ -85,10 +93,11 @@ urlpatterns = [
     path('provisions/social-security/', security_provision.social_security_provision, name='social_security_provision'),
 
     # PILA
-    # path('pila/liquidacion/', liquidacion_pila.liquidacion_pila, name='pila_liquidacion'),
-    # path('pila/planilla/<int:planilla_id>/txt/', liquidacion_pila.descargar_pila_txt, name='pila_descargar_txt'),
-    # path('pila/planilla/<int:planilla_id>/vista-txt/', liquidacion_pila.vista_plano_pila, name='pila_vista_txt'),
-    # path('pila/planilla/<int:planilla_id>/excel/', liquidacion_pila.descargar_pila_excel, name='pila_descargar_excel'),
+    path('pila/liquidacion/', liquidacion_pila.liquidacion_pila, name='pila_liquidacion'),
+    path('pila/planilla/<int:planilla_id>/txt/', liquidacion_pila.descargar_pila_txt, name='pila_descargar_txt'),
+    path('pila/planilla/<int:planilla_id>/vista-txt/', liquidacion_pila.vista_plano_pila, name='pila_vista_txt'),
+    path('pila/planilla/<int:planilla_id>/excel/', liquidacion_pila.descargar_pila_excel, name='pila_descargar_excel'),
+    path('pila/planilla/<int:planilla_id>/json/', liquidacion_pila.descargar_pila_json, name='pila_descargar_json'),
 
     path('history/salary', history.history_salary, name='history_salary'),
 

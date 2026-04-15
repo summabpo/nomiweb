@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Historial de vacaciones — contrato {{ idcontrato }}</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 1rem 1.25rem; color: #212529; }
+        h1 { font-size: 1.1rem; margin: 0 0 0.5rem; }
+        p.meta { font-size: 0.85rem; color: #6c757d; margin: 0 0 1rem; }
+        .err { color: #842029; margin-bottom: 1rem; }
+        table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+        th, td { border: 1px solid #dee2e6; padding: 0.4rem 0.5rem; text-align: left; }
+        th { background: #f8f9fa; }
+        tbody tr:nth-child(even) { background: #fcfcfd; }
+        .num { text-align: right; }
+        .empty { color: #6c757d; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Historial de vacaciones (liquidación)</h1>
+    <p class="meta">Contrato: {{ idcontrato }}</p>
+    {% if error %}
+        <p class="err">{{ error }}</p>
+    {% elif not rows %}
+        <p class="empty">No hay registros en vacaciones para este contrato.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th class="num">Días vac.</th>
+                    <th>Per. inicio</th>
+                    <th>Per. fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row.tipovac.nombrevacaus|default:"—" }}</td>
+                    <td class="num">{{ row.diasvac|default:"—" }}</td>
+                    <td>{% if row.perinicio %}{{ row.perinicio|date:"Y-m-d" }}{% else %}—{% endif %}</td>
+                    <td>{% if row.perfinal %}{{ row.perfinal|date:"Y-m-d" }}{% else %}—{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</body>
+</html>
