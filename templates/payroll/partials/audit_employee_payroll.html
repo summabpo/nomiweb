@@ -1,0 +1,136 @@
+{% load crispy_forms_tags %}
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Detalle de Concepto</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+
+            <!-- 🔴 RESUMEN DE ERRORES -->
+            <div class="mb-4">
+                <h5>
+                    Total de errores: 
+                    <span class="badge bg-danger">{{ data.total_errors }}</span>
+                </h5>
+            </div>
+
+            <!-- 🟡 TABLA COMPARATIVA -->
+            <div class="table-responsive mb-5">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Código</th>
+                            <th>Concepto</th>
+                            <th>Nómina</th>
+                            <th>Auditado</th>
+                            <th>Diferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <!-- 🟢 LOOP PRINCIPAL (lo que está en nómina) -->
+                        {% for concepto in data.conceptos_payroll %}
+                            <tr>
+                                <td>{{ concepto.codigo }}</td>
+                                <td>{{ concepto.nombre }}</td>
+                                <td>{{ concepto.valor }}</td>
+                    
+                                {% with found=0 %}
+                                    {% for a in data.conceptos_audit %}
+                                        {% if a.codigo == concepto.codigo %}
+                                            <td>{{ a.valor }}</td>
+                                            <td>
+                                                {% if a.valor != concepto.valor %}
+                                                    <span class="text-danger fw-bold">X</span>
+                                                {% else %}
+                                                    <span class="text-success">✔</span>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </tr>
+                        {% endfor %}
+                    
+                        <!-- CONCEPTOS QUE SOLO EXISTEN EN AUDIT -->
+                        {% for a in data.conceptos_audit_faltantes %}
+                            {% with exists=0 %}
+                                {% for concepto in data.conceptos_payroll %}
+                                    {% if concepto.codigo == a.codigo %}
+                                        {% with exists=1 %}{% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+                    
+                                {% if not exists %}
+                                    <tr class="table-danger">
+                                        <td>{{ a.codigo }}</td>
+                                        <td>{{ a.nombre }}</td>
+                                        <td>—</td>
+                                        <td>{{ a.valor }}</td>
+                                        <td>
+                                            <span class="text-danger fw-bold">Faltante</span>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                    
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 🔴 LISTA DE ERRORES -->
+            <div>
+
+                <!--begin::Accordion-->
+                <div class="accordion" id="kt_accordion_1">
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="kt_accordion_1_header_2">
+                            <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_2" aria-expanded="false" aria-controls="kt_accordion_1_body_2">
+                                Detalle de errores
+                            </button>
+                        </h2>
+                        <div id="kt_accordion_1_body_2" class="accordion-collapse collapse" aria-labelledby="kt_accordion_1_header_2" data-bs-parent="#kt_accordion_1">
+                            <div class="accordion-body">
+                                
+                                {% if data.errors_list %}
+                                    <ul class="ps-3">
+                                        {% for error in data.errors_list %}
+                                            <li class="text-danger mb-1">
+                                                {{ error }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted">Sin errores detectados</p>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!--end::Accordion-->
+                
+            </div>
+
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+</div>
+
+
+
+

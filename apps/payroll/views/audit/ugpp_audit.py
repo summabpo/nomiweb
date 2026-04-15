@@ -20,6 +20,48 @@ def UgppPayrollAudit(request,payroll_id):
     salaries = get_audit_salaries(payroll_id)
     contributions = get_audit_contributions(payroll_id)
     total_errors , errors_list = get_audit_total_errors(payroll_id)
+    
+
+    empleados_raw = Nomina.objects \
+        .select_related('idcontrato') \
+        .filter(idnomina=payroll_id, estadonomina=1) \
+        .values(
+            'idcontrato__idempleado__docidentidad',
+            'idcontrato__idempleado__papellido',
+            'idcontrato__idempleado__sapellido',
+            'idcontrato__idempleado__pnombre',
+            'idcontrato__idempleado__snombre',
+            'idcontrato__salario',
+            'idcontrato__idempleado__idempleado',
+            'idcontrato'
+        ) \
+        .order_by('idcontrato__idempleado__papellido') \
+        .distinct()
+
+    empleados = []
+    for e in empleados_raw:
+        doc = e.get('idcontrato__idempleado__docidentidad')
+        if not doc or str(doc).strip().lower() == "no data":
+            doc = ""
+
+        nombres = [
+            e.get('idcontrato__idempleado__pnombre'),
+            e.get('idcontrato__idempleado__snombre'),
+            e.get('idcontrato__idempleado__papellido'),
+            e.get('idcontrato__idempleado__sapellido'),
+        ]
+        full_name = " ".join([
+            n.strip() for n in nombres
+            if n and n.strip().lower() != "no data"
+        ])
+        
+        empleados.append({
+            'documento': doc,
+            'nombre_completo': full_name,
+            'salario': e.get('idcontrato__salario'),
+            'idempleado': e.get('idcontrato__idempleado__idempleado'),
+            'idcontrato': e.get('idcontrato'),
+        })
 
     data = {
         'payroll': payroll,
@@ -29,8 +71,43 @@ def UgppPayrollAudit(request,payroll_id):
         'total_to_pay': get_audit_total_to_pay(payroll_id),
         'total_errors': total_errors,
         'errors_list': errors_list,
+        'empleados': empleados,
     }
     return render(request, './payroll/UgppPayrollAudit.html', data)
+
+
+@login_required
+@role_required('accountant')
+def audit_employee_payroll(request,payroll_id,idcontrato):
+    data = {
+        'conceptos_payroll': [
+            {'codigo': '001', 'nombre': 'Salario básico', 'valor': 1000000},
+            {'codigo': '002', 'nombre': 'Auxilio de transporte', 'valor': 162000},
+            {'codigo': '003', 'nombre': 'Horas extras', 'valor': 120000},
+            {'codigo': '004', 'nombre': 'Comisiones', 'valor': 300000},
+        ],
+
+        'conceptos_audit': [
+            {'codigo': '001','nombre': 'Salario básico', 'valor': 1000000},   # OK
+            {'codigo': '002','nombre': 'Auxilio de transporte', 'valor': 162000},    # OK
+            {'codigo': '003','nombre': 'Horas extras', 'valor': 100000},    # ERROR (debería ser 120000)
+            {'codigo': '004','nombre': 'Comisiones', 'valor': 350000},    # ERROR (más alto)
+                # Falta concepto
+        ],
+
+        'conceptos_audit_faltantes': [
+            {'codigo': '005','nombre': 'Rodamientos', 'valor': 350000},   # Falta concepto
+        ],
+
+        'total_errors': 2,
+
+        'errors_list': [
+            'Horas extras: diferencia de 20,000 (Nómina: 120,000 vs Auditado: 100,000)',
+            'Comisiones: diferencia de 50,000 (Nómina: 300,000 vs Auditado: 350,000)',
+        ],
+    }
+
+    return render(request, './payroll/partials/audit_employee_payroll.html', {'data': data})
 
 
 def get_audit_total_errors(payroll_id):
@@ -38,13 +115,14 @@ def get_audit_total_errors(payroll_id):
     errors_count = 0
     errors_list = []
 
-    errors_count1 , errors_list1 = error_salary_audit(payroll_id)
-    errors_count2 , errors_list2 = error_contributions_audit(payroll_id)
-    errors_count3 , errors_list3 = error_transport_audit(payroll_id)
+    #errors_count1 , errors_list1 = error_salary_audit(payroll_id)
+    #errors_count2 , errors_list2 = error_contributions_audit(payroll_id)
+    #errors_count3 , errors_list3 = error_transport_audit(payroll_id)
     
-    errors_count = errors_count1 + errors_count2 + errors_count3
-    errors_list = errors_list1 + errors_list2 + errors_list3
+    #errors_count = errors_count1 + errors_count2 + errors_count3
+    #errors_list = errors_list1 + errors_list2 + errors_list3
 
+    
     return errors_count , errors_list
 
 
@@ -73,7 +151,7 @@ def error_salary_audit(payroll_id):
     ).filter(
         idnomina_id=payroll_id,
         idconcepto__codigo__in=conceptos,
-    )[:2]
+    )
 
     for data in registros:
 
@@ -133,12 +211,12 @@ def error_salary_audit(payroll_id):
         # ==========================================
 
         # ERROR 3: SALARIO POR DEBAJO DEL MINIMO
-        if codigo == 1 and salario < sal_min:
-            errors_list.append(
-                f"[MINIMO] {contrato_id} "
-                f"tiene salario menor al mínimo ({salario} < {sal_min})"
-            )
-            errors_count += 1
+        #if codigo == 1 and salario < sal_min:
+        #    errors_list.append(
+        #        f"[MINIMO] {contrato_id} "
+        #        f"tiene salario menor al mínimo ({salario} < {sal_min})"
+        #    )
+        #    errors_count += 1
 
         # ERROR 4: DIAS MAYORES A 30
         if diasnomina > 30:
@@ -205,7 +283,7 @@ def error_transport_audit(payroll_id):
         if contrato_id not in contratos_cache:
 
             salario = salario_mes(contrato, mes, anio)
-            acumulados = precargar_acumulados(nomina, contrato_id)
+            acumulados = precargar_acumulados(nomina,codigo)
 
             contratos_cache[contrato_id] = {
                 "salario": Decimal(salario),
@@ -518,3 +596,5 @@ def get_audit_total_to_pay(payroll_id):
         estadonomina=1
     )
     return queryset.aggregate(total=Sum('valor'))['total'] or 0
+
+

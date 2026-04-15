@@ -1787,7 +1787,7 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
 def calcular_dias(contrato,nomina ,concep,data): 
     d = 0 
     if nomina.tiponomina.idtiponomina == 2 :
-        d = calculate_biweekly_days(contrato,nomina ,concep,data)
+        d = calculate_biweekly_days(contrato,nomina ,data)
     elif nomina.tiponomina.idtiponomina == 1 :
         d = calculate_monthly_days(contrato,nomina ,concep)
     return d
@@ -1812,11 +1812,8 @@ def precargar_acumulados(nomina, concep):
 
 
 
-def calculate_biweekly_days(contrato, nomina, concep,acumulados_dict):
+def calculate_biweekly_days(contrato, nomina,acumulados_dict):
     diasnomina2 = acumulados_dict.get(contrato.idcontrato, 0)
-
-    print('---------------------------')
-    print(concep)
 
     diasnomina1 = calcular_dias_en_nomina(
         contrato,
@@ -1866,10 +1863,6 @@ def calculate_biweekly_days(contrato, nomina, concep,acumulados_dict):
             tiponomina=SimpleNamespace(idtiponomina=nomina.tiponomina.idtiponomina),
         )
 
-        print('---------------------------')
-        print(shadow)   
-        
-
         
         diasnomina2 = calcular_dias_en_nomina(
             contrato,
@@ -1879,8 +1872,6 @@ def calculate_biweekly_days(contrato, nomina, concep,acumulados_dict):
             shadow
         )
 
-    print('---------------------------')
-    print(diasnomina1 , '+' , diasnomina2)
     return diasnomina1 + diasnomina2
 
 
