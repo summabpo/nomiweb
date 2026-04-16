@@ -253,7 +253,7 @@ Auditoría UGPP - Nómina #{{ payroll.idnomina }}
 
     
 
-
+<div class="separator my-10"></div>
 <!-- 🔻 ACORDEÓN DE ERRORES -->
 <div class="accordion" id="accordionErrors">
 
@@ -268,8 +268,8 @@ Auditoría UGPP - Nómina #{{ payroll.idnomina }}
         </h2>
 
         <div id="collapseErrors"
-             class="accordion-collapse collapse show"
-             data-bs-parent="#accordionErrors">
+                class="accordion-collapse collapse"
+                data-bs-parent="#accordionErrors">
 
             <div class="accordion-body">
 
@@ -293,7 +293,77 @@ Auditoría UGPP - Nómina #{{ payroll.idnomina }}
 
 </div>
 
+<div class="separator my-10"></div>
 
+<!--begin::Accordion-->
+<div class="accordion" id="kt_accordion_1">
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="kt_accordion_1_header_2">
+            <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_1_body_2" aria-expanded="false" aria-controls="kt_accordion_1_body_2">
+            Empleados auditados
+            </button>
+        </h2>
+        <div id="kt_accordion_1_body_2" class="accordion-collapse collapse" aria-labelledby="kt_accordion_1_header_2" data-bs-parent="#kt_accordion_1">
+            <div class="accordion-body">
+                
+                
+                <div class="table-responsive">
+                    <table id="tabla-contrato-activos" class="table table-striped table-bordered">
+                        <thead >
+                            <tr class="fw-bold fs-6 text-gray-800">
+                                <th class="text-center" >IDcontrato</th>
+                                <th class="text-center" >Documento</th>
+                                <th>Nombre</th>
+                                <th class="text-center" >Salario</th>
+                                <th class="text-center" >Gestión</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for empleado in empleados %}
+                                <tr >
+                                    <td class="text-center">{{ empleado.idcontrato }}</td>
+                                    <td class="text-center">{{ empleado.documento }}</td>
+                                    <td>{{empleado.nombre_completo}}</td>
+                                    <td class="text-center">{{ empleado.salario|format_currency }} </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" >
+                                            <a
+                                                class='btn btn-icon btn-sm btn-light-info'
+                                                up-layer='new modal'
+                                                up-target="#modal-content" 
+                                                up-size = "large"
+                                                up-align = "center"
+                                                up-backdrop = "true"
+                                                up-history = "false"
+                                                up-dismissable ="false"
+                                                up-cache="false"
+
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-custom-class="tooltip-inverse" 
+                                                data-bs-placement="bottom" 
+                                                title="Cargar Novedad" 
+
+                                                href="{% url 'payroll:audit_employee_payroll' payroll.idnomina empleado.idcontrato %}">
+                                                <i class="fa-solid fa-file fs-3"></i>
+                                            </a>
+                                            
+                                            
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+<!--end::Accordion-->
 
 
 {% endblock content %}
