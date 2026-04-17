@@ -16,6 +16,7 @@ from .views.severance import severance
 from .views.history import history 
 from .views import liquidacion_pila
 from .views.audit import ugpp_audit , payroll_excel
+from .views.dian_certificates import income_withholding
 
 # afsa fsa asfad 
 
@@ -30,6 +31,10 @@ urlpatterns = [
     path('payroll/audit/excel/<str:payroll_id>/', payroll_excel.PayrollAuditExcel, name='PayrollAuditExcel'),
     path('payroll/audit/ugpp/employee/<str:payroll_id>/<str:idcontrato>/', ugpp_audit.audit_employee_payroll, name='audit_employee_payroll'),
 
+
+    # dian certificates
+    path('payroll/dian/certificates/income-withholding/', income_withholding.income_withholding_certificate, name='income_withholding_certificate'),
+    path('payroll/dian/certificates/generate/income-withholding/', income_withholding.generate_income_withholding_certificate, name='generate_income_withholding_certificate'),
 
     #electronic_payroll
     path('payroll/electronic_payroll/', electronic_payroll.electronic_payroll_container, name='nomina_electronica'),
