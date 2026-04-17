@@ -292,7 +292,7 @@ def recalcular_nomina(idn):
 
     empleados_raw = Nomina.objects \
         .select_related('idcontrato') \
-        .filter(idnomina=id, estadonomina=1) \
+        .filter(idnomina_id=idn, estadonomina=1) \
         .values(
             'idcontrato'
         ) \
@@ -543,9 +543,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
             ini = incapacidad.fechainicial
             fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
 
-
-            
-
             ibc = incapacidad.ibc
             tipo = incapacidad.origenincap
             prorroga = incapacidad.prorroga
@@ -576,16 +573,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
 
                 dias_incapacidad -= dias_asumidos
 
-            print(f'-----------{incapacidad.idincapacidad}-------')
-            print(f'Fecha inicial: {incapacidad.fechainicial}')
-            print(f'Dias: {incapacidad.dias}')
-            print(f'IBC: {incapacidad.ibc}')
-            print(f'Tipo: {incapacidad.origenincap}')
-            print(f'Prorroga: {incapacidad.prorroga}')
-            print('--------------Nomina------------------')
-            print(f'Inicio nomina: {inicio_nomina}')
-            print(f'Fin nomina: {fin_nomina}')
-            print('--------------------------------')
             
             if prorroga:
 
@@ -599,9 +586,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
                 ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
                 if dias_incapacidad > 0:
-                    print('entro a grabar incapacidad')
-                    print(f'Dias incapacidad: {dias_incapacidad}')
-                    print(f'Valor incapacidad: {valor_incapacidad}')
+
                     grabar_incapacidad(idconceptoi, dias_incapacidad, valor_incapacidad, contract, idn, idempresa, incapacidad)
                 
                 break
@@ -616,17 +601,6 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
                 valor_asumido = (
                     Decimal(ibc) / Decimal('30') * Decimal(dias_asumidos)
                 ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-
-
-                print('--------------------')
-                print('datos de incapacidad ')
-                print(f'Dias incapacidad: {dias_incapacidad}')
-                print(f'Valor incapacidad: {valor_incapacidad}')
-                print(f'Dias asumidos: {dias_asumidos}')
-                print(f'Valor asumido: {valor_asumido}')
-                print('--------------------')
-
-
 
                 if dias_incapacidad > 0:
                     grabar_incapacidad(idconceptoi, dias_incapacidad, valor_incapacidad, contract, idn, idempresa, incapacidad)
@@ -1306,7 +1280,7 @@ def calculo_incapacidad(contrato,nomina):
                 inicio = max(fechaini, nomina.fechainicial)
                 fin = min(fechafin, nomina.fechafinal)
                 dias_incapacidad += (fin - inicio).days + 1
-                print(f"id {inc.idincapacidad}  ds {dias_incapacidad} ddb {inc.dias}")
+                #print(f"id {inc.idincapacidad}  ds {dias_incapacidad} ddb {inc.dias}")
     return dias_incapacidad
 
 

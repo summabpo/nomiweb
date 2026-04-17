@@ -41,6 +41,9 @@ def auto_recalculate(idnomina,idcontrato):
     contrato = Contratos.objects.get(idcontrato = idcontrato)
     sal_min = Salariominimoanual.objects.get(ano = nomina.fechapago.year).salariominimo
 
+    concepto1 = Conceptosdenomina.objects.get(codigo=60, id_empresa =contrato.id_empresa)
+    concepto2 = Conceptosdenomina.objects.get(codigo=70, id_empresa =contrato.id_empresa)
+    concepto3 = Conceptosdenomina.objects.get(codigo=90, id_empresa =contrato.id_empresa)
 
     registros = Nomina.objects.select_related(
         'idcontrato',
@@ -51,120 +54,143 @@ def auto_recalculate(idnomina,idcontrato):
         idconcepto__codigo__in=[60, 70, 90]
     )
 
-    if registros.exists():
-        tipo_salario = contrato.tiposalario.idtiposalario
-        # Obtener la suma de las deducciones de la eps 
-        total_base_ss = Nomina.objects.filter(
-            idcontrato=contrato,
-            idnomina=nomina,
-            estadonomina = 1 ,
-            idconcepto__indicador__nombre='basesegsocial'
-        ).exclude(
-            idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
-        ).aggregate(total=Sum('valor'))['total'] or 0 
 
-        base_ss_fsp =   Nomina.objects.filter(
-            idcontrato = contrato,
-            idnomina__mesacumular = nomina.mesacumular ,
-            idnomina__anoacumular = nomina.anoacumular ,
-            idconcepto__indicador__nombre='basesegsocial'
-        ).exclude(
-            idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
-        ).aggregate(total=Sum('valor'))['total'] or 0 
+    tipo_salario = contrato.tiposalario.idtiposalario
+    # Obtener la suma de las deducciones de la eps 
+    total_base_ss = Nomina.objects.filter(
+        idcontrato=contrato,
+        idnomina=nomina,
+        estadonomina = 1 ,
+        idconcepto__indicador__nombre='basesegsocial'
+    ).exclude(
+        idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
+    ).aggregate(total=Sum('valor'))['total'] or 0 
 
-        if contrato.tiposalario.idtiposalario == 2:
-            base_ss_fsp2 = base_ss_fsp * Decimal('0.7')
-        else : 
-            base_ss_fsp2 = base_ss_fsp
+    base_ss_fsp =   Nomina.objects.filter(
+        idcontrato = contrato,
+        idnomina__mesacumular = nomina.mesacumular ,
+        idnomina__anoacumular = nomina.anoacumular ,
+        idconcepto__indicador__nombre='basesegsocial'
+    ).exclude(
+        idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
+    ).aggregate(total=Sum('valor'))['total'] or 0 
 
-        tiene_eps = registros.filter(idconcepto__codigo=60).exists()
-        tiene_pension = registros.filter(idconcepto__codigo=70).exists()
-        tiene_fsp = registros.filter(idconcepto__codigo=90).exists()
+    if contrato.tiposalario.idtiposalario == 2:
+        base_ss_fsp2 = base_ss_fsp * Decimal('0.7')
+    else : 
+        base_ss_fsp2 = base_ss_fsp
 
-        if tipo_salario == 2:
-            total_base_ss *= (factor_integral / 100)
-            total_base_ss = round(total_base_ss, 2)
+        
+    tiene_eps = registros.filter(idconcepto__codigo=60).exists()
+    tiene_pension = registros.filter(idconcepto__codigo=70).exists()
+    tiene_fsp = registros.filter(idconcepto__codigo=90).exists()
 
-
-        base_max = sal_min * tope_ibc.valorfijo
-        base_ss = min(total_base_ss, base_max)
-        base_ss = round(base_ss, 2)
-
-        if tiene_eps:
-
-            eps = registros.filter(idconcepto__codigo=60).first()
-
-            valoreps = (
-                Decimal(total_base_ss) *
-                Decimal(EPS.valorfijo) / Decimal('100')
-            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-
-            
-
-            if eps.valor != (-1*valoreps):
-                eps.valor = -valoreps
-                eps.save()  
-            # recalcular eps
-            pass
-
-        if tiene_pension:
-
-            afp = registros.filter(idconcepto__codigo=70).first()
-
-            valorafp = (
-                Decimal(total_base_ss) *
-                Decimal(AFP.valorfijo) / Decimal('100')
-            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-
-            if contrato.pensionado == '2':
-                valorafp = 0.00
-
-            if afp.valor != (-1*valorafp):
-                afp.valor = -valorafp
-                afp.save()  
-
-            # recalcular pension
-            pass
-
-        if tiene_fsp:
-
-            fsp = registros.filter(idconcepto__codigo=90).first()
-
-            if base_ss_fsp2 <= (sal_min * 4):
-                FSP = 0
-            if (base_ss_fsp2 > (sal_min * 4)) :
-                FSP = fsp416
-            elif (base_ss_fsp2 > (sal_min * 16)):
-                FSP = fsp1617
-            elif (base_ss_fsp2 > (sal_min * 17)):
-                FSP = fsp1718
-            elif (base_ss_fsp2 > (sal_min * 18)):
-                FSP = fsp1819
-            elif (base_ss_fsp2 > (sal_min * 19)):
-                FSP = fsp1920
-            elif base_ss_fsp2 > (sal_min * 20):
-                FSP = fsp21
-            else:
-                FSP = 0
-            
-
-            valorfsp = (
-                    Decimal(str(base_ss_fsp2)) * Decimal(str(FSP)) / Decimal('100')
-                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP) if FSP > 0 else Decimal('0')
-            
-
-            if fsp.valor != (-1*valorfsp):
-                fsp.valor = -valorfsp
-                fsp.save()  
-
-            if contrato.pensionado == '2':
-                valorafp = 0.00
-                valorfsp = 0.00
+    if tipo_salario == 2:
+        total_base_ss *= (factor_integral / 100)
+        total_base_ss = round(total_base_ss, 2)
 
 
-            # recalcular fondo de solidaridad
-            pass
+    base_max = sal_min * tope_ibc.valorfijo
+    base_ss = min(total_base_ss, base_max)
+    base_ss = round(base_ss, 2)
 
+
+    valoreps = (
+            Decimal(total_base_ss) *
+            Decimal(EPS.valorfijo) / Decimal('100')
+        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+    valorafp = (
+            Decimal(total_base_ss) *
+            Decimal(AFP.valorfijo) / Decimal('100')
+        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+
+    fsp = registros.filter(idconcepto__codigo=90).first()
+
+    if base_ss_fsp2 <= (sal_min * 4):
+        FSP = 0
+    if (base_ss_fsp2 > (sal_min * 4)) :
+        FSP = fsp416
+    elif (base_ss_fsp2 > (sal_min * 16)):
+        FSP = fsp1617
+    elif (base_ss_fsp2 > (sal_min * 17)):
+        FSP = fsp1718
+    elif (base_ss_fsp2 > (sal_min * 18)):
+        FSP = fsp1819
+    elif (base_ss_fsp2 > (sal_min * 19)):
+        FSP = fsp1920
+    elif base_ss_fsp2 > (sal_min * 20):
+        FSP = fsp21
+    else:
+        FSP = 0
+    
+
+    valorfsp = (
+            Decimal(str(base_ss_fsp2)) * Decimal(str(FSP)) / Decimal('100')
+        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP) if FSP > 0 else Decimal('0')
+    
+
+    if contrato.pensionado == '2':
+        valorafp = 0.00
+        valorfsp = 0.00
+
+    if tiene_eps:
+
+        eps = registros.filter(idconcepto__codigo=60).first()
+        if eps.valor != (-1*valoreps):
+            eps.valor = -valoreps
+            eps.save()  
+    else:
+
+        if valoreps > 0:
+            Nomina.objects.create(
+                idconcepto = concepto1 ,
+                cantidad= 0 ,
+                estadonomina = 1,
+                valor= -1*valoreps , 
+                idcontrato =contrato ,
+                idnomina = nomina ,
+            ) 
+
+        
+    if tiene_pension:
+
+        afp = registros.filter(idconcepto__codigo=70).first()
+        if afp.valor != (-1*valorafp):
+            afp.valor = -valorafp
+            afp.save()  
+
+    else :
+        if valorafp > 0:
+            Nomina.objects.create(
+                idconcepto = concepto2 ,
+                cantidad= 0 ,
+                estadonomina = 1,
+                valor= -1*valorafp , 
+                idcontrato =contrato ,
+                idnomina = nomina ,
+            ) 
+
+    if tiene_fsp:
+        if fsp.valor != (-1*valorfsp):
+            fsp.valor = -valorfsp
+            fsp.save()  
+
+        if contrato.pensionado == '2':
+            valorafp = 0.00
+            valorfsp = 0.00
+    else :
+
+        if valorfsp > 0:
+            Nomina.objects.create(
+                idconcepto = concepto3 ,
+                cantidad= 0 ,
+                estadonomina = 1,
+                valor= -1*valorfsp , 
+                idcontrato =contrato ,
+                idnomina = nomina ,
+            ) 
 
 
     return True
