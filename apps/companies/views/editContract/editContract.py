@@ -57,7 +57,10 @@ def EditContracVisual(request,idempleado):
         'Empleado': (contrato.idempleado.papellido or '')  + ' ' + (contrato.idempleado.sapellido or '' ) + ' ' + (contrato.idempleado.pnombre or '') + ' ' + (contrato.idempleado.snombre or '') + ' CC: ' + str(contrato.idempleado.docidentidad),
         'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo",
     }
+
+
     
+
     initial_data = {
         'name': contrato.idempleado.idempleado,
         'endDate': str(contrato.fechafincontrato),
@@ -85,7 +88,7 @@ def EditContracVisual(request,idempleado):
         'subContributor': contrato.subtipocotizante.subtipocotizante if contrato.subtipocotizante else '',
     }
 
-    # ✅ Limpieza de valores tipo "no data", "sin dato", "n/a", etc.
+    # Limpieza de valores tipo "no data", "sin dato", "n/a", etc.
     initial_data = {
         k: ("" if isinstance(v, str) and v.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"] else v)
         for k, v in initial_data.items()

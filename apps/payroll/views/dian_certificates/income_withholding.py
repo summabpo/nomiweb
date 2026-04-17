@@ -87,101 +87,126 @@ def generate_income_withholding_certificate(request):
 
 
 
-
 def data_certificate(data_contratos, anoacumular, idempresa):
-
     obj_anio = Anos.objects.get(ano=int(anoacumular))
 
-    data = {
-        'salarios':0 ,
-        'honorarios' : 0 ,
-        'servicios' :0,
-        'comisiones' :0,
-        'prestacionessociales' :0,
-        'viaticos' :0,
-        'gastosderepresentacion' :0,
-        'compensacioncta' :0,
-        'cesantiasintereses' :0,
-        'pensiones' :0,
-        
-        'aportessalud' :0,
-        'aportespension' :0,
-        'aportesvoluntarios' :0,
-        'aportesafc' :0,
-        'retefuente' :0,
-        'anoacumular' : 0,
-        'idempleado' : 0,  
-        'otrospagos' : 0 ,
-        'fondocesantias' : 0 ,
-        'excesoalim' : 0 ,
-        'cesantias90' : 0 ,
-        'apoyoeconomico' : 0 ,
-        'aportesavc' : 0 ,
-        'ingresolaboralpromedio' : 0 ,
-        'id_empresa' : 0,
-        'totalingresosbrutos' :0,
-    }
-
-    
     for cedula, contratos in data_contratos.items():
-        salarios = 0
+
+        # acumuladores por empleado
+        data = {
+            'salarios': 0,
+            'honorarios': 0,
+            'servicios': 0,
+            'comisiones': 0,
+            'prestacionessociales': 0,
+            'viaticos': 0,
+            'gastosderepresentacion': 0,
+            'compensacioncta': 0,
+            'cesantiasintereses': 0,
+            'pensiones': 0,
+            'totalingresosbrutos': 0,
+            'aportessalud': 0,
+            'aportespension': 0,
+            'aportesvoluntarios': 0,
+            'aportesafc': 0,
+            'retefuente': 0,
+            'otrospagos': 0,
+            'fondocesantias': 0,
+            'excesoalim': 0,
+            'cesantias90': 0,
+            'apoyoeconomico': 0,
+            'aportesavc': 0,
+            'ingresolaboralpromedio': 0,
+        }
+
+        idempleado = None
+
         for contrato in contratos:
-            incapacidades = returne_value_for_family(contrato.idcontrato, anoacumular, 'incapacidad')
-            vacaciones = returne_value_for_family(contrato.idcontrato, anoacumular, 'Vacaciones_Ausent')
-            salarios = returne_value_for_family(contrato.idcontrato, anoacumular, 'basesegsocial') 
-            transporte = returne_value_for_family(contrato.idcontrato, anoacumular, 'auxtransporte')
-            honorarios = returne_value_for_family(contrato.idcontrato, anoacumular, 'honorarios')
-            servicios = returne_value_for_family(contrato.idcontrato, anoacumular, 'servicios')
-            comisiones = returne_value_for_family(contrato.idcontrato, anoacumular, 'comisiones')
-            prestacionessociales = returne_value_for_family(contrato.idcontrato, anoacumular, 'prestacionsocial')
-            viaticos = returne_value_for_family(contrato.idcontrato, anoacumular, 'viaticos')
-            gastosderepresentacion = returne_value_for_family(contrato.idcontrato, anoacumular, 'gastosderepresentacion')
-            compensacioncta = returne_value_for_family(contrato.idcontrato, anoacumular, 'compensacioncta')
-            cesantiasintereses = returne_value_for_family(contrato.idcontrato, anoacumular, 'cesantiasintereses')
-            pensiones = returne_value_for_family(contrato.idcontrato, anoacumular, 'pensiones')
+
+            idempleado = contrato.idempleado.idempleado
+
+            incapacidades = returne_value_for_family(contrato.idcontrato, anoacumular, 'incapacidad') or 0
+            vacaciones = returne_value_for_family(contrato.idcontrato, anoacumular, 'Vacaciones_Ausent') or 0
+
+            salarios = returne_value_for_family(contrato.idcontrato, anoacumular, 'basesegsocial') or 0
+            honorarios = returne_value_for_family(contrato.idcontrato, anoacumular, 'honorarios') or 0
+            servicios = returne_value_for_family(contrato.idcontrato, anoacumular, 'servicios') or 0
+            comisiones = returne_value_for_family(contrato.idcontrato, anoacumular, 'comisiones') or 0
+            prestacionessociales = returne_value_for_family(contrato.idcontrato, anoacumular, 'prestacionsocial') or 0
+            viaticos = returne_value_for_family(contrato.idcontrato, anoacumular, 'viaticos') or 0
+            gastos = returne_value_for_family(contrato.idcontrato, anoacumular, 'gastosderepresentacion') or 0
+            compensacion = returne_value_for_family(contrato.idcontrato, anoacumular, 'compensacioncta') or 0
+            cesantias_int = returne_value_for_concepto(contrato.idcontrato, int(anoacumular) - 1,821 ) or 0
+            pensiones = returne_value_for_family(contrato.idcontrato, anoacumular, 'pensiones') or 0
+            aportessalud = returne_value_for_family(contrato.idcontrato, anoacumular, 'aportessalud') or 0
+            aportespension = returne_value_for_family(contrato.idcontrato, anoacumular, 'aportespension') or 0
+            aportesvoluntarios = returne_value_for_family(contrato.idcontrato, anoacumular, 'aportesvoluntarios') or 0
+
+            cesantias90 = returne_value_for_concepto(contrato.idcontrato, anoacumular,820 ) or 0
+            otros_pagos = returne_value_for_family(contrato.idcontrato, anoacumular, 'otrospagos') or 0
+            apoyoeconomico = returne_value_for_family(contrato.idcontrato, anoacumular, 'apoyoeconomico') or 0
             
-            data['idempleado'] = contrato.idempleado.idempleado
+            # 🔹 acumular
+            data['salarios'] += (salarios - vacaciones - incapacidades)
+            data['honorarios'] += honorarios
+            data['servicios'] += servicios
+            data['comisiones'] += comisiones
+            data['prestacionessociales'] += prestacionessociales
+            data['viaticos'] += viaticos
+            data['gastosderepresentacion'] += gastos
+            data['compensacioncta'] += compensacion
+            data['cesantiasintereses'] += cesantias_int
+            data['pensiones'] += pensiones
+            data['aportessalud'] += aportessalud
+            data['aportespension'] += aportespension
+            data['aportesvoluntarios'] += aportesvoluntarios
+            data['cesantias90'] += cesantias90
+            data['otrospagos'] += otros_pagos
 
-            data['salarios'] = salarios - vacaciones - incapacidades
-            data['transporte'] = transporte
-            data['honorarios'] = 1000000
-            data['servicios'] = 1000000
-            data['comisiones'] = comisiones
-            data['prestacionessociales'] = prestacionessociales
-            data['viaticos'] = viaticos
-            data['gastosderepresentacion'] = gastosderepresentacion
-            data['compensacioncta'] = compensacioncta
-            data['cesantiasintereses'] = cesantiasintereses
-            data['pensiones'] = pensiones
+        # 🔥 cálculo final
+        data['totalingresosbrutos'] = (
+            data['salarios'] + data['honorarios'] + data['servicios'] + data['comisiones']
+        )
 
-            Ingresosyretenciones.objects.update_or_create(
-                idempleado_id=data['idempleado'],
-                anoacumular=obj_anio,
-                id_empresa_id=idempresa,
-                defaults={
-                    'salarios': data['salarios'],
-                    'honorarios': data['honorarios'],
-                    'servicios': data['servicios'],
-                    'comisiones': data['comisiones'],
-                }
-            )
+        # 🔥 guardar UNA sola vez por empleado
+        Ingresosyretenciones.objects.update_or_create(
+            idempleado_id=idempleado,
+            anoacumular=obj_anio,
+            id_empresa_id=idempresa,
+            defaults=data
+        )
 
-    return data
+    return True
 
 
-def returne_value_for_family(idcontrato , anoacumular , familia):
+def returne_value_for_family(idcontrato, anoacumular, familia):
     total = 0
 
     data = Nomina.objects.filter(
-        idnomina__anoacumular__ano=int(2025),
+        idnomina__anoacumular__ano=int(anoacumular),
         idcontrato_id=int(idcontrato),
         idconcepto__indicador__nombre=familia,
     )
 
     for item in data:
-        total += item.valor
+        total += abs(item.valor)
 
-    return total or 0
+    return total
+
+
+def returne_value_for_concepto(idcontrato, anoacumular, concepto):
+    total = 0
+
+    data = Nomina.objects.filter(
+        idnomina__anoacumular__ano=int(anoacumular),
+        idcontrato_id=int(idcontrato),
+        idconcepto__codigo=concepto,
+    )
+
+    for item in data:
+        total += abs(item.valor)
+
+    return total
 
 
 def get_contratos_por_anio(anio, empresa_id):
