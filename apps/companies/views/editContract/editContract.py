@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.common.models  import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo,Tiposdecotizantes ,Subtipocotizantes
+from apps.common.models  import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo,Tiposdecotizantes ,Subtipocotizantes, Sedes
 from .EditForm import ContractForm 
 from django.contrib import messages
 
@@ -125,11 +125,15 @@ def EditContracVisual(request,idempleado):
                 if form.cleaned_data['subContributor'] not in ('', None):
                     contrato.subtipocotizante = Subtipocotizantes.objects.get(subtipocotizante=form.cleaned_data['subContributor'])
 
+                if form.cleaned_data['workPlace'] not in ('', None):
+                    contrato.idsede = Sedes.objects.get(idsede=form.cleaned_data['workPlace'])
 
+                if form.cleaned_data['arlWorkCenter'] not in ('', None):
+                    contrato.centrotrabajo = Centrotrabajo.objects.get(centrotrabajo=form.cleaned_data['arlWorkCenter'])
 
                 contrato.save()
                 messages.success(request, 'El Contrato ha sido Actualizado')
-                return  redirect('companies:startcompanies')
+                return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
             except Exception as e:
                 print(e)
                 messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)

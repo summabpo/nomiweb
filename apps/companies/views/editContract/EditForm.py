@@ -79,7 +79,7 @@ class ContractForm(forms.Form):
         fields_to_adjust = [
             'endDate', 'payrollType', 'position', 'workLocation', 'contractStartDate',
             'contractType', 'contractModel', 'salary', 'salaryType', 'salaryMode',
-            'eps', 'pensionFund', 'CesanFund', 'arlWorkCenter', 'workPlace'
+            'eps', 'pensionFund', 'CesanFund',
         ]
 
         

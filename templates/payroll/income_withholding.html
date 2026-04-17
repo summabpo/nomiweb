@@ -142,61 +142,45 @@ Listados de Tiempos
     <div class="separator  border-0 my-10"></div>
 
 
-    <div class="table-responsive">
-        <table id='tabla-lista-vacation' class="table table-striped table-bordered">
-            <thead>
+    
+
+{% if reten %}
+
+<div class="table-responsive">
+    <table id='tabla-lista-vacation' class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Idcontrato</th>
+                <th>Documento</th>
+                <th>Empleado</th>
+                <th>Salario</th>
+                <th>Honorarios</th>
+                <th>Servicios</th>
+                <th>Comisiones</th>
+                <th class="text-center">
+                </th>
+            </tr>
+
+        </thead>
+        <tbody>
+            {% for item in reten %}
                 <tr>
-                    <th>Idcontrato</th>
-                    <th>Documento</th>
-                    <th>Empleado</th>
-                    <th>Salario</th>
-                    <th class="text-center">
-                    </th>
+                    <td>{{ item.idempleado.idempleado }}</td>
+                    <td>{{ item.idempleado.docidentidad }}</td>
+                    <td>{{ item.idempleado.papellido }} {{ item.idempleado.sapellido }} {{ item.idempleado.pnombre }} {{ item.idempleado.snombre }}</td>
+                    <td>{{ item.salarios }}</td>
+                    <td>{{ item.honorarios }}</td>
+                    <td>{{ item.servicios }}</td>
+                    <td>{{ item.comisiones }}</td>
+                    <!-- Acciones -->
+                    <td>
+                        
+                    </td>
                 </tr>
-
-            </thead>
-            <tbody>
-                {% for item in tiempos %}
-                    <tr>
-                        <td>{{ item.idcontrato }}</td>
-                        <td>{{ item.documento }}</td>
-                        <td>{{ item.nombre }}</td>
-                        <td>{{ item.salario }}</td>
-
-                        <!-- Acciones -->
-                        <td>
-                            <a
-                                class='btn btn-icon btn-sm btn-light-success'
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Editar Tiempo"
-                                up-layer='new modal'
-                                up-target=".modal-content1"
-                                up-size="medium"
-                                up-align="center"
-                                up-backdrop="true"
-                                up-history="false"
-                                up-dismissable="false"
-                                up-cache="false"
-                                href="{% url 'payroll:time_edit' item.idmarcacion %}">
-                                <i class="fa-solid fa-pen-to-square fs-3"></i>
-                            </a>
-
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-{% if tiempos %}
-
-    {% if true1 %}
-        
-
-
-       
-    {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 {% else %}
 
