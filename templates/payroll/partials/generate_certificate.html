@@ -1,0 +1,71 @@
+{% load crispy_forms_tags %}
+
+<div class="modal-content" id="modal-content">
+    
+    <div class="modal-header">
+        <h3 class="modal-title">Crear Certificados</h3>
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1">
+                <span class="path1"></span>
+                <span class="path2"></span>
+            </i>
+        </div>
+    </div>   
+
+    <div class="separator my-5"></div> 
+
+    <div class="modal-body">
+        <div class="container">
+            
+            <!-- 👇 IMPORTANTE: action aquí -->
+            <form method="post" action="{% url 'payroll:generate_income_withholding_certificate' %}" class="w-100" id="form-nomina">
+                {% csrf_token %}
+            
+                <div class="row mb-4">
+            
+                    <!-- Año -->
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Año</label>
+                        <select name="anio" id="anio"
+                                class="form-select"
+                                data-control="select2"
+                                required
+                                data-hide-search="true"
+                                data-placeholder="Seleccione año">
+            
+                            <option value=""></option>
+            
+                            {% for year in years %}
+                                <option value="{{ year }}"
+                                    {% if selected_anio == year|stringformat:'s' %}selected{% endif %}>
+                                    {{ year }}
+                                </option>
+                            {% endfor %}
+            
+                        </select>
+                    </div>
+        
+                </div>
+                
+            </form>
+
+        </div>
+    </div>
+
+    <div class="separator my-5"></div>
+
+    <!-- 👇 FOOTER -->
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger" up-dismiss>
+            Cerrar
+        </button>
+
+        <div style="width: 10px;"></div>
+
+        <!-- 👇 ESTE ES EL CLAVE -->
+        <button type="submit" class="btn btn-light-primary" form="form-nomina">
+            Generar Certificados
+        </button>
+    </div>
+
+</div>
