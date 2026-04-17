@@ -5,10 +5,13 @@ from apps.components.decorators import custom_login_required ,custom_permission
 from apps.companies.forms.headquartersForm import headquartersForm
 from django.contrib import messages
 from django.db import transaction
-
+from django.http import HttpResponse
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.http import HttpResponse
+from django.urls import reverse
+from django.contrib import messages
 
 
 """
@@ -55,7 +58,7 @@ from django.http import JsonResponse
 """
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def headquarters(request): 
     """
     Vista que muestra un listado de las sedes de la empresa del usuario autenticado y un formulario para crear nuevas sedes.
@@ -75,19 +78,15 @@ def headquarters(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     sedes = Sedes.objects.filter(id_empresa_id = idempresa).exclude(idsede=16).order_by('idsede')
-    form = headquartersForm()
-    return render(request, './companies/headquarters.html',
-                    {
-                        'sedes':sedes,
-                        'form':form,
-                    })
+
+    return render(request, './companies/headquarters.html',{'sedes':sedes})
     
     
     
     
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def headquarters_modal(request): 
     """
     Vista para crear una nueva sede desde un modal. El formulario permite ingresar los datos necesarios
@@ -107,17 +106,13 @@ def headquarters_modal(request):
     usuario = request.session.get('usuario', {})
     idempresa = usuario['idempresa']
     
-    print('-------------')
-    print('prueba')
-    print('-------------')
+    
     
     if request.method == 'POST':
         form = headquartersForm(request.POST)
         if form.is_valid():
             
-            print('-------------')
-            print('prueba')
-            print('-------------')
+
             nombresede = form.cleaned_data['nombresede']
             cajacompensacion = form.cleaned_data['cajacompensacion']
             aux = Entidadessegsocial.objects.get(codigo=cajacompensacion)
@@ -128,9 +123,14 @@ def headquarters_modal(request):
                 id_empresa_id = idempresa
             )
             sede.save()
-            
-            print(sede)
-            return JsonResponse({'status': 'success', 'message': 'Sede creada exitosamente'})
+
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'Sede creada exitosamente'    
+            response['X-Up-Location'] = reverse('companies:headquarters')           
+            return response
+
         else:
             # En caso de que el formulario no sea válido, mostrar los errores del formulario
             for field, errors in form.errors.items():
@@ -138,7 +138,64 @@ def headquarters_modal(request):
                     print(request, f"Error en {field}: {error}")
     else:
         form = headquartersForm()    
-    return render(request, './companies/partials/headquartersModal.html',
-                    {
-                        'form':form,
-                    })
+    return render(request, './companies/partials/headquartersModal.html',{'form':form,})
+
+
+
+@login_required
+@role_required('company','accountant')
+def headquarters_modal_edit(request,idsede): 
+    """
+    Vista para crear una nueva sede desde un modal. El formulario permite ingresar los datos necesarios
+    y, si es válido, crea una nueva sede asociada a la empresa del usuario autenticado.
+
+    Parámetros:
+    -----------
+    request : HttpRequest
+        Objeto que contiene la información de la solicitud HTTP.
+
+    Retorna:
+    --------
+    - Si la solicitud es GET, renderiza el formulario en un modal.
+    - Si la solicitud es POST, valida el formulario y crea una nueva sede, luego devuelve un `JsonResponse` con el resultado.
+    """
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    
+    sede = Sedes.objects.get(id_empresa_id = idempresa , idsede = idsede)
+
+    data = {
+        'nombresede': sede.nombresede,
+        'cajacompensacion': sede.codccf,
+    }
+    
+    
+    if request.method == 'POST':
+        form = headquartersForm(request.POST,modo = 1, idsede = idsede)
+        if form.is_valid():
+            
+
+            nombresede = form.cleaned_data['nombresede']
+            cajacompensacion = form.cleaned_data['cajacompensacion']
+            aux = Entidadessegsocial.objects.get(codigo=cajacompensacion)
+
+            sede.nombresede = nombresede
+            sede.codccf = aux.codigo
+            sede.save()
+
+            response = HttpResponse()
+            response['X-Up-Accept-Layer'] = 'true'  #Indica a Unpoly que acepte (cierre) el modal
+            response['X-Up-icon'] = 'success'  # URL para recargar la página principal   
+            response['X-Up-message'] = 'Sede creada exitosamente'    
+            response['X-Up-Location'] = reverse('companies:headquarters')           
+            return response
+
+        else:
+            # En caso de que el formulario no sea válido, mostrar los errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(request, f"Error en {field}: {error}")
+    else:
+        form = headquartersForm(modo = 1, idsede = idsede, initial = data )    
+    return render(request, './companies/partials/headquartersModal.html',{'form':form,'True' : True})

@@ -7,6 +7,20 @@
 {% endblock %}
 
 
+{% block navbar %}
+    {% if user.is_admin %}
+        {% include 'base/navbar_administrator.html' %} 
+    {% elif user.is_company %}
+        {% include 'base/navbar_companies.html' %}    
+    {% elif user.is_accountant %}
+        {% include 'base/navbar_payroll.html' %}    
+    {% else %}
+        <p>No tienes un rol asignado.</p>
+    {% endif %}           
+{% endblock %}
+
+
+
 {% block css %}
 {% endblock %}
 
@@ -21,15 +35,22 @@
 
 {% block actions %}
     <!-- Button trigger modal -->
-<button type="button" class="btn btn-light-info me-10" id="kt_button_1" hx-get="{% url 'companies:headquarters_modal' %}" hx-target="#modal-container" hx-swap="innerHTML">
-    <span class="indicator-label">
+
+    <a
+        class='btn btn-light-info'
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "large"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+        href="{% url 'companies:headquarters_modal' %}">
         <i class="fa-solid fa-plus"></i> Nueva sede 
-        
-    </span>
-    <span class="indicator-progress">
-        Por favor espera... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-    </span>
-</button>
+    </a> 
 {% endblock %}
 
 {% block titulo2 %} 
@@ -50,6 +71,14 @@
                     <th>Código Sede</th>
                     <th>Nombre de la Sede </th>
                     <th>Caja de Compensación Familiar</th>
+                    <th class="text-center">
+                        <div class="container d-flex justify-content-center align-items-center">
+                            <i class="ki-duotone ki-chart fs-1">
+                                <i class="path1"></i>
+                                <i class="path2"></i>
+                            </i>
+                        </div>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -58,6 +87,30 @@
                         <td>{{ sede.idsede }}</td>
                         <td>{{ sede.nombresede }}</td>
                         <td>{{ sede.cajacompensacion }}</td>
+                        <td class="text-center">
+                            
+                            <a
+                            class='btn btn-icon btn-light-facebook me-2'
+
+                            data-bs-toggle="tooltip"
+                            data-bs-custom-class="tooltip-inverse"
+                            data-bs-placement="top" 
+                            title="Editar"
+
+                            up-layer='new modal'
+                            up-target=".modal-content"
+                            up-size = "large"
+                            up-align = "center"
+                            up-backdrop = "true"
+                            up-history = "false"
+                            up-dismissable ="false"
+                            up-cache="false"
+
+                            href="{% url 'companies:headquarters_modal_edit' sede.idsede %}">
+                            <i class="fa-solid fa-pen-to-square fs-4"></i>
+                        </a> 
+
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -68,69 +121,134 @@
 {% endblock %}
 {% block js %}
 
-<script>
-    // Escucha el evento 'htmx:beforeRequest' para activar el indicador cuando el botón es presionado
-    document.getElementById('kt_button_1').addEventListener('click', function() {
-        // Activa el indicador de carga
-        this.setAttribute('data-kt-indicator', 'on');
-    });
 
-    // Escucha el evento 'htmx:afterSwap' para desactivar el indicador después de que se haya cargado el contenido del modal
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        if (evt.detail.target.id === 'modal-container') {
-            // Encuentra el botón y quita el indicador de carga
-            const button = document.getElementById('kt_button_1');
-            if (button) {
-                button.removeAttribute('data-kt-indicator');
-            }
-        }
-    });
-</script>
 
 <script>
-    // Escucha el evento 'htmx:afterSwap' para abrir el modal después de cargar el contenido
-    document.body.addEventListener('htmx:afterSwap', (evt) => {
-        const modalContainer = document.getElementById('conceptsModal');
-        if (evt.detail.target.id === 'modal-container' && modalContainer) {
-            new bootstrap.Modal(modalContainer).show();
-        }
-    });
-    
-</script>
+    $(document).ready(function() {
 
-    <script>
-        $(document).ready(function() {
-
-            var table = $('#tablacargos').DataTable({
-                language: {
-                    "decimal": "",
-                    "emptyTable": "No se encontraron registros coincidentes",
-                    "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-                    "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
-                    "infoFiltered": "(filtrado de _MAX_ entradas totales)",
-                    "thousands": ",",
-                    "lengthMenu": "Mostrar _MENU_ entradas",
-                    "loadingRecords": "Cargando...",
-                    "processing": "Procesando...",
-                    "search": "Buscar:",
-                    "zeroRecords": "No se encontraron registros coincidentes",
-                    "paginate": {
-                        "first": "Primero",
-                        "last": "Último",
-                        "next": "Siguiente",
-                        "previous": "Anterior"
-                    },
-                    "aria": {
-                        "sortAscending": ": activar para ordenar la columna ascendente",
-                        "sortDescending": ": activar para ordenar la columna descendente"
-                    }
+        var table = $('#tablacargos').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No se encontraron registros coincidentes",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered": "(filtrado de _MAX_ entradas totales)",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
                 },
-                dom: 'frtip',
-                order: [],
-                pageLength: 6
-            });
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            dom: 'frtip',
+            order: [],
+            pageLength: 6
         });
-    </script>
+    });
+</script>
+
+
+<script>
+    up.on('up:layer:accepted', function(event) {
+        const location = event.response.header('X-Up-Location');
+        const message  = event.response.header('X-Up-message');
+        const icon     = event.response.header('X-Up-icon');
+
+
+        if (location) {
+            // Guardamos todo lo necesario en sessionStorage
+            sessionStorage.setItem('showSuccessAlert', 'true');
+            sessionStorage.setItem('swalMessage', message);
+            sessionStorage.setItem('swalIcon', icon);
+
+            window.location.href = location;
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('showSuccessAlert') === 'true') {
+            const message = sessionStorage.getItem('swalMessage');
+            const icon = sessionStorage.getItem('swalIcon');
+
+            // Limpiamos antes de mostrar (por si hay errores que impidan la alerta)
+            sessionStorage.removeItem('showSuccessAlert');
+            sessionStorage.removeItem('swalMessage');
+            sessionStorage.removeItem('swalIcon');
+
+            Swal.fire({
+                text: message,
+                icon: icon,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                willOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    });
+</script>
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
+        
+        if (modalContent) {
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            
+    
+            // selector de tipo de 
+            // Usamos un pequeño retraso para asegurar el renderizado completo
+            setTimeout(() => {
+                selectElements.forEach((select, index) => {
+                    if (!select.id) {
+                        select.id = `select2-unique-${Date.now()}-${index}`;
+                    }
+    
+                    if (!$(select).data('select2')) {
+                        const options = {
+                            dropdownParent: $(modalContent),
+                            width: '100%'
+                        };
+    
+                        // Si tiene el atributo data-hide-search, desactiva el buscador
+                        if (select.hasAttribute('data-hide-search')) {
+                            options.minimumResultsForSearch = Infinity;
+                            
+                        }
+    
+                        $(select).select2(options);
+                    }
+                });
+            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
+        }
+        else 
+        {
+            console.log('Contenido completo del fragmento:', event.target.innerHTML);
+        }
+    });
+
+
+</script>
+
+
 
 {% endblock %}
 

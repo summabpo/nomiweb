@@ -201,6 +201,7 @@ urlhtmxpatterns =[
     path('parameters/accountin/add',accountinggroup.accountinggroup_modal , name='accountinggroup_modal'),
     path('parameters/workplace/add', workplace.workplace_modal, name='workplace_modal'),
     path('parameters/headquarters/add', headquarters.headquarters_modal, name='headquarters_modal'),
+    path('parameters/headquarters/edit/<str:idsede>', headquarters.headquarters_modal_edit, name='headquarters_modal_edit'),
 
 ]
 
