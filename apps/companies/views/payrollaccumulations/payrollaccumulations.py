@@ -275,14 +275,7 @@ def payrollaccumulations2(request):
         if form.is_valid():
             year_init = form.cleaned_data.get('year_init')
             mst_init = form.cleaned_data.get('mst_init')
-
-            nominas = Nomina.objects.filter(
-                idnomina__id_empresa_id=idempresa
-            ).select_related(
-                'idcontrato',
-                'idcontrato__idempleado',
-                'idconcepto'
-            ).order_by('idconcepto__codigo')
+            inicio_num = MES_ORDER.get(mst_init.upper())
 
             # -------------------------
             # FILTRO POR AÑO Y MES
@@ -297,10 +290,15 @@ def payrollaccumulations2(request):
                 inicio_num = MES_ORDER.get(mst_init.upper())
 
                 if inicio_num and year_init:
-                    nominas = nominas.filter(
+                    nominas = Nomina.objects.filter(
+                        idnomina__id_empresa_id=idempresa ,
                         idnomina__anoacumular__ano=year_init,
                         idnomina__mesacumular=mst_init.upper()
-                    )
+                    ).select_related(
+                        'idcontrato',
+                        'idcontrato__idempleado',
+                        'idconcepto'
+                    ).order_by('-idregistronom')
 
             # -------------------------
             # ACUMULADOS
