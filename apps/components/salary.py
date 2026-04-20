@@ -8,7 +8,7 @@ def salario_mes(contrato, mes, ano):
     cambios = (
         NovSalarios.objects
         .filter(idcontrato=contrato)
-        .order_by('-fechanuevosalario', '-idcambiosalario')  # 🔥 clave
+        .order_by('-fechanuevosalario', '-idcambiosalario')  
     )
 
     for cambio in cambios:
