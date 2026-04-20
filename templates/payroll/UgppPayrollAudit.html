@@ -203,7 +203,7 @@ Auditoría UGPP - Nómina #{{ payroll.idnomina }}
             <div class="card-body text-center">
                 <h6 class="text-muted">Empleados</h6>
                 <h3 class="fw-bold">
-                    {{ total_employees |format_currency}}
+                    {{ total_employees|format_integer }}
                 </h3>
             </div>
         </div>
@@ -227,9 +227,9 @@ Auditoría UGPP - Nómina #{{ payroll.idnomina }}
     <div class="col-md-3">
         <div class="card shadow-sm">
             <div class="card-body text-center">
-                <h6 class="text-muted">Total esperado</h6>
+                <h6 class="text-muted">Aportes seguridad social (EPS + Pensión + FSP)</h6>
                 <h3 class="fw-bold text-dark">
-                    {{ total_to_pay |format_currency}}
+                    {{ total_aportes_ss|format_currency }}
                 </h3>
             </div>
         </div>
@@ -241,9 +241,9 @@ Auditoría UGPP - Nómina #{{ payroll.idnomina }}
     <div class="col-md-3">
         <div class="card shadow-sm border-danger">
             <div class="card-body text-center">
-                <h6 class="text-muted">Errores Detectados</h6>
+                <h6 class="text-muted">Errores detectados</h6>
                 <h3 class="fw-bold text-danger">
-                    {{ total_errors|format_currency |default:0 }}
+                    {{ total_errors|format_integer|default:0 }}
                 </h3>
             </div>
         </div>
@@ -259,16 +259,17 @@ Auditoría UGPP - Nómina #{{ payroll.idnomina }}
 
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingErrors">
-            <button class="accordion-button text-danger fw-bold" type="button"
+            <button class="accordion-button text-danger fw-bold{% if not total_errors %} collapsed{% endif %}" type="button"
                     data-bs-toggle="collapse"
-                    data-bs-target="#collapseErrors">
+                    data-bs-target="#collapseErrors"
+                    aria-expanded="{% if total_errors %}true{% else %}false{% endif %}">
                 
                 Errores detectados ({{ total_errors }})
             </button>
         </h2>
 
         <div id="collapseErrors"
-                class="accordion-collapse collapse"
+                class="accordion-collapse collapse{% if total_errors %} show{% endif %}"
                 data-bs-parent="#accordionErrors">
 
             <div class="accordion-body">

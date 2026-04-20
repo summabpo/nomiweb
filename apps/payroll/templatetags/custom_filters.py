@@ -3,6 +3,18 @@ from django import template
 register = template.Library()
 
 @register.filter
+def format_integer(value):
+    """Formatea enteros (conteos) con separador de miles, sin decimales."""
+    try:
+        n = int(round(float(value)))
+    except (TypeError, ValueError):
+        return value
+    s = str(abs(n))
+    grouped = '.'.join([s[::-1][i : i + 3] for i in range(0, len(s), 3)])[::-1]
+    return f"-{grouped}" if n < 0 else grouped
+
+
+@register.filter
 def format_currency(value):
     """
     Formatea un número como una cantidad de dinero con el formato adecuado para algunas monedas.

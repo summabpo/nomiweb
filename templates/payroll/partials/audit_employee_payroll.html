@@ -1,5 +1,5 @@
 {% load crispy_forms_tags %}
-
+{% load custom_filters %}
 <!-- Bootstrap-styled modal -->
 <div class="modal-content"  id="modal-content">
     <div class="modal-header">
@@ -50,15 +50,15 @@
                                 <td>{{ concepto.nombre }}</td>
 
                                 <!-- Nómina -->
-                                <td>{{ concepto.valor }}</td>
-                                <td>{{ concepto.cantidad }}</td>
+                                <td>{{ concepto.valor|format_currency }}</td>
+                                <td>{{ concepto.cantidad|format_currency }}</td>
 
                                 {% with found=0 %}
                                     {% for a in data.conceptos_audit %}
                                         {% if a.codigo == concepto.codigo %}
 
                                             <!-- Auditado -->
-                                            <td>{{ a.valor }}</td>
+                                            <td>{{ a.valor|format_currency }}</td>
                                             <td>{{ a.cantidad }}</td>
 
                                             <!-- Diferencia -->
@@ -104,7 +104,7 @@
                             <tr class="table-warning">
                                     <td>{{ concepto.codigo }}</td>
                                     <td>{{ concepto.nombre }}</td>
-                                    <td>{{ concepto.valor }}</td>
+                                    <td>{{ concepto.valor |format_currency}}</td>
                                     <td>{{ concepto.cantidad }}</td>
                                 </tr>
                             {% endfor %}
@@ -113,6 +113,8 @@
                     </table>
                 </div>
             {% endif %}
+
+
             <!--  TABLA COMPARATIVA -->
             <div class="table-responsive mb-5">
                 <table class="table table-bordered table-striped">
@@ -154,16 +156,16 @@
                             <td>{{ row.nombre }}</td>
                 
                             <!-- NÓMINA -->
-                            <td>{{ row.nomina_valor|default_if_none:"—" }}</td>
-                            <td>{{ row.nomina_cantidad|default_if_none:"—" }}</td>
+                            <td>{{ row.nomina_valor|default_if_none:0|format_currency  }}</td>
+                            <td>{{ row.nomina_cantidad|default_if_none:0|format_currency }}</td>
                 
                             <!-- CALCULADO -->
-                            <td>{{ row.calc_valor|default_if_none:"—" }}</td>
-                            <td>{{ row.calc_cantidad|default_if_none:"—" }}</td>
+                            <td>{{ row.calc_valor|default_if_none:0|format_currency  }}</td>
+                            <td>{{ row.calc_cantidad|default_if_none:0|format_currency  }}</td>
                 
                             <!-- AUDITADO -->
-                            <td>{{ row.audit_valor|default_if_none:"—" }}</td>
-                            <td>{{ row.audit_cantidad|default_if_none:"—" }}</td>
+                            <td>{{ row.audit_valor|default_if_none:0|format_currency  }}</td>
+                            <td>{{ row.audit_cantidad|default_if_none:0|format_currency  }}</td>
                 
                             <!-- ESTADO -->
                             <td class="text-center">

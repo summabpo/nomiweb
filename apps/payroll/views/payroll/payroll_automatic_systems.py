@@ -1281,6 +1281,7 @@ def calculo_incapacidad(contrato,nomina):
                 fin = min(fechafin, nomina.fechafinal)
                 dias_incapacidad += (fin - inicio).days + 1
                 #print(f"id {inc.idincapacidad}  ds {dias_incapacidad} ddb {inc.dias}")
+    
     return dias_incapacidad
 
 
