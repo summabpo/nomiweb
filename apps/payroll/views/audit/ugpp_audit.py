@@ -1,4 +1,3 @@
-from traceback import print_tb
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.components.decorators import  role_required
@@ -304,11 +303,10 @@ def get_audit_total_errors(payroll_id):
     errors_count1 , errors_list1 = error_salary_audit(payroll_id)
     errors_count2 , errors_list2 = error_contributions_audit(payroll_id)
     errors_count3 , errors_list3 = error_transport_audit(payroll_id)
-    
+
     errors_count = errors_count1 + errors_count2 + errors_count3
     errors_list = errors_list1 + errors_list2 + errors_list3
 
-    
     return errors_count , errors_list
 
 
@@ -383,10 +381,6 @@ def salary_audit_employee(payroll_id, idcontrato):
     concepto = Conceptosdenomina.objects.get(codigo = codigo_aux, id_empresa = contrato.id_empresa)
 
     diasnomina = calcular_dias(contrato,nomina,int(codigo_aux),acumulados)
-
-    #calculo_prestamo(contrato, payroll_id)
-    #Calculo_vacaciones(contrato, payroll_id)
-    #calculo_novfija(contrato, payroll_id)
 
     if diasnomina > 0:
 
@@ -512,6 +506,18 @@ def contributions_audit_employee(payroll_id, idcontrato, data_ex):
         base_ss_fsp2 = Decimal(str(base_ss_fsp))
 
     valor_fsp = Decimal('0')
+
+    aux_pass1 = Nomina.objects.filter(
+            idconcepto__codigo=90,
+            idcontrato=contrato,
+            idnomina__mesacumular = nomina.mesacumular ,
+            idnomina__anoacumular = nomina.anoacumular ,
+            estadonomina = 2,
+        ).exclude(
+            idnomina=nomina.idnomina  
+        ).exists()
+
+
     if base_ss_fsp2 > 0 or Decimal(str(total_base_ss)) > 0:
         if base_ss_fsp2 <= (sal_min_d * 4):
             FSP = 0
@@ -575,13 +581,19 @@ def contributions_audit_employee(payroll_id, idcontrato, data_ex):
                 'cantidad': float(0),
             })
     
-    if valor_fsp > 0:
-        data_audit.append({
-            'codigo': '90',
-            'nombre': 'FSP - Nomina General',
-            'valor': float(-valor_fsp),
-            'cantidad': float(0),
-        })
+        if valor_fsp > 0:
+            
+            if aux_pass1 :
+                valor_fsp = (
+                        Decimal(str(valor_fsp)) / Decimal('2')
+                    ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        
+            data_audit.append({
+                'codigo': '90',
+                'nombre': 'FSP - Nomina General',
+                'valor': float(-valor_fsp),
+                'cantidad': float(0),
+            })
 
     # ==========================================
     # BASE SEGURIDAD SOCIAL - nomina Generada por el sistema
@@ -606,6 +618,11 @@ def contributions_audit_employee(payroll_id, idcontrato, data_ex):
             Decimal(str(base_ss)) * Decimal(AFP.valorfijo) / Decimal('100')
         ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
+        valorfsp = (
+                Decimal(str(base_ss*2)) * Decimal(str(FSP)) / Decimal('100')
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP) if FSP > 0 else Decimal('0')
+        
+
         if contrato.pensionado == '2':
             valorafp = Decimal('0')
 
@@ -627,11 +644,18 @@ def contributions_audit_employee(payroll_id, idcontrato, data_ex):
 
         
 
-        if valor_fsp > 0:
+        if valorfsp > 0:
+
+            if aux_pass1 :
+                valorfsp = (
+                        Decimal(str(valorfsp)) / Decimal('2')
+                    ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+
             data_calculada.append({
                 'codigo': '90',
                 'nombre': 'FSP - Nomina auditada',
-                'valor': float(-valor_fsp),
+                'valor': float(-valorfsp),
                 'cantidad': float(0),
             })
 
@@ -705,7 +729,6 @@ def disable_audit_employee(payroll_id,idcontrato):
             ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
             if dias_incapacidad > 0:
-                print('incapacidad prorroga')
                 data_calculada.append({
                     'codigo': idconceptoi.codigo,
                     'nombre': idconceptoi.nombreconcepto,
@@ -947,9 +970,6 @@ def deductions_audit_employee(payroll_id, contrato):
     # Deducciones de suspensiones
     # ==========================================
 
-    print('------------')
-    print(data)
-    print('------------')
     return data
 
 def error_salary_audit(payroll_id):
@@ -1095,6 +1115,7 @@ def error_transport_audit(payroll_id):
     ).filter(
         idnomina_id=payroll_id,
         idconcepto__codigo=2,
+        idcontrato__idcontrato=8018,
     )
 
     for data in registros:
@@ -1123,7 +1144,6 @@ def error_transport_audit(payroll_id):
         # DIAS
         # ==========================================
         diasnomina = calcular_dias(contrato, nomina, codigo, acumulados)
-
         # ==========================================
         # VALIDACIONES 
         # ==========================================
@@ -1145,6 +1165,7 @@ def error_transport_audit(payroll_id):
         ).exclude(
             idconcepto__codigo=2
         ).aggregate(total=Sum('valor'))['total'] or 0
+
 
         # 2. BASE <= 0 → NO DEBE EXISTIR
         if total_base_trans <= 0:
@@ -1331,6 +1352,20 @@ def error_contributions_audit(payroll_id):
                 valor_esperado = (
                     base_ss_fsp2 * Decimal(FSP) / Decimal('100')
                 ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+
+                aux_pass1 = Nomina.objects.filter(
+                    idconcepto__codigo=90,
+                    idcontrato=contrato,
+                    idnomina__mesacumular = nomina.mesacumular ,
+                    idnomina__anoacumular = nomina.anoacumular ,
+                    estadonomina = 2,
+                ).first()
+                
+                if aux_pass1 :
+                    valor_esperado = (
+                        Decimal(str(valor_esperado)) / Decimal('2')
+                    ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
             else:
                 valor_esperado = Decimal('0')
 
@@ -1338,6 +1373,8 @@ def error_contributions_audit(payroll_id):
                 valor_esperado = Decimal('0')
 
             valor_esperado = -1 * valor_esperado
+
+            
 
         else:
             continue
@@ -1410,7 +1447,7 @@ def get_audit_contributions(payroll_id):
 def get_audit_employees(payroll_id):
     queryset = Nomina.objects \
         .select_related('idcontrato') \
-        .filter(idnomina=payroll_id, estadonomina=1) \
+        .filter(idnomina=payroll_id, estadonomina=1 ) \
         .values(
             'idcontrato'
         ) \

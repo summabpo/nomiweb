@@ -7,7 +7,7 @@ from apps.components.generate_employee_excel import generate_employee_excel
 from apps.components.humani import format_value
 from django.http import JsonResponse
 from .parse_dates import parse_dates
-from django.db.models import Q
+from django.db.models import Sum, Q
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 from openpyxl.styles import Font
@@ -17,46 +17,31 @@ from openpyxl.styles import Font, PatternFill, Alignment
 
 
 @login_required
-@role_required('company','accountant')
+@role_required('company', 'accountant')
 def payrollaccumulations(request):
-    """
-    Vista para consultar los acumulados de nómina de los empleados de una empresa.
-
-    Esta vista permite a usuarios con el rol 'company' o 'accountant' aplicar filtros como empleado, centro de costos, ciudad,
-    año y mes para generar una lista de conceptos acumulados por empleado en el periodo seleccionado. La información es agrupada
-    por empleado y concepto, sumando cantidad y valor. También se formatea el valor antes de enviarlo al template.
-
-    Parameters
-    ----------
-    request : HttpRequest
-        Objeto de solicitud HTTP que puede contener parámetros POST con los filtros seleccionados por el usuario.
-
-    Returns
-    -------
-    HttpResponse
-        Devuelve una respuesta renderizada con el template 'companies/payrollaccumulations.html', que incluye el formulario de filtros
-        y los datos acumulados por empleado y concepto.
-
-    Notes
-    -----
-    El usuario debe estar autenticado y tener el rol 'company' o 'accountant' para acceder a esta vista.
-    En caso de errores de validación en el formulario, se muestran mensajes de error al usuario.
-    """
 
     acumulados = {}
     compects = []
     usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
+    idempresa = usuario.get('idempresa')
+
     form = ReportFilterForm(idempresa=idempresa)
 
-    # --- Función auxiliar para limpiar valores ---
+    # 🔹 Limpieza de valores
     def clean_value(value):
         if not value:
             return ''
         return str(value).replace('no data', '').strip()
 
+    MES_ORDER = {
+        'ENERO': 1, 'FEBRERO': 2, 'MARZO': 3, 'ABRIL': 4,
+        'MAYO': 5, 'JUNIO': 6, 'JULIO': 7, 'AGOSTO': 8,
+        'SEPTIEMBRE': 9, 'OCTUBRE': 10, 'NOVIEMBRE': 11, 'DICIEMBRE': 12
+    }
+
     if request.method == 'POST':
         form = ReportFilterForm(request.POST, idempresa=idempresa)
+
         if form.is_valid():
             employee = form.cleaned_data['employee']
             cost_center = form.cleaned_data['cost_center']
@@ -66,43 +51,20 @@ def payrollaccumulations(request):
             year_end = form.cleaned_data.get('year_end')
             mst_end = form.cleaned_data.get('mst_end')
 
-            
-            
-            nominas = Nomina.objects.filter(
-                idnomina__id_empresa_id=idempresa
-            ).order_by('idconcepto__codigo')
+            # 🔥 Construcción de filtros eficientes
+            filters = Q(idnomina__id_empresa_id=idempresa)
 
-            
             if employee:
-                nominas = nominas.filter(idcontrato__idempleado__idempleado=employee)
-            
-            
+                filters &= Q(idcontrato__idempleado__idempleado=employee)
+
             if cost_center:
-                nominas = nominas.filter(idcontrato__idcosto=cost_center)
+                filters &= Q(idcontrato__idcosto=cost_center)
 
             if city:
-                nominas = nominas.filter(idcontrato__idsede=city)
-                
-            
-            
-            
-            MES_ORDER = {
-                'ENERO': 1,
-                'FEBRERO': 2,
-                'MARZO': 3,
-                'ABRIL': 4,
-                'MAYO': 5,
-                'JUNIO': 6,
-                'JULIO': 7,
-                'AGOSTO': 8,
-                'SEPTIEMBRE': 9,
-                'OCTUBRE': 10,
-                'NOVIEMBRE': 11,
-                'DICIEMBRE': 12
-            }
-            
+                filters &= Q(idcontrato__idsede=city)
+
+            # 🔹 Filtro por rango de fechas optimizado
             if year_init and mst_init and year_end and mst_end:
-                # Convertir años a enteros
                 try:
                     year_init = int(year_init)
                     year_end = int(year_end)
@@ -114,92 +76,80 @@ def payrollaccumulations(request):
                 fin_num = MES_ORDER.get(mst_end.upper())
 
                 if inicio_num and fin_num and year_init and year_end:
-                    if year_init == year_end:
-                        meses_rango = [
-                            mes for mes, num in MES_ORDER.items() if inicio_num <= num <= fin_num
-                        ]
-                        nominas = nominas.filter(
-                            idnomina__anoacumular__ano=year_init,
-                            idnomina__mesacumular__in=meses_rango
-                        )
-                    else:
-                        # Año inicial
-                        meses_inicio = [mes for mes, num in MES_ORDER.items() if inicio_num <= num <= 12]
-                        nominas_inicio = nominas.filter(
-                            idnomina__anoacumular__ano=year_init,
-                            idnomina__mesacumular__in=meses_inicio
-                        )
 
-                        # Años intermedios
-                        if year_end - year_init > 1:
-                            nominas_intermedios = nominas.filter(
-                                idnomina__anoacumular__ano__gt=year_init,
-                                idnomina__anoacumular__ano__lt=year_end
-                            )
-                        else:
-                            nominas_intermedios = nominas.none()
-
-                        # Año final
-                        meses_fin = [mes for mes, num in MES_ORDER.items() if 1 <= num <= fin_num]
-                        nominas_fin = nominas.filter(
+                    filters &= (
+                        Q(
+                            idnomina__anoacumular__ano__gt=year_init,
+                            idnomina__anoacumular__ano__lt=year_end
+                        )
+                        |
+                        Q(
+                            idnomina__anoacumular__ano=year_init,
+                            idnomina__mesacumular__in=[
+                                mes for mes, num in MES_ORDER.items() if num >= inicio_num
+                            ]
+                        )
+                        |
+                        Q(
                             idnomina__anoacumular__ano=year_end,
-                            idnomina__mesacumular__in=meses_fin
+                            idnomina__mesacumular__in=[
+                                mes for mes, num in MES_ORDER.items() if num <= fin_num
+                            ]
                         )
-
-                        # Unir todo
-                        nominas = (nominas_inicio | nominas_intermedios | nominas_fin).distinct()
-                                            
-            # --- Construcción de acumulados ---
-            for data in nominas:
-                empleado = data.idcontrato.idempleado
-                docidentidad = empleado.docidentidad
-
-                papellido = clean_value(empleado.papellido)
-                sapellido = clean_value(empleado.sapellido)
-                pnombre = clean_value(empleado.pnombre)
-                snombre = clean_value(empleado.snombre)
-                nombre_completo = " ".join(filter(None, [papellido, sapellido, pnombre, snombre]))
-
-                
-                
-                if docidentidad not in acumulados:
-                    acumulados[docidentidad] = {
-                        'documento': docidentidad,
-                        'empleado': nombre_completo,
-                        'contrato': data.idcontrato.idcontrato,
-                        'data': [{
-                            "idconcepto": data.idconcepto.codigo,
-                            "nombreconcepto": clean_value(data.idconcepto.nombreconcepto),
-                            "cantidad": data.cantidad or 0,
-                            "valor": data.valor or 0,
-                        }]
-                    }
-                else:
-                    concepto_existente = next(
-                        (concepto for concepto in acumulados[docidentidad]["data"]
-                            if concepto["idconcepto"] == data.idconcepto.codigo),
-                        None
                     )
 
-                    if concepto_existente:
-                        concepto_existente["cantidad"] += data.cantidad or 0
-                        concepto_existente["valor"] += data.valor or 0
-                    else:
-                        nuevo_concepto = {
-                            "idconcepto": data.idconcepto.codigo,
-                            "nombreconcepto": clean_value(data.idconcepto.nombreconcepto),
-                            "cantidad": data.cantidad or 0,
-                            "valor": data.valor or 0,
-                        }
-                        acumulados[docidentidad]["data"].append(nuevo_concepto)
+            # 🔥 QUERY OPTIMIZADA (GROUP BY EN DB)
+            nominas = (
+                Nomina.objects
+                .filter(filters)
+                .values(
+                    'idcontrato__idempleado__docidentidad',
+                    'idcontrato__idempleado__papellido',
+                    'idcontrato__idempleado__sapellido',
+                    'idcontrato__idempleado__pnombre',
+                    'idcontrato__idempleado__snombre',
+                    'idcontrato__idcontrato',
+                    'idconcepto__codigo',
+                    'idconcepto__nombreconcepto',
+                )
+                .annotate(
+                    total_cantidad=Sum('cantidad'),
+                    total_valor=Sum('valor')
+                )
+                .order_by(
+                    'idcontrato__idempleado__docidentidad',
+                    'idconcepto__codigo'
+                )
+            )
 
-            # --- Formatear valores finales ---
-            for docidentidad, datos in acumulados.items():
-                for concepto in datos['data']:
-                    concepto['valor'] = format_value(concepto['valor'])
+            # 🔹 Construcción del resultado (ligero)
+            for row in nominas:
+                doc = row['idcontrato__idempleado__docidentidad']
+
+                nombre = " ".join(filter(None, [
+                    clean_value(row['idcontrato__idempleado__papellido']),
+                    clean_value(row['idcontrato__idempleado__sapellido']),
+                    clean_value(row['idcontrato__idempleado__pnombre']),
+                    clean_value(row['idcontrato__idempleado__snombre']),
+                ]))
+
+                if doc not in acumulados:
+                    acumulados[doc] = {
+                        'documento': doc,
+                        'empleado': nombre,
+                        'contrato': row['idcontrato__idcontrato'],
+                        'data': []
+                    }
+
+                acumulados[doc]['data'].append({
+                    "idconcepto": row['idconcepto__codigo'],
+                    "nombreconcepto": clean_value(row['idconcepto__nombreconcepto']),
+                    "cantidad": row['total_cantidad'] or 0,
+                    "valor": format_value(row['total_valor'] or 0),
+                })
 
             compects = list(acumulados.values())
-            form = ReportFilterForm(request.POST, idempresa=idempresa)
+
         else:
             for error in form.errors.values():
                 for e in error:
