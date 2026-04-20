@@ -437,42 +437,70 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 </script>
 
 
-<script> 
-    
+<script>
+(function () {
+    const csrftoken = '{{ csrf_token }}';
+    const conceptInfoUrl = '{% url "payroll:payroll_concept_info" %}';
 
-    document.addEventListener('up:fragment:inserted', function(event) {
+    if (!window.__payrollConceptQtyValueBound) {
+        window.__payrollConceptQtyValueBound = true;
+
+        document.addEventListener('input', function (ev) {
+            const t = ev.target;
+            const modal = t.closest('#modal-content');
+            if (modal && t.id === 'cantidad' && modal.dataset.conceptFormula === 'true') {
+                const mult = parseFloat(modal.dataset.conceptMultiplier || '0');
+                const valorEl = modal.querySelector('#valor');
+                if (!valorEl || !mult) return;
+                modal.dataset.valorManual = 'false';
+                const cantidad = parseFloat(t.value) || 0;
+                valorEl.value = String(Math.ceil(cantidad * mult));
+                return;
+            }
+            if (t.id && t.id.startsWith('amount-')) {
+                const idn = t.id.slice('amount-'.length);
+                const row = document.getElementById('concepto-' + idn);
+                if (!row || row.dataset.conceptFormula !== 'true') return;
+                const mult = parseFloat(row.dataset.conceptMultiplier || '0');
+                const valEl = document.getElementById('value-' + idn);
+                if (!valEl || !mult) return;
+                row.dataset.valorManual = 'false';
+                const cantidad = parseFloat(t.value) || 0;
+                valEl.value = String(Math.ceil(cantidad * mult));
+            }
+        });
+
+        document.addEventListener('input', function (ev) {
+            const t = ev.target;
+            const modal = t.closest('#modal-content');
+            if (modal && t.id === 'valor') {
+                modal.dataset.valorManual = 'true';
+                return;
+            }
+            if (t.id && t.id.startsWith('value-')) {
+                const idn = t.id.slice('value-'.length);
+                const row = document.getElementById('concepto-' + idn);
+                if (row) row.dataset.valorManual = 'true';
+            }
+        });
+    }
+
+    document.addEventListener('up:fragment:inserted', function () {
         const conceptSelect = document.getElementById('concept');
         const conceptAmount = document.getElementById('cantidad');
         const conceptValue = document.getElementById('valor');
         const conceptId = document.getElementById('idempleado');
         const conceptPayroll = document.getElementById('idnomina');
+        const modal = conceptSelect ? conceptSelect.closest('#modal-content') : null;
 
-        const csrftoken = '{{ csrf_token }}';
+        if (!conceptSelect || !conceptAmount || !conceptValue || !modal) return;
 
-        if (conceptSelect) {
-    
-            // Deshabilitar campos inicialmente
-            if (conceptAmount && conceptValue) {
-                conceptAmount.value = '';
-                conceptValue.value = '';
-                conceptAmount.disabled = true;
-                conceptValue.disabled = true;
-            }
-    
-            $(conceptSelect).on('select2:select', function(e) {
+        if (conceptId && conceptPayroll) {
+            $(conceptSelect).off('select2:select.payrollConcept').on('select2:select.payrollConcept', function (e) {
                 const selectedValue = e.params.data.id;
-                // Deshabilitar campos inicialmente
-                if (conceptAmount && conceptValue) {
-                    conceptAmount.value = '';
-                    conceptValue.value = '';
-                    conceptAmount.disabled = true;
-                    conceptValue.disabled = true;
-                }
-    
-                
+                modal.dataset.valorManual = 'false';
 
-                // Hacer un POST con Unpoly a una URL de Django
-                up.request('{% url "payroll:payroll_concept_info" %}', {
+                up.request(conceptInfoUrl, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': csrftoken,
@@ -484,67 +512,41 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
                         payroll: conceptPayroll.value
                     },
                     feedback: true
-                }).then(function(response) {
+                }).then(function (response) {
                     const data = JSON.parse(response.text);
+                    if (!data.concept) return;
 
-                    if (data.concept) {
-                        const conceptSelect = document.getElementById('concept');
-                        conceptSelect.value = data.concept;
-                        if (data.formula) {
-                            if (conceptAmount && conceptValue) {
-                                conceptAmount.value = '';
-                                conceptValue.value = '';
-                                conceptAmount.disabled = true;
-                                conceptValue.disabled = true;
-                            }
-                            // Habilitar campos solo si se selecciona algo
-                            if (conceptAmount) {
-                                conceptAmount.disabled = !selectedValue;
-                            }
-                        } else {
-                            if (conceptValue) {
-                                conceptValue.disabled = !selectedValue;
-                            }
-                        }                        
-                        // Si usas Select2, también hay que actualizarlo así:
-                        $(conceptSelect).val(data.concept).trigger('change');
+                    conceptSelect.value = data.concept;
+                    $(conceptSelect).val(data.concept).trigger('change');
 
+                    const multNum = data.multiplier != null ? parseFloat(data.multiplier) : 0;
+                    const useQtyFormula = !!(data.formula && multNum > 0);
+                    modal.dataset.conceptFormula = useQtyFormula ? 'true' : 'false';
+                    modal.dataset.conceptMultiplier = String(multNum || 0);
 
-                       conceptAmount.addEventListener('input', (event) => {
-                            const cantidad = parseFloat(event.target.value) || 0;
-                            const resultado = cantidad * data.multiplier;
-
-                            conceptValue.value = Math.ceil(resultado);
-                        });
-
-
-
+                    if (useQtyFormula) {
+                        conceptAmount.value = '';
+                        conceptValue.value = '';
+                    } else {
+                        conceptAmount.value = '0';
+                        conceptValue.value = '';
                     }
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.error('Error en la petición:', error);
                 });
-
-            });
-            
-            
-
-
-            $(conceptSelect).on('select2:clear', function() {
-                // Deshabilitar campos si se limpia la selección
-                if (conceptAmount && conceptValue) {
-                    conceptAmount.value = '';
-                    conceptValue.value = '';
-                    conceptAmount.disabled = true;
-                    conceptValue.disabled = true;
-                }
             });
 
-
+            $(conceptSelect).off('select2:clear.payrollConcept').on('select2:clear.payrollConcept', function () {
+                modal.dataset.conceptFormula = 'false';
+                modal.dataset.conceptMultiplier = '0';
+                modal.dataset.valorManual = 'false';
+                conceptAmount.value = '';
+                conceptValue.value = '';
+            });
         }
     });
-    
-
-</script> 
+})();
+</script>
 
     
 <script>
@@ -658,10 +660,11 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
 
     up.on('edit-concepto', function(event) {
         const idn = event.target.dataset.idn;
-    
-        const select = document.getElementById(`select-${idn}`);
-        const amount = document.getElementById(`amount-${idn}`);
-        const value = document.getElementById(`value-${idn}`);
+
+        const select = document.getElementById('select-' + idn);
+        const amount = document.getElementById('amount-' + idn);
+        const value = document.getElementById('value-' + idn);
+        const row = document.getElementById('concepto-' + idn);
         const saveButton = event.target.nextElementSibling;
         const csrftoken = '{{ csrf_token }}';
 
@@ -678,55 +681,24 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
             feedback: true
         }).then(function(response) {
             const data = JSON.parse(response.text);
-            console.log('Respuesta exitosa:', data);
-            if (data.formula) {
-                // Habilitar campos solo si se selecciona algo
-                if (amount) {
-                    amount.disabled = false;
-
-                    event.target.hidden = true;
-                    saveButton.hidden = false;
-            
-                    // Volver a habilitar el botón de save por si quedó deshabilitado
-                    saveButton.disabled = false;
-                    saveButton.style.pointerEvents = 'auto';
-                    saveButton.style.opacity = '1';
-
-                    amount.addEventListener('input', (event) => {
-                        const cantidad = parseFloat(event.target.value) || 0;
-                        const resultado = cantidad * data.multiplier;
-                        value.value = Math.ceil(resultado);
-                    });
-
-                }
-            } else {
-                if (value) {
-                    value.disabled = false;
-
-                    event.target.hidden = true;
-                    saveButton.hidden = false;
-            
-                    // Volver a habilitar el botón de save por si quedó deshabilitado
-                    saveButton.disabled = false;
-                    saveButton.style.pointerEvents = 'auto';
-                    saveButton.style.opacity = '1';
-
-                }
+            if (row) {
+                const multNum = data.multiplier != null ? parseFloat(data.multiplier) : 0;
+                const useQtyFormula = !!(data.formula && multNum > 0);
+                row.dataset.conceptFormula = useQtyFormula ? 'true' : 'false';
+                row.dataset.conceptMultiplier = String(multNum || 0);
+                row.dataset.valorManual = 'false';
             }
+            if (amount) amount.disabled = false;
+            if (value) value.disabled = false;
 
-
-
-
+            event.target.hidden = true;
+            saveButton.hidden = false;
+            saveButton.disabled = false;
+            saveButton.style.pointerEvents = 'auto';
+            saveButton.style.opacity = '1';
         }).catch(function(error) {
             console.error('Error en la petición:', error);
         });
-
-
-
-
-        
-
-
     });
 
     up.on('save-concepto', function(event) {

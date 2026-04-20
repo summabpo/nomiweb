@@ -432,7 +432,7 @@ def procesar_nomina_basica(idn, parte_nomina,idempresa,empleados):
             anio = nomina.fechainicial.year
 
             salario = salario_mes(contrato,mes,anio)
-
+            
             valorsalario = (
                 Decimal(str(salario))
                 * Decimal(str(diasnomina))
