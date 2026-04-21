@@ -1,0 +1,45 @@
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">
+            Seleccione la nómina a auditar
+        </h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <form method="POST" id="form_audit" action="{% url 'companies:payrollsheet_record_modal_audit' %}" >
+            {% csrf_token %}
+        
+            <label for="nomina_select">Seleccionar nómina:</label>
+            <select id="nomina_id" name="nomina_id" class="form-control" style="width:100%;" data-control="select2"   required>
+                <option value="">Selecciona una nómina </option>
+                {% for nomina in nominas %}
+                    <option value="{{ nomina.idnomina }}">
+                        {{ nomina.nombrenomina }}
+                    </option>
+                {% endfor %}
+            </select>
+
+        </form>
+    </div>
+    <div class="separator my-5"></div>
+
+
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger" up-dismiss>Cerrar</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" id="send-request" form="form_audit" class="btn btn-primary">Activar</button>
+    </div>
+
+</div>
+
+
+
+
+

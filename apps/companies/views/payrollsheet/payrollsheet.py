@@ -52,9 +52,22 @@ def payrollsheet_record(request):
     idempresa = usuario['idempresa']
     nominas = Crearnomina.objects.filter(estadonomina=False, id_empresa_id=idempresa).order_by('-idnomina')
 
-    return render(request, 'companies/payrollsheetrecord.html', {
-        'nominas': nominas,
-    })
+    return render(request, 'companies/payrollsheetrecord.html', {'nominas': nominas, })
+
+
+
+@login_required
+@role_required('company','accountant')
+def payrollsheet_record_modal_audit(request):
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    nominas = Crearnomina.objects.filter(estadonomina=False, id_empresa_id=idempresa).order_by('-idnomina')
+    if request.method == 'POST':
+        nomina_id = request.POST.get('nomina_id')
+
+        return redirect('payroll:UgppPayrollAudit', payroll_id=nomina_id, tipo_audit='cerrada')
+
+    return render(request, 'companies/partials/payrollsheetrecordaudit.html', {'nominas': nominas, })
 
 
 @login_required

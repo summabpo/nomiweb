@@ -10,7 +10,7 @@ from apps.payroll.views.payroll.payroll_automatic_systems import return_transpor
 from apps.companies.views.disabilities.disabilities import disabilities_ibc 
 
 from datetime import timedelta
-
+from django.urls import reverse
 def _norm_codigo(codigo):
     return str(codigo).strip()
 
@@ -50,7 +50,7 @@ def _normalize_concept_row(item):
 
 @login_required
 @role_required('accountant')
-def UgppPayrollAudit(request,payroll_id):
+def UgppPayrollAudit(request,payroll_id,tipo_audit='normal'):
     data = {}
     payroll = get_object_or_404(Crearnomina, idnomina=payroll_id)
     salaries = get_audit_salaries(payroll_id)
@@ -65,7 +65,7 @@ def UgppPayrollAudit(request,payroll_id):
 
     empleados_raw = Nomina.objects \
         .select_related('idcontrato') \
-        .filter(idnomina=payroll_id, estadonomina=1) \
+        .filter(idnomina=payroll_id) \
         .values(
             'idcontrato__idempleado__docidentidad',
             'idcontrato__idempleado__papellido',
@@ -104,7 +104,13 @@ def UgppPayrollAudit(request,payroll_id):
             'idcontrato': e.get('idcontrato'),
         })
 
+    if tipo_audit == 'cerrada':
+        url_back = reverse('companies:payrollsheet_record')
+    else:
+        url_back = reverse('payroll:payroll')
+
     data = {
+        'url_back': url_back,
         'payroll': payroll,
         'salaries': salaries,
         'contributions': contributions,
@@ -1401,7 +1407,6 @@ def get_audit_salaries(payroll_id):
 
     queryset = Nomina.objects.filter(
         idnomina_id=payroll_id,
-        estadonomina=1
     )
 
     data = queryset.aggregate(
@@ -1425,8 +1430,7 @@ def get_audit_salaries(payroll_id):
 def get_audit_contributions(payroll_id):
 
     queryset = Nomina.objects.filter(
-        idnomina_id=payroll_id,
-        estadonomina=1
+        idnomina_id=payroll_id
     )
 
     data = queryset.aggregate(
@@ -1449,7 +1453,7 @@ def get_audit_contributions(payroll_id):
 def get_audit_employees(payroll_id):
     queryset = Nomina.objects \
         .select_related('idcontrato') \
-        .filter(idnomina=payroll_id, estadonomina=1 ) \
+        .filter(idnomina=payroll_id) \
         .values(
             'idcontrato'
         ) \
@@ -1460,9 +1464,7 @@ def get_audit_employees(payroll_id):
 
 def get_audit_total_to_pay(payroll_id):
     queryset = Nomina.objects.filter(
-        idnomina_id=payroll_id,
-        estadonomina=1
-    )
+        idnomina_id=payroll_id)
     return queryset.aggregate(total=Sum('valor'))['total'] or 0
 
 

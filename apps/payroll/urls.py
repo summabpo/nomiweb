@@ -27,7 +27,7 @@ urlpatterns = [
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),
     path('payroll/closet/<str:id>', payroll.payroll_closet, name='payroll_closet'),
     path('payroll/open/<str:id>', payroll.payroll_open, name='payroll_open'),
-    path('payroll/audit/ugpp/<str:payroll_id>/', ugpp_audit.UgppPayrollAudit, name='UgppPayrollAudit'),
+    path('payroll/audit/ugpp/<str:payroll_id>/<str:tipo_audit>/', ugpp_audit.UgppPayrollAudit, name='UgppPayrollAudit'),
     path('payroll/audit/excel/<str:payroll_id>/', payroll_excel.PayrollAuditExcel, name='PayrollAuditExcel'),
     path('payroll/audit/ugpp/employee/<str:payroll_id>/<str:idcontrato>/', ugpp_audit.audit_employee_payroll, name='audit_employee_payroll'),
 
