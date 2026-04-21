@@ -424,54 +424,73 @@ def payroll_create(request):
         conceptfi = Conceptosfijos.objects.get(idfijo=23)
         nomina = Crearnomina.objects.get(idnomina=idnomina)
         concept1 = Conceptosdenomina.objects.get(idconcepto=mi_select)
-        formula = str(concept1.formula).strip() in ['0', '1', '2']
+        f = str(concept1.formula).strip() if concept1.formula is not None else ''
 
-        if formula:
-            if concept1.formula == '1':
-                if concept1.codigo == 2:
+        def _cantidad_from_post(raw):
+            if raw is None or str(raw).strip() == '':
+                return Decimal('0')
+            return Decimal(str(raw).strip().replace(',', '.'))
 
-                    aux = Salariominimoanual.objects.get(
-                        ano=nomina.anoacumular.ano
-                    ).auxtransporte
+        def _valor_from_post(raw):
+            if raw is None or str(raw).strip() == '':
+                return None
+            return Decimal(str(raw).strip().replace(',', '').replace(' ', ''))
 
-                    multiplier = Decimal(aux) / Decimal('30')
+        def _q1(v):
+            return v.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
+        cantidad_dec = _cantidad_from_post(cantidad)
+        valor_post = _valor_from_post(valor)
+
+        if f in ('1', '2'):
+            if valor_post is not None:
+                valor = _q1(valor_post)
+                cantidad = cantidad_dec
+            elif cantidad_dec != 0:
+                if concept1.formula == '1':
+                    if concept1.codigo == 2:
+                        aux = Salariominimoanual.objects.get(
+                            ano=nomina.anoacumular.ano
+                        ).auxtransporte
+                        multiplier = Decimal(aux) / Decimal('30')
+                    else:
+                        contract = Contratos.objects.get(idcontrato=id)
+                        salario = salario_mes(
+                            contract,
+                            nomina.fechainicial.month,
+                            nomina.fechainicial.year,
+                        )
+                        multiplier = Decimal(salario) / Decimal('30')
+                    valor = (
+                        cantidad_dec
+                        * multiplier
+                        * Decimal(concept1.multiplicadorconcepto)
+                    )
+                    valor = _q1(valor)
                 else:
                     contract = Contratos.objects.get(idcontrato=id)
-                    salario = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
-                    multiplier = Decimal(salario) / Decimal('30')
-
-                valor = (
-                    Decimal(cantidad) *
-                    multiplier *
-                    Decimal(concept1.multiplicadorconcepto)
-                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-
-            elif concept1.formula == '2':
-                contract = Contratos.objects.get(idcontrato=id)
-                salario = salario_mes(contract, nomina.fechainicial.month , nomina.fechainicial.year)
-                multiplier = (
-                    Decimal(salario) /
-                    Decimal(conceptfi.valorfijo)
-                )
-
-                valor = (
-                    Decimal(cantidad) *
-                    multiplier *
-                    Decimal(concept1.multiplicadorconcepto)
-                ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-
+                    salario = salario_mes(
+                        contract,
+                        nomina.fechainicial.month,
+                        nomina.fechainicial.year,
+                    )
+                    multiplier = Decimal(salario) / Decimal(conceptfi.valorfijo)
+                    valor = (
+                        cantidad_dec
+                        * multiplier
+                        * Decimal(concept1.multiplicadorconcepto)
+                    )
+                    valor = _q1(valor)
+                cantidad = cantidad_dec
             else:
-                cantidad = Decimal('0')
-                valor = Decimal(valor.replace(',', '')).quantize(
-                    Decimal('1'), rounding=ROUND_HALF_UP
-                )
-
+                cantidad = cantidad_dec
+                valor = _q1(Decimal('0'))
+        elif f == '0':
+            cantidad = cantidad_dec
+            valor = _q1(valor_post if valor_post is not None else Decimal('0'))
         else:
-            cantidad = Decimal('0')
-            valor = Decimal(valor.replace(',', '')).quantize(
-                Decimal('1'), rounding=ROUND_HALF_UP
-            )
+            cantidad = cantidad_dec
+            valor = _q1(valor_post if valor_post is not None else Decimal('0'))
 
         # 🔹 Limpieza del nombre del empleado (sin "no data", None, ni vacíos)
         contrato = Contratos.objects.select_related('idempleado').get(idcontrato=id)
@@ -1222,3 +1241,8 @@ def payroll_create_nomina_modal(request):
                 pass
 
     return render(request, './payroll/partials/create_nomina_modal.html', {'form': form})
+
+
+
+
+    

@@ -7,8 +7,10 @@ from django.contrib import messages
 from apps.components.decorators import  role_required
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+
+
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def Costcenter(request): 
     """
     Muestra los centros de costos asociados a una empresa.
@@ -53,7 +55,7 @@ def Costcenter(request):
 
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def costcenter_modal(request): 
     
     """
