@@ -61,118 +61,47 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
     try:
         nomina = Crearnomina.objects.get(idnomina=idnomina)
     except Crearnomina.DoesNotExist:
-        return "Error de creación de nómina"
-    
-    contrato = Contratos.objects.get(idcontrato = idcontrato) 
-    
-    # --- opcional: normalizar a date si hubiera datetimes ---
-    def _to_date(d):
-        if d is None:
-            return None
-        if isinstance(d, datetime):
-            return d.date()
-        return d
+        return []
 
-    inicio_nomina = _to_date(nomina.fechainicial)
-    fin_nomina = _to_date(nomina.fechafinal)
-    inicio_contrato = _to_date(contrato.fechainiciocontrato)
-    fin_contrato = _to_date(contrato.fechafincontrato) or fin_nomina
-
-    # --- calcular intersección del intervalo [inicio_nomina, fin_nomina] con [inicio_contrato, fin_contrato]
-    diasnomina = nomina.diasnomina
-    inicio_periodo = max(inicio_nomina, inicio_contrato)
-    fin_periodo = min(fin_nomina, fin_contrato)
-    
-    
-    if fin_periodo < inicio_periodo:
-        diasnomina = 0
-    else:
-        
-        if nomina.tiponomina.idtiponomina == 1 :
-
-            # días calculados por Python (sin incluir el día final)
-            dias_base = (fin_periodo - inicio_periodo).days
-
-            # determinar días del mes del fin_periodo
-            mes = fin_periodo.month
-            ano = fin_periodo.year
-            
-            if mes == 12:
-                dias_en_mes = 31
-            else:
-                dias_en_mes = (date(ano, mes + 1, 1) - timedelta(days=1)).day
-
-            if dias_en_mes == 31:
-                diasnomina = dias_base 
-            else:
-                diasnomina = dias_base + 1
-        elif nomina.tiponomina.idtiponomina == 2 :
-            nombre_original = nomina.nombrenomina or ""
-            if '#2' in nombre_original:
-                diasnomina = (fin_periodo - inicio_periodo).days  
-            else : 
-                diasnomina = (fin_periodo - inicio_periodo).days + 1 
-            
-
-    mes = fin_periodo.month
-    
-    if mes == 2 : 
-        if nomina.tiponomina.idtiponomina == 2 : 
-            diasnomina = 15 
-        elif nomina.tiponomina.idtiponomina == 1 : 
-            diasnomina = 30 
-        else:
-            diasnomina = diasnomina
-
-    dias_vacaciones = calcular_vacaciones(contrato.idcontrato,nomina)
-    dias_incapacidad = calculo_incapacidad(contrato.idcontrato,nomina)
-    dias_suspensiones = calcular_suspenciones(contrato.idcontrato,nomina)
-    
-    d = diasnomina
-    
-    diasnomina -= dias_vacaciones 
-    diasnomina -= dias_incapacidad 
-    diasnomina -= dias_suspensiones 
-
-    
-    calculo_prestamo(contrato, idnomina)
-    Calculo_vacaciones(contrato, idnomina)
-    calculo_novfija(contrato, idnomina)
-    
+    contrato = Contratos.objects.get(idcontrato=idcontrato)
     if contrato.tiposalario.idtiposalario == 2:
         codigo_aux = '4'
     elif contrato.tipocontrato_id == 6:
         codigo_aux = '34'
     else:
         codigo_aux = '1'
-        
-        
-    concepto = Conceptosdenomina.objects.get(codigo=codigo_aux, id_empresa_id = idempresa)
     
+    acumulados = precargar_acumulados(nomina, int(codigo_aux))
+    concepto = Conceptosdenomina.objects.get(codigo = codigo_aux, id_empresa = contrato.id_empresa)
+    diasnomina = calcular_dias(contrato,nomina,int(codigo_aux),acumulados)
+
+    calculo_prestamo(contrato, idnomina)
+    Calculo_vacaciones(contrato, idnomina)
+    calculo_novfija(contrato, idnomina)
+
     if diasnomina > 0:
-        
-        if diasnomina > 30:
-            diasnomina = 30
-            
-        
-        if diasnomina > nomina.diasnomina :
-            diasnomina = nomina.diasnomina
-    
+
+        getcontext().prec = 50
+
+        mes = nomina.fechainicial.month
+        anio = nomina.fechainicial.year
+
+        salario = salario_mes(contrato,mes,anio)
+
 
         valorsalario = (
-                Decimal(contrato.salario) / Decimal('30') *
-                Decimal(diasnomina)
-            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+            Decimal(str(salario))
+            * Decimal(str(diasnomina))
+            / Decimal('30')
+        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
-        
-    
         aux_pass = Nomina.objects.filter(
-            idconcepto=concepto,
-            idcontrato=contrato,
-            estadonomina = 1,
-            idnomina_id=idnomina
-        ).first()
-        
+                idconcepto=concepto,
+                idcontrato=contrato,
+                estadonomina = 1,
+                idnomina_id=idnomina
+            ).first()
+            
         if aux_pass:
             if not EditHistory.objects.filter(
                 id_empresa_id=idempresa,
@@ -185,36 +114,38 @@ def basic_payroll(idcontrato ,idempresa, idnomina):
                 
         else:
             Nomina.objects.create(
-                idconcepto = concepto ,#*
-                cantidad=diasnomina ,#*
-                valor=valorsalario , #*
+                idconcepto = concepto ,
+                cantidad=diasnomina ,
+                valor=valorsalario ,
                 estadonomina = 1,
                 idcontrato_id=contrato.idcontrato ,
                 idnomina_id = idnomina ,
-            )   
+            ) 
+
     return True
     
 
 
 
 def incapacidad_payroll(idcontrato ,idempresa, idnomina):
-    
+
     nomina = Crearnomina.objects.get(idnomina=idnomina)
     inicio_nomina, fin_nomina = nomina.fechainicial, nomina.fechafinal
     ano = nomina.anoacumular.ano 
-    
-    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, fechainicial__range=(inicio_nomina, fin_nomina) ,idcontrato  = idcontrato )
+
     salario_minimo = Salariominimoanual.objects.get( ano = ano ).salariominimo
-    pago_incapacidad = Empresa.objects.get(idempresa=1).ige100 or "NO"
-    
-    
+    pago_incapacidad = Empresa.objects.get(idempresa = idempresa).ige100 or "NO"
+
+    contract = Contratos.objects.get(idcontrato=idcontrato)
+    incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato_id = idcontrato ).order_by('-fechainicial')
+
     for incapacidad in incapacidades:
+
         dias_incapacidad = 0 
         dias_asumidos = 0
         ini = incapacidad.fechainicial
         fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
-        
-        
+
         ibc = incapacidad.ibc
         tipo = incapacidad.origenincap
         prorroga = incapacidad.prorroga
@@ -224,155 +155,78 @@ def incapacidad_payroll(idcontrato ,idempresa, idnomina):
         dia_asumido_1 = int(inicio_nomina <= ini <= fin_nomina)
         dia_asumido_2 = int(inicio_nomina <= segundo_dia <= fin_nomina)
         dias_asumidos = dia_asumido_1 + dia_asumido_2 if dias != 1 else dia_asumido_1
-        
-        
-        if ini <= inicio_nomina <= fin <= fin_nomina:
-            # Incapacidad empieza antes de la nómina y termina dentro de ella
-            dias_incapacidad = (fin - inicio_nomina).days + 1   # ✅ antes estaba (fin_nomina - inicio_nomina)
-        elif ini <= inicio_nomina <= fin_nomina <= fin:
-            # Incapacidad cubre toda la nómina
-            dias_incapacidad = (fin_nomina - inicio_nomina).days + 1
-        elif inicio_nomina <= ini <= fin <= fin_nomina:
-            # Incapacidad completamente dentro de la nómina
-            dias_incapacidad = (fin - ini).days + 1
-        elif ini >= inicio_nomina and fin >= fin_nomina:
-            # Incapacidad empieza en la nómina y sigue después
-            dias_incapacidad = (fin_nomina - ini).days + 1
 
-        else:
-            dias_incapacidad = 0
-                
-        #Calculo del IBC
         if pago_incapacidad == "NO":
             ibc = round(ibc * 2 / 3, 0)
             
         if ibc < salario_minimo:
             ibc = salario_minimo
-        
 
-        #Tipo de incapacidad
-        if tipo == '1':
-            idconceptoi = Conceptosdenomina.objects.get(codigo=25, id_empresa_id = idempresa)
-            idconceptoa = Conceptosdenomina.objects.get(codigo=26, id_empresa_id = idempresa) 
-            
-        elif tipo == '2':
-            
-            dias_asumidos = dia_asumido_1
-            ibc = incapacidad.ibc
-            
-            idconceptoi = Conceptosdenomina.objects.get(codigo=27, id_empresa_id = idempresa)
-            idconceptoa = Conceptosdenomina.objects.get(codigo=28, id_empresa_id = idempresa) 
-            
-        elif tipo == '3':
-            dias_asumidos = 0
-            idconceptoi = Conceptosdenomina.objects.get(codigo=29, id_empresa_id = idempresa)
-        
-        else :
-            idconceptoa = None
-            idconceptoi = None
-        
-            
+        idconceptoi, idconceptoa = return_tipo_incapacidad(tipo, idempresa)
+        inicio_real = max(ini, inicio_nomina)
+        fin_real = min(fin, fin_nomina)
+
+        if inicio_real > fin_real:
+            dias_incapacidad = 0
+            continue
+        else:
+            dias_incapacidad = (fin_real - inicio_real).days + 1
+
+            dias_incapacidad -= dias_asumidos
+
         if prorroga:
             dias_asumidos = 0
-        
-        
-        
-        dias_incapacidad -= dias_asumidos
+            dias_incapacidad = calculo_incapacidad(contract.idcontrato, nomina)
+            ibc = disabilities_ibc(contract , str(inicio_nomina) )
+            valor_incapacidad = (ibc / 30 ) * dias_incapacidad
 
-        
-        horas_incapacidad = dias_incapacidad * 8
-        valor_incapacidad = ibc / 240 * horas_incapacidad
-        horas_asumidas = dias_asumidos * 8
-        valor_asumido = ibc / 240 * horas_asumidas
-        
-        if dias_asumidos > 0 :
-            if idconceptoa :
+            valor_incapacidad = (
+                Decimal(ibc) / Decimal('30') * Decimal(dias_incapacidad)
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+            if dias_incapacidad > 0:
+                grabar_incapacidad(idconceptoi, dias_incapacidad, valor_incapacidad, contract, idnomina , idempresa, incapacidad)
                 
-                aux_pass = Nomina.objects.filter(
-                    idconcepto = idconceptoa,
-                    idcontrato = incapacidad.idcontrato , 
-                    estadonomina = 1,
-                    idnomina_id=idn
-                ).first()
+                break
+        else : 
+            valor_incapacidad = (
+                Decimal(ibc) / Decimal('30') * Decimal(dias_incapacidad)
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+            valor_asumido = (
+                Decimal(ibc) / Decimal('30') * Decimal(dias_asumidos)
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+            if dias_incapacidad > 0:
+                grabar_incapacidad(idconceptoi, dias_incapacidad, valor_incapacidad, contract, idnomina, idempresa, incapacidad)
+
+            if dias_asumidos > 0:
+                grabar_incapacidad(idconceptoa, dias_asumidos, valor_asumido, contract, idnomina, idempresa, incapacidad)
 
 
-                if aux_pass:
-                    if not EditHistory.objects.filter(
-                        id_empresa_id=idempresa,
-                        modified_object_id=aux_pass.idregistronom,
-                        modified_model='Nomina',
-                    ).exists():
-                        aux_pass.cantidad = horas_asumidas/8
-                        aux_pass.valor =  valor_asumido
-                        aux_pass.save() 
-                        
-                else:
-                    Nomina.objects.create(
-                        valor = valor_asumido,
-                        cantidad = horas_asumidas/8,
-                        idconcepto = idconceptoa , 
-                        idnomina = nomina , 
-                        estadonomina = 1,
-                        idcontrato = incapacidad.idcontrato , 
-                        control = incapacidad.idincapacidad,
-                    ) 
-                
-
-        if dias_incapacidad > 0:
-            if idconceptoi :
-                aux_pass = Nomina.objects.filter(
-                    idconcepto = idconceptoi,
-                    idcontrato = incapacidad.idcontrato , 
-                    idnomina_id=idn
-                ).first()
-                
-                if aux_pass:
-                    if not EditHistory.objects.filter(
-                        id_empresa_id=idempresa,
-                        modified_object_id=aux_pass.idregistronom,
-                        modified_model='Nomina',
-                    ).exists():
-                        aux_pass.cantidad = horas_incapacidad/8
-                        aux_pass.valor =  valor_incapacidad
-                        aux_pass.save()  
-                                    
-                else:
-                    Nomina.objects.create(
-                        valor = valor_incapacidad,
-                        cantidad = horas_incapacidad/8,
-                        idconcepto = idconceptoi, 
-                        idnomina = nomina, 
-                        estadonomina = 1,
-                        idcontrato = incapacidad.idcontrato, 
-                        control = incapacidad.idincapacidad,
-                    )  
-                
     return True
 
 
 def aportes_payroll(idcontrato ,idempresa, idnomina):
-    EPS = Conceptosfijos.objects.get(idfijo = 8)
-    AFP = Conceptosfijos.objects.get(idfijo = 10)
-    tope_ibc = Conceptosfijos.objects.get(idfijo = 2)
-    factor_integral = Conceptosfijos.objects.get(idfijo = 1).valorfijo
-    
-    ## pruebas de valores 
-    fsp416 = Conceptosfijos.objects.get(idfijo = 12).valorfijo
-    fsp1617 = Conceptosfijos.objects.get(idfijo = 13).valorfijo
-    fsp1718 = Conceptosfijos.objects.get(idfijo = 14).valorfijo
-    fsp1819 = Conceptosfijos.objects.get(idfijo = 15).valorfijo
-    fsp1920 = Conceptosfijos.objects.get(idfijo = 16).valorfijo
-    fsp21 = Conceptosfijos.objects.get(idfijo = 17).valorfijo
 
-    
-    sal_min = Salariominimoanual.objects.get(ano = datetime.now().year).salariominimo
-    
-    contrato = Contratos.objects.get(idcontrato =  idcontrato)
-            
-    salario_emp = contrato.salario
+
+    EPS = Conceptosfijos.objects.get(idfijo=8)
+    AFP = Conceptosfijos.objects.get(idfijo=10)
+    tope_ibc = Conceptosfijos.objects.get(idfijo=2)
+    factor_integral = Conceptosfijos.objects.get(idfijo=1).valorfijo
+
+    fsp416 = Conceptosfijos.objects.get(idfijo=12).valorfijo
+    fsp1617 = Conceptosfijos.objects.get(idfijo=13).valorfijo
+    fsp1718 = Conceptosfijos.objects.get(idfijo=14).valorfijo
+    fsp1819 = Conceptosfijos.objects.get(idfijo=15).valorfijo
+    fsp1920 = Conceptosfijos.objects.get(idfijo=16).valorfijo
+    fsp21 = Conceptosfijos.objects.get(idfijo=17).valorfijo
+
+    contrato = Contratos.objects.select_related('tiposalario').get(idcontrato=idcontrato)
     tipo_salario = contrato.tiposalario.idtiposalario
+    sal_min = Salariominimoanual.objects.get(ano = datetime.now().year).salariominimo
+    nomina = Crearnomina.objects.get( idnomina = idnomina)
 
-    
     # Obtener la suma de las deducciones de la eps 
     total_base_ss = Nomina.objects.filter(
         idcontrato=contrato,
@@ -382,10 +236,7 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
     ).exclude(
         idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
     ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
-            
-    nomina = Crearnomina.objects.get( idnomina = idnomina)
-    
-    
+                
     base_ss_fsp =   Nomina.objects.filter(
         idcontrato = contrato,
         idnomina__mesacumular = nomina.mesacumular ,
@@ -395,134 +246,72 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
         idconcepto__codigo__in=[60, 70, 90] # Excluir conceptos cuyo código sea el de EPS
     ).aggregate(total=Sum('valor'))['total'] or 0  # Reemplaza 'monto' con el nombre correcto de la columna
     
-    
-    from decimal import Decimal
+    if contrato.tiposalario.idtiposalario == 2:
+        base_ss_fsp2 = base_ss_fsp * Decimal('0.7')
+    else : 
+        base_ss_fsp2 = base_ss_fsp
 
-    base_ss_fsp2 = base_ss_fsp * Decimal('0.7')
-
-    
     if total_base_ss > 0:
-                
         concepto1 = Conceptosdenomina.objects.get(codigo=60, id_empresa_id=idempresa)
         concepto2 = Conceptosdenomina.objects.get(codigo=70, id_empresa_id=idempresa)
-        concepto3 = Conceptosdenomina.objects.get(codigo=90, id_empresa_id=idempresa)
-        
+
         base_max = sal_min * tope_ibc.valorfijo
 
-        if tipo_salario == 2:
+        if tipo_salario == 2:   
             total_base_ss *= (factor_integral / 100)
             total_base_ss = round(total_base_ss, 2)
         
         base_ss = min(total_base_ss, base_max)
         base_ss = round(base_ss, 2)
-        
-        if (base_ss > (sal_min * 4)) and (base_ss < (sal_min * 16)):
-            FSP = fsp416
-        elif (base_ss > (sal_min * 16)) and (base_ss < (sal_min * 17)):
-            FSP = fsp1617
-        elif (base_ss > (sal_min * 17)) and (base_ss < (sal_min * 18)):
-            FSP = fsp1718
-        elif (base_ss > (sal_min * 18)) and (base_ss < (sal_min * 19)):
-            FSP = fsp1819
-        elif (base_ss > (sal_min * 19)) and (base_ss < (sal_min * 20)):
-            FSP = fsp1920
-        elif base_ss > (sal_min * 20):
-            FSP = fsp21
-        else:
-            FSP = 0
-        
-        
-        
-        
-        valoreps = (
-                Decimal(total_base_ss) *
-                Decimal(EPS.valorfijo) / Decimal('100')
-            ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
+        valoreps = (
+            Decimal(total_base_ss) *
+            Decimal(EPS.valorfijo) / Decimal('100')
+        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
         valorafp = (
-                Decimal(total_base_ss) *
-                Decimal(AFP.valorfijo) / Decimal('100')
-            ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        
-        valorfsp = round((base_ss_fsp2 * FSP) / 100, 2) if base_ss_fsp2 >= (sal_min * 4) else 0.00
-        
-    
+            Decimal(total_base_ss) *
+            Decimal(AFP.valorfijo) / Decimal('100')
+        ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
         if contrato.pensionado == '2':
             valorafp = 0.00
-            valorfsp = 0.00
-        
-        #* Crear o actualizar el registro de la EPS
-        aux_pass = Nomina.objects.filter(
-            idconcepto=concepto1,
-            idcontrato=contrato,
-            estadonomina = 1,
-            idnomina_id=idnomina
-        ).first()
-        
-        if aux_pass:
-            if not EditHistory.objects.filter(
-                id_empresa_id=idempresa,
-                modified_object_id=aux_pass.idregistronom,
-                modified_model='Nomina',
-            ).exists():
-                aux_pass.valor = -1*valoreps
-                aux_pass.save() 
-                            
-        else:
-            Nomina.objects.create(
-                    idconcepto = concepto1 ,#*
-                    cantidad= 0 ,#*
-                    estadonomina = 1,
-                    valor=-1*valoreps , #*
-                    idcontrato_id=contrato.idcontrato ,
-                    idnomina_id = idnomina ,
-                )  
-            
 
-        #* Crear o actualizar el registro de la Pension
-        
-        aux_pass = Nomina.objects.filter(
-            idconcepto=concepto2,
-            idcontrato=contrato,
-            estadonomina = 1,
-            idnomina_id=idnomina
-        ).first()
-        
-        
-        if aux_pass:
-            if not EditHistory.objects.filter(
-                id_empresa_id=idempresa,
-                modified_object_id=aux_pass.idregistronom,
-                modified_model='Nomina',
-            ).exists():
-                aux_pass.valor = -1*valorafp
-                aux_pass.save() 
-                            
-        else:
+        if valoreps > 0:
 
-
-            Nomina.objects.create(
-                    idconcepto = concepto2 ,#*
-                    cantidad= 0 ,#*
-                    estadonomina = 1,
-                    valor=-1*valorafp , #*
-                    idcontrato_id=contrato.idcontrato ,
-                    idnomina_id = idnomina ,
-                ) 
-        
-        
-        
-        if valorfsp > 0:
-            valorfsp = valorfsp / 2 
-            # round((base_ss_fsp * FSP) / 100, 2) if base_ss_fsp >= (sal_min * 4) else 0.00 
-            
             aux_pass = Nomina.objects.filter(
-                idconcepto=concepto3,
+                idconcepto=concepto1,
                 idcontrato=contrato,
                 estadonomina = 1,
-                idnomina_id = idnomina
+                idnomina_id=idnomina
+            ).first()
+
+            if aux_pass:
+                if not EditHistory.objects.filter(
+                    id_empresa_id=idempresa,
+                    modified_object_id=aux_pass.idregistronom,
+                    modified_model='Nomina',
+                ).exists():
+                    aux_pass.cantidad = 0
+                    aux_pass.valor = -1*valoreps
+                    aux_pass.save() 
+            else:
+                Nomina.objects.create(
+                        idconcepto = concepto1 ,#*
+                        cantidad= 0 ,#*
+                        estadonomina = 1,
+                        valor=-1*valoreps , #*
+                        idcontrato_id=contrato.idcontrato ,
+                        idnomina_id = idnomina ,
+                    )
+
+        if valorafp > 0:
+
+            aux_pass = Nomina.objects.filter(
+                idconcepto=concepto2,
+                idcontrato=contrato,
+                estadonomina = 1,
+                idnomina_id=idnomina
             ).first()
             
             
@@ -532,51 +321,129 @@ def aportes_payroll(idcontrato ,idempresa, idnomina):
                     modified_object_id=aux_pass.idregistronom,
                     modified_model='Nomina',
                 ).exists():
+                    aux_pass.cantidad = 0
+                    aux_pass.valor = -1*valorafp
+                    aux_pass.save() 
+                                
+            else:
+
+
+                Nomina.objects.create(
+                        idconcepto = concepto2 ,#*
+                        cantidad= 0,#*
+                        estadonomina = 1,
+                        valor=-1*valorafp , #*
+                        idcontrato_id=contrato.idcontrato ,
+                        idnomina_id = idnomina ,
+                    ) 
+            
+            
+            
+    
+    if base_ss_fsp2 > 0:
+        concepto3 = Conceptosdenomina.objects.get(codigo=90, id_empresa_id=idempresa)
+
+        if base_ss_fsp2 <= (sal_min * 4):
+            FSP = 0
+        if (base_ss_fsp2 > (sal_min * 4)) :
+            FSP = fsp416
+        elif (base_ss_fsp2 > (sal_min * 16)):
+            FSP = fsp1617
+        elif (base_ss_fsp2 > (sal_min * 17)):
+            FSP = fsp1718
+        elif (base_ss_fsp2 > (sal_min * 18)):
+            FSP = fsp1819
+        elif (base_ss_fsp2 > (sal_min * 19)):
+            FSP = fsp1920
+        elif base_ss_fsp2 > (sal_min * 20):
+            FSP = fsp21
+        else:
+            FSP = 0
+
+        valorfsp = (
+                Decimal(str(base_ss_fsp2)) * Decimal(str(FSP)) / Decimal('100')
+            ).quantize(Decimal('1'), rounding=ROUND_HALF_UP) if FSP > 0 else Decimal('0')
+            
+        if contrato.pensionado == '2':
+            valorfsp = 0.00
+
+
+        if valorfsp > 0:
+
+            aux_pass1 = Nomina.objects.filter(
+                    idconcepto=concepto3,
+                    idcontrato=contrato,
+                    idnomina__mesacumular = nomina.mesacumular ,
+                    idnomina__anoacumular = nomina.anoacumular ,
+                    estadonomina = 2,
+                ).first()
+
+            if aux_pass1 :
+                valorfsp = (
+                        Decimal(str(valorfsp)) / Decimal('2')
+                    ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+            aux_pass = Nomina.objects.filter(
+                    idconcepto=concepto3,
+                    idcontrato=contrato,
+                    estadonomina = 1,
+                    idnomina_id=idnomina
+                ).first()
+
+            if aux_pass:
+                if not EditHistory.objects.filter(
+                    id_empresa_id=idempresa,
+                    modified_object_id=aux_pass.idregistronom,
+                    modified_model='Nomina',
+                ).exists():
+                    aux_pass.cantidad = 0
                     aux_pass.valor = -1*valorfsp
                     aux_pass.save() 
                                 
             else:
                 Nomina.objects.create(
                         idconcepto = concepto3 ,#*
-                        cantidad= 0 ,#*
+                        cantidad= 0,#*
                         estadonomina = 1,
                         valor=-1*valorfsp , #*
                         idcontrato_id=contrato.idcontrato ,
-                        idnomina_id = idn ,
+                        idnomina_id = idnomina ,
                     ) 
-                    
+            
     return True
 
 
 
 def transporte_payroll(idcontrato ,idempresa, idnomina):
     
-    contrato = Contratos.objects.get(idcontrato =  idcontrato)
     try:
         nomina = Crearnomina.objects.get(idnomina=idnomina)
     except Crearnomina.DoesNotExist:
-        return "Error de creación de nómina"
-    
-    sal_min = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).salariominimo
-    aux_tra = Salariominimoanual.objects.get(ano = nomina.anoacumular.ano).auxtransporte
+        return []
 
-    diasnomina, transporte = liquidar_auxilio_transporte_contrato(
-        contrato, nomina, idempresa, idnomina, sal_min, aux_tra
-    )
+    contrato = Contratos.objects.get(idcontrato=idcontrato)
+    sal_min = Salariominimoanual.objects.get(ano=nomina.anoacumular.ano).salariominimo
+    aux_tra = Salariominimoanual.objects.get(ano=nomina.anoacumular.ano).auxtransporte
+    concepto = Conceptosdenomina.objects.get(codigo=2, id_empresa = contrato.id_empresa)
+    acumulados = precargar_acumulados(nomina, 2)
 
-    concepto = Conceptosdenomina.objects.get(codigo= 2 , id_empresa_id = idempresa)
+    diasnomina = calcular_dias(contrato, nomina, 2,acumulados)
 
     if contrato.tipocontrato.idtipocontrato in [5, 6]:
-        return True
+        valor = 0
+
+
+    transporte = return_transporte(contrato, nomina, diasnomina, sal_min, aux_tra)
 
     aux_pass = Nomina.objects.filter(
-        idconcepto=concepto,
-        idcontrato=contrato,
-        estadonomina = 1,
-        idnomina_id=idnomina
-    ).first()
+            idconcepto=concepto,
+            idcontrato=contrato,
+            estadonomina=1,
+            idnomina_id=idnomina,
+        ).first()
 
     if diasnomina > 0 and transporte > 0:
+
         if aux_pass:
             if not EditHistory.objects.filter(
                 id_empresa_id=idempresa,
@@ -588,21 +455,13 @@ def transporte_payroll(idcontrato ,idempresa, idnomina):
                 aux_pass.save()
         else:
             Nomina.objects.create(
-                idconcepto = concepto ,
-                cantidad=diasnomina ,
-                valor=transporte ,
-                estadonomina = 1,
-                idcontrato_id=contrato.idcontrato ,
-                idnomina_id = idnomina ,
+                idconcepto=concepto,
+                cantidad=diasnomina,
+                valor=transporte,
+                estadonomina=1,
+                idcontrato=contrato,
+                idnomina_id=idnomina,
             )
-    elif aux_pass and not EditHistory.objects.filter(
-        id_empresa_id=idempresa,
-        modified_object_id=aux_pass.idregistronom,
-        modified_model='Nomina',
-    ).exists():
-        aux_pass.cantidad = 0
-        aux_pass.valor = Decimal('0')
-        aux_pass.save()
 
     return True
         

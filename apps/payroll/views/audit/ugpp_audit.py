@@ -320,24 +320,26 @@ def get_audit_employee(payroll_id, idcontrato):
     #  2. Transporte
     data2 = transport_audit_employee(payroll_id, idcontrato)
 
-    
-
     if isinstance(data1, list):
         data.extend(data1)
 
     if isinstance(data2, list):
         data.extend(data2)
 
+    #  4. Incapacidades → se agregan a data3
+    contrato = Contratos.objects.get(idcontrato=idcontrato)
+    disable_data = disable_audit_employee(payroll_id, contrato)
+    
+    if isinstance(disable_data['nomina'], list):
+        data.extend(disable_data['nomina'])
+
     #  3. Contribuciones (base normal)
     data3 = contributions_audit_employee(payroll_id, idcontrato, data)
-
 
     if not isinstance(data3, dict):
         data3 = {'nomina': [], 'calculada': []}
 
-    #  4. Incapacidades → se agregan a data3
-    contrato = Contratos.objects.get(idcontrato=idcontrato)
-    disable_data = disable_audit_employee(payroll_id, contrato)
+    
     data4 = deductions_audit_employee(payroll_id, contrato)
 
     if isinstance(data4, list):

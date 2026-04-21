@@ -34,7 +34,7 @@ def income_withholding_certificate(request):
         'years': years,
     }
     
-    # 👇 CAPTURAR GET
+    # CAPTURAR GET
     anio = request.GET.get('anio')
     estado = request.GET.get('estado')
 
@@ -63,7 +63,6 @@ def generate_income_withholding_certificate(request):
             
             data = get_contratos_por_anio(anio,idempresa)
             certificado = data_certificate(data, anio , idempresa)
-            #print(json.dumps(certificado, indent=4, ensure_ascii=False))
             
             reten = Ingresosyretenciones.objects.filter(anoacumular__ano=anio, idempleado__estadocontrato = 1 , id_empresa = idempresa)
             context['reten'] = reten
@@ -146,7 +145,7 @@ def data_certificate(data_contratos, anoacumular, idempresa):
             otros_pagos = returne_value_for_family(contrato.idcontrato, anoacumular, 'otrospagos') or 0
             apoyoeconomico = returne_value_for_family(contrato.idcontrato, anoacumular, 'apoyoeconomico') or 0
             
-            # 🔹 acumular
+            # acumular
             data['salarios'] += (salarios - vacaciones - incapacidades)
             data['honorarios'] += honorarios
             data['servicios'] += servicios
@@ -163,12 +162,12 @@ def data_certificate(data_contratos, anoacumular, idempresa):
             data['cesantias90'] += cesantias90
             data['otrospagos'] += otros_pagos
 
-        # 🔥 cálculo final
+        # cálculo final
         data['totalingresosbrutos'] = (
             data['salarios'] + data['honorarios'] + data['servicios'] + data['comisiones']
         )
 
-        # 🔥 guardar UNA sola vez por empleado
+        # guardar UNA sola vez por empleado
         Ingresosyretenciones.objects.update_or_create(
             idempleado_id=idempleado,
             anoacumular=obj_anio,
