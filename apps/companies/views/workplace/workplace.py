@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def workplace(request): 
     """
     Vista para mostrar los centros de trabajo asociados a una empresa y un formulario para crear nuevos centros.
@@ -49,7 +49,7 @@ def workplace(request):
     
     
 @login_required
-@role_required('company')
+@role_required('company','accountant')
 def workplace_modal(request):
     """
     Vista para crear un nuevo centro de trabajo mediante un formulario en un modal.
