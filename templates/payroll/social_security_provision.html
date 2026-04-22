@@ -255,6 +255,7 @@ Listado de Seguridad Sociales
 
 <script>
     $(document).ready(function() {
+
         $('#tabla-family').DataTable({
             language: {
                 "decimal": "",
@@ -262,8 +263,6 @@ Listado de Seguridad Sociales
                 "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
                 "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
                 "infoFiltered": "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix": "",
-                "thousands": ",",
                 "lengthMenu": "Mostrar _MENU_ entradas",
                 "loadingRecords": "Cargando...",
                 "processing": "Procesando...",
@@ -274,19 +273,80 @@ Listado de Seguridad Sociales
                     "last": "Último",
                     "next": "Siguiente",
                     "previous": "Anterior"
-                },
-                "aria": {
-                    "sortAscending": ": activar para ordenar la columna ascendente",
-                    "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            dom: 'frtip',
+    
+            // 🔥 ACTIVAR BOTONES
+            dom: 'Bfrtip',
+    
+            buttons: [
+                {
+                    text: 'Descargar Seguridad Social',
+                    className: 'btn btn-light-info',
+                    attr: {
+                        id: 'kt_button_export_ss'
+                    },
+    
+                    action: function (e, dt, node, config) {
+    
+                        var button = $(node);
+                        button.attr("data-kt-indicator", "on");
+    
+                        let filterForm = document.getElementById('Filter_basic');
+    
+                        if (!filterForm) {
+                            console.error("No se encontró el formulario Filter_basic");
+                            button.removeAttr("data-kt-indicator");
+                            return;
+                        }
+    
+                        let formData = new FormData(filterForm);
+    
+                        // 🔥 VALIDACIÓN (importante)
+                        if (!formData.get('mst_init') || !formData.get('year_init')) {
+                            alert("Debes seleccionar mes y año");
+                            button.removeAttr("data-kt-indicator");
+                            return;
+                        }
+    
+                        // 🔥 FORM DINÁMICO
+                        let tempForm = document.createElement("form");
+                        tempForm.method = "POST";
+                        tempForm.action = "{% url 'payroll:export_social_security_excel' %}";
+    
+                        // CSRF
+                        let csrfInput = document.createElement("input");
+                        csrfInput.type = "hidden";
+                        csrfInput.name = "csrfmiddlewaretoken";
+                        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                        tempForm.appendChild(csrfInput);
+    
+                        // Inputs del filtro
+                        for (let [key, value] of formData.entries()) {
+                            let input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = key;
+                            input.value = value;
+                            tempForm.appendChild(input);
+                        }
+    
+                        document.body.appendChild(tempForm);
+                        tempForm.submit();
+    
+                        // limpiar
+                        setTimeout(() => {
+                            document.body.removeChild(tempForm);
+                            button.removeAttr("data-kt-indicator");
+                        }, 1500);
+                    }
+                }
+            ],
+    
             order: [],
             pageLength: 10,
-            autoWidth: false,
-            
+            autoWidth: false
         });
-
+    
     });
 </script>
 {% endblock %}

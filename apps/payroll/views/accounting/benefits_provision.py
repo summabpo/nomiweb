@@ -10,6 +10,11 @@ from apps.payroll.views.settlements.liquidacion_utils import *
 import calendar
 from apps.components.salary import salario_mes
 
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font
+
+
 MESES_MAP = {
     'ENERO': 1, 'FEBRERO': 2, 'MARZO': 3, 'ABRIL': 4, 'MAYO': 5, 'JUNIO': 6,
     'JULIO': 7, 'AGOSTO': 8, 'SEPTIEMBRE': 9, 'OCTUBRE': 10, 'NOVIEMBRE': 11, 'DICIEMBRE': 12,
@@ -212,6 +217,147 @@ def base_vacaciones(contrato, year, mes):
         idnomina__anoacumular__ano=year,
         idconcepto__indicador__nombre='basevacaciones'
     ).aggregate(total=Sum('valor'))['total'] or Decimal('0')
+
+
+def calcular_prestaciones(idempresa, mst_init, year_init):
+    empleados = []
+
+    def clean_value(value):
+        if isinstance(value, str) and value.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"]:
+            return ""
+        return value
+
+    def to_decimal(value, default):
+        try:
+            if value is None:
+                return Decimal(default)
+            return Decimal(str(value).replace(',', '.'))
+        except:
+            return Decimal(default)
+
+    conceptos = Conceptosfijos.objects.filter(
+        conceptofijo__in=['CESANTIAS', 'Intereses de Cesantias', 'Vacaciones', 'Prima de Servicios']
+    ).values_list('conceptofijo', 'valorfijo')
+
+    conceptos_dict = {c[0]: c[1] for c in conceptos}
+
+    cc = to_decimal(conceptos_dict.get('CESANTIAS'), '8.3333')
+    cp = to_decimal(conceptos_dict.get('Prima de Servicios'), '8.3333')
+    icc = to_decimal(conceptos_dict.get('Intereses de Cesantias'), '1')
+    vac = to_decimal(conceptos_dict.get('Vacaciones'), '4.1667')
+
+    contratos_empleados = (
+        Contratos.objects
+        .filter(estadocontrato=1, id_empresa=idempresa)
+        .select_related('idempleado', 'cargo', 'idcosto', 'tiposalario')
+        .values(
+            'idempleado__docidentidad', 'idempleado__papellido', 'idempleado__sapellido',
+            'idempleado__pnombre', 'idempleado__snombre', 'fechainiciocontrato',
+            'cargo__nombrecargo', 'salario', 'idcosto__idcosto',
+            'idempleado__idempleado', 'idcontrato',
+            'tiposalario__idtiposalario','tipocontrato__idtipocontrato'
+        )
+    )
+
+    for contrato in contratos_empleados:
+        contract = Contratos.objects.get(idcontrato=contrato['idcontrato'])
+        salario = salario_mes(contract, MESES_MAP[mst_init], year_init)
+
+        base_c = base_cesantias(contrato, year_init, mst_init)
+        base_p = base_prima(contrato, year_init, mst_init)
+
+        if base_c < salario:
+            base_c = salario
+        if base_p < salario:
+            base_p = salario
+
+        if contrato['tiposalario__idtiposalario'] == 2 or contrato['tipocontrato__idtipocontrato'] == 6:
+            cesantias = intereses = prima = Decimal('0')
+        else:
+            cesantias = (base_c * (cc/Decimal('100'))).quantize(Decimal('0.01'))
+            intereses = (base_c * (icc/Decimal('100'))).quantize(Decimal('0.01'))
+            prima = (base_p * (cp/Decimal('100'))).quantize(Decimal('0.01'))
+
+        vacaciones = (salario * (vac/Decimal('100'))).quantize(Decimal('0.01'))
+        total = cesantias + intereses + prima + vacaciones
+
+        nombre = " ".join(filter(None, [
+            clean_value(contrato.get('idempleado__papellido')),
+            clean_value(contrato.get('idempleado__sapellido')),
+            clean_value(contrato.get('idempleado__pnombre')),
+            clean_value(contrato.get('idempleado__snombre')),
+        ]))
+
+        empleados.append({
+            'idcontrato': contrato['idcontrato'],
+            'documento': contrato['idempleado__docidentidad'],
+            'nombre': nombre,
+            'centrocostos': contrato['idcosto__idcosto'],
+            'salario': float(salario),
+            'base': float(base_p),
+            'cesantias': float(cesantias),
+            'intereses': float(intereses),
+            'prima': float(prima),
+            'vacaciones': float(vacaciones),
+            'total': float(total),
+        })
+
+    return empleados
+
+
+
+@login_required
+@role_required('accountant')
+def export_employee_benefits_excel(request):
+    if request.method == 'POST':
+
+        usuario = request.session.get('usuario', {})
+        idempresa = usuario['idempresa']
+
+        mst_init = request.POST.get('mst_init')   # "ENERO"
+        year_init = int(request.POST.get('year_init'))
+
+        empleados = calcular_prestaciones(idempresa, mst_init, year_init)
+
+        from openpyxl import Workbook
+        from django.http import HttpResponse
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Prestaciones Sociales"
+
+        headers = [
+            'ID Contrato', 'Documento', 'Nombre', 'Centro Costos',
+            'Salario', 'Base', 'Cesantías', 'Intereses',
+            'Prima', 'Vacaciones', 'Total'
+        ]
+
+        ws.append(headers)
+
+        for emp in empleados:
+            ws.append([
+                emp['idcontrato'],
+                emp['documento'],
+                emp['nombre'],
+                emp['centrocostos'],
+                emp['salario'],
+                emp['base'],
+                emp['cesantias'],
+                emp['intereses'],
+                emp['prima'],
+                emp['vacaciones'],
+                emp['total'],
+            ])
+
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+
+        response['Content-Disposition'] = f'attachment; filename=prestaciones_{mst_init}_{year_init}.xlsx'
+
+        wb.save(response)
+        return response
+
 
 
 
