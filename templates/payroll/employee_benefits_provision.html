@@ -263,6 +263,18 @@ Listado de Prestaciones Sociales
 
 <script>
     $(document).ready(function() {
+
+        let year = "{{ form.year_init.value|default:'' }}";
+        let mes = "{{ form.mst_init.value|default:'' }}";
+    
+        // Convertir mes texto → número (igual que backend)
+        const MESES_MAP = {
+            'ENERO': 1, 'FEBRERO': 2, 'MARZO': 3, 'ABRIL': 4, 'MAYO': 5, 'JUNIO': 6,
+            'JULIO': 7, 'AGOSTO': 8, 'SEPTIEMBRE': 9, 'OCTUBRE': 10, 'NOVIEMBRE': 11, 'DICIEMBRE': 12,
+        };
+    
+        let mes_num = MESES_MAP[mes];
+    
         $('#tabla-family').DataTable({
             language: {
                 "decimal": "",
@@ -270,31 +282,78 @@ Listado de Prestaciones Sociales
                 "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
                 "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
                 "infoFiltered": "(filtrado de _MAX_ entradas totales)",
-                "infoPostFix": "",
-                "thousands": ",",
                 "lengthMenu": "Mostrar _MENU_ entradas",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
                 "search": "Buscar:",
-                "zeroRecords": "No se encontraron registros coincidentes",
                 "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
                     "next": "Siguiente",
                     "previous": "Anterior"
-                },
-                "aria": {
-                    "sortAscending": ": activar para ordenar la columna ascendente",
-                    "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            dom: 'frtip',
+    
+            // 🔥 AQUÍ ESTÁ LA MAGIA
+            dom: 'Bfrtip',
+    
+            buttons: [
+                {
+                    text: 'Descargar Prestaciones',
+                    className: 'btn btn-light-info',
+                    attr: {
+                        id: 'kt_button_export_prestaciones'
+                    },
+
+                    action: function (e, dt, node, config) {
+
+                        var button = $(node);
+                        button.attr("data-kt-indicator", "on");
+
+                        let filterForm = document.getElementById('Filter_basic');
+
+                        if (!filterForm) {
+                            console.error("No se encontró el formulario Filter_basic");
+                            button.removeAttr("data-kt-indicator");
+                            return;
+                        }
+
+                        let formData = new FormData(filterForm);
+
+                        // 🔥 Crear form dinámico
+                        let tempForm = document.createElement("form");
+                        tempForm.method = "POST";
+                        tempForm.action = "{% url 'payroll:export_employee_benefits_excel' %}";
+
+                        // CSRF
+                        let csrfInput = document.createElement("input");
+                        csrfInput.type = "hidden";
+                        csrfInput.name = "csrfmiddlewaretoken";
+                        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                        tempForm.appendChild(csrfInput);
+
+                        // Pasar todos los campos del filtro
+                        for (let [key, value] of formData.entries()) {
+                            let input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = key;
+                            input.value = value;
+                            tempForm.appendChild(input);
+                        }
+
+                        document.body.appendChild(tempForm);
+                        tempForm.submit();
+
+                        // limpiar
+                        setTimeout(() => {
+                            document.body.removeChild(tempForm);
+                            button.removeAttr("data-kt-indicator");
+                        }, 1500);
+                    }
+                }
+            ],
+    
             order: [],
             pageLength: 10,
-            autoWidth: false,
-            
+            autoWidth: false
         });
-
+    
     });
 </script>
 {% endblock %}

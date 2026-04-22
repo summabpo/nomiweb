@@ -96,8 +96,9 @@ urlpatterns = [
     
     # Accounting Module
     path('provisions/employee-benefits/', benefits_provision.employee_benefits_provision, name='employee_benefits_provision'),
+    path('provisions/employee-benefits/download/', benefits_provision.export_employee_benefits_excel, name='export_employee_benefits_excel'),
     path('provisions/social-security/', security_provision.social_security_provision, name='social_security_provision'),
-
+    path('provisions/social-security/download/', security_provision.export_social_security_excel, name='export_social_security_excel'),
     # PILA
     path('pila/liquidacion/', liquidacion_pila.liquidacion_pila, name='pila_liquidacion'),
     path('pila/planilla/<int:planilla_id>/txt/', liquidacion_pila.descargar_pila_txt, name='pila_descargar_txt'),
