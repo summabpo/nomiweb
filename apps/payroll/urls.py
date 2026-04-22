@@ -17,7 +17,7 @@ from .views.history import history
 from .views import liquidacion_pila
 from .views.audit import ugpp_audit , payroll_excel
 from .views.dian_certificates import income_withholding
-
+from .views.withholding_tax import withholding
 # afsa fsa asfad 
 
 urlpatterns = [
@@ -160,7 +160,7 @@ urlunpolypatterns =[
     
     #path('parameters/family', family.family_list, name='family_list'),
     ## sitemas automaticos 
-    
+    path('payroll/withholding/tax/<int:idnomina>/modal', withholding.withholding_tax, name='withholding_tax'),
     path('payroll/automatic_systems/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
     path('payroll/automatic_systems_2/<int:type_payroll>/<int:idnomina>/<int:idcontrato>/modal', payroll_automatic_c.automatic_systems_2, name='automatic_systems_2'),
     

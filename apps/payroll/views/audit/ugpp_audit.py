@@ -175,7 +175,7 @@ def audit_employee_payroll(request, payroll_id, idcontrato):
         total_errors += 1
         errors_list.append(
             f"Concepto {_norm_codigo(item['codigo'])} — {item.get('nombre', '')}: "
-            f"registrado en nómina pero no existe en el resultado auditado (salario/transporte)."
+            f"presente en nómina, ausente en auditoría."
         )
 
     faltantes_codigos_set = {_norm_codigo(i['codigo']) for i in conceptos_audit_faltantes}
