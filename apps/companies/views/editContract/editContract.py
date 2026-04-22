@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from apps.common.models  import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo,Tiposdecotizantes ,Subtipocotizantes
+from apps.common.models  import Contratosemp,Contratos, Costos ,Subcostos,Centrotrabajo,Tiposdecotizantes ,Subtipocotizantes, Sedes
 from .EditForm import ContractForm 
 from django.contrib import messages
 
@@ -57,7 +57,10 @@ def EditContracVisual(request,idempleado):
         'Empleado': (contrato.idempleado.papellido or '')  + ' ' + (contrato.idempleado.sapellido or '' ) + ' ' + (contrato.idempleado.pnombre or '') + ' ' + (contrato.idempleado.snombre or '') + ' CC: ' + str(contrato.idempleado.docidentidad),
         'EstadoContrato': "Activo" if contrato.estadocontrato == 1 else "Inactivo",
     }
+
+
     
+
     initial_data = {
         'name': contrato.idempleado.idempleado,
         'endDate': str(contrato.fechafincontrato),
@@ -85,7 +88,7 @@ def EditContracVisual(request,idempleado):
         'subContributor': contrato.subtipocotizante.subtipocotizante if contrato.subtipocotizante else '',
     }
 
-    # ✅ Limpieza de valores tipo "no data", "sin dato", "n/a", etc.
+    # Limpieza de valores tipo "no data", "sin dato", "n/a", etc.
     initial_data = {
         k: ("" if isinstance(v, str) and v.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"] else v)
         for k, v in initial_data.items()
@@ -125,11 +128,15 @@ def EditContracVisual(request,idempleado):
                 if form.cleaned_data['subContributor'] not in ('', None):
                     contrato.subtipocotizante = Subtipocotizantes.objects.get(subtipocotizante=form.cleaned_data['subContributor'])
 
+                if form.cleaned_data['workPlace'] not in ('', None):
+                    contrato.idsede = Sedes.objects.get(idsede=form.cleaned_data['workPlace'])
 
+                if form.cleaned_data['arlWorkCenter'] not in ('', None):
+                    contrato.centrotrabajo = Centrotrabajo.objects.get(centrotrabajo=form.cleaned_data['arlWorkCenter'])
 
                 contrato.save()
                 messages.success(request, 'El Contrato ha sido Actualizado')
-                return  redirect('companies:startcompanies')
+                return redirect('companies:editcontracvisual',idempleado=empleado.idempleado)
             except Exception as e:
                 print(e)
                 messages_error = 'Se produjo un error al guardar el Contrato.' + str(e.args)

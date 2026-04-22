@@ -1,0 +1,64 @@
+
+{% load custom_filters %}
+
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Retención en la Fuente</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Idcontrato</th>
+                            <th>Nombre</th> 
+                            <th>Salario</th>
+                            <th>Valor</th>
+                            <th class="text-center">
+                                <div class="container d-flex justify-content-center align-items-center">
+                                    <i class="ki-duotone ki-chart fs-3">
+                                        <i class="path1"></i>
+                                        <i class="path2"></i>
+                                    </i>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for empleado in empleados %}
+                            <tr>
+                                <td>{{ empleado.idcontrato }}</td>
+                                <td>{{ empleado.nombre_completo }}</td>
+                                <td>{{ empleado.salario|format_currency }}</td>
+                                <td>{{ empleado.valor|format_currency }}</td>
+                                <td> </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+               
+            </div>
+
+        </div>
+    </div>
+    <div class="separator my-5"></div>
+    <div class="modal-footer btn-group">
+        <button type="button" class="btn btn-light-danger ms-auto" up-dismiss>Cerrar</button>
+        <div style="width: 10px;"></div>
+        <button type="submit" form="form_family" class="btn btn-light-primary">Aplicar a Nómina</button>
+    </div>
+</div>
+
+
+
+

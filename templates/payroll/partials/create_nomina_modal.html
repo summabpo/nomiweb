@@ -10,10 +10,10 @@
 
     <div class="modal-body">
         <form method="POST"
-              up-submit
-              up-target=".modal-content"
-              up-layer="current"
-              up-mode="replace">
+                up-submit
+                up-target=".modal-content"
+                up-layer="current"
+                up-mode="replace">
             {% csrf_token %}
             {% load crispy_forms_tags %}
             {% crispy form %}

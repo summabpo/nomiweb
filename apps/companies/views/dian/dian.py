@@ -7,7 +7,9 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from PIL import Image
 from .diangenerate import last_business_day_of_march 
-
+from PyPDF2 import PdfMerger
+import tempfile
+from django.http import FileResponse
 
 
 def viewdian(request):
@@ -120,10 +122,52 @@ def viewdian_download(request,idingret ):
 
     response = HttpResponse(pdf_buffer.read(), content_type='application/pdf')
 
-    file_name = f"Certificado_220_{certificado.idempleado.docidentidad}_{month}_{year}.pdf"
+    file_name = f"Certificado_220_{certificado.idempleado.docidentidad}_{year}.pdf"
     response['Content-Disposition'] = f'inline; filename="{file_name}"'
 
     return response
+
+
+
+@login_required
+def viewdian_download_massive(request):
+    """
+    Genera un PDF masivo sin cargar todo en memoria.
+    """
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+    anio = request.GET.get('anio')
+
+    filtros = {'idempresa': idempresa}
+    if anio:
+        filtros['anoacumular__ano'] = int(anio)
+
+    certificados = Ingresosyretenciones.objects.filter(**filtros)
+
+    # Archivo temporal en disco
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+
+    merger = PdfMerger()
+
+    for cert in certificados.iterator():  # 👈 clave para no cargar todo en memoria
+        try:
+            pdf_buffer = pdfgenerate(cert.idingret, idempresa)
+            merger.append(pdf_buffer)
+        except Exception as e:
+            print(f"Error con certificado {cert.idingret}: {e}")
+            continue
+
+    merger.write(temp_file)
+    merger.close()
+
+    temp_file.seek(0)
+
+    return FileResponse(
+        temp_file,
+        as_attachment=True,  # 👈 cambia a False si quieres visualizar en navegador
+        filename="Certificados_Masivos.pdf"
+    )
 
 
 

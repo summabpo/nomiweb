@@ -1,0 +1,241 @@
+{% load crispy_forms_tags %}
+{% load custom_filters %}
+<!-- Bootstrap-styled modal -->
+<div class="modal-content"  id="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Detalle de Concepto</h3>
+        <!--begin::Close-->
+        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" up-dismiss aria-label="Close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+        </div>
+        <!--end::Close-->
+    </div>   
+    <div class="separator my-5"></div> 
+    <!--begin::Input group-->        
+    <div class="modal-body">
+        <div class="container">
+
+            <!--  TABLA COMPARATIVA -->
+            <div class="table-responsive mb-5">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Código</th>
+                            <th>Concepto</th>
+                            <th>Nómina Valor</th>
+                            <th>Nómina Cantidad</th>
+                            <th>Auditado Valor</th>
+                            <th>Auditado Cantidad</th>
+                            <th>Diferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <!-- LOOP PRINCIPAL (lo que está en nómina) -->
+                        {% for concepto in data.conceptos_payroll %}
+                        <tr class="
+                                {% for a in data.conceptos_audit %}
+                                    {% if a.codigo == concepto.codigo %}
+                                        {% if a.valor == concepto.valor and a.cantidad == concepto.cantidad %}
+                                            table-success
+                                        {% else %}
+                                            table-warning
+                                        {% endif %}
+                                    {% endif %}
+                                {% empty %}
+                                    table-warning
+                                {% endfor %}
+                            ">
+                                <td>{{ concepto.codigo }}</td>
+                                <td>{{ concepto.nombre }}</td>
+
+                                <!-- Nómina -->
+                                <td>{{ concepto.valor|format_currency }}</td>
+                                <td>{{ concepto.cantidad|format_currency }}</td>
+
+                                {% with found=0 %}
+                                    {% for a in data.conceptos_audit %}
+                                        {% if a.codigo == concepto.codigo %}
+
+                                            <!-- Auditado -->
+                                            <td>{{ a.valor|format_currency }}</td>
+                                            <td>{{ a.cantidad }}</td>
+
+                                            <!-- Diferencia -->
+                                            <td>
+                                                {% if a %}
+                                                    {% if a.valor != concepto.valor or a.cantidad != concepto.cantidad %}
+                                                        <i class="fa-solid fa-xmark fs-3 text-danger"></i>
+                                                    {% else %}
+                                                        <i class="fa-solid fa-check fs-3 text-success"></i>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <i class="fa-solid fa-question fs-3 text-warning"></i>
+                                                {% endif %}
+                                            </td>
+
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </tr>
+                        {% endfor %}
+                        
+
+                    </tbody>
+                </table>
+            </div>
+
+            <!--  TABLA COMPARATIVA -->
+            {% if data.conceptos_audit_faltantes %}
+                <div class="table-responsive mb-5">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Código</th>
+                                <th>Concepto</th>
+                                <th>Nómina Valor</th>
+                                <th>Nómina Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <!-- LOOP PRINCIPAL (lo que está en nómina) -->
+                            {% for concepto in data.conceptos_audit_faltantes %}
+                            <tr class="table-warning">
+                                    <td>{{ concepto.codigo }}</td>
+                                    <td>{{ concepto.nombre }}</td>
+                                    <td>{{ concepto.valor |format_currency}}</td>
+                                    <td>{{ concepto.cantidad }}</td>
+                                </tr>
+                            {% endfor %}
+                        
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+
+
+            <!--  TABLA COMPARATIVA -->
+            <div class="table-responsive mb-5">
+                <table class="table table-bordered table-striped">
+    
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th rowspan="2">Código</th>
+                            <th rowspan="2">Concepto</th>
+                
+                            <th colspan="2">Nómina</th>
+                            <th colspan="2">Calculado</th>
+                            <th colspan="2">Auditado</th>
+                
+                            <th rowspan="2">Estado</th>
+                        </tr>
+                        <tr>
+                            <th>Valor</th>
+                            <th>Cant</th>
+                
+                            <th>Valor</th>
+                            <th>Cant</th>
+                
+                            <th>Valor</th>
+                            <th>Cant</th>
+                        </tr>
+                    </thead>
+                
+                    <tbody>
+                
+                        {% for row in data.tabla_aportes %}
+                        <tr class="
+                            {% if row.estado == 'faltante_nomina' or row.estado == 'faltante_audit' %}
+                                table-danger
+                            {% elif row.estado == 'diferente' %}
+                                table-warning
+                            {% endif %}
+                        ">
+                            <td>{{ row.codigo }}</td>
+                            <td>{{ row.nombre }}</td>
+                
+                            <!-- NÓMINA -->
+                            <td>{{ row.nomina_valor|default_if_none:0|format_currency  }}</td>
+                            <td>{{ row.nomina_cantidad|default_if_none:0|format_currency }}</td>
+                
+                            <!-- CALCULADO -->
+                            <td>{{ row.calc_valor|default_if_none:0|format_currency  }}</td>
+                            <td>{{ row.calc_cantidad|default_if_none:0|format_currency  }}</td>
+                
+                            <!-- AUDITADO -->
+                            <td>{{ row.audit_valor|default_if_none:0|format_currency  }}</td>
+                            <td>{{ row.audit_cantidad|default_if_none:0|format_currency  }}</td>
+                
+                            <!-- ESTADO -->
+                            <td class="text-center">
+                                {% if row.estado == 'ok' %}
+                                    <i class="fa-solid fa-check fs-3 text-success"></i>
+                                {% elif row.estado == 'diferente' %}
+                                    <i class="fa-solid fa-xmark fs-3 text-danger"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-xmark fs-3 text-danger"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 🔴 LISTA DE ERRORES -->
+            <div>
+
+                <!--begin::Accordion-->
+                <div class="accordion" id="kt_accordion_2">
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="kt_accordion_2_header_2">
+                            <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kt_accordion_2_body_2" aria-expanded="false" aria-controls="kt_accordion_2_body_2">
+                                Detalle de errores
+                                <span class="badge 
+                                    {% if data.total_errors > 0 %}
+                                        bg-danger
+                                    {% else %}
+                                        bg-success
+                                    {% endif %}
+                                ">
+                                    {{ data.total_errors }}
+                                </span>
+                            </button>
+                        </h2>
+                        <div id="kt_accordion_2_body_2" class="accordion-collapse collapse" aria-labelledby="kt_accordion_2_header_2" data-bs-parent="#kt_accordion_2">
+                            <div class="accordion-body">
+                                
+                                {% if data.errors_list %}
+                                    <ul class="ps-3">
+                                        {% for error in data.errors_list %}
+                                            <li class="text-danger mb-1">
+                                                {{ error }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted">Sin errores detectados</p>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!--end::Accordion-->
+                
+            </div>
+
+        </div>
+
+    </div>
+    <div class="separator my-5"></div>
+    <button type="button" class="btn btn-light-danger" up-dismiss>Close</button>
+</div>
+
+
+
+
