@@ -35,7 +35,7 @@ urlpatterns = [
     # dian certificates
     path('payroll/dian/certificates/income-withholding/', income_withholding.income_withholding_certificate, name='income_withholding_certificate'),
     path('payroll/dian/certificates/generate/income-withholding/', income_withholding.generate_income_withholding_certificate, name='generate_income_withholding_certificate'),
-
+    path('payroll/dian/certificates/generate/income-withholding/excel/', income_withholding.generate_income_withholding_certificate_excel, name='generate_income_withholding_certificate_excel'),
     #electronic_payroll
     path('payroll/electronic_payroll/', electronic_payroll.electronic_payroll_container, name='nomina_electronica'),
     path('payroll/detail_electronic_payroll/<int:pk>', electronic_payroll.electronic_payroll_detail, name='detalle_nomina_electronica'),
