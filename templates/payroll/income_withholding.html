@@ -61,6 +61,7 @@ Listados de Certificados de Ingresos y Retenciones
 
 
 {%block content%} 
+
     <div class="card shadow-sm">
         <div class="card-header">
             <h3 class="card-title">Seleccione Nómina</h3>
@@ -69,7 +70,7 @@ Listados de Certificados de Ingresos y Retenciones
         <div class="card-body">
 
             <form method="get" class="w-100" id="form-filtros">
-
+                {% csrf_token %}
                 <!-- FILA DE SELECTORES -->
                 <div class="row mb-4">
 
@@ -135,6 +136,7 @@ Listados de Certificados de Ingresos y Retenciones
 
 
     
+
 
 {% if reten %}
 
@@ -262,11 +264,16 @@ Listados de Certificados de Ingresos y Retenciones
 
 {% block js %}
 
-
+<script>
+    window.csrfToken = '{{ csrf_token }}';
+</script>
 
 
 <script>
     $(document).ready(function() {
+        let year = "{{ request.GET.anio|default:'' }}";
+        console.log('Año:', year);
+    
         $('#tabla-lista-vacation').DataTable({
             language: {
                 "decimal": "",
@@ -292,12 +299,108 @@ Listados de Certificados de Ingresos y Retenciones
                     "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            dom: 'frtip',
+            dom: 'Bfrtip',
             order: [],
+            buttons: [
+                    {
+                        text: 'Excel Exógena',
+                        className: 'btn btn-light-info me-2',
+                        action: function(e, dt, node) { 
+                            exportYearPost('{% url "payroll:generate_income_withholding_certificate_excel" %}', year, node);
+                        }
+                    },
+                    {
+                        text: 'PDF Masivo',
+                        className: 'btn btn-light-info',
+                        action: function(e, dt, node) {
+                    
+                            let csrfToken = $('[name=csrfmiddlewaretoken]').val();
+                    
+                            let form = document.createElement("form");
+                            form.method = "POST";
+                            form.action = '{% url "companies:viewdian_download_massive" %}';
+                    
+                            // solo este abre nueva pestaña
+                            form.target = "_blank";
+                    
+                            let csrf = document.createElement("input");
+                            csrf.type = "hidden";
+                            csrf.name = "csrfmiddlewaretoken";
+                            csrf.value = csrfToken;
+                            form.appendChild(csrf);
+                    
+                            let yearInput = document.createElement("input");
+                            yearInput.type = "hidden";
+                            yearInput.name = "year";
+                            yearInput.value = year;
+                            form.appendChild(yearInput);
+                    
+                            document.body.appendChild(form);
+                            form.submit();
+                    
+                            setTimeout(() => {
+                                document.body.removeChild(form);
+                            }, 1000);
+                        }
+                    }
+                ],
             pageLength: 15
         });
     });
+    
+    // 👈 POST solo con YEAR (sin formulario)
+    function exportYearPost(url, year, buttonNode) {
+        let button = $(buttonNode);
+        button.attr("data-kt-indicator", "on");
+    
+        if (!year) {
+            console.error("❌ No hay año");
+            button.removeAttr("data-kt-indicator");
+            return;
+        }
+    
+        // 🔍 DEBUG CSRF
+        let csrfToken = $('[name=csrfmiddlewaretoken]').val() || 
+                        document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        
+        console.log('🔑 CSRF token:', csrfToken ? 'OK' : '❌ MISSING');
+        if (!csrfToken) {
+            console.error('❌ NO CSRF TOKEN - Verifica {% csrf_token %} en template');
+            button.removeAttr("data-kt-indicator");
+            return;
+        }
+    
+        let tempForm = document.createElement("form");
+        tempForm.method = "POST";
+        tempForm.action = url;
+    
+        // ✅ CSRF ROBUSTO (jQuery fallback)
+        let csrfInput = document.createElement("input");
+        csrfInput.type = "hidden";
+        csrfInput.name = "csrfmiddlewaretoken";
+        csrfInput.value = csrfToken;
+        tempForm.appendChild(csrfInput);
+    
+        // Año
+        let yearInput = document.createElement("input");
+        yearInput.type = "hidden";
+        yearInput.name = "year";
+        yearInput.value = year;
+        tempForm.appendChild(yearInput);
+    
+        document.body.appendChild(tempForm);
+        tempForm.submit();
+    
+        setTimeout(() => {
+            document.body.removeChild(tempForm);
+            button.removeAttr("data-kt-indicator");
+        }, 1500);
+    }
 </script>
+
+
+
+
 
 
 <script>

@@ -132,44 +132,50 @@ def viewdian_download(request,idingret ):
 @login_required
 def viewdian_download_massive(request):
     """
-    Genera un PDF masivo sin cargar todo en memoria.
+    Genera un PDF masivo de certificados y lo visualiza inline sin cargar todo en memoria.
     """
+    if request.method == 'POST':
 
-    usuario = request.session.get('usuario', {})
-    idempresa = usuario['idempresa']
-    anio = request.GET.get('anio')
+        usuario = request.session.get('usuario', {})
+        idempresa = usuario['idempresa']
+        year = request.POST.get('year')
+        
 
-    filtros = {'idempresa': idempresa}
-    if anio:
-        filtros['anoacumular__ano'] = int(anio)
+        certificados = Ingresosyretenciones.objects.filter(
+            anoacumular__ano=year, 
+            id_empresa_id=idempresa
+        )
 
-    certificados = Ingresosyretenciones.objects.filter(**filtros)
+        # Archivo temporal en disco (no se borra auto para FileResponse)
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+        temp_path = temp_file.name
+        temp_file.close()  # Cerramos para escribir
 
-    # Archivo temporal en disco
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+        merger = PdfMerger()
 
-    merger = PdfMerger()
+        for cert in certificados:  # No carga en memoria
+            try:
+                pdf_buffer = pdfgenerate(cert.idingret, idempresa)
+                merger.append(pdf_buffer)
+            except Exception as e:
+                print(f"Error con certificado {cert.idingret}: {e}")
+                continue
 
-    for cert in certificados.iterator():  # 👈 clave para no cargar todo en memoria
-        try:
-            pdf_buffer = pdfgenerate(cert.idingret, idempresa)
-            merger.append(pdf_buffer)
-        except Exception as e:
-            print(f"Error con certificado {cert.idingret}: {e}")
-            continue
+        merger.write(temp_path)
+        merger.close()
 
-    merger.write(temp_file)
-    merger.close()
+        # Abre y envía como inline
+        with open(temp_path, 'rb') as f:
+            pdf_content = f.read()
 
-    temp_file.seek(0)
+        # Limpia temporal
+        import os
+        os.unlink(temp_path)
 
-    return FileResponse(
-        temp_file,
-        as_attachment=True,  # 👈 cambia a False si quieres visualizar en navegador
-        filename="Certificados_Masivos.pdf"
-    )
+        response = HttpResponse(pdf_content, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="Certificados_Masivos_{year}.pdf"'
 
-
+        return response
 
 
 

@@ -1661,13 +1661,16 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
             return d.date()
         return d
 
+    print("\n========== DEBUG CALCULAR DÍAS EN NÓMINA ==========")
+
     # Normalizar fechas
     inicio_nomina = _to_date(inicio_nomina)
     fin_nomina = _to_date(fin_nomina)
     inicio_contrato = _to_date(contrato.fechainiciocontrato)
     fin_contrato = _to_date(contrato.fechafincontrato)
 
-    
+    print(f"[1] Fechas -> inicio_nomina: {inicio_nomina}, fin_nomina: {fin_nomina}")
+    print(f"[1] Contrato -> inicio: {inicio_contrato}, fin: {fin_contrato}")
 
     # Determinar si el contrato cubre toda la nómina
     contrato_vigente = (
@@ -1675,54 +1678,80 @@ def calcular_dias_en_nomina(contrato, inicio_nomina, fin_nomina, tipo_nomina,nom
         (fin_contrato is None or fin_contrato >= fin_nomina)
     )
 
+    print(f"[2] contrato_vigente: {contrato_vigente}")
+
     max_dias = 30 if tipo_nomina == 1 else 15
-
-
+    print(f"[3] tipo_nomina: {tipo_nomina} | max_dias: {max_dias}")
 
     # 1. VERIFICAR SI CONTRATO ESTÁ VIGENTE EN TODO EL PERIODO
     if contrato_vigente:
         diasnomina = max_dias
+        print(f"[4] Contrato cubre todo el periodo -> diasnomina = {diasnomina}")
     else:
         # calcular intersección
         inicio_periodo = max(inicio_nomina, inicio_contrato)
         fin_periodo = min(fin_nomina, fin_contrato or fin_nomina)
 
+        print(f"[4] Intersección -> inicio_periodo: {inicio_periodo}, fin_periodo: {fin_periodo}")
+
         if fin_periodo < inicio_periodo:
+            print("[4] No hay intersección -> diasnomina = 0")
             return 0
 
         dias_reales = dias_360(inicio_periodo, fin_periodo)
         diasnomina = min(dias_reales, max_dias)
 
-    # ==========================================
-    # AJUSTE ESPECIAL: FEBRERO SEGUNDA QUINCENA
-    # ==========================================
-    if  inicio_nomina.month == 2:
+        print(f"[5] dias_reales: {dias_reales} | diasnomina ajustado: {diasnomina}")
 
-        # si el contrato inicia dentro de esta nómina
-        if inicio_contrato >= inicio_nomina and inicio_contrato <= fin_nomina and  ( inicio_nomina.day > 15 or tipo_nomina == 1 ):
+    # ==========================================
+    # AJUSTE ESPECIAL: FEBRERO
+    # ==========================================
+    if inicio_nomina.month == 2:
+        print("[6] Mes es FEBRERO")
 
+        if (
+            inicio_contrato >= inicio_nomina and
+            inicio_contrato <= fin_nomina and
+            (inicio_nomina.day > 15 or tipo_nomina == 1)
+        ):
             dias_febrero = calendar.monthrange(inicio_nomina.year, 2)[1]
+            print(f"[6] dias_febrero: {dias_febrero}")
+
             if dias_febrero < 30:
                 ajuste = 30 - dias_febrero
                 diasnomina += ajuste
+                print(f"[6] Ajuste aplicado: +{ajuste} -> diasnomina: {diasnomina}")
+        else:
+            print("[6] No aplica ajuste de febrero")
 
     # DESCUENTOS
     dias_vacaciones = calcular_vacaciones(contrato.idcontrato, nomina)
     dias_incapacidad = calculo_incapacidad(contrato.idcontrato, nomina)
     dias_suspensiones = calcular_suspenciones(contrato.idcontrato, nomina)
 
+    print(f"[7] Descuentos -> vacaciones: {dias_vacaciones}, incapacidad: {dias_incapacidad}, suspensiones: {dias_suspensiones}")
+
     diasnomina -= dias_vacaciones
     diasnomina -= dias_incapacidad
     diasnomina -= dias_suspensiones
 
+    print(f"[8] diasnomina después de descuentos: {diasnomina}")
+
     # VALIDACIONES FINALES
     if diasnomina > 30:
+        print(f"[9] Ajuste >30 -> {diasnomina} -> 30")
         diasnomina = 30
     
     if diasnomina > nomina.diasnomina:
+        print(f"[9] Ajuste por nomina.diasnomina ({nomina.diasnomina})")
         diasnomina = nomina.diasnomina
 
-    return max(0, diasnomina) 
+    resultado = max(0, diasnomina)
+
+    print(f"[10] RESULTADO FINAL: {resultado}")
+    print("=================================================\n")
+
+    return resultado
         
 
 

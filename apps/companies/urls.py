@@ -113,6 +113,7 @@ urlpatterns = [
     path('accounting/external/report/download/', externalreport.download_excel_report, name='download_excel_report'),
     path('accounting/dian/certificate/', dian.viewdian, name='viewdian'),
     path('accounting/dian/certificate/download/<str:idingret>/', dian.viewdian_download, name='viewdian_download'),
+    path('accounting/certificate/download/massive/dian/', dian.viewdian_download_massive, name='viewdian_download_massive'),
 
     # ## Payroll URLs
     # path('payroll/labor/certification/', laborcertification.laborcertification, name='laborcertification'),
