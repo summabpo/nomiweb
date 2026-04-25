@@ -15,6 +15,7 @@ reportlab==4.0.9
 Requests==2.32.5
 xhtml2pdf==0.2.15
 djangorestframework==3.16.1
+djangorestframework-api-key==3.0.0
 django-storages==1.14.6
 django-import-export==4.4.0
 django-debug-toolbar==4.4.6

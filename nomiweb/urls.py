@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path ,include
+from django.urls import path, include
 from apps.login.views import custom_400 ,custom_403,custom_404 ,custom_500
 from django.conf import settings
 from django.conf.urls.static import static
@@ -18,7 +18,8 @@ urlpatterns = [
     path('admin/', include(('apps.administrator.urls', 'admin'))),
     path('payroll/', include(('apps.payroll.urls', 'payroll'))),
     path("mar-ia/", include(('apps.mar_ia.urls', 'mar_ia'))),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('api/v1/', include('apps.api.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Si DEBUG está activado, agrega las URLs de Django Debug Toolbar
 if settings.DEBUG:
