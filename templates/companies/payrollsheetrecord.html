@@ -47,6 +47,36 @@
     Historial de Nominas
 {% endblock %}
 
+
+{% block actions %}
+
+    <a 
+        href="{% url 'companies:payrollsheet_record_modal_audit' %}" 
+        class="btn btn-light-info"
+
+        up-layer='new modal'
+        up-target=".modal-content"
+        up-size = "medium"
+        up-align = "center"
+        up-backdrop = "true"
+        up-history = "false"
+        up-dismissable ="false"
+        up-cache="false"
+
+
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top" 
+
+        title="Informe de auditoría de nómina">
+        <i class="fa-solid fa-chart-line fs-3"></i>
+        Auditoría
+    </a>
+
+{% endblock %}
+
+
+
 {% block content %}
 
 <div class="table-responsive">
@@ -165,6 +195,52 @@
             });
         }
     });
+</script>
+
+
+
+<script>
+    document.addEventListener('up:fragment:inserted', function(event) {
+
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
+        
+        if (modalContent) {
+            const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+            
+    
+            // selector de tipo de 
+            // Usamos un pequeño retraso para asegurar el renderizado completo
+            setTimeout(() => {
+                selectElements.forEach((select, index) => {
+                    if (!select.id) {
+                        select.id = `select2-unique-${Date.now()}-${index}`;
+                    }
+    
+                    if (!$(select).data('select2')) {
+                        const options = {
+                            dropdownParent: $(modalContent),
+                            width: '100%'
+                        };
+    
+                        // Si tiene el atributo data-hide-search, desactiva el buscador
+                        if (select.hasAttribute('data-hide-search')) {
+                            options.minimumResultsForSearch = Infinity;
+                            
+                        }
+    
+                        $(select).select2(options);
+                    }
+                });
+            }, 300); // Aumentamos un poco el tiempo para mayor seguridad
+        }
+        else 
+        {
+            console.log('Contenido completo del fragmento:', event.target.innerHTML);
+        }
+    });
+
+
 </script>
 
 

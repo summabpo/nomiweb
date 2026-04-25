@@ -10,7 +10,7 @@ from apps.payroll.views.payroll.payroll_automatic_systems import return_transpor
 from apps.companies.views.disabilities.disabilities import disabilities_ibc 
 
 from datetime import timedelta
-
+from django.urls import reverse
 def _norm_codigo(codigo):
     return str(codigo).strip()
 
@@ -50,7 +50,7 @@ def _normalize_concept_row(item):
 
 @login_required
 @role_required('accountant')
-def UgppPayrollAudit(request,payroll_id):
+def UgppPayrollAudit(request,payroll_id,tipo_audit='normal'):
     data = {}
     payroll = get_object_or_404(Crearnomina, idnomina=payroll_id)
     salaries = get_audit_salaries(payroll_id)
@@ -65,7 +65,7 @@ def UgppPayrollAudit(request,payroll_id):
 
     empleados_raw = Nomina.objects \
         .select_related('idcontrato') \
-        .filter(idnomina=payroll_id, estadonomina=1) \
+        .filter(idnomina=payroll_id) \
         .values(
             'idcontrato__idempleado__docidentidad',
             'idcontrato__idempleado__papellido',
@@ -104,7 +104,13 @@ def UgppPayrollAudit(request,payroll_id):
             'idcontrato': e.get('idcontrato'),
         })
 
+    if tipo_audit == 'cerrada':
+        url_back = reverse('companies:payrollsheet_record')
+    else:
+        url_back = reverse('payroll:payroll')
+
     data = {
+        'url_back': url_back,
         'payroll': payroll,
         'salaries': salaries,
         'contributions': contributions,
@@ -169,7 +175,7 @@ def audit_employee_payroll(request, payroll_id, idcontrato):
         total_errors += 1
         errors_list.append(
             f"Concepto {_norm_codigo(item['codigo'])} — {item.get('nombre', '')}: "
-            f"registrado en nómina pero no existe en el resultado auditado (salario/transporte)."
+            f"presente en nómina, ausente en auditoría."
         )
 
     faltantes_codigos_set = {_norm_codigo(i['codigo']) for i in conceptos_audit_faltantes}
@@ -320,24 +326,26 @@ def get_audit_employee(payroll_id, idcontrato):
     #  2. Transporte
     data2 = transport_audit_employee(payroll_id, idcontrato)
 
-    
-
     if isinstance(data1, list):
         data.extend(data1)
 
     if isinstance(data2, list):
         data.extend(data2)
 
+    #  4. Incapacidades → se agregan a data3
+    contrato = Contratos.objects.get(idcontrato=idcontrato)
+    disable_data = disable_audit_employee(payroll_id, contrato)
+    
+    if isinstance(disable_data['nomina'], list):
+        data.extend(disable_data['nomina'])
+
     #  3. Contribuciones (base normal)
     data3 = contributions_audit_employee(payroll_id, idcontrato, data)
-
 
     if not isinstance(data3, dict):
         data3 = {'nomina': [], 'calculada': []}
 
-    #  4. Incapacidades → se agregan a data3
-    contrato = Contratos.objects.get(idcontrato=idcontrato)
-    disable_data = disable_audit_employee(payroll_id, contrato)
+    
     data4 = deductions_audit_employee(payroll_id, contrato)
 
     if isinstance(data4, list):
@@ -1399,7 +1407,6 @@ def get_audit_salaries(payroll_id):
 
     queryset = Nomina.objects.filter(
         idnomina_id=payroll_id,
-        estadonomina=1
     )
 
     data = queryset.aggregate(
@@ -1423,8 +1430,7 @@ def get_audit_salaries(payroll_id):
 def get_audit_contributions(payroll_id):
 
     queryset = Nomina.objects.filter(
-        idnomina_id=payroll_id,
-        estadonomina=1
+        idnomina_id=payroll_id
     )
 
     data = queryset.aggregate(
@@ -1447,7 +1453,7 @@ def get_audit_contributions(payroll_id):
 def get_audit_employees(payroll_id):
     queryset = Nomina.objects \
         .select_related('idcontrato') \
-        .filter(idnomina=payroll_id, estadonomina=1 ) \
+        .filter(idnomina=payroll_id) \
         .values(
             'idcontrato'
         ) \
@@ -1458,9 +1464,7 @@ def get_audit_employees(payroll_id):
 
 def get_audit_total_to_pay(payroll_id):
     queryset = Nomina.objects.filter(
-        idnomina_id=payroll_id,
-        estadonomina=1
-    )
+        idnomina_id=payroll_id)
     return queryset.aggregate(total=Sum('valor'))['total'] or 0
 
 

@@ -215,6 +215,27 @@ Plantilla de Nóminas - Nomina #{{ nombre.idnomina }}
     </a>
 
     <a 
+        up-layer="new modal"
+        up-target=".modal-content"
+        up-size="large"
+        up-align="center"
+        up-backdrop="true"
+        up-history="false"
+        up-dismissable="false"
+        up-cache="false"
+
+        data-bs-toggle="tooltip" 
+        data-bs-custom-class="tooltip-inverse" 
+        data-bs-placement="top"
+        title="Cálculo automático de retención en la fuente según normativa vigente"
+
+        href="{% url 'payroll:withholding_tax'  nombre.idnomina %}"
+        class="btn btn-light-info">
+        Rte. Fuente
+    </a>
+
+
+    <a 
         target="_blank" 
         href="{% url 'companies:generatepayrollsummary' idnomina=nombre.idnomina data=0%}"
         class="btn btn-light-info">

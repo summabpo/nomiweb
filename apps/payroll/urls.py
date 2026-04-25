@@ -17,7 +17,7 @@ from .views.history import history
 from .views import liquidacion_pila
 from .views.audit import ugpp_audit , payroll_excel
 from .views.dian_certificates import income_withholding
-
+from .views.withholding_tax import withholding
 # afsa fsa asfad 
 
 urlpatterns = [
@@ -27,7 +27,7 @@ urlpatterns = [
     path('payroll/<str:id>', payroll.payrollview, name='payrollview'),
     path('payroll/closet/<str:id>', payroll.payroll_closet, name='payroll_closet'),
     path('payroll/open/<str:id>', payroll.payroll_open, name='payroll_open'),
-    path('payroll/audit/ugpp/<str:payroll_id>/', ugpp_audit.UgppPayrollAudit, name='UgppPayrollAudit'),
+    path('payroll/audit/ugpp/<str:payroll_id>/<str:tipo_audit>/', ugpp_audit.UgppPayrollAudit, name='UgppPayrollAudit'),
     path('payroll/audit/excel/<str:payroll_id>/', payroll_excel.PayrollAuditExcel, name='PayrollAuditExcel'),
     path('payroll/audit/ugpp/employee/<str:payroll_id>/<str:idcontrato>/', ugpp_audit.audit_employee_payroll, name='audit_employee_payroll'),
 
@@ -35,7 +35,7 @@ urlpatterns = [
     # dian certificates
     path('payroll/dian/certificates/income-withholding/', income_withholding.income_withholding_certificate, name='income_withholding_certificate'),
     path('payroll/dian/certificates/generate/income-withholding/', income_withholding.generate_income_withholding_certificate, name='generate_income_withholding_certificate'),
-
+    path('payroll/dian/certificates/generate/income-withholding/excel/', income_withholding.generate_income_withholding_certificate_excel, name='generate_income_withholding_certificate_excel'),
     #electronic_payroll
     path('payroll/electronic_payroll/', electronic_payroll.electronic_payroll_container, name='nomina_electronica'),
     path('payroll/detail_electronic_payroll/<int:pk>', electronic_payroll.electronic_payroll_detail, name='detalle_nomina_electronica'),
@@ -96,8 +96,9 @@ urlpatterns = [
     
     # Accounting Module
     path('provisions/employee-benefits/', benefits_provision.employee_benefits_provision, name='employee_benefits_provision'),
+    path('provisions/employee-benefits/download/', benefits_provision.export_employee_benefits_excel, name='export_employee_benefits_excel'),
     path('provisions/social-security/', security_provision.social_security_provision, name='social_security_provision'),
-
+    path('provisions/social-security/download/', security_provision.export_social_security_excel, name='export_social_security_excel'),
     # PILA
     path('pila/liquidacion/', liquidacion_pila.liquidacion_pila, name='pila_liquidacion'),
     path('pila/planilla/<int:planilla_id>/txt/', liquidacion_pila.descargar_pila_txt, name='pila_descargar_txt'),
@@ -160,7 +161,7 @@ urlunpolypatterns =[
     
     #path('parameters/family', family.family_list, name='family_list'),
     ## sitemas automaticos 
-    
+    path('payroll/withholding/tax/<int:idnomina>/modal', withholding.withholding_tax, name='withholding_tax'),
     path('payroll/automatic_systems/<int:type_payroll>/<int:idnomina>/modal', payroll_automatic_systems.automatic_systems, name='automatic_systems'),
     path('payroll/automatic_systems_2/<int:type_payroll>/<int:idnomina>/<int:idcontrato>/modal', payroll_automatic_c.automatic_systems_2, name='automatic_systems_2'),
     

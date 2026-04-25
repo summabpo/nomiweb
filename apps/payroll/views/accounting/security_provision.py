@@ -8,7 +8,9 @@ import calendar
 from datetime import date ,datetime
 from decimal import Decimal, ROUND_HALF_UP
 from apps.components.salary import salario_mes
-
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font
 
 MESES_MAP = {
     'ENERO': 1, 'FEBRERO': 2, 'MARZO': 3, 'ABRIL': 4, 'MAYO': 5, 'JUNIO': 6,
@@ -318,10 +320,10 @@ def salud_pension(contrato , base , salario ):
     ppe = Decimal(Conceptosfijos.objects.get(conceptofijo='PENSION - EMPRESA').valorfijo)
     pse2 = Decimal(Conceptosfijos.objects.get(conceptofijo='EPS - Empresa para SMLV > 10').valorfijo)
     
-    if int(contrato["salario"]) > salario : 
+    if int(contrato["salario"]) > salario * 10: # 10 SMMLV
         aux = (base * (pse2 / Decimal(100)))
     else : 
-        aux = (base * (pse / Decimal(100)))
+        aux = Decimal(0)
     
     salud = (base * (ps / Decimal(100)))
     pension = (base * (pp / Decimal(100)))
@@ -369,3 +371,281 @@ def base_cesantias_debug(contrato, year, mes,familia):
     print(f"TOTAL BASE CESANTÍAS: {total}")
 
     return total
+
+
+def calcular_seguridad_social(idempresa, mst_init, year_init):
+    empleados = []
+
+    def clean_value(value):
+        if isinstance(value, str) and value.strip().lower() in ["no data", "sin dato", "n/a", "none", "ninguno"]:
+            return ""
+        return value
+
+    contratos_empleados = (
+        Contratos.objects
+        .select_related('idempleado', 'idcosto', 'tipocontrato', 'idsede', 'centrotrabajo')
+        .filter(estadocontrato=1, id_empresa=idempresa)
+        .order_by('idempleado__papellido')
+        .values(
+            'idcontrato', 'idempleado__docidentidad', 'idempleado__papellido',
+            'idempleado__sapellido', 'idempleado__pnombre', 'idempleado__snombre',
+            'fechainiciocontrato', 'fechafincontrato',
+            'cargo__nombrecargo', 'salario',
+            'idcosto__nomcosto', 'tiposalario__idtiposalario',
+            'centrotrabajo__tarifaarl',
+            'codafp__entidad', 'codeps__entidad', 'codccf__entidad'
+        )
+    )
+
+    bases_por_contrato = (
+        Nomina.objects.filter(
+            estadonomina=2,
+            idnomina__mesacumular=mst_init,
+            idnomina__anoacumular__ano=year_init,
+            idconcepto__id_empresa=idempresa,
+        )
+        .values('idcontrato')
+        .annotate(
+            base_ss=Sum('valor', filter=Q(idconcepto__indicador__nombre='basesegsocial')),
+            base_arl=Sum('valor', filter=Q(idconcepto__indicador__nombre='basearl')),
+            base_caja=Sum('valor', filter=Q(idconcepto__indicador__nombre='basecaja')),
+            variable=Sum(
+                'valor',
+                filter=Q(idconcepto__indicador__nombre='extras') |
+                       Q(idconcepto__indicador__nombre='comisiones')
+            ),
+        )
+    )
+
+    bases_dict = {
+        b['idcontrato']: {
+            'base_ss': Decimal(str(b['base_ss'] or 0)),
+            'base_arl': Decimal(str(b['base_arl'] or 0)),
+            'base_caja': Decimal(str(b['base_caja'] or 0)),
+            'variable': Decimal(str(b['variable'] or 0)),
+        }
+        for b in bases_por_contrato
+    }
+
+    SMMLV = Salariominimoanual.objects.get(ano=year_init).salariominimo
+    TOPE_PARAFISCALES = SMMLV * 10
+    TOPE_FSP = SMMLV * 4
+
+    t_salud_empleador = Decimal(Conceptosfijos.objects.get(conceptofijo='EPS - EMPRESA').valorfijo)
+    t_pension_empleador = Decimal(Conceptosfijos.objects.get(conceptofijo='PENSION - EMPRESA').valorfijo)
+    t_sena = Decimal(Conceptosfijos.objects.get(conceptofijo='APORTE SENA').valorfijo)
+    t_icbf = Decimal(Conceptosfijos.objects.get(conceptofijo='APORTE ICBF').valorfijo)
+    t_ccf = Decimal(Conceptosfijos.objects.get(conceptofijo='APORTE CAJA DE COMPENSACION').valorfijo)
+
+    for contrato in contratos_empleados:
+        if contrato['idcontrato'] not in bases_dict:
+            continue
+
+        contract = Contratos.objects.get(idcontrato=contrato['idcontrato'])
+        mes = int(MESES_MAP[mst_init])
+        salario = salario_mes(contract, mes, int(year_init))
+
+        base_ss = max(bases_dict[contrato['idcontrato']]['base_ss'], salario)
+        base_arl = max(bases_dict[contrato['idcontrato']]['base_arl'], salario)
+        base_caja = max(bases_dict[contrato['idcontrato']]['base_caja'], salario)
+
+        # 🔹 Ajuste tipo salario integral
+        if contrato['tiposalario__idtiposalario'] == 2:
+            factor = Decimal('0.7')
+            base_ss *= factor
+            base_arl *= factor
+            base_caja *= factor
+
+        dias = dias_contrato(contrato, mst_init, year_init)
+
+        salud_trab, pension_trab, salud_empresa, pension_empresa = salud_pension(
+            contrato, base_ss, TOPE_PARAFISCALES
+        )
+
+        afp = base_ss * (t_pension_empleador / 100)
+        arl = base_arl * (Decimal(str(contrato.get('centrotrabajo__tarifaarl', 0))) / 100)
+        caja = base_caja * (t_ccf / 100)
+
+        if salario >= TOPE_PARAFISCALES:
+            eps = base_ss * (t_salud_empleador / 100)
+            sena = base_ss * (t_sena / 100)
+            icbf = base_ss * (t_icbf / 100)
+            ccf = base_ss * (t_ccf / 100)
+        else:
+            eps = sena = icbf = ccf = Decimal(0)
+
+        fsp = base_ss * Decimal("0.01") if salario >= TOPE_FSP else Decimal(0)
+
+        ajuste = Decimal(0)
+
+        total_aportes = eps + afp + arl + sena + icbf + ccf + salud_trab + pension_trab + fsp + ajuste
+        provision = total_aportes - salud_trab - pension_trab
+
+        empleados.append({
+            'idcontrato': contrato['idcontrato'],
+            'documento': contrato['idempleado__docidentidad'],
+            'nombre': ' '.join(filter(None, [
+                clean_value(contrato['idempleado__papellido']),
+                clean_value(contrato['idempleado__sapellido']),
+                clean_value(contrato['idempleado__pnombre']),
+                clean_value(contrato['idempleado__snombre'])
+            ])),
+
+            'salario': float(salario),
+
+            'base_ss': float(base_ss),
+            'base_arl': float(base_arl),
+            'base_caja': float(base_caja),
+
+            'variable': float(bases_dict[contrato['idcontrato']]['variable']),
+            'dias': dias,
+
+            'salud_empresa': float(salud_empresa),
+            'pension_empresa': float(pension_empresa),
+
+            'arl': float(arl),
+            'ccf': float(ccf),
+            'sena': float(sena),
+            'icbf': float(icbf),
+
+            'salud_trabajador': float(-salud_trab),
+            'pension_trabajador': float(-pension_trab),
+            'fsp': float(-fsp),
+
+            'total_aportes': float(total_aportes),
+            'provision': float(provision),
+
+            'afp_nombre': contrato['codafp__entidad'],
+            'eps_nombre': contrato['codeps__entidad'],
+            'caja_nombre': contrato['codccf__entidad'],
+
+            'centro_costo': clean_value(contrato.get('idcosto__nomcosto')),
+        })
+
+    return empleados
+
+
+@login_required
+@role_required('accountant')
+def export_social_security_excel(request):
+
+    if request.method != 'POST':
+        return HttpResponse("Método no permitido", status=405)
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario.get('idempresa')
+
+    mst_init = request.POST.get('mst_init')
+    year_init = request.POST.get('year_init')
+
+    if not mst_init or not year_init:
+        return HttpResponse("Faltan parámetros", status=400)
+
+    empleados = calcular_seguridad_social(idempresa, mst_init, int(year_init))
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Seguridad Social"
+
+    # 🔥 HEADERS COMPLETOS
+    headers = [
+        'ID Contrato',
+        'Documento',
+        'Nombre',
+        'Centro Costo',
+
+        'Salario',
+
+        'Base SS',
+        'Base ARL',
+        'Base Caja',
+
+        'Variable',
+        'Días',
+
+        'Salud Empresa',
+        'Pensión Empresa',
+
+        'ARL',
+        'Caja Comp.',
+        'SENA',
+        'ICBF',
+
+        'Salud Trabajador',
+        'Pensión Trabajador',
+        'FSP',
+
+        'Total Aportes',
+        'Provisión',
+
+        'EPS',
+        'AFP',
+        'Caja'
+    ]
+
+    ws.append(headers)
+
+    # Negrita encabezado
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+
+    # Freeze header (pro)
+    ws.freeze_panes = "A2"
+
+    # 🔥 DATA COMPLETA
+    for emp in empleados:
+        ws.append([
+            emp['idcontrato'],
+            emp['documento'],
+            emp['nombre'],
+            emp['centro_costo'],
+
+            emp['salario'],
+
+            emp['base_ss'],
+            emp['base_arl'],
+            emp['base_caja'],
+
+            emp['variable'],
+            emp['dias'],
+
+            emp['salud_empresa'],
+            emp['pension_empresa'],
+
+            emp['arl'],
+            emp['ccf'],
+            emp['sena'],
+            emp['icbf'],
+
+            emp['salud_trabajador'],
+            emp['pension_trabajador'],
+            emp['fsp'],
+
+            emp['total_aportes'],
+            emp['provision'],
+
+            emp['eps_nombre'],
+            emp['afp_nombre'],
+            emp['caja_nombre'],
+        ])
+
+    # 
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+        for cell in col:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+        ws.column_dimensions[col_letter].width = min(max_length + 2, 25)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    response['Content-Disposition'] = f'attachment; filename=seguridad_social_{mst_init}_{year_init}.xlsx'
+
+    wb.save(response)
+    return response
