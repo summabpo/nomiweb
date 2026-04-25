@@ -1,4 +1,5 @@
 from rest_framework.routers import DefaultRouter
+from apps.api.views.webhooks import WebhookSubscriptionViewSet
 from apps.api.views.empresa import EmpresaViewSet
 from apps.api.views.empleado import ContratosempViewSet
 from apps.api.views.contrato import ContratosViewSet
@@ -14,6 +15,7 @@ from apps.api.views.catalogs import (
 )
 
 router = DefaultRouter()
+router.register(r'webhook-subscriptions', WebhookSubscriptionViewSet, basename='webhook-subscription')
 router.register(r'empresas', EmpresaViewSet, basename='empresa')
 router.register(r'empleados', ContratosempViewSet, basename='empleado')
 router.register(r'contratos', ContratosViewSet, basename='contrato')
