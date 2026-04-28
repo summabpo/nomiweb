@@ -20,6 +20,11 @@ from django.utils import timezone
 from datetime import date
 from django.db.models import F, Case, When, Value, DateField
 from apps.payroll.views.payroll.payroll_automatic_systems import calcular_suspenciones 
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
+from django.db.models import Case, When, F, Value, DateField
+from datetime import date as date_class
 
 
 MES_CHOICES = [
@@ -196,6 +201,200 @@ def vacation_resumen(request):
     
     return render(request, './companies/vacation_resumen.html', context)
 
+
+@login_required
+@role_required('company', 'accountant')
+def export_vacation_resumen_excel(request):
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+
+    vacaciones_qs = (
+        Vacaciones.objects.filter(
+            idcontrato__id_empresa=idempresa,
+            tipovac__idvac__in=[1,2]
+        )
+        .annotate(
+            fecha_orden=Case(
+                When(fechainicialvac__isnull=False, then=F('fechainicialvac')),
+                When(fechapago__isnull=False, then=F('fechapago')),
+                default=Value(None),
+                output_field=DateField()
+            )
+        )
+        .values(
+            "idcontrato__idempleado__docidentidad",
+            "idcontrato__idempleado__papellido",
+            "idcontrato__idempleado__sapellido",
+            "idcontrato__idempleado__pnombre",
+            "idcontrato__idempleado__snombre",
+            "idcontrato",
+            "fechainicialvac",
+            "ultimodiavac",
+            "fechapago",
+            "tipovac__nombrevacaus",
+            "tipovac__idvac",
+            "idvacaciones",
+            "fecha_orden",
+            "idvacmaster",
+            "diascalendario",
+            "diasvac",
+            "pagovac",
+            "perinicio",
+            "perfinal",
+        )
+        .order_by("-fecha_orden")
+    )
+
+
+    def clean(v):
+        if v is None or str(v).strip().lower() == 'no data':
+            return ''
+        return v
+
+
+    vacaciones_list = [
+        {k: clean(v) for k,v in vac.items()}
+        for vac in vacaciones_qs
+    ]
+
+
+    # mismo agrupamiento de tu vista
+    agrupadas = {}
+
+    for vac in vacaciones_list:
+
+        master_id = vac.get('idvacmaster')
+
+        if master_id:
+            if master_id not in agrupadas:
+                agrupadas[master_id]={
+                    "principal":vac,
+                    "lineas":[]
+                }
+
+            agrupadas[master_id]["lineas"].append(vac)
+
+        else:
+            key=f"sin_master_{vac['idvacaciones']}"
+            agrupadas[key]={
+                "principal":vac,
+                "lineas":[vac]
+            }
+
+
+    fecha_minima = date_class(1900,1,1)
+
+    grouped = sorted(
+        agrupadas.values(),
+        key=lambda x:
+            x["principal"].get("fecha_orden")
+            if x["principal"].get("fecha_orden")
+            else fecha_minima,
+        reverse=True
+    )
+
+
+    wb=Workbook()
+    ws=wb.active
+    ws.title="Vacaciones"
+
+
+    headers = [
+        "Documento",
+        "Empleado",
+        "Tipo Vacación",
+        "Periodo Inicial",
+        "Periodo Final",
+        "Fecha Inicio",
+        "Último Día",
+        "Fecha Pago",
+        "Días Calendario",
+        "Días Vacaciones",
+        "Pago Vacaciones"
+    ]
+
+
+    fill=PatternFill(
+        start_color="D9EAF7",
+        end_color="D9EAF7",
+        fill_type="solid"
+    )
+
+    bold=Font(bold=True)
+
+    for col,h in enumerate(headers,1):
+        c=ws.cell(1,col,h)
+        c.font=bold
+        c.fill=fill
+        c.alignment=Alignment(horizontal="center")
+
+
+    row=2
+
+    for item in grouped:
+
+        vac=item["principal"]
+
+        nombre=" ".join(filter(None,[
+            clean(vac["idcontrato__idempleado__papellido"]),
+            clean(vac["idcontrato__idempleado__sapellido"]),
+            clean(vac["idcontrato__idempleado__pnombre"]),
+            clean(vac["idcontrato__idempleado__snombre"]),
+        ]))
+
+
+        def fmt_fecha(f):
+            if not f:
+                return ""
+            return f.strftime("%d-%m-%Y")
+
+
+        ws.cell(row,1,clean(vac["idcontrato__idempleado__docidentidad"]))
+        ws.cell(row,2,nombre)
+        ws.cell(row,3,clean(vac["tipovac__nombrevacaus"]))
+        ws.cell(row,4,fmt_fecha(vac["perinicio"]))
+        ws.cell(row,5,fmt_fecha(vac["perfinal"]))
+        ws.cell(row,6,fmt_fecha(vac["fechainicialvac"]))
+        ws.cell(row,7,fmt_fecha(vac["ultimodiavac"]))
+        ws.cell(row,8,fmt_fecha(vac["fechapago"]))
+        ws.cell(row,9,clean(vac["diascalendario"]))
+        ws.cell(row,10,clean(vac["diasvac"]))
+        ws.cell(row,11,clean(vac["pagovac"]))
+
+        row += 1
+
+
+    widths = {
+        1:18,
+        2:35,
+        3:20,
+        4:15,
+        5:15,
+        6:15,
+        7:15,
+        8:15,
+        9:18,
+        10:18,
+        11:18,
+    }
+
+    for c,w in widths.items():
+        ws.column_dimensions[get_column_letter(c)].width=w
+
+
+    response=HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    response[
+        "Content-Disposition"
+    ]='attachment; filename="resumen_vacaciones.xlsx"'
+
+
+    wb.save(response)
+
+    return response
 
 
 @login_required
@@ -713,6 +912,214 @@ def absences_resumen(request):
     }
     
     return render(request, './companies/absences_resumen.html', context)
+
+
+
+
+@login_required
+@role_required('company', 'accountant')
+def export_absences_excel(request):
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario['idempresa']
+
+    vacaciones_qs = (
+        Vacaciones.objects.filter(
+            idcontrato__id_empresa=idempresa,
+            tipovac__idvac__in=[3, 4, 5]
+        )
+        .annotate(
+            fecha_orden=Case(
+                When(fechainicialvac__isnull=False, then=F('fechainicialvac')),
+                When(fechapago__isnull=False, then=F('fechapago')),
+                default=Value(None),
+                output_field=DateField()
+            )
+        )
+        .values(
+            "idcontrato__idempleado__docidentidad",
+            "idcontrato__idempleado__papellido",
+            "idcontrato__idempleado__sapellido",
+            "idcontrato__idempleado__pnombre",
+            "idcontrato__idempleado__snombre",
+            "idcontrato",
+            "fechainicialvac",
+            "ultimodiavac",
+            "fechapago",
+            "tipovac__nombrevacaus",
+            "tipovac__idvac",
+            "idvacaciones",
+            "fecha_orden",
+            "idvacmaster",
+            "diascalendario",
+            "diasvac",
+            "pagovac",
+            "perinicio",
+            "perfinal",
+        )
+        .order_by("-fecha_orden")
+    )
+
+
+    def clean(v):
+        if v is None or str(v).strip().lower() == 'no data':
+            return ''
+        return v
+
+
+    vacaciones_list = [
+        {k: clean(v) for k,v in vac.items()}
+        for vac in vacaciones_qs
+    ]
+
+
+    # mismo agrupamiento de tu vista
+    agrupadas = {}
+
+    for vac in vacaciones_list:
+
+        master_id = vac.get('idvacmaster')
+
+        if master_id:
+            if master_id not in agrupadas:
+                agrupadas[master_id]={
+                    "principal":vac,
+                    "lineas":[]
+                }
+
+            agrupadas[master_id]["lineas"].append(vac)
+
+        else:
+            key=f"sin_master_{vac['idvacaciones']}"
+            agrupadas[key]={
+                "principal":vac,
+                "lineas":[vac]
+            }
+
+
+    fecha_minima = date_class(1900,1,1)
+
+    grouped = sorted(
+        agrupadas.values(),
+        key=lambda x:
+            x["principal"].get("fecha_orden")
+            if x["principal"].get("fecha_orden")
+            else fecha_minima,
+        reverse=True
+    )
+
+
+    wb=Workbook()
+    ws=wb.active
+    ws.title="Vacaciones"
+
+
+    headers = [
+        "Documento",
+        "Empleado",
+        "Tipo Vacación",
+        "Periodo Inicial",
+        "Periodo Final",
+        "Fecha Inicio",
+        "Último Día",
+        "Fecha Pago",
+        "Días Calendario",
+        "Días Vacaciones",
+        "Pago Vacaciones"
+    ]
+
+
+    fill=PatternFill(
+        start_color="D9EAF7",
+        end_color="D9EAF7",
+        fill_type="solid"
+    )
+
+    bold=Font(bold=True)
+
+    for col,h in enumerate(headers,1):
+        c=ws.cell(1,col,h)
+        c.font=bold
+        c.fill=fill
+        c.alignment=Alignment(horizontal="center")
+
+
+    row=2
+
+    for item in grouped:
+
+        vac=item["principal"]
+
+        nombre=" ".join(filter(None,[
+            clean(vac["idcontrato__idempleado__papellido"]),
+            clean(vac["idcontrato__idempleado__sapellido"]),
+            clean(vac["idcontrato__idempleado__pnombre"]),
+            clean(vac["idcontrato__idempleado__snombre"]),
+        ]))
+
+
+        def fmt_fecha(f):
+            if not f:
+                return ""
+            return f.strftime("%d-%m-%Y")
+
+
+        ws.cell(row,1,clean(vac["idcontrato__idempleado__docidentidad"]))
+        ws.cell(row,2,nombre)
+        ws.cell(row,3,clean(vac["tipovac__nombrevacaus"]))
+        ws.cell(row,4,fmt_fecha(vac["perinicio"]))
+        ws.cell(row,5,fmt_fecha(vac["perfinal"]))
+        ws.cell(row,6,fmt_fecha(vac["fechainicialvac"]))
+        ws.cell(row,7,fmt_fecha(vac["ultimodiavac"]))
+        ws.cell(row,8,fmt_fecha(vac["fechapago"]))
+        ws.cell(row,9,clean(vac["diascalendario"]))
+        ws.cell(row,10,clean(vac["diasvac"]))
+        ws.cell(row,11,clean(vac["pagovac"]))
+
+        row += 1
+
+
+    widths = {
+        1:18,
+        2:35,
+        3:20,
+        4:15,
+        5:15,
+        6:15,
+        7:15,
+        8:15,
+        9:18,
+        10:18,
+        11:18,
+    }
+
+    for c,w in widths.items():
+        ws.column_dimensions[get_column_letter(c)].width=w
+
+
+    response=HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    response[
+        "Content-Disposition"
+    ]='attachment; filename="resumen_ausencias.xlsx"'
+
+
+    wb.save(response)
+
+    return response
+
+
+
+
+
+
+
+
+
+
+
 
 @login_required
 @role_required('company','accountant')
