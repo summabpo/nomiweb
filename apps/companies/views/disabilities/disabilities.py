@@ -126,7 +126,8 @@ def export_disabilities_excel(request):
         'coddiagnostico__diagnostico',
         'prorroga',
         'fechainicial',
-        'dias'
+        'dias',
+        'idcontrato__idcosto__nomcosto',
     ).order_by('-fechainicial')
 
 
@@ -144,6 +145,7 @@ def export_disabilities_excel(request):
         'Id Contrato',
         'Documento',
         'Apellidos y Nombre',
+        'Centro de Costos', 
         'Entidad',
         'Código Diagnóstico',
         'Diagnóstico',
@@ -180,12 +182,16 @@ def export_disabilities_excel(request):
             clean_value(item['idcontrato__idempleado__snombre']),
         ]))
 
-        ws.cell(row=row_num,column=1,value=clean_value(item['idcontrato__idcontrato']))
-        ws.cell(row=row_num,column=2,value=clean_value(item['idcontrato__idempleado__docidentidad']))
-        ws.cell(row=row_num,column=3,value=nombre)
-        ws.cell(row=row_num,column=4,value=clean_value(item['entidad__entidad']))
-        ws.cell(row=row_num,column=5,value=clean_value(item['coddiagnostico__coddiagnostico']))
-        ws.cell(row=row_num,column=6,value=clean_value(item['coddiagnostico__diagnostico']))
+        ws.cell(row=row_num, column=1, value=clean_value(item['idcontrato__idcontrato']))
+        ws.cell(row=row_num, column=2, value=clean_value(item['idcontrato__idempleado__docidentidad']))
+        ws.cell(row=row_num, column=3, value=nombre)
+
+        ws.cell(row=row_num, column=4, value=clean_value(item['idcontrato__idcosto__nomcosto']))
+
+        ws.cell(row=row_num, column=5, value=clean_value(item['entidad__entidad']))
+        ws.cell(row=row_num, column=6, value=clean_value(item['coddiagnostico__coddiagnostico']))
+        ws.cell(row=row_num, column=7, value=clean_value(item['coddiagnostico__diagnostico']))
+        ws.cell(row=row_num, column=8, value='Sí' if item['prorroga'] else 'No')
         ws.cell(
             row=row_num,
             column=7,
@@ -193,15 +199,17 @@ def export_disabilities_excel(request):
         )
 
         fecha = item['fechainicial']
-        ws.cell(
-            row=row_num,
-            column=8,
-            value=fecha.strftime('%d-%m-%Y') if fecha else ''
-        )
-
+        # fecha ahora es columna 9
         ws.cell(
             row=row_num,
             column=9,
+            value=fecha.strftime('%d-%m-%Y') if fecha else ''
+        )
+
+        # días ahora es columna 10
+        ws.cell(
+            row=row_num,
+            column=10,
             value=clean_value(item['dias'])
         )
 
@@ -213,12 +221,13 @@ def export_disabilities_excel(request):
         1:15,
         2:18,
         3:35,
-        4:30,
-        5:20,
-        6:45,
-        7:12,
-        8:15,
-        9:18
+        4:25,  # 👈 centro de costos
+        5:30,
+        6:20,
+        7:45,
+        8:12,
+        9:15,
+        10:18
     }
 
     for col,width in widths.items():
@@ -229,9 +238,11 @@ def export_disabilities_excel(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
+    now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
     response[
         'Content-Disposition'
-    ] = 'attachment; filename="reporte_incapacidades.xlsx"'
+    ] = f'attachment; filename="reporte_incapacidades_{now}.xlsx"'
 
     wb.save(response)
 
@@ -392,7 +403,11 @@ def disabilities_ibc(contract, date):
         idconcepto__indicador__nombre='basesegsocial'
     )
 
-    for data in conceptos:        
+
+
+    for data in conceptos:      
+        #print('----------------')
+        #print(f"codigo: {data.idconcepto.codigo} valor: {data.valor} cantidad: {data.cantidad}  concepto: {data.idconcepto.nombreconcepto}")
         if data.idconcepto.codigo == 4 : 
             suma += data.valor * 0.7
         else:

@@ -25,7 +25,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 from django.db.models import Case, When, F, Value, DateField
 from datetime import date as date_class
-
+from datetime import datetime
 
 MES_CHOICES = [
     ('', '--------------'),
@@ -242,6 +242,7 @@ def export_vacation_resumen_excel(request):
             "pagovac",
             "perinicio",
             "perfinal",
+            'idcontrato__idcosto__nomcosto',
         )
         .order_by("-fecha_orden")
     )
@@ -303,6 +304,7 @@ def export_vacation_resumen_excel(request):
     headers = [
         "Documento",
         "Empleado",
+        'Centro de Costos',
         "Tipo Vacación",
         "Periodo Inicial",
         "Periodo Final",
@@ -352,15 +354,16 @@ def export_vacation_resumen_excel(request):
 
         ws.cell(row,1,clean(vac["idcontrato__idempleado__docidentidad"]))
         ws.cell(row,2,nombre)
-        ws.cell(row,3,clean(vac["tipovac__nombrevacaus"]))
-        ws.cell(row,4,fmt_fecha(vac["perinicio"]))
-        ws.cell(row,5,fmt_fecha(vac["perfinal"]))
-        ws.cell(row,6,fmt_fecha(vac["fechainicialvac"]))
-        ws.cell(row,7,fmt_fecha(vac["ultimodiavac"]))
-        ws.cell(row,8,fmt_fecha(vac["fechapago"]))
+        ws.cell(row, 3, clean(vac['idcontrato__idcosto__nomcosto']))
+        ws.cell(row,4,clean(vac["tipovac__nombrevacaus"]))
+        ws.cell(row,5,fmt_fecha(vac["perinicio"]))
+        ws.cell(row,6,fmt_fecha(vac["perfinal"]))
+        ws.cell(row,7,fmt_fecha(vac["fechainicialvac"]))
+        ws.cell(row,8,fmt_fecha(vac["ultimodiavac"]))
+        ws.cell(row,9,fmt_fecha(vac["fechapago"]))
         ws.cell(row,9,clean(vac["diascalendario"]))
-        ws.cell(row,10,clean(vac["diasvac"]))
-        ws.cell(row,11,clean(vac["pagovac"]))
+        ws.cell(row,11,clean(vac["diasvac"]))
+        ws.cell(row,12,clean(vac["pagovac"]))
 
         row += 1
 
@@ -368,7 +371,7 @@ def export_vacation_resumen_excel(request):
     widths = {
         1:18,
         2:35,
-        3:20,
+        3:25,
         4:15,
         5:15,
         6:15,
@@ -377,6 +380,7 @@ def export_vacation_resumen_excel(request):
         9:18,
         10:18,
         11:18,
+        12:18,
     }
 
     for c,w in widths.items():
@@ -387,9 +391,12 @@ def export_vacation_resumen_excel(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
+    now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
     response[
         "Content-Disposition"
-    ]='attachment; filename="resumen_vacaciones.xlsx"'
+    ]=f'attachment; filename="resumen_vacaciones_{now}.xlsx"'
+
 
 
     wb.save(response)
@@ -943,6 +950,7 @@ def export_absences_excel(request):
             "idcontrato__idempleado__pnombre",
             "idcontrato__idempleado__snombre",
             "idcontrato",
+            'idcontrato__idcosto__nomcosto',
             "fechainicialvac",
             "ultimodiavac",
             "fechapago",
@@ -1017,6 +1025,7 @@ def export_absences_excel(request):
     headers = [
         "Documento",
         "Empleado",
+        "Centro de Costos",
         "Tipo Vacación",
         "Periodo Inicial",
         "Periodo Final",
@@ -1066,15 +1075,16 @@ def export_absences_excel(request):
 
         ws.cell(row,1,clean(vac["idcontrato__idempleado__docidentidad"]))
         ws.cell(row,2,nombre)
-        ws.cell(row,3,clean(vac["tipovac__nombrevacaus"]))
-        ws.cell(row,4,fmt_fecha(vac["perinicio"]))
-        ws.cell(row,5,fmt_fecha(vac["perfinal"]))
-        ws.cell(row,6,fmt_fecha(vac["fechainicialvac"]))
-        ws.cell(row,7,fmt_fecha(vac["ultimodiavac"]))
-        ws.cell(row,8,fmt_fecha(vac["fechapago"]))
-        ws.cell(row,9,clean(vac["diascalendario"]))
-        ws.cell(row,10,clean(vac["diasvac"]))
-        ws.cell(row,11,clean(vac["pagovac"]))
+        ws.cell(row,3,clean(vac["idcontrato__idcosto__nomcosto"]))
+        ws.cell(row,4,clean(vac["tipovac__nombrevacaus"]))
+        ws.cell(row,5,fmt_fecha(vac["perinicio"]))
+        ws.cell(row,6,fmt_fecha(vac["perfinal"]))
+        ws.cell(row,7,fmt_fecha(vac["fechainicialvac"]))
+        ws.cell(row,8,fmt_fecha(vac["ultimodiavac"]))
+        ws.cell(row,9,fmt_fecha(vac["fechapago"]))
+        ws.cell(row,10,clean(vac["diascalendario"]))
+        ws.cell(row,11,clean(vac["diasvac"]))
+        ws.cell(row,12,clean(vac["pagovac"]))
 
         row += 1
 
@@ -1082,7 +1092,7 @@ def export_absences_excel(request):
     widths = {
         1:18,
         2:35,
-        3:20,
+        3:25,
         4:15,
         5:15,
         6:15,
@@ -1091,6 +1101,7 @@ def export_absences_excel(request):
         9:18,
         10:18,
         11:18,
+        12:18,
     }
 
     for c,w in widths.items():
@@ -1101,9 +1112,11 @@ def export_absences_excel(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
+    now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
     response[
         "Content-Disposition"
-    ]='attachment; filename="resumen_ausencias.xlsx"'
+    ]=f'attachment; filename="resumen_ausencias_{now}.xlsx"'
 
 
     wb.save(response)
