@@ -13,6 +13,7 @@ import holidays
 from apps.components.salary import salario_mes
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Font
+import logging
 from io import BytesIO
 from django.db import transaction
 from django.db.models import F, Value, CharField
@@ -20,6 +21,8 @@ from django.db.models.functions import Concat
 from apps.payroll.forms.TimeForm import TimeForm
 from urllib.parse import urlencode
 import os
+
+logger = logging.getLogger(__name__)
 
 
 def aplicar_descanso(descanso_minutos, horas):
@@ -808,14 +811,64 @@ def time_doc(request, id):
 
 
 def formatear_fecha(valor):
-    if isinstance(valor, datetime):   # Si ya es datetime
+    if valor is None or (isinstance(valor, float) and pd.isna(valor)):
+        return None
+    if isinstance(valor, datetime):
         return valor.date()
-    if isinstance(valor, str) and '/' in valor:
+    s = str(valor).strip()
+    if not s or s.lower() == 'nan':
+        return None
+    if len(s) >= 10 and s[4] == '-' and s[7] == '-':
         try:
-            return datetime.strptime(valor, '%d/%m/%Y').date()
-        except:
-            return valor
-    return valor
+            return datetime.strptime(s[:10], '%Y-%m-%d').date()
+        except ValueError:
+            pass
+    if '/' in s:
+        try:
+            return datetime.strptime(s, '%d/%m/%Y').date()
+        except ValueError:
+            return s
+    return s
+
+
+def _read_planilla_tiempos_csv(uploaded_file):
+    """
+    Lee el CSV en memoria (evita problemas con punteros del UploadedFile)
+    probando codificaciones y separadores habituales (Excel / exportadores).
+    """
+    raw = uploaded_file.read()
+    if not raw or not raw.strip():
+        raise ValueError("El archivo está vacío o no tiene datos.")
+
+    buffer = BytesIO(raw)
+    min_columns = 6
+    last_error = None
+
+    for encoding in ('utf-8-sig', 'utf-8', 'cp1252', 'latin-1'):
+        for sep in (';', ','):
+            buffer.seek(0)
+            try:
+                df = pd.read_csv(
+                    buffer,
+                    header=None,
+                    sep=sep,
+                    encoding=encoding,
+                    dtype=str,
+                    engine='python',
+                )
+            except Exception as exc:
+                last_error = exc
+                continue
+            if df.shape[1] >= min_columns:
+                return df
+
+    if last_error:
+        logger.error("No se pudo interpretar el CSV de tiempos (último intento): %s", last_error)
+    raise ValueError(
+        "No se pudo leer el archivo. Verifique que sea CSV con 6 columnas, "
+        "separador ; o , y que no esté corrupto. Si lo exportó desde Excel, "
+        "pruebe \"CSV UTF-8\" o guarde como CSV separado por punto y coma."
+    )
 
 
 
@@ -847,16 +900,13 @@ def time_add(request):
         # =========================
 
         try:
-            df = pd.read_csv(
-                file,
-                header=None,
-                sep=";",
-                encoding="utf-8",
-                dtype=str,
-                engine='python'
-            )
+            df = _read_planilla_tiempos_csv(file)
+        except ValueError as e:
+            errors.append(str(e))
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
         except Exception as e:
-            errors.append("Error al leer el archivo.")
+            logger.exception("Error al leer CSV de tiempos")
+            errors.append(f"Error al leer el archivo: {e}")
             return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
 
         # # MIME (básico)
@@ -874,6 +924,13 @@ def time_add(request):
             return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
 
         df = df.dropna(how="all")
+
+        EXPECTED_COLUMNS = 6
+        if df.shape[1] < EXPECTED_COLUMNS:
+            errors.append(
+                "El archivo no tiene la estructura esperada (se requieren 6 columnas)."
+            )
+            return render(request, './companies/partials/disability_upload_errors.html', {'errors': errors})
 
         try:
             empresa = Empresa.objects.get(idempresa=idempresa)
@@ -895,13 +952,6 @@ def time_add(request):
                 hora_ingreso = fila[3]
                 hora_salida = fila[4]
                 horas_descuentos = fila[5]
-
-
-                EXPECTED_COLUMNS = 6
-
-                if df.shape[1] < EXPECTED_COLUMNS:
-                    errors.append("El archivo no tiene la estructura esperada.")
-                    return render(...)
 
                 if not contrato:
                     errors.append(f"Fila {idx+1}: El contrato es obligatorio.")

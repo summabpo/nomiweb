@@ -346,8 +346,30 @@ Listado de ausencias
                     "previous": "Anterior"
                 }
             },
-            dom: 'frtip',
+            dom: 'Bfrtip',
             order: [], 
+            buttons: [
+                {
+                    text: '<i class="fa fa-file-excel me-2"></i> Descargar de Ausencias',
+                    className: 'btn btn-light-info',
+                    attr: {
+                        id: 'kt_button_export_ausencias'
+                    },
+
+                    action: function (e, dt, node, config) {
+
+                        let button = $(node);
+                        button.attr("data-kt-indicator", "on");
+
+                        window.location.href = "{% url 'companies:export_absences_excel' %}";
+
+                        setTimeout(function(){
+                            button.removeAttr("data-kt-indicator");
+                        },1000);
+                    }
+                }
+            ],
+            
             pageLength: 20,
         });
 

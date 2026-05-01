@@ -530,61 +530,83 @@ def calculate_6_month_taxable_income_average(idcontrato, anoacumular):
     anoacumular = int(anoacumular)
 
     MONTHS = {
-        1: 'ENERO', 2: 'FEBRERO', 3: 'MARZO', 4: 'ABRIL', 5: 'MAYO', 6: 'JUNIO',
-        7: 'JULIO', 8: 'AGOSTO', 9: 'SEPTIEMBRE', 10: 'OCTUBRE', 11: 'NOVIEMBRE', 12: 'DICIEMBRE',
+        1:'ENERO',2:'FEBRERO',3:'MARZO',4:'ABRIL',
+        5:'MAYO',6:'JUNIO',7:'JULIO',8:'AGOSTO',
+        9:'SEPTIEMBRE',10:'OCTUBRE',11:'NOVIEMBRE',12:'DICIEMBRE'
     }
 
     contrato = Contratos.objects.get(idcontrato=idcontrato)
-    inicio_contrato = contrato.fechainiciocontrato
-    fin_contrato = contrato.fechafincontrato or date.max  # Maneja sin fin como futuro
 
-    # Período base: julio-diciembre del año previo
+    inicio_contrato = contrato.fechainiciocontrato
+    fin_contrato = contrato.fechafincontrato or date.max
+
+
     mes_final = 12
     mes_inicial = 7
     ano_previo = anoacumular
 
-    # Ajusta por fin_contrato (últimos 6 meses)
-    if fin_contrato <= date(anoacumular, 12, 31):
+    if fin_contrato <= date(anoacumular,12,31):
         mes_final = fin_contrato.month
-        mes_inicial_calc = max(1, mes_final - 5)
+        mes_inicial_calc = max(1, mes_final-5)
+
         if mes_inicial_calc <= 0:
             mes_inicial_calc += 12
             ano_previo -= 1
+
         mes_inicial = mes_inicial_calc
 
-    # Clave: No buscar antes de inicio_contrato
+
     mes_inicio_contrato = inicio_contrato.month
+
     if mes_inicial < mes_inicio_contrato:
         mes_inicial = mes_inicio_contrato
 
-    # Calcula meses reales (puede ser <6 si contrato corto)
+
     meses_promedio = mes_final - mes_inicial + 1
+
     if meses_promedio < 0:
         meses_promedio += 12
+
 
     if meses_promedio == 0:
         return 0
 
-    # Bucle optimizado con debug por mes
+
     mes_actual = mes_inicial
     ano_actual = ano_previo
+
+
     for _ in range(meses_promedio):
+
         nombre_mes = MONTHS[mes_actual]
 
-        ingreso_mes = Nomina.objects.filter(
-            idcontrato=contrato,
-            idnomina__mesacumular=nombre_mes,
-            idnomina__anoacumular__ano=ano_actual,
-            idconcepto__indicador__nombre='ingresotributario'
-        ).aggregate(total=Sum('valor'))['total'] or 0
+        ingreso_mes = (
+            Nomina.objects.filter(
+                idcontrato=contrato,
+                idnomina__tiponomina__idtiponomina__in=[1,2,3,4,5,6,7,8,9,11,12], # tipos de nomina
+                idnomina__mesacumular=nombre_mes,
+                idnomina__anoacumular__ano=ano_actual,
+                idconcepto__indicador__nombre='ingresotributario'
+            )
+            .aggregate(total=Sum('valor'))['total']
+            or 0
+        )
 
         if ingreso_mes > 0:
             meses_division += 1
+
         total += ingreso_mes
 
         mes_actual += 1
+
         if mes_actual > 12:
             mes_actual = 1
             ano_actual += 1
 
-    return total / meses_division if meses_division > 0 else 0
+
+    promedio = (
+        total / meses_division
+        if meses_division > 0 else 0
+    )
+
+    return promedio

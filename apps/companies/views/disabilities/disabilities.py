@@ -21,6 +21,10 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.http import HttpResponse
 import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
+
 
 
 def generate_random_filename(extension="pdf"):
@@ -97,6 +101,152 @@ def disabilities(request):
 
     return render(request, './companies/disabilities.html', {'incapacidades': cleaned_incapacidades})
 
+
+
+
+@login_required
+@role_required('company', 'accountant')
+def export_disabilities_excel(request):
+
+    usuario = request.session.get('usuario', {})
+    idempresa = usuario.get('idempresa')
+
+    incapacidades = Incapacidades.objects.filter(
+        idcontrato__id_empresa=idempresa,
+        idcontrato__estadocontrato=1
+    ).values(
+        'idcontrato__idcontrato',
+        'idcontrato__idempleado__docidentidad',
+        'idcontrato__idempleado__pnombre',
+        'idcontrato__idempleado__snombre',
+        'idcontrato__idempleado__papellido',
+        'idcontrato__idempleado__sapellido',
+        'entidad__entidad',
+        'coddiagnostico__coddiagnostico',
+        'coddiagnostico__diagnostico',
+        'prorroga',
+        'fechainicial',
+        'dias',
+        'idcontrato__idcosto__nomcosto',
+    ).order_by('-fechainicial')
+
+
+    def clean_value(value):
+        if isinstance(value, str) and value.strip().lower() == "no data":
+            return ""
+        return value if value is not None else ""
+
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Incapacidades"
+
+    headers = [
+        'Id Contrato',
+        'Documento',
+        'Apellidos y Nombre',
+        'Centro de Costos', 
+        'Entidad',
+        'Código Diagnóstico',
+        'Diagnóstico',
+        'Prórroga',
+        'Fecha Inicial',
+        'Días Incapacidad'
+    ]
+
+
+    # estilos header
+    header_fill = PatternFill(
+        start_color='D9EAF7',
+        end_color='D9EAF7',
+        fill_type='solid'
+    )
+
+    bold_font = Font(bold=True)
+
+    for col_num, header in enumerate(headers,1):
+        cell = ws.cell(row=1,column=col_num,value=header)
+        cell.font = bold_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+
+
+    row_num = 2
+
+    for item in incapacidades:
+
+        nombre = " ".join(filter(None,[
+            clean_value(item['idcontrato__idempleado__papellido']),
+            clean_value(item['idcontrato__idempleado__sapellido']),
+            clean_value(item['idcontrato__idempleado__pnombre']),
+            clean_value(item['idcontrato__idempleado__snombre']),
+        ]))
+
+        ws.cell(row=row_num, column=1, value=clean_value(item['idcontrato__idcontrato']))
+        ws.cell(row=row_num, column=2, value=clean_value(item['idcontrato__idempleado__docidentidad']))
+        ws.cell(row=row_num, column=3, value=nombre)
+
+        ws.cell(row=row_num, column=4, value=clean_value(item['idcontrato__idcosto__nomcosto']))
+
+        ws.cell(row=row_num, column=5, value=clean_value(item['entidad__entidad']))
+        ws.cell(row=row_num, column=6, value=clean_value(item['coddiagnostico__coddiagnostico']))
+        ws.cell(row=row_num, column=7, value=clean_value(item['coddiagnostico__diagnostico']))
+        ws.cell(row=row_num, column=8, value='Sí' if item['prorroga'] else 'No')
+        ws.cell(
+            row=row_num,
+            column=7,
+            value='Sí' if item['prorroga'] else 'No'
+        )
+
+        fecha = item['fechainicial']
+        # fecha ahora es columna 9
+        ws.cell(
+            row=row_num,
+            column=9,
+            value=fecha.strftime('%d-%m-%Y') if fecha else ''
+        )
+
+        # días ahora es columna 10
+        ws.cell(
+            row=row_num,
+            column=10,
+            value=clean_value(item['dias'])
+        )
+
+        row_num += 1
+
+
+    # ancho columnas
+    widths = {
+        1:15,
+        2:18,
+        3:35,
+        4:25,  # 👈 centro de costos
+        5:30,
+        6:20,
+        7:45,
+        8:12,
+        9:15,
+        10:18
+    }
+
+    for col,width in widths.items():
+        ws.column_dimensions[get_column_letter(col)].width = width
+
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+    response[
+        'Content-Disposition'
+    ] = f'attachment; filename="reporte_incapacidades_{now}.xlsx"'
+
+    wb.save(response)
+
+    return response
 
 
 
@@ -253,7 +403,11 @@ def disabilities_ibc(contract, date):
         idconcepto__indicador__nombre='basesegsocial'
     )
 
-    for data in conceptos:        
+
+
+    for data in conceptos:      
+        #print('----------------')
+        #print(f"codigo: {data.idconcepto.codigo} valor: {data.valor} cantidad: {data.cantidad}  concepto: {data.idconcepto.nombreconcepto}")
         if data.idconcepto.codigo == 4 : 
             suma += data.valor * 0.7
         else:

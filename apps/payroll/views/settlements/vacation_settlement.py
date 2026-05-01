@@ -35,26 +35,47 @@ def _parse_date_yyyy_mm_dd(value):
         return None
 
 
-def calcular_dias_habiles_vacaciones(fechainicialvac, fechafinalvac, cuentasabados, dias_festivos):
+def calcular_dias_habiles_vacaciones(
+        fechainicialvac,
+        fechafinalvac,
+        cuentasabados,
+        dias_festivos
+    ):
     """
-    Días hábiles entre dos fechas: sin domingos, sin festivos, sábados solo si cuentasabados=1.
-    Alineado con solicitudes de vacaciones (empleados).
+    Días hábiles entre dos fechas:
+    - No domingos
+    - No festivos
+    - Sábados solo si cuentasabados=1
+    - El día 31 no se cuenta para nómina
     """
+
     if isinstance(fechainicialvac, datetime):
         fechainicialvac = fechainicialvac.date()
+
     if isinstance(fechafinalvac, datetime):
         fechafinalvac = fechafinalvac.date()
+
     fest = dias_festivos if isinstance(dias_festivos, set) else set(dias_festivos)
+
     total_dias = 0
     dia_actual = fechainicialvac
+
     while dia_actual <= fechafinalvac:
+
+        # EXCLUIR día 31 para nómina
+        if dia_actual.day == 31:
+            dia_actual += timedelta(days=1)
+            continue
+
         if (
-            dia_actual.weekday() != 6
-            and dia_actual not in fest
-            and (dia_actual.weekday() != 5 or cuentasabados == 1)
+            dia_actual.weekday() != 6           # domingo
+            and dia_actual not in fest          # festivo
+            and (dia_actual.weekday() != 5 or cuentasabados == 1) # sábado
         ):
             total_dias += 1
+
         dia_actual += timedelta(days=1)
+
     return total_dias
 
 @login_required

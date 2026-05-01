@@ -19,6 +19,8 @@ from decimal import Decimal, ROUND_HALF_UP , getcontext , ROUND_CEILING , ROUND_
 from apps.components.salary_nomina import salary_nomina_update
 from apps.companies.views.disabilities.disabilities import disabilities_ibc
 from apps.payroll.views.payroll.auto_recalculate import auto_recalculate
+from dateutil.relativedelta import relativedelta
+
 
 #prueba git
 @login_required
@@ -525,7 +527,7 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     salario_minimo = Salariominimoanual.objects.get( ano = ano ).salariominimo
     pago_incapacidad = Empresa.objects.get(idempresa = idempresa).ige100 or "NO"
 
-    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa )
+    contratos = Contratos.objects.filter(estadoliquidacion=3, id_empresa =  idempresa  , idcontrato = 10233)
 
     if parte_nomina != 0:
         contratos = contratos.filter(idcosto = parte_nomina)
@@ -533,26 +535,62 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
     if empleados: 
         contratos = contratos.filter(idcontrato__in = empleados)
 
+    
+    fecha_inicio_filtro = inicio_nomina - relativedelta(months=1)
+    fecha_fin_filtro = fin_nomina + relativedelta(months=1)
+    
+
     for contract in contratos : 
-        incapacidades = Incapacidades.objects.filter(idcontrato__id_empresa =  idempresa, idcontrato = contract ).order_by('-fechainicial')
+        incapacidades = Incapacidades.objects.filter(
+            idcontrato__id_empresa=idempresa,
+            idcontrato=contract,
+            fechainicial__range=(fecha_inicio_filtro, fecha_fin_filtro)
+        ).order_by('fechainicial')
+
+
 
         for incapacidad in incapacidades:
 
+            #print("\n" + "="*50)
+            #print(f"INCAPACIDAD ID: {incapacidad.idincapacidad}")
+
             dias_incapacidad = 0 
             dias_asumidos = 0
+
             ini = incapacidad.fechainicial
-            fin = ini + timedelta(days = incapacidad.dias ) - timedelta(days = 1 )
+            fin = ini + timedelta(days=incapacidad.dias) - timedelta(days=1)
 
             ibc = incapacidad.ibc
             tipo = incapacidad.origenincap
             prorroga = incapacidad.prorroga
             dias = incapacidad.dias
 
+            #print(f"Rango incapacidad: {ini} → {fin}")
+            #print(f"Días incapacidad: {dias}")
+            #print(f"IBC: {ibc}")
+            #print(f"Tipo: {tipo}")
+            #print(f"Prórroga: {prorroga}")
+
+            #print(f"Rango nómina: {inicio_nomina} → {fin_nomina}")
+
             segundo_dia = ini + timedelta(days=1)
+
             dia_asumido_1 = int(inicio_nomina <= ini <= fin_nomina)
             dia_asumido_2 = int(inicio_nomina <= segundo_dia <= fin_nomina)
+
             dias_asumidos = dia_asumido_1 + dia_asumido_2 if dias != 1 else dia_asumido_1
 
+            #print(f"Segundo día: {segundo_dia}")
+            #print(f"¿Día 1 en nómina?: {dia_asumido_1}")
+            #print(f"¿Día 2 en nómina?: {dia_asumido_2}")
+            #print(f"Días asumidos calculados: {dias_asumidos}")
+
+            #print("="*50)
+
+            #print('-------------------------------------------------------------------------------------')
+            #print(incapacidad.fechainicial)
+            #print(f"dias_asumidos: {dias_asumidos} dias_incapacidad: {dias_incapacidad} ibc: {ibc}")
+            #print('----------------')
 
 
             if pago_incapacidad == "NO":
@@ -578,12 +616,31 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
 
                 dias_asumidos = 0
                 dias_incapacidad = calculo_incapacidad(contract.idcontrato, nomina)
-                ibc = disabilities_ibc(contract , str(inicio_nomina) )
-                valor_incapacidad = (ibc / 30 ) * dias_incapacidad
+                aux_pass = Nomina.objects.filter(
+                    idconcepto = idconceptoa,
+                    idcontrato = contract , 
+                    idnomina_id = idn ,
+                ).first()
+
+                if aux_pass:
+                    dias = aux_pass.cantidad
+                else :
+                    dias = 0
+
+                dias_incapacidad = Decimal(calculo_incapacidad(contract.idcontrato, nomina) or 0)
+                dias = Decimal(dias or 0)
+
+                dias_incapacidad = dias_incapacidad - dias
 
                 valor_incapacidad = (
-                    Decimal(ibc) / Decimal('30') * Decimal(dias_incapacidad)
+                    ibc / Decimal('30') * (dias_incapacidad)
                 ).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+                
+
+                #print('----------------')
+                #print(f"dias_asumidos: {dias} dias_incapacidad: {dias_incapacidad} ibc: {ibc}")
+                
 
                 if dias_incapacidad > 0:
 
@@ -593,6 +650,9 @@ def procesar_nomina_incapacidad(idn, parte_nomina,idempresa,empleados):
 
             else : 
                 
+                #print('----------------')
+                #print(f"dias_asumidos: {dias_asumidos} dias_incapacidad: {dias_incapacidad} ibc: {ibc}")
+
                 
                 valor_incapacidad = (
                     Decimal(ibc) / Decimal('30') * Decimal(dias_incapacidad)

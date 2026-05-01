@@ -808,9 +808,30 @@ Listado de vacaciones
                     "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            dom: 'frtip',
+            dom: 'Bfrtip',
             order: [[4, 'desc']], 
             pageLength: 20,
+            buttons: [
+                {
+                    text: '<i class="fa fa-file-excel me-2"></i> Descargar Resumen de Vacaciones',
+                    className: 'btn btn-light-info',
+                    attr: {
+                        id: 'kt_button_export_resumen_vacaciones'
+                    },
+
+                    action: function (e, dt, node, config) {
+
+                        let button = $(node);
+                        button.attr("data-kt-indicator", "on");
+
+                        window.location.href = "{% url 'companies:export_vacation_resumen_excel' %}";
+
+                        setTimeout(function(){
+                            button.removeAttr("data-kt-indicator");
+                        },1000);
+                    }
+                }
+            ],
             columnDefs: [
                 {
                     targets: 4,

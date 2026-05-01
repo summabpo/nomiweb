@@ -270,16 +270,35 @@ Listado de Incapacidades
                     "sortDescending": ": activar para ordenar la columna descendente"
                 }
             },
-            dom: 'frtip',
+            dom: 'Bfrtip',
             order: [],
+            buttons: [
+                {
+                    text: '<i class="fa fa-file-excel me-2"></i> Descargar Incapacidades',
+                    className: 'btn btn-light-info',
+                    attr: {
+                        id: 'kt_button_export_incapacidades'
+                    },
+
+                    action: function (e, dt, node, config) {
+
+                        let button = $(node);
+                        button.attr("data-kt-indicator", "on");
+
+                        window.location.href = "{% url 'companies:export_disabilities_excel' %}";
+
+                        setTimeout(function(){
+                            button.removeAttr("data-kt-indicator");
+                        },1000);
+                    }
+                }
+            ],
             columnDefs: [
                     {
-                        targets: 7, // 👈 columna de fecha (recuerda: índices empiezan en 0)
+                        targets: 7, 
                         render: function (data, type, row) {
                             if (type === 'sort' || type === 'type') {
-                                // data = "08-05-2003"
-                                var parts = data.split('-'); // [dd, mm, yyyy]
-                                // convertir a formato comparable: yyyy-mm-dd
+                                var parts = data.split('-');
                                 return new Date(parts[2], parts[1] - 1, parts[0]);
                             }
                             return data; // mostrar como viene
@@ -293,287 +312,289 @@ Listado de Incapacidades
 </script>
 
 
+
+
 <script>
-document.addEventListener('up:fragment:inserted', function(event) {
+    document.addEventListener('up:fragment:inserted', function(event) {
 
-    const modalContent = up.layer?.current?.element;
-    if (!modalContent) return;
+        const modalContent = up.layer?.current?.element;
+        if (!modalContent) return;
 
-    const entitiesUrl1 = "{% url 'companies:get_entity' %}";
-    const entitiesUrl2 = "{% url 'companies:ibc_data_get' %}";
+        const entitiesUrl1 = "{% url 'companies:get_entity' %}";
+        const entitiesUrl2 = "{% url 'companies:ibc_data_get' %}";
 
-    const modal_edit = modalContent.querySelector('#modal-content-edit');
+        const modal_edit = modalContent.querySelector('#modal-content-edit');
 
-    const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
-    const date = modalContent.querySelector('#kt_daterangepicker_1');
-    const conceptSelect = modalContent.querySelector('#id_origin');
-    const date2 = modalContent.querySelector('#kt_daterangepicker_2');
-    const select1 = modalContent.querySelector('#id_entity');
-    const contract = modalContent.querySelector('#id_contract');
+        const selectElements = modalContent.querySelectorAll('[data-control="select2"]');
+        const date = modalContent.querySelector('#kt_daterangepicker_1');
+        const conceptSelect = modalContent.querySelector('#id_origin');
+        const date2 = modalContent.querySelector('#kt_daterangepicker_2');
+        const select1 = modalContent.querySelector('#id_entity');
+        const contract = modalContent.querySelector('#id_contract');
 
-    const startDateInput = modalContent.querySelector('#kt_daterangepicker_1');
-    const daysInput = modalContent.querySelector('#id_incapacity_days');
-    const endDateInput = modalContent.querySelector('#kt_daterangepicker_2');
+        const startDateInput = modalContent.querySelector('#kt_daterangepicker_1');
+        const daysInput = modalContent.querySelector('#id_incapacity_days');
+        const endDateInput = modalContent.querySelector('#kt_daterangepicker_2');
 
-    if (date2) date2.disabled = true;
-    if (modal_edit && contract) contract.disabled = true;
-
-
-    /* -------------------------------
-    GET IBC DATA
-    --------------------------------*/
-    function getIBCData() {
-
-        const idcontrato = $(contract).val();
-        const fecha = startDateInput.value;
-
-        if (!idcontrato || !fecha) return;
-
-        up.request(`${entitiesUrl2}?contract=${idcontrato}&date=${fecha}`)
-            .then(response => response.json)
-            .then(data => {
-
-                console.log("IBC DATA:", data);
-
-                
-
-                const ibcInput = modalContent.querySelector('#id_ibc');
-                const sueldoInput = modalContent.querySelector('#id_sueldo');
-                const mesInput = modalContent.querySelector('#id_mes');
-
-                if (ibcInput){
-                    ibcInput.value = data.ibc;
-                }
-
-                if (sueldoInput){
-                    sueldoInput.value = data.sueldo;
-                }
-                
-            })
-            .catch(error => {
-                console.error('Error al obtener IBC:', error);
-            });
-    }
+        if (date2) date2.disabled = true;
+        if (modal_edit && contract) contract.disabled = true;
 
 
-    /* -------------------------------
-    SELECT CONTRACT
-    --------------------------------*/
-    if (contract) {
+        /* -------------------------------
+        GET IBC DATA
+        --------------------------------*/
+        function getIBCData() {
 
-        if (!$(contract).data('select2')) {
-            $(contract).select2({
-                dropdownParent: $(modalContent),
-                width: '100%',
-                placeholder: 'Seleccione un contrato',
-                allowClear: true
-            });
+            const idcontrato = $(contract).val();
+            const fecha = startDateInput.value;
+
+            if (!idcontrato || !fecha) return;
+
+            up.request(`${entitiesUrl2}?contract=${idcontrato}&date=${fecha}`)
+                .then(response => response.json)
+                .then(data => {
+
+                    console.log("IBC DATA:", data);
+
+                    
+
+                    const ibcInput = modalContent.querySelector('#id_ibc');
+                    const sueldoInput = modalContent.querySelector('#id_sueldo');
+                    const mesInput = modalContent.querySelector('#id_mes');
+
+                    if (ibcInput){
+                        ibcInput.value = data.ibc;
+                    }
+
+                    if (sueldoInput){
+                        sueldoInput.value = data.sueldo;
+                    }
+                    
+                })
+                .catch(error => {
+                    console.error('Error al obtener IBC:', error);
+                });
         }
 
-        $(contract).on('select2:select select2:clear', function () {
 
-            const selectedValue = $(this).val();
+        /* -------------------------------
+        SELECT CONTRACT
+        --------------------------------*/
+        if (contract) {
 
-            $(conceptSelect).val('').trigger('change');
-            $(select1).val('').trigger('change');
-
-            if (selectedValue) {
-                conceptSelect.disabled = false;
-                select1.disabled = true;
-            } else {
-                conceptSelect.disabled = true;
-                select1.disabled = true;
+            if (!$(contract).data('select2')) {
+                $(contract).select2({
+                    dropdownParent: $(modalContent),
+                    width: '100%',
+                    placeholder: 'Seleccione un contrato',
+                    allowClear: true
+                });
             }
 
-            getIBCData();
-        });
+            $(contract).on('select2:select select2:clear', function () {
 
-        setTimeout(() => {
+                const selectedValue = $(this).val();
 
-            if ($(contract).val()) {
-                conceptSelect.disabled = false;
-            } else {
-                conceptSelect.disabled = true;
-                select1.disabled = true;
                 $(conceptSelect).val('').trigger('change');
                 $(select1).val('').trigger('change');
-            }
 
-        }, 100);
-    }
-
-
-    /* -------------------------------
-    CALCULAR FECHA FINAL
-    --------------------------------*/
-    function calculateEndDate() {
-
-        const startDateValue = startDateInput.value;
-        const daysValue = parseInt(daysInput.value, 10);
-
-        if (startDateValue && !isNaN(daysValue) && daysValue > 0) {
-
-            const startDate = new Date(startDateValue);
-            startDate.setDate(startDate.getDate() + daysValue);
-
-            const formattedEndDate =
-                startDate.getFullYear() + '-' +
-                String(startDate.getMonth() + 1).padStart(2, '0') + '-' +
-                String(startDate.getDate()).padStart(2, '0');
-
-            endDateInput.value = formattedEndDate;
-            endDateInput.disabled = true;
-
-        } else {
-
-            endDateInput.value = '';
-
-        }
-    }
-
-    if (daysInput) {
-        daysInput.addEventListener('input', calculateEndDate);
-    }
-
-
-    /* -------------------------------
-    SELECT ORIGIN
-    --------------------------------*/
-    if (conceptSelect) {
-
-        if (!$(conceptSelect).data('select2')) {
-            $(conceptSelect).select2({
-                dropdownParent: $(modalContent),
-                width: '100%',
-                minimumResultsForSearch: Infinity
-            });
-        }
-
-        setTimeout(() => {
-
-            $(conceptSelect).on('select2:select', function(e) {
-
-                select1.disabled = true;
-
-                const selectedValue = e.params.data.id;
-                const idcontrato = $(contract).val();
-
-                up.request(`${entitiesUrl1}?dato=${selectedValue}&id=${idcontrato}`)
-                    .then(response => response.json)
-                    .then(data => {
-
-                        const entidadList = data.entidad_list;
-                        const entidadSelect = data.entidad_select;
-
-                        select1.innerHTML = '<option value="">----------</option>';
-                        $(select1).val('').trigger('change');
-
-                        entidadList.forEach(entidad => {
-
-                            const option = document.createElement('option');
-
-                            option.value = entidad.codigo;
-                            option.textContent = entidad.entidad;
-
-                            if (entidad.codigo === entidadSelect) {
-                                option.selected = true;
-                            }
-
-                            select1.appendChild(option);
-
-                        });
-
-                        select1.disabled = entidadList.length === 0;
-
-                    })
-                    .catch(error => {
-                        console.error('Error al obtener entidad:', error);
-                    });
-
-            });
-
-        }, 200);
-    }
-
-
-    /* -------------------------------
-    DATEPICKER
-    --------------------------------*/
-    if (date) {
-
-        let startDate = moment();
-
-        if (date.value) {
-            startDate = moment(date.value, 'YYYY-MM-DD');
-        }
-
-        $(date).daterangepicker({
-            singleDatePicker: true,
-            showDropdowns: true,
-            minYear: 2000,
-            startDate: startDate,
-            maxYear: parseInt(moment().format("YYYY"), 12),
-            endDate: moment(),
-            maxDate: moment().add(10, 'days'),
-            autoApply: true,
-            locale: {
-                format: 'YYYY-MM-DD',
-                applyLabel: 'Aplicar',
-                cancelLabel: 'Cancelar',
-                daysOfWeek: ['Do','Lu','Ma','Mi','Ju','Vi','Sa'],
-                monthNames: [
-                    'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
-                ]
-            },
-        });
-
-        $(startDateInput).on('apply.daterangepicker', function(ev, picker) {
-
-            startDateInput.value = picker.startDate.format('YYYY-MM-DD');
-
-            calculateEndDate();
-            getIBCData();
-
-        });
-
-        setTimeout(() => {
-            $('.daterangepicker').css('z-index', 9999);
-        }, 10);
-    }
-
-
-    /* -------------------------------
-    SELECT2 GENERAL
-    --------------------------------*/
-    setTimeout(() => {
-
-        selectElements.forEach((select, index) => {
-
-            if (!select.id) {
-                select.id = `select2-${Date.now()}-${index}`;
-            }
-
-            if (!$(select).data('select2')) {
-
-                const options = {
-                    dropdownParent: $(modalContent),
-                    width: '100%'
-                };
-
-                if (select.hasAttribute('data-hide-search')) {
-                    options.minimumResultsForSearch = Infinity;
+                if (selectedValue) {
+                    conceptSelect.disabled = false;
+                    select1.disabled = true;
+                } else {
+                    conceptSelect.disabled = true;
+                    select1.disabled = true;
                 }
 
-                $(select).select2(options);
+                getIBCData();
+            });
+
+            setTimeout(() => {
+
+                if ($(contract).val()) {
+                    conceptSelect.disabled = false;
+                } else {
+                    conceptSelect.disabled = true;
+                    select1.disabled = true;
+                    $(conceptSelect).val('').trigger('change');
+                    $(select1).val('').trigger('change');
+                }
+
+            }, 100);
+        }
+
+
+        /* -------------------------------
+        CALCULAR FECHA FINAL
+        --------------------------------*/
+        function calculateEndDate() {
+
+            const startDateValue = startDateInput.value;
+            const daysValue = parseInt(daysInput.value, 10);
+
+            if (startDateValue && !isNaN(daysValue) && daysValue > 0) {
+
+                const startDate = new Date(startDateValue);
+                startDate.setDate(startDate.getDate() + daysValue);
+
+                const formattedEndDate =
+                    startDate.getFullYear() + '-' +
+                    String(startDate.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(startDate.getDate()).padStart(2, '0');
+
+                endDateInput.value = formattedEndDate;
+                endDateInput.disabled = true;
+
+            } else {
+
+                endDateInput.value = '';
 
             }
+        }
 
-        });
+        if (daysInput) {
+            daysInput.addEventListener('input', calculateEndDate);
+        }
 
-    }, 300);
 
-});
+        /* -------------------------------
+        SELECT ORIGIN
+        --------------------------------*/
+        if (conceptSelect) {
+
+            if (!$(conceptSelect).data('select2')) {
+                $(conceptSelect).select2({
+                    dropdownParent: $(modalContent),
+                    width: '100%',
+                    minimumResultsForSearch: Infinity
+                });
+            }
+
+            setTimeout(() => {
+
+                $(conceptSelect).on('select2:select', function(e) {
+
+                    select1.disabled = true;
+
+                    const selectedValue = e.params.data.id;
+                    const idcontrato = $(contract).val();
+
+                    up.request(`${entitiesUrl1}?dato=${selectedValue}&id=${idcontrato}`)
+                        .then(response => response.json)
+                        .then(data => {
+
+                            const entidadList = data.entidad_list;
+                            const entidadSelect = data.entidad_select;
+
+                            select1.innerHTML = '<option value="">----------</option>';
+                            $(select1).val('').trigger('change');
+
+                            entidadList.forEach(entidad => {
+
+                                const option = document.createElement('option');
+
+                                option.value = entidad.codigo;
+                                option.textContent = entidad.entidad;
+
+                                if (entidad.codigo === entidadSelect) {
+                                    option.selected = true;
+                                }
+
+                                select1.appendChild(option);
+
+                            });
+
+                            select1.disabled = entidadList.length === 0;
+
+                        })
+                        .catch(error => {
+                            console.error('Error al obtener entidad:', error);
+                        });
+
+                });
+
+            }, 200);
+        }
+
+
+        /* -------------------------------
+        DATEPICKER
+        --------------------------------*/
+        if (date) {
+
+            let startDate = moment();
+
+            if (date.value) {
+                startDate = moment(date.value, 'YYYY-MM-DD');
+            }
+
+            $(date).daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                minYear: 2000,
+                startDate: startDate,
+                maxYear: parseInt(moment().format("YYYY"), 12),
+                endDate: moment(),
+                maxDate: moment().add(10, 'days'),
+                autoApply: true,
+                locale: {
+                    format: 'YYYY-MM-DD',
+                    applyLabel: 'Aplicar',
+                    cancelLabel: 'Cancelar',
+                    daysOfWeek: ['Do','Lu','Ma','Mi','Ju','Vi','Sa'],
+                    monthNames: [
+                        'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                        'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
+                    ]
+                },
+            });
+
+            $(startDateInput).on('apply.daterangepicker', function(ev, picker) {
+
+                startDateInput.value = picker.startDate.format('YYYY-MM-DD');
+
+                calculateEndDate();
+                getIBCData();
+
+            });
+
+            setTimeout(() => {
+                $('.daterangepicker').css('z-index', 9999);
+            }, 10);
+        }
+
+
+        /* -------------------------------
+        SELECT2 GENERAL
+        --------------------------------*/
+        setTimeout(() => {
+
+            selectElements.forEach((select, index) => {
+
+                if (!select.id) {
+                    select.id = `select2-${Date.now()}-${index}`;
+                }
+
+                if (!$(select).data('select2')) {
+
+                    const options = {
+                        dropdownParent: $(modalContent),
+                        width: '100%'
+                    };
+
+                    if (select.hasAttribute('data-hide-search')) {
+                        options.minimumResultsForSearch = Infinity;
+                    }
+
+                    $(select).select2(options);
+
+                }
+
+            });
+
+        }, 300);
+
+    });
 </script>
 
 
