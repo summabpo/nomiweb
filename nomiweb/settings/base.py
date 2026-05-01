@@ -23,6 +23,7 @@ SETTINGS_ENV = 'base'
 BASE_APPS = [
     # Django REST Framework
     'rest_framework',
+    'rest_framework_api_key',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,8 +37,8 @@ BASE_APPS = [
 
 LOCAL_APPS = [
     # Generated applications
-    
-    'apps.login', 
+    'apps.api',
+    'apps.login',
     'apps.employees',     # Employees application
     'apps.companies',     # Companies application
     'apps.administrator',
@@ -254,3 +255,15 @@ PILA_BASE_URL = os.getenv("PILA_BASE_URL", "").strip()
 PILA_SERVICE_TOKEN = os.getenv("PILA_SERVICE_TOKEN", "").strip()
 PILA_TIMEOUT_CONNECT = int(os.getenv("PILA_TIMEOUT_CONNECT", "3"))
 PILA_TIMEOUT_READ = int(os.getenv("PILA_TIMEOUT_READ", "120"))
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework_api_key.permissions.HasAPIKey',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+}
