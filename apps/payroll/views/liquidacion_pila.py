@@ -164,7 +164,10 @@ def vista_plano_pila(request: HttpRequest, planilla_id: int):
         return redirect("payroll:pila_liquidacion")
 
     encabezado = next((f for f in filas if f.get("tipo") == "01"), None)
-    filas_detalle = [f for f in filas if f.get("tipo") == "02"]
+    filas_detalle = sorted(
+        [f for f in filas if f.get("tipo") == "02"],
+        key=lambda f: (f.get("primer_apellido") or "", f.get("segundo_apellido") or "", f.get("primer_nombre") or ""),
+    )
 
     contexto = {
         "planilla_id": planilla_id,
@@ -228,7 +231,10 @@ def descargar_pila_excel(request: HttpRequest, planilla_id: int) -> HttpResponse
     wb = Workbook()
     # Hoja encabezado (solo filas tipo 01)
     filas_01 = [f for f in filas if f.get("tipo") == "01"]
-    filas_02 = [f for f in filas if f.get("tipo") == "02"]
+    filas_02 = sorted(
+        [f for f in filas if f.get("tipo") == "02"],
+        key=lambda f: (f.get("primer_apellido") or "", f.get("segundo_apellido") or "", f.get("primer_nombre") or ""),
+    )
 
     if filas_01:
         ws1 = wb.active
@@ -248,6 +254,7 @@ def descargar_pila_excel(request: HttpRequest, planilla_id: int) -> HttpResponse
         "salario_basico", "ibc_pension", "ibc_salud", "ibc_arl", "ibc_caja",
         "marca_sln", "marca_ige", "marca_lma", "marca_vac_lr",
         "cod_afp", "cod_eps", "cod_ccf",
+        "tarifa_arl", "centro_trabajo",
     ]
     if filas_01:
         ws2 = wb.create_sheet("Detalle", index=1)

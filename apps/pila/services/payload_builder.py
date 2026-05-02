@@ -504,30 +504,88 @@ def _get_ibc_por_contrato_mes(
     ano: int,
     ids_contrato: list[int],
 ) -> dict[int, dict]:
+    """
+    IBC por contrato para el mes de liquidación, desglosado por subsistema.
+
+    Cuando nomina.control coincide con vacaciones.idvacaciones (ausentismo que cruza meses),
+    el valor de la línea se prorratea a los días que caen dentro del mes en liquidación:
+        valor × GREATEST(0, dias_en_mes) / diasvac
+    Si no hay vínculo con vacaciones (control nulo o sin coincidencia), se suma el valor completo.
+    El prorrateо aplica a los tres subsistemas (salud/pensión, ARL, CCF) por igual.
+    Filtrado siempre por id_empresa_id en contratos y vacaciones.
+    """
+    mes_num = _MESES[mesacumular.upper().strip()]
+    ini_mes = date(ano, mes_num, 1)
+    fin_mes = date(ano, mes_num, calendar.monthrange(ano, mes_num)[1])
+
     sql = """
     SELECT
       n.idcontrato_id,
-      SUM(CASE WHEN cdi.indicador_id = 6  THEN COALESCE(n.valor,0) ELSE 0 END) AS ibc_salud_pension,
-      SUM(CASE WHEN cdi.indicador_id = 16 THEN COALESCE(n.valor,0) ELSE 0 END) AS ibc_arl,
-      SUM(CASE WHEN cdi.indicador_id IN (17,31) THEN COALESCE(n.valor,0) ELSE 0 END) AS ibc_caja
+      SUM(CASE WHEN cdi.indicador_id = 6 THEN
+        CASE
+          WHEN v.idvacaciones IS NOT NULL AND COALESCE(v.diasvac, 0) > 0
+          THEN ROUND(
+            COALESCE(n.valor, 0)::numeric
+            * GREATEST(0, (LEAST(v.ultimodiavac, %s) - GREATEST(v.fechainicialvac, %s))::int + 1)
+            / v.diasvac::numeric
+          )
+          ELSE COALESCE(n.valor, 0)
+        END
+      ELSE 0 END) AS ibc_salud_pension,
+      SUM(CASE WHEN cdi.indicador_id = 16 THEN
+        CASE
+          WHEN v.idvacaciones IS NOT NULL AND COALESCE(v.diasvac, 0) > 0
+          THEN ROUND(
+            COALESCE(n.valor, 0)::numeric
+            * GREATEST(0, (LEAST(v.ultimodiavac, %s) - GREATEST(v.fechainicialvac, %s))::int + 1)
+            / v.diasvac::numeric
+          )
+          ELSE COALESCE(n.valor, 0)
+        END
+      ELSE 0 END) AS ibc_arl,
+      SUM(CASE WHEN cdi.indicador_id = 17 THEN
+        CASE
+          WHEN v.idvacaciones IS NOT NULL AND COALESCE(v.diasvac, 0) > 0
+          THEN ROUND(
+            COALESCE(n.valor, 0)::numeric
+            * GREATEST(0, (LEAST(v.ultimodiavac, %s) - GREATEST(v.fechainicialvac, %s))::int + 1)
+            / v.diasvac::numeric
+          )
+          ELSE COALESCE(n.valor, 0)
+        END
+      ELSE 0 END) AS ibc_caja
     FROM public.nomina n
     JOIN public.crearnomina cn ON cn.idnomina = n.idnomina_id
     JOIN public.anos a ON a.idano = cn.anoacumular_id
     JOIN public.contratos c ON c.idcontrato = n.idcontrato_id AND c.id_empresa_id = %s
     JOIN public.conceptosdenomina cd ON cd.idconcepto = n.idconcepto_id
     JOIN public.conceptosdenomina_indicador cdi ON cdi.conceptosdenomina_id = cd.idconcepto
+    LEFT JOIN public.vacaciones v
+           ON v.idvacaciones = n.control
+          AND v.id_empresa_id = %s
     WHERE cn.id_empresa_id = %s
       AND cn.mesacumular = %s
       AND a.ano = %s
       AND cn.estadonomina = FALSE
       AND n.estadonomina = 2
       AND n.idcontrato_id = ANY(%s)
-      AND cdi.indicador_id IN (6,16,17,31)
+      AND cdi.indicador_id IN (6,16,17)
     GROUP BY n.idcontrato_id
     ORDER BY n.idcontrato_id;
     """
     with connection.cursor() as cursor:
-        cursor.execute(sql, [empresa_id, empresa_id, mesacumular, ano, ids_contrato])
+        cursor.execute(
+            sql,
+            [
+                fin_mes, ini_mes,   # prorrateо ind. 6
+                fin_mes, ini_mes,   # prorrateo ind. 16
+                fin_mes, ini_mes,   # prorrateo ind. 17
+                empresa_id,         # JOIN contratos
+                empresa_id,         # LEFT JOIN vacaciones
+                empresa_id,         # WHERE cn.id_empresa_id
+                mesacumular, ano, ids_contrato,
+            ],
+        )
         rows = cursor.fetchall()
 
     out = {}
