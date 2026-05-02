@@ -17,6 +17,14 @@ MESES_MAP = {
     'JULIO': 7, 'AGOSTO': 8, 'SEPTIEMBRE': 9, 'OCTUBRE': 10, 'NOVIEMBRE': 11, 'DICIEMBRE': 12,
 }
 
+# Columna «variable»: misma mecánica que Ley 1393 (indicador base1393, id=12, vía
+# conceptosdenomina_indicador.indicador_id — ver PROJECT_CONTEXT y payload_builder
+# _get_exceso_ley_1393_por_contrato) y que VST en PILA (indicador id=29,
+# _get_vst_por_contrato_mes): sumatoria de nomina.valor para conceptos enlazados a ese
+# indicador en `indicadores` (el vínculo explícito es conceptosdenomina_indicador).
+INDICADOR_VARIABLE_VST_PK = 29
+FILTER_VARIABLE_NOMINA = Q(idconcepto__indicador__pk=INDICADOR_VARIABLE_VST_PK)
+
 @login_required
 @role_required('accountant')
 def social_security_provision(request):
@@ -65,10 +73,7 @@ def social_security_provision(request):
                     base_ss=Sum('valor', filter=Q(idconcepto__indicador__nombre='basesegsocial')),
                     base_arl=Sum('valor', filter=Q(idconcepto__indicador__nombre='basearl')),
                     base_caja=Sum('valor', filter=Q(idconcepto__indicador__nombre='basecaja')),
-                    variable=Sum(
-                        'valor',
-                        filter=Q(idconcepto__indicador__nombre='extras') | Q(idconcepto__indicador__nombre='comisiones')
-                    ),
+                    variable=Sum('valor', filter=FILTER_VARIABLE_NOMINA),
                 )
             )
 
@@ -84,6 +89,7 @@ def social_security_provision(request):
                     'base_ss': Decimal(str(b['base_ss'] or 0)),
                     'base_arl': Decimal(str(b['base_arl'] or 0)),
                     'base_caja': Decimal(str(b['base_caja'] or 0)),
+                    'variable': Decimal(str(b['variable'] or 0)),
                 }
                 for b in bases_por_contrato
             }
@@ -409,11 +415,7 @@ def calcular_seguridad_social(idempresa, mst_init, year_init):
             base_ss=Sum('valor', filter=Q(idconcepto__indicador__nombre='basesegsocial')),
             base_arl=Sum('valor', filter=Q(idconcepto__indicador__nombre='basearl')),
             base_caja=Sum('valor', filter=Q(idconcepto__indicador__nombre='basecaja')),
-            variable=Sum(
-                'valor',
-                filter=Q(idconcepto__indicador__nombre='extras') |
-                       Q(idconcepto__indicador__nombre='comisiones')
-            ),
+            variable=Sum('valor', filter=FILTER_VARIABLE_NOMINA),
         )
     )
 

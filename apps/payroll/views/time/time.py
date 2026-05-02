@@ -427,17 +427,28 @@ def time_list(request):
             e['Vhedf'] = e['hedf'] * aux * hedf_factor 
             
             e['henf'] = round(e['henf'], 3)
-            e['vhenf'] = e['henf'] * aux * henf_factor 
+            e['Vhenf'] = e['henf'] * aux * henf_factor
 
             e['rn'] = round(e['rn'], 3)
-            e['Vrn'] = e['rn'] * aux * rn_factor 
-            
+            e['Vrn'] = e['rn'] * aux * rn_factor
+
             e['rnf'] = round(e['rnf'], 3)
-            e['Vrnf'] = e['rnf'] * aux * rdf_factor 
-            
-            
+            e['Vrnf'] = e['rnf'] * aux * rdf_factor
+
             e['dyf'] = round(e['dyf'], 3)
-            e['Vdyf'] = e['dyf'] * aux * rdf_factor 
+            e['Vdyf'] = e['dyf'] * aux * rdf_factor
+
+            # Total valor extras (LOGICA_LIQUIDACION_TIEMPOS.md §8.3)
+            e['ValorExtras'] = round(
+                (e.get('Vhed') or 0)
+                + (e.get('Vhen') or 0)
+                + (e.get('Vhedf') or 0)
+                + (e.get('Vhenf') or 0)
+                + (e.get('Vrn') or 0)
+                + (e.get('Vdyf') or 0)
+                + (e.get('Vrnf') or 0),
+                2,
+            )
             
     
     ##! ===================== Grabar =====================

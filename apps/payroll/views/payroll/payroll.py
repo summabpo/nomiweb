@@ -170,6 +170,8 @@ def payroll_closet(request,id):
                         guardar_historico_nomina(data)
 
                 if data.idconcepto.codigo == 20 :
+                    # Solo estado de la fila de liquidación: el concepto 20 también se usa para
+                    # cesantías sin retiro; no se debe marcar el contrato como retirado aquí.
                     liquidacion = get_object_or_404(Liquidacion, idliquidacion = data.control )
                     liquidacion.estadoliquidacion = 2
                     liquidacion.save(update_fields=['estadoliquidacion'])

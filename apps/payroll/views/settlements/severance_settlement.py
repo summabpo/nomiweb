@@ -190,6 +190,21 @@ def settlement_list_payroll(request, id,url):
         liquidacion.estadoliquidacion = 3
         liquidacion.save(update_fields=['estadoliquidacion'])
 
+        # Contrato: mismo criterio que companies/settlementliststate — listado activos y
+        # liquidaciones usan estadocontrato=1; si no se actualiza, sigue saliendo en nómina.
+        contrato = liquidacion.idcontrato
+        contrato.estadocontrato = 2
+        contrato.estadoliquidacion = 2
+        if liquidacion.fechafincontrato:
+            contrato.fechafincontrato = liquidacion.fechafincontrato
+        contrato.save(
+            update_fields=[
+                'estadocontrato',
+                'estadoliquidacion',
+                'fechafincontrato',
+            ]
+        )
+
         # 🔹 Respuesta Unpoly
         response = HttpResponse()
         response['X-Up-Accept-Layer'] = 'true'
