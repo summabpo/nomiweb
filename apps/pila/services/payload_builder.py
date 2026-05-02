@@ -1091,13 +1091,17 @@ def _generar_registros_empleado(
     
     # 1. Líneas de vacaciones, SLN y SUSP
     # Regla IBC por subsistema:
-    # - Salud, pensión, ARL: IBC mes anterior (último salario reportado antes de la novedad)
-    # - CCF (parafiscales): VAC = IBC mes actual proporcional por días; SLN/SUSP = 0 (sin pago)
+    # - Salud, pensión, ARL: IBC mes anterior proporcional por días (días/30)
+    # - CCF (parafiscales) VAC: misma lógica que salud/pensión — IBC caja mes anterior × (días/30)
+    # - SLN/SUSP: CCF = 0 (sin pago)
     for nov_vac in novedades_vac:
         if nov_vac["codigo"] == "VAC":  # Solo vacaciones tipo 1
             dias_vac = nov_vac["dias"]
-            # CCF: IBC mes ACTUAL proporcional (valor pagado por esos días)
-            ibc_ccf_vac = int((ibc_actual["caja"] * Decimal(dias_vac) / Decimal(30)).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+            ibc_ccf_vac = int(
+                (ibc_anterior["caja"] * Decimal(dias_vac) / Decimal(30)).quantize(
+                    Decimal("1"), rounding=ROUND_HALF_UP
+                )
+            )
             # Salud / pensión / ARL: IBC mes ANTERIOR proporcional por días (dias/30)
             factor_vac = Decimal(dias_vac) / Decimal(30)
             ibc_vac_salud = int((ibc_anterior["salud_pension"] * factor_vac).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
